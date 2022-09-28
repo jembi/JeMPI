@@ -1,0 +1,20 @@
+#!/bin/bash
+
+export PROJECT_DIR=$(builtin cd ../../; pwd)
+export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
+export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
+export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
+
+#DON'T CHANGE
+export NODE1=docker-desktop
+
+# localhost IP address
+#export NODE1_IP=192.168.110.4
+# localhost IP address KIM
+export NODE1_IP=192.168.1.188
+
+ # DON'T CHANGE
+export REGISTRY_NODE_IP=localhost:5000/v2
+
+envsubst < conf-env-1-mac.template > conf.env
+#envsubst < pom-properties.template > ../../../pom.properties

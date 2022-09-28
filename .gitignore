@@ -1,0 +1,8 @@
+.vscode
+.idea
+.DS_Store
+*.iml
+*.tgz
+*.swp
+*.args
+sandbox

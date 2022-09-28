@@ -1,0 +1,95 @@
+{
+  "fields": [
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "name_given",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.8,
+      "u": 0.1
+    },
+    {
+      "fieldName": "name_father",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.7,
+      "u": 0.2
+    },
+    {
+      "fieldName": "name_fathers_father",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.7,
+      "u": 0.2
+    },
+    {
+      "fieldName": "name_mother",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.7,
+      "u": 0.2
+    },
+    {
+      "fieldName": "name_mothers_father",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.7,
+      "u": 0.2
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "m": 0.8,
+      "u": 0.5
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "m": 0.8,
+      "u": 0.2
+    },
+    {
+      "fieldName": "city",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.8,
+      "u": 0.2
+    },
+    {
+      "fieldName": "phone_number",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexDocument": "@index(exact,trigram)",
+      "m": 0.8,
+      "u": 0.2
+    }
+  ],
+  "rules": {
+    "QUERY_DETERMINISTIC_CANDIDATES": {
+      "vars": [
+        "name_given",
+        "name_father",
+        "phone_number"
+      ],
+      "text": "eq(name_given) and eq(name_father) and eq(phone_number)"
+    },
+    "QUERY_MATCH_GOLDEN_RECORDS_BY_DISTANCE": {
+      "vars": [
+        "name_given",
+        "name_father",
+        "city"
+      ],
+      "text": "match(name_given,3) and match(name_father,3) or match(name_given,3) and match(city,3) or match(name_father,3) and match(city,3)"
+    },
+    "QUERY_MATCH_GOLDEN_RECORDS_BY_PHONE_NUMBER": {
+      "vars": [
+        "phone_number"
+      ],
+      "text": "match(phone_number,3)"
+    }
+  }
+}
