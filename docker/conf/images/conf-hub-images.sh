@@ -13,7 +13,7 @@ export PORTAINER_IMAGE=portainer/portainer-ce:linux-amd64
 export ZOOKEEPER_IMAGE=bitnami/zookeeper:3.8.0
 
 # https://registry.hub.docker.com/r/bitnami/kafka/tags
-export KAFKA_IMAGE=bitnami/kafka:3.2.1
+export KAFKA_IMAGE=bitnami/kafka:3.2.3
 
 # https://registry.hub.docker.com/r/dgraph/dgraph/tags
 export DGRAPH_IMAGE=dgraph/dgraph:v21.12.0

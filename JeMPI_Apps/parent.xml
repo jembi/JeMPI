@@ -88,13 +88,13 @@
         <version.com.opencsv.opencsv>5.7.0</version.com.opencsv.opencsv>
 
         <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core -->
-        <version.com.datastax.oss.java-driver-core>4.14.1</version.com.datastax.oss.java-driver-core>
+        <version.com.datastax.oss.java-driver-core>4.15.0</version.com.datastax.oss.java-driver-core>
 
         <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-query-builder -->
-        <version.com.datastax.oss.java-driver-query-builder>4.14.1</version.com.datastax.oss.java-driver-query-builder>
+        <version.com.datastax.oss.java-driver-query-builder>4.15.0</version.com.datastax.oss.java-driver-query-builder>
 
         <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-mapper-runtime -->
-        <version.com.datastax.oss.java-driver-mapper-runtimer>4.14.1</version.com.datastax.oss.java-driver-mapper-runtimer>
+        <version.com.datastax.oss.java-driver-mapper-runtimer>4.15.0</version.com.datastax.oss.java-driver-mapper-runtimer>
 
 
         <javac.executable>${JAVA_HOME}/bin/javac</javac.executable>
@@ -166,7 +166,7 @@
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            2.7.3
+            2.7.4
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
