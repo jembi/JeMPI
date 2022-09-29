@@ -89,7 +89,7 @@ public final class CustomMain {
          assert response.body() != null;
          var json = response.body().string();
          LOGGER.info("{}", json);
-         System.out.println(json);
+//         System.out.println(json);
          return OBJECT_MAPPER.readValue(json, GoldenRecordDocuments.class);
       }
    }
@@ -130,21 +130,21 @@ public final class CustomMain {
          });
       }
 
-      System.out.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                        rot.uid(), rot.auxId(),
-                        rot.givenName(), rot.familyName(), rot.gender(),
-                        rot.dob(),
-                        rot.phoneNumber(), rot.nationalId());
-      goldenRecord.mpiEntityList().forEach(mpiEntity -> {
-         final var entity = mpiEntity.entity();
-         System.out.format(Locale.ENGLISH,
-                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-                           entity.uid(), entity.auxId(),
-                           entity.givenName(), entity.familyName(), entity.gender(),
-                           entity.dob(),
-                           entity.phoneNumber(), entity.nationalId(),
-                           mpiEntity.score());
-      });
+//      System.out.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
+//                        rot.uid(), rot.auxId(),
+//                        rot.givenName(), rot.familyName(), rot.gender(),
+//                        rot.dob(),
+//                        rot.phoneNumber(), rot.nationalId());
+//      goldenRecord.mpiEntityList().forEach(mpiEntity -> {
+//         final var entity = mpiEntity.entity();
+//         System.out.format(Locale.ENGLISH,
+//                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
+//                           entity.uid(), entity.auxId(),
+//                           entity.givenName(), entity.familyName(), entity.gender(),
+//                           entity.dob(),
+//                           entity.phoneNumber(), entity.nationalId(),
+//                           mpiEntity.score());
+//      });
 
    }
 
@@ -199,11 +199,11 @@ public final class CustomMain {
                maxGoldenRecordCount = n;
             }
          }
-         System.out.printf("%s %d%n", k, v.size());
+//         System.out.printf("%s %d%n", k, v.size());
          v.forEach(gr -> {
-            System.out.printf("  %s%n", gr.id);
+//            System.out.printf("  %s%n", gr.id);
             gr.member.forEach(m -> {
-               System.out.printf("    %s%n", m);
+//               System.out.printf("    %s%n", m);
                if (m.substring(0, 12).equals(k)) {
                   falseNegatives[0] += 1;
                } else {
