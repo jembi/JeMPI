@@ -20,7 +20,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
     - JeMPI
     - JeMPI_TestData
 - Requirements
-  - ```ping `hostname``` must ping a LAN IP address (not 127.x.x.x) 
+  - ```ping `hostname` ``` must ping a LAN IP address (not 127.x.x.x) 
 - Run
   1. **_\<base>/JeMPI/docker/conf/env_**
      1. ```/create-env-linux-1-64.sh```
