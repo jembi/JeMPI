@@ -17,8 +17,8 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
 ### Installation
 - Directory structure
   - \<base>
-    - JeMPI
-    - JeMPI_TestData
+    - JeMPI           - ```git@github.com:jembi/JeMPI.git```
+    - JeMPI_TestData  - ```git@github.com:jembi/JeMPI_TestData.git```
 - Requirements
   - ```ping `hostname` ``` must ping a LAN IP address (not 127.x.x.x) 
 - Run
