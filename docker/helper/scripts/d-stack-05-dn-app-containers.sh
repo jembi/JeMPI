@@ -27,12 +27,5 @@ pushd .
     fi
   done
 
-  #docker service scale ${STACK_NAME}_test-01=0
-  #docker service scale ${STACK_NAME}_staging-01=0
-  #docker service scale ${STACK_NAME}_controller=0
-  #docker service scale ${STACK_NAME}_em=0
-  #docker service scale ${STACK_NAME}_linker=0
-  #docker service scale ${STACK_NAME}_api=0
-
 popd
 

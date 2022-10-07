@@ -44,16 +44,16 @@
         <version.org.apache.commons.commons-lang3>3.12.0</version.org.apache.commons.commons-lang3>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
-        <version.org.apache.commons.commons-text>1.9</version.org.apache.commons.commons-text>
+        <version.org.apache.commons.commons-text>1.10.0</version.org.apache.commons.commons-text>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
         <version.org.apache.commons.commons-csv>1.9.0</version.org.apache.commons.commons-csv>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
-        <version.org.apache.kafka.kafka-clients>3.2.3</version.org.apache.kafka.kafka-clients>
+        <version.org.apache.kafka.kafka-clients>3.3.1</version.org.apache.kafka.kafka-clients>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
-        <version.org.apache.kafka.kafka-streams>3.2.3</version.org.apache.kafka.kafka-streams>
+        <version.org.apache.kafka.kafka-streams>3.3.1</version.org.apache.kafka.kafka-streams>
 
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
         <version.org.apache.logging.log4j.log4j-api>2.19.0</version.org.apache.logging.log4j.log4j-api>
@@ -74,6 +74,9 @@
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
         <version.com.fasterxml.jackson.core.jackson-databind>2.13.4
         </version.com.fasterxml.jackson.core.jackson-databind>
+
+        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-base -->
+        <version.ca.uhn.hapi.fhir>6.1.1</version.ca.uhn.hapi.fhir>
 
         <!-- https://mvnrepository.com/artifact/io.dgraph/dgraph4j -->
         <version.io.dgraph.dgraph4j>21.12.0</version.io.dgraph.dgraph4j>
@@ -151,7 +154,7 @@
 
         <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
         <version.net.alchim31.maven.scala-maven-plugin>
-            4.7.1
+            4.7.2
         </version.net.alchim31.maven.scala-maven-plugin>
 
          <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->

@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk:17.0.4.1
+FROM eclipse-temurin:17.0.4.1_1-jre
 
 ADD Test_01-1.0-SNAPSHOT-spring-boot.jar /app/Test_01-1.0-SNAPSHOT-spring-boot.jar
 
