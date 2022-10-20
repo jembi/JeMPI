@@ -1,4 +1,3 @@
-
 # https://docs.docker.com/registry/
 # https://registry.hub.docker.com/_/registry?tab=tags
 export REGISTRY_IMAGE=registry:2
@@ -26,3 +25,6 @@ export RATEL_IMAGE=dgraph/ratel:v21.12.0
 
 # https://hub.docker.com/r/bitnami/cassandra/tags
 export CASSANDRA_IMAGE=bitnami/cassandra:4.0.6
+
+# https://hub.docker.com/r/prom/prometheus/tags
+export PROMETHEUS_IMAGE=prom/prometheus:v2.39.0
