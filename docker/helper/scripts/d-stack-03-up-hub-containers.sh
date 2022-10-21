@@ -11,9 +11,6 @@ cd ${SCRIPT_DIR}/../..
 
 source ./0-conf.env
 
-# docker service scale ${STACK_NAME}_cassandra-1=${SCALE_CASSANDRA_1}
-# docker service scale ${STACK_NAME}_cassandra-2=${SCALE_CASSANDRA_2}
-# docker service scale ${STACK_NAME}_cassandra-3=${SCALE_CASSANDRA_3}
 docker service scale ${STACK_NAME}_kafka-1=${SCALE_KAFKA_1}
 docker service scale ${STACK_NAME}_kafka-2=${SCALE_KAFKA_2}
 docker service scale ${STACK_NAME}_kafka-3=${SCALE_KAFKA_3}
@@ -26,7 +23,6 @@ docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 docker service scale ${STACK_NAME}_prom=${SCALE_PROMETHEUS}
 
 pushd helper/topics
-#   ./topics-delete.sh
 ./topics-create.sh
 ./topics-list.sh
 popd

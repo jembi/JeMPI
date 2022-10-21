@@ -687,7 +687,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       resources:
         limits:
           cpus: "2.0"
@@ -783,3 +783,32 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_API}
     
+  prometheus:
+    image: ${REGISTRY_NODE_IP}/${PROMETHEUS_IMAGE}
+    user: root
+    hostname: "prometheus"
+    networks:
+    - backend-cassandra
+    - backend-kafka
+    - backend-dgraph
+    - frontend-api
+    ports:
+    - published: 9090
+      target: 9090
+      protocol: tcp
+      mode: host      
+    volumes:
+    - type: bind
+      source: ${DATA_PROMETHEUS_DIR}/prometheus.yml
+      target: /etc/prometheus/prometheus.yml
+      read_only: true
+    deploy:
+      replicas: ${SCALE_PROMETHEUS}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_PROMETHEUS}

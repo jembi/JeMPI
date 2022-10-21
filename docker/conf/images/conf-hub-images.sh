@@ -27,4 +27,4 @@ export RATEL_IMAGE=dgraph/ratel:v21.12.0
 export CASSANDRA_IMAGE=bitnami/cassandra:4.0.6
 
 # https://hub.docker.com/r/prom/prometheus/tags
-export PROMETHEUS_IMAGE=prom/prometheus:v2.39.0
+export PROMETHEUS_IMAGE=prom/prometheus:v2.39.1
