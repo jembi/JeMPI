@@ -32,6 +32,7 @@ cp ./conf/cassandra/cassandra-3.yaml ${DATA_CASSANDRA_3_DIR}/cassandra.yaml
 
 mkdir -p ${DATA_PROMETHEUS_DIR}/data
 cp ./conf/prometheus/prometheus.yml ${DATA_PROMETHEUS_DIR}/prometheus.yml
+cp ./conf/prometheus/daemon.json ${DATA_PROMETHEUS_DIR}/daemon.json
 
 mkdir -p ${DATA_DIR_JOURNAL}/conf
 rm -rf ${DATA_DIR_JOURNAL}/logs

@@ -22,7 +22,7 @@ docker service scale ${STACK_NAME}_alpha3=${SCALE_ALPHA3}
 docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 echo ${STACK_NAME}_ratel
 echo ${SCALE_RATEL}
-docker service scale ${STACK_NAME}_prom=${SCALE_PROMETHEUS}
+docker service scale ${STACK_NAME}_prometheus=${SCALE_PROMETHEUS}
 
 pushd helper/topics
 ./topics-create.sh
