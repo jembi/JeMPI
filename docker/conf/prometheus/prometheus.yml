@@ -4,8 +4,8 @@ global:
   evaluation_interval: 15s 
 
   # Add label to any time series or alerts when communicating with external systems
-  external_labels:
-      monitor: 'JeMPI_prom'
+  # external_labels:
+  #     monitor: 'JeMPI_prom'
 
 # Alertmanager configuration
 # alerting:
@@ -30,4 +30,4 @@ scrape_configs:
     metrics_path: /app/logs
 
     static_configs:
-      - targets: ["localhost:9090"]
+      - targets: ["localhost:5000"]

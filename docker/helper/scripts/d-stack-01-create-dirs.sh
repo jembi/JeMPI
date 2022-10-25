@@ -29,6 +29,7 @@ mkdir -p ${DATA_CASSANDRA_3_DIR}/data
 cp ./conf/cassandra/cassandra-1.yaml ${DATA_CASSANDRA_1_DIR}/cassandra.yaml
 cp ./conf/cassandra/cassandra-2.yaml ${DATA_CASSANDRA_2_DIR}/cassandra.yaml
 cp ./conf/cassandra/cassandra-3.yaml ${DATA_CASSANDRA_3_DIR}/cassandra.yaml
+
 mkdir -p ${DATA_PROMETHEUS_DIR}/data
 cp ./conf/prometheus/prometheus.yml ${DATA_PROMETHEUS_DIR}/prometheus.yml
 
@@ -64,8 +65,6 @@ mkdir -p ${DATA_DIR_LINKER}/logs
 mkdir -p ${DATA_DIR_API}/conf
 rm -rf ${DATA_DIR_API}/logs
 mkdir -p ${DATA_DIR_API}/logs
-
-# envsubst < ./conf/mysql/em/init.sql  > ${DATA_MYSQL_EM_INIT_DIR}/init.sql
 
 echo
 
