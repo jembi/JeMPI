@@ -1,5 +1,5 @@
 export NODE1=${NODE1}
-export NODE1_IP=${NODE1_IP}.,
+export NODE1_IP=${NODE1_IP}
 
 export STACK_NAME=JeMPI
 
