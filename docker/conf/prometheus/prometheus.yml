@@ -28,4 +28,8 @@ scrape_configs:
       - targets: ["192.168.0.111:9090"]
   - job_name: "em"
     static_configs:
-      - targets: ["192.168.0.111:90"]
+      - targets: ["em:90"]
+  - job_name: "linker"
+    # metrics_path: "/JeMPI/mu"
+    static_configs:
+      - targets: ["linker:3000"]

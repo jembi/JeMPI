@@ -21,6 +21,10 @@ networks:
     name: frontend-api
     driver: overlay
     attachable: true
+  backend-prometheus:
+    name: backend-prometheus
+    driver: overlay
+    attachable: true
 
 volumes:
   portainer_data: 
@@ -676,6 +680,7 @@ services:
     networks:
     - backend-kafka
     - backend-cassandra
+    - backend-prometheus
     ports:
     - published: 90
       target: 90
@@ -716,6 +721,7 @@ services:
     - backend-kafka
     - backend-dgraph
     - backend-cassandra
+    - backend-prometheus
     ports:
     - published: 50010
       target: 50000
@@ -793,10 +799,7 @@ services:
     user: root
     hostname: "prometheus"
     networks:
-    - backend-cassandra
-    - backend-kafka
-    - backend-dgraph
-    - frontend-api
+    - backend-prometheus
     ports:
     - published: 9090
       target: 9090
