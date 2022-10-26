@@ -810,10 +810,6 @@ services:
       source: ${DATA_PROMETHEUS_DIR}/prometheus.yml
       target: /etc/prometheus/prometheus.yml
       read_only: true
-    - type: bind
-      source: ${DATA_PROMETHEUS_DIR}/daemon.json
-      target: /etc/docker/daemon.json
-      read_only: true
     deploy:
       replicas: 0
       update_config:

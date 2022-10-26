@@ -1,11 +1,10 @@
 # my global config
 global:
-  scrape_interval: 15s 
-  evaluation_interval: 15s 
+  scrape_interval: 60s 
+  evaluation_interval: 60s 
 
-  # Add label to any time series or alerts when communicating with external systems
-  # external_labels:
-  #     monitor: 'JeMPI_prom'
+  external_labels:
+      monitor: 'JeMPI_prom'
 
 # Alertmanager configuration
 # alerting:
@@ -19,8 +18,6 @@ rule_files:
   # - "/etc/prometheus/rules/alert_rules.yml"
   # - "/etc/prometheus/rules/record_rules.yml"
 
-# A scrape configuration containing exactly one endpoint to scrape:
-# Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: "prom"
@@ -28,8 +25,25 @@ scrape_configs:
       - targets: ["192.168.0.111:9090"]
   - job_name: "em"
     static_configs:
-      - targets: ["em:90"]
+      - targets: ["192.168.0.111:90"]
   - job_name: "linker"
     # metrics_path: "/JeMPI/mu"
     static_configs:
-      - targets: ["linker:3000"]
+      - targets: ["192.168.0.111:3000"]
+  - job_name: "experiment"
+    static_configs:
+      - targets: ["prometheus:90"]
+
+  # create a job for Docker daemons
+  - job_name: "docker_swarm"
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: nodes
+    relabel_configs:
+      # Fetch metrics on port 9323.
+      - source_labels: [__meta_dockerswarm_node_address]
+        target_label: __address__
+        replacement: $1:9323
+      # Set hostname as instance label
+      - source_labels: [__meta_dockerswarm_node_hostname]
+        target_label: instance

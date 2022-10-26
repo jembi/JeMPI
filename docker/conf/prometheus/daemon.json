@@ -1,7 +1,0 @@
-{
-  "insecure-registries":["DELL-BRUCED:5000"],
-  "metrics-addr":"127.0.0.1:9323",
-  "experimental":true,
-  "mtu":1492,
-  "features": { "buildkit": true }
-}
