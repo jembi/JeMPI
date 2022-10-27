@@ -21,13 +21,13 @@ rule_files:
 scrape_configs:
   - job_name: "prom"
     static_configs:
-      - targets: ["192.168.0.111:9090"]
+      - targets: ["${NODE1_IP}:9090"]
   - job_name: "em"
     static_configs:
-      - targets: ["192.168.0.111:90"]
+      - targets: ["${NODE1_IP}:90"]
   - job_name: "linker"
     static_configs:
-      - targets: ["192.168.0.111:3000"]
+      - targets: ["${NODE1_IP}:3000"]
   - job_name: "experiment_em_1"
     static_configs:
       - targets: ["prometheus:90"]
