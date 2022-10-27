@@ -88,7 +88,7 @@
         <version.commons-codec.commons-codec>1.15</version.commons-codec.commons-codec>
 
         <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
-        <version.com.opencsv.opencsv>5.7.0</version.com.opencsv.opencsv>
+        <version.com.opencsv.opencsv>5.7.1</version.com.opencsv.opencsv>
 
         <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core -->
         <version.com.datastax.oss.java-driver-core>4.15.0</version.com.datastax.oss.java-driver-core>
