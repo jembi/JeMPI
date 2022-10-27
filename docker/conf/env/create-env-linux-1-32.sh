@@ -76,3 +76,4 @@ export API_RESERVATION_MEMORY=512M
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
 
 envsubst <conf-env-1-pc.template >conf.env
+envsubst <prometheus.template >../prometheus/prometheus.yml
