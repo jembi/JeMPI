@@ -810,6 +810,10 @@ services:
       source: ${DATA_PROMETHEUS_DIR}/prometheus.yml
       target: /etc/prometheus/prometheus.yml
       read_only: true
+    - type: bind 
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      read_only: true
     deploy:
       replicas: ${SCALE_PROMETHEUS}
       update_config:
