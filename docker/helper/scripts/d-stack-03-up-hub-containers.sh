@@ -20,8 +20,6 @@ docker service scale ${STACK_NAME}_alpha1=${SCALE_ALPHA1}
 docker service scale ${STACK_NAME}_alpha2=${SCALE_ALPHA2}
 docker service scale ${STACK_NAME}_alpha3=${SCALE_ALPHA3}
 docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
-echo ${STACK_NAME}_ratel
-echo ${SCALE_RATEL}
 docker service scale ${STACK_NAME}_prometheus=${SCALE_PROMETHEUS}
 
 pushd helper/topics
