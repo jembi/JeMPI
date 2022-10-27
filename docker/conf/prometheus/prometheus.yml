@@ -19,29 +19,26 @@ rule_files:
   # - "/etc/prometheus/rules/record_rules.yml"
 
 scrape_configs:
-  - job_name: "prom"
-    static_configs:
-      - targets: ["192.168.2.14:9090"]
-  - job_name: "em"
-    static_configs:
-      - targets: ["192.168.2.14:90"]
-  - job_name: "linker"
-    static_configs:
-      - targets: ["192.168.2.14:3000"]
-  - job_name: "experiment_em_1"
-    static_configs:
-      - targets: ["prometheus:90"]
+  # - job_name: "prom"
+  #   static_configs:
+  #     - targets: ["192.168.2.14:9090"]
+  # - job_name: "broken_prom"
+  #   static_configs:
+  #     - targets: ["prometheus:9090"]
+  # - job_name: "em"
+  #   static_configs:
+  #     - targets: ["em:90"]
+  # - job_name: "linker"
+  #   static_configs:
+  #     - targets: ["linker:50000"]
   # create a job for Docker Swarm containers
   - job_name: "docker_swarm"
-    # dockerswarm_sd_configs:
-    #   - host: unix:///var/run/docker.sock
-    #     role: tasks
-    static_configs:
-      - targets:
-          - "192.168.2.14:5000"
-    # relabel_configs:
-    #   # Only keep containers that should be running.
-    #   - source_labels: [__meta_dockerswarm_task_desired_state]
-    #     regex: running
-    #     action: keep
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: tasks
+    relabel_configs:
+      # Only keep containers that should be running.
+      - source_labels: [__meta_dockerswarm_task_desired_state]
+        regex: running
+        action: keep
     
