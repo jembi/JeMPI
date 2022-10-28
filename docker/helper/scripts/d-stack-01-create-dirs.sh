@@ -15,9 +15,19 @@ docker system prune --volumes
 
 sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
-mkdir -p ${DATA_KAFKA_1_DIR}
-mkdir -p ${DATA_KAFKA_2_DIR}
-mkdir -p ${DATA_KAFKA_3_DIR}
+mkdir -p ${DATA_KAFKA_1_DIR}/data
+mkdir -p ${DATA_KAFKA_1_DIR}/conf
+mkdir -p ${DATA_KAFKA_2_DIR}/data
+mkdir -p ${DATA_KAFKA_2_DIR}/conf
+mkdir -p ${DATA_KAFKA_3_DIR}/data
+mkdir -p ${DATA_KAFKA_3_DIR}/conf
+cp ./conf/prometheus/kafka_prometheus.yml ${DATA_KAFKA_1_DIR}/conf/.
+cp ./conf/prometheus/kafka_prometheus.yml ${DATA_KAFKA_2_DIR}/conf/.
+cp ./conf/prometheus/kafka_prometheus.yml ${DATA_KAFKA_3_DIR}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_KAFKA_1_DIR}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_KAFKA_2_DIR}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_KAFKA_3_DIR}/conf/.
+
 mkdir -p ${DATA_DGRAPH_ZERO_DIR}
 mkdir -p ${DATA_DGRAPH_ALPHA1_DIR}
 mkdir -p ${DATA_DGRAPH_ALPHA2_DIR}
@@ -31,7 +41,10 @@ cp ./conf/cassandra/cassandra-2.yaml ${DATA_CASSANDRA_2_DIR}/cassandra.yaml
 cp ./conf/cassandra/cassandra-3.yaml ${DATA_CASSANDRA_3_DIR}/cassandra.yaml
 
 mkdir -p ${DATA_PROMETHEUS_DIR}/data
+mkdir -p ${DATA_PROMETHEUS_DIR}/conf
 cp ./conf/prometheus/prometheus.yml ${DATA_PROMETHEUS_DIR}/prometheus.yml
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_PROMETHEUS_DIR}/jmx_prometheus_javaagent-0.17.2.jar
+cp ./conf/prometheus/kafka_prometheus.yml ${DATA_PROMETHEUS_DIR}/kafka_prometheus.yml
 
 mkdir -p ${DATA_DIR_JOURNAL}/conf
 rm -rf ${DATA_DIR_JOURNAL}/logs
