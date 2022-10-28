@@ -247,7 +247,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA1}
-    command: dgraph alpha --my=alpha1:7080 --zero=zero:5080 --security whitelist=0.0.0.0/0 --lambda url=http://lambda:8686/graphql-worker --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha1:7080 --zero=zero:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
   alpha2:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
@@ -282,7 +282,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA2}
-    command: dgraph alpha --my=alpha2:7081 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 1 --lambda url=http://lambda:8686/graphql-worker --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha2:7081 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
   alpha3:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
@@ -317,38 +317,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA3}
-    command: dgraph alpha --my=alpha3:7082 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 2 --lambda url=http://lambda:8686/graphql-worker --telemetry "sentry=false;"
-
-  lambda:
-    image: ${REGISTRY_NODE_IP}/${DGRAPH_LAMBDA_IMAGE}
-    ports:
-    - published: 8686
-      target: 8686
-      protocol: tcp
-      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-    networks:
-    - backend-dgraph
-    environment:
-      DGRAPH_URL: http://alpha1:8080
-    volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_LAMBDA_DIR}
-      target: /app/script/script.js:ro
-    deploy:
-      replicas: 0
-      resources:
-        limits:
-          memory: ${LAMBDA_LIMIT_MEMORY}
-        reservations:
-          memory: ${LAMBDA_RESERVATION_MEMORY}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_LAMBDA}
+    command: dgraph alpha --my=alpha3:7082 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   ratel:
     image: ${REGISTRY_NODE_IP}/${RATEL_IMAGE}

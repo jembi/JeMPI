@@ -13,13 +13,10 @@ export PORTAINER_IMAGE=portainer/portainer-ce:linux-amd64
 export KAFKA_IMAGE=bitnami/kafka:3.3.1
 
 # https://registry.hub.docker.com/r/dgraph/dgraph/tags
-export DGRAPH_IMAGE=dgraph/dgraph:v21.12.0
-
-# https://registry.hub.docker.com/r/dgraph/dgraph-lambda/tags
-export DGRAPH_LAMBDA_IMAGE=dgraph/dgraph-lambda:1.4.0
+export DGRAPH_IMAGE=dgraph/dgraph:v22.0.0
 
 # https://registry.hub.docker.com/r/dgraph/ratel/tags
-export RATEL_IMAGE=dgraph/ratel:v21.12.0
+export RATEL_IMAGE=dgraph/ratel:v21.03.2
 
 # https://hub.docker.com/r/bitnami/cassandra/tags
 export CASSANDRA_IMAGE=bitnami/cassandra:4.0.7

@@ -13,6 +13,5 @@ docker pull $PORTAINER_AGENT_IMAGE
 docker pull $PORTAINER_IMAGE
 docker pull $KAFKA_IMAGE
 docker pull $DGRAPH_IMAGE
-docker pull $DGRAPH_LAMBDA_IMAGE
 docker pull $RATEL_IMAGE
 docker pull $CASSANDRA_IMAGE
