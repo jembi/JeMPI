@@ -9,11 +9,8 @@ export PORTAINER_AGENT_IMAGE=portainer/agent:linux-amd64
 # https://hub.docker.com/r/portainer/portainer-ce/tags
 export PORTAINER_IMAGE=portainer/portainer-ce:linux-amd64
 
-# https://registry.hub.docker.com/r/bitnami/zookeeper/tags
-export ZOOKEEPER_IMAGE=bitnami/zookeeper:3.8.0
-
 # https://registry.hub.docker.com/r/bitnami/kafka/tags
-export KAFKA_IMAGE=bitnami/kafka:3.2.3
+export KAFKA_IMAGE=bitnami/kafka:3.3.1
 
 # https://registry.hub.docker.com/r/dgraph/dgraph/tags
 export DGRAPH_IMAGE=dgraph/dgraph:v21.12.0
@@ -25,4 +22,4 @@ export DGRAPH_LAMBDA_IMAGE=dgraph/dgraph-lambda:1.4.0
 export RATEL_IMAGE=dgraph/ratel:v21.12.0
 
 # https://hub.docker.com/r/bitnami/cassandra/tags
-export CASSANDRA_IMAGE=bitnami/cassandra:4.0.6
+export CASSANDRA_IMAGE=bitnami/cassandra:4.0.7
