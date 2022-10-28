@@ -65,6 +65,12 @@ services:
     user: root
     networks:
       - backend-kafka
+      - backend-prometheus
+    ports:
+    - target: 1234
+      published: 1234
+      protocol: tcp
+      mode: host
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -79,11 +85,16 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
+      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=1234:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
-        source: ${DATA_KAFKA_1_DIR}
+        source: ${DATA_KAFKA_1_DIR}/data
         target: /bitnami/kafka
         read_only: false
+      - type: bind
+        source: ${DATA_KAFKA_1_DIR}/conf
+        target: /opt/prometheus
+        read_only: true
     deploy:
       mode: replicated
       replicas: ${SCALE_KAFKA_1}
@@ -106,6 +117,12 @@ services:
     user: root
     networks:
       - backend-kafka
+      - backend-prometheus
+    ports:
+    - target: 1235
+      published: 1235
+      protocol: tcp
+      mode: host
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -120,11 +137,16 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes' 
+      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=1235:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
-        source: ${DATA_KAFKA_2_DIR}
+        source: ${DATA_KAFKA_2_DIR}/data
         target: /bitnami/kafka
         read_only: false
+      - type: bind
+        source: ${DATA_KAFKA_2_DIR}/conf
+        target: /opt/prometheus
+        read_only: true
     deploy:
       mode: replicated
       replicas:  ${SCALE_KAFKA_2}
@@ -147,6 +169,12 @@ services:
     user: root
     networks:
       - backend-kafka
+      - backend-prometheus
+    ports:
+    - target: 1236
+      published: 1236
+      protocol: tcp
+      mode: host
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -160,12 +188,17 @@ services:
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
-      ALLOW_PLAINTEXT_LISTENER: 'yes' 
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=1236:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
-        source: ${DATA_KAFKA_3_DIR}
+        source: ${DATA_KAFKA_3_DIR}/data
         target: /bitnami/kafka
         read_only: false
+      - type: bind
+        source: ${DATA_KAFKA_3_DIR}/conf
+        target: /opt/prometheus
+        read_only: true
     deploy:
       mode: replicated
       replicas:  ${SCALE_KAFKA_3}
