@@ -19,18 +19,6 @@ rule_files:
   # - "/etc/prometheus/rules/record_rules.yml"
 
 scrape_configs:
-  - job_name: "prom"
-    static_configs:
-      - targets: ["${NODE1_IP}:9090"]
-  - job_name: "em"
-    static_configs:
-      - targets: ["${NODE1_IP}:90"]
-  - job_name: "linker"
-    static_configs:
-      - targets: ["${NODE1_IP}:3000"]
-  - job_name: "experiment_em_1"
-    static_configs:
-      - targets: ["prometheus:90"]
   # create a job for Docker Swarm containers
   - job_name: "docker_swarm"
     dockerswarm_sd_configs:
