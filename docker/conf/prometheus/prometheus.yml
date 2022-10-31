@@ -29,4 +29,7 @@ scrape_configs:
       - source_labels: [__meta_dockerswarm_task_desired_state]
         regex: running
         action: keep
+      - source_labels: [__meta_dockerswarm_network_name]
+        regex: backend-prometheus
+        action: keep
     
