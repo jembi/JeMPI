@@ -11,7 +11,7 @@ source ./0-conf.env
 source ./conf/images/conf-hub-images.sh
 source ./conf/images/conf-app-images.sh
 
-docker system prune --volumes
+yes | docker system prune --volumes
 
 sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
@@ -74,6 +74,8 @@ mkdir -p ${DATA_DIR_EM}/logs
 mkdir -p ${DATA_DIR_LINKER}/conf
 rm -rf ${DATA_DIR_LINKER}/logs
 mkdir -p ${DATA_DIR_LINKER}/logs
+cp ./conf/prometheus/linker_prometheus.yml ${DATA_DIR_LINKER}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_DIR_LINKER}/conf/.
 
 mkdir -p ${DATA_DIR_API}/conf
 rm -rf ${DATA_DIR_API}/logs
