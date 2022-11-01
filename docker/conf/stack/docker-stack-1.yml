@@ -713,7 +713,7 @@ services:
     networks:
     - backend-kafka
     - backend-cassandra
-    - backend-prometheus
+    # - backend-prometheus
     ports:
     - published: 90
       target: 90
@@ -757,11 +757,11 @@ services:
     - backend-prometheus
     ports:
     - published: 50010
-      target: 50000
+      target: 50010
       protocol: tcp
       mode: host  
-    environment:
-      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=50000:/opt/prometheus/kafka_prometheus.yml -Djava.util.logging.config.file=logging.properties
+    # environment:
+    #   EXTRA_ARGS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.util.logging.config.file=logging.properties -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=50010:/opt/prometheus/linker_prometheus.yml
     volumes:
     - type: bind
       source: $DATA_DIR_LINKER/conf

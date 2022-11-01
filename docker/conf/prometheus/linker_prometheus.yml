@@ -2,4 +2,6 @@
 startDelaySeconds: 20
 lowercaseOutputName: true
 lowercaseOutputLabelNames: true
-ssl: false
+
+rules:
+- pattern: "java.lang.*"
