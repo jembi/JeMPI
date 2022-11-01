@@ -28,7 +28,9 @@ cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_KAFKA_1_DIR}/con
 cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_KAFKA_2_DIR}/conf/.
 cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_KAFKA_3_DIR}/conf/.
 
-mkdir -p ${DATA_DGRAPH_ZERO_DIR}
+mkdir -p ${DATA_DGRAPH_ZERO_DIR}/conf
+cp ./conf/prometheus/dgraph_prometheus.yml ${DATA_DGRAPH_ZERO_DIR}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_DGRAPH_ZERO_DIR}/conf/.
 mkdir -p ${DATA_DGRAPH_ALPHA1_DIR}
 mkdir -p ${DATA_DGRAPH_ALPHA2_DIR}
 mkdir -p ${DATA_DGRAPH_ALPHA3_DIR}
