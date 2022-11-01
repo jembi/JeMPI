@@ -3,6 +3,8 @@
 set -e
 set -u
 
+envsubst <conf/prometheus/prometheus.template >conf/prometheus/prometheus.yml
+
 echo
 echo Down stack
 ./helper/scripts/d-stack-08-rm.sh
