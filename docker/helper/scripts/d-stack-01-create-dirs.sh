@@ -68,10 +68,14 @@ mkdir -p ${DATA_DIR_STAGING_01}/logs
 mkdir -p ${DATA_DIR_CONTROLLER}/conf
 rm -rf ${DATA_DIR_CONTROLLER}/logs
 mkdir -p ${DATA_DIR_CONTROLLER}/logs
+cp ./conf/prometheus/controller_prometheus.yml ${DATA_DIR_CONTROLLER}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_DIR_CONTROLLER}/conf/.
 
 mkdir -p ${DATA_DIR_EM}/conf
 rm -rf ${DATA_DIR_EM}/logs
 mkdir -p ${DATA_DIR_EM}/logs
+cp ./conf/prometheus/em_prometheus.yml ${DATA_DIR_EM}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_DIR_EM}/conf/.
 
 mkdir -p ${DATA_DIR_LINKER}/conf
 rm -rf ${DATA_DIR_LINKER}/logs
@@ -82,6 +86,8 @@ cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_DIR_LINKER}/conf
 mkdir -p ${DATA_DIR_API}/conf
 rm -rf ${DATA_DIR_API}/logs
 mkdir -p ${DATA_DIR_API}/logs
+cp ./conf/prometheus/api_prometheus.yml ${DATA_DIR_API}/conf/.
+cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_DIR_API}/conf/.
 
 echo
 
