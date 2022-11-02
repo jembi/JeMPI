@@ -3,8 +3,10 @@ FROM $JAVA_BASE_IMAGE
 ADD $JAR_FILE /app/$JAR_FILE
 
 RUN printf "#!/bin/bash\n\
-cd /app\n\
-java -server --enable-preview -XX:MaxRAMPercentage=80 -XX:+UseZGC -jar /app/$JAR_FILE\n" > /entrypoint.sh
+    cd /app\n\
+    java -server --enable-preview -XX:MaxRAMPercentage=80 -XX:+UseZGC \
+    -javaagent:/opt/prometheus/${JMX_PROMETHEUS_AGENT}=${JMX_PORT_CONTROLLER}:/opt/prometheus/controller_prometheus.yml \
+    -jar /app/$JAR_FILE\n" > /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
