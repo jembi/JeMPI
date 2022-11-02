@@ -156,6 +156,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Either<LibMPIClientInterface.LinkInfo, List<ExternalLinkCandidate>>
    linkEntity(final String stan, final CustomEntity customEntity, final ExternalLinkRange externalLinkRange,
               final float matchThreshold_) {
+      LOGGER.debug("{}", stan);
       LibMPIClientInterface.LinkInfo linkInfo = null;
       final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
       final var matchThreshold = externalLinkRange != null ? externalLinkRange.high() : matchThreshold_;
@@ -173,6 +174,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                         .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate, customEntity)))
                         .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                         .collect(Collectors.toCollection(ArrayList::new));
+/*
             if (!allCandidateScores.isEmpty()) {
                for (int i = 0; i < allCandidateScores.size(); i++) {
                   final var candidate = allCandidateScores.get(i);
@@ -183,6 +185,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                   }
                }
             }
+*/
             final var candidatesInExternalLinkRange =
                   externalLinkRange == null
                   ? new ArrayList<WorkCandidate>()

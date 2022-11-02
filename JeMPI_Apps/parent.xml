@@ -164,7 +164,7 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
         <version.org.apache.maven.plugins.maven-shade-plugin>
-            3.4.0
+            3.4.1
         </version.org.apache.maven.plugins.maven-shade-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
