@@ -85,7 +85,7 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
-      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=1234:/opt/prometheus/kafka_prometheus.yml
+      EXTRA_ARGS: -javaagent:/opt/prometheus/${JMX_PROMETHEUS_AGENT}=${JMX_PORT_KAFKA_1}:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
         source: ${DATA_KAFKA_1_DIR}/data
@@ -137,7 +137,7 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
-      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=1235:/opt/prometheus/kafka_prometheus.yml
+      EXTRA_ARGS: -javaagent:/opt/prometheus/${JMX_PROMETHEUS_AGENT}=${JMX_PORT_KAFKA_2}:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
         source: ${DATA_KAFKA_2_DIR}/data
@@ -189,7 +189,7 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
-      EXTRA_ARGS: -javaagent:/opt/prometheus/${JMX_PROMETHEUS_AGENT}=${JMX_PORT_KAFKA_1}:/opt/prometheus/kafka_prometheus.yml
+      EXTRA_ARGS: -javaagent:/opt/prometheus/${JMX_PROMETHEUS_AGENT}=${JMX_PORT_KAFKA_3}:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
         source: ${DATA_KAFKA_3_DIR}/data
