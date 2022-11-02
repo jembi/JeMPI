@@ -189,7 +189,7 @@ services:
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
-      EXTRA_ARGS: -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=1236:/opt/prometheus/kafka_prometheus.yml
+      EXTRA_ARGS: -javaagent:/opt/prometheus/${JMX_PROMETHEUS_AGENT}=${JMX_PORT_KAFKA_1}:/opt/prometheus/kafka_prometheus.yml
     volumes:
       - type: bind
         source: ${DATA_KAFKA_3_DIR}/data
@@ -675,9 +675,10 @@ services:
     image: ${REGISTRY_NODE_IP}/${CONTROLLER_IMAGE}
     networks:
     - backend-kafka
+    - backend-prometheus
     ports:
     - published: 50020
-      target: 50000
+      target: 50020
       protocol: tcp
       mode: host      
     volumes:
@@ -689,6 +690,10 @@ services:
       source: $DATA_DIR_CONTROLLER/logs
       target: /app/logs
       read_only: false
+    - type: bind
+      source: ${DATA_DIR_EM}/conf
+      target: /opt/prometheus
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -713,10 +718,10 @@ services:
     networks:
     - backend-kafka
     - backend-cassandra
-    # - backend-prometheus
+    - backend-prometheus
     ports:
-    - published: 90
-      target: 90
+    - published: ${JMX_PORT_EM}
+      target: ${JMX_PORT_EM}
       protocol: tcp
       mode: host 
     volumes:
@@ -728,6 +733,10 @@ services:
       source: $DATA_DIR_EM/logs
       target: /app/logs
       read_only: false
+    - type: bind
+      source: ${DATA_DIR_EM}/conf
+      target: /opt/prometheus
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -760,8 +769,6 @@ services:
       target: 50010
       protocol: tcp
       mode: host  
-    # environment:
-    #   EXTRA_ARGS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.util.logging.config.file=logging.properties -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.17.2.jar=50010:/opt/prometheus/linker_prometheus.yml
     volumes:
     - type: bind
       source: $DATA_DIR_LINKER/conf
@@ -815,6 +822,10 @@ services:
       source: $DATA_DIR_API/logs
       target: /app/logs
       read_only: false
+    - type: bind
+      source: ${DATA_DIR_API}/conf
+      target: /opt/prometheus
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
