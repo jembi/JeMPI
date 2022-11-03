@@ -691,7 +691,7 @@ services:
       target: /app/logs
       read_only: false
     - type: bind
-      source: ${DATA_DIR_EM}/conf
+      source: ${DATA_DIR_CONTROLLER}/conf
       target: /opt/prometheus
       read_only: true
     deploy:
