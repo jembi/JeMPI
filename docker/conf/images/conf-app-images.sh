@@ -13,6 +13,7 @@ export NOTIFICATIONS_IMAGE=notifications:1.0-SNAPSHOT
 export NOTIFICATIONS_JAR=Notifications-1.0-SNAPSHOT-spring-boot.jar
 
 export TEST_01_IMAGE=test_01:1.0-SNAPSHOT
+export TEST_01_JAR=Test_01-1.0-SNAPSHOT-spring-boot.jar
 
 export STAGING_01_IMAGE=staging_01:1.0-SNAPSHOT
 export STAGING_01_JAR=Staging_01-1.0-SNAPSHOT-spring-boot.jar
