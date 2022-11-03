@@ -48,6 +48,9 @@ cp ./conf/prometheus/prometheus.yml ${DATA_PROMETHEUS_DIR}/prometheus.yml
 cp ./conf/prometheus/jmx_prometheus_javaagent-0.17.2.jar ${DATA_PROMETHEUS_DIR}/jmx_prometheus_javaagent-0.17.2.jar
 cp ./conf/prometheus/kafka_prometheus.yml ${DATA_PROMETHEUS_DIR}/kafka_prometheus.yml
 
+mkdir -p ${DATA_GRAFANA_DIR}/data
+mkdir -p ${DATA_GRAFANA_DIR}/conf
+
 mkdir -p ${DATA_DIR_JOURNAL}/conf
 rm -rf ${DATA_DIR_JOURNAL}/logs
 mkdir -p ${DATA_DIR_JOURNAL}/logs

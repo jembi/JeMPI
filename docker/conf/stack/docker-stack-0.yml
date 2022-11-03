@@ -875,3 +875,26 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_PROMETHEUS}
+
+  grafana:
+    image: ${REGISTRY_NODE_IP}/${GRAFANA_IMAGE}
+    user: root
+    hostname: "grafana"
+    networks:
+    - backend-prometheus
+    ports:
+    - published: ${JMX_PORT_GRAFANA}
+      target: ${JMX_PORT_GRAFANA}
+      protocol: tcp
+      mode: host      
+    # volumes:
+    deploy:
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_GRAFANA}
