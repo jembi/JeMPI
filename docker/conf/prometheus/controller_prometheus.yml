@@ -1,0 +1,7 @@
+---
+startDelaySeconds: 20
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+
+rules:
+- pattern: "java.lang.*"

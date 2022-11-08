@@ -15,3 +15,5 @@ docker pull $KAFKA_IMAGE
 docker pull $DGRAPH_IMAGE
 docker pull $RATEL_IMAGE
 docker pull $CASSANDRA_IMAGE
+docker pull $PROMETHEUS_IMAGE
+docker pull $GRAFANA_IMAGE

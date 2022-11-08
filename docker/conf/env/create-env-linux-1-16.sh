@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export PROJECT_DIR=$(builtin cd ../../; pwd)
+export PROJECT_DIR=$(
+    builtin cd ../../
+    pwd
+)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
@@ -21,8 +24,9 @@ export SCALE_RATEL=1
 export SCALE_CASSANDRA_1=0
 export SCALE_CASSANDRA_2=0
 export SCALE_CASSANDRA_3=0
+export SCALE_PROMETHEUS=1
 
-export ZOOKEEPER_LIMIT_MEMORY=256M    
+export ZOOKEEPER_LIMIT_MEMORY=256M
 export KAFKA_1_LIMIT_MEMORY=1G
 export KAFKA_2_LIMIT_MEMORY=1G
 export KAFKA_3_LIMIT_MEMORY=1G
@@ -71,4 +75,4 @@ export API_RESERVATION_MEMORY=512M
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
 
-envsubst < conf-env-1-pc.template > conf.env
+envsubst <conf-env-1-pc.template >conf.env

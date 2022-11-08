@@ -1,0 +1,35 @@
+# my global config
+global:
+  scrape_interval: 60s 
+  evaluation_interval: 60s 
+
+  external_labels:
+      monitor: 'JeMPI_prom'
+
+# Alertmanager configuration
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "/etc/prometheus/rules/alert_rules.yml"
+  # - "/etc/prometheus/rules/record_rules.yml"
+
+scrape_configs:
+  # create a job for Docker Swarm containers
+  - job_name: "docker_swarm"
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: tasks
+    relabel_configs:
+      # Only keep containers that should be running.
+      - source_labels: [__meta_dockerswarm_task_desired_state]
+        regex: running
+        action: keep
+      - source_labels: [__meta_dockerswarm_network_name]
+        regex: backend-prometheus
+        action: keep
+    
