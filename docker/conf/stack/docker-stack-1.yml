@@ -284,7 +284,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA1}
-    command: dgraph alpha --my=alpha1:7080 --zero=zero:5080 --security whitelist=0.0.0.0/0 --lambda url=http://lambda:8686/graphql-worker --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha1:7080 --zero=zero:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
   alpha2:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
@@ -319,7 +319,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA2}
-    command: dgraph alpha --my=alpha2:7081 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 1 --lambda url=http://lambda:8686/graphql-worker --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha2:7081 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
   alpha3:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
@@ -354,38 +354,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA3}
-    command: dgraph alpha --my=alpha3:7082 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 2 --lambda url=http://lambda:8686/graphql-worker --telemetry "sentry=false;"
-
-  lambda:
-    image: ${REGISTRY_NODE_IP}/${DGRAPH_LAMBDA_IMAGE}
-    ports:
-    - published: 8686
-      target: 8686
-      protocol: tcp
-      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-    networks:
-    - backend-dgraph
-    environment:
-      DGRAPH_URL: http://alpha1:8080
-    volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_LAMBDA_DIR}
-      target: /app/script/script.js:ro
-    deploy:
-      replicas: ${SCALE_LAMBDA}
-      resources:
-        limits:
-          memory: ${LAMBDA_LIMIT_MEMORY}
-        reservations:
-          memory: ${LAMBDA_RESERVATION_MEMORY}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_LAMBDA}
+    command: dgraph alpha --my=alpha3:7082 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   ratel:
     image: ${REGISTRY_NODE_IP}/${RATEL_IMAGE}
@@ -413,131 +382,131 @@ services:
         - node.hostname == ${PLACEMENT_RATEL}
     command: dgraph-ratel
     
-  cassandra-1:
-    image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
-    user: root
-    hostname: "cassandra-1"
-    networks:
-    - backend-cassandra
-    ports:
-    - published: 9042
-      target: 9042
-      protocol: tcp
-      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-    environment:
-      CASSANDRA_CLUSTER_NAME: cassandra-cluster
-      CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-      CASSANDRA_DATACENTER: datacenter1
-      CASSANDRA_RACK: rack1
-      CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
-      CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
-    volumes:
-    - type: bind
-      source: ${DATA_CASSANDRA_1_DIR}/data
-      target: /bitnami
-    - type: bind
-      source: ${DATA_CASSANDRA_1_DIR}/cassandra.yaml
-      target: /bitnami/cassandra/conf/cassandra.yaml
-      read_only: true
-    deploy:
-      replicas: ${SCALE_CASSANDRA_1}
-      # resources:
-      #   limits:
-      #     memory: ${CASSANDRA_1_LIMIT_MEMORY}
-      #   reservations:
-      #     memory: ${CASSANDRA_1_RESERVATION_MEMORY}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_CASSANDRA_1}
+  # cassandra-1:
+  #   image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
+  #   user: root
+  #   hostname: "cassandra-1"
+  #   networks:
+  #   - backend-cassandra
+  #   ports:
+  #   - published: 9042
+  #     target: 9042
+  #     protocol: tcp
+  #     mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+  #   environment:
+  #     CASSANDRA_CLUSTER_NAME: cassandra-cluster
+  #     CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
+  #     CASSANDRA_DATACENTER: datacenter1
+  #     CASSANDRA_RACK: rack1
+  #     CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
+  #     CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
+  #   volumes:
+  #   - type: bind
+  #     source: ${DATA_CASSANDRA_1_DIR}/data
+  #     target: /bitnami
+  #   - type: bind
+  #     source: ${DATA_CASSANDRA_1_DIR}/cassandra.yaml
+  #     target: /bitnami/cassandra/conf/cassandra.yaml
+  #     read_only: true
+  #   deploy:
+  #     replicas: ${SCALE_CASSANDRA_1}
+  #     # resources:
+  #     #   limits:
+  #     #     memory: ${CASSANDRA_1_LIMIT_MEMORY}
+  #     #   reservations:
+  #     #     memory: ${CASSANDRA_1_RESERVATION_MEMORY}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_CASSANDRA_1}
      
-  cassandra-2:
-    image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
-    user: root
-    hostname: "cassandra-2"
-    networks:
-    - backend-cassandra
-    ports:
-    - published: 9043
-      target: 9042
-      protocol: tcp
-      mode: host      
-    environment:
-      CASSANDRA_CLUSTER_NAME: cassandra-cluster
-      CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-      CASSANDRA_DATACENTER: datacenter1
-      CASSANDRA_RACK: rack1
-      CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
-      CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
-    volumes:
-    - type: bind
-      source: ${DATA_CASSANDRA_2_DIR}/data
-      target: /bitnami
-    - type: bind
-      source: ${DATA_CASSANDRA_2_DIR}/cassandra.yaml
-      target: /bitnami/cassandra/conf/cassandra.yaml
-      read_only: true
-    deploy:
-      replicas: ${SCALE_CASSANDRA_2}
-      # resources:
-      #   limits:
-      #     memory: ${CASSANDRA_2_LIMIT_MEMORY}
-      #   reservations:
-      #     memory: ${CASSANDRA_2_RESERVATION_MEMORY}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_CASSANDRA_2}
+  # cassandra-2:
+  #   image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
+  #   user: root
+  #   hostname: "cassandra-2"
+  #   networks:
+  #   - backend-cassandra
+  #   ports:
+  #   - published: 9043
+  #     target: 9042
+  #     protocol: tcp
+  #     mode: host      
+  #   environment:
+  #     CASSANDRA_CLUSTER_NAME: cassandra-cluster
+  #     CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
+  #     CASSANDRA_DATACENTER: datacenter1
+  #     CASSANDRA_RACK: rack1
+  #     CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
+  #     CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
+  #   volumes:
+  #   - type: bind
+  #     source: ${DATA_CASSANDRA_2_DIR}/data
+  #     target: /bitnami
+  #   - type: bind
+  #     source: ${DATA_CASSANDRA_2_DIR}/cassandra.yaml
+  #     target: /bitnami/cassandra/conf/cassandra.yaml
+  #     read_only: true
+  #   deploy:
+  #     replicas: ${SCALE_CASSANDRA_2}
+  #     # resources:
+  #     #   limits:
+  #     #     memory: ${CASSANDRA_2_LIMIT_MEMORY}
+  #     #   reservations:
+  #     #     memory: ${CASSANDRA_2_RESERVATION_MEMORY}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_CASSANDRA_2}
 
-  cassandra-3:
-    image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
-    user: root
-    hostname: "cassandra-3"
-    networks:
-    - backend-cassandra
-    ports:
-    - published: 9044
-      target: 9042
-      protocol: tcp
-      mode: host      
-    environment:
-      CASSANDRA_CLUSTER_NAME: cassandra-cluster
-      CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-      CASSANDRA_DATACENTER: datacenter1
-      CASSANDRA_RACK: rack1
-      CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
-      CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
-    volumes:
-    - type: bind
-      source: ${DATA_CASSANDRA_3_DIR}/data
-      target: /bitnami
-    - type: bind
-      source: ${DATA_CASSANDRA_3_DIR}/cassandra.yaml
-      target: /bitnami/cassandra/conf/cassandra.yaml
-      read_only: true
-    deploy:
-      replicas: ${SCALE_CASSANDRA_1}
-      # resources:
-      #   limits:
-      #     memory: ${CASSANDRA_3_LIMIT_MEMORY}
-      #   reservations:
-      #     memory: ${CASSANDRA_3_RESERVATION_MEMORY}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_CASSANDRA_3}
+  # cassandra-3:
+  #   image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
+  #   user: root
+  #   hostname: "cassandra-3"
+  #   networks:
+  #   - backend-cassandra
+  #   ports:
+  #   - published: 9044
+  #     target: 9042
+  #     protocol: tcp
+  #     mode: host      
+  #   environment:
+  #     CASSANDRA_CLUSTER_NAME: cassandra-cluster
+  #     CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
+  #     CASSANDRA_DATACENTER: datacenter1
+  #     CASSANDRA_RACK: rack1
+  #     CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
+  #     CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
+  #   volumes:
+  #   - type: bind
+  #     source: ${DATA_CASSANDRA_3_DIR}/data
+  #     target: /bitnami
+  #   - type: bind
+  #     source: ${DATA_CASSANDRA_3_DIR}/cassandra.yaml
+  #     target: /bitnami/cassandra/conf/cassandra.yaml
+  #     read_only: true
+  #   deploy:
+  #     replicas: ${SCALE_CASSANDRA_1}
+  #     # resources:
+  #     #   limits:
+  #     #     memory: ${CASSANDRA_3_LIMIT_MEMORY}
+  #     #   reservations:
+  #     #     memory: ${CASSANDRA_3_RESERVATION_MEMORY}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_CASSANDRA_3}
 
   journal:
     image: ${REGISTRY_NODE_IP}/${JOURNAL_IMAGE}
@@ -671,6 +640,144 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_STAGING_01}
    
+  input-02:
+    image: ${REGISTRY_NODE_IP}/${INPUT_02_IMAGE}
+    networks:
+    - backend-kafka
+    ports:
+    - published: 50040
+      target: 50000
+      protocol: tcp
+      mode: host  
+    volumes:
+    - type: bind
+      source: $DATA_DIR_INPUT_02/logs
+      target: /app/logs
+      read_only: false
+    - type: bind
+      source: $DATA_DIR_INPUT_02/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${INPUT_02_LIMIT_MEMORY}
+        reservations:
+          memory: ${INPUT_02_RESERVATION_MEMORY}     
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_INPUT_02}
+
+  staging-02:
+    image: ${REGISTRY_NODE_IP}/${STAGING_02_IMAGE}
+    networks:
+    - backend-kafka
+    volumes:
+    - type: bind
+      source: $DATA_DIR_STAGING_02/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_STAGING_02/logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${STAGING_02_LIMIT_MEMORY}
+        reservations:
+          memory: ${STAGING_02_RESERVATION_MEMORY}      
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_STAGING_02}
+
+  input-disi:
+    image: ${REGISTRY_NODE_IP}/${INPUT_DISI_IMAGE}
+    networks:
+    - backend-kafka
+    ports:
+    - published: 50030
+      target: 50000
+      protocol: tcp
+      mode: host  
+    volumes:
+    - type: bind
+      source: $DATA_DIR_INPUT_DISI/logs
+      target: /app/logs
+      read_only: false
+    - type: bind
+      source: $DATA_DIR_INPUT_DISI/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${INPUT_DISI_LIMIT_MEMORY}
+        reservations:
+          memory: ${INPUT_DISI_RESERVATION_MEMORY}     
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_INPUT_DISI}
+
+  staging-disi:
+    image: ${REGISTRY_NODE_IP}/${STAGING_DISI_IMAGE}
+    networks:
+    - backend-kafka
+    volumes:
+    - type: bind
+      source: $DATA_DIR_STAGING_DISI/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_STAGING_DISI/logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${STAGING_DISI_LIMIT_MEMORY}
+        reservations:
+          memory: ${STAGING_DISI_RESERVATION_MEMORY}      
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_STAGING_DISI}
+        
   controller:
     image: ${REGISTRY_NODE_IP}/${CONTROLLER_IMAGE}
     networks:

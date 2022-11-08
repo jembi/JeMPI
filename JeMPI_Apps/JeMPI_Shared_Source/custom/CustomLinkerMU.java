@@ -1,7 +1,7 @@
 package org.jembi.jempi.linker;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.similarity.JaroWinklerDistance;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomEntity;
@@ -10,7 +10,7 @@ import org.jembi.jempi.shared.models.CustomGoldenRecord;
 public class CustomLinkerMU {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomLinkerMU.class);
-   private static final JaroWinklerDistance JARO_WINKLER_DISTANCE = new JaroWinklerDistance();
+   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
 
    private final Fields fields = new Fields();
 
@@ -19,7 +19,7 @@ public class CustomLinkerMU {
    }
 
    private static boolean fieldMismatch(final String left, final String right) {
-      return JARO_WINKLER_DISTANCE.apply(left, right) <= 0.92;
+      return JARO_WINKLER_SIMILARITY.apply(left, right) <= 0.92;
    }
 
    private void updateMatchedPair(final Field field, final String left, final String right) {

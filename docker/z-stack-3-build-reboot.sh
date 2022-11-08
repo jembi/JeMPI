@@ -10,6 +10,9 @@ echo Down stacks
 echo
 echo Build Apps
 pwd
+# pushd ../JeMPI_Apps
+#   ./build-all.sh
+# popd
 ./helper/scripts/c-registry-3-build-push-app-images.sh
 sleep 2
 

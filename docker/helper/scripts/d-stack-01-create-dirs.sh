@@ -68,6 +68,24 @@ mkdir -p ${DATA_DIR_STAGING_01}/conf
 rm -rf ${DATA_DIR_STAGING_01}/logs
 mkdir -p ${DATA_DIR_STAGING_01}/logs
 
+  mkdir -p ${DATA_DIR_INPUT_02}/conf
+  rm -rf   ${DATA_DIR_INPUT_02}/logs
+  mkdir -p ${DATA_DIR_INPUT_02}/logs
+  mkdir -p ${DATA_DIR_INPUT_02}/csv
+
+  mkdir -p ${DATA_DIR_STAGING_02}/conf
+  rm -rf   ${DATA_DIR_STAGING_02}/logs
+  mkdir -p ${DATA_DIR_STAGING_02}/logs
+
+  mkdir -p ${DATA_DIR_INPUT_DISI}/conf
+  rm -rf   ${DATA_DIR_INPUT_DISI}/logs
+  mkdir -p ${DATA_DIR_INPUT_DISI}/logs
+  mkdir -p ${DATA_DIR_INPUT_DISI}/csv
+
+  mkdir -p ${DATA_DIR_STAGING_DISI}/conf
+  rm -rf   ${DATA_DIR_STAGING_DISI}/logs
+  mkdir -p ${DATA_DIR_STAGING_DISI}/logs
+
 mkdir -p ${DATA_DIR_CONTROLLER}/conf
 rm -rf ${DATA_DIR_CONTROLLER}/logs
 mkdir -p ${DATA_DIR_CONTROLLER}/logs

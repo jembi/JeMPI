@@ -1,7 +1,7 @@
 package org.jembi.jempi.linker;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.similarity.JaroWinklerDistance;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomMU;
@@ -13,7 +13,7 @@ import static java.lang.Math.log;
 public class CustomLinkerProbabilistic {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomLinkerProbabilistic.class);
-   private static final JaroWinklerDistance JARO_WINKLER_DISTANCE = new JaroWinklerDistance();
+   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    private static final double LOG2 = java.lang.Math.log(2.0);
    private static Fields updatedFields = null;
 
@@ -36,7 +36,7 @@ public class CustomLinkerProbabilistic {
    }
 
    private static float fieldScore(final String left, final String right, final Field field) {
-      return fieldScore(JARO_WINKLER_DISTANCE.apply(left, right) > 0.92, field.m, field.u);
+      return fieldScore(JARO_WINKLER_SIMILARITY.apply(left, right) > 0.92, field.m, field.u);
    }
 
    private static CustomMU.Probability getProbability(final Field field) {

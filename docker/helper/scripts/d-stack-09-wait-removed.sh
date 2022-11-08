@@ -12,6 +12,10 @@ source ./0-conf.env
 declare -a SERVICES=(
   test-01
   staging-01
+  input-02
+  staging-02
+  input-disi
+  staging-disi
   controller
   em
   linker

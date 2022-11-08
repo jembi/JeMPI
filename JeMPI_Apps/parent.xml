@@ -29,31 +29,31 @@
         <version.io.vavr.vavr>0.10.4</version.io.vavr.vavr>
 
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor-typed -->
-        <version.com.typesafe.akka.akka-actor-typed_2.13>2.6.20</version.com.typesafe.akka.akka-actor-typed_2.13>
+        <version.com.typesafe.akka.akka-actor-typed_2.13>2.7.0</version.com.typesafe.akka.akka-actor-typed_2.13>
 
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-stream -->
-        <version.com.typesafe.akka.akka-stream_2.13>2.6.20</version.com.typesafe.akka.akka-stream_2.13>
+        <version.com.typesafe.akka.akka-stream_2.13>2.7.0</version.com.typesafe.akka.akka-stream_2.13>
 
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http -->
-        <version.com.typesafe.akka.akka-http_2.13>10.2.10</version.com.typesafe.akka.akka-http_2.13>
+        <version.com.typesafe.akka.akka-http_2.13>10.4.0</version.com.typesafe.akka.akka-http_2.13>
 
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-jackson -->
-        <version.com.typesafe.akka.akka-http-jackson_2.13>10.2.10</version.com.typesafe.akka.akka-http-jackson_2.13>
+        <version.com.typesafe.akka.akka-http-jackson_2.13>10.4.0</version.com.typesafe.akka.akka-http-jackson_2.13>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <version.org.apache.commons.commons-lang3>3.12.0</version.org.apache.commons.commons-lang3>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
-        <version.org.apache.commons.commons-text>1.9</version.org.apache.commons.commons-text>
+        <version.org.apache.commons.commons-text>1.10.0</version.org.apache.commons.commons-text>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
         <version.org.apache.commons.commons-csv>1.9.0</version.org.apache.commons.commons-csv>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
-        <version.org.apache.kafka.kafka-clients>3.2.3</version.org.apache.kafka.kafka-clients>
+        <version.org.apache.kafka.kafka-clients>3.3.1</version.org.apache.kafka.kafka-clients>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
-        <version.org.apache.kafka.kafka-streams>3.2.3</version.org.apache.kafka.kafka-streams>
+        <version.org.apache.kafka.kafka-streams>3.3.1</version.org.apache.kafka.kafka-streams>
 
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
         <version.org.apache.logging.log4j.log4j-api>2.19.0</version.org.apache.logging.log4j.log4j-api>
@@ -72,11 +72,14 @@
         </version.com.fasterxml.jackson.core.jackson-annotations>
 
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-        <version.com.fasterxml.jackson.core.jackson-databind>2.13.4
+        <version.com.fasterxml.jackson.core.jackson-databind>2.13.4.2
         </version.com.fasterxml.jackson.core.jackson-databind>
 
+        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-base -->
+        <version.ca.uhn.hapi.fhir>6.1.3</version.ca.uhn.hapi.fhir>
+
         <!-- https://mvnrepository.com/artifact/io.dgraph/dgraph4j -->
-        <version.io.dgraph.dgraph4j>21.12.0</version.io.dgraph.dgraph4j>
+        <version.io.dgraph.dgraph4j>21.03.2</version.io.dgraph.dgraph4j>
 
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
         <version.com.squareup.okhttp3.okhttp>4.10.0</version.com.squareup.okhttp3.okhttp>
@@ -85,7 +88,7 @@
         <version.commons-codec.commons-codec>1.15</version.commons-codec.commons-codec>
 
         <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
-        <version.com.opencsv.opencsv>5.7.0</version.com.opencsv.opencsv>
+        <version.com.opencsv.opencsv>5.7.1</version.com.opencsv.opencsv>
 
         <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core -->
         <version.com.datastax.oss.java-driver-core>4.15.0</version.com.datastax.oss.java-driver-core>
@@ -151,7 +154,7 @@
 
         <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
         <version.net.alchim31.maven.scala-maven-plugin>
-            4.7.1
+            4.7.2
         </version.net.alchim31.maven.scala-maven-plugin>
 
          <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->
@@ -161,12 +164,12 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
         <version.org.apache.maven.plugins.maven-shade-plugin>
-            3.4.0
+            3.4.1
         </version.org.apache.maven.plugins.maven-shade-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            2.7.4
+            2.7.5
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
