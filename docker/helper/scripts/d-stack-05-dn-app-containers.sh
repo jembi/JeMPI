@@ -22,7 +22,7 @@ for APP in ${APPS[@]}; do
   SERVICE=${STACK_NAME}_${APP}
   NAME=$(docker ps -f name=$SERVICE --format "{{.Names}}")
   if [ -n "$NAME" ]; then
-    docker wait $NAME
+    docker service rm $SERVICE
   fi
 done
 
