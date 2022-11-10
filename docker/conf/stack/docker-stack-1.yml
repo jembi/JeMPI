@@ -787,7 +787,11 @@ services:
     - published: 50020
       target: 50020
       protocol: tcp
-      mode: host      
+      mode: host    
+    - published: 50021
+      target: 50021
+      protocol: tcp
+      mode: host  
     volumes:
     - type: bind
       source: $DATA_DIR_CONTROLLER/conf
@@ -827,6 +831,10 @@ services:
     - backend-cassandra
     - backend-prometheus
     ports:
+    - published: 90
+      target: 90
+      protocol: tcp
+      mode: host 
     - published: ${JMX_PORT_EM}
       target: ${JMX_PORT_EM}
       protocol: tcp
@@ -876,6 +884,10 @@ services:
       target: 50010
       protocol: tcp
       mode: host  
+    - published: 50011
+      target: 50011
+      protocol: tcp
+      mode: host 
     volumes:
     - type: bind
       source: $DATA_DIR_LINKER/conf
@@ -920,6 +932,10 @@ services:
       target: 50000
       protocol: tcp
       mode: host  
+    - published: 50001
+      target: 50001
+      protocol: tcp
+      mode: host 
     volumes:
     - type: bind
       source: $DATA_DIR_API/conf
