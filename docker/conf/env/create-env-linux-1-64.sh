@@ -1,9 +1,6 @@
 #!/bin/bash
 
-export PROJECT_DIR=$(
-    builtin cd ../../
-    pwd
-)
+export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
@@ -24,10 +21,8 @@ export SCALE_RATEL=1
 export SCALE_CASSANDRA_1=0
 export SCALE_CASSANDRA_2=0
 export SCALE_CASSANDRA_3=0
-export SCALE_PROMETHEUS=1
-export SCALE_GRAFANA=1
 
-export ZOOKEEPER_LIMIT_MEMORY=512M
+export ZOOKEEPER_LIMIT_MEMORY=512M    
 export KAFKA_1_LIMIT_MEMORY=3G
 export KAFKA_2_LIMIT_MEMORY=3G
 export KAFKA_3_LIMIT_MEMORY=3G
@@ -87,30 +82,7 @@ export API_RESERVATION_MEMORY=512M
 export JOURNAL_RESERVATION_MEMORY=512M
 export NOTIFICATIONS_RESERVATION_MEMORY=512M
 
-# export port numbers for each service
-export JMX_PORT_ALPHA_1=8080
-export JMX_PORT_ALPHA_2=88081
-export JMX_PORT_ALPHA_3=8082
-export JMX_PORT_API=50000
-export JMX_PORT_CONTROLLER=50020
-export JMX_PORT_EM=90
-# export PORT_JOURNAL=
-export JMX_PORT_KAFKA_1=1234
-export JMX_PORT_KAFKA_2=1235
-export JMX_PORT_KAFKA_3=1236
-export JMX_PORT_LAMBDA=8686
-export JMX_PORT_LINKER=50010
-# export PORT_NOTIFICATIONS=
-# export PORT_PORTAINER=
-export JMX_PORT_PROMETHEUS=9090
-export JMX_PORT_GRAFANA=3000
-# export PORT_RATEL=
-# export PORT_STAGING=
-export JMX_PORT_ZERO=5080
-
-export JMX_PROMETHEUS_AGENT=jmx_prometheus_javaagent-0.17.2.jar
-
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
 
-envsubst <conf-env-1-pc.template >conf.env
+envsubst < conf-env-1-pc.template > conf.env
