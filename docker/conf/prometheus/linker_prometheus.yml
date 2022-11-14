@@ -4,11 +4,11 @@ lowercaseOutputName: true
 lowercaseOutputLabelNames: true
 
 rules:
-# - pattern: "java.lang.*"
-- pattern: 'java.lang<type=OperatingSystem><>(FreePhysicalMemorySize|TotalPhysicalMemorySize|FreeSwapSpaceSize|TotalSwapSpaceSize|SystemCpuLoad|ProcessCpuLoad|OpenFileDescriptorCount|AvailableProcessors)'
-  name: linker_java_lang_OperatingSystem_$1
-  type: GAUGE
+- pattern: "java.lang.*"
+# - pattern: 'java.lang<type=OperatingSystem><>(FreePhysicalMemorySize|TotalPhysicalMemorySize|FreeSwapSpaceSize|TotalSwapSpaceSize|SystemCpuLoad|ProcessCpuLoad|OpenFileDescriptorCount|AvailableProcessors)'
+#   name: java_lang_OperatingSystem_$1
+#   type: GAUGE
 
-- pattern: 'java.lang<type=Threading><>(TotalStartedThreadCount|ThreadCount)'
-  name: linker_java_lang_threading_$1
-  type: GAUGE
+# - pattern: 'java.lang<type=Threading><>(TotalStartedThreadCount|ThreadCount)'
+#   name: java_lang_threading_$1
+#   type: GAUGE
