@@ -49,3 +49,5 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
   6. Click on `Save & Test`, it should return `Data source is working`
   7. On th left bar, click `Dashboards` and choose the `Import` option
   8. Import the `JeMPI_Dashboard.json` located in `JEMPI/dcker/conf/grafana`
+  9. Choose `Prometheus` as the data source
+  10. Click `Import`
