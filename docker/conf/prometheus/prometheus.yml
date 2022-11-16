@@ -33,3 +33,46 @@ scrape_configs:
           - 'JeMPI_em'
         type: 'A'
         port: 91
+  - job_name: 'JeMPI_kafka-1'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_kafka-1'
+        type: 'A'
+        port: 1234
+  - job_name: 'JeMPI_kafka-2'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_kafka-2'
+        type: 'A'
+        port: 1235
+  - job_name: 'JeMPI_kafka-3'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_kafka-3'
+        type: 'A'
+        port: 1236
+  - job_name: 'JeMPI_dgraph_zero'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_zero'
+        type: 'A'
+        port: 6080
+  - job_name: 'JeMPI_dgraph_alpha1'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_alpha1'
+        type: 'A'
+        port: 8080
+  - job_name: 'JeMPI_dgraph_alpha2'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_alpha2'
+        type: 'A'
+        port: 8081
+  - job_name: 'JeMPI_dgraph_alpha3'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_alpha3'
+        type: 'A'
+        port: 8082
+  

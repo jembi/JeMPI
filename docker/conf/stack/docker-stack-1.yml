@@ -221,6 +221,7 @@ services:
     hostname: "zero"
     networks:
     - backend-dgraph
+    - backend-prometheus
     ports:
     - published: 5080
       target: 5080
@@ -256,6 +257,7 @@ services:
     hostname: "alpha1"
     networks:
     - backend-dgraph
+    - backend-prometheus
     volumes:
     - type: bind
       source: ${DATA_DGRAPH_ALPHA1_DIR}
@@ -291,6 +293,7 @@ services:
     hostname: "alpha2"
     networks:
     - backend-dgraph
+    - backend-prometheus
     volumes:
     - type: bind
       source: ${DATA_DGRAPH_ALPHA2_DIR}
@@ -326,6 +329,7 @@ services:
     hostname: "alpha3"
     networks:
     - backend-dgraph
+    - backend-prometheus
     volumes:
     - type: bind
       source: ${DATA_DGRAPH_ALPHA3_DIR}
@@ -835,8 +839,8 @@ services:
       target: 90
       protocol: tcp
       mode: host 
-    - published: ${JMX_PORT_EM}
-      target: ${JMX_PORT_EM}
+    - published: 91
+      target: 91
       protocol: tcp
       mode: host 
     volumes:
