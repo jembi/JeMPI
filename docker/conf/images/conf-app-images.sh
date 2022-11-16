@@ -2,8 +2,6 @@ JAVA_VERSION=17.0.4.1
 
 # https://registry.hub.docker.com/r/azul/zulu-openjdk
 #export JAVA_BASE_IMAGE=azul/zulu-openjdk:$JAVA_VERSION
-
-# https://hub.docker.com/_/eclipse-temurin/tags
 export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION}_1-jre
 
 export JOURNAL_IMAGE=journal:1.0-SNAPSHOT
