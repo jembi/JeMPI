@@ -839,8 +839,8 @@ services:
       target: 90
       protocol: tcp
       mode: host 
-    - published: ${JMX_PORT_EM}
-      target: ${JMX_PORT_EM}
+    - published: 91
+      target: 91
       protocol: tcp
       mode: host 
     volumes:
