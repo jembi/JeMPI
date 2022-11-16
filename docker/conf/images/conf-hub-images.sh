@@ -25,9 +25,3 @@ export PROMETHEUS_IMAGE=prom/prometheus:v2.39.1
 
 # https://hub.docker.com/r/grafana/grafana/tags
 export GRAFANA_IMAGE=grafana/grafana:9.2.3
-
-# https://hub.docker.com/r/prom/prometheus/tags
-export PROMETHEUS_IMAGE=prom/prometheus:v2.39.1
-
-# https://hub.docker.com/r/grafana/grafana/tags
-export GRAFANA_IMAGE=grafana/grafana:9.2.3

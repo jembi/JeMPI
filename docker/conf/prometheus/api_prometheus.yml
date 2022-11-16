@@ -4,4 +4,4 @@ lowercaseOutputName: true
 lowercaseOutputLabelNames: true
 
 rules:
-- pattern: "java.lang.*"
+- pattern: ".*"
