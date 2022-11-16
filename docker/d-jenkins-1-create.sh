@@ -16,7 +16,7 @@ sudo cp /usr/bin/docker ${PWD}/jenkins_docker_client
 
 echo $PWD
 
-docker service rm jenkins
+#docker service rm jenkins
 
 docker service create \
   --name jenkins \
