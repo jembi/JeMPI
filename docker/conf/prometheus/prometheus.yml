@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 60s 
+  evaluation_interval: 60s 
+
+  external_labels:
+      monitor: 'JeMPI_prom'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+  - job_name: 'JeMPI_api'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_api'
+        type: 'A'
+        port: 50001
+  - job_name: 'JeMPI_linker'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_linker'
+        type: 'A'
+        port: 50011
+  - job_name: 'JeMPI_controller'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_controller'
+        type: 'A'
+        port: 50021
+  - job_name: 'JeMPI_em'
+    dns_sd_configs:
+      - names:
+          - 'JeMPI_em'
+        type: 'A'
+        port: 91
