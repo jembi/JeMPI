@@ -6,3 +6,6 @@ docker_data
 
 /prometheus/prometheus.yml
 prometheus.yml
+
+jenkins_data
+jenkins_docker_client
