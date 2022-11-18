@@ -1,4 +1,6 @@
-FROM eclipse-temurin:17.0.4.1_1-jre
+ARG JAVA_VERSION
+
+FROM eclipse-temurin:${JAVA_VERSION}-jre
 
 ADD Controller-1.0-SNAPSHOT-spring-boot.jar /app/Controller-1.0-SNAPSHOT-spring-boot.jar
 

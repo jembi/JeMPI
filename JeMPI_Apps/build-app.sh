@@ -8,5 +8,5 @@ pushd ./docker
 #  envsubst < ../templates/Dockerfile-$APP > Dockerfile
   [ -z $(docker images -q ${APP_IMAGE}) ] || docker rmi ${APP_IMAGE}
   docker system prune --volumes -f
-  docker build --tag $APP_IMAGE .
+  docker build --build-arg JAVA_VERSION=${JAVA_VERSION_X} --tag $APP_IMAGE .
 popd

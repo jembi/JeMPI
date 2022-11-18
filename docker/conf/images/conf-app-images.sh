@@ -1,10 +1,11 @@
-JAVA_VERSION=17.0.4.1
+JAVA_VERSION=17.0.5
+JAVA_VERSION_X=${JAVA_VERSION}_8
 
 # https://registry.hub.docker.com/r/azul/zulu-openjdk
 #export JAVA_BASE_IMAGE=azul/zulu-openjdk:$JAVA_VERSION
 
 # https://hub.docker.com/_/eclipse-temurin/tags
-export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION}_1-jre
+export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
 
 export JOURNAL_IMAGE=journal:1.0-SNAPSHOT
 export JOURNAL_JAR=Journal-1.0-SNAPSHOT-spring-boot.jar
