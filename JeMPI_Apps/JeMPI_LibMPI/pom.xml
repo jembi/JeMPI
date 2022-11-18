@@ -105,6 +105,17 @@
             <artifactId>log4j-jcl</artifactId>
             <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
+        </dependency>
 
     </dependencies>
 

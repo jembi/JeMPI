@@ -52,6 +52,8 @@ public class HttpServer extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
+
+
    private CompletionStage<BackEnd.EventGetDocumentCountRsp> getDocumentCount(final ActorSystem<Void> actorSystem,
                                                                               final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.debug("getDocumentCount");
@@ -62,6 +64,7 @@ public class HttpServer extends AllDirectives {
                            actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
+
 
    private CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> getNumberOfRecords(final ActorSystem<Void> actorSystem,
                                                                                   final ActorRef<BackEnd.Event> backEnd) {
@@ -99,6 +102,17 @@ public class HttpServer extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
+
+   //Mahao
+   private CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> getMatchesForReviewList(final ActorSystem<Void> actorSystem,
+                                                                                    final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> stage =
+              AskPattern.ask(backEnd,
+                      BackEnd.EventGetMatchesForReviewReq::new,
+                      java.time.Duration.ofSeconds(30),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
    private CompletionStage<BackEnd.EventGetGoldenRecordRsp> getGoldenRecord(final ActorSystem<Void> actorSystem,
                                                                             final ActorRef<BackEnd.Event> backEnd,
                                                                             final String uid) {
@@ -249,6 +263,7 @@ public class HttpServer extends AllDirectives {
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+
    private Route routeDocumentCount(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(
             getDocumentCount(actorSystem, backEnd),
@@ -274,6 +289,16 @@ public class HttpServer extends AllDirectives {
                       ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
+
+   //MahaoMockup
+   private Route routeMatchesForReviewList(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(
+              getMatchesForReviewList(actorSystem, backEnd),
+              result -> result.isSuccess()
+                      ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
+                      : complete(StatusCodes.IM_A_TEAPOT));
+   }
+
 
    private Route routeGoldenIdListByPredicate(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
       return parameter(
@@ -341,6 +366,7 @@ public class HttpServer extends AllDirectives {
                         path("Link", () -> routeLink(actorSystem, backEnd)))),
                   get(() -> concat(
                         path("GoldenRecordCount", () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                        path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
                         path("DocumentCount", () -> routeDocumentCount(actorSystem, backEnd)),
                         path("NumberOfRecords", () -> routeNumberOfRecords(actorSystem, backEnd)),
                         path("GoldenIdList", () -> routeGoldenIdList(actorSystem, backEnd)),

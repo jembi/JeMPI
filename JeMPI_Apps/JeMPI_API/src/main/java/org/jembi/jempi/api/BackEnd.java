@@ -14,8 +14,10 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.MatchForReview;
 
 import java.util.List;
+import org.json.JSONArray;
 
 public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -49,6 +51,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder
             .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
+            .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
             .onMessage(EventGetDocumentCountReq.class, this::eventGetDocumentCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
             .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
@@ -70,6 +73,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       request.replyTo.tell(new EventGetGoldenRecordCountRsp(count));
       return Behaviors.same();
    }
+
+
 
    private Behavior<Event> eventGetDocumentCountHandler(final EventGetDocumentCountReq request) {
       LOGGER.debug("getDocumentCount");
@@ -105,6 +110,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       var recs = libMPI.getGoldenIdList();
       request.replyTo.tell(new EventGetGoldenIdListRsp(recs));
       libMPI.closeTransaction();
+      return Behaviors.same();
+   }
+
+   //Mahao mockout
+   private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
+      LOGGER.debug("getMatchesForReview");
+      libMPI.startTransaction();
+      var recs = libMPI.getMatchesForReviewList();
+      libMPI.closeTransaction();
+      request.replyTo.tell(new EventGetMatchesForReviewListRsp(recs));
       return Behaviors.same();
    }
 
@@ -197,6 +212,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record EventGetGoldenIdListRsp(List<String> records) implements EventResponse {}
 
+   //Mahao Mock
+   public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {}
+
+   public record EventGetMatchesForReviewListRsp(List<MatchForReview> records) implements EventResponse {}
    public record EventGetGoldenRecordReq(ActorRef<EventGetGoldenRecordRsp> replyTo, String uid) implements Event {}
 
    public record EventGetGoldenRecordRsp(CustomGoldenRecord goldenRecord) implements EventResponse {}

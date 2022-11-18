@@ -12,6 +12,7 @@ import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 import java.util.List;
+import org.json.JSONArray;
 
 public class LibCassandra implements LibMPIClientInterface {
 
@@ -65,6 +66,7 @@ public class LibCassandra implements LibMPIClientInterface {
       return Client.getInstance().getCandidates(customEntity, applyDeterministicFilter);
    }
 
+
    public List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList) {
       LOGGER.error("getMpiExpandedGoldenRecordList");
       return List.of();
@@ -89,6 +91,13 @@ public class LibCassandra implements LibMPIClientInterface {
       LOGGER.error("getGoldenIdList");
       return List.of();
    }
+
+   //Mahao Mock up
+
+//   public JSONArray getMatchesForReviewList() {
+//      LOGGER.error("getCandidatesForReviewList");
+//      return null;
+//   }
 
    public long countGoldenRecords() {
       LOGGER.error("countGoldenRecords");

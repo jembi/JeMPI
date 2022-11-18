@@ -6,7 +6,7 @@ import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 import java.util.List;
-
+import org.json.JSONArray;
 public interface LibMPIClientInterface {
 
 
@@ -43,6 +43,9 @@ public interface LibMPIClientInterface {
    CustomEntity getMpiEntity(final String uid);
 
    List<String> getGoldenIdList();
+
+   //Mahao Mock up
+//   JSONArray getMatchesForReviewList();
 
    long countGoldenRecords();
 

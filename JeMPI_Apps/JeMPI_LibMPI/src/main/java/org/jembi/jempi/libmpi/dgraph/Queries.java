@@ -9,11 +9,24 @@ import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.*;
+import java.sql.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 final class Queries {
 
    static final String EMPTY_FIELD_SENTINEL = "EMPTY_FIELD_SENTINEL";
    private static final Logger LOGGER = LogManager.getLogger(Queries.class);
+
+   ///////////////////////////////////////////////////////////////////////////////////////////
+   private final static String url = "jdbc:postgresql://192.168.0.195:5432/akka_test";
+//   private final static String url = "jdbc:postgresql://172.17.0.3/test?user=mahao&password=12345&ssl=true";
+   private final static String user = "postgres";
+   private final static String password = "12345";
+   private static final String QUERY = "select id,given_name,family_name from patients where id =?";
+   private static final String SELECT_ALL_QUERY = "select given_name from patients";
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////
 
    private Queries() {}
 
@@ -58,7 +71,7 @@ final class Queries {
          return Collections.emptyList();
       }
       final String query = String
-            .format("""
+              .format("""
                     query goldenIdListByPredicate() {
                       list(func: eq(%s, %s)) {
                         uid
@@ -104,7 +117,7 @@ final class Queries {
 
    static List<String> getGoldenIdEntityIdList(final String uid) {
       final String query = String
-            .format("""
+              .format("""
                     query recordGoldenIdEntityIdList() {
                         list(func: uid(%s)) {
                             uid
@@ -126,6 +139,7 @@ final class Queries {
       }
       return List.of();
    }
+
 
    static List<String> getGoldenIdList() {
       final String query = """
@@ -159,34 +173,34 @@ final class Queries {
 
    static long countGoldenRecords() {
       final var query =
-            """
-            query recordCount() {
-              list(func: type(GoldenRecord)) {
-                count(uid)
-              }
-            }""";
+              """
+              query recordCount() {
+                list(func: type(GoldenRecord)) {
+                  count(uid)
+                }
+              }""";
       return getCount(query);
    }
 
    static long countGoldenRecordEntities(final String uid) {
       final var query = String.format(
-            """
-            query recordCount() {
-              list(func: uid(%s)) {
-                count: count(GoldenRecord.entity_list)
-              }
-            }""", uid);
+              """
+              query recordCount() {
+                list(func: uid(%s)) {
+                  count: count(GoldenRecord.entity_list)
+                }
+              }""", uid);
       return getCount(query);
    }
 
    static long countEntities() {
       final var query =
-            """
-            query recordCount() {
-              list(func: type(Entity)) {
-                count(uid)
-              }
-            }""";
+              """
+              query recordCount() {
+                list(func: type(Entity)) {
+                  count(uid)
+                }
+              }""";
       return getCount(query);
    }
 

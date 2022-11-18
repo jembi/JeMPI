@@ -14,6 +14,7 @@ import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 import java.util.List;
+import org.json.JSONArray;
 
 import static io.dgraph.DgraphProto.Operation.DropOp.DATA;
 

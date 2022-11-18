@@ -7,11 +7,22 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.MatchForReview;
+import org.jembi.jempi.libmpi.postgres.*;
+
+import java.util.Arrays;
 
 import java.util.List;
+import org.json.*;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class LibMPI {
 
+   ////////////////////////////////////////////////////////////////////////////////////////////
+   private static final String QUERY = "select id,given_name,family_name from patients";
+   private static final String SELECT_ALL_QUERY = "select * from patients";
+   /////////////////////////////////////////////////////////////////////////////////////////////
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
 
@@ -76,6 +87,8 @@ public class LibMPI {
    public List<String> getGoldenIdList() {
       return client.getGoldenIdList();
    }
+
+   public List<MatchForReview> getMatchesForReviewList(){return PsqlQueries.getMatchesForReview();}
 
    public CustomEntity getMpiEntity(final String uid) {
       return client.getMpiEntity(uid);

@@ -51,6 +51,17 @@
             <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
             <version>${version.com.typesafe.akka.akka-actor-typed_2.13}</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
