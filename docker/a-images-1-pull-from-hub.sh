@@ -17,3 +17,4 @@ docker pull $RATEL_IMAGE
 docker pull $CASSANDRA_IMAGE
 docker pull $PROMETHEUS_IMAGE
 docker pull $GRAFANA_IMAGE
+docker pull $JENKINS_IMAGE

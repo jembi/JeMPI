@@ -25,3 +25,6 @@ export PROMETHEUS_IMAGE=prom/prometheus:v2.39.1
 
 # https://hub.docker.com/r/grafana/grafana/tags
 export GRAFANA_IMAGE=grafana/grafana:9.2.3
+
+# https://hub.docker.com/r/bitnami/jenkins/tags
+export JENKINS_IMAGE=bitnami/jenkins:2
