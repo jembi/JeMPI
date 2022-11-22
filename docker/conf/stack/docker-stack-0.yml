@@ -164,8 +164,8 @@ services:
       source: ${DATA_DGRAPH_ALPHA_01_DIR}
       target: /dgraph
     ports:
-    - published: 8080
-      target: 8080
+    - published: 8088
+      target: 8088
       protocol: tcp
       mode: host
     - published: 9080
