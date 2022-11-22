@@ -56,7 +56,7 @@ public class CustomFrontEndStream {
 
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, CustomTesterPatientRecord> patientKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_STAGING_01,
+            GlobalConstants.TOPIC_PATIENT_ASYNC_PREPROCESSOR,
             Consumed.with(stringSerde, testerPatientRecordSerde));
       patientKStream
             .map((key, rec) -> {

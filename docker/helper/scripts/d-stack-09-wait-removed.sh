@@ -16,22 +16,18 @@ pushd .
     staging-02
     input-disi
     staging-disi
-    controller
-    em
-    linker
-    api
-    ratel1
-    lambda
-    alpha3
-    alpha2
-    alpha1
-    zero
-    kafka-3
-    kafka-2
-    kafka-1
-    cassandra-3
-    cassandra-2
-    cassandra-1
+    jempi-controller
+    jempi-em
+    jempi-linker
+    jempi-0api
+    jempi-0ratel
+    jempi-0alpha-03
+    jempi-alpha-02
+    jempi-alpha-01
+    jempi-zero-01
+    jempi-kafka-03
+    jempi-kafka-02
+    jempi-kafka-01
   )
 
   for SERVICE in ${SERVICES[@]}; do

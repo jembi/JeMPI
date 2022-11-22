@@ -11,17 +11,14 @@ pushd .
 
   source ./0-conf.env
 
-  # docker service scale ${STACK_NAME}_cassandra-1=${SCALE_CASSANDRA_1}
-  # docker service scale ${STACK_NAME}_cassandra-2=${SCALE_CASSANDRA_2}
-  # docker service scale ${STACK_NAME}_cassandra-3=${SCALE_CASSANDRA_3}
-  docker service scale ${STACK_NAME}_kafka-1=${SCALE_KAFKA_1}
-  docker service scale ${STACK_NAME}_kafka-2=${SCALE_KAFKA_2}
-  docker service scale ${STACK_NAME}_kafka-3=${SCALE_KAFKA_3}
-  docker service scale ${STACK_NAME}_zero=${SCALE_ZERO}
-  docker service scale ${STACK_NAME}_alpha1=${SCALE_ALPHA1}
-  docker service scale ${STACK_NAME}_alpha2=${SCALE_ALPHA2}
-  docker service scale ${STACK_NAME}_alpha3=${SCALE_ALPHA3}
-  docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
+  docker service scale ${STACK_NAME}_jempi-kafka-01=${SCALE_KAFKA_01}
+  docker service scale ${STACK_NAME}_jempi-kafka-02=${SCALE_KAFKA_02}
+  docker service scale ${STACK_NAME}_jempi-kafka-03=${SCALE_KAFKA_03}
+  docker service scale ${STACK_NAME}_jempi-zero-01=${SCALE_ZERO_01}
+  docker service scale ${STACK_NAME}_jempi-alpha-01=${SCALE_ALPHA_01}
+  docker service scale ${STACK_NAME}_jempi-alpha-02=${SCALE_ALPHA_02}
+  docker service scale ${STACK_NAME}_jempi-alpha-03=${SCALE_ALPHA_03}
+  docker service scale ${STACK_NAME}_jempi-ratel=${SCALE_RATEL}
 
   pushd helper/topics
 #   ./topics-delete.sh

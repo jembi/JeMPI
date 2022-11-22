@@ -1,10 +1,6 @@
 version: '3.8'
 
 networks:
-  portainer:
-    name: portainer
-    driver: overlay
-    attachable: true
   backend-kafka:
     name: backend-kafka
     driver: overlay
@@ -13,51 +9,15 @@ networks:
     name: backend-dgraph
     driver: overlay
     attachable: true
-  backend-cassandra:
-    name: backend-cassandra
-    driver: overlay
-    attachable: true
   frontend-api:
     name: frontend-api
     driver: overlay
     attachable: true
 
-volumes:
-  portainer_data: 
-
 services:
 
-  # agent:
-  #   image: ${REGISTRY_NODE_IP}/$PORTAINER_AGENT_IMAGE 
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - /var/lib/docker/volumes:/var/lib/docker/volumes
-  #   networks:
-  #     - portainer
-  #   deploy:
-  #     mode: global
-  #     placement:
-  #       constraints: [node.platform.os == linux]
-
-  # portainer:
-  #   image: ${REGISTRY_NODE_IP}/$PORTAINER_IMAGE
-  #   command: -H tcp://tasks.agent:9001 --tlsskipverify
-  #   ports:
-  #     - "9443:9443"
-  #     - "9000:9000"
-  #     - "8000:8000"
-  #   volumes:
-  #     - portainer_data:/data
-  #   networks:
-  #     - portainer
-  #   deploy:
-  #     mode: replicated
-  #     replicas: 0
-  #     placement:
-  #       constraints: [node.role == manager]
-
-  kafka-1:
-    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE 
+  jempi-kafka-01:
+    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE
     user: root
     networks:
       - backend-kafka
@@ -71,23 +31,18 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-01:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
       - type: bind
-        source: ${DATA_KAFKA_1_DIR}
+        source: ${DATA_KAFKA_01_DIR}
         target: /bitnami/kafka
         read_only: false
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KAFKA_1_LIMIT_MEMORY}
-        reservations:
-          memory: ${KAFKA_1_RESERVATION_MEMORY} 
       update_config:
         parallelism: 1
         delay: 10s
@@ -95,9 +50,9 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == $PLACEMENT_KAFKA_1
+          - node.hostname == $PLACEMENT_KAFKA_01
   
-  kafka-2:
+  jempi-kafka-02:
     image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE 
     user: root
     networks:
@@ -112,23 +67,18 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-02:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
       - type: bind
-        source: ${DATA_KAFKA_2_DIR}
+        source: ${DATA_KAFKA_02_DIR}
         target: /bitnami/kafka
         read_only: false
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KAFKA_2_LIMIT_MEMORY}
-        reservations:
-          memory: ${KAFKA_2_RESERVATION_MEMORY} 
       update_config:
         parallelism: 1
         delay: 10s
@@ -136,9 +86,9 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == $PLACEMENT_KAFKA_2
+          - node.hostname == $PLACEMENT_KAFKA_02
   
-  kafka-3:
+  jempi-kafka-03:
     image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE 
     user: root
     networks:
@@ -153,23 +103,18 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-03:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
       - type: bind
-        source: ${DATA_KAFKA_3_DIR}
+        source: ${DATA_KAFKA_03_DIR}
         target: /bitnami/kafka
         read_only: false
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${KAFKA_3_LIMIT_MEMORY}
-        reservations:
-          memory: ${KAFKA_3_RESERVATION_MEMORY} 
       update_config:
         parallelism: 1
         delay: 10s
@@ -177,11 +122,11 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == $PLACEMENT_KAFKA_3
-      
-  zero:
+          - node.hostname == $PLACEMENT_KAFKA_03
+
+  jempi-zero-01:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
-    hostname: "zero"
+    hostname: "jempi-zero-01"
     networks:
     - backend-dgraph
     ports:
@@ -195,15 +140,10 @@ services:
       mode: host
     volumes:
     - type: bind
-      source: ${DATA_DGRAPH_ZERO_DIR}
+      source: ${DATA_DGRAPH_ZERO_01_DIR}
       target: /dgraph
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${ZERO_LIMIT_MEMORY}
-        reservations:
-          memory: ${ZERO_RESERVATION_MEMORY}      
       update_config:
         parallelism: 1
         delay: 10s
@@ -211,17 +151,17 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ZERO}
-    command: dgraph zero --my=zero:5080 --replicas 1
+        - node.hostname == ${PLACEMENT_DGRAPH_ZERO_01}
+    command: dgraph zero --my=jempi-zero-01:5080 --replicas 1
 
-  alpha1:
+  jempi-alpha-01:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
-    hostname: "alpha1"
+    hostname: "jempi-alpha-01"
     networks:
     - backend-dgraph
     volumes:
     - type: bind
-      source: ${DATA_DGRAPH_ALPHA1_DIR}
+      source: ${DATA_DGRAPH_ALPHA_01_DIR}
       target: /dgraph
     ports:
     - published: 8080
@@ -234,11 +174,6 @@ services:
       mode: host
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${ALPHA_1_LIMIT_MEMORY}
-        reservations:
-          memory: ${ALPHA_1_RESERVATION_MEMORY}
       update_config:
         parallelism: 1
         delay: 10s
@@ -246,17 +181,17 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA1}
-    command: dgraph alpha --my=alpha1:7080 --zero=zero:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_01}
+    command: dgraph alpha --my=jempi-alpha-01:7080 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
-  alpha2:
+  jempi-alpha-02:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
-    hostname: "alpha2"
+    hostname: "jempi-alpha-02"
     networks:
     - backend-dgraph
     volumes:
     - type: bind
-      source: ${DATA_DGRAPH_ALPHA2_DIR}
+      source: ${DATA_DGRAPH_ALPHA_02_DIR}
       target: /dgraph
     ports:
     - published: 8081
@@ -269,11 +204,6 @@ services:
       mode: host
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${ALPHA_2_LIMIT_MEMORY}
-        reservations:
-          memory: ${ALPHA_2_RESERVATION_MEMORY}
       update_config:
         parallelism: 1
         delay: 10s
@@ -281,17 +211,17 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA2}
-    command: dgraph alpha --my=alpha2:7081 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_02}
+    command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-0zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
-  alpha3:
+  jempi-alpha-03:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
-    hostname: "alpha3"
+    hostname: "jempi-alpha-03"
     networks:
     - backend-dgraph
     volumes:
     - type: bind
-      source: ${DATA_DGRAPH_ALPHA3_DIR}
+      source: ${DATA_DGRAPH_ALPHA_03_DIR}
       target: /dgraph
     ports:
     - published: 8082
@@ -304,11 +234,6 @@ services:
       mode: host
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${ALPHA_3_LIMIT_MEMORY}
-        reservations:
-          memory: ${ALPHA_3_RESERVATION_MEMORY}
       update_config:
         parallelism: 1
         delay: 10s
@@ -316,10 +241,10 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA3}
-    command: dgraph alpha --my=alpha3:7082 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
+        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_03}
+    command: dgraph alpha --my=jempi-alpha-03:7082 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
-  ratel:
+  jempi-ratel:
     image: ${REGISTRY_NODE_IP}/${RATEL_IMAGE}
     ports:
     - published: 8010
@@ -330,11 +255,6 @@ services:
     - backend-dgraph
     deploy:
       replicas: 0
-      resources:
-        limits:
-          memory: ${RATEL_LIMIT_MEMORY}
-        reservations:
-          memory: ${RATEL_RESERVATION_MEMORY}     
       update_config:
         parallelism: 1
         delay: 10s
@@ -345,221 +265,83 @@ services:
         - node.hostname == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
-  # cassandra-1:
-  #   image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
-  #   user: root
-  #   hostname: "cassandra-1"
+
+
+
+  # journal:
+  #   image: ${REGISTRY_NODE_IP}/${JOURNAL_IMAGE}
   #   networks:
-  #   - backend-cassandra
-  #   ports:
-  #   - published: 9042
-  #     target: 9042
-  #     protocol: tcp
-  #     mode: host      
-  #   environment:
-  #     CASSANDRA_CLUSTER_NAME: cassandra-cluster
-  #     CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-  #     CASSANDRA_DATACENTER: datacenter1
-  #     CASSANDRA_RACK: rack1
-  #     CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
-  #     CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
+  #   - backend-kafka
   #   volumes:
   #   - type: bind
-  #     source: ${DATA_CASSANDRA_1_DIR}/data
-  #     target: /bitnami
-  #   - type: bind
-  #     source: ${DATA_CASSANDRA_1_DIR}/cassandra.yaml
-  #     target: /bitnami/cassandra/conf/cassandra.yaml
+  #     source: $DATA_DIR_JOURNAL/conf
+  #     target: /app/conf
   #     read_only: true
+  #   - type: bind
+  #     source: $DATA_DIR_JOURNAL/logs
+  #     target: /app/logs
+  #     read_only: false
   #   deploy:
+  #     mode: replicated
   #     replicas: 0
-  #     # resources:
-  #     #   limits:
-  #     #     memory: ${CASSANDRA_1_LIMIT_MEMORY}
-  #     #   reservations:
-  #     #     memory: ${CASSANDRA_1_RESERVATION_MEMORY}
   #     update_config:
   #       parallelism: 1
   #       delay: 10s
   #     restart_policy:
   #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
   #     placement:
   #       constraints:
-  #       - node.hostname == ${PLACEMENT_CASSANDRA_1}
-     
-  # cassandra-2:
-  #   image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
-  #   user: root
-  #   hostname: "cassandra-2"
+  #       - node.hostname == ${PLACEMENT_JOURNAL}        
+
+  # notifications:
+  #   image: ${REGISTRY_NODE_IP}/${NOTIFICATIONS_IMAGE}
   #   networks:
-  #   - backend-cassandra
-  #   ports:
-  #   - published: 9043
-  #     target: 9042
-  #     protocol: tcp
-  #     mode: host      
-  #   environment:
-  #     CASSANDRA_CLUSTER_NAME: cassandra-cluster
-  #     CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-  #     CASSANDRA_DATACENTER: datacenter1
-  #     CASSANDRA_RACK: rack1
-  #     CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
-  #     CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
+  #   - backend-kafka
   #   volumes:
   #   - type: bind
-  #     source: ${DATA_CASSANDRA_2_DIR}/data
-  #     target: /bitnami
-  #   - type: bind
-  #     source: ${DATA_CASSANDRA_2_DIR}/cassandra.yaml
-  #     target: /bitnami/cassandra/conf/cassandra.yaml
+  #     source: $DATA_DIR_NOTIFICATIONS/conf
+  #     target: /app/conf
   #     read_only: true
+  #   - type: bind
+  #     source: $DATA_DIR_NOTIFICATIONS/logs
+  #     target: /app/logs
+  #     read_only: false
   #   deploy:
+  #     mode: replicated
   #     replicas: 0
-  #     # resources:
-  #     #   limits:
-  #     #     memory: ${CASSANDRA_2_LIMIT_MEMORY}
-  #     #   reservations:
-  #     #     memory: ${CASSANDRA_2_RESERVATION_MEMORY}
   #     update_config:
   #       parallelism: 1
   #       delay: 10s
   #     restart_policy:
   #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
   #     placement:
   #       constraints:
-  #       - node.hostname == ${PLACEMENT_CASSANDRA_2}
+  #       - node.hostname == ${PLACEMENT_NOTIFICATIONS}        
 
-  # cassandra-3:
-  #   image: ${REGISTRY_NODE_IP}/${CASSANDRA_IMAGE}
-  #   user: root
-  #   hostname: "cassandra-3"
-  #   networks:
-  #   - backend-cassandra
-  #   ports:
-  #   - published: 9044
-  #     target: 9042
-  #     protocol: tcp
-  #     mode: host      
-  #   environment:
-  #     CASSANDRA_CLUSTER_NAME: cassandra-cluster
-  #     CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-  #     CASSANDRA_DATACENTER: datacenter1
-  #     CASSANDRA_RACK: rack1
-  #     CASSANDRA_ENABLE_USER_DEFINED_FUNCTIONS: 'true'
-  #     CASSANDRA_ENABLE_SCRIPTED_USER_DEFINED_FUNCTIONS: 'true'
-  #   volumes:
-  #   - type: bind
-  #     source: ${DATA_CASSANDRA_3_DIR}/data
-  #     target: /bitnami
-  #   - type: bind
-  #     source: ${DATA_CASSANDRA_3_DIR}/cassandra.yaml
-  #     target: /bitnami/cassandra/conf/cassandra.yaml
-  #     read_only: true
-  #   deploy:
-  #     replicas: 0
-  #     # resources:
-  #     #   limits:
-  #     #     memory: ${CASSANDRA_3_LIMIT_MEMORY}
-  #     #   reservations:
-  #     #     memory: ${CASSANDRA_3_RESERVATION_MEMORY}
-  #     update_config:
-  #       parallelism: 1
-  #       delay: 10s
-  #     restart_policy:
-  #       condition: on-failure
-  #     placement:
-  #       constraints:
-  #       - node.hostname == ${PLACEMENT_CASSANDRA_3}
-
-  journal:
-    image: ${REGISTRY_NODE_IP}/${JOURNAL_IMAGE}
+  jempi-async-receiver:
+    image: ${REGISTRY_NODE_IP}/${ASYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
     volumes:
     - type: bind
-      source: $DATA_DIR_JOURNAL/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_JOURNAL/logs
-      target: /app/logs
-      read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${JOURNAL_LIMIT_MEMORY}
-        reservations:
-          memory: ${JOURNAL_RESERVATION_MEMORY}      
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_JOURNAL}        
-
-  notifications:
-    image: ${REGISTRY_NODE_IP}/${NOTIFICATIONS_IMAGE}
-    networks:
-    - backend-kafka
-    volumes:
-    - type: bind
-      source: $DATA_DIR_NOTIFICATIONS/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_NOTIFICATIONS/logs
-      target: /app/logs
-      read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${NOTIFICATIONS_LIMIT_MEMORY}
-        reservations:
-          memory: ${NOTIFICATIONS_RESERVATION_MEMORY}      
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_NOTIFICATIONS}        
-
-  test-01:
-    image: ${REGISTRY_NODE_IP}/${TEST_01_IMAGE}
-    networks:
-    - backend-kafka
-    volumes:
-    - type: bind
-      source: $DATA_DIR_TEST_01/logs
+      source: $DATA_DIR_ASYNC_RECEIVER/logs
       target: /app/logs
       read_only: false
     - type: bind
-      source: $DATA_DIR_TEST_01/csv
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
       target: /app/csv
       read_only: true
     - type: bind
-      source: $DATA_DIR_TEST_01/conf
+      source: $DATA_DIR_ASYNC_RECEIVER/conf
       target: /app/conf
       read_only: true
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${TEST_01_LIMIT_MEMORY}
-        reservations:
-          memory: ${TEST_01_RESERVATION_MEMORY}     
       update_config:
         parallelism: 1
         delay: 10s
@@ -569,42 +351,10 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_TEST_01}
+        - node.hostname == ${PLACEMENT_ASYNC_RECEIVER}
 
-  staging-01:
-    image: ${REGISTRY_NODE_IP}/${STAGING_01_IMAGE}
-    networks:
-    - backend-kafka
-    volumes:
-    - type: bind
-      source: $DATA_DIR_STAGING_01/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_STAGING_01/logs
-      target: /app/logs
-      read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${STAGING_01_LIMIT_MEMORY}
-        reservations:
-          memory: ${STAGING_01_RESERVATION_MEMORY}      
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_STAGING_01}
-       
-  input-02:
-    image: ${REGISTRY_NODE_IP}/${INPUT_02_IMAGE}
+  jempi-sync-receiver:
+    image: ${REGISTRY_NODE_IP}/${SYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
     ports:
@@ -614,21 +364,16 @@ services:
       mode: host  
     volumes:
     - type: bind
-      source: $DATA_DIR_INPUT_02/logs
+      source: $DATA_DIR_SYNC_RECEIVER/logs
       target: /app/logs
       read_only: false
     - type: bind
-      source: $DATA_DIR_INPUT_02/conf
+      source: $DATA_DIR_SYNC_RECEIVER/conf
       target: /app/conf
       read_only: true
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${INPUT_02_LIMIT_MEMORY}
-        reservations:
-          memory: ${INPUT_02_RESERVATION_MEMORY}     
       update_config:
         parallelism: 1
         delay: 10s
@@ -638,29 +383,24 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_INPUT_02}
+        - node.hostname == ${PLACEMENT_SYNC_RECEIVER}
 
-  staging-02:
-    image: ${REGISTRY_NODE_IP}/${STAGING_02_IMAGE}
+  jempi-pre-processor:
+    image: ${REGISTRY_NODE_IP}/${PREPROCESSOR_IMAGE}
     networks:
     - backend-kafka
     volumes:
     - type: bind
-      source: $DATA_DIR_STAGING_02/conf
+      source: $DATA_DIR_PREPROCESSOR/conf
       target: /app/conf
       read_only: true
     - type: bind
-      source: $DATA_DIR_STAGING_02/logs
+      source: $DATA_DIR_PREPROCESSOR/logs
       target: /app/logs
       read_only: false
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${STAGING_02_LIMIT_MEMORY}
-        reservations:
-          memory: ${STAGING_02_RESERVATION_MEMORY}      
       update_config:
         parallelism: 1
         delay: 10s
@@ -670,78 +410,127 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_STAGING_02}
+        - node.hostname == ${PLACEMENT_PREPROCESSOR}
 
-  input-disi:
-    image: ${REGISTRY_NODE_IP}/${INPUT_DISI_IMAGE}
-    networks:
-    - backend-kafka
-    ports:
-    - published: 50030
-      target: 50000
-      protocol: tcp
-      mode: host  
-    volumes:
-    - type: bind
-      source: $DATA_DIR_INPUT_DISI/logs
-      target: /app/logs
-      read_only: false
-    - type: bind
-      source: $DATA_DIR_INPUT_DISI/conf
-      target: /app/conf
-      read_only: true
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${INPUT_DISI_LIMIT_MEMORY}
-        reservations:
-          memory: ${INPUT_DISI_RESERVATION_MEMORY}     
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_INPUT_DISI}
+  # input-02:
+  #   image: ${REGISTRY_NODE_IP}/${INPUT_02_IMAGE}
+  #   networks:
+  #   - backend-kafka
+  #   ports:
+  #   - published: 50040
+  #     target: 50000
+  #     protocol: tcp
+  #     mode: host  
+  #   volumes:
+  #   - type: bind
+  #     source: $DATA_DIR_INPUT_02/logs
+  #     target: /app/logs
+  #     read_only: false
+  #   - type: bind
+  #     source: $DATA_DIR_INPUT_02/conf
+  #     target: /app/conf
+  #     read_only: true
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 0
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_INPUT_02}
 
-  staging-disi:
-    image: ${REGISTRY_NODE_IP}/${STAGING_DISI_IMAGE}
-    networks:
-    - backend-kafka
-    volumes:
-    - type: bind
-      source: $DATA_DIR_STAGING_DISI/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_STAGING_DISI/logs
-      target: /app/logs
-      read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${STAGING_DISI_LIMIT_MEMORY}
-        reservations:
-          memory: ${STAGING_DISI_RESERVATION_MEMORY}      
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.hostname == ${PLACEMENT_STAGING_DISI}
+  # staging-02:
+  #   image: ${REGISTRY_NODE_IP}/${STAGING_02_IMAGE}
+  #   networks:
+  #   - backend-kafka
+  #   volumes:
+  #   - type: bind
+  #     source: $DATA_DIR_STAGING_02/conf
+  #     target: /app/conf
+  #     read_only: true
+  #   - type: bind
+  #     source: $DATA_DIR_STAGING_02/logs
+  #     target: /app/logs
+  #     read_only: false
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 0
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_STAGING_02}
 
-  controller:
+  # input-disi:
+  #   image: ${REGISTRY_NODE_IP}/${INPUT_DISI_IMAGE}
+  #   networks:
+  #   - backend-kafka
+  #   ports:
+  #   - published: 50030
+  #     target: 50000
+  #     protocol: tcp
+  #     mode: host  
+  #   volumes:
+  #   - type: bind
+  #     source: $DATA_DIR_INPUT_DISI/logs
+  #     target: /app/logs
+  #     read_only: false
+  #   - type: bind
+  #     source: $DATA_DIR_INPUT_DISI/conf
+  #     target: /app/conf
+  #     read_only: true
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 0
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_INPUT_DISI}
+
+  # staging-disi:
+  #   image: ${REGISTRY_NODE_IP}/${STAGING_DISI_IMAGE}
+  #   networks:
+  #   - backend-kafka
+  #   volumes:
+  #   - type: bind
+  #     source: $DATA_DIR_STAGING_DISI/conf
+  #     target: /app/conf
+  #     read_only: true
+  #   - type: bind
+  #     source: $DATA_DIR_STAGING_DISI/logs
+  #     target: /app/logs
+  #     read_only: false
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 0
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
+  #     placement:
+  #       constraints:
+  #       - node.hostname == ${PLACEMENT_STAGING_DISI}
+
+  jempi-controller:
     image: ${REGISTRY_NODE_IP}/${CONTROLLER_IMAGE}
     networks:
     - backend-kafka
@@ -762,11 +551,6 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${CONTROLLER_LIMIT_MEMORY}
-        reservations:
-          memory: ${CONTROLLER_RESERVATION_MEMORY}
       update_config:
         parallelism: 1
         delay: 10s
@@ -778,11 +562,10 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_CONTROLLER}
        
-  em:
+  jempi-em:
     image: ${REGISTRY_NODE_IP}/${EM_IMAGE}
     networks:
     - backend-kafka
-    - backend-cassandra
     volumes:
     - type: bind
       source: $DATA_DIR_EM/conf
@@ -795,12 +578,6 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: ${EM_LIMIT_MEMORY}
-        reservations:
-          memory: ${EM_RESERVATION_MEMORY}    
       update_config:
         parallelism: 1
         delay: 10s
@@ -812,12 +589,11 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_EM}
 
-  linker:
+  jempi-linker:
     image: ${REGISTRY_NODE_IP}/${LINKER_IMAGE}
     networks:
     - backend-kafka
     - backend-dgraph
-    - backend-cassandra
     ports:
     - published: 50010
       target: 50000
@@ -835,11 +611,6 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${LINKER_LIMIT_MEMORY}
-        reservations:
-          memory: ${LINKER_RESERVATION_MEMORY}
       update_config:
         parallelism: 1
         delay: 10s
@@ -850,12 +621,11 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_LINKER}
-        
-  api:
+
+  jempi-api:
     image: ${REGISTRY_NODE_IP}/${API_IMAGE}
     networks:
     - backend-dgraph
-    - backend-cassandra
     - frontend-api
     ports:
     - published: 50000
@@ -874,11 +644,6 @@ services:
     deploy:
       mode: replicated
       replicas: 0
-      resources:
-        limits:
-          memory: ${API_LIMIT_MEMORY}
-        reservations:
-          memory: ${API_RESERVATION_MEMORY}
       update_config:
         parallelism: 1
         delay: 10s
@@ -889,4 +654,3 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_API}
-  
