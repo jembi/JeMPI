@@ -1,6 +1,5 @@
 JAVA_VERSION=17.0.5
 JAVA_VERSION_X=${JAVA_VERSION}_8
-JAVA_VERSION_X_JENKINS=${JAVA_VERSION}+8
 
 # https://registry.hub.docker.com/r/azul/zulu-openjdk
 #export JAVA_BASE_IMAGE=azul/zulu-openjdk:$JAVA_VERSION
