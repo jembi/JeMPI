@@ -22,13 +22,12 @@ import java.util.Properties;
 public class NotificationStreamProcessor {
 
     private static final Logger LOGGER = LogManager.getLogger(NotificationStreamProcessor.class);
-    private KafkaStreams notificationKafkaStream = null;
+    private KafkaStreams notificationKafkaStreams = null;
 
     void open(final ActorSystem<Void> system, final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.info("Stream Processor");
 
         final Properties props = loadConfig();
-
         final Serde<String> stringSerde = Serdes.String();
         final Serializer<Notification> batchEntitySerializer = new JsonPojoSerializer<>();
         final Deserializer<Notification> batchEntityDeserializer = new JsonPojoDeserializer<>(Notification.class);
@@ -43,10 +42,14 @@ public class NotificationStreamProcessor {
                             // TODO: Write value to database
                         }
                 );
-        notificationKafkaStream = new KafkaStreams(streamsBuilder.build(), props);
-        notificationKafkaStream.cleanUp();
-        notificationKafkaStream.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(notificationKafkaStream::close));
+        LOGGER.debug("tag");
+        notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
+        LOGGER.debug("tag");
+        notificationKafkaStreams.cleanUp();
+        LOGGER.debug("tag");
+        notificationKafkaStreams.start();
+        LOGGER.debug("tag");
+        Runtime.getRuntime().addShutdownHook(new Thread(notificationKafkaStreams::close));
         LOGGER.info("Notifications started");
     }
 
