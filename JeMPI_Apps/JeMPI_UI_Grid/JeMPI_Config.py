@@ -1,7 +1,6 @@
 import wx
 
 API_SERVER = 'http://localhost:50000'
-# LINKER_SERVICE = 'http://localhost:50010'
 CONTROLLER_SERVER = 'http://localhost:50020'
 
 REFERENCE = True
