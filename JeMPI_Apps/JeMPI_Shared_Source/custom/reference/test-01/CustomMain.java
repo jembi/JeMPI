@@ -1,4 +1,4 @@
-package org.jembi.jempi.test;
+package org.jembi.jempi.async_receiver;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
