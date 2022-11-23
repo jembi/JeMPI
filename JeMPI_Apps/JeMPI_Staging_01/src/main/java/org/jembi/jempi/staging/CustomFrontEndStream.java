@@ -1,1 +1,0 @@
-../../../../../../../../JeMPI_Shared_Source/custom/reference/staging-01/CustomFrontEndStream.java

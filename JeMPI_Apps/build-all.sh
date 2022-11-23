@@ -7,10 +7,10 @@ pushd JeMPI_LibMPI
   ./build.sh || exit 1
 popd
 
-pushd JeMPI_Test_02
-  mvn clean
-  mvn package
-popd
+# pushd JeMPI_Test_02
+#   mvn clean
+#   mvn package
+# popd
 pushd JeMPI_Stats
   mvn clean
   mvn package
