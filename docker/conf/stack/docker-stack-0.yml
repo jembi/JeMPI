@@ -626,6 +626,7 @@ services:
     image: ${REGISTRY_NODE_IP}/${API_IMAGE}
     networks:
     - backend-dgraph
+    - backend-kafka
     - frontend-api
     ports:
     - published: 50000

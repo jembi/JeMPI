@@ -29,9 +29,9 @@ public class NotificationStreamProcessor {
 
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
-        final Serializer<Notification> batchEntitySerializer = new JsonPojoSerializer<>();
-        final Deserializer<Notification> batchEntityDeserializer = new JsonPojoDeserializer<>(Notification.class);
-        final Serde<Notification> notificationSerde = Serdes.serdeFrom(batchEntitySerializer, batchEntityDeserializer);
+        final Serializer<Notification> notificationSerializer = new JsonPojoSerializer<>();
+        final Deserializer<Notification> notificationDeserializer = new JsonPojoDeserializer<>(Notification.class);
+        final Serde<Notification> notificationSerde = Serdes.serdeFrom(notificationSerializer, notificationDeserializer);
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
         final KStream<String, Notification> notificationStream = streamsBuilder.stream(
                 GlobalConstants.TOPIC_NOTIFICATIONS,
@@ -42,13 +42,9 @@ public class NotificationStreamProcessor {
                             // TODO: Write value to database
                         }
                 );
-        LOGGER.debug("tag");
         notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
-        LOGGER.debug("tag");
         notificationKafkaStreams.cleanUp();
-        LOGGER.debug("tag");
         notificationKafkaStreams.start();
-        LOGGER.debug("tag");
         Runtime.getRuntime().addShutdownHook(new Thread(notificationKafkaStreams::close));
         LOGGER.info("Notifications started");
     }
