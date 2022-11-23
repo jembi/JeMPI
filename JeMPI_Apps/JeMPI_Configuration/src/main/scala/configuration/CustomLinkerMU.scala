@@ -122,7 +122,7 @@ object CustomLinkerMU {
     val fmt = Range(0, muList.length)
       .map(x => "f" + (x + 1).toString + "(%f:%f)")
       .reduce { (accumulator, elem) => accumulator + " " + elem }
-    println(fmt)
+//    println(fmt)
 
     writer.println(
       s"""         return String.format("$fmt",""".stripMargin)
