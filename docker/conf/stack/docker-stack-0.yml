@@ -212,7 +212,7 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-0zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+    command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
   jempi-alpha-03:
     image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}

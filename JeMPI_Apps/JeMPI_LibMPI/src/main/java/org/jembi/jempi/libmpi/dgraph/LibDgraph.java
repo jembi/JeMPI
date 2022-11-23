@@ -5,7 +5,6 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.journal.Journal;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.libmpi.MpiGeneralError;
@@ -20,14 +19,9 @@ import static io.dgraph.DgraphProto.Operation.DropOp.DATA;
 public class LibDgraph implements LibMPIClientInterface {
 
    private static final Logger LOGGER = LogManager.getLogger(LibDgraph.class);
-   private final Journal journal;
 
    public LibDgraph(final String[] host, final int[] port) {
       LOGGER.info("{}", "LibDgraph Constructor");
-      journal = new Journal();
-      journal.startTransaction();
-      var result = journal.createSchema();
-      LOGGER.debug("{}", result);
 
       Client.getInstance().config(host, port);
    }
@@ -89,11 +83,6 @@ public class LibDgraph implements LibMPIClientInterface {
 
    public boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String val) {
       final var rc = Mutations.updateGoldenRecordPredicate(uid, predicate, val);
-      if (rc) {
-         journal.logEvent(uid, uid, null, String.format("uid:%s,predicate:%s,val:%s", uid, predicate, val));
-      } else {
-         journal.logEvent(uid, uid, null, String.format("error: uid:%s,predicate:%s,val:%s", uid, predicate, val));
-      }
       return rc;
    }
 
@@ -115,10 +104,6 @@ public class LibDgraph implements LibMPIClientInterface {
    public LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score) {
       final var dgraphEntity = new CustomLibMPIDGraphEntity(customEntity, score);
       final var linkInfo = Mutations.addNewDGraphEntity(customEntity);
-      if (linkInfo != null) {
-         journal.logEvent(linkInfo.entityId(), linkInfo.goldenId(), linkInfo.entityId(),
-                          String.format("gid:%s, did:%s, score:%f", linkInfo.goldenId(), linkInfo.entityId(), linkInfo.score()));
-      }
       return linkInfo;
    }
 
