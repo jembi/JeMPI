@@ -12,7 +12,7 @@ pushd JeMPI_AsyncReceiver/src/main/java/org/jembi/jempi/shared/models
 popd
 pushd JeMPI_AsyncReceiver/src/main/java/org/jembi/jempi/async_receiver
   rm -f CustomMain.java
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/async_receiver/CustomMain.java CustomMain.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/async-receiver/CustomMain.java CustomMain.java
 popd
 
 # JeMPI_SyncReceiver
