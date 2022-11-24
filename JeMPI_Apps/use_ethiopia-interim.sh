@@ -2,7 +2,11 @@
 
 set -e
 set -u
-
+ 
+pushd JeMPI_Configuration
+  sbt "run config-ethiopia.json"
+popd
+ 
 PROJECT=ethiopia-interim
 
 # JeMPI_Test_01
