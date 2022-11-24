@@ -40,14 +40,16 @@ class CustomEMTask {
     private static final Logger LOGGER = LogManager.getLogger(CustomEMTask.class);
     private static final double LOG2 = log(2.0);
 
-    private static final int IDX_GIVEN_NAME = 0;
-    private static final int IDX_FAMILY_NAME = 1;
-    private static final int IDX_GENDER = 2;
-    private static final int IDX_DOB = 3;
-    private static final int IDX_CITY = 4;
-    private static final int IDX_PHONE_NUMBER = 5;
-    private static final int IDX_NATIONAL_ID = 6;
-    private static final int N_LINK_FIELDS = 7;
+    private static final int IDX_NAME_GIVEN = 0;
+    private static final int IDX_NAME_FATHER = 1;
+    private static final int IDX_NAME_FATHERS_FATHER = 2;
+    private static final int IDX_NAME_MOTHER = 3;
+    private static final int IDX_NAME_MOTHERS_FATHER = 4;
+    private static final int IDX_GENDER = 5;
+    private static final int IDX_DOB = 6;
+    private static final int IDX_CITY = 7;
+    private static final int IDX_PHONE_NUMBER = 8;
+    private static final int N_LINK_FIELDS = 9;
     private static final int MISSING_ELEMENT_INT = Integer.MIN_VALUE;
     private static final int LEVELS = 3;
     private static final DoubleMetaphone DOUBLE_METAPHONE = new DoubleMetaphone();
@@ -99,7 +101,6 @@ class CustomEMTask {
         return row;
     }
 
-    // Assumption:  consumer offset already set to postion to read from.
     private ArrayList<int[]> getGammaMatrix(final MyKafkaConsumerByPartition<String, BatchEntity> consumer,
                                             final long nRecords) {
         final var jaroWinklerSimilarity = new JaroWinklerSimilarity();
@@ -125,13 +126,16 @@ class CustomEMTask {
                             var k = 0;
                             k += (patient.col1Phonetic() == null || !patient.col1Phonetic().equals(p.col1Phonetic())) ? 0 : 1;
                             k += (patient.col2Phonetic() == null || !patient.col2Phonetic().equals(p.col2Phonetic())) ? 0 : 1;
+                            k += (patient.col3Phonetic() == null || !patient.col3Phonetic().equals(p.col3Phonetic())) ? 0 : 1;
+                            k += (patient.col4Phonetic() == null || !patient.col4Phonetic().equals(p.col4Phonetic())) ? 0 : 1;
+                            k += (patient.col5Phonetic() == null || !patient.col5Phonetic().equals(p.col5Phonetic())) ? 0 : 1;
                             k += (patient.cityPhonetic() == null || !patient.cityPhonetic().equals(p.cityPhonetic())) ? 0 : 1;
                             if (k >= 1) {
-                                final String[] left = {patient.col1(), patient.col2(),
+                                final String[] left = {patient.col1(), patient.col2(), patient.col3(), patient.col4(), patient.col5(),
                                                        patient.genderAtBirth(), patient.dateOfBirth(), patient.city(),
-                                                       patient.phoneNumber(), patient.nationalID()};
-                                final String[] right = {p.col1(), p.col2(), p.genderAtBirth(),
-                                                        p.dateOfBirth(), p.city(), p.phoneNumber(), p.nationalID()};
+                                                       patient.phoneNumber()};
+                                final String[] right = {p.col1(), p.col2(), p.col3(), p.col4(), p.col5(), p.genderAtBirth(),
+                                                        p.dateOfBirth(), p.city(), p.phoneNumber()};
                                 gamma.add(setRowLevels(rowNumber[0]++, jaroWinklerSimilarity, left, right));
                             }
                         });
@@ -258,10 +262,16 @@ class CustomEMTask {
         final double[] mHat = new double[N_LINK_FIELDS];
         final double[] uHat = new double[N_LINK_FIELDS];
 
-        mHat[IDX_GIVEN_NAME] = 0.78;
-        uHat[IDX_GIVEN_NAME] = 0.05;
-        mHat[IDX_FAMILY_NAME] = 0.84;
-        uHat[IDX_FAMILY_NAME] = 0.07;
+        mHat[IDX_NAME_GIVEN] = 0.78;
+        uHat[IDX_NAME_GIVEN] = 0.05;
+        mHat[IDX_NAME_FATHER] = 0.78;
+        uHat[IDX_NAME_FATHER] = 0.05;
+        mHat[IDX_NAME_FATHERS_FATHER] = 0.78;
+        uHat[IDX_NAME_FATHERS_FATHER] = 0.05;
+        mHat[IDX_NAME_MOTHER] = 0.78;
+        uHat[IDX_NAME_MOTHER] = 0.05;
+        mHat[IDX_NAME_MOTHERS_FATHER] = 0.78;
+        uHat[IDX_NAME_MOTHERS_FATHER] = 0.05;
         mHat[IDX_GENDER] = 0.90;
         uHat[IDX_GENDER] = 0.50;
         mHat[IDX_DOB] = 0.97;
@@ -270,8 +280,6 @@ class CustomEMTask {
         uHat[IDX_CITY] = 0.79;
         mHat[IDX_PHONE_NUMBER] = 0.99;
         uHat[IDX_PHONE_NUMBER] = 0.01;
-        mHat[IDX_NATIONAL_ID] = 0.97;
-        uHat[IDX_NATIONAL_ID] = 0.01;
 
         double pHat = 0.5;
 

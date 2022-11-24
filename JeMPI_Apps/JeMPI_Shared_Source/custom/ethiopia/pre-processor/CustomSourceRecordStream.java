@@ -52,7 +52,7 @@ public class CustomSourceRecordStream {
             GlobalConstants.TOPIC_PATIENT_ASYNC_PREPROCESSOR, Consumed.with(stringSerde, customSourceRecordSerde));
       patientKStream
             .map((key, rec) -> {
-               var k = rec.familyName();
+               var k = rec.nameFather();
                if (StringUtils.isBlank(k)) {
                   k = "anon";
                }
@@ -69,15 +69,17 @@ public class CustomSourceRecordStream {
                      new CustomEntity(null,
                                       new SourceId(null,
                                                    FACILITY.get(random.nextInt(FACILITY.size())),
-                                                   StringUtils.isNotBlank(rec.nationalID()) ? rec.nationalID() : "ANON"),
+                                                   "ANON"),
                                       rec.auxId(),
-                                      rec.givenName(),
-                                      rec.familyName(),
+                                      rec.nameGiven(),
+                                      rec.nameFather(),
+                                      rec.nameFathersFather(),
+                                      rec.nameMother(),
+                                      rec.nameMothersFather(),
                                       rec.gender(),
                                       rec.dob(),
                                       rec.city(),
-                                      rec.phoneNumber(),
-                                      rec.nationalID()));
+                                      rec.phoneNumber()));
                return KeyValue.pair(k, entity);
             })
             .filter((key, value) -> !(value.entityType() == BatchEntity.EntityType.BATCH_RECORD && StringUtils.isBlank(
@@ -116,5 +118,4 @@ public class CustomSourceRecordStream {
       OPERATION_TYPE_SOUNDEX,
       OPERATION_TYPE_REFINED_SOUNDEX
    }
-
 }

@@ -62,7 +62,7 @@ public final class CustomMain {
                             stan,
                             fields[0], fields[1], fields[2], fields[3],
                             fields[4], fields[5], fields[6], fields[7],
-                            fields[8], fields[9], fields[10]);
+                            fields[8], fields[9]);
             LOGGER.debug("{}", rec);
             producer.produceSync(rec.auxId().substring(0, 13), rec);
         } catch (NullPointerException ex) {
@@ -131,7 +131,6 @@ public final class CustomMain {
             LOGGER.info("A new file {} was created", filename);
             if (name.endsWith(".csv")) {
                 LOGGER.info("Process CSV file: {}", filename);
-//                apacheReadCSV("csv/" + filename)
                 openCsvReadCSV("csv/" + filename);
             }
         } else if (ENTRY_MODIFY.equals(kind)) {
