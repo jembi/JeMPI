@@ -43,6 +43,7 @@
     {
       "fieldName": "gender",
       "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
       "m": 0.8,
       "u": 0.5
     },
@@ -63,33 +64,38 @@
       "fieldName": "phone_number",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexDocument": "@index(exact,trigram)",
       "m": 0.8,
       "u": 0.2
     }
   ],
   "rules": {
-    "QUERY_DETERMINISTIC_CANDIDATES": {
-      "vars": [
-        "name_given",
-        "name_father",
-        "phone_number"
-      ],
-      "text": "eq(name_given) and eq(name_father) and eq(phone_number)"
+    "deterministic": {
+      "QUERY_DETERMINISTIC_CANDIDATES": {
+        "vars": [
+          "name_given",
+          "name_father",
+          "phone_number"
+        ],
+        "text": "eq(name_given) and eq(name_father) and eq(phone_number)"
+      }
     },
-    "QUERY_MATCH_GOLDEN_RECORDS_BY_DISTANCE": {
-      "vars": [
-        "name_given",
-        "name_father",
-        "city"
-      ],
-      "text": "match(name_given,3) and match(name_father,3) or match(name_given,3) and match(city,3) or match(name_father,3) and match(city,3)"
+    "probabilistic": {
+      "QUERY_MATCH_GOLDEN_RECORDS_BY_DISTANCE": {
+        "vars": [
+          "name_given",
+          "name_father",
+          "city"
+        ],
+        "text": "match(name_given,3) and match(name_father,3) or match(name_given,3) and match(city,3) or match(name_father,3) and match(city,3)"
+      }
     },
-    "QUERY_MATCH_GOLDEN_RECORDS_BY_PHONE_NUMBER": {
-      "vars": [
-        "phone_number"
-      ],
-      "text": "match(phone_number,3)"
+    "probabilistic": {
+      "QUERY_MATCH_GOLDEN_RECORDS_BY_PHONE_NUMBER": {
+        "vars": [
+          "phone_number"
+        ],
+        "text": "match(phone_number,3)"
+      }
     }
   }
 }
