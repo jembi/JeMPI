@@ -70,7 +70,7 @@
   ],
   "rules": {
     "deterministic": {
-      "QUERY_DETERMINISTIC_CANDIDATES": {
+      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
         "vars": [
           "name_given",
           "name_father",
