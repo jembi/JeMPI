@@ -34,7 +34,7 @@
       "u": 0.012448
     },
     {
-      "fieldName": "address",
+      "fieldName": "city",
       "fieldType": "String",
       "indexGoldenRecord": "@index(trigram)",
       "m": 0.872691,
@@ -64,9 +64,9 @@
         "vars": [
           "given_name",
           "family_name",
-          "address"
+          "city"
         ],
-        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(address,3) or match(family_name,3) and match(address,3)"
+        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
       },
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
         "vars": [
