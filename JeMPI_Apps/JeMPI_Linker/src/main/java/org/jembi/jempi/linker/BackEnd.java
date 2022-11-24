@@ -14,6 +14,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 
 import java.time.Duration;
@@ -31,6 +32,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static LibMPI libMPI = null;
 
    private final CustomLinkerMU customLinkerMU = new CustomLinkerMU();
+
+   private MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(ActorContext<Event> context) {
       super(context);
@@ -195,6 +198,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                         .collect(Collectors.toCollection(ArrayList::new));
             final var candidatesAboveMatchThreshold = allCandidateScores
                   .stream()
+
                   .filter(v -> v.score() >= matchThreshold)
                   .collect(Collectors.toCollection(ArrayList::new));
             if (candidatesAboveMatchThreshold.isEmpty()) {
