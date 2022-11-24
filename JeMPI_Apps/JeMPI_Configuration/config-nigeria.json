@@ -1,0 +1,81 @@
+{
+  "fields": [
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "given_name",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.782501,
+      "u": 0.023720
+    },
+    {
+      "fieldName": "family_name",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexEntity": "@index(exact,trigram)",
+      "m": 0.850909,
+      "u": 0.029750
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
+      "m": 0.786614,
+      "u": 0.443018
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "m": 0.894637,
+      "u": 0.012448
+    },
+    {
+      "fieldName": "address",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(trigram)",
+      "m": 0.872691,
+      "u": 0.132717
+    },
+    {
+      "fieldName": "phone_number",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "m": 0.920281,
+      "u": 0.322629
+    }
+  ],
+  "rules": {
+    "deterministic": {
+      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
+        "vars": [
+          "given_name",
+          "family_name",
+          "phone_number"
+        ],
+        "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
+      }
+    },
+    "probabilistic": {
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
+        "vars": [
+          "given_name",
+          "family_name",
+          "address"
+        ],
+        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(address,3) or match(family_name,3) and match(address,3)"
+      },
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
+        "vars": [
+          "phone_number"
+        ],
+        "text": "match(phone_number,3)"
+      }
+    }
+  }
+}
+
+
