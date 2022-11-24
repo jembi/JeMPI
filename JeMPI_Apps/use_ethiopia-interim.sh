@@ -3,6 +3,10 @@
 set -e
 set -u
 
+pushd JeMPI_Configuration
+  sbt run
+popd
+
 PROJECT=ethiopia
 
 # JeMPI_AsyncReceiver
@@ -44,3 +48,4 @@ pushd JeMPI_Stats/src/main/java/org/jembi/jempi/stats
   rm -f CustomMain.java
   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/stats/CustomMain.java CustomMain.java
 popd
+
