@@ -13,6 +13,10 @@ networks:
     name: frontend-api
     driver: overlay
     attachable: true
+  backend-postgresql:
+    name: backend-postgresql
+    driver: overlay
+    attachable: true
 
 services:
 
@@ -477,3 +481,31 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_API}
+
+  jempi-postgresql:
+    image: ${REGISTRY_NODE_IP}/${POSTGRESQL_IMAGE}
+    environment:
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+    networks:
+    - backend-postgresql
+    ports:
+    - published: 5432
+      target: 5432
+      protocol: tcp
+      mode: host  
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.hostname == ${PLACEMENT_POSTGRESQL}
+    
