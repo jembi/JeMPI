@@ -24,6 +24,8 @@ public final class AppConfig {
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
    public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
+   public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
+   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
 
    private AppConfig() {
    }

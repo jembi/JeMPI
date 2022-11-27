@@ -17,10 +17,16 @@
     <packaging>jar</packaging>
 
     <properties>
-        <start-class>${project.groupId}.CustomMain</start-class>
+        <start-class>${project.groupId}.Main</start-class>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${version.com.squareup.okhttp3.okhttp}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -38,12 +44,6 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.tools.version}</artifactId>
             <version>${version.com.typesafe.akka.akka-http_2.13}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>${version.com.opencsv.opencsv}</version>
         </dependency>
 
         <dependency>
@@ -74,6 +74,30 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-base</artifactId>
+            <version>${version.ca.uhn.hapi.fhir}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-r4</artifactId>
+            <version>${version.ca.uhn.hapi.fhir}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-validation-resources-dstu2</artifactId>
+            <version>${version.ca.uhn.hapi.fhir}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-validation-resources-r4</artifactId>
+            <version>${version.ca.uhn.hapi.fhir}</version>
         </dependency>
 
         <dependency>
@@ -219,10 +243,6 @@
         </plugins>
 
     </build>
-
-
-
-
 
 
 </project>
