@@ -40,6 +40,20 @@ private object CustomEntity {
         writer.println(" " * 11 + (if (idx + 1 < fields.length) "null," else "null);"))
     }
     writer.println(
+      s"""   }""".stripMargin)
+
+    writer.println(
+      s"""   public String getNames(final CustomEntity entity) {
+         |      return """.stripMargin)
+    val names = fields.filter(f => f.fieldName.contains("name"))
+    names.zipWithIndex.foreach {
+      case (field, idx) =>
+      writer.print(" " * 13)
+      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+      writer.print("entity." + fieldName)
+      writer.println(if (idx + 1 < names.length) " + ' ' +" else ";")
+    }
+    writer.println(
       s"""   }
          |
          |}""".stripMargin)
@@ -102,7 +116,4 @@ private object CustomEntity {
     writer.flush()
     writer.close()
   end generateGoldenRecord
-
-
-
 }
