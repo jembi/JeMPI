@@ -3,6 +3,10 @@
 set -e
 set -u
 
+pushd JeMPI_Configuration
+  sbt "run config-nigeria.json"
+popd
+
 PROJECT=nigeria
 
 # JeMPI_AsyncReceiver
@@ -29,6 +33,10 @@ popd
 pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/pre_processor
   rm -f CustomSourceRecordStream.java
   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/pre-processor/CustomSourceRecordStream.java CustomSourceRecordStream.java
+popd
+pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/pre_processor
+  rm -f CustomFHIRsyncReceiver.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/pre-processor/CustomFHIRsyncReceiver.java
 popd
 
 # JeMPI_EM
