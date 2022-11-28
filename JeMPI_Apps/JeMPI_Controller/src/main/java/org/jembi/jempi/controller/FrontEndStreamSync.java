@@ -70,6 +70,7 @@ public class FrontEndStreamSync extends AllDirectives {
       return entity(Jackson.unmarshaller(LinkEntitySyncBody.class),
                     obj -> {
                        try {
+                          LOGGER.debug("{}", obj);
                           return onComplete(postLinkEntity(obj),
                                             response -> response.isSuccess()
                                                         ? complete(response.get())

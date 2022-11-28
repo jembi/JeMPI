@@ -2,9 +2,17 @@
 
 set -e
 set -u
-
+ 
 pushd JeMPI_Configuration
-  sbt run
+  sbt "run config-ethiopia.json"
+popd
+ 
+PROJECT=ethiopia
+
+# JeMPI_Test_01
+pushd JeMPI_Test_01/src/main/java/org/jembi/jempi/shared/models
+  rm -f CustomTesterPatientRecord.java
+  ln -s ../../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/CustomTesterPatientRecord.java CustomTesterPatientRecord.java
 popd
 
 PROJECT=ethiopia

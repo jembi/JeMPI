@@ -9,10 +9,10 @@ import java.io.File;
 
 public final class AppConfig {
 
-    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
+    private static final Logger LOGGER = LogManager.getLogger(org.jembi.jempi.AppConfig.class);
     private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
     private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-    private static final Config CONFIG = new Builder()
+    private static final Config CONFIG = new org.jembi.jempi.AppConfig.Builder()
             .withSystemEnvironment()
             .withSystemProperties()
             .withOptionalRelativeFile("/conf/server.production.conf")
@@ -21,27 +21,8 @@ public final class AppConfig {
             .withResource("application.local.conf")
             .withResource("application.conf")
             .build();
-    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
-    public static final String KAFKA_APPLICATION_ID_ENTITIES = CONFIG.getString("kafka.application-id-entities");
-    public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("kafka.application-id-mu");
-    public static final String KAFKA_APPLICATION_ID_NOTIFICATIONS = CONFIG.getString("kafka.application-id-notifications");
-    public static final String KAFKA_CLIENT_ID_ENTITIES = CONFIG.getString("kafka.client-id-entities");
-    public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("kafka.client-id-mu");
-    public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("kafka.client-id-notifications");
     public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
     public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
-
-    public static final Float BACK_END_MATCH_THRESHOLD = (float) CONFIG.getDouble("back-end.match-threshold");
-    public static final Boolean BACK_END_DETERMINISTIC = CONFIG.getBoolean("back-end.deterministic");
-
-    public static final String DGRAPH_ALPHA1_HOST = CONFIG.getString("dgraph.alpha1.host");
-    public static final int DGRAPH_ALPHA1_PORT = CONFIG.getInt("dgraph.alpha1.port");
-
-    public static final String DGRAPH_ALPHA2_HOST = CONFIG.getString("dgraph.alpha2.host");
-    public static final int DGRAPH_ALPHA2_PORT = CONFIG.getInt("dgraph.alpha2.port");
-
-    public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
-    public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
 
     private AppConfig() {
     }
@@ -98,7 +79,7 @@ public final class AppConfig {
             conf = conf.resolve();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Logging properties. Make sure sensitive data such as passwords or secrets are not " +
-                        "logged!");
+                             "logged!");
                 LOGGER.debug(conf.root().render());
             }
             return conf;

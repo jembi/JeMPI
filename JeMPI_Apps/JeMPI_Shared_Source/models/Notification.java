@@ -1,6 +1,26 @@
 package org.jembi.jempi.shared.models;
 
-public record Notification(
-      Long timeStamp,
-      String message
-) {}
+import java.util.List;
+
+public record Notification(Long timeStamp,  // UTC Time
+                           NotificationType notificationType,
+                           String dID,   // Document ID
+                           List<String> patientNames,
+                           MatchData linkedTo,
+                           List<MatchData> candidates) {
+    public enum NotificationType {
+        THRESHOLD("Threshold"),
+        MARGIN("Margin");
+
+        public final String label;
+
+        private NotificationType(String label) {
+            this.label = label;
+        }
+    }
+
+    public record MatchData(String gID,  // Golden ID
+                            Float score) {
+    }
+
+}
