@@ -373,7 +373,7 @@ public class HttpServer extends AllDirectives {
                                 path("GoldenRecordDocumentList",
                                         () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
                                 path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
-                                path("Document", () -> routeGoldenRecord(actorSystem, backEnd)),
+                                path("Document", () -> routeDocument(actorSystem, backEnd)),
                                 path("Candidates", () -> routeCandidates(actorSystem, backEnd))))));
     }
 

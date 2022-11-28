@@ -70,9 +70,6 @@ public class LibDgraph implements LibMPIClientInterface {
     @Override
     public CustomEntity getDocument(String uid) {
         final var rec = Queries.getDGraphEntity(uid);
-        if (rec == null) {
-            return null;
-        }
         return rec;
     }
 
