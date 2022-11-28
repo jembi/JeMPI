@@ -2,9 +2,9 @@
 
 set -e
 set -u
-
+ 
 pushd JeMPI_Configuration
-  sbt run
+  sbt "run config-ethiopia.json"
 popd
 
 PROJECT=ethiopia
@@ -16,7 +16,7 @@ pushd JeMPI_AsyncReceiver/src/main/java/org/jembi/jempi/shared/models
 popd
 pushd JeMPI_AsyncReceiver/src/main/java/org/jembi/jempi/async_receiver
   rm -f CustomMain.java
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/async_receiver/CustomMain.java CustomMain.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/async-receiver/CustomMain.java CustomMain.java
 popd
 
 # JeMPI_SyncReceiver
@@ -33,6 +33,10 @@ popd
 pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/pre_processor
   rm -f CustomSourceRecordStream.java
   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/pre-processor/CustomSourceRecordStream.java CustomSourceRecordStream.java
+popd
+pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/pre_processor
+  rm -f CustomFHIRsyncReceiver.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/pre-processor/CustomFHIRsyncReceiver.java
 popd
 
 # JeMPI_EM

@@ -3,6 +3,10 @@
 set -e
 set -u
 
+pushd JeMPI_Configuration
+  sbt "run config-reference.json"
+popd
+
 PROJECT=reference
 
 # JeMPI_AsyncReceiver
