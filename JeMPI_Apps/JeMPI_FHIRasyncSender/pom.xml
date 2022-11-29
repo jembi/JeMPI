@@ -4,11 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jembi.jempi.pre_processor</groupId>
-    <artifactId>PreProcessor</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>org.jembi.jempi</groupId>
         <artifactId>JeMPI</artifactId>
@@ -16,8 +11,13 @@
         <relativePath>../parent.xml</relativePath>
     </parent>
 
+    <groupId>org.jembi.jempi.fhir_async_sender</groupId>
+    <artifactId>FHIRasyncSender</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
     <properties>
-        <start-class>${project.groupId}.Main</start-class>
+        <start-class>${project.groupId}.CustomMain</start-class>
     </properties>
 
     <dependencies>
@@ -41,21 +41,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-http-jackson_2.13}</version>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${version.com.opencsv.opencsv}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${version.org.apache.commons.commons-lang3}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>${version.org.apache.commons.commons-text}</version>
+            <artifactId>commons-csv</artifactId>
+            <version>${version.org.apache.commons.commons-csv}</version>
         </dependency>
 
         <dependency>
@@ -83,36 +77,6 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${version.commons-codec.commons-codec}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-base</artifactId>
-            <version>${version.ca.uhn.hapi.fhir}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-structures-r4</artifactId>
-            <version>${version.ca.uhn.hapi.fhir}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-validation-resources-dstu2</artifactId>
-            <version>${version.ca.uhn.hapi.fhir}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-validation-resources-r4</artifactId>
-            <version>${version.ca.uhn.hapi.fhir}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${version.org.apache.logging.log4j.log4j-api}</version>
@@ -136,14 +100,6 @@
             <artifactId>log4j-jcl</artifactId>
             <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.slf4j</groupId>-->
-        <!--            <artifactId>slf4j-simple</artifactId>-->
-        <!--            <version>1.7.36</version>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
 
     </dependencies>
 
@@ -186,7 +142,6 @@
                     <verbose>true</verbose>
                     <fork>true</fork>
                     <executable>${javac.executable}</executable>
-                    <release>${maven.compiler.release}</release>
                     <release>${maven.compiler.release}</release>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -264,5 +219,10 @@
         </plugins>
 
     </build>
+
+
+
+
+
 
 </project>

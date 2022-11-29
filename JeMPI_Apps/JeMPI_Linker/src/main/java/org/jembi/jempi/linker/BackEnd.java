@@ -291,6 +291,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 req.batchEntity.entity(),
                 null,
                 AppConfig.BACK_END_MATCH_THRESHOLD);
+        // TODO   send link info to kafka notification topic
         req.replyTo.tell(new EventLinkEntityAsyncRsp(listLinkInfo.getLeft()));
         return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(30));

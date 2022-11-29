@@ -42,36 +42,34 @@ public class HttpServer extends AllDirectives {
         LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
     }
 
-    private CompletionStage<BackEnd.EventGetGoldenRecordCountRsp> getGoldenRecordCount(final ActorSystem<Void> actorSystem,
-                                                                                       final ActorRef<BackEnd.Event> backEnd) {
-        CompletionStage<BackEnd.EventGetGoldenRecordCountRsp> stage =
-                AskPattern.ask(backEnd,
-                        BackEnd.EventGetGoldenRecordCountReq::new,
-                        java.time.Duration.ofSeconds(10),
-                        actorSystem.scheduler());
+    private CompletionStage<BackEnd.EventGetGoldenRecordCountRsp> getGoldenRecordCount(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        CompletionStage<BackEnd.EventGetGoldenRecordCountRsp> stage = AskPattern.ask(backEnd,
+                BackEnd.EventGetGoldenRecordCountReq::new,
+                java.time.Duration.ofSeconds(10),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventGetDocumentCountRsp> getDocumentCount(final ActorSystem<Void> actorSystem,
-                                                                               final ActorRef<BackEnd.Event> backEnd) {
+            final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getDocumentCount");
-        CompletionStage<BackEnd.EventGetDocumentCountRsp> stage =
-                AskPattern.ask(backEnd,
-                        BackEnd.EventGetDocumentCountReq::new,
-                        java.time.Duration.ofSeconds(10),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventGetDocumentCountRsp> stage = AskPattern.ask(backEnd,
+                BackEnd.EventGetDocumentCountReq::new,
+                java.time.Duration.ofSeconds(10),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> getNumberOfRecords(final ActorSystem<Void> actorSystem,
-                                                                                   final ActorRef<BackEnd.Event> backEnd) {
+            final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getNumberOfRecords");
-        CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> stage =
-                AskPattern.ask(
-                        backEnd,
-                        BackEnd.EventGetNumberOfRecordsReq::new,
-                        java.time.Duration.ofSeconds(10),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> stage = AskPattern.ask(
+                backEnd,
+                BackEnd.EventGetNumberOfRecordsReq::new,
+                java.time.Duration.ofSeconds(10),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
@@ -80,58 +78,65 @@ public class HttpServer extends AllDirectives {
             final String predicate,
             final String val) {
         LOGGER.debug("getGoldenIdListByPredicate");
-        CompletionStage<BackEnd.EventGetGoldenIdListByPredicateRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventGetGoldenIdListByPredicateReq(replyTo, predicate, val),
-                        java.time.Duration.ofSeconds(20),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventGetGoldenIdListByPredicateRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventGetGoldenIdListByPredicateReq(replyTo, predicate, val),
+                java.time.Duration.ofSeconds(20),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventGetGoldenIdListRsp> getGoldenIdList(final ActorSystem<Void> actorSystem,
-                                                                             final ActorRef<BackEnd.Event> backEnd) {
+            final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getGoldenIdList");
-        CompletionStage<BackEnd.EventGetGoldenIdListRsp> stage =
-                AskPattern.ask(backEnd,
-                        BackEnd.EventGetGoldenIdListReq::new,
-                        java.time.Duration.ofSeconds(30),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventGetGoldenIdListRsp> stage = AskPattern.ask(backEnd,
+                BackEnd.EventGetGoldenIdListReq::new,
+                java.time.Duration.ofSeconds(30),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventGetGoldenRecordRsp> getGoldenRecord(final ActorSystem<Void> actorSystem,
-                                                                             final ActorRef<BackEnd.Event> backEnd,
-                                                                             final String uid) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final String uid) {
         LOGGER.debug("getGoldenRecord");
-        final CompletionStage<BackEnd.EventGetGoldenRecordRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventGetGoldenRecordReq(replyTo, uid),
-                        java.time.Duration.ofSeconds(5),
-                        actorSystem.scheduler());
+        final CompletionStage<BackEnd.EventGetGoldenRecordRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventGetGoldenRecordReq(replyTo, uid),
+                java.time.Duration.ofSeconds(5),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventGetCandidatesRsp> getCandidates(final ActorSystem<Void> actorSystem,
-                                                                         final ActorRef<BackEnd.Event> backEnd,
-                                                                         final String uid, final CustomMU mu) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final String uid, final CustomMU mu) {
         LOGGER.debug("getCandidates");
-        CompletionStage<BackEnd.EventGetCandidatesRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventGetCandidatesReq(replyTo, uid, mu),
-                        java.time.Duration.ofSeconds(5),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventGetCandidatesRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventGetCandidatesReq(replyTo, uid, mu),
+                java.time.Duration.ofSeconds(5),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
-    private CompletionStage<BackEnd.EventGetGoldenRecordDocumentsRsp> getGoldenRecordDocuments(final ActorSystem<Void> actorSystem,
-                                                                                               final ActorRef<BackEnd.Event> backEnd,
-                                                                                               final List<String> uid) {
+    private CompletionStage<BackEnd.EventGetGoldenRecordDocumentsRsp> getGoldenRecordDocuments(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd,
+            final List<String> uid) {
         LOGGER.debug("getGoldenRecordDocuments");
-        CompletionStage<BackEnd.EventGetGoldenRecordDocumentsRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventGetGoldenRecordDocumentsReq(replyTo, uid),
-                        java.time.Duration.ofSeconds(6),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventGetGoldenRecordDocumentsRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventGetGoldenRecordDocumentsReq(replyTo, uid),
+                java.time.Duration.ofSeconds(6),
+                actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventGetDocumentRsp> getDocument(final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd,
+            final String uid) {
+        LOGGER.debug("getDocument");
+        final CompletionStage<BackEnd.EventGetDocumentRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventGetDocumentReq(replyTo, uid),
+                java.time.Duration.ofSeconds(5),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
@@ -141,38 +146,35 @@ public class HttpServer extends AllDirectives {
             final String predicate,
             final String value) {
         LOGGER.debug("patchGoldenRecordPredicate");
-        CompletionStage<BackEnd.EventPatchGoldenRecordPredicateRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventPatchGoldenRecordPredicateReq(replyTo, uid, predicate, value),
-                        java.time.Duration.ofSeconds(6),
-                        actorSystem.scheduler());
+        CompletionStage<BackEnd.EventPatchGoldenRecordPredicateRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventPatchGoldenRecordPredicateReq(replyTo, uid, predicate, value),
+                java.time.Duration.ofSeconds(6),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventPatchLinkRsp> patchLink(final ActorSystem<Void> actorSystem,
-                                                                 final ActorRef<BackEnd.Event> backEnd,
-                                                                 final String goldenID,
-                                                                 final String newGoldenID,
-                                                                 final String docID,
-                                                                 final Float score) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final String goldenID,
+            final String newGoldenID,
+            final String docID,
+            final Float score) {
         LOGGER.debug("patchLink");
-        final CompletionStage<BackEnd.EventPatchLinkRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventPatchLinkReq(replyTo, goldenID, newGoldenID, docID, score),
-                        java.time.Duration.ofSeconds(6),
-                        actorSystem.scheduler());
+        final CompletionStage<BackEnd.EventPatchLinkRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventPatchLinkReq(replyTo, goldenID, newGoldenID, docID, score),
+                java.time.Duration.ofSeconds(6),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventPatchUnLinkRsp> patchUnLink(final ActorSystem<Void> actorSystem,
-                                                                     final ActorRef<BackEnd.Event> backEnd,
-                                                                     final String goldenID, final String docID) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final String goldenID, final String docID) {
         LOGGER.debug("patchUnLink");
-        final CompletionStage<BackEnd.EventPatchUnLinkRsp> stage =
-                AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventPatchUnLinkReq(replyTo, goldenID, docID, 2.0F),
-                        java.time.Duration.ofSeconds(6),
-                        actorSystem.scheduler());
+        final CompletionStage<BackEnd.EventPatchUnLinkRsp> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventPatchUnLinkReq(replyTo, goldenID, docID, 2.0F),
+                java.time.Duration.ofSeconds(6),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
@@ -180,11 +182,11 @@ public class HttpServer extends AllDirectives {
         LOGGER.debug("{}", obj);
         return switch (obj) {
             case MpiServiceError.EntityIDDoesNotExistError e ->
-                    complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+                complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             case MpiServiceError.GoldenIDDoesNotExistError e ->
-                    complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+                complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             case MpiServiceError.GoldenIDEntityConflictError e ->
-                    complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+                complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
         };
@@ -194,7 +196,8 @@ public class HttpServer extends AllDirectives {
         return result == 0 ? StatusCodes.OK : StatusCodes.CONFLICT;
     }
 
-    private Route routePatchGoldenRecordPredicate(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+    private Route routePatchGoldenRecordPredicate(final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
         return parameter(
                 "uid",
                 uid -> parameter(
@@ -217,10 +220,11 @@ public class HttpServer extends AllDirectives {
                                 patchUnLink(actorSystem, backEnd, goldenID, docID),
                                 result -> result.isSuccess()
                                         ? result.get()
-                                        .linkInfo()
-                                        .mapLeft(this::mapError)
-                                        .fold(error -> error,
-                                                linkInfo -> complete(StatusCodes.OK, linkInfo, Jackson.marshaller()))
+                                                .linkInfo()
+                                                .mapLeft(this::mapError)
+                                                .fold(error -> error,
+                                                        linkInfo -> complete(StatusCodes.OK, linkInfo,
+                                                                Jackson.marshaller()))
                                         : complete(StatusCodes.IM_A_TEAPOT))));
     }
 
@@ -234,13 +238,15 @@ public class HttpServer extends AllDirectives {
                                 docID -> parameter(
                                         "score",
                                         score -> onComplete(
-                                                patchLink(actorSystem, backEnd, goldenID, newGoldenID, docID, Float.parseFloat(score)),
+                                                patchLink(actorSystem, backEnd, goldenID, newGoldenID, docID,
+                                                        Float.parseFloat(score)),
                                                 result -> result.isSuccess()
                                                         ? result.get()
-                                                        .linkInfo()
-                                                        .mapLeft(this::mapError)
-                                                        .fold(error -> error,
-                                                                linkInfo -> complete(StatusCodes.OK, linkInfo, Jackson.marshaller()))
+                                                                .linkInfo()
+                                                                .mapLeft(this::mapError)
+                                                                .fold(error -> error,
+                                                                        linkInfo -> complete(StatusCodes.OK, linkInfo,
+                                                                                Jackson.marshaller()))
                                                         : complete(StatusCodes.IM_A_TEAPOT))))));
     }
 
@@ -265,8 +271,8 @@ public class HttpServer extends AllDirectives {
                 getNumberOfRecords(actorSystem, backEnd),
                 result -> result.isSuccess()
                         ? complete(StatusCodes.OK,
-                        new NumberOfRecords(result.get().goldenRecords(), result.get().documents()),
-                        Jackson.marshaller())
+                                new NumberOfRecords(result.get().goldenRecords(), result.get().documents()),
+                                Jackson.marshaller())
                         : complete(StatusCodes.IM_A_TEAPOT));
     }
 
@@ -278,7 +284,8 @@ public class HttpServer extends AllDirectives {
                         : complete(StatusCodes.IM_A_TEAPOT));
     }
 
-    private Route routeGoldenIdListByPredicate(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+    private Route routeGoldenIdListByPredicate(final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
         return parameter(
                 "predicate",
                 predicate -> parameter(
@@ -289,7 +296,8 @@ public class HttpServer extends AllDirectives {
                                         : complete(StatusCodes.IM_A_TEAPOT))));
     }
 
-    private Route routeGoldenRecordDocuments(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+    private Route routeGoldenRecordDocuments(final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
         return parameterList(params -> {
             final var uidList = params.stream().map(paramString).toList();
             return onComplete(getGoldenRecordDocuments(actorSystem, backEnd, uidList),
@@ -299,7 +307,8 @@ public class HttpServer extends AllDirectives {
         });
     }
 
-    private Route routeGoldenRecordDocumentList(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+    private Route routeGoldenRecordDocumentList(final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
         return parameter("uidList",
                 items -> {
                     final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
@@ -318,6 +327,15 @@ public class HttpServer extends AllDirectives {
                                 : complete(StatusCodes.IM_A_TEAPOT)));
     }
 
+    private Route routeDocument(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+        return parameter("uid",
+                uid -> onComplete(getDocument(actorSystem, backEnd, uid),
+                        result -> result.isSuccess()
+                                ? complete(StatusCodes.OK, result.get(),
+                                        Jackson.marshaller())
+                                : complete(StatusCodes.IM_A_TEAPOT)));
+    }
+
     private Route routeCandidates(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
         return parameter(
                 "uid",
@@ -327,10 +345,11 @@ public class HttpServer extends AllDirectives {
                                 getCandidates(actorSystem, backEnd, uid, mu),
                                 result -> result.isSuccess()
                                         ? result.get()
-                                        .candidates()
-                                        .mapLeft(this::mapError)
-                                        .fold(error -> error,
-                                                candidateList -> complete(StatusCodes.OK, candidateList, Jackson.marshaller()))
+                                                .candidates()
+                                                .mapLeft(this::mapError)
+                                                .fold(error -> error,
+                                                        candidateList -> complete(StatusCodes.OK, candidateList,
+                                                                Jackson.marshaller()))
                                         : complete(StatusCodes.IM_A_TEAPOT))));
     }
 
@@ -339,7 +358,8 @@ public class HttpServer extends AllDirectives {
                 "JeMPI",
                 () -> concat(
                         patch(() -> concat(
-                                path("PatchGoldenRecordPredicate", () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
+                                path("PatchGoldenRecordPredicate",
+                                        () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
                                 path("Unlink", () -> routeUnlink(actorSystem, backEnd)),
                                 path("Link", () -> routeLink(actorSystem, backEnd)))),
                         get(() -> concat(
@@ -347,10 +367,13 @@ public class HttpServer extends AllDirectives {
                                 path("DocumentCount", () -> routeDocumentCount(actorSystem, backEnd)),
                                 path("NumberOfRecords", () -> routeNumberOfRecords(actorSystem, backEnd)),
                                 path("GoldenIdList", () -> routeGoldenIdList(actorSystem, backEnd)),
-                                path("GoldenIdListByPredicate", () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
+                                path("GoldenIdListByPredicate",
+                                        () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
                                 path("GoldenRecordDocuments", () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
-                                path("GoldenRecordDocumentList", () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
+                                path("GoldenRecordDocumentList",
+                                        () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
                                 path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
+                                path("Document", () -> routeDocument(actorSystem, backEnd)),
                                 path("Candidates", () -> routeCandidates(actorSystem, backEnd))))));
     }
 
@@ -361,7 +384,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private record NumberOfRecords(Long goldenRecords,
-                                   Long documents) {
+            Long documents) {
     }
 
 }
