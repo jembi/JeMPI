@@ -16,7 +16,11 @@ export SCALE_ALPHA_01=1
 export SCALE_ALPHA_02=1
 export SCALE_ALPHA_03=1
 export SCALE_RATEL=1
+export SCALE_POSTGRESQL=1
 
+export POSTGRESQL_USERNAME="postgres"
+export POSTGRESQL_PASSWORD="postgres"
+export POSTGRESQL_DATABASE="notifications"
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2

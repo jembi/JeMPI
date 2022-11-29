@@ -23,6 +23,9 @@ pushd .
   mkdir -p ${DATA_DGRAPH_ALPHA_02_DIR}
   mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}
 
+  mkdir -p ${DATA_POSTGRESQL_DIR}
+  cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
+
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/conf
   rm -rf   ${DATA_DIR_ASYNC_RECEIVER}/logs
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/logs
