@@ -19,9 +19,12 @@ import java.lang.String;
 
 public class PsqlQueries {
 
-    private static final String QUERY = " select notification.id, notification.names, notification.created, notification.reason,  notificationstate.state_name, notification_type.name from notification " +
-            "JOIN notificationstate" +
-            " ON notificationstate.id = notification.state JOIN notification_type on notification.type = notification_type.id ";
+    private static final String QUERY = " select N.\"PatientId\", N.\"Id\", N.\"Names\", N.\"Created\", N.\"Reason\",  NS.\"State\", NT.\"Type\", M.\"Score\", M.\"GoldenId\" from \"Notification\" N " +
+            "JOIN \"NotificationState\" NS " +
+            " ON NS.\"Id\" = N.\"State\" JOIN \"NotificationType\" NT on N.\"Type\" = NT.\"Id\" " +
+            "JOIN \"Match\" M " +
+                    "ON M.\"NotificationId\" = N.\"Id\" ";
+
 
     private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
 
@@ -63,7 +66,7 @@ public class PsqlQueries {
             if(rs.getString("name").equals("New"))
                  stateId = UUID.fromString(rs.getString("id"));
         }
-        String sql = "INSERT INTO notification (id, type, state, name, created)" + "VALUES ('"+id+"','"+type+"','"+stateId+"','"+patientNames+"', '"+res+"')";
+        String sql = "INSERT INTO notification (\"Id\", \"Type\", \"State\", \"Name\", \"Created\")" + "VALUES ('"+id+"','"+type+"','"+stateId+"','"+patientNames+"', '"+res+"')";
         stmt.addBatch(sql);
 
         sql = "INSERT INTO match (notificationid, score, goldenid)" + "VALUES ('"+id+"','"+score+"', '"+gID+"')";
