@@ -72,6 +72,7 @@ class CustomSender {
       final var nationalID = rec.nationalID();
       final var patient = new Patient();
       patient.addIdentifier().setUse(Identifier.IdentifierUse.SECONDARY).setValue(aux_uid);
+      patient.setManagingOrganization(new Reference("LAB"));
       patient.addName().setFamily(familyName).addGiven(givenName);
       if (gender != null) {
          if ("male".equals(gender.toLowerCase(Locale.ROOT)) || "female".equals(gender.toLowerCase(Locale.ROOT))) {
@@ -129,6 +130,7 @@ class CustomSender {
          final var csvParser = CSVFormat
                .DEFAULT
                .builder()
+               .setHeader()
                .setSkipHeaderRecord(true)
                .setIgnoreEmptyLines(true)
                .setNullString(null)
