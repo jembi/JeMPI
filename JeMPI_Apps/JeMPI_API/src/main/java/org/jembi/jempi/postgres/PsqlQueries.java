@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.lang.String;
 import java.util.UUID;
 import java.util.Date;
-import org.jembi.jempi.shared.models.MatchForReview;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.lang.String;
@@ -19,7 +19,10 @@ import java.lang.String;
 
 public class PsqlQueries {
 
-    private static final String QUERY = " select notification.id, notification.name, notification.created, notification.reason from notification";
+    private static final String QUERY = " select notification.id, notification.names, notification.created, notification.reason,  notificationstate.state_name, notification_type.name from notification " +
+            "JOIN notificationstate" +
+            " ON notificationstate.id = notification.state JOIN notification_type on notification.type = notification_type.id ";
+
     private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
 
     public static List getMatchesForReview() {
