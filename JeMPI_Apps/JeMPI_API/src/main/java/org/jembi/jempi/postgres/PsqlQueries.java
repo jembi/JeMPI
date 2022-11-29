@@ -1,52 +1,74 @@
 package org.jembi.jempi.postgres;
 import java.util.List;
-import org.jembi.jempi.shared.models.MatchForReview;
 import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.lang.String;
+import java.util.UUID;
+import java.util.Date;
+import org.jembi.jempi.shared.models.MatchForReview;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.lang.String;
 
 
 public class PsqlQueries {
-//    private static final String QUERY = "select id,given_name,family_name, reason, match, state, mydate from patients";
-    private static final String QUERY = "SELECT N.\"Id\", N.\"PatientID\", N.\"Reason\", N.\"Name\", N.\"Created\", N.\"State\", MA.\"Score\" FROM\n" +
-        "\"Notification\" N INNER JOIN \"Match\" MA ON N.\"Id\" =  MA.\"NotificationId\"";
-    private final String Insert_Query = "INSERT INTO public."User"(
-            "Id", "Name")
-    VALUES ("2c11b5a3-a580-4c13-8f2b-8ac1bc9fa6e5", "Another Test")";
+
+    private static final String QUERY = " select notification.id, notification.name, notification.created, notification.reason from notification";
+    private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
+
     public static List getMatchesForReview() {
+
         ArrayList list = new ArrayList();
         try (Connection connection = dbConnect.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(QUERY);) {
-             ResultSet rs = preparedStatement.executeQuery();
-             ResultSetMetaData md = rs.getMetaData();
-             int columns = md.getColumnCount();
+            ResultSet rs = preparedStatement.executeQuery();
+            ResultSetMetaData md = rs.getMetaData();
+            int columns = md.getColumnCount();
 
             while (rs.next()) {
                 HashMap row = new HashMap(columns);
                 for (int i = 1; i <= columns; i++) {
-                     row.put(md.getColumnName(i), (rs.getObject(i)).toString());
-
+                    row.put(md.getColumnName(i), (rs.getObject(i)));
                 }
                 list.add(row);
             }
-        } catch (SQLException e) {
-            list.add(e.toString());
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
         return list;
     }
 
 
-    public static Insert(){
-        try (Connection connection = dbConnect.connect();
-             PreparedStatement preparedStatement = connection.prepareStatement(QUERY)){
-            int insertedRows = preparedStatement.executeUpdate();
+    public static void insert(UUID id, UUID type, String patientNames, Float score, Long created, String gID ) throws SQLException {
 
+        Connection conn = dbConnect.connect();
+        Statement stmt = conn.createStatement();
+
+        // Set auto-commit to false
+        conn.setAutoCommit(false);
+        UUID stateId = null;
+        Date res = new Date(created);
+
+        ResultSet rs = stmt.executeQuery( "select * from notificationstate");
+        while(rs.next()){
+            if(rs.getString("name").equals("New"))
+                 stateId = UUID.fromString(rs.getString("id"));
         }
+        String sql = "INSERT INTO notification (id, type, state, name, created)" + "VALUES ('"+id+"','"+type+"','"+stateId+"','"+patientNames+"', '"+res+"')";
+        stmt.addBatch(sql);
+
+        sql = "INSERT INTO match (notificationid, score, goldenid)" + "VALUES ('"+id+"','"+score+"', '"+gID+"')";
+        stmt.addBatch(sql);
+
+        int[] count = stmt.executeBatch();
+        conn.commit();
+
+
     }
 }

@@ -16,8 +16,12 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Notification;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.apache.commons.lang3.StringUtils;
 
+import org.jembi.jempi.postgres.PsqlQueries;
+import java.sql.*;
 import java.util.Properties;
+import java.util.UUID;
 
 public class NotificationStreamProcessor {
 
@@ -38,10 +42,16 @@ public class NotificationStreamProcessor {
                 Consumed.with(stringSerde, notificationSerde));
         notificationStream
                 .foreach((key, value) -> {
-                            LOGGER.debug("key:{}, value:{}", key, value);
-                            // TODO: Write value to database
-                        }
-                );
+                    try{
+                        PsqlQueries.insert(UUID.randomUUID(), UUID.fromString("ebc04be9-4742-4d5a-8049-cb54855e7e3c"),
+                                StringUtils.join(value.patientNames(), " "),value.linkedTo().score(), value.timeStamp(), value.linkedTo().gID());
+                        LOGGER.debug("linkedTo: " + value.linkedTo().gID());
+                    } catch(SQLException e){
+                        LOGGER.debug(e.toString());
+                    }
+
+                    LOGGER.debug("key:{}, value:{}", key, value);
+                });
         notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
         notificationKafkaStreams.cleanUp();
         notificationKafkaStreams.start();
@@ -58,6 +68,7 @@ public class NotificationStreamProcessor {
         props.put(StreamsConfig.POLL_MS_CONFIG, 50);
         return props;
     }
+
 
 
 }

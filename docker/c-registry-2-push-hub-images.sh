@@ -11,7 +11,8 @@ declare -a IMAGES=(
 #                  "$PORTAINER_IMAGE"
                    "$KAFKA_IMAGE"
                    "$DGRAPH_IMAGE"
-                   "$RATEL_IMAGE")
+                   "$RATEL_IMAGE"
+                   "$POSTGRESQL_IMAGE")
 #                   "$CASSANDRA_IMAGE")
 
 for IMAGE in ${IMAGES[@]}; do

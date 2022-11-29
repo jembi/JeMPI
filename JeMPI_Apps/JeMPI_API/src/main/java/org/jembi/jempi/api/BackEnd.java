@@ -14,6 +14,9 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.Notification;
+import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.models.MatchForReview;
 
 import java.util.List;
 
@@ -58,10 +61,20 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
             .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
             .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
-            .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
+              .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
+              .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
             .build();
    }
 
+   //Mahao mockout
+   private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
+      LOGGER.debug("getMatchesForReview");
+//      libMPI.startTransaction();
+      var recs = PsqlQueries.getMatchesForReview();
+//      libMPI.closeTransaction();
+      request.replyTo.tell(new EventGetMatchesForReviewListRsp(recs));
+      return Behaviors.same();
+   }
    private Behavior<Event> eventGetGoldenRecordCountHandler(final EventGetGoldenRecordCountReq request) {
       LOGGER.debug("getGoldenRecordCount");
       libMPI.startTransaction();
@@ -203,7 +216,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record EventGetGoldenRecordDocumentsReq(ActorRef<EventGetGoldenRecordDocumentsRsp> replyTo,
                                                   List<String> uids) implements Event {}
-
+   //Mahao Mock
+   public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {}
+   public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {}
    public record EventGetGoldenRecordDocumentsRsp(List<MpiExpandedGoldenRecord> goldenRecords) implements EventResponse {}
 
    public record EventPatchGoldenRecordPredicateReq(ActorRef<EventPatchGoldenRecordPredicateRsp> replyTo,

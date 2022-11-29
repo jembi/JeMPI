@@ -98,7 +98,15 @@ public class HttpServer extends AllDirectives {
                         actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
-
+    private CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> getMatchesForReviewList(final ActorSystem<Void> actorSystem,
+                                                                                             final ActorRef<BackEnd.Event> backEnd) {
+        CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> stage =
+                AskPattern.ask(backEnd,
+                        BackEnd.EventGetMatchesForReviewReq::new,
+                        java.time.Duration.ofSeconds(30),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
     private CompletionStage<BackEnd.EventGetGoldenRecordRsp> getGoldenRecord(final ActorSystem<Void> actorSystem,
                                                                              final ActorRef<BackEnd.Event> backEnd,
                                                                              final String uid) {
@@ -278,6 +286,14 @@ public class HttpServer extends AllDirectives {
                         : complete(StatusCodes.IM_A_TEAPOT));
     }
 
+    private Route routeMatchesForReviewList(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+        return onComplete(
+                getMatchesForReviewList(actorSystem, backEnd),
+                result -> result.isSuccess()
+                        ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
+                        : complete(StatusCodes.IM_A_TEAPOT));
+    }
+
     private Route routeGoldenIdListByPredicate(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
         return parameter(
                 "predicate",
@@ -351,6 +367,7 @@ public class HttpServer extends AllDirectives {
                                 path("GoldenRecordDocuments", () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
                                 path("GoldenRecordDocumentList", () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
                                 path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
+                                path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
                                 path("Candidates", () -> routeCandidates(actorSystem, backEnd))))));
     }
 
