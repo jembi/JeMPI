@@ -22,9 +22,10 @@ pushd .
   docker service scale ${STACK_NAME}_jempi-postgresql=${SCALE_POSTGRESQL}
 
   pushd helper/topics
-#   ./topics-delete.sh
     ./topics-create.sh
     ./topics-list.sh
   popd
-
+  pushd helper/postgres
+    ./create-schema.sh
+  popd
 popd
