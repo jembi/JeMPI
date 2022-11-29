@@ -27,7 +27,7 @@ class EntityStreamSync extends AllDirectives {
 
    static EntityStreamSync create() {
       return new EntityStreamSync();
-   }
+   }0
 
    void close(ActorSystem<Void> system) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
