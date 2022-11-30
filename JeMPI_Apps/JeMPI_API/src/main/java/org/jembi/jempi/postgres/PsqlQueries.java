@@ -51,7 +51,7 @@ public class PsqlQueries {
     }
 
 
-    public static void insert(UUID id, UUID type, String patientNames, Float score, Long created, String gID ) throws SQLException {
+    public static void insert(UUID id, String type, String patientNames, Float score, Long created, String gID ) throws SQLException {
 
         Connection conn = dbConnect.connect();
         Statement stmt = conn.createStatement();
@@ -59,17 +59,24 @@ public class PsqlQueries {
         // Set auto-commit to false
         conn.setAutoCommit(false);
         UUID stateId = null;
+        UUID someType = null;
         Date res = new Date(created);
 
-        ResultSet rs = stmt.executeQuery( "select * from notificationstate");
+        ResultSet rs = stmt.executeQuery( "select * from \"NotificationState\"");
         while(rs.next()){
-            if(rs.getString("name").equals("New"))
+            if(rs.getString("State").equals("New"))
                  stateId = UUID.fromString(rs.getString("id"));
         }
-        String sql = "INSERT INTO notification (\"Id\", \"Type\", \"State\", \"Name\", \"Created\")" + "VALUES ('"+id+"','"+type+"','"+stateId+"','"+patientNames+"', '"+res+"')";
+
+        rs = stmt.executeQuery( "select * from \"NotificationType\"");
+        while(rs.next()){
+            if(rs.getString("Type").equals(type))
+                someType = rs.getObject("Id", java.util.UUID.class);
+        }
+        String sql = "INSERT INTO \"Notification\" (\"Id\", \"Type\", \"State\", \"Names\", \"Created\")" + "VALUES ('"+id+"','"+someType+"','"+stateId+"','"+patientNames+"', '"+res+"')";
         stmt.addBatch(sql);
 
-        sql = "INSERT INTO match (notificationid, score, goldenid)" + "VALUES ('"+id+"','"+score+"', '"+gID+"')";
+        sql = "INSERT INTO \"Match\" (\"NotificationId\", \"Score\", \"GoldenId\")" + "VALUES ('"+id+"','"+score+"', '"+gID+"')";
         stmt.addBatch(sql);
 
         int[] count = stmt.executeBatch();

@@ -43,14 +43,14 @@ public class NotificationStreamProcessor {
         notificationStream
                 .foreach((key, value) -> {
                     try{
-                        PsqlQueries.insert(UUID.randomUUID(), UUID.fromString("ebc04be9-4742-4d5a-8049-cb54855e7e3c"),
+
+                        LOGGER.debug("key:{}, value:{}", key, value);
+                        PsqlQueries.insert(UUID.randomUUID(), value.notificationType().toString(),
                                 StringUtils.join(value.patientNames(), " "),value.linkedTo().score(), value.timeStamp(), value.linkedTo().gID());
                         LOGGER.debug("linkedTo: " + value.linkedTo().gID());
                     } catch(SQLException e){
                         LOGGER.debug(e.toString());
                     }
-
-                    LOGGER.debug("key:{}, value:{}", key, value);
                 });
         notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
         notificationKafkaStreams.cleanUp();
