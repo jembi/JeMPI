@@ -485,16 +485,21 @@ services:
   jempi-postgresql:
     image: ${REGISTRY_NODE_IP}/${POSTGRESQL_IMAGE}
     environment:
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      ALLOW_EMPTY_PASSWORD: "yes"
     networks:
     - backend-postgresql
     ports:
     - published: 5432
       target: 5432
       protocol: tcp
-      mode: host  
+      mode: host 
+    volumes:
+    - type: bind
+      source: ${DATA_POSTGRESQL_DIR}
+      target: /conf
+      read_only: true
     deploy:
       mode: replicated
       replicas: 1
