@@ -161,7 +161,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
     private void sendNotification(final Notification.NotificationType type,
                                   final String dID,
-                                  final List<String> names,
+                                  final String names,
                                   final Notification.MatchData linkedTo,
                                   final List<Notification.MatchData> candidates) {
         final var notification = new Notification(System.currentTimeMillis(), type, dID, names, linkedTo, candidates);
@@ -247,7 +247,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                             sendNotification(
                                     Notification.NotificationType.THRESHOLD,
                                     linkInfo.entityId(),
-                                    new ArrayList<>(Arrays.asList(customEntity.givenName(), customEntity.familyName())),
+                                    customEntity.getNames(customEntity),
                                     new Notification.MatchData(linkInfo.goldenId(), 1.0F),
                                     notificationCandidates
                             );
@@ -291,6 +291,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 req.batchEntity.entity(),
                 null,
                 AppConfig.BACK_END_MATCH_THRESHOLD);
+        // TODO   send link info to kafka notification topic
         req.replyTo.tell(new EventLinkEntityAsyncRsp(listLinkInfo.getLeft()));
         return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(30));

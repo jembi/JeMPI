@@ -1,19 +1,20 @@
 package org.jembi.jempi.postgres;
 
+import org.jembi.jempi.AppConfig;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class dbConnect {
     private static Connection conn;
-    private final static String url = "jdbc:postgresql://192.168.0.195:5432/notifications";
+    private final static String url = "jdbc:postgresql://"+ AppConfig.POSTGRES_SERVER +"/notifications";
     private final static String user = "postgres";
-    private final static String password = "12345";
 
     public static Connection connect() {
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url, user, password);
+            conn = DriverManager.getConnection(url, user, null);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

@@ -25,5 +25,10 @@ public record CustomEntity(String uid,
            null,
            null);
    }
+   public String getNames(final CustomEntity entity) {
+      return 
+             entity.givenName + ' ' +
+             entity.familyName;
+   }
 
 }
