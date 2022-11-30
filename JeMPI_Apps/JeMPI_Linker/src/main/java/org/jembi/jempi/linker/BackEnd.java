@@ -20,7 +20,10 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,7 +36,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
     private final CustomLinkerMU customLinkerMU = new CustomLinkerMU();
 
-    private MyKafkaProducer<String, Notification> topicNotifications;
+    private final MyKafkaProducer<String, Notification> topicNotifications;
 
     private BackEnd(ActorContext<Event> context) {
         super(context);
@@ -133,10 +136,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         });
     }
 
-    private LibMPIClientInterface.LinkInfo linkEntityToGid(final CustomEntity entity,
-                                                           final String gid,
-                                                           final float score) {
-        final LibMPIClientInterface.LinkInfo linkInfo;
+    private LinkInfo linkEntityToGid(final CustomEntity entity,
+                                     final String gid,
+                                     final float score) {
+        final LinkInfo linkInfo;
         try {
             // Check if we have new M&U values
             CustomLinkerProbabilistic.checkUpdatedMU();
@@ -173,11 +176,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
     }
 
-    private Either<LibMPIClientInterface.LinkInfo, List<ExternalLinkCandidate>>
+    private Either<LinkInfo, List<ExternalLinkCandidate>>
     linkEntity(final String stan, final CustomEntity customEntity, final ExternalLinkRange externalLinkRange,
                final float matchThreshold_) {
         LOGGER.debug("{}", stan);
-        LibMPIClientInterface.LinkInfo linkInfo = null;
+        LinkInfo linkInfo = null;
         final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
         final var matchThreshold = externalLinkRange != null ? externalLinkRange.high() : matchThreshold_;
         try {
@@ -344,7 +347,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                           ActorRef<EventLinkEntityAsyncRsp> replyTo) implements Event {
     }
 
-    public record EventLinkEntityAsyncRsp(LibMPIClientInterface.LinkInfo linkInfo) implements EventResponse {
+    public record EventLinkEntityAsyncRsp(LinkInfo linkInfo) implements EventResponse {
     }
 
     public record EventUpdateMUReq(CustomMU mu, ActorRef<EventUpdateMURsp> replyTo) implements Event {
@@ -364,7 +367,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     }
 
     public record EventLinkEntitySyncRsp(String stan,
-                                         LibMPIClientInterface.LinkInfo linkInfo,
+                                         LinkInfo linkInfo,
                                          List<ExternalLinkCandidate> externalLinkCandidateList) implements EventResponse {
     }
 
@@ -372,11 +375,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                               ActorRef<EventLinkEntityToGidSyncRsp> replyTo) implements Event {
     }
 
-    public record ExternalLinkCandidate(CustomGoldenRecord goldenRecord, float score) {
-    }
 
     public record EventLinkEntityToGidSyncRsp(String stan,
-                                              LibMPIClientInterface.LinkInfo linkInfo) implements EventResponse {
+                                              LinkInfo linkInfo) implements EventResponse {
     }
 
 

@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.LinkInfo;
 
 import java.util.List;
 
@@ -72,8 +73,8 @@ public interface LibMPIClientInterface {
 
     LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score);
 
-    record LinkInfo(String goldenId, String entityId, float score) {
-    }
+//    record LinkInfo(String goldenId, String entityId, float score) {
+//    }
 
     record GoldenIdScore(String goldenId, float score) {
     }

@@ -7,24 +7,27 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.unmarshalling.Unmarshaller;
+import akka.stream.Materializer;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.util.BundleUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.CustomEntity;
+import org.jembi.jempi.shared.models.ExtendedLinkInfo;
 import org.jembi.jempi.shared.models.LinkEntitySyncBody;
 import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.utils.AppUtils;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 
 public class CustomFHIRsyncReceiver extends AllDirectives {
 
@@ -37,29 +40,55 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;
 
+
    void close(ActorSystem<Void> system) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
              .thenAccept(unbound -> system.terminate()); // and shutdown when done
    }
 
    void open(final ActorSystem<Void> system) {
+      final Materializer materializer = Materializer.createMaterializer(system);
       http = Http.get(system);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(this.createRoute());
+                    .bind(this.createRoute(system, materializer));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
-   private CompletionStage<HttpResponse> postLinkEntity(final String json) {
+   private CompletionStage<HttpResponse> postLinkEntity(final ActorSystem<Void> system,
+                                                        final String json) {
       LOGGER.debug("json : {}", json);
       final var request = HttpRequest
             .create("http://jempi-controller:50000/JeMPI/link_entity")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, json);
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
+      return http.singleRequest(request)
+                 .thenCompose(
+                       response -> response
+                             .entity()
+                             .toStrict(FiniteDuration.create(3, TimeUnit.SECONDS).toMillis(), system)
+                             .thenApply(strict -> {
+                                final var jsonResponse = strict.getData().utf8String();
+                                LOGGER.debug("json: {}", jsonResponse);
+                                ExtendedLinkInfo extendedLinkInfo = null;
+                                try {
+                                   extendedLinkInfo = AppUtils.OBJECT_MAPPER.readValue(jsonResponse, ExtendedLinkInfo.class);
+                                } catch (JsonProcessingException e) {
+                                   LOGGER.error(e.getLocalizedMessage(), e);
+                                   return HttpResponse.create().withStatus(StatusCodes.IM_A_TEAPOT);
+                                }
+                                LOGGER.debug("{}", extendedLinkInfo);
+                                final var patient = new Patient();
+                                final var patientLinkComponent = new Patient.PatientLinkComponent();
+                                patientLinkComponent.setOther(new Reference(extendedLinkInfo.linkInfo().entityId()));
+                                patient.addLink(patientLinkComponent);
+                                final var jsonFHIR = parser.encodeResourceToString(patient);
+                                return HttpResponse.create()
+                                                   .withEntity(ContentTypes.APPLICATION_JSON, jsonFHIR)
+                                                   .withStatus(StatusCodes.OK);
+                             }));
    }
 
-   private Route routeLinkEntity() {
+   private Route routeLinkEntity(final ActorSystem<Void> system, final Materializer materializer) {
       return entity(Unmarshaller.entityToString(),
                     json -> {
                        LOGGER.debug("{}", json);
@@ -78,36 +107,37 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                        final List<Identifier> identifierList = patient.getIdentifier();
                        String secondaryID = null;
                        String officialID = null;
+                       SourceId sourceId = null;
                        for (Identifier identifier : identifierList) {
                           if (Identifier.IdentifierUse.SECONDARY.equals(identifier.getUse())) {
                              secondaryID = identifier.getValue();
                           } else if (Identifier.IdentifierUse.OFFICIAL.equals(identifier.getUse())) {
                              officialID = identifier.getValue();
+                          } else if (identifier.getSystem().startsWith("http://jempi.org/fhir/identifier/facility_")) {
+                             sourceId = new SourceId(
+                                   null,
+                                   identifier.getSystem().substring("http://jempi.org/fhir/identifier/facility_".length()),
+                                   identifier.getValue()
+                             );
                           }
                        }
                        final String givenName = name != null && name.hasGiven() ? name.getGiven().get(0).getValue() : null;
                        final String familyName = name != null ? name.getFamily() : null;
                        final var customEntity = new CustomEntity(null,
-                                                                 new SourceId(null,
-                                                                              "CLINIC",
-                                                                              !StringUtils.isBlank(officialID)
-                                                                              ? officialID
-                                                                              : "anon"),
-                                                                 secondaryID,
-                                                                 givenName,
-                                                                 familyName,
-                                                                 gender,
-                                                                 dob,
-                                                                 city,
-                                                                 phone,
-                                                                 officialID);
+                                                                 sourceId, secondaryID,
+                                                                 givenName, familyName, gender, dob, city, phone, officialID);
                        LOGGER.debug("{}", customEntity);
                        try {
-                          final var linkEntitySyncBody = new LinkEntitySyncBody(secondaryID, null, 0.65F, customEntity);
-                          final var jsonOut = AppUtils.OBJECT_MAPPER.writeValueAsString(linkEntitySyncBody);
-                          return onComplete(postLinkEntity(jsonOut), response -> response.isSuccess()
-                                                                                 ? complete(response.get())
-                                                                                 : complete(StatusCodes.IM_A_TEAPOT));
+                          final var jsonIn = AppUtils.OBJECT_MAPPER.writeValueAsString(
+                                new LinkEntitySyncBody(secondaryID, null, 0.65F, customEntity));
+                          return onComplete(postLinkEntity(system, jsonIn),
+                                            response -> {
+                                               if (response.isSuccess()) {
+                                                  return complete(response.get());
+                                               } else {
+                                                  return complete(StatusCodes.IM_A_TEAPOT);
+                                               }
+                                            });
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(StatusCodes.IM_A_TEAPOT);
@@ -116,13 +146,11 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                     });
    }
 
-   private Route createRoute() {
+   private Route createRoute(final ActorSystem<Void> system, final Materializer materializer) {
       return pathPrefix("fhir",
                         () -> concat(
                               post(() -> concat(
-                                    path("bundle", this::routeLinkEntity)))
-                                    )
-                       );
+                                    path("bundle", () -> routeLinkEntity(system, materializer))))));
    }
 
 }

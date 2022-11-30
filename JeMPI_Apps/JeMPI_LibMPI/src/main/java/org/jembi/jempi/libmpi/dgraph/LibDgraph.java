@@ -11,6 +11,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.LinkInfo;
 
 import java.util.List;
 

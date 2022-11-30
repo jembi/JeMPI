@@ -15,6 +15,7 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.LinkInfo;
 
 import java.util.List;
 
@@ -258,7 +259,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             Float score) implements Event {
     }
 
-    public record EventPatchLinkRsp(Either<MpiGeneralError, LibMPIClientInterface.LinkInfo> linkInfo)
+    public record EventPatchLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
             implements EventResponse {
     }
 
@@ -268,7 +269,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             float score) implements Event {
     }
 
-    public record EventPatchUnLinkRsp(Either<MpiGeneralError, LibMPIClientInterface.LinkInfo> linkInfo)
+    public record EventPatchUnLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
             implements EventResponse {
     }
 
