@@ -15,6 +15,8 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.Notification;
+import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.LinkInfo;
 
 import java.util.List;
@@ -63,18 +65,25 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
                 .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
+                .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
                 .build();
     }
 
-    private Behavior<Event> eventGetGoldenRecordCountHandler(final EventGetGoldenRecordCountReq request) {
-        LOGGER.debug("getGoldenRecordCount");
-        libMPI.startTransaction();
-        final var count = libMPI.countGoldenRecords();
-        libMPI.closeTransaction();
-        request.replyTo.tell(new EventGetGoldenRecordCountRsp(count));
-        return Behaviors.same();
-    }
+    private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
+      LOGGER.debug("getMatchesForReview");
+      var recs = PsqlQueries.getMatchesForReview();
+      request.replyTo.tell(new EventGetMatchesForReviewListRsp(recs));
+      return Behaviors.same();
+   }
+   private Behavior<Event> eventGetGoldenRecordCountHandler(final EventGetGoldenRecordCountReq request) {
+      LOGGER.debug("getGoldenRecordCount");
+      libMPI.startTransaction();
+      final var count = libMPI.countGoldenRecords();
+      libMPI.closeTransaction();
+      request.replyTo.tell(new EventGetGoldenRecordCountRsp(count));
+      return Behaviors.same();
+   }
 
     private Behavior<Event> eventGetDocumentCountHandler(final EventGetDocumentCountReq request) {
         LOGGER.debug("getDocumentCount");
@@ -239,6 +248,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             String uid) implements Event {
     }
 
+    public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {}
+
+    public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {}
+    
     public record EventGetDocumentRsp(CustomEntity document)
             implements EventResponse {
     }
