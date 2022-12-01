@@ -5,7 +5,7 @@ import java.util.List;
 public record Notification(Long timeStamp,  // UTC Time
                            NotificationType notificationType,
                            String dID,   // Document ID
-                           List<String> patientNames,
+                           String patientNames,
                            MatchData linkedTo,
                            List<MatchData> candidates) {
     public enum NotificationType {

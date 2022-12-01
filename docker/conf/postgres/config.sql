@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS Action
 
 CREATE TABLE IF NOT EXISTS Match
 (
-    Id UUID PRIMARY KEY,
     Notification_Id UUID,
     Score Numeric,
     Golden_Id VARCHAR(50),
