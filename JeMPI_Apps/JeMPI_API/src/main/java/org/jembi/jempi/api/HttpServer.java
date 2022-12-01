@@ -16,6 +16,8 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.Notification;
+import org.jembi.jempi.shared.models.NotificationRequest;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -368,10 +370,28 @@ public class HttpServer extends AllDirectives {
                                         : complete(StatusCodes.IM_A_TEAPOT))));
     }
 
+    private Route routeNotificationRequest(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(NotificationRequest.class),
+                obj -> onComplete(postNotificationRequest(actorSystem, backEnd, obj),
+                        response -> {
+                            if (response.isSuccess()) {
+                                final var eventNotificationRequestRsp = response.get();
+                                return complete(
+                                        StatusCodes.OK,
+                                        eventNotificationRequestRsp,
+                                        Jackson.marshaller());
+                            } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                            }
+                        }));
+    }
+
     private Route createRoute(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
         return pathPrefix(
                 "JeMPI",
                 () -> concat(
+                        post(() -> concat(
+                                path("NotificationRequest", () -> routeNotificationRequest(actorSystem, backEnd)))),
                         patch(() -> concat(
                                 path("PatchGoldenRecordPredicate",
                                         () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
@@ -391,6 +411,18 @@ public class HttpServer extends AllDirectives {
                                 path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
                                 path("Document", () -> routeDocument(actorSystem, backEnd)),
                                 path("Candidates", () -> routeCandidates(actorSystem, backEnd))))));
+    }
+
+    private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(final ActorSystem<Void> actorSystem,
+                                                                           final ActorRef<BackEnd.Event> backEnd,
+                                                                           final NotificationRequest notificationRequest) {
+        CompletionStage<BackEnd.EventNotificationRequestRsp> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventNotificationRequestReq(replyTo,
+                                notificationRequest.notificationId(), notificationRequest.state()),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
     }
 
     private record GoldenRecordCount(Long count) {
