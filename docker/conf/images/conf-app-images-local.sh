@@ -1,10 +1,11 @@
 #!/bin/bash
 
-JAVA_VERSION=17.0.5
-JAVA_VERSION_X=${JAVA_VERSION}_8
+FILE_PATH=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+  pwd -P
+)
 
-# https://hub.docker.com/_/eclipse-temurin/tags
-export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
+source "$FILE_PATH"/conf-app-images-original.sh
 
 # ------- image names -------
 

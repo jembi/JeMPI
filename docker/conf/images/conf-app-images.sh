@@ -1,3 +1,5 @@
+#!/bin/bash
+
 JAVA_VERSION=17.0.5
 JAVA_VERSION_X=${JAVA_VERSION}_8
 
