@@ -16,8 +16,6 @@ pushd .
   envsubst < ./conf/stack/docker-stack-0.yml > ./0-docker-stack-0.yml
   envsubst < ./conf/stack/docker-stack-1.yml > ./0-docker-stack-1.yml
 
-  echo ${DATA_CASSANDRA_1_DIR}/../jempi-cassandra.yaml
-
   docker stack deploy --orchestrator swarm --prune --compose-file 0-docker-stack-0.yml ${STACK_NAME}
   echo
     

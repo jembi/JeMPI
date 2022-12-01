@@ -24,8 +24,10 @@ public final class AppConfig {
     public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
     public static final String KAFKA_APPLICATION_ID_ENTITIES = CONFIG.getString("kafka.application-id-entities");
     public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("kafka.application-id-mu");
+    public static final String KAFKA_APPLICATION_ID_NOTIFICATIONS = CONFIG.getString("kafka.application-id-notifications");
     public static final String KAFKA_CLIENT_ID_ENTITIES = CONFIG.getString("kafka.client-id-entities");
     public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("kafka.client-id-mu");
+    public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("kafka.client-id-notifications");
     public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
     public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
 
@@ -96,7 +98,7 @@ public final class AppConfig {
             conf = conf.resolve();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Logging properties. Make sure sensitive data such as passwords or secrets are not " +
-                             "logged!");
+                        "logged!");
                 LOGGER.debug(conf.root().render());
             }
             return conf;

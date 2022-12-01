@@ -21,6 +21,12 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
+
+   public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("kafka.bootstrap.servers");
+   public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
+   public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
+   public static final String KAFKA_GROUP_ID = CONFIG.getString("kafka.group-id");
+
    public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
    public static final String DGRAPH_ALPHA1_HOST = CONFIG.getString("dgraph.alpha1.host");
@@ -29,6 +35,8 @@ public final class AppConfig {
    public static final int DGRAPH_ALPHA2_PORT = CONFIG.getInt("dgraph.alpha2.port");
    public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
    public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
+
+   public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
 
    private AppConfig() {
    }

@@ -4,71 +4,79 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.LinkInfo;
 
 import java.util.List;
 
 public interface LibMPIClientInterface {
 
+    /*
+     * *****************************************************************************
+     * *
+     * Database
+     * *****************************************************************************
+     * *
+     */
+    void startTransaction();
 
-   /*
-    * ******************************************************************************
-    *  Database
-    * ******************************************************************************
-    */
-   void startTransaction();
+    void closeTransaction();
 
-   void closeTransaction();
+    Option<MpiGeneralError> dropAll();
 
-   Option<MpiGeneralError> dropAll();
+    Option<MpiGeneralError> dropAllData();
 
-   Option<MpiGeneralError> dropAllData();
+    Option<MpiGeneralError> createSchema();
 
-   Option<MpiGeneralError> createSchema();
+    /*
+     * *****************************************************************************
+     * *
+     * Queries
+     * *****************************************************************************
+     * *
+     */
 
+    List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity, boolean applyDeterministicFilter);
 
-   /*
-    * ******************************************************************************
-    *  Queries
-    * ******************************************************************************
-    */
+    List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList);
 
-   List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity, boolean applyDeterministicFilter);
+    List<String> getGoldenIdListByPredicate(final String predicate, final String val);
 
-   List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList);
+    CustomGoldenRecord getGoldenRecordByUid(final String uid);
 
-   List<String> getGoldenIdListByPredicate(final String predicate, final String val);
+    CustomEntity getMpiEntity(final String uid);
 
-   CustomGoldenRecord getGoldenRecordByUid(final String uid);
+    List<String> getGoldenIdList();
 
-   CustomEntity getMpiEntity(final String uid);
+    CustomEntity getDocument(String uid);
 
-   List<String> getGoldenIdList();
+    long countGoldenRecords();
 
-   long countGoldenRecords();
+    long countEntities();
 
-   long countEntities();
+    /*
+     * *****************************************************************************
+     * *
+     * Mutations
+     * *****************************************************************************
+     * *
+     */
 
-   /*
-    * ******************************************************************************
-    *  Mutations
-    * ******************************************************************************
-    */
+    boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String value);
 
-   boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String value);
+    Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID, final float score);
 
-   Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID, final float score);
+    Either<MpiGeneralError, LinkInfo> updateLink(
+            final String goldenID, final String newGoldenID, final String entityID, final float score);
 
-   Either<MpiGeneralError, LinkInfo> updateLink(
-         final String goldenID, final String newGoldenID, final String entityID, final float score);
+    LinkInfo createEntityAndLinkToExistingGoldenRecord(final CustomEntity customEntity,
+            final GoldenIdScore goldenIdScore);
 
-   LinkInfo createEntityAndLinkToExistingGoldenRecord(final CustomEntity customEntity,
-                                                      final GoldenIdScore goldenIdScore);
+    LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score);
 
-   LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score);
+//    record LinkInfo(String goldenId, String entityId, float score) {
+//    }
 
-   record LinkInfo(String goldenId, String entityId, float score) {}
-
-   record GoldenIdScore(String goldenId, float score) {}
-
+    record GoldenIdScore(String goldenId, float score) {
+    }
 
 }

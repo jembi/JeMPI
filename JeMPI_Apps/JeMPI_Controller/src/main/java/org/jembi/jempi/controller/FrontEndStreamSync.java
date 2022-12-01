@@ -42,7 +42,7 @@ public class FrontEndStreamSync extends AllDirectives {
    private CompletionStage<HttpResponse> postLinkEntity(final LinkEntitySyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
-            .create("http://linker:50000/JeMPI/link_entity")
+            .create("http://jempi-linker:50000/JeMPI/link_entity")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -51,7 +51,7 @@ public class FrontEndStreamSync extends AllDirectives {
 
    private CompletionStage<HttpResponse> postLinkEntityToGid(final LinkEntityToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/link_entity_to_gid")
+            .create("http://jempi-linker:50000/JeMPI/link_entity_to_gid")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -60,7 +60,7 @@ public class FrontEndStreamSync extends AllDirectives {
 
    private CompletionStage<HttpResponse> getMU() {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/mu")
+            .create("http://jempi-linker:50000/JeMPI/mu")
             .withMethod(HttpMethods.GET);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
@@ -70,6 +70,7 @@ public class FrontEndStreamSync extends AllDirectives {
       return entity(Jackson.unmarshaller(LinkEntitySyncBody.class),
                     obj -> {
                        try {
+                          LOGGER.debug("{}", obj);
                           return onComplete(postLinkEntity(obj),
                                             response -> response.isSuccess()
                                                         ? complete(response.get())

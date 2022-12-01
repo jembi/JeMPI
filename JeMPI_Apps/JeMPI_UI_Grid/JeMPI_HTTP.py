@@ -50,10 +50,10 @@ def http_get_mu():
 
 
 def http_post_link_entity(data_dict):
-    url = JeMPI_Config.LINKER_SERVICE + '/JeMPI/link_entity'
+    url = JeMPI_Config.CONTROLLER_SERVER + '/JeMPI/link_entity'
     return requests.post(url, json=data_dict)
 
 
 def http_post_link_entity_to_gid(data_dict):
-    url = JeMPI_Config.LINKER_SERVICE + '/JeMPI/link_entity_to_gid'
+    url = JeMPI_Config.CONTROLLER_SERVER + '/JeMPI/link_entity_to_gid'
     return requests.post(url, json=data_dict)

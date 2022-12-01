@@ -1,7 +1,6 @@
 import wx
 
 API_SERVER = 'http://localhost:50000'
-LINKER_SERVICE = 'http://localhost:50010'
 CONTROLLER_SERVER = 'http://localhost:50020'
 
 REFERENCE = True
@@ -37,14 +36,15 @@ else:
     MY_ENTITY_FIELDS = \
         [Field('uid', False, None, 'MPI ID', 1, wx.ALIGN_CENTRE),
          Field('auxId', False, 'GoldenRecord.aux_id', 'Aux ID', 2, wx.ALIGN_CENTRE),
-         Field('nameGiven', True, 'GoldenRecord.name_given', 'Given', 3, wx.ALIGN_LEFT),
-         Field('nameFather', True, 'GoldenRecord.name_father', "Father", 4, wx.ALIGN_LEFT),
-         Field('nameFathersFather', True, 'GoldenRecord.name_fathers_father', "Father's Father", 5, wx.ALIGN_LEFT),
-         Field('nameMother', True, 'GoldenRecord.name_mother', "Mother", 6, wx.ALIGN_LEFT),
-         Field('nameMothersFather', True, 'GoldenRecord.name_mothers_father', "Mother's Father", 7, wx.ALIGN_LEFT),
-         Field('gender', True, 'GoldenRecord.gender', 'Gender', 8, wx.ALIGN_CENTRE),
-         Field('dob', True, 'GoldenRecord.dob', 'DOB', 9, wx.ALIGN_CENTRE),
-         Field('city', True, 'GoldenRecord.city', 'City', 10, wx.ALIGN_LEFT),
-         Field('phoneNumber', True, 'GoldenRecord.phone_number', 'Phone Number', 11, wx.ALIGN_CENTRE)]
-    MY_DOCUMENT_FIELDS = [Field('score', False, None, 'Score', 12, wx.ALIGN_RIGHT)]
+         Field('sourceId', False, 'GoldenRecord.source_id', 'SOURCE', 3, wx.ALIGN_CENTRE),
+         Field('nameGiven', True, 'GoldenRecord.name_given', 'Given', 4, wx.ALIGN_LEFT),
+         Field('nameFather', True, 'GoldenRecord.name_father', "Father", 5, wx.ALIGN_LEFT),
+         Field('nameFathersFather', True, 'GoldenRecord.name_fathers_father', "Father's Father", 6, wx.ALIGN_LEFT),
+         Field('nameMother', True, 'GoldenRecord.name_mother', "Mother", 7, wx.ALIGN_LEFT),
+         Field('nameMothersFather', True, 'GoldenRecord.name_mothers_father', "Mother's Father", 8, wx.ALIGN_LEFT),
+         Field('gender', True, 'GoldenRecord.gender', 'Gender', 9, wx.ALIGN_CENTRE),
+         Field('dob', True, 'GoldenRecord.dob', 'DOB', 10, wx.ALIGN_CENTRE),
+         Field('city', True, 'GoldenRecord.city', 'City', 11, wx.ALIGN_LEFT),
+         Field('phoneNumber', True, 'GoldenRecord.phone_number', 'Phone Number', 12, wx.ALIGN_CENTRE)]
+    MY_DOCUMENT_FIELDS = [Field('score', False, None, 'Score', 13, wx.ALIGN_RIGHT)]
 MY_DISPLAY_GRID_COLS = len(MY_EXTRA_FIELDS) + len(MY_ENTITY_FIELDS) + len(MY_DOCUMENT_FIELDS)
