@@ -13,4 +13,4 @@ export DGRAPH_IMAGE=dgraph/dgraph:v22.0.1
 export RATEL_IMAGE=dgraph/ratel:v21.03.2
 
 # https://registry.hub.docker.com/r/bitnami/postgresql/tags
-export POSTGRESQL_IMAGE=bitnami/postgresql:12
+export POSTGRESQL_IMAGE=bitnami/postgresql:14
