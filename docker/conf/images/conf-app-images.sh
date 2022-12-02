@@ -8,13 +8,13 @@ export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
 
 # ------- image names -------
 
-export ASYNC_RECEIVER_IMAGE=jembi/jempi-async-receiver:0.1.1
-export SYNC_RECEIVER_IMAGE=jembi/jempi-sync-receiver:0.1.1
-export PREPROCESSOR_IMAGE=jembi/jempi-pre-processor:0.1.1
-export CONTROLLER_IMAGE=jembi/jempi-controller:0.1.1
-export EM_IMAGE=jembi/jempi-em-calculator:0.1.1
-export LINKER_IMAGE=jembi/jempi-linker:0.1.1
-export API_IMAGE=jembi/jempi-api:0.1.1
+export ASYNC_RECEIVER_IMAGE=jembi/jempi-async-receiver:latest
+export SYNC_RECEIVER_IMAGE=jembi/jempi-sync-receiver:latest
+export PREPROCESSOR_IMAGE=jembi/jempi-pre-processor:latest
+export CONTROLLER_IMAGE=jembi/jempi-controller:latest
+export EM_IMAGE=jembi/jempi-em-calculator:latest
+export LINKER_IMAGE=jembi/jempi-linker:latest
+export API_IMAGE=jembi/jempi-api:latest
 
 # ------- JAR names -------
 
