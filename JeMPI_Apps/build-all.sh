@@ -18,9 +18,9 @@ mvn_clean() {
 }
 
 build() {
-  pushd JeMPI_LibMPI || exit
+  pushd JeMPI_LibMPI || return
   ./build.sh || return
-  popd || exit
+  popd || return
 
   mvn_clean || return
 
@@ -93,14 +93,14 @@ main() {
   declare -r RED='\033[1;31m'
   declare -r local_dir=$(pwd)
   if ! build; then
-    echo -e "${RED}[ERROR] failure in echo $local_dir/build-all.sh/build()${COLOUR_OFF}"
+    echo -e "${RED}[ERROR] failure in $local_dir/build-all.sh/build()${COLOUR_OFF}"
     exit 1
   fi
 
   declare -r with_local_registry=${1:-'false'}
   if [[ $with_local_registry == 'true' ]]; then
     if ! push_to_local_registry; then
-      echo -e "${RED}[ERROR] failure in echo $local_dir/build-all.sh/push_to_local_registry()${COLOUR_OFF}"
+      echo -e "${RED}[ERROR] failure in $local_dir/build-all.sh/push_to_local_registry()${COLOUR_OFF}"
       exit 1
     fi
   fi
