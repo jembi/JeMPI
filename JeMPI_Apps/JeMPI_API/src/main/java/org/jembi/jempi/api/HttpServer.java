@@ -10,13 +10,13 @@ import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
+import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.models.Notification;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
 import java.util.List;
@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
 public class HttpServer extends AllDirectives {
 
@@ -55,7 +57,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventGetDocumentCountRsp> getDocumentCount(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd) {
+                                                                               final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getDocumentCount");
         CompletionStage<BackEnd.EventGetDocumentCountRsp> stage = AskPattern.ask(backEnd,
                 BackEnd.EventGetDocumentCountReq::new,
@@ -65,7 +67,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> getNumberOfRecords(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd) {
+                                                                                   final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getNumberOfRecords");
         CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> stage = AskPattern.ask(
                 backEnd,
@@ -88,7 +90,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventGetGoldenIdListRsp> getGoldenIdList(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd) {
+                                                                             final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getGoldenIdList");
         CompletionStage<BackEnd.EventGetGoldenIdListRsp> stage = AskPattern.ask(backEnd,
                 BackEnd.EventGetGoldenIdListReq::new,
@@ -96,6 +98,7 @@ public class HttpServer extends AllDirectives {
                 actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
+
     private CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> getMatchesForReviewList(final ActorSystem<Void> actorSystem,
                                                                                              final ActorRef<BackEnd.Event> backEnd) {
         CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> stage =
@@ -105,9 +108,10 @@ public class HttpServer extends AllDirectives {
                         actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
+
     private CompletionStage<BackEnd.EventGetGoldenRecordRsp> getGoldenRecord(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd,
-            final String uid) {
+                                                                             final ActorRef<BackEnd.Event> backEnd,
+                                                                             final String uid) {
         LOGGER.debug("getGoldenRecord");
         final CompletionStage<BackEnd.EventGetGoldenRecordRsp> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventGetGoldenRecordReq(replyTo, uid),
@@ -117,8 +121,8 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventGetCandidatesRsp> getCandidates(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd,
-            final String uid, final CustomMU mu) {
+                                                                         final ActorRef<BackEnd.Event> backEnd,
+                                                                         final String uid, final CustomMU mu) {
         LOGGER.debug("getCandidates");
         CompletionStage<BackEnd.EventGetCandidatesRsp> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventGetCandidatesReq(replyTo, uid, mu),
@@ -140,8 +144,8 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventGetDocumentRsp> getDocument(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd,
-            final String uid) {
+                                                                     final ActorRef<BackEnd.Event> backEnd,
+                                                                     final String uid) {
         LOGGER.debug("getDocument");
         final CompletionStage<BackEnd.EventGetDocumentRsp> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventGetDocumentReq(replyTo, uid),
@@ -164,11 +168,11 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventPatchLinkRsp> patchLink(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd,
-            final String goldenID,
-            final String newGoldenID,
-            final String docID,
-            final Float score) {
+                                                                 final ActorRef<BackEnd.Event> backEnd,
+                                                                 final String goldenID,
+                                                                 final String newGoldenID,
+                                                                 final String docID,
+                                                                 final Float score) {
         LOGGER.debug("patchLink");
         final CompletionStage<BackEnd.EventPatchLinkRsp> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventPatchLinkReq(replyTo, goldenID, newGoldenID, docID, score),
@@ -178,8 +182,8 @@ public class HttpServer extends AllDirectives {
     }
 
     private CompletionStage<BackEnd.EventPatchUnLinkRsp> patchUnLink(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd,
-            final String goldenID, final String docID) {
+                                                                     final ActorRef<BackEnd.Event> backEnd,
+                                                                     final String goldenID, final String docID) {
         LOGGER.debug("patchUnLink");
         final CompletionStage<BackEnd.EventPatchUnLinkRsp> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventPatchUnLinkReq(replyTo, goldenID, docID, 2.0F),
@@ -192,11 +196,11 @@ public class HttpServer extends AllDirectives {
         LOGGER.debug("{}", obj);
         return switch (obj) {
             case MpiServiceError.EntityIDDoesNotExistError e ->
-                complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+                    complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             case MpiServiceError.GoldenIDDoesNotExistError e ->
-                complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+                    complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             case MpiServiceError.GoldenIDEntityConflictError e ->
-                complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+                    complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
             default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
         };
@@ -207,7 +211,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private Route routePatchGoldenRecordPredicate(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd) {
+                                                  final ActorRef<BackEnd.Event> backEnd) {
         return parameter(
                 "uid",
                 uid -> parameter(
@@ -230,11 +234,11 @@ public class HttpServer extends AllDirectives {
                                 patchUnLink(actorSystem, backEnd, goldenID, docID),
                                 result -> result.isSuccess()
                                         ? result.get()
-                                                .linkInfo()
-                                                .mapLeft(this::mapError)
-                                                .fold(error -> error,
-                                                        linkInfo -> complete(StatusCodes.OK, linkInfo,
-                                                                Jackson.marshaller()))
+                                        .linkInfo()
+                                        .mapLeft(this::mapError)
+                                        .fold(error -> error,
+                                                linkInfo -> complete(StatusCodes.OK, linkInfo,
+                                                        Jackson.marshaller()))
                                         : complete(StatusCodes.IM_A_TEAPOT))));
     }
 
@@ -252,11 +256,11 @@ public class HttpServer extends AllDirectives {
                                                         Float.parseFloat(score)),
                                                 result -> result.isSuccess()
                                                         ? result.get()
-                                                                .linkInfo()
-                                                                .mapLeft(this::mapError)
-                                                                .fold(error -> error,
-                                                                        linkInfo -> complete(StatusCodes.OK, linkInfo,
-                                                                                Jackson.marshaller()))
+                                                        .linkInfo()
+                                                        .mapLeft(this::mapError)
+                                                        .fold(error -> error,
+                                                                linkInfo -> complete(StatusCodes.OK, linkInfo,
+                                                                        Jackson.marshaller()))
                                                         : complete(StatusCodes.IM_A_TEAPOT))))));
     }
 
@@ -281,8 +285,8 @@ public class HttpServer extends AllDirectives {
                 getNumberOfRecords(actorSystem, backEnd),
                 result -> result.isSuccess()
                         ? complete(StatusCodes.OK,
-                                new NumberOfRecords(result.get().goldenRecords(), result.get().documents()),
-                                Jackson.marshaller())
+                        new NumberOfRecords(result.get().goldenRecords(), result.get().documents()),
+                        Jackson.marshaller())
                         : complete(StatusCodes.IM_A_TEAPOT));
     }
 
@@ -314,7 +318,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private Route routeGoldenRecordDocuments(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd) {
+                                             final ActorRef<BackEnd.Event> backEnd) {
         return parameterList(params -> {
             final var uidList = params.stream().map(paramString).toList();
             return onComplete(getGoldenRecordDocuments(actorSystem, backEnd, uidList),
@@ -325,7 +329,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private Route routeGoldenRecordDocumentList(final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Event> backEnd) {
+                                                final ActorRef<BackEnd.Event> backEnd) {
         return parameter("uidList",
                 items -> {
                     final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
@@ -349,7 +353,7 @@ public class HttpServer extends AllDirectives {
                 uid -> onComplete(getDocument(actorSystem, backEnd, uid),
                         result -> result.isSuccess()
                                 ? complete(StatusCodes.OK, result.get(),
-                                        Jackson.marshaller())
+                                Jackson.marshaller())
                                 : complete(StatusCodes.IM_A_TEAPOT)));
     }
 
@@ -362,11 +366,11 @@ public class HttpServer extends AllDirectives {
                                 getCandidates(actorSystem, backEnd, uid, mu),
                                 result -> result.isSuccess()
                                         ? result.get()
-                                                .candidates()
-                                                .mapLeft(this::mapError)
-                                                .fold(error -> error,
-                                                        candidateList -> complete(StatusCodes.OK, candidateList,
-                                                                Jackson.marshaller()))
+                                        .candidates()
+                                        .mapLeft(this::mapError)
+                                        .fold(error -> error,
+                                                candidateList -> complete(StatusCodes.OK, candidateList,
+                                                        Jackson.marshaller()))
                                         : complete(StatusCodes.IM_A_TEAPOT))));
     }
 
@@ -387,35 +391,37 @@ public class HttpServer extends AllDirectives {
     }
 
     private Route createRoute(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
-        return pathPrefix(
-                "JeMPI",
-                () -> concat(
-                        post(() -> concat(
-                                path("NotificationRequest", () -> routeNotificationRequest(actorSystem, backEnd)))),
-                        patch(() -> concat(
-                                path("PatchGoldenRecordPredicate",
-                                        () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
-                                path("Unlink", () -> routeUnlink(actorSystem, backEnd)),
-                                path("Link", () -> routeLink(actorSystem, backEnd)))),
-                        get(() -> concat(
-                                path("GoldenRecordCount", () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                                path("DocumentCount", () -> routeDocumentCount(actorSystem, backEnd)),
-                                path("NumberOfRecords", () -> routeNumberOfRecords(actorSystem, backEnd)),
-                                path("GoldenIdList", () -> routeGoldenIdList(actorSystem, backEnd)),
-                                path("GoldenIdListByPredicate",
-                                        () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
-                                path("GoldenRecordDocuments", () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
-                                path("GoldenRecordDocumentList",
-                                        () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
-                                path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
-                                path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                path("Document", () -> routeDocument(actorSystem, backEnd)),
-                                path("Candidates", () -> routeCandidates(actorSystem, backEnd))))));
+        final var settings = CorsSettings.defaultSettings().withAllowGenericHttpRequests(true);
+        return cors(settings,
+                () -> pathPrefix(
+                        "JeMPI",
+                        () -> concat(
+                                post(() -> concat(
+                                        path("NotificationRequest", () -> routeNotificationRequest(actorSystem, backEnd)))),
+                                patch(() -> concat(
+                                        path("PatchGoldenRecordPredicate",
+                                                () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
+                                        path("Unlink", () -> routeUnlink(actorSystem, backEnd)),
+                                        path("Link", () -> routeLink(actorSystem, backEnd)))),
+                                get(() -> concat(
+                                        path("GoldenRecordCount", () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                                        path("DocumentCount", () -> routeDocumentCount(actorSystem, backEnd)),
+                                        path("NumberOfRecords", () -> routeNumberOfRecords(actorSystem, backEnd)),
+                                        path("GoldenIdList", () -> routeGoldenIdList(actorSystem, backEnd)),
+                                        path("GoldenIdListByPredicate",
+                                                () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
+                                        path("GoldenRecordDocuments", () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
+                                        path("GoldenRecordDocumentList",
+                                                () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
+                                        path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
+                                        path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
+                                        path("Document", () -> routeDocument(actorSystem, backEnd)),
+                                        path("Candidates", () -> routeCandidates(actorSystem, backEnd)))))));
     }
 
     private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(final ActorSystem<Void> actorSystem,
-                                                                           final ActorRef<BackEnd.Event> backEnd,
-                                                                           final NotificationRequest notificationRequest) {
+                                                                                         final ActorRef<BackEnd.Event> backEnd,
+                                                                                         final NotificationRequest notificationRequest) {
         CompletionStage<BackEnd.EventNotificationRequestRsp> stage =
                 AskPattern.ask(backEnd,
                         replyTo -> new BackEnd.EventNotificationRequestReq(replyTo,
@@ -432,7 +438,7 @@ public class HttpServer extends AllDirectives {
     }
 
     private record NumberOfRecords(Long goldenRecords,
-            Long documents) {
+                                   Long documents) {
     }
 
 }
