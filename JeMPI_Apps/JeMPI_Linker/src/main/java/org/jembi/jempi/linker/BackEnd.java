@@ -190,19 +190,6 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             if (candidateGoldenRecords.isEmpty()) {
                 linkInfo = libMPI.createEntityAndLinkToClonedGoldenRecord(customEntity, 1.0F);
             } else {
-//                final var notification = new Notification(
-//                        System.currentTimeMillis(),
-//                        Notification.NotificationType.MARGIN,
-//                        "0x01",
-//                        new ArrayList<>(Arrays.asList("Geek", "for", "Geeks")),
-//                        new Notification.MatchData("0x02", 0.9F),
-//                        new ArrayList<>(List.of(new Notification.MatchData("0x03", 0.89F)))
-//                );
-//                try {
-//                    topicNotifications.produceSync("dummy", notification);
-//                } catch (ExecutionException | InterruptedException e) {
-//                    LOGGER.error(e.getLocalizedMessage(), e);
-//                }
                 final var allCandidateScores =
                         candidateGoldenRecords
                                 .parallelStream()
@@ -210,18 +197,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                 .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate, customEntity)))
                                 .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                 .collect(Collectors.toCollection(ArrayList::new));
-/*
-            if (!allCandidateScores.isEmpty()) {
-               for (int i = 0; i < allCandidateScores.size(); i++) {
-                  final var candidate = allCandidateScores.get(i);
-                  if (i == 0 && candidate.score() > matchThreshold) {
-                     customLinkerMU.updateMatchSums(customEntity, candidate.goldenRecord());
-                  } else {
-                     customLinkerMU.updateMissmatchSums(customEntity, candidate.goldenRecord());
-                  }
-               }
-            }
-*/
+
                 // Get a list of candidates withing the supplied for external link range
                 final var candidatesInExternalLinkRange =
                         externalLinkRange == null
@@ -251,7 +227,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                     Notification.NotificationType.THRESHOLD,
                                     linkInfo.entityId(),
                                     customEntity.getNames(customEntity),
-                                    new Notification.MatchData(linkInfo.goldenId(), 1.0F),
+                                    new Notification.MatchData(linkInfo.goldenId(), linkInfo.score()),
                                     notificationCandidates
                             );
                         }
@@ -266,6 +242,27 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                             candidatesAboveMatchThreshold.get(0).score);
                     linkInfo = libMPI.createEntityAndLinkToExistingGoldenRecord(customEntity, linkToGoldenId);
                     CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenId());
+
+                    final var marginalCandidates = new ArrayList<Notification.MatchData>();
+                    if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
+                        var firstCandidate = candidatesAboveMatchThreshold.get(0);
+                        for (var i = 1; i < candidatesAboveMatchThreshold.size(); i++) {
+                            final var candidate = candidatesAboveMatchThreshold.get(i);
+                            if (firstCandidate.score - candidate.score <= 0.1) {
+                                marginalCandidates.add(new Notification.MatchData(candidate.goldenRecord.uid(), candidate.score));
+                            } else {
+                                break;
+                            }
+                        }
+                        if (!marginalCandidates.isEmpty()) {
+                            sendNotification(
+                                    Notification.NotificationType.MARGIN,
+                                    linkInfo.entityId(),
+                                    customEntity.getNames(customEntity),
+                                    new Notification.MatchData(linkInfo.goldenId(), linkInfo.score()),
+                                    marginalCandidates);
+                        }
+                    }
                 }
             }
         } finally {
