@@ -47,6 +47,12 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.megard</groupId>
+            <artifactId>akka-http-cors_2.13</artifactId>
+            <version>${version.ch.megard.akka-http-cors_2.13}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${version.org.apache.commons.commons-lang3}</version>
