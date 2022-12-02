@@ -6,11 +6,11 @@ import akka.actor.typed.javadsl.AskPattern;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
+import akka.http.javadsl.model.HttpMethods;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
-import akka.http.scaladsl.model.HttpMethods;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +21,7 @@ import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
@@ -394,11 +395,7 @@ public class HttpServer extends AllDirectives {
 
     private Route createRoute(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
         final var settings = CorsSettings.defaultSettings()
-                .withAllowedMethods(new ArrayList<>() {{
-                    HttpMethods.GET();
-                    HttpMethods.PATCH();
-                    HttpMethods.POST();
-                }})
+                .withAllowedMethods(Arrays.asList(HttpMethods.GET, HttpMethods.POST, HttpMethods.PATCH))
                 .withAllowGenericHttpRequests(true);
         return cors(settings,
                 () -> pathPrefix(

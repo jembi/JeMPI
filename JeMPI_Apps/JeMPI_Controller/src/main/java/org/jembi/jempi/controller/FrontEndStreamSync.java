@@ -5,13 +5,9 @@ import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
-import akka.http.javadsl.model.ContentTypes;
-import akka.http.javadsl.model.HttpRequest;
-import akka.http.javadsl.model.HttpResponse;
-import akka.http.javadsl.model.StatusCodes;
+import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
-import akka.http.scaladsl.model.HttpMethods;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +17,7 @@ import org.jembi.jempi.shared.models.LinkEntitySyncBody;
 import org.jembi.jempi.shared.models.LinkEntityToGidSyncBody;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
@@ -114,10 +110,7 @@ public class FrontEndStreamSync extends AllDirectives {
 
     private Route createRoute(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
         final var settings = CorsSettings.defaultSettings()
-                .withAllowedMethods(new ArrayList<>() {{
-                    HttpMethods.GET();
-                    HttpMethods.POST();
-                }})
+                .withAllowedMethods(Arrays.asList(HttpMethods.GET, HttpMethods.POST))
                 .withAllowGenericHttpRequests(true);
         return cors(settings,
                 () -> pathPrefix("JeMPI",
