@@ -21,15 +21,11 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
+            <version>${version.org.postgresql.postgresql}</version>
         </dependency>
 
         <dependency>
@@ -78,6 +74,12 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
             <version>${version.com.typesafe.akka.akka-http-jackson_2.13}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.megard</groupId>
+            <artifactId>akka-http-cors_2.13</artifactId>
+            <version>${version.ch.megard.akka-http-cors_2.13}</version>
         </dependency>
 
         <dependency>

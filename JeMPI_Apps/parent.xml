@@ -37,6 +37,9 @@
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http -->
         <version.com.typesafe.akka.akka-http_2.13>10.4.0</version.com.typesafe.akka.akka-http_2.13>
 
+        <!-- https://mvnrepository.com/artifact/ch.megard/akka-http-cors -->
+        <version.ch.megard.akka-http-cors_2.13>1.1.3</version.ch.megard.akka-http-cors_2.13>
+
         <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-jackson -->
         <version.com.typesafe.akka.akka-http-jackson_2.13>10.4.0</version.com.typesafe.akka.akka-http-jackson_2.13>
 
@@ -99,6 +102,8 @@
         <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-mapper-runtime -->
         <version.com.datastax.oss.java-driver-mapper-runtimer>4.15.0</version.com.datastax.oss.java-driver-mapper-runtimer>
 
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <version.org.postgresql.postgresql>42.5.1</version.org.postgresql.postgresql>
 
         <javac.executable>${JAVA_HOME}/bin/javac</javac.executable>
 
