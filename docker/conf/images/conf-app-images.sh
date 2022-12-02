@@ -6,23 +6,22 @@ JAVA_VERSION_X=${JAVA_VERSION}_8
 # https://hub.docker.com/_/eclipse-temurin/tags
 export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
 
-export ASYNC_RECEIVER_IMAGE=async_receiver:1.0-SNAPSHOT
+# ------- image names -------
+
+export ASYNC_RECEIVER_IMAGE=jembi/jempi-async-receiver:0.1.1
+export SYNC_RECEIVER_IMAGE=jembi/jempi-sync-receiver:0.1.1
+export PREPROCESSOR_IMAGE=jembi/jempi-pre-processor:0.1.1
+export CONTROLLER_IMAGE=jembi/jempi-controller:0.1.1
+export EM_IMAGE=jembi/jempi-em-calculator:0.1.1
+export LINKER_IMAGE=jembi/jempi-linker:0.1.1
+export API_IMAGE=jembi/jempi-api:0.1.1
+
+# ------- JAR names -------
+
 export ASYNC_RECEIVER_JAR=AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar
-
-export SYNC_RECEIVER_IMAGE=sync_receiver:1.0-SNAPSHOT
 export SYNC_RECEIVER_JAR=SyncReceiver-1.0-SNAPSHOT-spring-boot.jar
-
-export PREPROCESSOR_IMAGE=preprocessor:1.0-SNAPSHOT
 export PREPROCESSOR_JAR=PreProcessor-1.0-SNAPSHOT-spring-boot.jar
-
-export CONTROLLER_IMAGE=controller:1.0-SNAPSHOT
 export CONTROLLER_JAR=Controller-1.0-SNAPSHOT-spring-boot.jar
-
-export EM_IMAGE=em:1.0-SNAPSHOT
 export EM_JAR=EM-1.0-SNAPSHOT-spring-boot.jar
-
-export LINKER_IMAGE=linker:1.0-SNAPSHOT
 export LINKER_JAR=Linker-1.0-SNAPSHOT-spring-boot.jar
-
-export API_IMAGE=api:1.0-SNAPSHOT
 export API_JAR=API-1.0-SNAPSHOT-spring-boot.jar
