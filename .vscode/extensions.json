@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "foxundermoon.shell-format",
+        "pinage404.bash-extension-pack",
+        "bdavs.expect",
+        "ms-azuretools.vscode-docker",
+        "ms-vsliveshare.vsliveshare",
+        "esbenp.prettier-vscode",
+    ]
+}
