@@ -46,8 +46,7 @@ public class NotificationStreamProcessor {
 
                         LOGGER.debug("key:{}, value:{}", key, value);
                         PsqlQueries.insert(UUID.randomUUID(), value.notificationType().toString(),
-                                value.patientNames(), value.linkedTo().score(), value.timeStamp(), value.linkedTo().gID());
-                        LOGGER.debug("linkedTo: " + value.linkedTo().gID());
+                                value.patientNames(), value.linkedTo().score(), value.timeStamp(), value.linkedTo().gID(),value.dID());
                     } catch(SQLException e){
                         LOGGER.debug(e.toString());
                     }
