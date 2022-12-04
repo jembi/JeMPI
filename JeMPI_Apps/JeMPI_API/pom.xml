@@ -77,6 +77,12 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.megard</groupId>
+            <artifactId>akka-http-cors_2.13</artifactId>
+            <version>${version.ch.megard.akka-http-cors_2.13}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>${version.com.fasterxml.jackson.core.jackson-annotations}</version>

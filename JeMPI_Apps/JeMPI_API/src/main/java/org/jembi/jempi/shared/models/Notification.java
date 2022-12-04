@@ -19,6 +19,17 @@ public record Notification(Long timeStamp,  // UTC Time
         }
     }
 
+    public enum NotificationState {
+        NEW("New"),
+        SEEN("Seen"),
+        ACTIONED("Actioned");
+
+        public final String label;
+
+        private NotificationState(String label) {
+            this.label = label;
+        }
+    }
 
     public record MatchData(String gID,  // Golden ID
                             Float score) {

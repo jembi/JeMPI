@@ -14,7 +14,6 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.lang.String;
 
 
 public class PsqlQueries {
@@ -129,6 +128,16 @@ public class PsqlQueries {
 
 
         int[] count = stmt.executeBatch();
+        conn.commit();
+    }
+
+    public static void updateNotificationState(String id, String state) throws SQLException {
+
+        Connection conn = dbConnect.connect();
+        Statement stmt = conn.createStatement();
+
+        ResultSet rs = stmt.executeQuery( "update notification set state_id = " +
+                "(select id from notification_state where state = '" + state + "' )where id = '" + id + "'");
         conn.commit();
     }
 }

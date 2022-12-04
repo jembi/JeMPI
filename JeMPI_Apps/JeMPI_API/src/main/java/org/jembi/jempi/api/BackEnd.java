@@ -19,6 +19,7 @@ import org.jembi.jempi.shared.models.Notification;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.LinkInfo;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -67,6 +68,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
                 .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
+                .onMessage(EventNotificationRequestReq.class, this::eventNotificationRequestHandler)
                 .build();
     }
 
@@ -192,6 +194,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
+    private Behavior<Event> eventNotificationRequestHandler(EventNotificationRequestReq request) {
+        try {
+            PsqlQueries.updateNotificationState(request.notificationId, request.state);
+        } catch (SQLException exception) {
+            LOGGER.error(exception.getMessage());
+        }
+        request.replyTo.tell(new EventNotificationRequestRsp());
+        return Behaviors.same();
+    }
+
     interface Event {
     }
 
@@ -294,4 +306,13 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         record Candidate(CustomGoldenRecord goldenRecord, float score) {
         }
     }
+
+    public record EventNotificationRequestReq(ActorRef<EventNotificationRequestRsp> replyTo,
+                                              String notificationId,
+                                              String state) implements Event {
+    }
+
+    public record EventNotificationRequestRsp() implements EventResponse {
+    }
+
 }
