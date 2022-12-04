@@ -53,6 +53,16 @@ CREATE TABLE IF NOT EXISTS Match
 	    REFERENCES Notification(Id)
 );
 
+CREATE TABLE IF NOT EXISTS candidates
+(
+    Notification_Id UUID,
+    Score Numeric,
+    Golden_Id VARCHAR(50),
+    CONSTRAINT FK_Notification
+      FOREIGN KEY(Notification_Id) 
+	    REFERENCES Notification(Id)
+);
+
 INSERT INTO Notification_State(Id,State)
 VALUES ('c2a28016-43b3-49a1-9b5e-32f886090ed2','New');
 
