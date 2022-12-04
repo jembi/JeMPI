@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 public class PsqlQueries {
 
-    private static final String QUERY = " select N.patient_id, N.id, N.names, N.created, N.reason,  NS.state," +
+    private static final String QUERY = " select N.patient_id, N.id, N.names, N.created, NS.state," +
             " NT.type, M.score, M.golden_id from notification N " +
             "JOIN notification_state NS  ON NS.id = N.state_id " +
             "JOIN notification_type NT on N.type_id = NT.id " +

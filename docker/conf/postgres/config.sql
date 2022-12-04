@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS Notification
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     Type_Id uuid,
-    Reason VARCHAR(100),
     Created date,
     Reviewd_By uuid,
     Reviewed_At timestamp without time zone,
