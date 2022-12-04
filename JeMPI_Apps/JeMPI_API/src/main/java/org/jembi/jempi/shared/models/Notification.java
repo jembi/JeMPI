@@ -34,5 +34,7 @@ public record Notification(Long timeStamp,  // UTC Time
     public record MatchData(String gID,  // Golden ID
                             Float score) {
 
+
+
     }
 }

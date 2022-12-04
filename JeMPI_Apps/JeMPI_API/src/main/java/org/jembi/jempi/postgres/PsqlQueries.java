@@ -23,30 +23,64 @@ public class PsqlQueries {
             "JOIN notification_state NS  ON NS.id = N.state_id " +
             "JOIN notification_type NT on N.type_id = NT.id " +
             "JOIN match M ON M.notification_id = N.id";
-
     private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
 
     public static List getMatchesForReview() {
 
         ArrayList list = new ArrayList();
+
         try (Connection connection = dbConnect.connect();
              PreparedStatement preparedStatement = connection.prepareStatement(QUERY);) {
             ResultSet rs = preparedStatement.executeQuery();
             ResultSetMetaData md = rs.getMetaData();
             int columns = md.getColumnCount();
             UUID notification_id = null;
+            HashMap row = new HashMap(columns);
 
             while (rs.next()) {
-                HashMap row = new HashMap(columns);
+                 row = new HashMap(columns);
                 for (int i = 1; i <= columns; i++) {
+                    if (md.getColumnName(i).equals("id"))
+                    {
+                        notification_id = rs.getObject(i, java.util.UUID.class);
+                    }
                     row.put(md.getColumnName(i), (rs.getObject(i)));
                 }
+
                 list.add(row);
+                row.put("candidates", getCandidates(notification_id));
             }
         } catch (Exception e) {
             LOGGER.error(e);
         }
         return list;
+    }
+
+    public static List getCandidates(UUID nID) {
+
+        ArrayList list = new ArrayList();
+        String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('"+nID+"')";
+        try (Connection connection = dbConnect.connect();
+             PreparedStatement preparedStatement = connection.prepareStatement(candidates);){
+            ResultSet rs = preparedStatement.executeQuery();
+            ResultSetMetaData md = rs.getMetaData();
+            int columns = md.getColumnCount();
+            while (rs.next()) {
+                HashMap row = new HashMap(columns);
+                for (int i = 1; i <= columns; i++) {
+                    if (md.getColumnName(i).equals("notification_id")){
+                            row.put("score", (rs.getObject("score")));
+                            row.put("golden_id", (rs.getObject("golden_id")));
+                    }
+
+                }
+                if (!row.isEmpty())
+                    list.add(row);
+            }
+        }catch(Exception e){
+            LOGGER.error(e);
+        }
+        return  list;
     }
 
 
@@ -64,7 +98,7 @@ public class PsqlQueries {
         ResultSet rs = stmt.executeQuery( "select * from notification_state");
         while(rs.next()){
             if(rs.getString("state").equals("New"))
-                 stateId = UUID.fromString(rs.getString("id"));
+                stateId = UUID.fromString(rs.getString("id"));
         }
 
         rs = stmt.executeQuery( "select * from notification_type");
@@ -79,10 +113,22 @@ public class PsqlQueries {
         sql = "INSERT INTO match (notification_id, score, golden_id)" + " VALUES ('"+id+"','"+score+"', '"+gID+"')";
         stmt.addBatch(sql);
 
+
         int[] count = stmt.executeBatch();
         conn.commit();
 
 
+    }
+    public static void insert_candidates (UUID id, Float score, String gID) throws SQLException {
+        Connection conn = dbConnect.connect();
+        Statement stmt = conn.createStatement();
+        conn.setAutoCommit(false);
+        String sql = "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('"+id+"','"+score+"', '"+gID+"')";
+        stmt.addBatch(sql);
+
+
+        int[] count = stmt.executeBatch();
+        conn.commit();
     }
 
     public static void updateNotificationState(String id, String state) throws SQLException {
