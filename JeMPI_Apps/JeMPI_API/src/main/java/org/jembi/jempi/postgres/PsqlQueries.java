@@ -34,6 +34,7 @@ public class PsqlQueries {
             ResultSet rs = preparedStatement.executeQuery();
             ResultSetMetaData md = rs.getMetaData();
             int columns = md.getColumnCount();
+            UUID notification_id = null;
 
             while (rs.next()) {
                 HashMap row = new HashMap(columns);
@@ -49,7 +50,7 @@ public class PsqlQueries {
     }
 
 
-    public static void insert(UUID id, String type, String patientNames, Float score, Long created, String gID ) throws SQLException {
+    public static void insert(UUID id, String type, String patientNames, Float score, Long created, String gID, String dID ) throws SQLException {
 
         Connection conn = dbConnect.connect();
         Statement stmt = conn.createStatement();
@@ -71,8 +72,8 @@ public class PsqlQueries {
             if(rs.getString("type").equals(type))
                 someType = rs.getObject("id", java.util.UUID.class);
         }
-        String sql = "INSERT INTO notification (id, type_id, state_id, names, created) " +
-                "VALUES ('"+id+"','"+someType+"','"+stateId+"','"+patientNames+"', '"+res+"')";
+        String sql = "INSERT INTO notification (id, type_id, state_id, names, created, patient_id) " +
+                "VALUES ('"+id+"','"+someType+"','"+stateId+"','"+patientNames+"', '"+res+"', '"+dID+"')";
         stmt.addBatch(sql);
 
         sql = "INSERT INTO match (notification_id, score, golden_id)" + " VALUES ('"+id+"','"+score+"', '"+gID+"')";

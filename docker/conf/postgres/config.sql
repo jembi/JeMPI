@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS Notification
     Reviewd_By uuid,
     Reviewed_At timestamp without time zone,
     State_Id uuid,
-    Patient_Id uuid,
+    Patient_Id VARCHAR(50),
     Names VARCHAR(100)
 );
 
