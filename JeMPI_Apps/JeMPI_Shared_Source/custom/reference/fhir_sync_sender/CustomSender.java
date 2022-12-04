@@ -23,7 +23,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 class CustomSender {
    private static final Logger LOGGER = LogManager.getLogger(CustomSender.class.getName());
    private static final String URL = "http://localhost:50040";
-   private static final String URL_LINK = String.format("%s/fhir/bundle", URL);
+   private static final String URL_LINK = String.format("%s/fhir", URL);
    private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
    private final FhirContext ctx = FhirContext.forR4();
    private final IParser parser = ctx.newJsonParser();
