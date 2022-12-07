@@ -18,6 +18,8 @@ private object CustomEntity {
     writer.println(
       s"""package $packageText;
          |
+         |import org.apache.commons.lang3.StringUtils;
+         |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -50,8 +52,9 @@ private object CustomEntity {
       case (field, idx) =>
       writer.print(" " * 13)
       val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-      writer.print("entity." + fieldName)
-      writer.println(if (idx + 1 < names.length) " + ' ' +" else ";")
+      writer.print(if (idx == 0) "(" else "")
+      writer.print(s"""(StringUtils.isBlank(entity.$fieldName) ? "" : " " + entity.$fieldName)""")
+      writer.println(if (idx + 1 < names.length) " + " else ").trim();")
     }
     writer.println(
       s"""   }

@@ -20,12 +20,11 @@ CREATE TABLE IF NOT EXISTS Notification
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     Type_Id uuid,
-    Reason VARCHAR(100),
     Created date,
     Reviewd_By uuid,
     Reviewed_At timestamp without time zone,
     State_Id uuid,
-    Patient_Id uuid,
+    Patient_Id VARCHAR(50),
     Names VARCHAR(100)
 );
 
@@ -44,6 +43,16 @@ CREATE TABLE IF NOT EXISTS Action
 );
 
 CREATE TABLE IF NOT EXISTS Match
+(
+    Notification_Id UUID,
+    Score Numeric,
+    Golden_Id VARCHAR(50),
+    CONSTRAINT FK_Notification
+      FOREIGN KEY(Notification_Id) 
+	    REFERENCES Notification(Id)
+);
+
+CREATE TABLE IF NOT EXISTS candidates
 (
     Notification_Id UUID,
     Score Numeric,
