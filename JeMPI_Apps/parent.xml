@@ -71,11 +71,11 @@
         <version.org.apache.logging.log4j.log4j-jcl>2.19.0</version.org.apache.logging.log4j.log4j-jcl>
 
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
-        <version.com.fasterxml.jackson.core.jackson-annotations>2.14.0
+        <version.com.fasterxml.jackson.core.jackson-annotations>2.14.1
         </version.com.fasterxml.jackson.core.jackson-annotations>
 
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-        <version.com.fasterxml.jackson.core.jackson-databind>2.14.0
+        <version.com.fasterxml.jackson.core.jackson-databind>2.14.1
         </version.com.fasterxml.jackson.core.jackson-databind>
 
         <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-base -->
@@ -139,12 +139,12 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-install-plugin -->
         <version.org.apache.maven.plugins.maven-install-plugin>
-            3.0.1
+            3.1.0
         </version.org.apache.maven.plugins.maven-install-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-site-plugin -->
         <version.org.apache.maven.plugins.maven-site-plugin>
-            4.0.0-M3
+            4.0.0-M4
         </version.org.apache.maven.plugins.maven-site-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
@@ -159,7 +159,7 @@
 
         <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
         <version.net.alchim31.maven.scala-maven-plugin>
-            4.7.2
+            4.8.0
         </version.net.alchim31.maven.scala-maven-plugin>
 
          <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->
@@ -174,7 +174,7 @@
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            2.7.5
+            3.0.0
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
