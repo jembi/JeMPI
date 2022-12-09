@@ -10,62 +10,62 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.8,
-      "u": 0.1
+      "u": 0.002
     },
     {
       "fieldName": "name_father",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.8,
+      "u": 0.002
     },
     {
       "fieldName": "name_fathers_father",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.84,
+      "u": 0.002
     },
     {
       "fieldName": "name_mother",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.835,
+      "u": 0.005
     },
     {
       "fieldName": "name_mothers_father",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.838,
+      "u": 0.002
     },
     {
       "fieldName": "gender",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact)",
-      "m": 0.8,
-      "u": 0.5
+      "m": 0.81,
+      "u": 0.386
     },
     {
       "fieldName": "dob",
       "fieldType": "String",
-      "m": 0.8,
-      "u": 0.2
+      "m": 0.999,
+      "u": 0.012
     },
     {
       "fieldName": "city",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.8,
-      "u": 0.2
+      "m": 0.843,
+      "u": 0.059
     },
     {
       "fieldName": "phone_number",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.8,
-      "u": 0.2
+      "m": 0.967,
+      "u": 0.003
     }
   ],
   "rules": {
