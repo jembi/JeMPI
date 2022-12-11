@@ -56,7 +56,7 @@ public final class AppConfig {
             Config resourceConfig = ConfigFactory.parseResources(resource);
             String empty = resourceConfig.entrySet().isEmpty() ? " contains no values" : "";
             conf = conf.withFallback(resourceConfig);
-            LOGGER.info("Loaded config file from resource ({}){}", resource, empty);
+//            LOGGER.info("Loaded config file from resource ({}){}", resource, empty);
             return this;
         }
 
@@ -78,11 +78,11 @@ public final class AppConfig {
         Config build() {
             // Resolve substitutions.
             conf = conf.resolve();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Logging properties. Make sure sensitive data such as passwords or secrets are not " +
-                        "logged!");
-                LOGGER.debug(conf.root().render());
-            }
+//            if (LOGGER.isDebugEnabled()) {
+//                LOGGER.debug("Logging properties. Make sure sensitive data such as passwords or secrets are not " +
+//                        "logged!");
+//                LOGGER.debug(conf.root().render());
+//            }
             return conf;
         }
 
