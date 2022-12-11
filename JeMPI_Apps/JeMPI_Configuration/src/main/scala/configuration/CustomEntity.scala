@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 import java.io.{File, PrintWriter}
@@ -44,17 +43,23 @@ private object CustomEntity {
     writer.println(
       s"""   }""".stripMargin)
 
-    writer.println(
+    writer.print(
       s"""   public String getNames(final CustomEntity entity) {
          |      return """.stripMargin)
     val names = fields.filter(f => f.fieldName.contains("name"))
-    names.zipWithIndex.foreach {
-      case (field, idx) =>
-      writer.print(" " * 13)
-      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-      writer.print(if (idx == 0) "(" else "")
-      writer.print(s"""(StringUtils.isBlank(entity.$fieldName) ? "" : " " + entity.$fieldName)""")
-      writer.println(if (idx + 1 < names.length) " + " else ").trim();")
+    println(names.length)
+    if (names.length > 0) {
+      names.zipWithIndex.foreach {
+        case (field, idx) =>
+          if (idx > 0) writer.print(" " * 14)
+          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+          writer.print(if (idx == 0) "(" else "")
+          writer.print(s"""(StringUtils.isBlank(entity.$fieldName) ? "" : " " + entity.$fieldName)""")
+          writer.println(if (idx + 1 < names.length) " + " else ").trim();")
+      }
+    } else {
+      writer.println(
+        """ "";""".stripMargin)
     }
     writer.println(
       s"""   }

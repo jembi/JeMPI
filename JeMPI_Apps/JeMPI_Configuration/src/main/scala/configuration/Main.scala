@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 import com.fasterxml.jackson.core.`type`.TypeReference

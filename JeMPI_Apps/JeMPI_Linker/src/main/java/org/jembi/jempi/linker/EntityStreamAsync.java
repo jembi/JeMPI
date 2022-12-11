@@ -25,71 +25,72 @@ import java.util.concurrent.TimeoutException;
 
 public class EntityStreamAsync {
 
-   private static final Logger LOGGER = LogManager.getLogger(EntityStreamAsync.class);
-   private KafkaStreams patientKafkaStreams;
+    private static final Logger LOGGER = LogManager.getLogger(EntityStreamAsync.class);
+    private KafkaStreams patientKafkaStreams;
 
-   private EntityStreamAsync() {
-      LOGGER.info("EntityStreamAsync constructor");
-   }
+    private EntityStreamAsync() {
+        LOGGER.info("EntityStreamAsync constructor");
+    }
 
-   public static EntityStreamAsync create() {
-      return new EntityStreamAsync();
-   }
+    public static EntityStreamAsync create() {
+        return new EntityStreamAsync();
+    }
 
-   private void linkEntity(ActorSystem<Void> system,
-                   final ActorRef<BackEnd.Event> backEnd,
-                   String key,
-                   BatchEntity batchEntity) {
-      if (batchEntity.entityType() != BatchEntity.EntityType.BATCH_RECORD) {
-         return;
-      }
-      final CompletionStage<BackEnd.EventLinkEntityAsyncRsp> result =
-            AskPattern.ask(
-                  backEnd,
-                  replyTo -> new BackEnd.EventLinkEntityAsyncReq(key, batchEntity, replyTo),
-                  java.time.Duration.ofSeconds(60),
-                  system.scheduler());
-      final var completableFuture = result.toCompletableFuture();
-      try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
-         if (reply.linkInfo() == null) {
-            LOGGER.error("BACK END RESPONSE(ERROR)");
-         }
-      } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         close();
-      }
-   }
+    private void linkEntity(ActorSystem<Void> system,
+                            final ActorRef<BackEnd.Event> backEnd,
+                            String key,
+                            BatchEntity batchEntity) {
+        if (batchEntity.entityType() != BatchEntity.EntityType.BATCH_RECORD) {
+            return;
+        }
+        LOGGER.debug("{}", batchEntity.entity());
+        final CompletionStage<BackEnd.EventLinkEntityAsyncRsp> result =
+                AskPattern.ask(
+                        backEnd,
+                        replyTo -> new BackEnd.EventLinkEntityAsyncReq(key, batchEntity, replyTo),
+                        java.time.Duration.ofSeconds(60),
+                        system.scheduler());
+        final var completableFuture = result.toCompletableFuture();
+        try {
+            final var reply = completableFuture.get(65, TimeUnit.SECONDS);
+            if (reply.linkInfo() == null) {
+                LOGGER.error("BACK END RESPONSE(ERROR)");
+            }
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            LOGGER.error(ex.getLocalizedMessage(), ex);
+            close();
+        }
+    }
 
-   public void open(final ActorSystem<Void> system, final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.info("EM Stream Processor");
-      final Properties props = loadConfig();
-      final var stringSerde = Serdes.String();
-      final var batchEntitySerde = Serdes.serdeFrom(
-            new JsonPojoSerializer<>(),
-            new JsonPojoDeserializer<>(BatchEntity.class));
-      final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchEntity> entitiesStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_LINKER,
-            Consumed.with(stringSerde, batchEntitySerde));
-      entitiesStream.foreach((key, entity) -> linkEntity(system, backEnd, key, entity));
-      patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
-      patientKafkaStreams.cleanUp();
-      patientKafkaStreams.start();
-      LOGGER.info("KafkaStreams started");
-   }
+    public void open(final ActorSystem<Void> system, final ActorRef<BackEnd.Event> backEnd) {
+        LOGGER.info("EM Stream Processor");
+        final Properties props = loadConfig();
+        final var stringSerde = Serdes.String();
+        final var batchEntitySerde = Serdes.serdeFrom(
+                new JsonPojoSerializer<>(),
+                new JsonPojoDeserializer<>(BatchEntity.class));
+        final StreamsBuilder streamsBuilder = new StreamsBuilder();
+        final KStream<String, BatchEntity> entitiesStream = streamsBuilder.stream(
+                GlobalConstants.TOPIC_PATIENT_LINKER,
+                Consumed.with(stringSerde, batchEntitySerde));
+        entitiesStream.foreach((key, entity) -> linkEntity(system, backEnd, key, entity));
+        patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
+        patientKafkaStreams.cleanUp();
+        patientKafkaStreams.start();
+        LOGGER.info("KafkaStreams started");
+    }
 
-   public void close() {
-      LOGGER.warn("Stream closed");
-      patientKafkaStreams.close();
-   }
+    public void close() {
+        LOGGER.warn("Stream closed");
+        patientKafkaStreams.close();
+    }
 
-   private Properties loadConfig() {
-      final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_ENTITIES);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_ENTITIES);
-      props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      return props;
-   }
+    private Properties loadConfig() {
+        final Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_ENTITIES);
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_ENTITIES);
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+        return props;
+    }
 
 }

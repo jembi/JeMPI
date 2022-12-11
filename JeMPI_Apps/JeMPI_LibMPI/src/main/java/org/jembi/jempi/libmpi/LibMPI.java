@@ -19,7 +19,6 @@ public class LibMPI {
     public LibMPI(final String[] host, final int[] port) {
         LOGGER.info("{}", "LibMPI Constructor");
         client = new LibDgraph(host, port);
-        // client = new LibCassandra(host, port);
     }
 
     /*
@@ -60,7 +59,10 @@ public class LibMPI {
 
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {
-        return client.getCandidates(customEntity, applyDeterministicFilter);
+        LOGGER.debug("get candidates <- {}", customEntity);
+        final var candidates = client.getCandidates(customEntity, applyDeterministicFilter);
+        candidates.forEach(candidate -> LOGGER.debug("get candidates -> {}", candidate));
+        return candidates;
     }
 
     public List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList) {
@@ -121,11 +123,19 @@ public class LibMPI {
     public LinkInfo createEntityAndLinkToExistingGoldenRecord(
             final CustomEntity mpiEntity,
             final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-        return client.createEntityAndLinkToExistingGoldenRecord(mpiEntity, goldenIdScore);
+        LOGGER.debug("link existing <- {}", mpiEntity);
+        LOGGER.debug("link existing <- {}", goldenIdScore);
+        final var linkInfo = client.createEntityAndLinkToExistingGoldenRecord(mpiEntity, goldenIdScore);
+        LOGGER.debug("link existing -> {}", linkInfo);
+        return linkInfo;
     }
 
     public LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score) {
-        return client.createEntityAndLinkToClonedGoldenRecord(customEntity, score);
+        LOGGER.debug("link new <- {}", customEntity);
+        LOGGER.debug("link new <- {}", score);
+        final var linkInfo = client.createEntityAndLinkToClonedGoldenRecord(customEntity, score);
+        LOGGER.debug("link new -> {}", linkInfo);
+        return linkInfo;
     }
 
 }

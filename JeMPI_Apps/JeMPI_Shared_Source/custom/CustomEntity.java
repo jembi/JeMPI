@@ -28,9 +28,8 @@ public record CustomEntity(String uid,
            null);
    }
    public String getNames(final CustomEntity entity) {
-      return 
-             ((StringUtils.isBlank(entity.givenName) ? "" : " " + entity.givenName) + 
-             (StringUtils.isBlank(entity.familyName) ? "" : " " + entity.familyName)).trim();
+      return ((StringUtils.isBlank(entity.givenName) ? "" : " " + entity.givenName) + 
+              (StringUtils.isBlank(entity.familyName) ? "" : " " + entity.familyName)).trim();
    }
 
 }

@@ -28,6 +28,10 @@ public final class CustomMain {
 
    private final Map<String, List<GoldenRecordMembers>> dataSet = new HashMap<>();
 
+   // 01234567890123456
+   // rec-0000000001-00
+   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 14;
+
 
    private final int[] truePositives = {0};
    private final int[] falsePositives = {0};
@@ -95,7 +99,7 @@ public final class CustomMain {
 
    private void updateStatsDataSet(MpiExpandedGoldenRecord goldenRecord) {
       final String goldenRecordAuxId = goldenRecord.customGoldenRecord().auxId();
-      final String goldenRecordNumber = goldenRecordAuxId.substring(0, 12);
+      final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
@@ -112,7 +116,7 @@ public final class CustomMain {
    private void displayGoldenRecordDocuments(final PrintWriter writer, final MpiExpandedGoldenRecord goldenRecord) {
       final var rot = goldenRecord.customGoldenRecord();
       if (writer != null) {
-         writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
+         writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s%n",
                        rot.uid(), rot.auxId(),
                        rot.givenName(), rot.familyName(), rot.gender(),
                        rot.dob(),
@@ -120,7 +124,7 @@ public final class CustomMain {
          goldenRecord.mpiEntityList().forEach(mpiEntity -> {
             final var entity = mpiEntity.entity();
             writer.format(Locale.ENGLISH,
-                          "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
+                          "document,%s,%s,%s,%s,%s,%s,%s,%f%n",
                           entity.uid(), entity.auxId(),
                           entity.givenName(), entity.familyName(), entity.gender(),
                           entity.dob(),
@@ -173,7 +177,7 @@ public final class CustomMain {
          for (GoldenRecordMembers goldenRecordMembers : v) {
             int n = 0;
             for (String id : goldenRecordMembers.member) {
-               if (k.equals(id.substring(0, 12))) {
+               if (k.equals(id.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS))) {
                   n += 1;
                }
             }
@@ -183,7 +187,7 @@ public final class CustomMain {
          }
          v.forEach(gr -> {
             gr.member.forEach(m -> {
-               if (m.substring(0, 12).equals(k)) {
+               if (m.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS).equals(k)) {
                   falseNegatives[0] += 1;
                } else {
                   falsePositives[0] += 1;
