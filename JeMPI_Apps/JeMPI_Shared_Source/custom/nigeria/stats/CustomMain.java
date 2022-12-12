@@ -50,7 +50,6 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, Count.class).count;
       }
    }
@@ -64,7 +63,6 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, NumberOfRecords.class);
       }
    }
@@ -92,7 +90,6 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, GoldenRecordDocuments.class);
       }
    }

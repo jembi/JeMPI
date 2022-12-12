@@ -54,14 +54,36 @@ public final class CustomMain {
         }
     }
 
+/*
+    org.jembi.jempi.shared.models.CustomSourceRecord.RecordType recordType,
+    String stan, // System Trace Audit Number
+    String auxId,
+    String givenName,
+    String familyName,
+    String gender,
+    String dob,
+    String city,
+    String phoneNumber,
+    String nationalID,
+    String EMR,
+    String pID,
+    String fID)
+
+    rec_num,given_name,family_name,gender,dob,city,phone_number,national_id,emr,p_id,f_id
+*/
 
     private void sendToKafka(final String stan, final String[] fields) throws InterruptedException, ExecutionException {
         try {
             final CustomSourceRecord rec =
                     new CustomSourceRecord(CustomSourceRecord.RecordType.BATCH_RECORD,
                             stan,
-                            fields[0], fields[1], fields[2], fields[3],
-                            fields[4], fields[5], fields[6],
+                            fields[0],
+                            fields[1],
+                            fields[2],
+                            fields[3],
+                            fields[4],
+                            fields[5],
+                            fields[6],
                             fields[7],
                             fields[8],
                             fields[9],

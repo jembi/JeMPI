@@ -20,7 +20,6 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -402,26 +401,38 @@ public class HttpServer extends AllDirectives {
                         "JeMPI",
                         () -> concat(
                                 post(() -> concat(
-                                        path("NotificationRequest", () -> routeNotificationRequest(actorSystem, backEnd)))),
+                                        path("NotificationRequest",
+                                                () -> routeNotificationRequest(actorSystem, backEnd)))),
                                 patch(() -> concat(
                                         path("PatchGoldenRecordPredicate",
                                                 () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
-                                        path("Unlink", () -> routeUnlink(actorSystem, backEnd)),
-                                        path("Link", () -> routeLink(actorSystem, backEnd)))),
+                                        path("Unlink",
+                                                () -> routeUnlink(actorSystem, backEnd)),
+                                        path("Link",
+                                                () -> routeLink(actorSystem, backEnd)))),
                                 get(() -> concat(
-                                        path("GoldenRecordCount", () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                                        path("DocumentCount", () -> routeDocumentCount(actorSystem, backEnd)),
-                                        path("NumberOfRecords", () -> routeNumberOfRecords(actorSystem, backEnd)),
-                                        path("GoldenIdList", () -> routeGoldenIdList(actorSystem, backEnd)),
+                                        path("GoldenRecordCount",
+                                                () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                                        path("DocumentCount",
+                                                () -> routeDocumentCount(actorSystem, backEnd)),
+                                        path("NumberOfRecords",
+                                                () -> routeNumberOfRecords(actorSystem, backEnd)),
+                                        path("GoldenIdList",
+                                                () -> routeGoldenIdList(actorSystem, backEnd)),
                                         path("GoldenIdListByPredicate",
                                                 () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
-                                        path("GoldenRecordDocuments", () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
+                                        path("GoldenRecordDocuments",
+                                                () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
                                         path("GoldenRecordDocumentList",
                                                 () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
-                                        path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
-                                        path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                        path("Document", () -> routeDocument(actorSystem, backEnd)),
-                                        path("Candidates", () -> routeCandidates(actorSystem, backEnd)))))));
+                                        path("GoldenRecord",
+                                                () -> routeGoldenRecord(actorSystem, backEnd)),
+                                        path("MatchesForReview",
+                                                () -> routeMatchesForReviewList(actorSystem, backEnd)),
+                                        path("Document",
+                                                () -> routeDocument(actorSystem, backEnd)),
+                                        path("Candidates",
+                                                () -> routeCandidates(actorSystem, backEnd)))))));
     }
 
     private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(final ActorSystem<Void> actorSystem,

@@ -439,7 +439,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
       update_config:
         parallelism: 1
         delay: 10s

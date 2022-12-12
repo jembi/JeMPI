@@ -33,15 +33,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.apache.commons.codec.digest.DigestUtils.sha256;
 
 public class CustomSourceRecordStream {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
-   ExecutorService executorService = Executors.newFixedThreadPool(1);
    private KafkaStreams patientKafkaStreams = null;
 
 
@@ -95,6 +92,20 @@ public class CustomSourceRecordStream {
                var entity = new BatchEntity(
                      entityType,
                      rec.stan(),
+                     /*
+                     public record CustomEntity(String uid,
+                           SourceId sourceId,
+                           String auxId,
+                           String natFingerprintCode,
+                           String emrFingerprintCode,
+                           String givenName,
+                           String familyName,
+                           String gender,
+                           String dob,
+                           String city,
+                           String phoneNumber,
+                           String nationalId)
+                     */
                      new CustomEntity(null,
                                       new SourceId(null, rec.EMR(), rec.pID()),
                                       rec.auxId(),
@@ -104,8 +115,8 @@ public class CustomSourceRecordStream {
                                       rec.familyName(),
                                       rec.gender(),
                                       rec.dob(),
-                                      rec.phoneNumber(),
                                       rec.city(),
+                                      rec.phoneNumber(),
                                       rec.nationalID()));
                return KeyValue.pair(k, entity);
             })
