@@ -10,62 +10,63 @@
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.8,
-      "u": 0.1
+      "u": 0.002
     },
     {
       "fieldName": "name_father",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.8,
+      "u": 0.002
     },
     {
       "fieldName": "name_fathers_father",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.84,
+      "u": 0.002
     },
     {
       "fieldName": "name_mother",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.835,
+      "u": 0.005
     },
     {
       "fieldName": "name_mothers_father",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.7,
-      "u": 0.2
+      "m": 0.838,
+      "u": 0.002
     },
     {
       "fieldName": "gender",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact)",
-      "m": 0.8,
-      "u": 0.5
+      "m": 0.81,
+      "u": 0.386
     },
     {
       "fieldName": "dob",
       "fieldType": "String",
-      "m": 0.8,
-      "u": 0.2
+      "indexGoldenRecord": "@index(exact)",
+      "m": 0.999,
+      "u": 0.012
     },
     {
       "fieldName": "city",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.8,
-      "u": 0.2
+      "m": 0.843,
+      "u": 0.059
     },
     {
       "fieldName": "phone_number",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.8,
-      "u": 0.2
+      "m": 0.967,
+      "u": 0.003
     }
   ],
   "rules": {
@@ -74,27 +75,27 @@
         "vars": [
           "name_given",
           "name_father",
+          "name_fathers_father",
+          "name_mother",
+          "name_mothers_father",
+          "gender",
+          "dob",
           "phone_number"
         ],
-        "text": "eq(name_given) and eq(name_father) and eq(phone_number)"
-      }
-    },
-    "probabilistic": {
-      "QUERY_MATCH_GOLDEN_RECORDS_BY_DISTANCE": {
-        "vars": [
-          "name_given",
-          "name_father",
-          "city"
-        ],
-        "text": "match(name_given,3) and match(name_father,3) or match(name_given,3) and match(city,3) or match(name_father,3) and match(city,3)"
+        "text": "eq(name_given) and eq(name_father) and eq(name_fathers_father) or eq(name_given) and eq(name_mother) and eq(name_mothers_father) or eq(name_given) and eq(gender) and eq(phone_number) or eq(name_given) and eq(gender) and eq(dob)"
       }
     },
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORDS_BY_PHONE_NUMBER": {
         "vars": [
+          "name_given",
+          "name_father",
+          "name_fathers_father",
+          "name_mother",
+          "name_mothers_father",
           "phone_number"
         ],
-        "text": "match(phone_number,3)"
+        "text": "match(phone_number,3) or match(name_given,3) and match(name_father,3) and match(name_fathers_father,3) or match(name_given,3) and match(name_mother,3) and match(name_mothers_father,3)"
       }
     }
   }

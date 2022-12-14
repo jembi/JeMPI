@@ -222,7 +222,7 @@ object CustomLibMPIQueries {
         s"""${" " * 9}all(func: uid(${(for (field <- varsMap) yield field._2).mkString(",")})) @filter ${
           if
           (all_func_str.startsWith("(")) "" else "("
-        }$all_func_str${if (all_func_str.startsWith("(")) "" else "("} {
+        }$all_func_str${if (all_func_str.startsWith("(")) "" else "("}{
            |${" " * 12}uid
            |${" " * 12}GoldenRecord.source_id {
            |${" " * 15}uid
@@ -235,7 +235,7 @@ object CustomLibMPIQueries {
 
     var all_func_str = main_func(expression)
     varsMap.foreach((k, v) => {
-      all_func_str = all_func_str.replace(k, v)
+      all_func_str = all_func_str.replace("uid(" + k + ")", "uid(" + v + ")")
     })
 
     writer.print(
