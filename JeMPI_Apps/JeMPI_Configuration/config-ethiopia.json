@@ -50,6 +50,7 @@
     {
       "fieldName": "dob",
       "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
       "m": 0.999,
       "u": 0.012
     },
@@ -74,27 +75,27 @@
         "vars": [
           "name_given",
           "name_father",
+          "name_fathers_father",
+          "name_mother",
+          "name_mothers_father",
+          "gender",
+          "dob",
           "phone_number"
         ],
-        "text": "eq(name_given) and eq(name_father) and eq(phone_number)"
-      }
-    },
-    "probabilistic": {
-      "QUERY_MATCH_GOLDEN_RECORDS_BY_DISTANCE": {
-        "vars": [
-          "name_given",
-          "name_father",
-          "city"
-        ],
-        "text": "match(name_given,3) and match(name_father,3) or match(name_given,3) and match(city,3) or match(name_father,3) and match(city,3)"
+        "text": "eq(name_given) and eq(name_father) and eq(name_fathers_father) or eq(name_given) and eq(name_mother) and eq(name_mothers_father) or eq(name_given) and eq(gender) and eq(phone_number) or eq(name_given) and eq(gender) and eq(dob)"
       }
     },
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORDS_BY_PHONE_NUMBER": {
         "vars": [
+          "name_given",
+          "name_father",
+          "name_fathers_father",
+          "name_mother",
+          "name_mothers_father",
           "phone_number"
         ],
-        "text": "match(phone_number,3)"
+        "text": "match(phone_number,3) or match(name_given,3) and match(name_father,3) and match(name_fathers_father,3) or match(name_given,3) and match(name_mother,3) and match(name_mothers_father,3)"
       }
     }
   }
