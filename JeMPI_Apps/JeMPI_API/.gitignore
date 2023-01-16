@@ -112,3 +112,5 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+# Ignore config-reference.json, should be copied on build
+./src/main/resources/config-reference.json
