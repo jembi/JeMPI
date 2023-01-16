@@ -1,7 +1,7 @@
 {
   "fields": [
     {
-      "fieldName": "aux_id",
+      "fieldName": "auxId",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
@@ -10,7 +10,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "given_name",
+      "fieldName": "givenName",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.782501,
@@ -26,7 +26,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "family_name",
+      "fieldName": "familyName",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
@@ -81,7 +81,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "phone_number",
+      "fieldName": "phoneNumber",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.920281,
@@ -92,7 +92,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "national_id",
+      "fieldName": "nationalId",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
@@ -139,34 +139,34 @@
     "deterministic": {
       "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
         "vars": [
-          "given_name",
-          "family_name",
-          "phone_number",
-          "national_id"
+          "givenName",
+          "familyName",
+          "phoneNumber",
+          "nationalId"
         ],
-        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
+        "text": "eq(nationalId) or (eq(givenName) and eq(familyName) and eq(phoneNumber))"
       }
     },
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
         "vars": [
-          "given_name",
-          "family_name",
+          "givenName",
+          "familyName",
           "city"
         ],
-        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
+        "text": "match(givenName,3) and match(familyName,3) or match(givenName,3) and match(city,3) or match(familyName,3) and match(city,3)"
       },
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
         "vars": [
-          "phone_number"
+          "phoneNumber"
         ],
-        "text": "match(phone_number,3)"
+        "text": "match(phoneNumber,3)"
       },
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
         "vars": [
-          "national_id"
+          "nationalId"
         ],
-        "text": "match(national_id,3)"
+        "text": "match(nationalId,3)"
       }
     }
   }
