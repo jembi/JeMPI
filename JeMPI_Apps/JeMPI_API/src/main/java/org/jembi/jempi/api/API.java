@@ -1,10 +1,8 @@
 package org.jembi.jempi.api;
 
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.Terminated;
+import akka.actor.typed.*;
 import akka.actor.typed.javadsl.Behaviors;
+import akka.dispatch.MessageDispatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -33,8 +31,11 @@ public final class API {
                     ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
                     context.watch(backEnd);
                     final var notificationsSteam = new NotificationStreamProcessor();
-                    notificationsSteam.open(context.getSystem(), backEnd);
-                    httpServer = new HttpServer();
+                    ActorSystem system = context.getSystem();
+                    notificationsSteam.open(system, backEnd);
+                    DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
+                    MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
+                    httpServer = new HttpServer(dispatcher);
                     httpServer.open(context.getSystem(), backEnd);
                     return Behaviors.receive(Void.class)
                             .onSignal(Terminated.class,

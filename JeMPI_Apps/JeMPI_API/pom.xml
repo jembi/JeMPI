@@ -166,6 +166,18 @@
             <artifactId>LibMPI</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.softwaremill.akka-http-session/core -->
+        <dependency>
+            <groupId>com.softwaremill.akka-http-session</groupId>
+            <artifactId>core_2.13</artifactId>
+            <version>0.7.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-adapter-core -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-adapter-core</artifactId>
+            <version>20.0.3</version>
+        </dependency>
 
     </dependencies>
 
