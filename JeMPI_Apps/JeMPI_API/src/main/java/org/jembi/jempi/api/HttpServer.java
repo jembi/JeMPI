@@ -12,7 +12,6 @@ import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
-import akka.http.javadsl.unmarshalling.Unmarshaller;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
@@ -20,12 +19,19 @@ import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
+import org.keycloak.adapters.KeycloakDeployment;
+import org.keycloak.adapters.KeycloakDeploymentBuilder;
+import org.keycloak.adapters.ServerRequest;
+import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.representations.adapters.config.AdapterConfig;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -429,15 +435,35 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private Route routeAuthenticateWithKeyCloak(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, CheckHeader<UserSession> checkHeader) {
-        return entity(Unmarshaller.entityToString(), body -> {
-            LOGGER.info("Logging in {}", body);
-            return setSession(refreshable, sessionTransport, new UserSession(body), () ->
-                    setNewCsrfToken(checkHeader, () ->
-                            extractRequestContext(ctx ->
-                                    onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                            complete("ok")
-                                    )
-                            )
+        return entity(Jackson.unmarshaller(OAuthCodeRequestPayload.class), body -> {
+            LOGGER.debug("Logging in {}", body);
+            try {
+                // Exchange code for a token from Keycloak
+                AdapterConfig adapterConfig = new AdapterConfig();
+                KeycloakDeployment deployment = KeycloakDeploymentBuilder.build(adapterConfig);
+                AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(deployment, body.code(), "", body.sessionId());
+                return setSession(refreshable, sessionTransport, new UserSession("my-username"), () ->
+                        setNewCsrfToken(checkHeader, () ->
+                                extractRequestContext(ctx ->
+                                        onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                                                complete(tokenResponse.getToken())
+                                        )
+                                )
+                        )
+                );
+            } catch (ServerRequest.HttpFailure failure) {
+                LOGGER.error("failed to turn code into token");
+                LOGGER.error("status from server: " + failure.getStatus());
+                if (failure.getError() != null && !failure.getError().trim().isEmpty()) {
+                    LOGGER.error("   " + failure.getError());
+                }
+            } catch (IOException e) {
+                LOGGER.error("failed to turn code into token", e);
+            }
+            // Failure : Unable to get the token
+            return extractRequestContext(ctx ->
+                    onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                            complete("NOK")
                     )
             );
         });
