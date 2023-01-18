@@ -178,6 +178,12 @@
             <artifactId>keycloak-adapter-core</artifactId>
             <version>20.0.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.5.0.Final</version>
+        </dependency>
 
     </dependencies>
 

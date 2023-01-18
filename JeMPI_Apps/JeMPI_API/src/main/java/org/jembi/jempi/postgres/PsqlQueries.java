@@ -140,4 +140,23 @@ public class PsqlQueries {
                 "(select id from notification_state where state = '" + state + "' )where id = '" + id + "'");
         conn.commit();
     }
+
+    public static void getUserByEmail(String email) throws SQLException {
+
+        Connection conn = dbConnect.connect();
+        Statement stmt = conn.createStatement();
+
+        ResultSet rs = stmt.executeQuery( "select * from users where email = '" + email + "'");
+        // Check if empty then return null
+        // Otherwise we return the user object
+    }
+
+    public static void registerUser(User user) throws SQLException {
+
+        Connection conn = dbConnect.connect();
+        Statement stmt = conn.createStatement();
+
+        ResultSet rs = stmt.executeQuery( "INSERT INTO users .... ");
+
+    }
 }

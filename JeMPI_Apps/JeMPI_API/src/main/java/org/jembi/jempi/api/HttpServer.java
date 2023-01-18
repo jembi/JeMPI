@@ -23,15 +23,20 @@ import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.KeycloakDeploymentBuilder;
 import org.keycloak.adapters.ServerRequest;
+import org.keycloak.adapters.rotation.AdapterTokenVerifier;
+import org.keycloak.common.VerificationException;
+import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.representations.adapters.config.AdapterConfig;
+import org.keycloak.representations.IDToken;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -439,18 +444,40 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
             LOGGER.debug("Logging in {}", body);
             try {
                 // Exchange code for a token from Keycloak
-                AdapterConfig adapterConfig = new AdapterConfig();
-                KeycloakDeployment deployment = KeycloakDeploymentBuilder.build(adapterConfig);
-                AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(deployment, body.code(), "", body.sessionId());
-                return setSession(refreshable, sessionTransport, new UserSession("my-username"), () ->
-                        setNewCsrfToken(checkHeader, () ->
-                                extractRequestContext(ctx ->
-                                        onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                                complete(tokenResponse.getToken())
-                                        )
-                                )
-                        )
-                );
+                ClassLoader classLoader = getClass().getClassLoader();
+                InputStream keycloakConfig = classLoader.getResourceAsStream("/keycloak.json");
+                KeycloakDeployment deployment = KeycloakDeploymentBuilder.build(keycloakConfig);
+                LOGGER.debug("Keycloak configured realm is ", deployment.getRealm());
+                AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(deployment, body.code(), "http://localhost:3000/login", body.sessionId());
+                LOGGER.debug("Token Exchange succeeded!");
+
+                String tokenString = tokenResponse.getToken();
+                String refreshToken = tokenResponse.getRefreshToken();
+                String idTokenString = tokenResponse.getIdToken();
+
+                try {
+                    AdapterTokenVerifier.VerifiedTokens tokens = AdapterTokenVerifier.verifyTokens(tokenString, idTokenString, deployment);
+                    AccessToken token = tokens.getAccessToken();
+                    IDToken idToken = tokens.getIdToken();
+                    LOGGER.debug("Token Verification succeeded!");
+                    String email = token.getEmail();
+                    User user = PsqlQueries.getUserByEmail(email);
+                    if (user == null ) {
+                        PsqlQueries.registerUser(user);
+                    }
+
+                    return setSession(refreshable, sessionTransport, new UserSession(user.username), () ->
+                            setNewCsrfToken(checkHeader, () ->
+                                    extractRequestContext(ctx ->
+                                            onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                                                    complete(user) // JSON serialize
+                                            )
+                                    )
+                            )
+                    );
+                } catch (VerificationException e) {
+                    LOGGER.error("failed verification of token: " + e.getMessage());
+                }
             } catch (ServerRequest.HttpFailure failure) {
                 LOGGER.error("failed to turn code into token");
                 LOGGER.error("status from server: " + failure.getStatus());

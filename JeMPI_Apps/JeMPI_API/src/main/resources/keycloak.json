@@ -1,0 +1,24 @@
+{
+  "realm" : "platform-realm",
+  "resource" : "jempi-oauth",
+  "auth-server-url" : "http://identity-access-manager-keycloak:8080",
+  "ssl-required" : "none",
+  "use-resource-role-mappings" : false,
+  "enable-cors" : false,
+  "cors-max-age" : 1000,
+  "cors-allowed-methods" : "POST, PUT, DELETE, GET",
+  "cors-exposed-headers" : "WWW-Authenticate, My-custom-exposed-Header",
+  "bearer-only" : false,
+  "enable-basic-auth" : false,
+  "expose-token" : false,
+  "verify-token-audience" : true,
+  "credentials" : {
+    "secret" : "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
+  },
+  "connection-pool-size" : 20,
+  "socket-timeout-millis" : 5000,
+  "connection-timeout-millis" : 6000,
+  "connection-ttl-millis" : 500,
+  "disable-trust-manager" : false,
+  "allow-any-hostname" : false
+}

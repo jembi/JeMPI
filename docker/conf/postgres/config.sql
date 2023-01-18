@@ -62,6 +62,15 @@ CREATE TABLE IF NOT EXISTS candidates
 	    REFERENCES Notification(Id)
 );
 
+CREATE TABLE IF NOT EXISTS users
+(
+    id UUID PRIMARY KEY,
+    given_name VARCHAR(255),
+    family_name VARCHAR(255),
+    email VARCHAR(255),
+    username VARCHAR(255)
+);
+
 INSERT INTO Notification_State(State)
 VALUES ('New'), ('Seen'), ('Actioned');
 
