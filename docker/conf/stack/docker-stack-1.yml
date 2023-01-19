@@ -481,6 +481,12 @@ services:
 
   jempi-api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
+    environment:
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_GRAFANA_CLIENT_SECRET: ${KC_GRAFANA_CLIENT_SECRET}
+      KC_API_URL: ${KC_API_URL}
+      JEMPI_SERVER_ROOT_URL: ${JEMPI_SERVER_ROOT_URL}
     networks:
     - backend-dgraph
     - backend-kafka
