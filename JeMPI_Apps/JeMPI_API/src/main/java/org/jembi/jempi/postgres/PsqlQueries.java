@@ -151,12 +151,12 @@ public class PsqlQueries {
         // Otherwise we return the user object
     }
 
-    public static void registerUser(User user) throws SQLException {
+    /*public static void registerUser(User user) throws SQLException {
 
         Connection conn = dbConnect.connect();
         Statement stmt = conn.createStatement();
 
         ResultSet rs = stmt.executeQuery( "INSERT INTO users .... ");
 
-    }
+    }*/
 }

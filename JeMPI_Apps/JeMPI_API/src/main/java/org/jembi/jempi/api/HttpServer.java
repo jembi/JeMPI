@@ -19,6 +19,8 @@ import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.api.keycloak.AkkaAdapterConfig;
+import org.jembi.jempi.api.keycloak.AkkaKeycloakDeploymentBuilder;
 import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
@@ -446,9 +448,10 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                 // Exchange code for a token from Keycloak
                 ClassLoader classLoader = getClass().getClassLoader();
                 InputStream keycloakConfig = classLoader.getResourceAsStream("/keycloak.json");
-                KeycloakDeployment deployment = KeycloakDeploymentBuilder.build(keycloakConfig);
-                LOGGER.debug("Keycloak configured realm is ", deployment.getRealm());
-                AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(deployment, body.code(), "http://localhost:3000/login", body.sessionId());
+                AkkaAdapterConfig adapterConfig  = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfig);
+                KeycloakDeployment deployment = AkkaKeycloakDeploymentBuilder.build(adapterConfig);
+                LOGGER.debug("Keycloak configured, realm : ", deployment.getRealm());
+                AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(deployment, body.code(), adapterConfig.getRedirectUri(), body.sessionId());
                 LOGGER.debug("Token Exchange succeeded!");
 
                 String tokenString = tokenResponse.getToken();
@@ -461,16 +464,16 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                     IDToken idToken = tokens.getIdToken();
                     LOGGER.debug("Token Verification succeeded!");
                     String email = token.getEmail();
-                    User user = PsqlQueries.getUserByEmail(email);
+                    /* User user = PsqlQueries.getUserByEmail(email);
                     if (user == null ) {
                         PsqlQueries.registerUser(user);
-                    }
+                    } */
 
-                    return setSession(refreshable, sessionTransport, new UserSession(user.username), () ->
+                    return setSession(refreshable, sessionTransport, new UserSession(""), () ->
                             setNewCsrfToken(checkHeader, () ->
                                     extractRequestContext(ctx ->
                                             onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                                    complete(user) // JSON serialize
+                                                    complete("OK") // JSON serialize
                                             )
                                     )
                             )
