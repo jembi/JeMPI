@@ -14,6 +14,7 @@ export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
 export REGISTRY_NODE_IP=${REGISTRY_NODE_IP}
+export IMAGE_REGISTRY=${IMAGE_REGISTRY}
 
 export DATA_REGISTRY_DIR=registry
 
