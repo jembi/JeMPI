@@ -6,6 +6,16 @@
       "indexGoldenRecord": "@index(exact)"
     },
     {
+      "fieldName": "nat_fingerprint_code",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "emr_fingerprint_code",
+      "fieldType": "String",
+      "indexEntity": "@index(exact)"
+    },
+    {
       "fieldName": "given_name",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
@@ -30,6 +40,7 @@
     {
       "fieldName": "dob",
       "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
       "m": 0.894637,
       "u": 0.012448
     },
@@ -46,6 +57,14 @@
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.920281,
       "u": 0.322629
+    },
+    {
+      "fieldName": "national_id",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexEntity": "@index(exact,trigram)",
+      "m": 0.832336,
+      "u": 0.000133
     }
   ],
   "rules": {
@@ -54,9 +73,11 @@
         "vars": [
           "given_name",
           "family_name",
-          "phone_number"
+          "phone_number",
+          "national_id",
+          "nat_fingerprint_code"
         ],
-        "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
+        "text": "eq(nat_fingerprint_code) or (eq(national_id) and eq(given_name) and eq(family_name) and eq(phone_number))"
       }
     },
     "probabilistic": {
@@ -72,7 +93,7 @@
         "vars": [
           "phone_number"
         ],
-        "text": "match(phone_number,3)"
+        "text": "eq(phone_number)"
       }
     }
   }

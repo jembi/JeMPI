@@ -86,15 +86,18 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                        final String familyName = name != null ? name.getFamily() : null;
                        final var customEntity = new CustomEntity(null,
                                                                  new SourceId(null,
-                                                                              "CLINIC",
-                                                                              "anon"),
-                                                                 secondaryID,
-                                                                 givenName,
-                                                                 familyName,
-                                                                 gender,
-                                                                 dob,
-                                                                 city,
-                                                                 phone);
+                                                                              null,
+                                                                              null),
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null,
+                                                                 null);
                        LOGGER.debug("{}", customEntity);
                        try {
                           final var linkEntitySyncBody = new LinkEntitySyncBody(secondaryID, null, 0.65F, customEntity);

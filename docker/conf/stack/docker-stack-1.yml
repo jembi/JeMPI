@@ -439,7 +439,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
       update_config:
         parallelism: 1
         delay: 10s
@@ -491,6 +491,7 @@ services:
     - backend-dgraph
     - backend-kafka
     - frontend-api
+    - backend-postgresql
     ports:
     - published: 50000
       target: 50000
@@ -518,5 +519,3 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_API}
-
-    

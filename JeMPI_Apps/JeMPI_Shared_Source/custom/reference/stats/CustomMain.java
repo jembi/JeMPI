@@ -46,7 +46,7 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         LOGGER.info("{}", json);
+//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, Count.class).count;
       }
    }
@@ -60,7 +60,7 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         LOGGER.info("{}", json);
+//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, NumberOfRecords.class);
       }
    }
@@ -88,8 +88,7 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         LOGGER.info("{}", json);
-//         System.out.println(json);
+//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, GoldenRecordDocuments.class);
       }
    }
@@ -161,18 +160,18 @@ public final class CustomMain {
       var goldenRecordCount = getCount("GoldenRecordCount");
       var numberOfRecords = getNumberOfRecords();
       var goldenIdList = getGoldenIdList();
-      System.out.printf("Document Count:      %d%n", documentCount);
-      System.out.printf("Golden Record Count: %d%n", goldenRecordCount);
-      System.out.printf("Number of Records:   %d,%d%n", numberOfRecords.documents, numberOfRecords.goldenRecords);
-      System.out.printf("Number if id's:      %d%n", goldenIdList.records.size());
+      LOGGER.info("Document Count:       {}", documentCount);
+      LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
+      LOGGER.info("Number of Records:    {},{}", numberOfRecords.documents, numberOfRecords.goldenRecords);
+      LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
       final var goldenRecords = goldenIdList.records.size();
       final var subListSize = 100L;
       final var subLists = goldenRecords / min(subListSize, goldenRecords);
       final var finalSubListSize = goldenRecords % subListSize;
-      System.out.printf("Golden Records:      %d%n", goldenRecords);
-      System.out.printf("Sub List Size:       %d%n", subListSize);
-      System.out.printf("Sub Lists:           %d%n", subLists);
-      System.out.printf("Final Sub List Size: %d%n", finalSubListSize);
+      LOGGER.info("Golden Records:       {}", goldenRecords);
+      LOGGER.info("Sub List Size:        {}", subListSize);
+      LOGGER.info("Sub Lists:            {}", subLists);
+      LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
 
       int fromIdx;
       int toIdx;
@@ -218,12 +217,10 @@ public final class CustomMain {
       double recall = (double) truePositives[0] / ((double) (truePositives[0] + falseNegatives[0]));
       double fScore = 2 * (precision * recall) / (precision + recall);
 
-      System.out.format(Locale.ENGLISH,
-                        "%n%nGolden Records Found:%d%nTP:%d  FP:%d  FN:%d  Precision:%.5f  Recall:%.5f  F-score:%" +
-                        ".5f%n",
-                        dataSet.size(),
-                        truePositives[0], falsePositives[0], falseNegatives[0],
-                        precision, recall, fScore);
+      LOGGER.info("Golden Records Found: {}", dataSet.size());
+      LOGGER.info("TP:{}  FP:{}  FN:{}  Precision:{}  Recall:{}  F-score:{}",
+              truePositives[0], falsePositives[0], falseNegatives[0],
+              precision, recall, fScore);
    }
 
    private record Count(Long count) {

@@ -20,7 +20,10 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,7 +36,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
     private final CustomLinkerMU customLinkerMU = new CustomLinkerMU();
 
-    private MyKafkaProducer<String, Notification> topicNotifications;
+    private final MyKafkaProducer<String, Notification> topicNotifications;
 
     private BackEnd(ActorContext<Event> context) {
         super(context);
@@ -133,10 +136,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         });
     }
 
-    private LibMPIClientInterface.LinkInfo linkEntityToGid(final CustomEntity entity,
-                                                           final String gid,
-                                                           final float score) {
-        final LibMPIClientInterface.LinkInfo linkInfo;
+    private LinkInfo linkEntityToGid(final CustomEntity entity,
+                                     final String gid,
+                                     final float score) {
+        final LinkInfo linkInfo;
         try {
             // Check if we have new M&U values
             CustomLinkerProbabilistic.checkUpdatedMU();
@@ -173,11 +176,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
     }
 
-    private Either<LibMPIClientInterface.LinkInfo, List<ExternalLinkCandidate>>
+    private Either<LinkInfo, List<ExternalLinkCandidate>>
     linkEntity(final String stan, final CustomEntity customEntity, final ExternalLinkRange externalLinkRange,
                final float matchThreshold_) {
         LOGGER.debug("{}", stan);
-        LibMPIClientInterface.LinkInfo linkInfo = null;
+        LinkInfo linkInfo = null;
         final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
         final var matchThreshold = externalLinkRange != null ? externalLinkRange.high() : matchThreshold_;
         try {
@@ -187,19 +190,6 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             if (candidateGoldenRecords.isEmpty()) {
                 linkInfo = libMPI.createEntityAndLinkToClonedGoldenRecord(customEntity, 1.0F);
             } else {
-//                final var notification = new Notification(
-//                        System.currentTimeMillis(),
-//                        Notification.NotificationType.MARGIN,
-//                        "0x01",
-//                        new ArrayList<>(Arrays.asList("Geek", "for", "Geeks")),
-//                        new Notification.MatchData("0x02", 0.9F),
-//                        new ArrayList<>(List.of(new Notification.MatchData("0x03", 0.89F)))
-//                );
-//                try {
-//                    topicNotifications.produceSync("dummy", notification);
-//                } catch (ExecutionException | InterruptedException e) {
-//                    LOGGER.error(e.getLocalizedMessage(), e);
-//                }
                 final var allCandidateScores =
                         candidateGoldenRecords
                                 .parallelStream()
@@ -207,18 +197,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                 .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate, customEntity)))
                                 .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                 .collect(Collectors.toCollection(ArrayList::new));
-/*
-            if (!allCandidateScores.isEmpty()) {
-               for (int i = 0; i < allCandidateScores.size(); i++) {
-                  final var candidate = allCandidateScores.get(i);
-                  if (i == 0 && candidate.score() > matchThreshold) {
-                     customLinkerMU.updateMatchSums(customEntity, candidate.goldenRecord());
-                  } else {
-                     customLinkerMU.updateMissmatchSums(customEntity, candidate.goldenRecord());
-                  }
-               }
-            }
-*/
+
                 // Get a list of candidates withing the supplied for external link range
                 final var candidatesInExternalLinkRange =
                         externalLinkRange == null
@@ -248,7 +227,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                     Notification.NotificationType.THRESHOLD,
                                     linkInfo.entityId(),
                                     customEntity.getNames(customEntity),
-                                    new Notification.MatchData(linkInfo.goldenId(), 1.0F),
+                                    new Notification.MatchData(linkInfo.goldenId(), linkInfo.score()),
                                     notificationCandidates
                             );
                         }
@@ -263,6 +242,27 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                             candidatesAboveMatchThreshold.get(0).score);
                     linkInfo = libMPI.createEntityAndLinkToExistingGoldenRecord(customEntity, linkToGoldenId);
                     CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenId());
+
+                    final var marginalCandidates = new ArrayList<Notification.MatchData>();
+                    if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
+                        var firstCandidate = candidatesAboveMatchThreshold.get(0);
+                        for (var i = 1; i < candidatesAboveMatchThreshold.size(); i++) {
+                            final var candidate = candidatesAboveMatchThreshold.get(i);
+                            if (firstCandidate.score - candidate.score <= 0.1) {
+                                marginalCandidates.add(new Notification.MatchData(candidate.goldenRecord.uid(), candidate.score));
+                            } else {
+                                break;
+                            }
+                        }
+                        if (!marginalCandidates.isEmpty()) {
+                            sendNotification(
+                                    Notification.NotificationType.MARGIN,
+                                    linkInfo.entityId(),
+                                    customEntity.getNames(customEntity),
+                                    new Notification.MatchData(linkInfo.goldenId(), linkInfo.score()),
+                                    marginalCandidates);
+                        }
+                    }
                 }
             }
         } finally {
@@ -344,7 +344,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                           ActorRef<EventLinkEntityAsyncRsp> replyTo) implements Event {
     }
 
-    public record EventLinkEntityAsyncRsp(LibMPIClientInterface.LinkInfo linkInfo) implements EventResponse {
+    public record EventLinkEntityAsyncRsp(LinkInfo linkInfo) implements EventResponse {
     }
 
     public record EventUpdateMUReq(CustomMU mu, ActorRef<EventUpdateMURsp> replyTo) implements Event {
@@ -364,7 +364,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     }
 
     public record EventLinkEntitySyncRsp(String stan,
-                                         LibMPIClientInterface.LinkInfo linkInfo,
+                                         LinkInfo linkInfo,
                                          List<ExternalLinkCandidate> externalLinkCandidateList) implements EventResponse {
     }
 
@@ -372,11 +372,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                               ActorRef<EventLinkEntityToGidSyncRsp> replyTo) implements Event {
     }
 
-    public record ExternalLinkCandidate(CustomGoldenRecord goldenRecord, float score) {
-    }
 
     public record EventLinkEntityToGidSyncRsp(String stan,
-                                              LibMPIClientInterface.LinkInfo linkInfo) implements EventResponse {
+                                              LinkInfo linkInfo) implements EventResponse {
     }
 
 

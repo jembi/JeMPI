@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 object Ast {

@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 import configuration.Config

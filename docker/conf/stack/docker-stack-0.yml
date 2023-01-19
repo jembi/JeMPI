@@ -491,6 +491,7 @@ services:
     - backend-dgraph
     - backend-kafka
     - frontend-api
+    - backend-postgresql
     ports:
     - published: 50000
       target: 50000
@@ -518,5 +519,4 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_API}
-
     

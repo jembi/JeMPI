@@ -16,21 +16,19 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
 class CustomSender {
    private static final Logger LOGGER = LogManager.getLogger(CustomSender.class.getName());
    private static final String URL = "http://localhost:50040";
-   private static final String URL_LINK = String.format("%s/fhir/bundle", URL);
+   private static final String URL_LINK = String.format("%s/fhir", URL);
+   private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
    private final FhirContext ctx = FhirContext.forR4();
    private final IParser parser = ctx.newJsonParser();
-
    private final OkHttpClient client = new OkHttpClient();
+   private final Random random = new Random(1234);
 
    @SuppressWarnings("unchecked")
    private static <T> WatchEvent<T> cast(WatchEvent<?> event) {
@@ -71,8 +69,16 @@ class CustomSender {
       final var phoneNumber = rec.phoneNumber();
       final var nationalID = rec.nationalID();
       final var patient = new Patient();
+
       patient.addIdentifier().setUse(Identifier.IdentifierUse.SECONDARY).setValue(aux_uid);
-      patient.setManagingOrganization(new Reference("LAB"));
+
+      final var facility = FACILITY.get(random.nextInt(FACILITY.size()));
+      final var facilityPatient = StringUtils.isNotBlank(rec.nationalID()) ? rec.nationalID() : "ANON";
+      final var sourceId = new Identifier()
+            .setSystem(String.format("http://jempi.org/fhir/identifier/facility_%s", facility))
+            .setValue(facilityPatient);
+      patient.addIdentifier(sourceId);
+
       patient.addName().setFamily(familyName).addGiven(givenName);
       if (gender != null) {
          if ("male".equals(gender.toLowerCase(Locale.ROOT)) || "female".equals(gender.toLowerCase(Locale.ROOT))) {
