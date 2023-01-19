@@ -10,18 +10,21 @@ pushd ./docker/conf/env || exit
     ./create-env-linux-1.sh
 popd || exit
 
+read -p "Do you want to reset docker swarm? " -n 1 -r
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  # Clean the swarm
+  docker swarm leave --force
+  docker ps -a
+  echo
+  docker network prune -f
+  docker system prune --volumes -f
+  docker network ls
+  echo
 
-# Clean the swarm
-docker swarm leave --force
-docker ps -a
-echo
-docker network prune -f
-docker system prune --volumes -f
-docker network ls
-echo
-
-# Init the swarm
-docker swarm init --advertise-addr 127.0.0.1
+  # Init the swarm
+  docker swarm init --advertise-addr 127.0.0.1
+fi
 
 # Run bash scripts
 pushd ./docker/ || exit
