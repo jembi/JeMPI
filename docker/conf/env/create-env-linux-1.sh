@@ -7,7 +7,7 @@ export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
 export NODE1=$(hostname)
-export NODE1_IP=$(hostname -i)
+export NODE1_IP=$(hostname -i | cut -d ' ' -f1)
 
 export SCALE_KAFKA_01=1
 export SCALE_KAFKA_02=1
