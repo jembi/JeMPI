@@ -481,12 +481,6 @@ services:
 
   jempi-api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
-    environment:
-      KC_REALM_NAME: "platform-realm"
-      KC_JEMPI_CLIENT_ID: "jempi-oauth"
-      KC_GRAFANA_CLIENT_SECRET: "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
-      KC_API_URL: "http://identity-access-manager-keycloak:8080"
-      JEMPI_SERVER_ROOT_URL: "http://localhost:3000"
     networks:
     - backend-dgraph
     - backend-kafka
