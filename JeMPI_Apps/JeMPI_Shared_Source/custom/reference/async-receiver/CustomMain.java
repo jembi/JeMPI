@@ -81,6 +81,7 @@ public final class CustomMain {
             final var csvParser = CSVFormat
                     .DEFAULT
                     .builder()
+                    .setHeader()
                     .setSkipHeaderRecord(true)
                     .setIgnoreEmptyLines(true)
                     .setNullString(null)

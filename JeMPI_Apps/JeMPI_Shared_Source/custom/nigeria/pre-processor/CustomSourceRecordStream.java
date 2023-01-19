@@ -23,17 +23,43 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Properties;
+
+import static org.apache.commons.codec.digest.DigestUtils.sha256;
 
 public class CustomSourceRecordStream {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
    private KafkaStreams patientKafkaStreams = null;
-   private final Random random = new Random(1234);
-   private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
-   ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+
+   private String getNationalFingerprintID(final String emr, final String emrFingerPrint) {
+      LOGGER.debug("EMR FP: {} {}", emr, emrFingerPrint);
+      if (StringUtils.isBlank(emr) || StringUtils.isBlank(emrFingerPrint)) {
+         return null;
+      }
+      final var cipherText = Base64.getDecoder().decode(emrFingerPrint);
+      final var key = sha256(emr);
+      try {
+         final var secretKey = new SecretKeySpec(key, "AES");
+         final var cipher = Cipher.getInstance("AES/ECB/NoPadding");
+         cipher.init(Cipher.DECRYPT_MODE, secretKey);
+         return new String(cipher.doFinal(cipherText), StandardCharsets.UTF_8);
+      } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+               BadPaddingException ex) {
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+      }
+      return null;
+   }
 
    public void open() {
 
@@ -66,16 +92,32 @@ public class CustomSourceRecordStream {
                var entity = new BatchEntity(
                      entityType,
                      rec.stan(),
+                     /*
+                     public record CustomEntity(String uid,
+                           SourceId sourceId,
+                           String auxId,
+                           String natFingerprintCode,
+                           String emrFingerprintCode,
+                           String givenName,
+                           String familyName,
+                           String gender,
+                           String dob,
+                           String city,
+                           String phoneNumber,
+                           String nationalId)
+                     */
                      new CustomEntity(null,
-                                      new SourceId(null,
-                                                   FACILITY.get(random.nextInt(FACILITY.size())), "ANON"),
+                                      new SourceId(null, rec.EMR(), rec.pID()),
                                       rec.auxId(),
+                                      getNationalFingerprintID(rec.EMR(), rec.fID()),
+                                      rec.fID(),
                                       rec.givenName(),
                                       rec.familyName(),
                                       rec.gender(),
                                       rec.dob(),
                                       rec.city(),
-                                      rec.phoneNumber()));
+                                      rec.phoneNumber(),
+                                      rec.nationalID()));
                return KeyValue.pair(k, entity);
             })
             .filter((key, value) -> !(value.entityType() == BatchEntity.EntityType.BATCH_RECORD && StringUtils.isBlank(

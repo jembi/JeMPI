@@ -1,5 +1,7 @@
 package org.jembi.jempi.shared.models;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -26,9 +28,8 @@ public record CustomEntity(String uid,
            null);
    }
    public String getNames(final CustomEntity entity) {
-      return 
-             entity.givenName + ' ' +
-             entity.familyName;
+      return ((StringUtils.isBlank(entity.givenName) ? "" : " " + entity.givenName) + 
+              (StringUtils.isBlank(entity.familyName) ? "" : " " + entity.familyName)).trim();
    }
 
 }

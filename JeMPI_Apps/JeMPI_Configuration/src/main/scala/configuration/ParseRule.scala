@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 import scala.util.parsing.combinator.JavaTokenParsers

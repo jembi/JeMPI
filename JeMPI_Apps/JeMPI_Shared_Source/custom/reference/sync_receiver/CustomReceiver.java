@@ -7,8 +7,6 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.unmarshalling.Unmarshaller;
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -37,7 +35,7 @@ class CustomReceiver extends AllDirectives {
         LOGGER.debug("{}", json);
         final HttpRequest request;
         request = HttpRequest
-                .create("http://jempi-pre-processor:50000/fhir/bundle")
+                .create("http://jempi-pre-processor:50000/fhir")
                 .withMethod(HttpMethods.POST)
                 .withEntity(ContentTypes.APPLICATION_JSON, json);
         final var stage = http.singleRequest(request);
@@ -58,10 +56,7 @@ class CustomReceiver extends AllDirectives {
     private Route createRoute() {
         return pathPrefix("fhir",
                 () -> concat(
-                        post(() -> concat(
-                                path("bundle", this::routeLinkEntity)))
-                )
-        );
+                        post(this::routeLinkEntity)));
     }
 
 }

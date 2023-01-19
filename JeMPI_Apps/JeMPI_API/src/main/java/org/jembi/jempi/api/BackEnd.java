@@ -15,7 +15,11 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.Notification;
+import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.models.LinkInfo;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -62,18 +66,26 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
                 .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
+                .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
+                .onMessage(EventNotificationRequestReq.class, this::eventNotificationRequestHandler)
                 .build();
     }
 
-    private Behavior<Event> eventGetGoldenRecordCountHandler(final EventGetGoldenRecordCountReq request) {
-        LOGGER.debug("getGoldenRecordCount");
-        libMPI.startTransaction();
-        final var count = libMPI.countGoldenRecords();
-        libMPI.closeTransaction();
-        request.replyTo.tell(new EventGetGoldenRecordCountRsp(count));
-        return Behaviors.same();
-    }
+    private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
+      LOGGER.debug("getMatchesForReview");
+      var recs = PsqlQueries.getMatchesForReview();
+      request.replyTo.tell(new EventGetMatchesForReviewListRsp(recs));
+      return Behaviors.same();
+   }
+   private Behavior<Event> eventGetGoldenRecordCountHandler(final EventGetGoldenRecordCountReq request) {
+      LOGGER.debug("getGoldenRecordCount");
+      libMPI.startTransaction();
+      final var count = libMPI.countGoldenRecords();
+      libMPI.closeTransaction();
+      request.replyTo.tell(new EventGetGoldenRecordCountRsp(count));
+      return Behaviors.same();
+   }
 
     private Behavior<Event> eventGetDocumentCountHandler(final EventGetDocumentCountReq request) {
         LOGGER.debug("getDocumentCount");
@@ -182,6 +194,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
+    private Behavior<Event> eventNotificationRequestHandler(EventNotificationRequestReq request) {
+        try {
+            PsqlQueries.updateNotificationState(request.notificationId, request.state);
+        } catch (SQLException exception) {
+            LOGGER.error(exception.getMessage());
+        }
+        request.replyTo.tell(new EventNotificationRequestRsp());
+        return Behaviors.same();
+    }
+
     interface Event {
     }
 
@@ -238,6 +260,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             String uid) implements Event {
     }
 
+    public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {}
+
+    public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {}
+    
     public record EventGetDocumentRsp(CustomEntity document)
             implements EventResponse {
     }
@@ -258,7 +284,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             Float score) implements Event {
     }
 
-    public record EventPatchLinkRsp(Either<MpiGeneralError, LibMPIClientInterface.LinkInfo> linkInfo)
+    public record EventPatchLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
             implements EventResponse {
     }
 
@@ -268,7 +294,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             float score) implements Event {
     }
 
-    public record EventPatchUnLinkRsp(Either<MpiGeneralError, LibMPIClientInterface.LinkInfo> linkInfo)
+    public record EventPatchUnLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
             implements EventResponse {
     }
 
@@ -280,4 +306,13 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         record Candidate(CustomGoldenRecord goldenRecord, float score) {
         }
     }
+
+    public record EventNotificationRequestReq(ActorRef<EventNotificationRequestRsp> replyTo,
+                                              String notificationId,
+                                              String state) implements Event {
+    }
+
+    public record EventNotificationRequestRsp() implements EventResponse {
+    }
+
 }

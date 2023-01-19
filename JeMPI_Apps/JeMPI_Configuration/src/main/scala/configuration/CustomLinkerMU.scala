@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 import java.io.{File, PrintWriter}
@@ -65,17 +64,18 @@ object CustomLinkerMU {
 
     writer.println("   void updateMatchSums(final CustomEntity customEntity, final CustomGoldenRecord " +
                      "customGoldenRecord) {")
-    muList.foreach(mu => {
-      val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+    if (muList.nonEmpty) {
+      muList.foreach(mu => {
+        val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+        writer.println(
+          s"      updateMatchedPair(fields.$fieldName, customEntity.$fieldName(), customGoldenRecord.$fieldName()" +
+            s");")
+      })
       writer.println(
-        s"      updateMatchedPair(fields.$fieldName, customEntity.$fieldName(), customGoldenRecord.$fieldName()" +
-          s");")
-    })
-    writer.println(
-      """      LOGGER.debug("{}", fields);
-        |   }
-        |""".stripMargin)
-
+        """      LOGGER.debug("{}", fields);
+          |   }
+          |""".stripMargin)
+    }
 
     writer.println("   void updateMissmatchSums(final CustomEntity customEntity, final CustomGoldenRecord " +
                      "customGoldenRecord) {")
@@ -119,18 +119,20 @@ object CustomLinkerMU {
       """      @Override
         |      public String toString() {""".stripMargin)
 
-    val fmt = Range(0, muList.length)
-      .map(x => "f" + (x + 1).toString + "(%f:%f)")
-      .reduce { (accumulator, elem) => accumulator + " " + elem }
-//    println(fmt)
+    if (muList.nonEmpty) {
+      val fmt = Range(0, muList.length)
+        .map(x => "f" + (x + 1).toString + "(%f:%f)")
+        .reduce { (accumulator, elem) => accumulator + " " + elem }
+      //    println(fmt)
 
-    writer.println(
-      s"""         return String.format("$fmt",""".stripMargin)
-    muList.zipWithIndex.foreach((mu, idx) => {
-      val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-      writer.println(s"                              computeM($fieldName), computeU($fieldName)"
-                       + (if ((idx + 1) != muList.length) "," else ");"))
-    })
+      writer.println(
+        s"""         return String.format("$fmt",""".stripMargin)
+      muList.zipWithIndex.foreach((mu, idx) => {
+        val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+        writer.println(s"                              computeM($fieldName), computeU($fieldName)"
+          + (if ((idx + 1) != muList.length) "," else ");"))
+      })
+    }
 
     writer.print(
       s"""      }

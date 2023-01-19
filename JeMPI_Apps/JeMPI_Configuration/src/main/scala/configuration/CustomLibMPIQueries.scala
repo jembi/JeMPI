@@ -1,4 +1,3 @@
-package org.jembi.jempi
 package configuration
 
 import java.io.{File, PrintWriter}
@@ -33,17 +32,19 @@ object CustomLibMPIQueries {
          |
          |   private $custom_className() {}""".stripMargin)
     config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
-    config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
+    if (config.rules.probabilistic != null)
+      config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
     writer.println()
     config.rules.deterministic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
-    config.rules.probabilistic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
+    if (config.rules.probabilistic != null)
+      config.rules.probabilistic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     emitGetCandidates(writer, config.rules)
     writer.println("}")
     writer.flush()
     writer.close()
   }
 
-  def emitGetCandidates(writer: PrintWriter, rules: Rules): Unit = {
+  private def emitGetCandidates(writer: PrintWriter, rules: Rules): Unit = {
     writer.println(
       """   private static void updateCandidates(final List<CustomLibMPIGoldenRecord> goldenRecords,
         |                                        final LibMPIGoldenRecordList block) {
@@ -74,11 +75,13 @@ object CustomLibMPIQueries {
         |         }
         |      }
         |      var result = new LinkedList<CustomLibMPIGoldenRecord>();""".stripMargin)
-    rules.probabilistic.foreach((name, rule) => {
-      val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
-      val vars = "dgraphEntity" + (if (rule.vars.size == 1) "." + Utils.snakeCaseToCamelCase(rule.vars(0)) + "()" else "")
-      writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
-    })
+    if (rules.probabilistic != null) {
+      rules.probabilistic.foreach((name, rule) => {
+        val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
+        val vars = "dgraphEntity" + (if (rule.vars.length == 1) "." + Utils.snakeCaseToCamelCase(rule.vars(0)) + "()" else "")
+        writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
+      })
+    }
     writer.println(
       """      return result;
         |   }
@@ -86,7 +89,7 @@ object CustomLibMPIQueries {
   }
 
 
-  def emitRuleFunction(writer: PrintWriter, name: String, rule: Rule): Unit = {
+  private def emitRuleFunction(writer: PrintWriter, name: String, rule: Rule): Unit = {
 
     def expression(expr: Ast.Expression): String = {
       expr match {
@@ -157,7 +160,7 @@ object CustomLibMPIQueries {
     end if
   }
 
-  def emitRuleTemplate(fields: Array[Field], writer: PrintWriter, name: String, rule: Rule): Unit = {
+  private def emitRuleTemplate(fields: Array[Field], writer: PrintWriter, name: String, rule: Rule): Unit = {
 
     val vars = for (v <- rule.vars) yield v
     val text = rule.text
