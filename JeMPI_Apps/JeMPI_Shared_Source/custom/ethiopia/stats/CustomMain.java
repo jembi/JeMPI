@@ -122,7 +122,7 @@ public final class CustomMain {
          goldenRecord.mpiEntityList().forEach(mpiEntity -> {
             final var entity = mpiEntity.entity();
             writer.format(Locale.ENGLISH,
-                          "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
+                          "document,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
                           entity.uid(), entity.auxId(),
                           entity.nameGiven(), entity.nameFather(), 
                           entity.nameFathersFather(), entity.nameMother(), entity.nameMothersFather(),
