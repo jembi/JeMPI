@@ -19,17 +19,14 @@ import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.api.keycloak.AkkaAdapterConfig;
-import org.jembi.jempi.api.keycloak.AkkaKeycloakDeploymentBuilder;
 import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
+import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
-import org.keycloak.adapters.KeycloakDeployment;
-import org.keycloak.adapters.KeycloakDeploymentBuilder;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.common.VerificationException;
@@ -39,6 +36,7 @@ import org.keycloak.representations.IDToken;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -53,8 +51,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
-    private static final String SECRET = "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrtpd8ro24rbuqmgtnd1ebag6ljnb65i8a55d482ok7o0nch0bfbe";
-    private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder<>(UserSession.getSerializer());
+    private static final String SECRET = "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt";
+    private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder(UserSession.getSerializer());
 
     // in-memory refresh token storage
     private static final RefreshTokenStorage<UserSession> REFRESH_TOKEN_STORAGE = new InMemoryRefreshTokenStorage<UserSession>() {
@@ -441,62 +439,54 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                         }));
     }
 
-    private Route routeAuthenticateWithKeyCloak(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, CheckHeader<UserSession> checkHeader) {
-        return entity(Jackson.unmarshaller(OAuthCodeRequestPayload.class), body -> {
-            LOGGER.debug("Logging in {}", body);
-            try {
-                // Exchange code for a token from Keycloak
-                ClassLoader classLoader = getClass().getClassLoader();
-                InputStream keycloakConfig = classLoader.getResourceAsStream("/keycloak.json");
-                AkkaAdapterConfig adapterConfig  = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfig);
-                KeycloakDeployment deployment = AkkaKeycloakDeploymentBuilder.build(adapterConfig);
-                LOGGER.debug("Keycloak configured, realm : ", deployment.getRealm());
-                AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(deployment, body.code(), adapterConfig.getRedirectUri(), body.sessionId());
-                LOGGER.debug("Token Exchange succeeded!");
-
-                String tokenString = tokenResponse.getToken();
-                String refreshToken = tokenResponse.getRefreshToken();
-                String idTokenString = tokenResponse.getIdToken();
-
-                try {
-                    AdapterTokenVerifier.VerifiedTokens tokens = AdapterTokenVerifier.verifyTokens(tokenString, idTokenString, deployment);
-                    AccessToken token = tokens.getAccessToken();
-                    IDToken idToken = tokens.getIdToken();
-                    LOGGER.debug("Token Verification succeeded!");
-                    String email = token.getEmail();
-                    /* User user = PsqlQueries.getUserByEmail(email);
-                    if (user == null ) {
-                        PsqlQueries.registerUser(user);
-                    } */
-
-                    return setSession(refreshable, sessionTransport, new UserSession(""), () ->
-                            setNewCsrfToken(checkHeader, () ->
-                                    extractRequestContext(ctx ->
-                                            onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                                    complete("OK") // JSON serialize
+    private Route routeLoginWithKeycloakRequest(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, CheckHeader<UserSession> checkHeader) {
+        return entity(Jackson.unmarshaller(OAuthCodeRequestPayload.class),
+                obj -> onComplete(loginWithKeycloakRequest(actorSystem, backEnd, obj),
+                        response -> {
+                            if (response.isSuccess()) {
+                                final var eventLoginWithKeycloakResponse = response.get();
+                                User user = eventLoginWithKeycloakResponse.user();
+                                if (user != null) {
+                                    return setSession(refreshable, sessionTransport, new UserSession(user), () ->
+                                            setNewCsrfToken(checkHeader, () ->
+                                                    complete(
+                                                            StatusCodes.OK,
+                                                            eventLoginWithKeycloakResponse,
+                                                            Jackson.marshaller())
                                             )
-                                    )
-                            )
-                    );
-                } catch (VerificationException e) {
-                    LOGGER.error("failed verification of token: " + e.getMessage());
+                                    );
+                                } else {
+                                    return complete(StatusCodes.FORBIDDEN);
+                                }
+                            } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                            }
+                        }));
+    }
+
+    private Route routeCurrentUser() {
+        return requiredSession(refreshable, sessionTransport, session -> {
+                if (session != null) {
+                    LOGGER.info("Current session: " + session.getEmail());
+                    return complete(StatusCodes.OK, session, Jackson.marshaller());
                 }
-            } catch (ServerRequest.HttpFailure failure) {
-                LOGGER.error("failed to turn code into token");
-                LOGGER.error("status from server: " + failure.getStatus());
-                if (failure.getError() != null && !failure.getError().trim().isEmpty()) {
-                    LOGGER.error("   " + failure.getError());
-                }
-            } catch (IOException e) {
-                LOGGER.error("failed to turn code into token", e);
-            }
-            // Failure : Unable to get the token
-            return extractRequestContext(ctx ->
-                    onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                            complete("NOK")
-                    )
-            );
+                LOGGER.info("No active session");
+                return complete(StatusCodes.FORBIDDEN);
         });
+    }
+
+    private Route routeLogout() {
+        return requiredSession(refreshable, sessionTransport, session ->
+                invalidateSession(refreshable, sessionTransport, () ->
+                        extractRequestContext(ctx -> {
+                                    LOGGER.info("Logging out {}", session.getUsername());
+                                    return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                                            complete("success")
+                                    );
+                                }
+                        )
+                )
+        );
     }
 
     private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
@@ -513,7 +503,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                 path("NotificationRequest",
                                                         () -> routeNotificationRequest(actorSystem, backEnd)),
                                                 path("authenticate",
-                                                        () -> routeAuthenticateWithKeyCloak(actorSystem, backEnd, checkHeader)))),
+                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)))),
                                         patch(() -> concat(
                                                 path("PatchGoldenRecordPredicate",
                                                         () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
@@ -530,6 +520,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                         )
                                                                 )
                                                         )),
+                                                path("current-user",
+                                                        () -> routeCurrentUser()
+                                                ),
+                                                path("logout",
+                                                        () -> routeLogout()
+                                                ),
                                                 path("GoldenRecordCount",
                                                         () -> routeGoldenRecordCount(actorSystem, backEnd)),
                                                 path("DocumentCount",
@@ -565,6 +561,18 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                         actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
+
+    private CompletionStage<BackEnd.EventLoginWithKeycloakResponse> loginWithKeycloakRequest(final ActorSystem<Void> actorSystem,
+                                                                                         final ActorRef<BackEnd.Event> backEnd,
+                                                                                         final OAuthCodeRequestPayload body) {
+        CompletionStage<BackEnd.EventLoginWithKeycloakResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventLoginWithKeycloakRequest(replyTo, body),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
 
     private record GoldenRecordCount(Long count) {
     }

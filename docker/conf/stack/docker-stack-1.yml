@@ -483,10 +483,10 @@ services:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
     environment:
       KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_API_URL: ${KC_API_URL}
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
       KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
-      KC_API_URL: ${KC_API_URL}
-      JEMPI_SERVER_ROOT_URL: ${JEMPI_SERVER_ROOT_URL}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
     networks:
     - backend-dgraph
     - backend-kafka

@@ -2,7 +2,7 @@
   "realm" : "${env.KC_REALM_NAME}",
   "resource" : "${env.KC_JEMPI_CLIENT_ID}",
   "auth-server-url" : "${env.KC_API_URL}",
-  "redirect-uri": "${env.JEMPI_SERVER_ROOT_URL}/login",
+  "redirect-uri": "${env.KC_JEMPI_ROOT_URL}/login",
   "ssl-required" : "none",
   "use-resource-role-mappings" : false,
   "enable-cors" : false,
@@ -14,7 +14,7 @@
   "expose-token" : false,
   "verify-token-audience" : true,
   "credentials" : {
-    "secret" : "${env.KC_GRAFANA_CLIENT_SECRET}"
+    "secret" : "${env.KC_JEMPI_CLIENT_SECRET}"
   },
   "connection-pool-size" : 20,
   "socket-timeout-millis" : 5000,
