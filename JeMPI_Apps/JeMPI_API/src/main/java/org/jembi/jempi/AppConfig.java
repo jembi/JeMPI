@@ -38,6 +38,8 @@ public final class AppConfig {
 
    public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
 
+   public static final String SESSION_SECRET = CONFIG.getString("akka.http.session.server-secret");
+
    private AppConfig() {
    }
 

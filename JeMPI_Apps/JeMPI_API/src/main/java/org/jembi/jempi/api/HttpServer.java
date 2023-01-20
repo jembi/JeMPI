@@ -24,19 +24,9 @@ import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
-import org.keycloak.adapters.ServerRequest;
-import org.keycloak.adapters.rotation.AdapterTokenVerifier;
-import org.keycloak.common.VerificationException;
-import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.representations.IDToken;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -51,7 +41,6 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
-    private static final String SECRET = "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt";
     private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder(UserSession.getSerializer());
 
     // in-memory refresh token storage
@@ -70,7 +59,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     public HttpServer(MessageDispatcher dispatcher) {
         super(new SessionManager<>(
-                        SessionConfig.defaultConfig(SECRET),
+                        SessionConfig.defaultConfig(AppConfig.SESSION_SECRET),
                         BASIC_ENCODER
                 )
         );

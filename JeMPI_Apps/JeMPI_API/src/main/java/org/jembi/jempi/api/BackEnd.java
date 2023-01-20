@@ -26,7 +26,6 @@ import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
-import org.keycloak.representations.IDToken;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,7 +95,6 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         LOGGER.debug("loginWithKeycloak");
         LOGGER.debug("Logging in {}", request.payload);
         try {
-            User user2 = PsqlQueries.getUserByEmail("test@yopmail.com");
             // Exchange code for a token from Keycloak
             AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(keycloak, request.payload.code(), keycloakConfig.getRedirectUri(), request.payload.sessionId());
             LOGGER.debug("Token Exchange succeeded!");

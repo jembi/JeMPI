@@ -487,6 +487,7 @@ services:
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
       KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
     networks:
     - backend-dgraph
     - backend-kafka
