@@ -21,7 +21,7 @@ networks:
 services:
 
   jempi-kafka-01:
-    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
     networks:
       - backend-kafka
@@ -57,7 +57,7 @@ services:
           - node.hostname == $PLACEMENT_KAFKA_01
   
   jempi-kafka-02:
-    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE 
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
     user: root
     networks:
       - backend-kafka
@@ -93,7 +93,7 @@ services:
           - node.hostname == $PLACEMENT_KAFKA_02
   
   jempi-kafka-03:
-    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE 
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
     user: root
     networks:
       - backend-kafka
@@ -129,7 +129,7 @@ services:
           - node.hostname == $PLACEMENT_KAFKA_03
 
   jempi-zero-01:
-    image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "jempi-zero-01"
     networks:
     - backend-dgraph
@@ -159,7 +159,7 @@ services:
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 1
 
   jempi-alpha-01:
-    image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "jempi-alpha-01"
     networks:
     - backend-dgraph
@@ -189,7 +189,7 @@ services:
     command: dgraph alpha --my=jempi-alpha-01:7080 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
   jempi-alpha-02:
-    image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "jempi-alpha-02"
     networks:
     - backend-dgraph
@@ -219,7 +219,7 @@ services:
     command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
   jempi-alpha-03:
-    image: ${REGISTRY_NODE_IP}/${DGRAPH_IMAGE}
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "jempi-alpha-03"
     networks:
     - backend-dgraph
@@ -249,7 +249,7 @@ services:
     command: dgraph alpha --my=jempi-alpha-03:7082 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   jempi-ratel:
-    image: ${REGISTRY_NODE_IP}/${RATEL_IMAGE}
+    image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
     ports:
     - published: 8010
       target: 8000
@@ -270,7 +270,7 @@ services:
     command: dgraph-ratel
 
   jempi-postgresql:
-    image: ${REGISTRY_NODE_IP}/${POSTGRESQL_IMAGE}
+    image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
@@ -303,7 +303,7 @@ services:
 
 
   jempi-async-receiver:
-    image: ${REGISTRY_NODE_IP}/${ASYNC_RECEIVER_IMAGE}
+    image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
     volumes:
@@ -334,7 +334,7 @@ services:
         - node.hostname == ${PLACEMENT_ASYNC_RECEIVER}
 
   jempi-sync-receiver:
-    image: ${REGISTRY_NODE_IP}/${SYNC_RECEIVER_IMAGE}
+    image: ${IMAGE_REGISTRY}${SYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
     ports:
@@ -366,7 +366,7 @@ services:
         - node.hostname == ${PLACEMENT_SYNC_RECEIVER}
 
   jempi-pre-processor:
-    image: ${REGISTRY_NODE_IP}/${PREPROCESSOR_IMAGE}
+    image: ${IMAGE_REGISTRY}${PREPROCESSOR_IMAGE}
     networks:
     - backend-kafka
     volumes:
@@ -393,7 +393,7 @@ services:
         - node.hostname == ${PLACEMENT_PREPROCESSOR}
 
   jempi-controller:
-    image: ${REGISTRY_NODE_IP}/${CONTROLLER_IMAGE}
+    image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     networks:
     - backend-kafka
     ports:
@@ -425,7 +425,7 @@ services:
         - node.hostname == ${PLACEMENT_CONTROLLER}
        
   jempi-em:
-    image: ${REGISTRY_NODE_IP}/${EM_IMAGE}
+    image: ${IMAGE_REGISTRY}${EM_IMAGE}
     networks:
     - backend-kafka
     volumes:
@@ -452,7 +452,7 @@ services:
         - node.hostname == ${PLACEMENT_EM}
 
   jempi-linker:
-    image: ${REGISTRY_NODE_IP}/${LINKER_IMAGE}
+    image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     networks:
     - backend-kafka
     - backend-dgraph
@@ -480,7 +480,7 @@ services:
         - node.hostname == ${PLACEMENT_LINKER}
 
   jempi-api:
-    image: ${REGISTRY_NODE_IP}/${API_IMAGE}
+    image: ${IMAGE_REGISTRY}${API_IMAGE}
     networks:
     - backend-dgraph
     - backend-kafka

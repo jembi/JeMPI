@@ -1,12 +1,13 @@
 #!/bin/bash
 
+export USE_LOCAL_REGISTRY=${USE_LOCAL_REGISTRY:-"true"}
 export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
 export NODE1=$(hostname)
-export NODE1_IP=$(hostname -i)
+export NODE1_IP=$(hostname -i | cut -d ' ' -f1)
 
 export SCALE_KAFKA_01=1
 export SCALE_KAFKA_02=1
@@ -24,5 +25,11 @@ export POSTGRESQL_DATABASE="notifications"
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
+
+if [ $USE_LOCAL_REGISTRY == 'true' ]; then
+    export IMAGE_REGISTRY="$REGISTRY_NODE_IP/"
+else
+    export IMAGE_REGISTRY=""
+fi
 
 envsubst < conf-env-1-pc.template > conf.env

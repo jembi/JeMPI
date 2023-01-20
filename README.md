@@ -33,3 +33,6 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
      3. ```./c-registry-1-create.sh```
      4. ```./c-registry-2-push-hub-images.sh```
      5. ```./z-stack-3-build-reboot.sh```
+
+# Development
+It's possible to run the whole stack local without having to use a local registry using the command : `./launch-local.sh`
