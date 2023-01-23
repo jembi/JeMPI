@@ -166,6 +166,7 @@
             <artifactId>LibMPI</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+<<<<<<< HEAD
         <!-- https://mvnrepository.com/artifact/com.softwaremill.akka-http-session/core -->
         <dependency>
             <groupId>com.softwaremill.akka-http-session</groupId>
@@ -193,6 +194,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.6</version>
+=======
+
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+>>>>>>> main
         </dependency>
     </dependencies>
 

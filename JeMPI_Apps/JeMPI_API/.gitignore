@@ -112,3 +112,5 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+# Ignore config-reference.json, should be copied from JeMPI_Apps/JeMPI_Configuration on build
+config-reference.json

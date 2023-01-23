@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.json.simple.JSONArray;
 
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
@@ -77,10 +78,10 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                 .thenAccept(unbound -> actorSystem.terminate()); // and shutdown when done
     }
 
-    void open(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+    void open(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final Http http = Http.get(actorSystem);
         binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                .bind(this.createRoutes(actorSystem, backEnd));
+                .bind(this.createRoute(actorSystem, backEnd, fields));
         LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
     }
 
@@ -478,7 +479,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         );
     }
 
-    private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+    private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final var settings = CorsSettings.defaultSettings()
                 .withAllowedMethods(Arrays.asList(HttpMethods.GET, HttpMethods.POST, HttpMethods.PATCH))
                 .withAllowGenericHttpRequests(true);
@@ -501,6 +502,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                 path("Link",
                                                         () -> routeLink(actorSystem, backEnd)))),
                                         get(() -> concat(
+                                                path("config",
+                                                        () -> complete(StatusCodes.OK, fields.toJSONString())),
                                                 path("csrf",
                                                         () -> setNewCsrfToken(checkHeader, () ->
                                                                 extractRequestContext(ctx ->
