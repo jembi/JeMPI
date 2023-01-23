@@ -3,8 +3,7 @@ description: Enable SSO using Keycloak
 ---
 
 # Single Sign-On using Keycloak
-We use KeyCloak for identity management. This will provide us with a OpenID Connect (an extension to OAuth 2.0) compliant identity service that we can use to authenticate users. Much like what Google and Github provide to login to other apps.
-Keycloak will provide:
+We use KeyCloak for identity management. This provide us with a OpenID Connect (an extension to OAuth 2.0) compliant identity service that we can use to authenticate users. Much like what Google and Github provide to login to other apps. Keycloak will provide:
 - The login user experience, including signing in page
 - 2FA
 - Password reset features, account management
@@ -26,11 +25,11 @@ We currently support the Auth Code Flow :
 
 ### Run Keycloak from platform
 1. Checkout branch in platform : https://github.com/jembi/platform/pull/212
-2. Clean the docker environment : `docker service rm $(docker service ls -q) && docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker volume prune -f && docker config rm $(docker config ls -q)`
-3. ./build-image.sh
-4. mkdir /tmp/logs
-5. ./get-cli.sh
-6. ./platform-linux init identity-access-manager-keycloak --only --dev --env-file=.env.local
+2. Clean the docker environment if needed : `docker service rm $(docker service ls -q) && docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker volume prune -f && docker config rm $(docker config ls -q)` (IMPORTANT, this will remove all docker images/containers/volumes/...) 
+3. Run `./build-image.sh`
+4. Run `mkdir /tmp/logs` if needed
+5. Run `./get-cli.sh` to download the platform cli
+6. Start Keycloak `./platform-linux init identity-access-manager-keycloak --only --dev --env-file=.env.local`
 7. Access : http://localhost:9088/    (admin / dev_password_only)
 
 ### Run JeMPI Backend 
@@ -49,7 +48,7 @@ We currently support the Auth Code Flow :
 6. Access : http://localhost:3000/login
 
 ### Restart server after changes
-1. docker service scale JeMPI_jempi-api=0
-2. cd ./JeMPI_Apps/JeMPI_API/ && ./build.sh
-3. docker service scale JeMPI_jempi-api=1
+1. Scale down : `docker service scale JeMPI_jempi-api=0`
+2. Re-build : `cd ./JeMPI_Apps/JeMPI_API/ && ./build.sh`
+3. Scale up : `docker service scale JeMPI_jempi-api=1`
 4. Connect the JeMPI API container to the platform network : `docker network connect instant_default JeMPI_jempi-api.1.<<CONTAINER_ID>>`
