@@ -480,9 +480,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
-        final var settings = CorsSettings.defaultSettings()
-                .withAllowedMethods(Arrays.asList(HttpMethods.GET, HttpMethods.POST, HttpMethods.PATCH))
-                .withAllowGenericHttpRequests(true);
+        final var settings = CorsSettings.create(AppConfig.CONFIG);
         CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
         return cors(settings,
                 () -> randomTokenCsrfProtection(checkHeader,
@@ -503,15 +501,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeLink(actorSystem, backEnd)))),
                                         get(() -> concat(
                                                 path("config",
-                                                        () -> complete(StatusCodes.OK, fields.toJSONString())),
-                                                path("csrf",
-                                                        () -> setNewCsrfToken(checkHeader, () ->
-                                                                extractRequestContext(ctx ->
-                                                                        onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                                                                complete("ok")
-                                                                        )
-                                                                )
-                                                        )),
+                                                        () -> setNewCsrfToken(checkHeader,
+                                                            () -> complete(StatusCodes.OK, fields.toJSONString()))),
                                                 path("current-user",
                                                         () -> routeCurrentUser()
                                                 ),

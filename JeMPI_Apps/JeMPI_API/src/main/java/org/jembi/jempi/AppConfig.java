@@ -12,7 +12,7 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   private static final Config CONFIG = new Builder()
+   public static final Config CONFIG = new Builder()
          .withSystemEnvironment()
          .withSystemProperties()
          .withOptionalRelativeFile("/conf/server.production.conf")
