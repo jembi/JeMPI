@@ -33,18 +33,12 @@ public final class API {
                     ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
                     context.watch(backEnd);
                     final var notificationsSteam = new NotificationStreamProcessor();
-<<<<<<< HEAD
                     ActorSystem system = context.getSystem();
                     notificationsSteam.open(system, backEnd);
                     DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
                     MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
                     httpServer = new HttpServer(dispatcher);
-                    httpServer.open(context.getSystem(), backEnd);
-=======
-                    notificationsSteam.open(context.getSystem(), backEnd);
-                    httpServer = new HttpServer();
                     httpServer.open(context.getSystem(), backEnd, jsonFieldsConfig.fields);
->>>>>>> main
                     return Behaviors.receive(Void.class)
                             .onSignal(Terminated.class,
                                     sig -> {

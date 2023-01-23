@@ -81,7 +81,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     void open(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final Http http = Http.get(actorSystem);
         binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                .bind(this.createRoute(actorSystem, backEnd, fields));
+                .bind(this.createRoutes(actorSystem, backEnd, fields));
         LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
     }
 
