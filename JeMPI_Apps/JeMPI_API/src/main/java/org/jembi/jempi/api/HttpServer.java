@@ -412,7 +412,7 @@ public class HttpServer extends AllDirectives {
                                         path("Link",
                                                 () -> routeLink(actorSystem, backEnd)))),
                                 get(() -> concat(
-                                        path("fields",
+                                        path("config",
                                                 () -> complete(StatusCodes.OK, fields.toJSONString())),
                                         path("GoldenRecordCount",
                                                 () -> routeGoldenRecordCount(actorSystem, backEnd)),
