@@ -81,7 +81,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
                 .onMessage(EventGetGoldenRecordReq.class, this::eventGetGoldenRecordHandler)
                 .onMessage(EventGetGoldenRecordDocumentsReq.class, this::eventGetGoldenRecordDocumentsHandler)
-                .onMessage(EventGetDocumentReq.class, this::eventGetDocumentHandler)
+                .onMessage(EventFindPatientByIdRequest.class, this::findPatientByIdEventHandler)
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
                 .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
@@ -204,11 +204,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventGetDocumentHandler(final EventGetDocumentReq request) {
-        LOGGER.debug("getDocument");
+    private Behavior<Event> findPatientByIdEventHandler(final EventFindPatientByIdRequest request) {
+        LOGGER.debug("findPatientById");
         libMPI.startTransaction();
-        final var document = libMPI.getDocument(request.uid);
-        request.replyTo.tell(new EventGetDocumentRsp(document));
+        final var patient = libMPI.getDocument(request.uid);
+        request.replyTo.tell(new EventFindPatientByIdResponse(patient));
         libMPI.closeTransaction();
         return Behaviors.same();
     }
@@ -318,15 +318,15 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             implements EventResponse {
     }
 
-    public record EventGetDocumentReq(ActorRef<EventGetDocumentRsp> replyTo,
-            String uid) implements Event {
+    public record EventFindPatientByIdRequest(ActorRef<EventFindPatientByIdResponse> replyTo,
+                                              String uid) implements Event {
     }
 
     public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {}
 
     public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {}
     
-    public record EventGetDocumentRsp(CustomEntity document)
+    public record EventFindPatientByIdResponse(CustomEntity document)
             implements EventResponse {
     }
 

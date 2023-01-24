@@ -7,7 +7,6 @@ import akka.dispatch.MessageDispatcher;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
-import akka.http.javadsl.model.HttpMethods;
 import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
@@ -27,14 +26,17 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
 import org.json.simple.JSONArray;
 
+import static akka.http.javadsl.server.PathMatchers.longSegment;
+import static akka.http.javadsl.server.PathMatchers.segment;
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
 
@@ -182,12 +184,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return stage.thenApply(response -> response);
     }
 
-    private CompletionStage<BackEnd.EventGetDocumentRsp> getDocument(final ActorSystem<Void> actorSystem,
-                                                                     final ActorRef<BackEnd.Event> backEnd,
-                                                                     final String uid) {
-        LOGGER.debug("getDocument");
-        final CompletionStage<BackEnd.EventGetDocumentRsp> stage = AskPattern.ask(backEnd,
-                replyTo -> new BackEnd.EventGetDocumentReq(replyTo, uid),
+    private CompletionStage<BackEnd.EventFindPatientByIdResponse> findPatientById(final ActorSystem<Void> actorSystem,
+                                                                                  final ActorRef<BackEnd.Event> backEnd,
+                                                                                  final String uid) {
+        LOGGER.debug("findPatientById : " + uid);
+        final CompletionStage<BackEnd.EventFindPatientByIdResponse> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventFindPatientByIdRequest(replyTo, uid),
                 java.time.Duration.ofSeconds(5),
                 actorSystem.scheduler());
         return stage.thenApply(response -> response);
@@ -387,9 +389,9 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                 : complete(StatusCodes.IM_A_TEAPOT)));
     }
 
-    private Route routeDocument(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
-        return parameter("uid",
-                uid -> onComplete(getDocument(actorSystem, backEnd, uid),
+    private Route routeFindPatientById(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final String uid) {
+        return requiredSession(refreshable, sessionTransport, session ->
+                onComplete(findPatientById(actorSystem, backEnd, uid),
                         result -> result.isSuccess()
                                 ? complete(StatusCodes.OK, result.get(),
                                 Jackson.marshaller())
@@ -456,12 +458,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     private Route routeCurrentUser() {
         return requiredSession(refreshable, sessionTransport, session -> {
-                if (session != null) {
-                    LOGGER.info("Current session: " + session.getEmail());
-                    return complete(StatusCodes.OK, session, Jackson.marshaller());
-                }
-                LOGGER.info("No active session");
-                return complete(StatusCodes.FORBIDDEN);
+            if (session != null) {
+                LOGGER.info("Current session: " + session.getEmail());
+                return complete(StatusCodes.OK, session, Jackson.marshaller());
+            }
+            LOGGER.info("No active session");
+            return complete(StatusCodes.FORBIDDEN);
         });
     }
 
@@ -502,7 +504,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                         get(() -> concat(
                                                 path("config",
                                                         () -> setNewCsrfToken(checkHeader,
-                                                            () -> complete(StatusCodes.OK, fields.toJSONString()))),
+                                                                () -> complete(StatusCodes.OK, fields.toJSONString()))),
                                                 path("current-user",
                                                         () -> routeCurrentUser()
                                                 ),
@@ -527,8 +529,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeGoldenRecord(actorSystem, backEnd)),
                                                 path("MatchesForReview",
                                                         () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                                path("Document",
-                                                        () -> routeDocument(actorSystem, backEnd)),
+                                                path(segment("patient").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                        (id) -> routeFindPatientById(actorSystem, backEnd, id)),
                                                 path("Candidates",
                                                         () -> routeCandidates(actorSystem, backEnd))))))));
     }
@@ -546,8 +548,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private CompletionStage<BackEnd.EventLoginWithKeycloakResponse> loginWithKeycloakRequest(final ActorSystem<Void> actorSystem,
-                                                                                         final ActorRef<BackEnd.Event> backEnd,
-                                                                                         final OAuthCodeRequestPayload body) {
+                                                                                             final ActorRef<BackEnd.Event> backEnd,
+                                                                                             final OAuthCodeRequestPayload body) {
         CompletionStage<BackEnd.EventLoginWithKeycloakResponse> stage =
                 AskPattern.ask(backEnd,
                         replyTo -> new BackEnd.EventLoginWithKeycloakRequest(replyTo, body),
