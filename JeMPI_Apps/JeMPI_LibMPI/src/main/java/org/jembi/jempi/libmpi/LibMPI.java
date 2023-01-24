@@ -8,7 +8,9 @@ import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.LinkInfo;
+import java.util.HashMap;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class LibMPI {
@@ -57,6 +59,9 @@ public class LibMPI {
      * *
      */
 
+    public List<CustomGoldenRecord> search(final String nationalId, String given_name, String family_name, HashMap<String, Integer> map) {
+        return client.search(nationalId, given_name, family_name, map);
+    }
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {
         LOGGER.debug("get candidates <- {}", customEntity);

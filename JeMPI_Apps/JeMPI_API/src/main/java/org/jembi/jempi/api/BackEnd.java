@@ -14,12 +14,9 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
-import org.jembi.jempi.shared.models.CustomEntity;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.postgres.PsqlQueries;
-import org.jembi.jempi.shared.models.LinkInfo;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
@@ -30,6 +27,7 @@ import org.keycloak.representations.AccessTokenResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
 public class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -88,8 +86,35 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
                 .onMessage(EventNotificationRequestReq.class, this::eventNotificationRequestHandler)
+                .onMessage(EventSearchReq.class, this::eventSearchHandler)
                 .build();
     }
+
+
+    private int distance(String strength) {
+        HashMap<String, Integer > map = new HashMap < String, Integer > ();
+        map.put("Exact Match", 0);
+        map.put("Low Fuziness", 1);
+        map.put("Medium Fuzziness", 2);
+        map.put("High Fuzziness", 3);
+
+        return map.get(strength);
+    }
+    private Behavior < Event > eventSearchHandler(EventSearchReq request) {
+        libMPI.startTransaction();
+        HashMap<String, Integer > map = new HashMap < String, Integer > ();
+        HashMap<String, String > fields = new HashMap < String, String > ();
+
+        for (int i = 0; i < (request.search().parameters()).size(); i++) {
+            map.put(request.search().parameters().get(i).field(), distance(request.search().parameters().get(i).distance()));
+            fields.put(request.search().parameters().get(i).field(), request.search().parameters().get(i).value());
+        }
+        var recs = libMPI.search(fields.get("national_id"), fields.get("given_name"), fields.get("family_name"), map);
+        libMPI.closeTransaction();
+        request.replyTo.tell(new EventSearchRsp(recs));
+        return Behaviors.same();
+    }
+
 
     private Behavior<Event> eventLoginWithKeycloakHandler(final EventLoginWithKeycloakRequest request) {
         LOGGER.debug("loginWithKeycloak");
@@ -382,6 +407,13 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     }
 
     public record EventLoginWithKeycloakResponse(User user) implements EventResponse {
+    }
+
+    public record EventSearchRsp(List<CustomGoldenRecord> records) implements EventResponse {
+
+    }
+    public record EventSearchReq(ActorRef<EventSearchRsp> replyTo,
+                                 Search search) implements Event {
     }
 
 }

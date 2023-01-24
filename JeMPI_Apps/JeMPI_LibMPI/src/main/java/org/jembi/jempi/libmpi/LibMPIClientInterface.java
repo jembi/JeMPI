@@ -6,6 +6,7 @@ import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.LinkInfo;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface LibMPIClientInterface {
@@ -46,6 +47,8 @@ public interface LibMPIClientInterface {
     CustomEntity getMpiEntity(final String uid);
 
     List<String> getGoldenIdList();
+
+    List<CustomGoldenRecord> search(final String nationalId, String given_name, String family_name, HashMap<String, Integer> map);
 
     CustomEntity getDocument(String uid);
 

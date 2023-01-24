@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.jembi.jempi.shared.models.CustomEntity;
 
@@ -113,7 +114,53 @@ class CustomLibMPIQueries {
          }
       }
       """;
-      
+
+   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(final String given_name, final String family_name, final String national_id, HashMap<String, Integer> distances) {
+      final var map = Map.of(
+              "$given_name",
+              StringUtils.isNotBlank(given_name)
+                      ? given_name
+                      : Queries.EMPTY_FIELD_SENTINEL,
+              "$family_name",
+              StringUtils.isNotBlank(family_name)
+                      ? family_name
+                      : Queries.EMPTY_FIELD_SENTINEL,
+              "$national_id",
+              StringUtils.isNotBlank(national_id)
+                      ? national_id
+                      : Queries.EMPTY_FIELD_SENTINEL);
+      final String query = String
+              .format("""
+               query query_match_golden_record_candidates_by_distance($given_name: string, $family_name: string, $national_id: string) {
+                  var(func: match(GoldenRecord.given_name, $given_name, %s)) {
+                     A as uid
+                  }
+                   var(func: match(GoldenRecord.family_name, $family_name, %s)) {
+                     B as uid
+                  }
+                  var(func: match(GoldenRecord.national_id, $national_id, %s)) {
+                     C as uid
+                  }
+                  all(func: uid(A,B,C)) @filter ((uid(A)) AND (uid(B)) AND (uid(C))){
+                     uid
+                     GoldenRecord.source_id {
+                        uid
+                     }
+                     GoldenRecord.aux_id
+                     GoldenRecord.given_name
+                     GoldenRecord.family_name
+                     GoldenRecord.gender
+                     GoldenRecord.dob
+                     GoldenRecord.city
+                     GoldenRecord.phone_number
+                     GoldenRecord.national_id
+                  }
+               }
+               """, distances.get("national_id"),distances.get("given_name") , distances.get("family_name"));
+
+      final var goldenRecordList = runGoldenRecordQuery(query, map);
+      return goldenRecordList;
+   }
 
    static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomEntity customEntity) {
       final var givenName = customEntity.givenName();
@@ -221,6 +268,12 @@ class CustomLibMPIQueries {
       updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(dgraphEntity));
       updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(dgraphEntity.phoneNumber()));
       updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(dgraphEntity.nationalId()));
+      return result;
+   }
+
+   static List<CustomLibMPIGoldenRecord> SimpleSearch(final String nationalId, final String given_name, final String family_name, HashMap<String, Integer> map) {
+      var result = new LinkedList<CustomLibMPIGoldenRecord>();
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(given_name, family_name, nationalId, map));
       return result;
    }
 

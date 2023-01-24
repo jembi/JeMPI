@@ -33,6 +33,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import org.jembi.jempi.shared.models.Search;
 import org.json.simple.JSONArray;
 
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
@@ -479,6 +481,33 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         );
     }
 
+    private Route routeSearch(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(Search.class),
+                obj -> onComplete(Search(actorSystem, backEnd, obj),
+                        response -> {
+                            if (response.isSuccess()) {
+                                final var eventSearchRsp = response.get();
+                                return complete(
+                                        StatusCodes.OK,
+                                        eventSearchRsp,
+                                        Jackson.marshaller());
+                            } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                            }
+                        }));
+    }
+
+    private CompletionStage<BackEnd.EventSearchRsp> Search(final ActorSystem<Void> actorSystem,
+                                                           final ActorRef<BackEnd.Event> backEnd,
+                                                           final Search search) {
+        CompletionStage<BackEnd.EventSearchRsp> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventSearchReq(replyTo,search),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
     private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final var settings = CorsSettings.create(AppConfig.CONFIG);
         CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
@@ -529,6 +558,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeMatchesForReviewList(actorSystem, backEnd)),
                                                 path("Document",
                                                         () -> routeDocument(actorSystem, backEnd)),
+                                                path("Search", () -> routeSearch(actorSystem, backEnd)),
                                                 path("Candidates",
                                                         () -> routeCandidates(actorSystem, backEnd))))))));
     }

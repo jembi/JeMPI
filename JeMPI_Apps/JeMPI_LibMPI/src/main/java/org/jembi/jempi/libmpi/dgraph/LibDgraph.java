@@ -12,6 +12,7 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.LinkInfo;
+import java.util.HashMap;
 
 import java.util.List;
 
@@ -33,6 +34,14 @@ public class LibDgraph implements LibMPIClientInterface {
      * *******************************************************
      *
      */
+
+    public List<CustomGoldenRecord> search(final String nationalId, String given_name, String family_name, HashMap<String, Integer> map) {
+        final var list = CustomLibMPIQueries.SimpleSearch(nationalId, given_name, family_name, map);
+        if (list == null) {
+            return null;
+        }
+        return list.stream().map(CustomLibMPIGoldenRecord::toCustomGoldenRecord).toList();
+    }
 
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
             final boolean applyDeterministicFilter) {
