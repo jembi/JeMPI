@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 
 import org.json.simple.JSONArray;
 
-import static akka.http.javadsl.server.PathMatchers.longSegment;
 import static akka.http.javadsl.server.PathMatchers.segment;
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
@@ -150,12 +149,23 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return stage.thenApply(response -> response);
     }
 
-    private CompletionStage<BackEnd.EventGetGoldenRecordRsp> getGoldenRecord(final ActorSystem<Void> actorSystem,
-                                                                             final ActorRef<BackEnd.Event> backEnd,
-                                                                             final String uid) {
-        LOGGER.debug("getGoldenRecord");
-        final CompletionStage<BackEnd.EventGetGoldenRecordRsp> stage = AskPattern.ask(backEnd,
-                replyTo -> new BackEnd.EventGetGoldenRecordReq(replyTo, uid),
+    private CompletionStage<BackEnd.EventFindGoldenRecordByUidResponse> findGoldenRecordByUid(final ActorSystem<Void> actorSystem,
+                                                                                              final ActorRef<BackEnd.Event> backEnd,
+                                                                                              final String uid) {
+        LOGGER.debug("findGoldenRecordById");
+        final CompletionStage<BackEnd.EventFindGoldenRecordByUidResponse> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventFindGoldenRecordByUidRequest(replyTo, uid),
+                java.time.Duration.ofSeconds(5),
+                actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventFindPatientRecordByUidResponse> findPatientRecordByUid(final ActorSystem<Void> actorSystem,
+                                                                                                final ActorRef<BackEnd.Event> backEnd,
+                                                                                                final String uid) {
+        LOGGER.debug("findPatientRecordById : " + uid);
+        final CompletionStage<BackEnd.EventFindPatientRecordByUidResponse> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventFindPatientByUidRequest(replyTo, uid),
                 java.time.Duration.ofSeconds(5),
                 actorSystem.scheduler());
         return stage.thenApply(response -> response);
@@ -184,16 +194,6 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return stage.thenApply(response -> response);
     }
 
-    private CompletionStage<BackEnd.EventFindPatientByIdResponse> findPatientById(final ActorSystem<Void> actorSystem,
-                                                                                  final ActorRef<BackEnd.Event> backEnd,
-                                                                                  final String uid) {
-        LOGGER.debug("findPatientById : " + uid);
-        final CompletionStage<BackEnd.EventFindPatientByIdResponse> stage = AskPattern.ask(backEnd,
-                replyTo -> new BackEnd.EventFindPatientByIdRequest(replyTo, uid),
-                java.time.Duration.ofSeconds(5),
-                actorSystem.scheduler());
-        return stage.thenApply(response -> response);
-    }
 
     private CompletionStage<BackEnd.EventPatchGoldenRecordPredicateRsp> patchGoldenRecordPredicate(
             final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd,
@@ -381,20 +381,19 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                 });
     }
 
-    private Route routeGoldenRecord(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
-        return parameter("uid",
-                uid -> onComplete(getGoldenRecord(actorSystem, backEnd, uid),
+    private Route routeFindGoldenRecordByUid(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final String uid) {
+        return requiredSession(refreshable, sessionTransport, session ->
+                onComplete(findGoldenRecordByUid(actorSystem, backEnd, uid),
                         result -> result.isSuccess()
-                                ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
+                                ? complete(StatusCodes.OK, result.get().goldenRecord(), Jackson.marshaller())
                                 : complete(StatusCodes.IM_A_TEAPOT)));
     }
 
-    private Route routeFindPatientById(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final String uid) {
+    private Route routeFindPatientRecordByUid(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final String uid) {
         return requiredSession(refreshable, sessionTransport, session ->
-                onComplete(findPatientById(actorSystem, backEnd, uid),
+                onComplete(findPatientRecordByUid(actorSystem, backEnd, uid),
                         result -> result.isSuccess()
-                                ? complete(StatusCodes.OK, result.get(),
-                                Jackson.marshaller())
+                                ? complete(StatusCodes.OK, result.get().document(), Jackson.marshaller())
                                 : complete(StatusCodes.IM_A_TEAPOT)));
     }
 
@@ -525,12 +524,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
                                                 path("GoldenRecordDocumentList",
                                                         () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
-                                                path("GoldenRecord",
-                                                        () -> routeGoldenRecord(actorSystem, backEnd)),
                                                 path("MatchesForReview",
                                                         () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                                path(segment("patient").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                        (id) -> routeFindPatientById(actorSystem, backEnd, id)),
+                                                path(segment("patient-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                        (id) -> routeFindPatientRecordByUid(actorSystem, backEnd, id)),
+                                                path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                        (id) -> routeFindGoldenRecordByUid(actorSystem, backEnd, id)),
                                                 path("Candidates",
                                                         () -> routeCandidates(actorSystem, backEnd))))))));
     }
