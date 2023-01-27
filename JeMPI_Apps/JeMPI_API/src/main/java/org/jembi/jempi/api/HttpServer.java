@@ -441,7 +441,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                             setNewCsrfToken(checkHeader, () ->
                                                     complete(
                                                             StatusCodes.OK,
-                                                            eventLoginWithKeycloakResponse,
+                                                            user,
                                                             Jackson.marshaller())
                                             )
                                     );
