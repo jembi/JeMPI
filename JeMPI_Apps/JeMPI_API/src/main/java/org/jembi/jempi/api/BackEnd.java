@@ -4,6 +4,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import io.vavr.control.Either;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -102,14 +103,14 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     }
     private Behavior < Event > eventSearchHandler(EventSearchReq request) {
         libMPI.startTransaction();
-        HashMap<String, Integer > map = new HashMap < String, Integer > ();
-        HashMap<String, String > fields = new HashMap < String, String > ();
-
-        for (int i = 0; i < (request.search().parameters()).size(); i++) {
-            map.put(request.search().parameters().get(i).field(), distance(request.search().parameters().get(i).distance()));
-            fields.put(request.search().parameters().get(i).field(), request.search().parameters().get(i).value());
+        HashMap<String, ImmutablePair<String, Integer>> fields = new HashMap();
+        List<Search.SearchParameter> parameters = request.search().parameters();
+        for (int i = 0; i < parameters.size(); i++) {
+            Search.SearchParameter param = parameters.get(i);
+            ImmutablePair pair = new ImmutablePair<String, Integer>(param.value(), param.distance());
+            fields.put(param.fieldName(), pair);
         }
-        var recs = libMPI.search(fields, map);
+        var recs = libMPI.search(fields);
         libMPI.closeTransaction();
         request.replyTo.tell(new EventSearchRsp(recs));
         return Behaviors.same();

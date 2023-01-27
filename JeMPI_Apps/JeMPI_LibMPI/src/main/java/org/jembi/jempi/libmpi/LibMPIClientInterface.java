@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.LinkInfo;
@@ -48,7 +49,7 @@ public interface LibMPIClientInterface {
 
     List<String> getGoldenIdList();
 
-    List<CustomGoldenRecord> search(HashMap<String, String> fields, HashMap<String, Integer> map);
+    List<CustomGoldenRecord> search(HashMap<String, ImmutablePair<String, Integer>> params);
 
     CustomEntity getDocument(String uid);
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jembi.jempi.shared.models.CustomEntity;
 
 import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordQuery;
@@ -119,7 +120,7 @@ class CustomLibMPIQueries {
       }
       """;
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(HashMap<String, String> fields, HashMap<String, Integer> distances) {
+   static LibMPIGoldenRecordList querySearchGoldenRecords(HashMap<String, ImmutablePair<String, Integer>> params) {
 
       Map<String, String> map = new HashMap<>();
       String str = "query query_match_golden_record_candidates_by_distance(";
@@ -297,9 +298,9 @@ class CustomLibMPIQueries {
       return result;
    }
 
-   static List<CustomLibMPIGoldenRecord> SimpleSearch(HashMap<String, String> fields, HashMap<String, Integer> map) {
+   static List<CustomLibMPIGoldenRecord> simpleSearch(HashMap<String, ImmutablePair<String, Integer>> params) {
       var result = new LinkedList<CustomLibMPIGoldenRecord>();
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(fields, map));
+      updateCandidates(result, querySearchGoldenRecords(params));
       return result;
    }
 

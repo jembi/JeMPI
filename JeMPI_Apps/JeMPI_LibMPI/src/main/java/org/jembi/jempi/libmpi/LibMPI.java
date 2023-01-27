@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
@@ -59,8 +60,8 @@ public class LibMPI {
      * *
      */
 
-    public List<CustomGoldenRecord> search(HashMap<String, String> fields, HashMap<String, Integer> map) {
-        return client.search(fields, map);
+    public List<CustomGoldenRecord> search(HashMap<String, ImmutablePair<String, Integer>> params) {
+        return client.search(params);
     }
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {

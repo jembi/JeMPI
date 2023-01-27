@@ -3,6 +3,7 @@ package org.jembi.jempi.libmpi.dgraph;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
@@ -35,8 +36,8 @@ public class LibDgraph implements LibMPIClientInterface {
      *
      */
 
-    public List<CustomGoldenRecord> search(HashMap<String, String> fields, HashMap<String, Integer> map) {
-        final var list = CustomLibMPIQueries.SimpleSearch(fields, map);
+    public List<CustomGoldenRecord> search(HashMap<String, ImmutablePair<String, Integer>> params) {
+        final var list = CustomLibMPIQueries.simpleSearch(params);
         if (list == null) {
             return null;
         }

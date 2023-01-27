@@ -7,7 +7,6 @@ import akka.dispatch.MessageDispatcher;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
-import akka.http.javadsl.model.HttpMethods;
 import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
@@ -27,7 +26,6 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
@@ -443,7 +441,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                             setNewCsrfToken(checkHeader, () ->
                                                     complete(
                                                             StatusCodes.OK,
-                                                            eventLoginWithKeycloakResponse,
+                                                            user,
                                                             Jackson.marshaller())
                                             )
                                     );
@@ -485,7 +483,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return requiredSession(refreshable, sessionTransport, session -> {
             if (session != null) {
                 return entity(Jackson.unmarshaller(Search.class),
-                obj -> onComplete(Search(actorSystem, backEnd, obj),
+                obj -> onComplete(search(actorSystem, backEnd, obj),
                         response -> {
                             if (response.isSuccess()) {
                                 final var eventSearchRsp = response.get();
@@ -503,7 +501,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         });
     }
 
-    private CompletionStage<BackEnd.EventSearchRsp> Search(final ActorSystem<Void> actorSystem,
+    private CompletionStage<BackEnd.EventSearchRsp> search(final ActorSystem<Void> actorSystem,
                                                            final ActorRef<BackEnd.Event> backEnd,
                                                            final Search search) {
         CompletionStage<BackEnd.EventSearchRsp> stage =
