@@ -49,10 +49,10 @@ There's two type of fields :
 
 > ! IMPORTANT : The `fieldName` in `config-reference.json` should be set in snake-case, but it's returned in camel-case by the API. 
 
-## GET /patient/:uid
-The following endpoint returns a patient record given a uid is supplied. This endpoint returns a object. Below a sample of the response :
+## GET /[patient|golden]-record/:uid
+The following endpoint returns a golden or patient record given a uid is supplied. This endpoint returns a object. Below a sample of the response :
 ```json
-// GET /patient/0x4
+// GET /patient-record/0x4
 {
   "document": {
     "auxId": "rec-00000000-aaa-0",
