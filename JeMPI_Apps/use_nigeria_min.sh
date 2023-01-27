@@ -7,7 +7,7 @@ pushd JeMPI_Configuration
   sbt "run config-nigeria-gender-dob.json"
 popd
 
-PROJECT=nigeria
+PROJECT=nigeria-gender-dob
 
 # JeMPI_AsyncReceiver
 pushd JeMPI_AsyncReceiver/src/main/java/org/jembi/jempi/shared/models

@@ -53,10 +53,10 @@
         <version.org.apache.commons.commons-csv>1.9.0</version.org.apache.commons.commons-csv>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
-        <version.org.apache.kafka.kafka-clients>3.3.1</version.org.apache.kafka.kafka-clients>
+        <version.org.apache.kafka.kafka-clients>3.3.2</version.org.apache.kafka.kafka-clients>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
-        <version.org.apache.kafka.kafka-streams>3.3.1</version.org.apache.kafka.kafka-streams>
+        <version.org.apache.kafka.kafka-streams>3.3.2</version.org.apache.kafka.kafka-streams>
 
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
         <version.org.apache.logging.log4j.log4j-api>2.19.0</version.org.apache.logging.log4j.log4j-api>
@@ -149,12 +149,12 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
         <version.org.apache.maven.plugins.maven-surefire-plugin>
-            3.0.0-M7
+            3.0.0-M8
         </version.org.apache.maven.plugins.maven-surefire-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
         <version.org.apache.maven.plugins.maven-failsafe-plugin>
-            3.0.0-M7
+            3.0.0-M8
         </version.org.apache.maven.plugins.maven-failsafe-plugin>
 
         <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
@@ -174,7 +174,7 @@
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            3.0.0
+            3.0.2
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
