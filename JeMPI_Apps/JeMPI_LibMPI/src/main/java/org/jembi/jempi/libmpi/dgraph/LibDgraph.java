@@ -35,8 +35,8 @@ public class LibDgraph implements LibMPIClientInterface {
      *
      */
 
-    public List<CustomGoldenRecord> search(final String nationalId, String given_name, String family_name, HashMap<String, Integer> map) {
-        final var list = CustomLibMPIQueries.SimpleSearch(nationalId, given_name, family_name, map);
+    public List<CustomGoldenRecord> search(HashMap<String, String> fields, HashMap<String, Integer> map) {
+        final var list = CustomLibMPIQueries.SimpleSearch(fields, map);
         if (list == null) {
             return null;
         }

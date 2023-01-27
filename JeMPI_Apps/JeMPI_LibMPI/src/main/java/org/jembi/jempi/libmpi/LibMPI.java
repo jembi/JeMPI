@@ -59,8 +59,8 @@ public class LibMPI {
      * *
      */
 
-    public List<CustomGoldenRecord> search(final String nationalId, String given_name, String family_name, HashMap<String, Integer> map) {
-        return client.search(nationalId, given_name, family_name, map);
+    public List<CustomGoldenRecord> search(HashMap<String, String> fields, HashMap<String, Integer> map) {
+        return client.search(fields, map);
     }
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {

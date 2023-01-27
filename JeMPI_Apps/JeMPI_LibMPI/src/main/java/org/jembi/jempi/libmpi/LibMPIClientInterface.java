@@ -48,7 +48,7 @@ public interface LibMPIClientInterface {
 
     List<String> getGoldenIdList();
 
-    List<CustomGoldenRecord> search(final String nationalId, String given_name, String family_name, HashMap<String, Integer> map);
+    List<CustomGoldenRecord> search(HashMap<String, String> fields, HashMap<String, Integer> map);
 
     CustomEntity getDocument(String uid);
 

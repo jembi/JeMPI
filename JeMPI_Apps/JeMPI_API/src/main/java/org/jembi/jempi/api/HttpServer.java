@@ -482,7 +482,9 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private Route routeSearch(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
-        return entity(Jackson.unmarshaller(Search.class),
+        return requiredSession(refreshable, sessionTransport, session -> {
+            if (session != null) {
+                return entity(Jackson.unmarshaller(Search.class),
                 obj -> onComplete(Search(actorSystem, backEnd, obj),
                         response -> {
                             if (response.isSuccess()) {
@@ -495,6 +497,10 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                 return complete(StatusCodes.IM_A_TEAPOT);
                             }
                         }));
+            }
+            LOGGER.info("No active session");
+            return complete(StatusCodes.FORBIDDEN);
+        });
     }
 
     private CompletionStage<BackEnd.EventSearchRsp> Search(final ActorSystem<Void> actorSystem,
@@ -521,6 +527,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeNotificationRequest(actorSystem, backEnd)),
                                                 path("authenticate",
                                                         () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)))),
+                                                path("search", () -> routeSearch(actorSystem, backEnd)),
                                         patch(() -> concat(
                                                 path("PatchGoldenRecordPredicate",
                                                         () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
@@ -558,7 +565,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeMatchesForReviewList(actorSystem, backEnd)),
                                                 path("Document",
                                                         () -> routeDocument(actorSystem, backEnd)),
-                                                path("Search", () -> routeSearch(actorSystem, backEnd)),
+
                                                 path("Candidates",
                                                         () -> routeCandidates(actorSystem, backEnd))))))));
     }

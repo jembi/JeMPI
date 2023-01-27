@@ -109,7 +109,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             map.put(request.search().parameters().get(i).field(), distance(request.search().parameters().get(i).distance()));
             fields.put(request.search().parameters().get(i).field(), request.search().parameters().get(i).value());
         }
-        var recs = libMPI.search(fields.get("national_id"), fields.get("given_name"), fields.get("family_name"), map);
+        var recs = libMPI.search(fields, map);
         libMPI.closeTransaction();
         request.replyTo.tell(new EventSearchRsp(recs));
         return Behaviors.same();
