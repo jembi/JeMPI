@@ -79,9 +79,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
                 .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
                 .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
-                .onMessage(EventGetGoldenRecordReq.class, this::eventGetGoldenRecordHandler)
+                .onMessage(EventFindGoldenRecordByUidRequest.class, this::eventGetGoldenRecordHandler)
                 .onMessage(EventGetGoldenRecordDocumentsReq.class, this::eventGetGoldenRecordDocumentsHandler)
-                .onMessage(EventGetDocumentReq.class, this::eventGetDocumentHandler)
+                .onMessage(EventFindPatientByUidRequest.class, this::findPatientByIdEventHandler)
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
                 .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
@@ -186,11 +186,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventGetGoldenRecordHandler(final EventGetGoldenRecordReq request) {
+    private Behavior<Event> eventGetGoldenRecordHandler(final EventFindGoldenRecordByUidRequest request) {
         LOGGER.debug("getGoldenRecord");
         libMPI.startTransaction();
         final var rec = libMPI.getGoldenRecord(request.uid);
-        request.replyTo.tell(new EventGetGoldenRecordRsp(rec));
+        request.replyTo.tell(new EventFindGoldenRecordByUidResponse(rec));
         libMPI.closeTransaction();
         return Behaviors.same();
     }
@@ -204,11 +204,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventGetDocumentHandler(final EventGetDocumentReq request) {
-        LOGGER.debug("getDocument");
+    private Behavior<Event> findPatientByIdEventHandler(final EventFindPatientByUidRequest request) {
+        LOGGER.debug("findPatientById");
         libMPI.startTransaction();
-        final var document = libMPI.getDocument(request.uid);
-        request.replyTo.tell(new EventGetDocumentRsp(document));
+        final var patient = libMPI.getDocument(request.uid);
+        request.replyTo.tell(new EventFindPatientRecordByUidResponse(patient));
         libMPI.closeTransaction();
         return Behaviors.same();
     }
@@ -304,10 +304,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     public record EventGetGoldenIdListRsp(List<String> records) implements EventResponse {
     }
 
-    public record EventGetGoldenRecordReq(ActorRef<EventGetGoldenRecordRsp> replyTo, String uid) implements Event {
+    public record EventFindGoldenRecordByUidRequest(ActorRef<EventFindGoldenRecordByUidResponse> replyTo, String uid) implements Event {
     }
 
-    public record EventGetGoldenRecordRsp(CustomGoldenRecord goldenRecord) implements EventResponse {
+    public record EventFindGoldenRecordByUidResponse(CustomGoldenRecord goldenRecord) implements EventResponse {
     }
 
     public record EventGetGoldenRecordDocumentsReq(ActorRef<EventGetGoldenRecordDocumentsRsp> replyTo,
@@ -318,15 +318,15 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             implements EventResponse {
     }
 
-    public record EventGetDocumentReq(ActorRef<EventGetDocumentRsp> replyTo,
-            String uid) implements Event {
+    public record EventFindPatientByUidRequest(ActorRef<EventFindPatientRecordByUidResponse> replyTo,
+                                               String uid) implements Event {
     }
 
     public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {}
 
     public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {}
     
-    public record EventGetDocumentRsp(CustomEntity document)
+    public record EventFindPatientRecordByUidResponse(CustomEntity document)
             implements EventResponse {
     }
 

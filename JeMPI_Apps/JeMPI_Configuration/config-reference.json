@@ -6,7 +6,7 @@
       "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
       "groups": ["identifiers"],
-      "scope": ["/patient/:uid"],
+      "scope": ["/patient-record/:uid", "/golden-record/:uid"],
       "accessLevel": []
     },
     {
@@ -18,11 +18,12 @@
       "fieldLabel": "First Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records",
-        "/patient/:uid/audit-trail"
+        "/golden-record/:uid/linked-records",
+        "/golden-record/:uid/audit-trail"
       ],
       "accessLevel": []
     },
@@ -36,11 +37,12 @@
       "fieldLabel": "Last Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records",
-        "/patient/:uid/audit-trail"
+        "/golden-record/:uid/linked-records",
+        "/golden-record/:uid/audit-trail"
       ],
       "accessLevel": []
     },
@@ -53,9 +55,10 @@
       "fieldLabel": "Gender",
       "groups": ["demographics", "sub_heading", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -67,10 +70,11 @@
       "fieldLabel": "Date of Birth",
       "groups": ["demographics", "sub_heading", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -83,9 +87,10 @@
       "fieldLabel": "City",
       "groups": ["demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -98,9 +103,10 @@
       "fieldLabel": "Phone No",
       "groups": ["demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -114,36 +120,26 @@
       "fieldLabel": "National ID",
       "groups": ["identifiers", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     }
   ],
   "systemFields": [
     {
-      "fieldName": "type",
-      "fieldType": "String",
-      "fieldLabel": "Record Type",
-      "groups": ["demographics", "linked_records"],
-      "scope": [
-        "/patient/:uid",
-        "/match-details",
-        "/patient/:uid/linked-records"
-      ],
-      "accessLevel": []
-    },
-    {
       "fieldName": "uid",
       "fieldType": "String",
       "fieldLabel": "UID",
       "groups": ["identifiers", "sub_heading", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -152,7 +148,10 @@
       "fieldType": "Number",
       "fieldLabel": "Match",
       "groups": ["none"],
-      "scope": ["/patient/:uid"],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid"
+      ],
       "accessLevel": []
     }
   ],
