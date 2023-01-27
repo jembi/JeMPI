@@ -7,18 +7,28 @@ import io.vavr.control.Either;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.api.keycloak.AkkaAdapterConfig;
+import org.jembi.jempi.api.keycloak.AkkaKeycloakDeploymentBuilder;
+import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.models.Notification;
+import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.LinkInfo;
+import org.keycloak.adapters.KeycloakDeployment;
+import org.keycloak.adapters.ServerRequest;
+import org.keycloak.adapters.rotation.AdapterTokenVerifier;
+import org.keycloak.common.VerificationException;
+import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.AccessTokenResponse;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -27,12 +37,20 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
 
     private static LibMPI libMPI = null;
+    private AkkaAdapterConfig keycloakConfig;
+    private KeycloakDeployment keycloak;
 
     private BackEnd(ActorContext<Event> context) {
         super(context);
         if (libMPI == null) {
             openMPI();
         }
+        // Init keycloak
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
+        keycloakConfig = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfigStream);
+        keycloak = AkkaKeycloakDeploymentBuilder.build(keycloakConfig);
+        LOGGER.debug("Keycloak configured, realm : " + keycloak.getRealm());
     }
 
     public static Behavior<BackEnd.Event> create() {
@@ -55,6 +73,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     public Receive<Event> actor() {
         ReceiveBuilder<Event> builder = newReceiveBuilder();
         return builder
+                .onMessage(EventLoginWithKeycloakRequest.class, this::eventLoginWithKeycloakHandler)
                 .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
                 .onMessage(EventGetDocumentCountReq.class, this::eventGetDocumentCountHandler)
                 .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
@@ -70,6 +89,49 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
                 .onMessage(EventNotificationRequestReq.class, this::eventNotificationRequestHandler)
                 .build();
+    }
+
+    private Behavior<Event> eventLoginWithKeycloakHandler(final EventLoginWithKeycloakRequest request) {
+        LOGGER.debug("loginWithKeycloak");
+        LOGGER.debug("Logging in {}", request.payload);
+        try {
+            // Exchange code for a token from Keycloak
+            AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(keycloak, request.payload.code(), keycloakConfig.getRedirectUri(), request.payload.sessionId());
+            LOGGER.debug("Token Exchange succeeded!");
+
+            String tokenString = tokenResponse.getToken();
+            String idTokenString = tokenResponse.getIdToken();
+
+            AdapterTokenVerifier.VerifiedTokens tokens = AdapterTokenVerifier.verifyTokens(tokenString, idTokenString, keycloak);
+            LOGGER.debug("Token Verification succeeded!");
+            AccessToken token = tokens.getAccessToken();
+            LOGGER.debug("Is user already registered?");
+            String email = token.getEmail();
+            User user = PsqlQueries.getUserByEmail(email);
+            if (user == null) {
+                // Register new user
+                LOGGER.debug("User registration ... " + email);
+                User newUser = User.buildUserFromToken(token);
+                user = PsqlQueries.registerUser(newUser);
+            }
+            LOGGER.debug("User has signed in : " + user.getEmail());
+            request.replyTo.tell(new EventLoginWithKeycloakResponse(user));
+            return Behaviors.same();
+        } catch (SQLException e) {
+            LOGGER.error("failed sql query: " + e.getMessage());
+        } catch (VerificationException e) {
+            LOGGER.error("failed verification of token: " + e.getMessage());
+        } catch (ServerRequest.HttpFailure failure) {
+            LOGGER.error("failed to turn code into token");
+            LOGGER.error("status from server: " + failure.getStatus());
+            if (failure.getError() != null && !failure.getError().trim().isEmpty()) {
+                LOGGER.error("   " + failure.getError());
+            }
+        } catch (IOException e) {
+            LOGGER.error("failed to turn code into token", e);
+        }
+        request.replyTo.tell(new EventLoginWithKeycloakResponse(null));
+        return Behaviors.same();
     }
 
     private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
@@ -313,6 +375,13 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     }
 
     public record EventNotificationRequestRsp() implements EventResponse {
+    }
+
+    public record EventLoginWithKeycloakRequest(ActorRef<EventLoginWithKeycloakResponse> replyTo,
+                                                OAuthCodeRequestPayload payload) implements Event {
+    }
+
+    public record EventLoginWithKeycloakResponse(User user) implements EventResponse {
     }
 
 }

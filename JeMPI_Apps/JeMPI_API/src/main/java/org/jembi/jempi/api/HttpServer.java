@@ -3,18 +3,25 @@ package org.jembi.jempi.api;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import akka.dispatch.MessageDispatcher;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.HttpMethods;
+import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
-import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
+import com.softwaremill.session.*;
+import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
+import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
+import org.jembi.jempi.api.models.User;
+import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
@@ -29,13 +36,42 @@ import java.util.stream.Stream;
 import org.json.simple.JSONArray;
 
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
+import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
 
-public class HttpServer extends AllDirectives {
+public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
+    private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder(UserSession.getSerializer());
+
+    // in-memory refresh token storage
+    private static final RefreshTokenStorage<UserSession> REFRESH_TOKEN_STORAGE = new InMemoryRefreshTokenStorage<UserSession>() {
+        @Override
+        public void log(String msg) {
+            LOGGER.info(msg);
+        }
+    };
+
+    private Refreshable<UserSession> refreshable;
+    private SetSessionTransport sessionTransport;
+
     private static final Function<Entry<String, String>, String> paramString = Entry::getValue;
     private CompletionStage<ServerBinding> binding = null;
+
+    public HttpServer(MessageDispatcher dispatcher) {
+        super(new SessionManager<>(
+                        SessionConfig.defaultConfig(AppConfig.SESSION_SECRET),
+                        BASIC_ENCODER
+                )
+        );
+
+        // use Refreshable for sessions, which needs to be refreshed or OneOff otherwise
+        // using Refreshable, a refresh token is set in form of a cookie or a custom header
+        refreshable = new Refreshable<>(getSessionManager(), REFRESH_TOKEN_STORAGE, dispatcher);
+
+        // set the session transport - based on Cookies (or Headers)
+        sessionTransport = CookieST;
+    }
 
     void close(ActorSystem<Void> actorSystem) {
         binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
@@ -45,7 +81,7 @@ public class HttpServer extends AllDirectives {
     void open(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final Http http = Http.get(actorSystem);
         binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                .bind(this.createRoute(actorSystem, backEnd, fields));
+                .bind(this.createRoutes(actorSystem, backEnd, fields));
         LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
     }
 
@@ -393,49 +429,108 @@ public class HttpServer extends AllDirectives {
                         }));
     }
 
-    private Route createRoute(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
-        final var settings = CorsSettings.defaultSettings()
-                .withAllowedMethods(Arrays.asList(HttpMethods.GET, HttpMethods.POST, HttpMethods.PATCH))
-                .withAllowGenericHttpRequests(true);
+    private Route routeLoginWithKeycloakRequest(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, CheckHeader<UserSession> checkHeader) {
+        return entity(Jackson.unmarshaller(OAuthCodeRequestPayload.class),
+                obj -> onComplete(loginWithKeycloakRequest(actorSystem, backEnd, obj),
+                        response -> {
+                            if (response.isSuccess()) {
+                                final var eventLoginWithKeycloakResponse = response.get();
+                                User user = eventLoginWithKeycloakResponse.user();
+                                if (user != null) {
+                                    return setSession(refreshable, sessionTransport, new UserSession(user), () ->
+                                            setNewCsrfToken(checkHeader, () ->
+                                                    complete(
+                                                            StatusCodes.OK,
+                                                            user,
+                                                            Jackson.marshaller())
+                                            )
+                                    );
+                                } else {
+                                    return complete(StatusCodes.FORBIDDEN);
+                                }
+                            } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                            }
+                        }));
+    }
+
+    private Route routeCurrentUser() {
+        return requiredSession(refreshable, sessionTransport, session -> {
+                if (session != null) {
+                    LOGGER.info("Current session: " + session.getEmail());
+                    return complete(StatusCodes.OK, session, Jackson.marshaller());
+                }
+                LOGGER.info("No active session");
+                return complete(StatusCodes.FORBIDDEN);
+        });
+    }
+
+    private Route routeLogout() {
+        return requiredSession(refreshable, sessionTransport, session ->
+                invalidateSession(refreshable, sessionTransport, () ->
+                        extractRequestContext(ctx -> {
+                                    LOGGER.info("Logging out {}", session.getUsername());
+                                    return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                                            complete("success")
+                                    );
+                                }
+                        )
+                )
+        );
+    }
+
+    private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
+        final var settings = CorsSettings.create(AppConfig.CONFIG);
+        CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
         return cors(settings,
-                () -> pathPrefix(
-                        "JeMPI",
-                        () -> concat(
-                                post(() -> concat(
-                                        path("NotificationRequest",
-                                                () -> routeNotificationRequest(actorSystem, backEnd)))),
-                                patch(() -> concat(
-                                        path("PatchGoldenRecordPredicate",
-                                                () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
-                                        path("Unlink",
-                                                () -> routeUnlink(actorSystem, backEnd)),
-                                        path("Link",
-                                                () -> routeLink(actorSystem, backEnd)))),
-                                get(() -> concat(
-                                        path("config",
-                                                () -> complete(StatusCodes.OK, fields.toJSONString())),
-                                        path("GoldenRecordCount",
-                                                () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                                        path("DocumentCount",
-                                                () -> routeDocumentCount(actorSystem, backEnd)),
-                                        path("NumberOfRecords",
-                                                () -> routeNumberOfRecords(actorSystem, backEnd)),
-                                        path("GoldenIdList",
-                                                () -> routeGoldenIdList(actorSystem, backEnd)),
-                                        path("GoldenIdListByPredicate",
-                                                () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
-                                        path("GoldenRecordDocuments",
-                                                () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
-                                        path("GoldenRecordDocumentList",
-                                                () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
-                                        path("GoldenRecord",
-                                                () -> routeGoldenRecord(actorSystem, backEnd)),
-                                        path("MatchesForReview",
-                                                () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                        path("Document",
-                                                () -> routeDocument(actorSystem, backEnd)),
-                                        path("Candidates",
-                                                () -> routeCandidates(actorSystem, backEnd)))))));
+                () -> randomTokenCsrfProtection(checkHeader,
+                        () -> pathPrefix(
+                                "JeMPI",
+                                () -> concat(
+                                        post(() -> concat(
+                                                path("NotificationRequest",
+                                                        () -> routeNotificationRequest(actorSystem, backEnd)),
+                                                path("authenticate",
+                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)))),
+                                        patch(() -> concat(
+                                                path("PatchGoldenRecordPredicate",
+                                                        () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
+                                                path("Unlink",
+                                                        () -> routeUnlink(actorSystem, backEnd)),
+                                                path("Link",
+                                                        () -> routeLink(actorSystem, backEnd)))),
+                                        get(() -> concat(
+                                                path("config",
+                                                        () -> setNewCsrfToken(checkHeader,
+                                                            () -> complete(StatusCodes.OK, fields.toJSONString()))),
+                                                path("current-user",
+                                                        () -> routeCurrentUser()
+                                                ),
+                                                path("logout",
+                                                        () -> routeLogout()
+                                                ),
+                                                path("GoldenRecordCount",
+                                                        () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                                                path("DocumentCount",
+                                                        () -> routeDocumentCount(actorSystem, backEnd)),
+                                                path("NumberOfRecords",
+                                                        () -> routeNumberOfRecords(actorSystem, backEnd)),
+                                                path("GoldenIdList",
+                                                        () -> routeGoldenIdList(actorSystem, backEnd)),
+                                                path("GoldenIdListByPredicate",
+                                                        () -> routeGoldenIdListByPredicate(actorSystem, backEnd)),
+                                                path("GoldenRecordDocuments",
+                                                        () -> routeGoldenRecordDocuments(actorSystem, backEnd)),
+                                                path("GoldenRecordDocumentList",
+                                                        () -> routeGoldenRecordDocumentList(actorSystem, backEnd)),
+                                                path("GoldenRecord",
+                                                        () -> routeGoldenRecord(actorSystem, backEnd)),
+                                                path("MatchesForReview",
+                                                        () -> routeMatchesForReviewList(actorSystem, backEnd)),
+                                                path("Document",
+                                                        () -> routeDocument(actorSystem, backEnd)),
+                                                path("Candidates",
+                                                        () -> routeCandidates(actorSystem, backEnd))))))));
     }
 
     private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(final ActorSystem<Void> actorSystem,
@@ -449,6 +544,18 @@ public class HttpServer extends AllDirectives {
                         actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
+
+    private CompletionStage<BackEnd.EventLoginWithKeycloakResponse> loginWithKeycloakRequest(final ActorSystem<Void> actorSystem,
+                                                                                         final ActorRef<BackEnd.Event> backEnd,
+                                                                                         final OAuthCodeRequestPayload body) {
+        CompletionStage<BackEnd.EventLoginWithKeycloakResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventLoginWithKeycloakRequest(replyTo, body),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
 
     private record GoldenRecordCount(Long count) {
     }

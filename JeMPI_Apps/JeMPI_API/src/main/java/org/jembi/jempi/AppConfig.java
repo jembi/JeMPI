@@ -12,7 +12,7 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   private static final Config CONFIG = new Builder()
+   public static final Config CONFIG = new Builder()
          .withSystemEnvironment()
          .withSystemProperties()
          .withOptionalRelativeFile("/conf/server.production.conf")
@@ -37,6 +37,8 @@ public final class AppConfig {
    public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
 
    public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
+
+   public static final String SESSION_SECRET = CONFIG.getString("akka.http.session.server-secret");
 
    private AppConfig() {
    }
