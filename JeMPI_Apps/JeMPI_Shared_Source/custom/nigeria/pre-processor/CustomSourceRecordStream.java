@@ -41,6 +41,15 @@ public class CustomSourceRecordStream {
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
    private KafkaStreams patientKafkaStreams = null;
 
+/*
+                                 FP_CLEAR
+                                    |
+                                    V
+              +--------+   KEY    +-----+
+   EMR_ID --> | SHA256 | -------> | AES | --> FP_CIPHER
+              +--------+          +-----+
+
+*/
 
    private String getNationalFingerprintID(final String emr, final String emrFingerPrint) {
       LOGGER.debug("EMR FP: {} {}", emr, emrFingerPrint);

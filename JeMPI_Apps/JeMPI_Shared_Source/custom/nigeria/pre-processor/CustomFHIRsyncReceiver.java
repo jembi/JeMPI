@@ -84,20 +84,7 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                        }
                        final String givenName = name != null && name.hasGiven() ? name.getGiven().get(0).getValue() : null;
                        final String familyName = name != null ? name.getFamily() : null;
-                       final var customEntity = new CustomEntity(null,
-                                                                 new SourceId(null,
-                                                                              null,
-                                                                              null),
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null,
-                                                                 null);
+                       final var customEntity = new CustomEntity();
                        LOGGER.debug("{}", customEntity);
                        try {
                           final var linkEntitySyncBody = new LinkEntitySyncBody(secondaryID, null, 0.65F, customEntity);

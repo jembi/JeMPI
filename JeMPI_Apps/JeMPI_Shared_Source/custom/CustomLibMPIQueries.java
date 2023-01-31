@@ -174,20 +174,15 @@ class CustomLibMPIQueries {
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final String val) {
-      if (StringUtils.isBlank(val)) {
+   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomEntity customEntity) {
+      if (StringUtils.isBlank(customEntity.phoneNumber())) {
          return new LibMPIGoldenRecordList(List.of());
       }
-      final Map<String, String> map = Map.of("$phone_number", val);
-      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
-   }
-
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final String val) {
-      if (StringUtils.isBlank(val)) {
-         return new LibMPIGoldenRecordList(List.of());
+   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final CustomEntity customEntity) {
+      if (StringUtils.isBlank(customEntity.nationalId())) {
       }
-      final Map<String, String> map = Map.of("$national_id", val);
-      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
+      final Map<String, String> map = Map.of("$national_id", customEntity.nationalId());
+      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
    }
 
    private static void updateCandidates(final List<CustomLibMPIGoldenRecord> goldenRecords,
@@ -220,8 +215,8 @@ class CustomLibMPIQueries {
       }
       var result = new LinkedList<CustomLibMPIGoldenRecord>();
       updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(dgraphEntity));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(dgraphEntity.phoneNumber()));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(dgraphEntity.nationalId()));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(dgraphEntity));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(dgraphEntity));
       return result;
    }
 

@@ -9,13 +9,16 @@ import java.nio.file.Paths
 object Main  {
 
 
-  @main def configure(config_file_name: String): Any =
-    println(s"name =  ${config_file_name}")
+  @main def configure(in_config_file_name: String): Any =
 
-    if (config_file_name.isBlank) {
-      println("Dude: you need to specify a config file name")
-      System.exit(0)
+    val config_file_name =
+    if (in_config_file_name.isBlank) {
+      println("Dude: you should specify a config file name")
+      "config_reference.json"
+    } else {
+      in_config_file_name
     }
+    println(s"name =  ${config_file_name}")
 
     val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})

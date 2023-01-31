@@ -78,7 +78,7 @@ object CustomLibMPIQueries {
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
-        val vars = "dgraphEntity" + (if (rule.vars.length == 1) "." + Utils.snakeCaseToCamelCase(rule.vars(0)) + "()" else "")
+        val vars = "dgraphEntity"
         writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
       })
     }
@@ -119,11 +119,11 @@ object CustomLibMPIQueries {
     if (vars.length == 1)
       val v = vars(0)
       writer.println(
-        s"""   static LibMPIGoldenRecordList $functionName(final String val) {
-           |      if (StringUtils.isBlank(val)) {
+        s"""   static LibMPIGoldenRecordList $functionName(final CustomEntity customEntity) {
+           |      if (StringUtils.isBlank(customEntity.${Utils.snakeCaseToCamelCase(v)}())) {
            |         return new LibMPIGoldenRecordList(List.of());
            |      }
-           |      final Map<String, String> map = Map.of("$$$v", val);
+           |      final Map<String, String> map = Map.of("$$$v", customEntity.${Utils.snakeCaseToCamelCase(v)}());
            |      return runGoldenRecordQuery($name, map);
            |   }
            |""".stripMargin)
@@ -220,9 +220,8 @@ object CustomLibMPIQueries {
       })
       writer.println(
         s"""${" " * 9}all(func: uid(${(for (field <- varsMap) yield field._2).mkString(",")})) @filter ${
-          if
-          (all_func_str.startsWith("(")) "" else "("
-        }$all_func_str${if (all_func_str.startsWith("(")) "" else "("}{
+          if (all_func_str.startsWith("(")) "" else "("
+        }$all_func_str${if (all_func_str.startsWith("(")) "" else "("} {
            |${" " * 12}uid
            |${" " * 12}GoldenRecord.source_id {
            |${" " * 15}uid

@@ -24,35 +24,43 @@ private object CustomMU {
          |public record $customClassName(""".stripMargin)
     val margin = 23
     val filteredFields = fields.filter(_.m.isDefined)
-    filteredFields.zipWithIndex.foreach {
-      case (f, i) =>
-        val parameterName = Utils.snakeCaseToCamelCase(f.fieldName)
-        if (i > 0)
-          writer.print(" " * margin)
-        end if
-        writer.print(s"Probability $parameterName")
-        if (i + 1 < filteredFields.length)
-          writer.println(",")
-        else
-          writer.println(") {")
-        end if
-    }
+    if (filteredFields.length == 0)
+      writer.println("Probability dummy) {")
+    else
+      filteredFields.zipWithIndex.foreach {
+        case (f, i) =>
+          val parameterName = Utils.snakeCaseToCamelCase(f.fieldName)
+          if (i > 0)
+            writer.print(" " * margin)
+          end if
+          writer.print(s"Probability $parameterName")
+          if (i + 1 < filteredFields.length)
+            writer.println(",")
+          else
+            writer.println(") {")
+          end if
+      }
+    end if
     writer.println()
     writer.println(s"   public $customClassName(final double[] mHat, final double[] uHat) {")
-    filteredFields.zipWithIndex.foreach {
-      case (_, idx) =>
-        val arg = s"new $customClassName.Probability((float) mHat[$idx], (float) uHat[$idx])"
-        if (idx == 0)
-          writer.println("      this(" + arg + ",")
-        else
-          writer.print(" " * 11)
-          if (idx + 1 < filteredFields.length)
-            writer.println(s"$arg,")
+    if (filteredFields.length == 0)
+      writer.println(s"      this(new $customClassName.Probability(0.0F, 0.0F));")
+    else
+      filteredFields.zipWithIndex.foreach {
+        case (_, idx) =>
+          val arg = s"new $customClassName.Probability((float) mHat[$idx], (float) uHat[$idx])"
+          if (idx == 0)
+            writer.println("      this(" + arg + ",")
           else
-            writer.println(s"$arg);")
+            writer.print(" " * 11)
+            if (idx + 1 < filteredFields.length)
+              writer.println(s"$arg,")
+            else
+              writer.println(s"$arg);")
+            end if
           end if
-        end if
-    }
+      }
+    end if
     writer.println(
       s"""   }
          |

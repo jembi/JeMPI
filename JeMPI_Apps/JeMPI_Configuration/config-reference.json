@@ -1,16 +1,16 @@
 {
   "fields": [
     {
-      "fieldName": "auxId",
+      "fieldName": "aux_id",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
       "groups": ["identifiers"],
-      "scope": ["/patient/:uid"],
+      "scope": ["/patient-record/:uid", "/golden-record/:uid"],
       "accessLevel": []
     },
     {
-      "fieldName": "givenName",
+      "fieldName": "given_name",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.782501,
@@ -18,16 +18,17 @@
       "fieldLabel": "First Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records",
-        "/patient/:uid/audit-trail"
+        "/golden-record/:uid/linked-records",
+        "/golden-record/:uid/audit-trail"
       ],
       "accessLevel": []
     },
     {
-      "fieldName": "familyName",
+      "fieldName": "family_name",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
@@ -36,11 +37,12 @@
       "fieldLabel": "Last Name",
       "groups": ["name", "demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records",
-        "/patient/:uid/audit-trail"
+        "/golden-record/:uid/linked-records",
+        "/golden-record/:uid/audit-trail"
       ],
       "accessLevel": []
     },
@@ -53,9 +55,10 @@
       "fieldLabel": "Gender",
       "groups": ["demographics", "sub_heading", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -67,10 +70,11 @@
       "fieldLabel": "Date of Birth",
       "groups": ["demographics", "sub_heading", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -83,14 +87,15 @@
       "fieldLabel": "City",
       "groups": ["demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
     {
-      "fieldName": "phoneNumber",
+      "fieldName": "phone_number",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.920281,
@@ -98,14 +103,15 @@
       "fieldLabel": "Phone No",
       "groups": ["demographics", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
     {
-      "fieldName": "nationalId",
+      "fieldName": "national_id",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
@@ -114,36 +120,26 @@
       "fieldLabel": "National ID",
       "groups": ["identifiers", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
         "/search",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     }
   ],
   "systemFields": [
     {
-      "fieldName": "type",
-      "fieldType": "String",
-      "fieldLabel": "Record Type",
-      "groups": ["demographics", "linked_records"],
-      "scope": [
-        "/patient/:uid",
-        "/match-details",
-        "/patient/:uid/linked-records"
-      ],
-      "accessLevel": []
-    },
-    {
       "fieldName": "uid",
       "fieldType": "String",
       "fieldLabel": "UID",
       "groups": ["identifiers", "sub_heading", "linked_records"],
       "scope": [
-        "/patient/:uid",
+        "/patient-record/:uid",
+        "/golden-record/:uid",
         "/match-details",
-        "/patient/:uid/linked-records"
+        "/golden-record/:uid/linked-records"
       ],
       "accessLevel": []
     },
@@ -152,29 +148,32 @@
       "fieldType": "Number",
       "fieldLabel": "Match",
       "groups": ["none"],
-      "scope": ["/patient/:uid"],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid"
+      ],
       "accessLevel": []
     }
   ],
   "rules": {
     "deterministic": {
       "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
-        "vars": ["givenName", "familyName", "phoneNumber", "nationalId"],
-        "text": "eq(nationalId) or (eq(givenName) and eq(familyName) and eq(phoneNumber))"
+        "vars": ["given_name", "family_name", "phone_number", "national_id"],
+        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
       }
     },
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
-        "vars": ["givenName", "familyName", "city"],
-        "text": "match(givenName,3) and match(familyName,3) or match(givenName,3) and match(city,3) or match(familyName,3) and match(city,3)"
+        "vars": ["given_name", "family_name", "city"],
+        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
       },
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
-        "vars": ["phoneNumber"],
-        "text": "match(phoneNumber,3)"
+        "vars": ["phone_number"],
+        "text": "match(phone_number,3)"
       },
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
-        "vars": ["nationalId"],
-        "text": "match(nationalId,3)"
+        "vars": ["national_id"],
+        "text": "match(national_id,3)"
       }
     }
   }

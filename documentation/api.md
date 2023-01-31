@@ -7,7 +7,7 @@ description: API endpoints documentation
 
 ## GET /fields
 The following endpoint returns the fields configuration needed by the frontend (JeMPI-UI) in order to properly display patient record data according to a specific 
-implementation. This endpoints returns a JSON array. Below a sample of the response :
+implementation. This endpoint returns a JSON array. Below a sample of the response :
 ```json
 [
   {
@@ -47,8 +47,31 @@ There's two type of fields :
 - Custom fields : Indexed by the key "fields", contains all the fields that are specific to the implementation. Examples : givenName, nationalId, ...
 - System fields : Indexed by the key "systemFields", it contains all the fields that are readonly fields and do not change across the implementation. Example : uid, record type, score, ...
 
-> ! IMPORTANT : The `fieldName` in `config-reference.json` should be set in snake-case, but it's returned in camel-case by the API.
+> ! IMPORTANT : The `fieldName` in `config-reference.json` should be set in snake-case, but it's returned in camel-case by the API. 
 
+## GET /[patient|golden]-record/:uid
+The following endpoint returns a golden or patient record given a uid is supplied. This endpoint returns a object. Below a sample of the response :
+```json
+// GET /patient-record/0x4
+{
+  "document": {
+    "auxId": "rec-00000000-aaa-0",
+    "city": "Nairobi",
+    "dob": "20171114",
+    "familyName": "Onyango",
+    "gender": "male",
+    "givenName": "Endalekachew",
+    "nationalId": "198804042874913",
+    "phoneNumber": "091-749-4674",
+    "sourceId": {
+      "facility": "LABORATORY",
+      "patient": "198804042874913",
+      "uid": "0x3"
+    },
+    "uid": "0x4"
+  }
+}
+```
 
 ## POST /search/(golden|patient)
 The following endpoint is used for the simple search either for golden or patient records. 
