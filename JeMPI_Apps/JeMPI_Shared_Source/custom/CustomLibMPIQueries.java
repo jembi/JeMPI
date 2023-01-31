@@ -2,19 +2,15 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jembi.jempi.shared.models.CustomEntity;
 
-import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordQuery;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.ArrayList;
+
 class CustomLibMPIQueries {
    private static final Logger LOGGER = LogManager.getLogger(CustomLibMPIQueries.class);
 
@@ -120,75 +116,6 @@ class CustomLibMPIQueries {
       }
       """;
 
-   static LibMPIGoldenRecordList querySearchGoldenRecords(HashMap<String, ImmutablePair<String, Integer>> params) {
-
-      Map<String, String> map = new HashMap<>();
-      String str = "query query_match_golden_record_candidates_by_distance(";
-      String sub_str = "";
-      List<Character> uids = new ArrayList<Character>();
-      char alph = 'A';
-      uids.add(alph);
-
-   // building the dgraph query from scratch
-      for (Map.Entry<String, String> set : fields.entrySet()) {
-         map.put("$" +set.getKey(), StringUtils.isNotBlank(fields.get(set.getKey()))
-                 ? set.getValue()
-                 : Queries.EMPTY_FIELD_SENTINEL);
-         str = str.concat("$" + set.getKey() + ": string,");
-         sub_str = sub_str.concat(String.format("var(func: match(%s, $%s, ${%s})) { %s as uid } ", "GoldenRecord." + set.getKey(), set.getKey(), set.getKey(), alph++));
-         uids.add(alph);
-      }
-
-      str = str.substring(0, str.length() - 1);
-      str = str + "){ ";
-      String main_query = StringUtils.join(uids, ",");
-      main_query = main_query.substring(0, main_query.length() - 2);
-      main_query = "uid(" + main_query + ")";
-      String filters = "(";
-
-      for (int i = 0; i < uids.size()-1; i++) {
-            filters = filters.concat(String.format("(uid(%s)) AND ", uids.get(i)));
-      }
-      filters =  filters.substring(0, filters.length() - 4);
-      filters = filters + ")";
-
-
-
-      String final_result = str + sub_str + "";
-      final String query = final_result
-                  +
-                  """
-                  all(func:
-                   """
-                  + main_query +
-                     """
-                      ) @filter
-                      """
-                  +
-                    filters
-                  +
-              """
-                    {
-                     uid
-                     GoldenRecord.source_id {
-                        uid
-                     }
-                     GoldenRecord.aux_id
-                     GoldenRecord.given_name
-                     GoldenRecord.family_name
-                     GoldenRecord.gender
-                     GoldenRecord.dob
-                     GoldenRecord.city
-                     GoldenRecord.phone_number
-                     GoldenRecord.national_id
-                  }
-               }
-               """;
-      String result = StrSubstitutor.replace(query, distances, "${", "}");
-      final var goldenRecordList = runGoldenRecordQuery(result, map);
-      return goldenRecordList;
-   }
-
    static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomEntity customEntity) {
       final var givenName = customEntity.givenName();
       final var familyName = customEntity.familyName();
@@ -218,7 +145,7 @@ class CustomLibMPIQueries {
          StringUtils.isNotBlank(nationalId)
             ? nationalId
             : Queries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
+      return runGoldenRecordsQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
    }
 
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(final CustomEntity customEntity) {
@@ -244,7 +171,7 @@ class CustomLibMPIQueries {
          StringUtils.isNotBlank(city)
             ? city
             : Queries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final String val) {
@@ -252,7 +179,7 @@ class CustomLibMPIQueries {
          return new LibMPIGoldenRecordList(List.of());
       }
       final Map<String, String> map = Map.of("$phone_number", val);
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
 
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final String val) {
@@ -260,7 +187,7 @@ class CustomLibMPIQueries {
          return new LibMPIGoldenRecordList(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", val);
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
    }
 
    private static void updateCandidates(final List<CustomLibMPIGoldenRecord> goldenRecords,
@@ -298,10 +225,5 @@ class CustomLibMPIQueries {
       return result;
    }
 
-   static List<CustomLibMPIGoldenRecord> simpleSearch(HashMap<String, ImmutablePair<String, Integer>> params) {
-      var result = new LinkedList<CustomLibMPIGoldenRecord>();
-      updateCandidates(result, querySearchGoldenRecords(params));
-      return result;
-   }
 
 }

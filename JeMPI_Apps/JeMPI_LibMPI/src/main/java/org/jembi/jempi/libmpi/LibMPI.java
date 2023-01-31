@@ -2,16 +2,13 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
-import org.jembi.jempi.shared.models.CustomEntity;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
-import java.util.HashMap;
+import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class LibMPI {
@@ -60,8 +57,23 @@ public class LibMPI {
      * *
      */
 
-    public List<CustomGoldenRecord> search(HashMap<String, ImmutablePair<String, Integer>> params) {
-        return client.search(params);
+    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+    }
+    public LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
     }
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {

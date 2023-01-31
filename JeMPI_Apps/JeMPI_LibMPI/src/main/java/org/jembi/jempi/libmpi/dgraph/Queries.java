@@ -5,8 +5,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomEntity;
+import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.utils.RecordType;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 final class Queries {
@@ -29,7 +33,7 @@ final class Queries {
         return new LibMPISourceIdList(List.of());
     }
 
-    static LibMPIDGraphEntityList runEntityQuery(final String query, final Map<String, String> vars) {
+    static LibMPIDGraphEntityList runPatientRecordsQuery(final String query, final Map<String, String> vars) {
         try {
             final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
             if (!StringUtils.isBlank(json)) {
@@ -41,7 +45,7 @@ final class Queries {
         return new LibMPIDGraphEntityList(List.of());
     }
 
-    static LibMPIGoldenRecordList runGoldenRecordQuery(final String query, final Map<String, String> vars) {
+    static LibMPIGoldenRecordList runGoldenRecordsQuery(final String query, final Map<String, String> vars) {
         try {
             final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
             if (!StringUtils.isBlank(json)) {
@@ -51,6 +55,18 @@ final class Queries {
             LOGGER.error(e.getLocalizedMessage());
         }
         return new LibMPIGoldenRecordList(List.of());
+    }
+
+    static LibMPIExpandedGoldenRecordList runExpandedGoldenRecordsQuery(final String query, final Map<String, String> vars) {
+        try {
+            final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
+            if (!StringUtils.isBlank(json)) {
+                return AppUtils.OBJECT_MAPPER.readValue(json, LibMPIExpandedGoldenRecordList.class);
+            }
+        } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage());
+        }
+        return new LibMPIExpandedGoldenRecordList(List.of());
     }
 
     static List<String> getGoldenIdListByPredicate(final String predicate, final String val) {
@@ -81,7 +97,7 @@ final class Queries {
             return null;
         }
         final var vars = Map.of("$uid", uid);
-        final var dgraphEntityList = runEntityQuery(CustomLibMPIConstants.QUERY_GET_ENTITY_BY_UID, vars).all();
+        final var dgraphEntityList = runPatientRecordsQuery(CustomLibMPIConstants.QUERY_GET_ENTITY_BY_UID, vars).all();
         if (AppUtils.isNullOrEmpty(dgraphEntityList)) {
             return null;
         }
@@ -93,7 +109,7 @@ final class Queries {
             return null;
         }
         final var vars = Map.of("$uid", uid);
-        final var goldenRecordList = runGoldenRecordQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
+        final var goldenRecordList = runGoldenRecordsQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
                 .all();
 
         if (AppUtils.isNullOrEmpty(goldenRecordList)) {
@@ -212,6 +228,127 @@ final class Queries {
             LOGGER.error(e.getLocalizedMessage());
             return List.of();
         }
+    }
+
+    static String camelToSnake(String str) {
+        return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+    }
+
+    static <T> List<String> getRecordFieldNamesByType(RecordType recordType) {
+        List<String> fieldNames = new ArrayList<String>();
+        Class C = recordType == RecordType.GoldenRecord ? CustomGoldenRecord.class : CustomEntity.class;
+        Field[] fields = C.getDeclaredFields();
+        for (Field field : fields) {
+            fieldNames.add(field.getName() == "uid" ? "uid" : recordType + "." + camelToSnake(field.getName()));
+        }
+        return fieldNames;
+    }
+
+    static List<String> getSearchQueryArguments(List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+        List<String> args = new ArrayList<String>();
+        for (int i = 0; i < parameters.size(); i++) {
+            SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
+            String fieldName = camelToSnake(param.fieldName());
+            args.add(String.format("$%s: string", fieldName));
+        }
+        return args;
+    }
+
+    static HashMap<String, String> getSearchQueryVariables(List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+        HashMap<String, String> vars = new HashMap();
+        for (int i = 0; i < parameters.size(); i++) {
+            SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
+            String fieldName = camelToSnake(param.fieldName());
+            String value = param.value();
+            vars.put("$" + fieldName, value);
+        }
+        return vars;
+    }
+
+    static String getSearchQueryFilters(RecordType entity, List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+        List<String> gqlFilters = new ArrayList<String>();
+        for (int i = 0; i < parameters.size(); i++) {
+            SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
+            if (!param.value().isEmpty()) {
+                String fieldName = camelToSnake(param.fieldName());
+                Integer distance = param.distance();
+                if (distance == 0) {
+                    gqlFilters.add("eq(" + entity + "." + fieldName + ", $" + fieldName + ")");
+                } else {
+                    gqlFilters.add("eq(" + entity + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
+                }
+            }
+        }
+        return String.join(" AND ", gqlFilters);
+    }
+
+    static String getSearchQueryFunc(RecordType recordType, Integer offset, Integer limit, String sortBy, Boolean sortAsc) {
+        String direction = sortAsc ? "asc" : "desc";
+        String sort = sortBy != null ? String.format(", order%s: %s.%s", direction, recordType, camelToSnake(sortBy)) : "";
+        return String.format("func: type(%s), first: %d, offset: %d", recordType, limit, offset) + sort;
+    }
+
+    static String getSearchQueryPagination(RecordType recordType, String gqlFilters) {
+        return String.format("pagination(func: type(%s)) @filter(%s) {\ntotal: count(uid)\n}", recordType, gqlFilters);
+    }
+
+    static LibMPIExpandedGoldenRecordList simpleSearchGoldenRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        LOGGER.debug("Simple Search Golden Records Params {}", params);
+        String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
+        String gqlFilters = getSearchQueryFilters(RecordType.GoldenRecord, params);
+        List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Entity);
+        List<String> goldenRecordFieldNames = getRecordFieldNamesByType(RecordType.GoldenRecord);
+        List<String> args = getSearchQueryArguments(params);
+        String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
+        HashMap<String, String> vars = getSearchQueryVariables(params);
+
+        String gql = "query search(" + String.join(", ", args) + ") {\n";
+        gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+        gql += "{\n";
+        gql += String.join("\n", goldenRecordFieldNames) + "\n";
+        gql += RecordType.GoldenRecord + ".entity_list {\n" + String.join("\n", patientRecordFieldNames) + "}\n";
+        gql += "}\n";
+        gql += gqlPagination;
+        gql += "}";
+
+        LOGGER.debug("Simple Search Golden Records Query {}", gql);
+        LOGGER.debug("Simple Search Golden Records Variables {}", vars);
+        return runExpandedGoldenRecordsQuery(gql, vars);
+    }
+
+    static LibMPIDGraphEntityList simpleSearchPatientRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        LOGGER.debug("Simple Search Patient Records Params {}", params);
+        String gqlFunc = getSearchQueryFunc(RecordType.Entity, offset, limit, sortBy, sortAsc);
+        String gqlFilters = getSearchQueryFilters(RecordType.Entity, params);
+        List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Entity);
+        String gqlPagination = getSearchQueryPagination(RecordType.Entity, gqlFilters);
+        List<String> args = getSearchQueryArguments(params);
+        HashMap<String, String> vars = getSearchQueryVariables(params);
+
+        String gql = "query search(" + String.join(", ", args) + ") {\n";
+        gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+        gql += "{\n";
+        gql += String.join("\n", patientRecordFieldNames) + "\n";
+        gql += RecordType.Entity + ".golden_record_list {\nuid\n}\n";
+        gql += "}\n";
+        gql += gqlPagination;
+        gql += "}";
+
+        LOGGER.debug("Simple Search Patient Records Query {}", gql);
+        LOGGER.debug("Simple Search Patient Records Variables {}", vars);
+        return runPatientRecordsQuery(gql, vars);
     }
 
 }

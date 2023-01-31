@@ -3,17 +3,15 @@ package org.jembi.jempi.libmpi.dgraph;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.shared.models.CustomEntity;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
-import java.util.HashMap;
+import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -36,12 +34,35 @@ public class LibDgraph implements LibMPIClientInterface {
      *
      */
 
-    public List<CustomGoldenRecord> search(HashMap<String, ImmutablePair<String, Integer>> params) {
-        final var list = CustomLibMPIQueries.simpleSearch(params);
+    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        final var list = Queries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
         if (list == null) {
             return null;
         }
-        return list.stream().map(CustomLibMPIGoldenRecord::toCustomGoldenRecord).toList();
+        final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
+        final var pagination = list.pagination().get(0);
+        return new LibMPIPaginatedResultSet(data, pagination);
+    }
+    public LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        final var list = Queries.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+        if (list == null) {
+            return null;
+        }
+        final var data = list.all().stream().map(CustomLibMPIDGraphEntity::toCustomEntity).toList();
+        final var pagination = list.pagination().get(0);
+        return new LibMPIPaginatedResultSet(data, pagination);
     }
 
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
