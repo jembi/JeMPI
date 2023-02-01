@@ -66,6 +66,15 @@ public class LibMPI {
     ) {
         return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
     }
+    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+    }
     public LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
             List<SimpleSearchRequestPayload.SearchParameter> params,
             Integer offset,
@@ -74,6 +83,15 @@ public class LibMPI {
             Boolean sortAsc
     ) {
         return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+    }
+    public LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
     }
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {

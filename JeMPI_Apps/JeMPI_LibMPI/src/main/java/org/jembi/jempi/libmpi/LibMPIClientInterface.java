@@ -53,8 +53,20 @@ public interface LibMPIClientInterface {
             Integer limit,
             String sortBy,
             Boolean sortAsc);
+    LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc);
     LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
             List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc);
+    LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
+            List<SimpleSearchRequestPayload> params,
             Integer offset,
             Integer limit,
             String sortBy,

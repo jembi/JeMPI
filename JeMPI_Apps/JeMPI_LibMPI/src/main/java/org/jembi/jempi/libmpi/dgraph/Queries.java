@@ -244,28 +244,62 @@ final class Queries {
         return fieldNames;
     }
 
-    static List<String> getSearchQueryArguments(List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+    static List<String> getSimpleSearchQueryArguments(List<SimpleSearchRequestPayload.SearchParameter> parameters) {
         List<String> args = new ArrayList<String>();
         for (int i = 0; i < parameters.size(); i++) {
             SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
-            String fieldName = camelToSnake(param.fieldName());
-            args.add(String.format("$%s: string", fieldName));
+            if (!param.value().isEmpty()) {
+                String fieldName = camelToSnake(param.fieldName());
+                args.add(String.format("$%s: string", fieldName));
+            }
+        }
+        return args;
+    }
+    static List<String> getCustomSearchQueryArguments(List<SimpleSearchRequestPayload> payloads) {
+        List<String> args = new ArrayList<String>();
+        for (int i = 0; i < payloads.size(); i++) {
+            List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
+            for (int j = 0; j < parameters.size(); j++) {
+                SimpleSearchRequestPayload.SearchParameter param = parameters.get(j);
+                if (!param.value().isEmpty()) {
+                    String fieldName = camelToSnake(param.fieldName());
+                    args.add(String.format("$%s_%d: string", fieldName, i));
+                }
+            }
         }
         return args;
     }
 
-    static HashMap<String, String> getSearchQueryVariables(List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+    static HashMap<String, String> getSimpleSearchQueryVariables(List<SimpleSearchRequestPayload.SearchParameter> parameters) {
         HashMap<String, String> vars = new HashMap();
         for (int i = 0; i < parameters.size(); i++) {
             SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
-            String fieldName = camelToSnake(param.fieldName());
-            String value = param.value();
-            vars.put("$" + fieldName, value);
+            if (!param.value().isEmpty()) {
+                String fieldName = camelToSnake(param.fieldName());
+                String value = param.value();
+                vars.put("$" + fieldName, value);
+            }
         }
         return vars;
     }
 
-    static String getSearchQueryFilters(RecordType entity, List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+    static HashMap<String, String> getCustomSearchQueryVariables(List<SimpleSearchRequestPayload> payloads) {
+        HashMap<String, String> vars = new HashMap();
+        for (int i = 0; i < payloads.size(); i++) {
+            List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
+            for (int j = 0; j < parameters.size(); j++) {
+                SimpleSearchRequestPayload.SearchParameter param = parameters.get(j);
+                if (!param.value().isEmpty()) {
+                    String fieldName = camelToSnake(param.fieldName());
+                    String value = param.value();
+                    vars.put(String.format("$%s_%d", fieldName, i), value);
+                }
+            }
+        }
+        return vars;
+    }
+
+    static String getSimpleSearchQueryFilters(RecordType recordType, List<SimpleSearchRequestPayload.SearchParameter> parameters) {
         List<String> gqlFilters = new ArrayList<String>();
         for (int i = 0; i < parameters.size(); i++) {
             SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
@@ -273,13 +307,42 @@ final class Queries {
                 String fieldName = camelToSnake(param.fieldName());
                 Integer distance = param.distance();
                 if (distance == 0) {
-                    gqlFilters.add("eq(" + entity + "." + fieldName + ", $" + fieldName + ")");
+                    gqlFilters.add("eq(" + recordType + "." + fieldName + ", $" + fieldName + ")");
                 } else {
-                    gqlFilters.add("eq(" + entity + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
+                    gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
                 }
             }
         }
-        return String.join(" AND ", gqlFilters);
+        if (gqlFilters.size() > 0) {
+            return String.join(" AND ", gqlFilters);
+        }
+        return "";
+    }
+    static String getCustomSearchQueryFilters(RecordType recordType, List<SimpleSearchRequestPayload> payloads) {
+        List<String> gqlOrCondition = new ArrayList<String>();
+        for (int i = 0; i < payloads.size(); i++) {
+            List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
+            List<String> gqlAndCondition = new ArrayList<String>();
+            for (int j = 0; j < parameters.size(); j++) {
+                SimpleSearchRequestPayload.SearchParameter param = parameters.get(j);
+                if (!param.value().isEmpty()) {
+                    String fieldName = camelToSnake(param.fieldName());
+                    Integer distance = param.distance();
+                    if (distance == 0) {
+                        gqlAndCondition.add("eq(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ")");
+                    } else {
+                        gqlAndCondition.add("match(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ", " + distance + ")");
+                    }
+                }
+            }
+            if (gqlAndCondition.size() > 0) {
+                gqlOrCondition.add(String.join(" AND ", gqlAndCondition));
+            }
+        }
+        if (gqlOrCondition.size() > 0) {
+            return "(" + String.join(") OR (", gqlOrCondition) + ")";
+        }
+        return "";
     }
 
     static String getSearchQueryFunc(RecordType recordType, Integer offset, Integer limit, String sortBy, Boolean sortAsc) {
@@ -292,23 +355,21 @@ final class Queries {
         return String.format("pagination(func: type(%s)) @filter(%s) {\ntotal: count(uid)\n}", recordType, gqlFilters);
     }
 
-    static LibMPIExpandedGoldenRecordList simpleSearchGoldenRecords(
-            List<SimpleSearchRequestPayload.SearchParameter> params,
+    static LibMPIExpandedGoldenRecordList searchGoldenRecords(
+            String gqlFilters,
+            List<String> gqlArgs,
+            HashMap<String, String> gqlVars,
             Integer offset,
             Integer limit,
             String sortBy,
             Boolean sortAsc
     ) {
-        LOGGER.debug("Simple Search Golden Records Params {}", params);
         String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
-        String gqlFilters = getSearchQueryFilters(RecordType.GoldenRecord, params);
         List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Entity);
         List<String> goldenRecordFieldNames = getRecordFieldNamesByType(RecordType.GoldenRecord);
-        List<String> args = getSearchQueryArguments(params);
         String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
-        HashMap<String, String> vars = getSearchQueryVariables(params);
 
-        String gql = "query search(" + String.join(", ", args) + ") {\n";
+        String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
         gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
         gql += "{\n";
         gql += String.join("\n", goldenRecordFieldNames) + "\n";
@@ -317,9 +378,66 @@ final class Queries {
         gql += gqlPagination;
         gql += "}";
 
-        LOGGER.debug("Simple Search Golden Records Query {}", gql);
-        LOGGER.debug("Simple Search Golden Records Variables {}", vars);
-        return runExpandedGoldenRecordsQuery(gql, vars);
+        LOGGER.debug("Search Golden Records Query {}", gql);
+        LOGGER.debug("Search Golden Records Variables {}", gqlVars);
+        return runExpandedGoldenRecordsQuery(gql, gqlVars);
+    }
+
+    static LibMPIExpandedGoldenRecordList simpleSearchGoldenRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        LOGGER.debug("Simple Search Golden Records Params {}", params);
+        String gqlFilters = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
+        List<String> gqlArgs = getSimpleSearchQueryArguments(params);
+        HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
+
+        return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
+    }
+
+    static LibMPIExpandedGoldenRecordList customSearchGoldenRecords(
+            List<SimpleSearchRequestPayload> payloads,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        LOGGER.debug("Custom Search Golden Records Params {}", payloads);
+        String gqlFilters = getCustomSearchQueryFilters(RecordType.GoldenRecord, payloads);
+        List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
+        HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
+
+        return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
+    }
+
+    static LibMPIDGraphEntityList searchPatientRecords(
+            String gqlFilters,
+            List<String> gqlArgs,
+            HashMap<String, String> gqlVars,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        String gqlFunc = getSearchQueryFunc(RecordType.Entity, offset, limit, sortBy, sortAsc);
+        List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Entity);
+        String gqlPagination = getSearchQueryPagination(RecordType.Entity, gqlFilters);
+
+        String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
+        gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+        gql += "{\n";
+        gql += String.join("\n", patientRecordFieldNames) + "\n";
+        gql += RecordType.Entity + ".golden_record_list {\nuid\n}\n";
+        gql += "}\n";
+        gql += gqlPagination;
+        gql += "}";
+
+        LOGGER.debug("Simple Search Patient Records Query {}", gql);
+        LOGGER.debug("Simple Search Patient Records Variables {}", gqlVars);
+        return runPatientRecordsQuery(gql, gqlVars);
     }
 
     static LibMPIDGraphEntityList simpleSearchPatientRecords(
@@ -330,25 +448,26 @@ final class Queries {
             Boolean sortAsc
     ) {
         LOGGER.debug("Simple Search Patient Records Params {}", params);
-        String gqlFunc = getSearchQueryFunc(RecordType.Entity, offset, limit, sortBy, sortAsc);
-        String gqlFilters = getSearchQueryFilters(RecordType.Entity, params);
-        List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Entity);
-        String gqlPagination = getSearchQueryPagination(RecordType.Entity, gqlFilters);
-        List<String> args = getSearchQueryArguments(params);
-        HashMap<String, String> vars = getSearchQueryVariables(params);
+        String gqlFilters = getSimpleSearchQueryFilters(RecordType.Entity, params);
+        List<String> gqlArgs = getSimpleSearchQueryArguments(params);
+        HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
 
-        String gql = "query search(" + String.join(", ", args) + ") {\n";
-        gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
-        gql += "{\n";
-        gql += String.join("\n", patientRecordFieldNames) + "\n";
-        gql += RecordType.Entity + ".golden_record_list {\nuid\n}\n";
-        gql += "}\n";
-        gql += gqlPagination;
-        gql += "}";
+        return searchPatientRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
+    }
 
-        LOGGER.debug("Simple Search Patient Records Query {}", gql);
-        LOGGER.debug("Simple Search Patient Records Variables {}", vars);
-        return runPatientRecordsQuery(gql, vars);
+    static LibMPIDGraphEntityList customSearchPatientRecords(
+            List<SimpleSearchRequestPayload> payloads,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        LOGGER.debug("Simple Search Patient Records Params {}", payloads);
+        String gqlFilters = getCustomSearchQueryFilters(RecordType.Entity, payloads);
+        List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
+        HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
+
+        return searchPatientRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
     }
 
 }

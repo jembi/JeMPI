@@ -7,24 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record SimpleSearchRequestPayload(List<SearchParameter> parameters,
+public record CustomSearchRequestPayload(List<SimpleSearchRequestPayload> $or,
                                          Integer offset,
                                          Integer limit,
                                          String sortBy,
                                          Boolean sortAsc) {
 
-    public SimpleSearchRequestPayload(List<SearchParameter> parameters, Integer offset, Integer limit, String sortBy, Boolean sortAsc) {
-        this.parameters = ObjectUtils.defaultIfNull(parameters, new ArrayList<>());
+    public CustomSearchRequestPayload(List<SimpleSearchRequestPayload> $or, Integer offset, Integer limit, String sortBy, Boolean sortAsc) {
+        this.$or = ObjectUtils.defaultIfNull($or, new ArrayList<>());
         this.offset = ObjectUtils.defaultIfNull(offset, 0);
         this.limit = ObjectUtils.defaultIfNull(limit, 10);
         this.sortBy = sortBy;
         this.sortAsc = sortAsc;
     }
 
-    public record SearchParameter(
-            String value,
-            String fieldName,
-            Integer distance) {
-
-    }
 }

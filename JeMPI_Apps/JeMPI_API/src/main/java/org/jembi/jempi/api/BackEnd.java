@@ -4,7 +4,6 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import io.vavr.control.Either;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -18,6 +17,7 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 import org.keycloak.adapters.KeycloakDeployment;
@@ -30,7 +30,6 @@ import org.keycloak.representations.AccessTokenResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 public class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -90,12 +89,14 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
                 .onMessage(EventNotificationRequestReq.class, this::eventNotificationRequestHandler)
                 .onMessage(EventSimpleSearchGoldenRecordsRequest.class, this::eventSimpleSearchGoldenRecordsHandler)
+                .onMessage(EventCustomSearchGoldenRecordsRequest.class, this::eventCustomSearchGoldenRecordsHandler)
                 .onMessage(EventSimpleSearchPatientRecordsRequest.class, this::eventSimpleSearchPatientRecordsHandler)
+                .onMessage(EventCustomSearchPatientRecordsRequest.class, this::eventCustomSearchPatientRecordsHandler)
                 .build();
     }
 
     private Behavior < Event > eventSimpleSearchGoldenRecordsHandler(EventSimpleSearchGoldenRecordsRequest request) {
-        SimpleSearchRequestPayload payload = request.simpleSearchRequestPayload();
+        SimpleSearchRequestPayload payload = request.searchRequestPayload();
         List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
         Integer offset = payload.offset();
         Integer limit = payload.limit();
@@ -104,11 +105,24 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         libMPI.startTransaction();
         var recs = libMPI.simpleSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
         libMPI.closeTransaction();
-        request.replyTo.tell(new EventSimpleSearchGoldenRecordsResponse(recs));
+        request.replyTo.tell(new EventSearchGoldenRecordsResponse(recs));
+        return Behaviors.same();
+    }
+    private Behavior < Event > eventCustomSearchGoldenRecordsHandler(EventCustomSearchGoldenRecordsRequest request) {
+        CustomSearchRequestPayload payload = request.searchRequestPayload();
+        List <SimpleSearchRequestPayload> parameters = payload.$or();
+        Integer offset = payload.offset();
+        Integer limit = payload.limit();
+        String sortBy = payload.sortBy();
+        Boolean sortAsc = payload.sortAsc();
+        libMPI.startTransaction();
+        var recs = libMPI.customSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
+        libMPI.closeTransaction();
+        request.replyTo.tell(new EventSearchGoldenRecordsResponse(recs));
         return Behaviors.same();
     }
     private Behavior < Event > eventSimpleSearchPatientRecordsHandler(EventSimpleSearchPatientRecordsRequest request) {
-        SimpleSearchRequestPayload payload = request.simpleSearchRequestPayload();
+        SimpleSearchRequestPayload payload = request.searchRequestPayload();
         List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
         Integer offset = payload.offset();
         Integer limit = payload.limit();
@@ -117,7 +131,20 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         libMPI.startTransaction();
         var recs = libMPI.simpleSearchPatientRecords(parameters, offset, limit, sortBy, sortAsc);
         libMPI.closeTransaction();
-        request.replyTo.tell(new EventSimpleSearchPatientRecordsResponse(recs));
+        request.replyTo.tell(new EventSearchPatientRecordsResponse(recs));
+        return Behaviors.same();
+    }
+    private Behavior < Event > eventCustomSearchPatientRecordsHandler(EventCustomSearchPatientRecordsRequest request) {
+        CustomSearchRequestPayload payload = request.searchRequestPayload();
+        List <SimpleSearchRequestPayload> parameters = payload.$or();
+        Integer offset = payload.offset();
+        Integer limit = payload.limit();
+        String sortBy = payload.sortBy();
+        Boolean sortAsc = payload.sortAsc();
+        libMPI.startTransaction();
+        var recs = libMPI.customSearchPatientRecords(parameters, offset, limit, sortBy, sortAsc);
+        libMPI.closeTransaction();
+        request.replyTo.tell(new EventSearchPatientRecordsResponse(recs));
         return Behaviors.same();
     }
 
@@ -407,6 +434,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     public record EventNotificationRequestRsp() implements EventResponse {
     }
 
+    /**
+     * Authentication events
+     */
+
     public record EventLoginWithKeycloakRequest(ActorRef<EventLoginWithKeycloakResponse> replyTo,
                                                 OAuthCodeRequestPayload payload) implements Event {
     }
@@ -414,15 +445,23 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     public record EventLoginWithKeycloakResponse(User user) implements EventResponse {
     }
 
-
-    public record EventSimpleSearchGoldenRecordsRequest(ActorRef<EventSimpleSearchGoldenRecordsResponse> replyTo,
-                                                        SimpleSearchRequestPayload simpleSearchRequestPayload) implements Event {
+    /**
+     * Search events
+     */
+    public record EventSimpleSearchGoldenRecordsRequest(ActorRef<EventSearchGoldenRecordsResponse> replyTo,
+                                                        SimpleSearchRequestPayload searchRequestPayload) implements Event {
     }
-    public record EventSimpleSearchGoldenRecordsResponse(LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> records) implements EventResponse {
+    public record EventCustomSearchGoldenRecordsRequest(ActorRef<EventSearchGoldenRecordsResponse> replyTo,
+                                                        CustomSearchRequestPayload searchRequestPayload) implements Event {
     }
-    public record EventSimpleSearchPatientRecordsRequest(ActorRef<EventSimpleSearchPatientRecordsResponse> replyTo,
-                                                        SimpleSearchRequestPayload simpleSearchRequestPayload) implements Event {
+    public record EventSearchGoldenRecordsResponse(LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> records) implements EventResponse {
     }
-    public record EventSimpleSearchPatientRecordsResponse(LibMPIPaginatedResultSet<CustomEntity> records) implements EventResponse {
+    public record EventSimpleSearchPatientRecordsRequest(ActorRef<EventSearchPatientRecordsResponse> replyTo,
+                                                        SimpleSearchRequestPayload searchRequestPayload) implements Event {
+    }
+    public record EventCustomSearchPatientRecordsRequest(ActorRef<EventSearchPatientRecordsResponse> replyTo,
+                                                         CustomSearchRequestPayload searchRequestPayload) implements Event {
+    }
+    public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<CustomEntity> records) implements EventResponse {
     }
 }

@@ -178,11 +178,15 @@ class CustomLibMPIQueries {
       if (StringUtils.isBlank(customEntity.phoneNumber())) {
          return new LibMPIGoldenRecordList(List.of());
       }
+      final Map<String, String> map = Map.of("$phone_number", customEntity.phoneNumber());
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
+   }
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final CustomEntity customEntity) {
       if (StringUtils.isBlank(customEntity.nationalId())) {
+         return new LibMPIGoldenRecordList(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", customEntity.nationalId());
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
    }
 
    private static void updateCandidates(final List<CustomLibMPIGoldenRecord> goldenRecords,

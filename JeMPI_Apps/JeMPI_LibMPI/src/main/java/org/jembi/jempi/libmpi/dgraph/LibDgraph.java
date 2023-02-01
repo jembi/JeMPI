@@ -49,6 +49,21 @@ public class LibDgraph implements LibMPIClientInterface {
         final var pagination = list.pagination().get(0);
         return new LibMPIPaginatedResultSet(data, pagination);
     }
+    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        final var list = Queries.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+        if (list == null) {
+            return null;
+        }
+        final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
+        final var pagination = list.pagination().get(0);
+        return new LibMPIPaginatedResultSet(data, pagination);
+    }
     public LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
             List<SimpleSearchRequestPayload.SearchParameter> params,
             Integer offset,
@@ -57,6 +72,21 @@ public class LibDgraph implements LibMPIClientInterface {
             Boolean sortAsc
     ) {
         final var list = Queries.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+        if (list == null) {
+            return null;
+        }
+        final var data = list.all().stream().map(CustomLibMPIDGraphEntity::toCustomEntity).toList();
+        final var pagination = list.pagination().get(0);
+        return new LibMPIPaginatedResultSet(data, pagination);
+    }
+    public LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        final var list = Queries.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
         if (list == null) {
             return null;
         }
