@@ -275,7 +275,7 @@ final class Queries {
                 if (distance == 0) {
                     gqlFilters.add("eq(" + entity + "." + fieldName + ", $" + fieldName + ")");
                 } else {
-                    gqlFilters.add("eq(" + entity + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
+                    gqlFilters.add("match(" + entity + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
                 }
             }
         }
