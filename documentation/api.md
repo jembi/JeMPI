@@ -76,7 +76,7 @@ The following endpoint returns a golden or patient record given a uid is supplie
 ## POST /search/(golden|patient)
 The following endpoint is used for the simple search either for golden or patient records. 
 
-Below a sample of the request :
+Below a sample of the request body :
 ```json
 // POST /search/golden
 {
@@ -170,6 +170,7 @@ When the request is sent to the url `/search/golden` the response payload will c
 
 ### POST /search/patient
 When the request is performed against the url `/search/patient` the response payload will contain the list of patient records along with the golden record uid and the search result total count :
+
 ```json
 {
    "records":{
@@ -219,7 +220,7 @@ When the request is performed against the url `/search/patient` the response pay
 ## POST /custom-search/(golden|patient)
 The following endpoint is used for the custom search either for golden or patient records. 
 
-Below a sample of the request :
+Below a sample of the request body :
 
 ```json
 {
