@@ -11,6 +11,9 @@ import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import akka.http.javadsl.server.directives.FileInfo;
+import akka.stream.javadsl.Framing;
+import akka.util.ByteString;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
@@ -26,6 +29,8 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
@@ -61,7 +66,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     public HttpServer(MessageDispatcher dispatcher) {
         super(new SessionManager<>(
-                        SessionConfig.defaultConfig(AppConfig.SESSION_SECRET),
+                SessionConfig.defaultConfig(AppConfig.SESSION_SECRET),
                         BASIC_ENCODER
                 )
         );
@@ -107,7 +112,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> getNumberOfRecords(final ActorSystem<Void> actorSystem,
-                                                                                   final ActorRef<BackEnd.Event> backEnd) {
+            final ActorRef<BackEnd.Event> backEnd) {
         LOGGER.debug("getNumberOfRecords");
         CompletionStage<BackEnd.EventGetNumberOfRecordsRsp> stage = AskPattern.ask(
                 backEnd,
@@ -140,18 +145,18 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> getMatchesForReviewList(final ActorSystem<Void> actorSystem,
-                                                                                             final ActorRef<BackEnd.Event> backEnd) {
+            final ActorRef<BackEnd.Event> backEnd) {
         CompletionStage<BackEnd.EventGetMatchesForReviewListRsp> stage =
                 AskPattern.ask(backEnd,
-                        BackEnd.EventGetMatchesForReviewReq::new,
-                        java.time.Duration.ofSeconds(30),
-                        actorSystem.scheduler());
+                BackEnd.EventGetMatchesForReviewReq::new,
+                java.time.Duration.ofSeconds(30),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventFindGoldenRecordByUidResponse> findGoldenRecordByUid(final ActorSystem<Void> actorSystem,
-                                                                                              final ActorRef<BackEnd.Event> backEnd,
-                                                                                              final String uid) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final String uid) {
         LOGGER.debug("findGoldenRecordById");
         final CompletionStage<BackEnd.EventFindGoldenRecordByUidResponse> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventFindGoldenRecordByUidRequest(replyTo, uid),
@@ -161,8 +166,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private CompletionStage<BackEnd.EventFindPatientRecordByUidResponse> findPatientRecordByUid(final ActorSystem<Void> actorSystem,
-                                                                                                final ActorRef<BackEnd.Event> backEnd,
-                                                                                                final String uid) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final String uid) {
         LOGGER.debug("findPatientRecordById : " + uid);
         final CompletionStage<BackEnd.EventFindPatientRecordByUidResponse> stage = AskPattern.ask(backEnd,
                 replyTo -> new BackEnd.EventFindPatientByUidRequest(replyTo, uid),
@@ -232,6 +237,18 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                 actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
+
+    // private CompletionStage<Backend.EventPostCsvFileResponse> postCsvFile(final
+    // ActorSystem<Void> actorSystem,
+    // final ActorRef<BackEnd.Event> backEnd) {
+    // LOGGER.debug("postCsvFile");
+    // final CompletionStage<BackEnd.EventPostCsvFileResponse> stage =
+    // AskPattern.ask(backEnd,
+    // replyTo -> new BackEnd.EventPostCsvFileRequest(replyTo),
+    // java.time.Duration.ofSeconds(6),
+    // actorSystem.scheduler());
+
+    // }
 
     private Route mapError(final MpiGeneralError obj) {
         LOGGER.debug("{}", obj);
@@ -474,11 +491,24 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                     return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
                                             complete("success")
                                     );
-                                }
-                        )
-                )
-        );
-    }
+    })));}
+    private Route routeUpload(final ActorSystem<Void> actorSystem,
+                              final ActorRef<BackEnd.Event> backEnd) {
+        return storeUploadedFile("csv", (info) -> {
+            try {
+                LOGGER.debug("upload");
+                return File.createTempFile("import-",".csv");
+            } catch (Exception e) {
+                LOGGER.error("error", e);
+                return null;
+            }
+        }, (info, file) -> onComplete(uploadRequest(actorSystem ,backEnd, info, file), response ->
+            response.isSuccess() ? complete(StatusCodes.OK) : complete(StatusCodes.IM_A_TEAPOT)
+        ));
+        };
+
+
+
 
     private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final var settings = CorsSettings.create(AppConfig.CONFIG);
@@ -492,7 +522,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                 path("NotificationRequest",
                                                         () -> routeNotificationRequest(actorSystem, backEnd)),
                                                 path("authenticate",
-                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)))),
+                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)),
+                                                path("upload", () -> routeUpload(actorSystem, backEnd)))),
                                         patch(() -> concat(
                                                 path("PatchGoldenRecordPredicate",
                                                         () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
@@ -535,28 +566,38 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     }
 
     private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(final ActorSystem<Void> actorSystem,
-                                                                                         final ActorRef<BackEnd.Event> backEnd,
-                                                                                         final NotificationRequest notificationRequest) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final NotificationRequest notificationRequest) {
         CompletionStage<BackEnd.EventNotificationRequestRsp> stage =
                 AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventNotificationRequestReq(replyTo,
-                                notificationRequest.notificationId(), notificationRequest.state()),
-                        java.time.Duration.ofSeconds(11),
-                        actorSystem.scheduler());
+                replyTo -> new BackEnd.EventNotificationRequestReq(replyTo,
+                        notificationRequest.notificationId(), notificationRequest.state()),
+                java.time.Duration.ofSeconds(11),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
     private CompletionStage<BackEnd.EventLoginWithKeycloakResponse> loginWithKeycloakRequest(final ActorSystem<Void> actorSystem,
-                                                                                             final ActorRef<BackEnd.Event> backEnd,
-                                                                                             final OAuthCodeRequestPayload body) {
+            final ActorRef<BackEnd.Event> backEnd,
+            final OAuthCodeRequestPayload body) {
         CompletionStage<BackEnd.EventLoginWithKeycloakResponse> stage =
                 AskPattern.ask(backEnd,
-                        replyTo -> new BackEnd.EventLoginWithKeycloakRequest(replyTo, body),
-                        java.time.Duration.ofSeconds(11),
-                        actorSystem.scheduler());
+                replyTo -> new BackEnd.EventLoginWithKeycloakRequest(replyTo, body),
+                java.time.Duration.ofSeconds(11),
+                actorSystem.scheduler());
         return stage.thenApply(response -> response);
     }
 
+    private CompletionStage<BackEnd.EventPostCsvFileResponse> uploadRequest(final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd,
+            final FileInfo info, final File file) {
+        CompletionStage<BackEnd.EventPostCsvFileResponse> stage =
+                AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventPostCsvFileRequest(replyTo, info, file),
+                java.time.Duration.ofSeconds(11),
+                actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
 
     private record GoldenRecordCount(Long count) {
     }
