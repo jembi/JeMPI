@@ -20,6 +20,7 @@ import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
@@ -30,6 +31,7 @@ import org.keycloak.representations.AccessTokenResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -83,7 +85,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetGoldenRecordDocumentsReq.class, this::eventGetGoldenRecordDocumentsHandler)
                 .onMessage(EventFindPatientByUidRequest.class, this::findPatientByIdEventHandler)
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
-                .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
+                .onMessage(EventUpdateGoldenRecordRequest.class, this::eventUpdateGoldenRecordHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
                 .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
@@ -232,13 +234,24 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventPatchGoldenRecordPredicateHandler(final EventPatchGoldenRecordPredicateReq request) {
-        final var result = libMPI.updateGoldenRecordPredicate(request.goldenID, request.predicate, request.value);
-        if (result) {
-            request.replyTo.tell(new EventPatchGoldenRecordPredicateRsp(0));
-        } else {
-            request.replyTo.tell(new EventPatchGoldenRecordPredicateRsp(-1));
+    private Behavior<Event> eventUpdateGoldenRecordHandler(final EventUpdateGoldenRecordRequest request) {
+        final var fields = request.fields();
+        final var uid = request.uid();
+        libMPI.startTransaction();
+        List<GoldenRecordUpdateRequestPayload.Field> updatedFields = new ArrayList();
+        LOGGER.debug("Golden record {} update.", uid);
+        for (int i = 0; i < fields.size(); i++) {
+            final var field = fields.get(i);
+            final var result = libMPI.updateGoldenRecordField(uid, field.name(),  field.value());
+            if (result) {
+                LOGGER.debug("Golden record field update {} has been successfully updated.", field);
+                updatedFields.add(fields.get(i));
+            } else {
+                LOGGER.debug("Golden record field update {} update has failed.", field);
+            }
         }
+        request.replyTo.tell(new EventUpdateGoldenRecordResponse(updatedFields));
+        libMPI.closeTransaction();
         return Behaviors.same();
     }
 
@@ -330,13 +343,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             implements EventResponse {
     }
 
-    public record EventPatchGoldenRecordPredicateReq(ActorRef<EventPatchGoldenRecordPredicateRsp> replyTo,
-            String goldenID,
-            String predicate,
-            String value) implements Event {
+    public record EventUpdateGoldenRecordRequest(ActorRef<EventUpdateGoldenRecordResponse> replyTo,
+                                                 String uid,
+                                                 List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
     }
 
-    public record EventPatchGoldenRecordPredicateRsp(Integer result) implements EventResponse {
+    public record EventUpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
     }
 
     public record EventPatchLinkReq(ActorRef<EventPatchLinkRsp> replyTo,

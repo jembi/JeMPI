@@ -88,8 +88,8 @@ public class LibDgraph implements LibMPIClientInterface {
      * *******************************************************
      */
 
-    public boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String val) {
-        final var rc = Mutations.updateGoldenRecordPredicate(uid, predicate, val);
+    public boolean updateGoldenRecordField(final String uid, final String fieldName, final String val) {
+        final var rc = Mutations.updateGoldenRecordField(uid, fieldName, val);
         return rc;
     }
 

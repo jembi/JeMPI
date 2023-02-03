@@ -79,7 +79,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     }
 
     static void updateGoldenRecordField(final MpiExpandedGoldenRecord expandedGoldenRecord,
-                                        final String predicate,
+                                        final String fieldName,
                                         final String goldenRecordFieldValue,
                                         final Function<CustomEntity, String> getDocumentField) {
         final var mpiEntityList = expandedGoldenRecord.mpiEntityList();
@@ -94,9 +94,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             final var maxEntry = Collections.max(freqMapGroupedByField.entrySet(), Map.Entry.comparingByValue());
             if (isBetterValue(goldenRecordFieldValue, count, maxEntry.getKey(), maxEntry.getValue())) {
                 final var uid = expandedGoldenRecord.customGoldenRecord().uid();
-                final var result = libMPI.updateGoldenRecordPredicate(uid, predicate, maxEntry.getKey());
+                final var result = libMPI.updateGoldenRecordField(uid, fieldName, maxEntry.getKey());
                 if (!result) {
-                    LOGGER.error("libMPI.updateGoldenRecordPredicate({}, {}, {})", uid, predicate, maxEntry.getKey());
+                    LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", uid, fieldName, maxEntry.getKey());
                 }
             }
         }
