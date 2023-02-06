@@ -488,7 +488,6 @@ services:
       KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
-      FILE_IMPORT_MAX_SIZE: ${FILE_IMPORT_MAX_SIZE}
     networks:
     - backend-dgraph
     - backend-kafka

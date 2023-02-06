@@ -36,8 +36,6 @@ public final class AppConfig {
    public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
    public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
 
-   public static final long FILE_IMPORT_MAX_SIZE = CONFIG.getLong("import.max-size");
-
    public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
 
    public static final String SESSION_SECRET = CONFIG.getString("akka.http.session.server-secret");
