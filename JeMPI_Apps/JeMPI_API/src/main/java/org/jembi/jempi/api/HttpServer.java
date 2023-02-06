@@ -11,6 +11,9 @@ import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import akka.http.javadsl.server.directives.FileInfo;
+import akka.stream.javadsl.Framing;
+import akka.util.ByteString;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
@@ -26,6 +29,8 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
@@ -472,13 +477,34 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return requiredSession(refreshable, sessionTransport, session ->
                 invalidateSession(refreshable, sessionTransport, () ->
                         extractRequestContext(ctx -> {
-                                    LOGGER.info("Logging out {}", session.getUsername());
-                                    return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                            complete("success")
-                                    );
-                                }
-                        )
-                )
+                            LOGGER.info("Logging out {}", session.getUsername());
+                            return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                                    complete("success")
+                            );
+                        })));
+    }
+
+    private Route routeUpload(final ActorSystem<Void> actorSystem,
+                              final ActorRef<BackEnd.Event> backEnd) {
+        return requiredSession(refreshable, sessionTransport, session ->
+                {
+                    if (session != null) {
+                        LOGGER.info("Current session: " + session.getEmail());
+                        return storeUploadedFile("csv", (info) -> {
+                            try {
+                                LOGGER.debug("upload");
+                                return File.createTempFile("import-", ".csv");
+                            } catch (Exception e) {
+                                LOGGER.error("error", e);
+                                return null;
+                            }
+                        }, (info, file) -> onComplete(uploadRequest(actorSystem, backEnd, info, file), response ->
+                                response.isSuccess() ? complete(StatusCodes.OK) : complete(StatusCodes.IM_A_TEAPOT)
+                        ));
+                    }
+                    LOGGER.info("No active session");
+                    return complete(StatusCodes.FORBIDDEN);
+                }
         );
     }
 
@@ -553,9 +579,10 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                 path("NotificationRequest",
                                                         () -> routeNotificationRequest(actorSystem, backEnd)),
                                                 path("authenticate",
-                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)))),
+                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)),
                                                 path(segment("search").slash(segment(Pattern.compile("^(golden|patient)$"))),
                                                         (type) -> routeSimpleSearch(actorSystem, backEnd, type.equals("golden") ? RecordType.GoldenRecord : RecordType.Entity)),
+                                                path("upload", () -> routeUpload(actorSystem, backEnd)))),
                                         patch(() -> concat(
                                                 path("PatchGoldenRecordPredicate",
                                                         () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
@@ -620,6 +647,16 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return stage.thenApply(response -> response);
     }
 
+    private CompletionStage<BackEnd.EventPostCsvFileResponse> uploadRequest(final ActorSystem<Void> actorSystem,
+                                                                            final ActorRef<BackEnd.Event> backEnd,
+                                                                            final FileInfo info, final File file) {
+        CompletionStage<BackEnd.EventPostCsvFileResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventPostCsvFileRequest(replyTo, info, file),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
 
     private record GoldenRecordCount(Long count) {
     }
