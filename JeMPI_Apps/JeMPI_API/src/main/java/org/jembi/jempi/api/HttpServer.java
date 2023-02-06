@@ -250,21 +250,29 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                           final ActorRef<BackEnd.Event> backEnd,
                                           final String uid
     ) {
-        return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
-                payload -> onComplete(
-                        updateGoldenRecord(actorSystem, backEnd, uid, payload),
-                        result -> {
-                            if (result.isSuccess()) {
-                                final var updatedFields = result.get().fields();
-                                if (updatedFields.size() == 0) {
-                                    return complete(StatusCodes.BAD_REQUEST);
-                                } else {
-                                    return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
-                                }
-                            } else {
-                                return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-                            }
-                        }));
+        return requiredSession(refreshable, sessionTransport, session -> {
+            if (session != null) {
+                LOGGER.info("Current session: " + session.getEmail());
+                return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
+                        payload -> onComplete(
+                                updateGoldenRecord(actorSystem, backEnd, uid, payload),
+                                result -> {
+                                    if (result.isSuccess()) {
+                                        final var updatedFields = result.get().fields();
+                                        if (updatedFields.size() == 0) {
+                                            return complete(StatusCodes.BAD_REQUEST);
+                                        } else {
+                                            return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
+                                        }
+                                    } else {
+                                        return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                                    }
+                                }));
+            }
+            LOGGER.info("No active session");
+            return complete(StatusCodes.FORBIDDEN);
+        });
+
     }
 
     private Route routeUnlink(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
