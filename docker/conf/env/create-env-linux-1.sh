@@ -30,6 +30,7 @@ export KC_JEMPI_CLIENT_ID="jempi-oauth"
 export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
+export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128000000
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
