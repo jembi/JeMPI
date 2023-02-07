@@ -484,7 +484,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
     private Route routeUpload(final ActorSystem<Void> actorSystem,
                               final ActorRef<BackEnd.Event> backEnd) {
-        return withSizeLimit(AppConfig.FILE_IMPORT_MAX_SIZE, () -> requiredSession(refreshable, sessionTransport, session ->
+        return withSizeLimit(AppConfig.JEMPI_FILE_IMPORT_MAX_SIZE_BYTE, () -> requiredSession(refreshable, sessionTransport, session ->
                 {
                     if (session != null) {
                         LOGGER.info("Current session: " + session.getEmail());
