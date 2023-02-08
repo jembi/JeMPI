@@ -1,5 +1,5 @@
-JAVA_VERSION=17.0.5
-JAVA_VERSION_X=${JAVA_VERSION}_8
+JAVA_VERSION=17.0.6
+JAVA_VERSION_X=${JAVA_VERSION}_10
 
 # https://hub.docker.com/_/eclipse-temurin/tags
 export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre

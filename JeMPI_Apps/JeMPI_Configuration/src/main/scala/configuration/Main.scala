@@ -6,13 +6,12 @@ import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModul
 
 import java.nio.file.Paths
 
-object Main  {
+object Main {
 
 
   @main def configure(in_config_file_name: String): Any =
 
-    val config_file_name =
-    if (in_config_file_name.isBlank) {
+    val config_file_name = if (in_config_file_name.isBlank) {
       println("Dude: you should specify a config file name")
       "config_reference.json"
     } else {
