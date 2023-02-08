@@ -1,0 +1,49 @@
+{
+  "fields": [
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "nat_fingerprint_code",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "emr_fingerprint_code",
+      "fieldType": "String",
+      "indexEntity": "@index(exact)"
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
+      "indexEntity": "@index(exact)"
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
+      "indexEntity": "@index(exact)"
+    },
+    {
+      "fieldName": "city",
+      "fieldType": "String",
+      "indexGoldenRecord": "@index(exact)",
+      "indexEntity": "@index(exact)"
+    }
+  ],
+  "rules": {
+    "deterministic": {
+      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
+        "vars": [
+          "nat_fingerprint_code"
+        ],
+        "text": "eq(nat_fingerprint_code)"
+      }
+    }
+  }
+}
+
+
