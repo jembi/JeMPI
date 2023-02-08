@@ -141,7 +141,7 @@ object CustomLibMPIQueries {
       })
       writer.println(
         s"""      if ($expr) {
-         runGoldenRecordQuery  |         return new LibMPIGoldenRecordList(List.of());
+           |         return new LibMPIGoldenRecordList(List.of());
            |      }
            |      final var map = Map.of(""".stripMargin)
 
