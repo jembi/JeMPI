@@ -38,6 +38,9 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
+import org.jembi.jempi.shared.utils.RecordType;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 import org.json.simple.JSONArray;
 
 import static akka.http.javadsl.server.PathMatchers.segment;
@@ -506,8 +509,104 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         ));
     }
 
-    ;
+    private CompletionStage<BackEnd.EventResponse> simpleSearchGoldenRecords(final ActorSystem<Void> actorSystem,
+                                                                                                      final ActorRef<BackEnd.Event> backEnd,
+                                                                                                      final SimpleSearchRequestPayload searchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchGoldenRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
 
+    private CompletionStage<BackEnd.EventResponse> customSearchGoldenRecords(final ActorSystem<Void> actorSystem,
+                                                                             final ActorRef<BackEnd.Event> backEnd,
+                                                                             final CustomSearchRequestPayload searchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchGoldenRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventCustomSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventResponse> simpleSearchPatientRecords(final ActorSystem<Void> actorSystem,
+                                                                                                        final ActorRef<BackEnd.Event> backEnd,
+                                                                                                        final SimpleSearchRequestPayload simpleSearchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchPatientRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventSimpleSearchPatientRecordsRequest(replyTo, simpleSearchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventResponse> customSearchPatientRecords(final ActorSystem<Void> actorSystem,
+                                                                             final ActorRef<BackEnd.Event> backEnd,
+                                                                             final CustomSearchRequestPayload searchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchPatientRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventCustomSearchPatientRecordsRequest(replyTo, searchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+    private Route routeSimpleSearch(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final RecordType recordType) {
+        return requiredSession(refreshable, sessionTransport, session -> {
+            LOGGER.info("Simple search on {}", recordType);
+            // Simple search for golden records
+            return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class),
+                    searchParameters ->
+                            onComplete(
+                                    () -> {
+                                        if (recordType == RecordType.GoldenRecord) {
+                                            return simpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+                                        } else {
+                                            return simpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
+                                        }
+                                    },
+                                    response -> {
+                                        if (response.isSuccess()) {
+                                            final var eventSearchRsp = response.get();
+                                            return complete(
+                                                    StatusCodes.OK,
+                                                    eventSearchRsp,
+                                                    Jackson.marshaller());
+                                        } else {
+                                            return complete(StatusCodes.IM_A_TEAPOT);
+                                        }
+                                    }));
+        });
+    }
+
+    private Route routeCustomSearch(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final RecordType recordType) {
+        return requiredSession(refreshable, sessionTransport, session -> {
+            LOGGER.info("Custom search on {}", recordType);
+            // Simple search for golden records
+            return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
+                    searchParameters ->
+                            onComplete(
+                                    () -> {
+                                        if (recordType == RecordType.GoldenRecord) {
+                                            return customSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+                                        } else {
+                                            return customSearchPatientRecords(actorSystem, backEnd, searchParameters);
+                                        }
+                                    },
+                                    response -> {
+                                        if (response.isSuccess()) {
+                                            final var eventSearchRsp = response.get();
+                                            return complete(
+                                                    StatusCodes.OK,
+                                                    eventSearchRsp,
+                                                    Jackson.marshaller());
+                                        } else {
+                                            return complete(StatusCodes.IM_A_TEAPOT);
+                                        }
+                                    }));
+        });
+    }
 
     private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
         final var settings = CorsSettings.create(AppConfig.CONFIG);
@@ -522,6 +621,10 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         () -> routeNotificationRequest(actorSystem, backEnd)),
                                                 path("authenticate",
                                                         () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)),
+                                                path(segment("search").slash(segment(Pattern.compile("^(golden|patient)$"))),
+                                                        (type) -> routeSimpleSearch(actorSystem, backEnd, type.equals("golden") ? RecordType.GoldenRecord : RecordType.Entity)),
+                                                path(segment("custom-search").slash(segment(Pattern.compile("^(golden|patient)$"))),
+                                                        (type) -> routeCustomSearch(actorSystem, backEnd, type.equals("golden") ? RecordType.GoldenRecord : RecordType.Entity)),
                                                 path("upload", () -> routeUpload(actorSystem, backEnd)))),
                                         patch(() -> concat(
                                                 path("PatchGoldenRecordPredicate",

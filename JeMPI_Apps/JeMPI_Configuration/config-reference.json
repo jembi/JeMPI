@@ -6,7 +6,11 @@
       "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
       "groups": ["identifiers"],
-      "scope": ["/patient-record/:uid", "/golden-record/:uid"],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/search/custom"
+      ],
       "accessLevel": []
     },
     {
@@ -21,9 +25,12 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/search",
         "/golden-record/:uid/linked-records",
-        "/golden-record/:uid/audit-trail"
+        "/golden-record/:uid/audit-trail",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient"
       ],
       "accessLevel": []
     },
@@ -40,9 +47,12 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/search",
         "/golden-record/:uid/linked-records",
-        "/golden-record/:uid/audit-trail"
+        "/golden-record/:uid/audit-trail",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient"
       ],
       "accessLevel": []
     },
@@ -58,7 +68,8 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        "/search/custom"
       ],
       "accessLevel": []
     },
@@ -73,8 +84,11 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/search",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient"
       ],
       "accessLevel": []
     },
@@ -90,7 +104,8 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        "/search/custom"
       ],
       "accessLevel": []
     },
@@ -106,7 +121,8 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        "/search/custom"
       ],
       "accessLevel": []
     },
@@ -123,8 +139,11 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/search",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient"
       ],
       "accessLevel": []
     }
@@ -139,7 +158,9 @@
         "/patient-record/:uid",
         "/golden-record/:uid",
         "/match-details",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        "/search-results/golden",
+        "/search-results/patient"
       ],
       "accessLevel": []
     },
@@ -148,10 +169,7 @@
       "fieldType": "Number",
       "fieldLabel": "Match",
       "groups": ["none"],
-      "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid"
-      ],
+      "scope": ["/patient-record/:uid", "/golden-record/:uid"],
       "accessLevel": []
     }
   ],

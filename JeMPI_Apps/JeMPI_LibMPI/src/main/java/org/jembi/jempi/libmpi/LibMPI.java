@@ -5,9 +5,9 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
-import org.jembi.jempi.shared.models.CustomEntity;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -57,6 +57,42 @@ public class LibMPI {
      * *
      */
 
+    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+    }
+    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+    }
+    public LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+    }
+    public LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc
+    ) {
+        return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+    }
     public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
                                                   final boolean applyDeterministicFilter) {
         LOGGER.debug("get candidates <- {}", customEntity);

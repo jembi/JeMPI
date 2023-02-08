@@ -72,3 +72,187 @@ The following endpoint returns a golden or patient record given a uid is supplie
   }
 }
 ```
+
+## POST /search/(golden|patient)
+The following endpoint is used for the simple search either for golden or patient records. 
+
+Below a sample of the request body :
+```json
+// POST /search/golden
+{
+   "parameters":[
+      {
+         "fieldName":"givenName",
+         "value":"",
+         "distance":0
+      },
+      {
+         "fieldName":"familyName",
+         "value":"",
+         "distance":0
+      },
+      {
+         "fieldName":"dob",
+         "value":"",
+         "distance":0
+      },
+      {
+         "fieldName":"nationalId",
+         "value":"198804042874913",
+         "distance":0
+      }
+   ],
+   "sortBy":"givenName",
+   "sortAsc":true,
+   "offset":0,
+   "limit":10
+}
+
+```
+### POST /search/golden
+When the request is sent to the url `/search/golden` the response payload will contain the list of golden records along with the linked records and the result set total (useful for pagination) :
+```json
+{
+   "records":{
+      "data":[
+         {
+            "customGoldenRecord":{
+               "auxId":"rec-00000000-aaa-0",
+               "city":"Nairobi",
+               "dob":"20171114",
+               "familyName":"Onyango",
+               "gender":"male",
+               "givenName":"Endalekachew",
+               "nationalId":"198804042874913",
+               "phoneNumber":"091-749-4674",
+               "sourceId":[
+                  
+               ],
+               "uid":"0x5"
+            },
+            "mpiEntityList":[
+               {
+                  "entity":{
+                     "auxId":"rec-00000000-aaa-0",
+                     "city":"Nairobi",
+                     "dob":"20171114",
+                     "familyName":"Onyango",
+                     "gender":"male",
+                     "givenName":"Endalekachew",
+                     "nationalId":"198804042874913",
+                     "phoneNumber":"091-749-4674",
+                     "uid":"0x4"
+                  }
+               },
+               {
+                  "entity":{
+                     "auxId":"rec-00000000-bbb-0",
+                     "city":"Nairobi",
+                     "dob":"20171114",
+                     "familyName":"Onyango",
+                     "gender":"male",
+                     "givenName":"Endalekachew",
+                     "nationalId":"198804042874913",
+                     "phoneNumber":"091-749-4674",
+                     "uid":"0x6"
+                  }
+               }
+            ]
+         }
+      ],
+      "pagination":{
+         "total": 100
+      }
+   }
+}
+
+```
+
+### POST /search/patient
+When the request is performed against the url `/search/patient` the response payload will contain the list of patient records along with the golden record uid and the search result total count :
+
+```json
+{
+   "records":{
+      "data":[
+         {
+            "auxId":"rec-00000000-aaa-0",
+            "city":"Nairobi",
+            "dob":"20171114",
+            "familyName":"Onyango",
+            "gender":"male",
+            "givenName":"Endalekachew",
+            "nationalId":"198804042874913",
+            "phoneNumber":"091-749-4674",
+            "uid":"0x4"
+         },
+         {
+            "auxId":"rec-00000000-bbb-0",
+            "city":"Nairobi",
+            "dob":"20171114",
+            "familyName":"Onyango",
+            "gender":"male",
+            "givenName":"Endalekachew",
+            "nationalId":"198804042874913",
+            "phoneNumber":"091-749-4674",
+            "uid":"0x6"
+         },
+         {
+            "auxId":"rec-00000000-bbb-1",
+            "city":"Nairobi",
+            "dob":"20171114",
+            "familyName":"Onyango",
+            "gender":"male",
+            "givenName":"Endalekachew",
+            "nationalId":"198804042874913",
+            "phoneNumber":"091-749-4674",
+            "uid":"0x8"
+         },
+      ],
+      "pagination":{
+         "total": 11
+      }
+   }
+}
+
+```
+
+## POST /custom-search/(golden|patient)
+The following endpoint is used for the custom search either for golden or patient records. 
+
+Below a sample of the request body :
+
+```json
+{
+  "$or": [
+    {
+      "parameters": [
+        {
+          "fieldName": "givenName",
+          "value": "Jhon",
+          "distance": 0
+        },
+        {
+          "fieldName": "familyName",
+          "value": "Doe",
+          "distance": 3
+        }
+      ]
+    },
+    {
+      "parameters": [
+        {
+          "fieldName": "nationalId",
+          "value": "XXXXXXXXXXXXXX",
+          "distance": 0
+        }
+      ]
+    }
+  ],
+  "sortBy": "given_name",
+  "sortAsc": true,
+  "offset": 0,
+  "limit": 10
+}
+```
+The response payload is similar to the one returned by the simple search API endpoint. 
