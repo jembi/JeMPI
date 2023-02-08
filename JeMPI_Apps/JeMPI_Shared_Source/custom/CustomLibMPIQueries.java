@@ -2,15 +2,17 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jembi.jempi.shared.models.CustomEntity;
 
-import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordQuery;
+import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class CustomLibMPIQueries {
+   private static final Logger LOGGER = LogManager.getLogger(CustomLibMPIQueries.class);
 
    private CustomLibMPIQueries() {}
    static final String QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES =
@@ -113,7 +115,6 @@ class CustomLibMPIQueries {
          }
       }
       """;
-      
 
    static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomEntity customEntity) {
       final var givenName = customEntity.givenName();
@@ -144,7 +145,7 @@ class CustomLibMPIQueries {
          StringUtils.isNotBlank(nationalId)
             ? nationalId
             : Queries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
+      return runGoldenRecordsQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
    }
 
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(final CustomEntity customEntity) {
@@ -170,7 +171,7 @@ class CustomLibMPIQueries {
          StringUtils.isNotBlank(city)
             ? city
             : Queries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomEntity customEntity) {
@@ -178,15 +179,14 @@ class CustomLibMPIQueries {
          return new LibMPIGoldenRecordList(List.of());
       }
       final Map<String, String> map = Map.of("$phone_number", customEntity.phoneNumber());
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
-
    static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final CustomEntity customEntity) {
       if (StringUtils.isBlank(customEntity.nationalId())) {
          return new LibMPIGoldenRecordList(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", customEntity.nationalId());
-      return runGoldenRecordQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
    }
 
    private static void updateCandidates(final List<CustomLibMPIGoldenRecord> goldenRecords,
@@ -223,5 +223,6 @@ class CustomLibMPIQueries {
       updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(dgraphEntity));
       return result;
    }
+
 
 }

@@ -11,6 +11,9 @@ import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import akka.http.javadsl.server.directives.FileInfo;
+import akka.stream.javadsl.Framing;
+import akka.util.ByteString;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
@@ -26,6 +29,8 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.NotificationRequest;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletionStage;
@@ -34,6 +39,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
+import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
+import org.jembi.jempi.shared.utils.RecordType;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 import org.json.simple.JSONArray;
 
 import static akka.http.javadsl.server.PathMatchers.segment;
@@ -479,14 +487,134 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return requiredSession(refreshable, sessionTransport, session ->
                 invalidateSession(refreshable, sessionTransport, () ->
                         extractRequestContext(ctx -> {
-                                    LOGGER.info("Logging out {}", session.getUsername());
-                                    return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
-                                            complete("success")
-                                    );
-                                }
-                        )
-                )
-        );
+                            LOGGER.info("Logging out {}", session.getUsername());
+                            return onSuccess(() -> ctx.completeWith(HttpResponse.create()), routeResult ->
+                                    complete("success")
+                            );
+                        })));
+    }
+
+    private Route routeUpload(final ActorSystem<Void> actorSystem,
+                              final ActorRef<BackEnd.Event> backEnd) {
+        return withSizeLimit(AppConfig.JEMPI_FILE_IMPORT_MAX_SIZE_BYTE, () -> requiredSession(refreshable, sessionTransport, session ->
+                {
+                    if (session != null) {
+                        LOGGER.info("Current session: " + session.getEmail());
+                        return storeUploadedFile("csv", (info) -> {
+                            try {
+                                LOGGER.debug("upload");
+                                return File.createTempFile("import-", ".csv");
+                            } catch (Exception e) {
+                                LOGGER.error("error", e);
+                                return null;
+                            }
+                        }, (info, file) -> onComplete(uploadRequest(actorSystem, backEnd, info, file), response ->
+                                response.isSuccess() ? complete(StatusCodes.OK) : complete(StatusCodes.IM_A_TEAPOT)
+                        ));
+                    }
+                    LOGGER.info("No active session");
+                    return complete(StatusCodes.FORBIDDEN);
+                }
+        ));
+    }
+
+    private CompletionStage<BackEnd.EventResponse> simpleSearchGoldenRecords(final ActorSystem<Void> actorSystem,
+                                                                                                      final ActorRef<BackEnd.Event> backEnd,
+                                                                                                      final SimpleSearchRequestPayload searchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchGoldenRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventResponse> customSearchGoldenRecords(final ActorSystem<Void> actorSystem,
+                                                                             final ActorRef<BackEnd.Event> backEnd,
+                                                                             final CustomSearchRequestPayload searchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchGoldenRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventCustomSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventResponse> simpleSearchPatientRecords(final ActorSystem<Void> actorSystem,
+                                                                                                        final ActorRef<BackEnd.Event> backEnd,
+                                                                                                        final SimpleSearchRequestPayload simpleSearchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchPatientRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventSimpleSearchPatientRecordsRequest(replyTo, simpleSearchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+
+    private CompletionStage<BackEnd.EventResponse> customSearchPatientRecords(final ActorSystem<Void> actorSystem,
+                                                                             final ActorRef<BackEnd.Event> backEnd,
+                                                                             final CustomSearchRequestPayload searchRequestPayload) {
+        CompletionStage<BackEnd.EventSearchPatientRecordsResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventCustomSearchPatientRecordsRequest(replyTo, searchRequestPayload),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
+    private Route routeSimpleSearch(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final RecordType recordType) {
+        return requiredSession(refreshable, sessionTransport, session -> {
+            LOGGER.info("Simple search on {}", recordType);
+            // Simple search for golden records
+            return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class),
+                    searchParameters ->
+                            onComplete(
+                                    () -> {
+                                        if (recordType == RecordType.GoldenRecord) {
+                                            return simpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+                                        } else {
+                                            return simpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
+                                        }
+                                    },
+                                    response -> {
+                                        if (response.isSuccess()) {
+                                            final var eventSearchRsp = response.get();
+                                            return complete(
+                                                    StatusCodes.OK,
+                                                    eventSearchRsp,
+                                                    Jackson.marshaller());
+                                        } else {
+                                            return complete(StatusCodes.IM_A_TEAPOT);
+                                        }
+                                    }));
+        });
+    }
+
+    private Route routeCustomSearch(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final RecordType recordType) {
+        return requiredSession(refreshable, sessionTransport, session -> {
+            LOGGER.info("Custom search on {}", recordType);
+            // Simple search for golden records
+            return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
+                    searchParameters ->
+                            onComplete(
+                                    () -> {
+                                        if (recordType == RecordType.GoldenRecord) {
+                                            return customSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+                                        } else {
+                                            return customSearchPatientRecords(actorSystem, backEnd, searchParameters);
+                                        }
+                                    },
+                                    response -> {
+                                        if (response.isSuccess()) {
+                                            final var eventSearchRsp = response.get();
+                                            return complete(
+                                                    StatusCodes.OK,
+                                                    eventSearchRsp,
+                                                    Jackson.marshaller());
+                                        } else {
+                                            return complete(StatusCodes.IM_A_TEAPOT);
+                                        }
+                                    }));
+        });
     }
 
     private Route createRoutes(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd, final JSONArray fields) {
@@ -501,7 +629,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                 path("NotificationRequest",
                                                         () -> routeNotificationRequest(actorSystem, backEnd)),
                                                 path("authenticate",
-                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)))),
+                                                        () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader)),
+                                                path(segment("search").slash(segment(Pattern.compile("^(golden|patient)$"))),
+                                                        (type) -> routeSimpleSearch(actorSystem, backEnd, type.equals("golden") ? RecordType.GoldenRecord : RecordType.Entity)),
+                                                path(segment("custom-search").slash(segment(Pattern.compile("^(golden|patient)$"))),
+                                                        (type) -> routeCustomSearch(actorSystem, backEnd, type.equals("golden") ? RecordType.GoldenRecord : RecordType.Entity)),
+                                                path("upload", () -> routeUpload(actorSystem, backEnd)))),
                                         patch(() -> concat(
                                                 path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                                         (uid) -> routeUpdateGoldenRecord(actorSystem, backEnd, uid)),
@@ -566,6 +699,16 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return stage.thenApply(response -> response);
     }
 
+    private CompletionStage<BackEnd.EventPostCsvFileResponse> uploadRequest(final ActorSystem<Void> actorSystem,
+                                                                            final ActorRef<BackEnd.Event> backEnd,
+                                                                            final FileInfo info, final File file) {
+        CompletionStage<BackEnd.EventPostCsvFileResponse> stage =
+                AskPattern.ask(backEnd,
+                        replyTo -> new BackEnd.EventPostCsvFileRequest(replyTo, info, file),
+                        java.time.Duration.ofSeconds(11),
+                        actorSystem.scheduler());
+        return stage.thenApply(response -> response);
+    }
 
     private record GoldenRecordCount(Long count) {
     }

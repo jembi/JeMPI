@@ -488,6 +488,7 @@ services:
       KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     networks:
     - backend-dgraph
     - backend-kafka
@@ -506,6 +507,10 @@ services:
     - type: bind
       source: $DATA_DIR_API/logs
       target: /app/logs
+      read_only: false
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
       read_only: false
     deploy:
       mode: replicated

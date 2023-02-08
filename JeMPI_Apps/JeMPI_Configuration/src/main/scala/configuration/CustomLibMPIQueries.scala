@@ -26,7 +26,7 @@ object CustomLibMPIQueries {
          |
          |import org.jembi.jempi.shared.models.CustomEntity;
          |
-         |import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordQuery;
+         |import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
          |
          |class $custom_className {
          |
@@ -124,7 +124,7 @@ object CustomLibMPIQueries {
            |         return new LibMPIGoldenRecordList(List.of());
            |      }
            |      final Map<String, String> map = Map.of("$$$v", customEntity.${Utils.snakeCaseToCamelCase(v)}());
-           |      return runGoldenRecordQuery($name, map);
+           |      return runGoldenRecordsQuery($name, map);
            |   }
            |""".stripMargin)
     else
@@ -154,7 +154,7 @@ object CustomLibMPIQueries {
              |            : Queries.EMPTY_FIELD_SENTINEL${if (idx + 1 < vars.length) "," else ");"}""".stripMargin)
       })
       writer.println(
-        s"""      return runGoldenRecordQuery($name, map);
+        s"""      return runGoldenRecordsQuery($name, map);
            |   }
            |""".stripMargin)
     end if

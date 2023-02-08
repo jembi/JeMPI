@@ -49,7 +49,7 @@ private object CustomLibMPIDGraphEntity {
 
     writer.println(
       """
-        |   private CustomEntity toCustomEntity() {
+        |   CustomEntity toCustomEntity() {
         |      return new CustomEntity(this.uid(),
         |                              this.sourceId() != null
         |                                 ? this.sourceId().toSourceId()

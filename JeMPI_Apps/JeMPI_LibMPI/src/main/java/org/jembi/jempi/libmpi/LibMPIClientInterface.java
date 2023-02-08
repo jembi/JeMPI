@@ -2,9 +2,9 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import org.jembi.jempi.shared.models.CustomEntity;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -46,6 +46,31 @@ public interface LibMPIClientInterface {
     CustomEntity getMpiEntity(final String uid);
 
     List<String> getGoldenIdList();
+
+    LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc);
+    LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc);
+    LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
+            List<SimpleSearchRequestPayload.SearchParameter> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc);
+    LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
+            List<SimpleSearchRequestPayload> params,
+            Integer offset,
+            Integer limit,
+            String sortBy,
+            Boolean sortAsc);
 
     CustomEntity getDocument(String uid);
 
