@@ -1,6 +1,6 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "3.2.1"
+ThisBuild / scalaVersion := "3.2.2"
 
 // https://mvnrepository.com/artifact/org.scala-lang.modules/scala-parser-combinators
 ThisBuild / libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1"
