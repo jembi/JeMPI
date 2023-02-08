@@ -50,13 +50,13 @@
         <version.org.apache.commons.commons-text>1.10.0</version.org.apache.commons.commons-text>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
-        <version.org.apache.commons.commons-csv>1.9.0</version.org.apache.commons.commons-csv>
+        <version.org.apache.commons.commons-csv>1.10.0</version.org.apache.commons.commons-csv>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
-        <version.org.apache.kafka.kafka-clients>3.3.2</version.org.apache.kafka.kafka-clients>
+        <version.org.apache.kafka.kafka-clients>3.4.0</version.org.apache.kafka.kafka-clients>
 
         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
-        <version.org.apache.kafka.kafka-streams>3.3.2</version.org.apache.kafka.kafka-streams>
+        <version.org.apache.kafka.kafka-streams>3.4.0</version.org.apache.kafka.kafka-streams>
 
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
         <version.org.apache.logging.log4j.log4j-api>2.19.0</version.org.apache.logging.log4j.log4j-api>
@@ -71,11 +71,11 @@
         <version.org.apache.logging.log4j.log4j-jcl>2.19.0</version.org.apache.logging.log4j.log4j-jcl>
 
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
-        <version.com.fasterxml.jackson.core.jackson-annotations>2.14.1
+        <version.com.fasterxml.jackson.core.jackson-annotations>2.14.2
         </version.com.fasterxml.jackson.core.jackson-annotations>
 
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-        <version.com.fasterxml.jackson.core.jackson-databind>2.14.1
+        <version.com.fasterxml.jackson.core.jackson-databind>2.14.2
         </version.com.fasterxml.jackson.core.jackson-databind>
 
         <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-base -->
@@ -103,13 +103,13 @@
         <version.com.datastax.oss.java-driver-mapper-runtimer>4.15.0</version.com.datastax.oss.java-driver-mapper-runtimer>
 
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
-        <version.org.postgresql.postgresql>42.5.1</version.org.postgresql.postgresql>
+        <version.org.postgresql.postgresql>42.5.3</version.org.postgresql.postgresql>
 
         <javac.executable>${JAVA_HOME}/bin/javac</javac.executable>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-enforcer-plugin -->
         <version.org.apache.maven.plugins.maven-enforcer-plugin>
-            3.1.0
+            3.2.1
         </version.org.apache.maven.plugins.maven-enforcer-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
