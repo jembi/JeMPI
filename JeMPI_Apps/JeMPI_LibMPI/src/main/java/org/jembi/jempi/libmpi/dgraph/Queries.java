@@ -347,7 +347,14 @@ final class Queries {
 
     static String getSearchQueryFunc(RecordType recordType, Integer offset, Integer limit, String sortBy, Boolean sortAsc) {
         String direction = sortAsc ? "asc" : "desc";
-        String sort = sortBy != null ? String.format(", order%s: %s.%s", direction, recordType, camelToSnake(sortBy)) : "";
+        String sort = "";
+        if (sortBy != null) {
+            if (sortBy == "uid") {
+                sort = String.format(", order%s: %s", direction, camelToSnake(sortBy));
+            } else {
+                sort = String.format(", order%s: %s.%s", direction, recordType, camelToSnake(sortBy));
+            }
+        }
         return String.format("func: type(%s), first: %d, offset: %d", recordType, limit, offset) + sort;
     }
 
