@@ -81,9 +81,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
                 .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
                 .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
-                .onMessage(EventFindGoldenRecordByUidRequest.class, this::eventGetGoldenRecordHandler)
+                .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
                 .onMessage(EventGetGoldenRecordDocumentsReq.class, this::eventGetGoldenRecordDocumentsHandler)
-                .onMessage(EventFindPatientByUidRequest.class, this::findPatientByIdEventHandler)
+                .onMessage(EventFindPatientByUidRequest.class, this::findPatientByUidEventHandler)
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
                 .onMessage(EventUpdateGoldenRecordRequest.class, this::eventUpdateGoldenRecordHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
@@ -188,8 +188,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventGetGoldenRecordHandler(final EventFindGoldenRecordByUidRequest request) {
-        LOGGER.debug("getGoldenRecord");
+    private Behavior<Event> findGoldenRecordByUidEventHandler(final EventFindGoldenRecordByUidRequest request) {
+        LOGGER.debug("findGoldenRecordByUidEventHandler");
         libMPI.startTransaction();
         final var rec = libMPI.getGoldenRecord(request.uid);
         request.replyTo.tell(new EventFindGoldenRecordByUidResponse(rec));
@@ -206,8 +206,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> findPatientByIdEventHandler(final EventFindPatientByUidRequest request) {
-        LOGGER.debug("findPatientById");
+    private Behavior<Event> findPatientByUidEventHandler(final EventFindPatientByUidRequest request) {
+        LOGGER.debug("findPatientByUidEventHandler");
         libMPI.startTransaction();
         final var patient = libMPI.getDocument(request.uid);
         request.replyTo.tell(new EventFindPatientRecordByUidResponse(patient));
