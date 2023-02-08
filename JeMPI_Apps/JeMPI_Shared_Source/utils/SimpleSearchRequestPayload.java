@@ -17,8 +17,8 @@ public record SimpleSearchRequestPayload(List<SearchParameter> parameters,
         this.parameters = ObjectUtils.defaultIfNull(parameters, new ArrayList<>());
         this.offset = ObjectUtils.defaultIfNull(offset, 0);
         this.limit = ObjectUtils.defaultIfNull(limit, 10);
-        this.sortBy = sortBy;
-        this.sortAsc = sortAsc;
+        this.sortBy = ObjectUtils.defaultIfNull(sortBy, "uid");
+        this.sortAsc = ObjectUtils.defaultIfNull(sortAsc, false);
     }
 
     public record SearchParameter(
