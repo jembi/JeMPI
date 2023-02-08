@@ -19,7 +19,7 @@
         <maven.version>[3.8.6,)</maven.version>
         <scala.tools.version>2.13</scala.tools.version>
         <scala.version>2.13.8</scala.version>
-        <java.version>17.0.5</java.version>
+        <java.version>17.0.6</java.version>
 
 
         <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
