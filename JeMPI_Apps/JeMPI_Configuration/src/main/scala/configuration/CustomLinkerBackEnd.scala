@@ -43,7 +43,7 @@ object CustomLinkerBackEnd {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord, fieldName,
+        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord, "$fieldName",
            |${" " * 38}expandedGoldenRecord.customGoldenRecord().$fieldName(), CustomEntity::$fieldName);""".stripMargin)
     })
     writer.println()
