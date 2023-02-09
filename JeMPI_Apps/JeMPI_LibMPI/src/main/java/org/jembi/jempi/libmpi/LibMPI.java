@@ -109,7 +109,7 @@ public class LibMPI {
         return client.getGoldenIdListByPredicate(predicate, val);
     }
 
-    public CustomGoldenRecord getGoldenRecord(final String uid) {
+    public MpiExpandedGoldenRecord getGoldenRecord(final String uid) {
         return client.getGoldenRecordByUid(uid);
     }
 

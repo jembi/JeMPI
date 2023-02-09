@@ -402,7 +402,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             implements Event {
     }
 
-    public record EventFindGoldenRecordByUidResponse(CustomGoldenRecord goldenRecord) implements EventResponse {
+    public record EventFindGoldenRecordByUidResponse(MpiExpandedGoldenRecord goldenRecord) implements EventResponse {
     }
 
     public record EventGetGoldenRecordDocumentsReq(ActorRef<EventGetGoldenRecordDocumentsRsp> replyTo,

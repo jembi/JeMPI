@@ -176,7 +176,7 @@
       "fieldName": "sourceId",
       "fieldType": "SourceId",
       "fieldLabel": "Site Code",
-      "groups": ["registering_facility"],
+      "groups": ["registering_facility", "linked_records"],
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",

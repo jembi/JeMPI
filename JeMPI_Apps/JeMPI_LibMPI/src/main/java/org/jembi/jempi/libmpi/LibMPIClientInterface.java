@@ -41,7 +41,7 @@ public interface LibMPIClientInterface {
 
     List<String> getGoldenIdListByPredicate(final String predicate, final String val);
 
-    CustomGoldenRecord getGoldenRecordByUid(final String uid);
+    MpiExpandedGoldenRecord getGoldenRecordByUid(final String uid);
 
     CustomEntity getMpiEntity(final String uid);
 
