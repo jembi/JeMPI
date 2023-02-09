@@ -38,6 +38,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
 import org.jembi.jempi.shared.utils.RecordType;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -202,15 +203,13 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         return stage.thenApply(response -> response);
     }
 
-
-    private CompletionStage<BackEnd.EventPatchGoldenRecordPredicateRsp> patchGoldenRecordPredicate(
+    private CompletionStage<BackEnd.EventUpdateGoldenRecordResponse> updateGoldenRecord(
             final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd,
             final String uid,
-            final String predicate,
-            final String value) {
-        LOGGER.debug("patchGoldenRecordPredicate");
-        CompletionStage<BackEnd.EventPatchGoldenRecordPredicateRsp> stage = AskPattern.ask(backEnd,
-                replyTo -> new BackEnd.EventPatchGoldenRecordPredicateReq(replyTo, uid, predicate, value),
+            final GoldenRecordUpdateRequestPayload payload) {
+        LOGGER.debug("updateGoldenRecord");
+        CompletionStage<BackEnd.EventUpdateGoldenRecordResponse> stage = AskPattern.ask(backEnd,
+                replyTo -> new BackEnd.EventUpdateGoldenRecordRequest(replyTo, uid, payload.fields()),
                 java.time.Duration.ofSeconds(6),
                 actorSystem.scheduler());
         return stage.thenApply(response -> response);
@@ -255,23 +254,33 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
         };
     }
 
-    private StatusCode mapPatchGoldenRecordPredicateResult(int result) {
-        return result == 0 ? StatusCodes.OK : StatusCodes.CONFLICT;
-    }
+    private Route routeUpdateGoldenRecord(final ActorSystem<Void> actorSystem,
+                                          final ActorRef<BackEnd.Event> backEnd,
+                                          final String uid
+    ) {
+        return requiredSession(refreshable, sessionTransport, session -> {
+            if (session != null) {
+                LOGGER.info("Current session: " + session.getEmail());
+                return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
+                        payload -> onComplete(
+                                updateGoldenRecord(actorSystem, backEnd, uid, payload),
+                                result -> {
+                                    if (result.isSuccess()) {
+                                        final var updatedFields = result.get().fields();
+                                        if (updatedFields.size() == 0) {
+                                            return complete(StatusCodes.BAD_REQUEST);
+                                        } else {
+                                            return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
+                                        }
+                                    } else {
+                                        return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                                    }
+                                }));
+            }
+            LOGGER.info("No active session");
+            return complete(StatusCodes.FORBIDDEN);
+        });
 
-    private Route routePatchGoldenRecordPredicate(final ActorSystem<Void> actorSystem,
-                                                  final ActorRef<BackEnd.Event> backEnd) {
-        return parameter(
-                "uid",
-                uid -> parameter(
-                        "predicate",
-                        predicate -> parameter(
-                                "value",
-                                value -> onComplete(
-                                        patchGoldenRecordPredicate(actorSystem, backEnd, uid, predicate, value),
-                                        result -> complete(result.isSuccess()
-                                                ? mapPatchGoldenRecordPredicateResult(result.get().result())
-                                                : StatusCodes.IM_A_TEAPOT)))));
     }
 
     private Route routeUnlink(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
@@ -627,8 +636,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                         (type) -> routeCustomSearch(actorSystem, backEnd, type.equals("golden") ? RecordType.GoldenRecord : RecordType.Entity)),
                                                 path("upload", () -> routeUpload(actorSystem, backEnd)))),
                                         patch(() -> concat(
-                                                path("PatchGoldenRecordPredicate",
-                                                        () -> routePatchGoldenRecordPredicate(actorSystem, backEnd)),
+                                                path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                        (uid) -> routeUpdateGoldenRecord(actorSystem, backEnd, uid)),
                                                 path("Unlink",
                                                         () -> routeUnlink(actorSystem, backEnd)),
                                                 path("Link",
@@ -660,9 +669,9 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                 path("MatchesForReview",
                                                         () -> routeMatchesForReviewList(actorSystem, backEnd)),
                                                 path(segment("patient-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                        (id) -> routeFindPatientRecordByUid(actorSystem, backEnd, id)),
+                                                        (uid) -> routeFindPatientRecordByUid(actorSystem, backEnd, uid)),
                                                 path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                        (id) -> routeFindGoldenRecordByUid(actorSystem, backEnd, id)),
+                                                        (uid) -> routeFindGoldenRecordByUid(actorSystem, backEnd, uid)),
                                                 path("Candidates",
                                                         () -> routeCandidates(actorSystem, backEnd))))))));
     }

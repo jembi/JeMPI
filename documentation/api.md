@@ -73,6 +73,23 @@ The following endpoint returns a golden or patient record given a uid is supplie
 }
 ```
 
+## PATCH /golden-record/:uid
+The following endpoint updates the fields of a golden record. This endpoint returns a object. 
+Below a sample of the request :
+```json
+// PATCH /golden-record/0x4
+{
+    "fields": [{
+        "name": "givenName",
+        "value": "Jhon"
+    }, {
+        "name": "familyName",
+        "value": "Doe"
+    }]
+}
+```
+When at least one of the fields update is successful, the endpoint will return an array of the fields that have been successfully updated. If none of the fields has been updated, the endpoint will return a "400 Bad Request" response. The endpoint will return a "500 Internal Server Error" if the update failed for a different reason.
+
 ## POST /search/(golden|patient)
 The following endpoint is used for the simple search either for golden or patient records. 
 

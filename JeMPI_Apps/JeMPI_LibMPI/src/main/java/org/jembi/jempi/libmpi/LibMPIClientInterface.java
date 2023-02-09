@@ -86,7 +86,7 @@ public interface LibMPIClientInterface {
      * *
      */
 
-    boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String value);
+    boolean updateGoldenRecordField(final String uid, final String fieldName, final String value);
 
     Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID, final float score);
 

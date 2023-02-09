@@ -141,8 +141,8 @@ public class LibMPI {
      * *
      */
 
-    public boolean updateGoldenRecordPredicate(final String goldenID, final String predicate, final String value) {
-        return client.updateGoldenRecordPredicate(goldenID, predicate, value);
+    public boolean updateGoldenRecordField(final String goldenID, final String fieldName, final String value) {
+        return client.updateGoldenRecordField(goldenID, fieldName, value);
     }
 
     public Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID,

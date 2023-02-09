@@ -30,6 +30,8 @@ public final class CustomLibMPIConstants {
             uid
             GoldenRecord.source_id {
                uid
+               SourceId.facility
+               SourceId.patient
             }
             GoldenRecord.aux_id
             GoldenRecord.given_name
@@ -50,6 +52,8 @@ public final class CustomLibMPIConstants {
             uid
             GoldenRecord.source_id {
                uid
+               SourceId.facility
+               SourceId.patient
             }
             GoldenRecord.aux_id
             GoldenRecord.given_name

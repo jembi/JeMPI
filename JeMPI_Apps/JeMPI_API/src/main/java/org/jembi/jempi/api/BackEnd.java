@@ -18,6 +18,8 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.file.Files.move;
@@ -85,11 +88,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                 .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
                 .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
                 .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
-                .onMessage(EventFindGoldenRecordByUidRequest.class, this::eventGetGoldenRecordHandler)
+                .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
                 .onMessage(EventGetGoldenRecordDocumentsReq.class, this::eventGetGoldenRecordDocumentsHandler)
-                .onMessage(EventFindPatientByUidRequest.class, this::findPatientByIdEventHandler)
+                .onMessage(EventFindPatientByUidRequest.class, this::findPatientByUidEventHandler)
                 .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
-                .onMessage(EventPatchGoldenRecordPredicateReq.class, this::eventPatchGoldenRecordPredicateHandler)
+                .onMessage(EventUpdateGoldenRecordRequest.class, this::eventUpdateGoldenRecordHandler)
                 .onMessage(EventPatchLinkReq.class, this::eventPatchLinkHandler)
                 .onMessage(EventGetMatchesForReviewReq.class, this::eventGetMatchesForReviewHandler)
                 .onMessage(EventPatchUnLinkReq.class, this::eventPatchUnLinkHandler)
@@ -253,8 +256,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventGetGoldenRecordHandler(final EventFindGoldenRecordByUidRequest request) {
-        LOGGER.debug("getGoldenRecord");
+    private Behavior<Event> findGoldenRecordByUidEventHandler(final EventFindGoldenRecordByUidRequest request) {
+        LOGGER.debug("findGoldenRecordByUidEventHandler");
         libMPI.startTransaction();
         final var rec = libMPI.getGoldenRecord(request.uid);
         request.replyTo.tell(new EventFindGoldenRecordByUidResponse(rec));
@@ -271,8 +274,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> findPatientByIdEventHandler(final EventFindPatientByUidRequest request) {
-        LOGGER.debug("findPatientById");
+    private Behavior<Event> findPatientByUidEventHandler(final EventFindPatientByUidRequest request) {
+        LOGGER.debug("findPatientByUidEventHandler");
         libMPI.startTransaction();
         final var patient = libMPI.getDocument(request.uid);
         request.replyTo.tell(new EventFindPatientRecordByUidResponse(patient));
@@ -299,13 +302,24 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         return Behaviors.same();
     }
 
-    private Behavior<Event> eventPatchGoldenRecordPredicateHandler(final EventPatchGoldenRecordPredicateReq request) {
-        final var result = libMPI.updateGoldenRecordPredicate(request.goldenID, request.predicate, request.value);
-        if (result) {
-            request.replyTo.tell(new EventPatchGoldenRecordPredicateRsp(0));
-        } else {
-            request.replyTo.tell(new EventPatchGoldenRecordPredicateRsp(-1));
+    private Behavior<Event> eventUpdateGoldenRecordHandler(final EventUpdateGoldenRecordRequest request) {
+        final var fields = request.fields();
+        final var uid = request.uid();
+        libMPI.startTransaction();
+        List<GoldenRecordUpdateRequestPayload.Field> updatedFields = new ArrayList();
+        LOGGER.debug("Golden record {} update.", uid);
+        for (int i = 0; i < fields.size(); i++) {
+            final var field = fields.get(i);
+            final var result = libMPI.updateGoldenRecordField(uid, field.name(),  field.value());
+            if (result) {
+                LOGGER.debug("Golden record field update {} has been successfully updated.", field);
+                updatedFields.add(fields.get(i));
+            } else {
+                LOGGER.debug("Golden record field update {} update has failed.", field);
+            }
         }
+        request.replyTo.tell(new EventUpdateGoldenRecordResponse(updatedFields));
+        libMPI.closeTransaction();
         return Behaviors.same();
     }
 
@@ -413,13 +427,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             implements EventResponse {
     }
 
-    public record EventPatchGoldenRecordPredicateReq(ActorRef<EventPatchGoldenRecordPredicateRsp> replyTo,
-            String goldenID,
-            String predicate,
-            String value) implements Event {
+    public record EventUpdateGoldenRecordRequest(ActorRef<EventUpdateGoldenRecordResponse> replyTo,
+                                                 String uid,
+                                                 List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
     }
 
-    public record EventPatchGoldenRecordPredicateRsp(Integer result) implements EventResponse {
+    public record EventUpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
     }
 
     public record EventPatchLinkReq(ActorRef<EventPatchLinkRsp> replyTo,

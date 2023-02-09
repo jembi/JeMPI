@@ -51,6 +51,8 @@ private object CustomLibMPIConstants {
          |            uid
          |            GoldenRecord.source_id {
          |               uid
+         |               SourceId.facility
+         |               SourceId.patient
          |            }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
@@ -71,6 +73,8 @@ private object CustomLibMPIConstants {
          |            uid
          |            GoldenRecord.source_id {
          |               uid
+         |               SourceId.facility
+         |               SourceId.patient
          |            }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName

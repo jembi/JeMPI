@@ -62,7 +62,7 @@ final class Mutations {
         return Queries.runSourceIdQuery(query);
     }
 
-    private static boolean updatePredicate(final String uid, final String predicate, final String value) {
+    private static boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String value) {
         final var mutation = DgraphProto.Mutation.newBuilder()
                 .setSetNquads(ByteString.copyFromUtf8(String.format(
                         """
@@ -155,8 +155,13 @@ final class Mutations {
         return new LinkInfo(grUID, result.entityUid, 1.0F);
     }
 
-    static boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String val) {
-        return updatePredicate(uid, predicate, val);
+    static String camelToSnake(String str) {
+        return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+    }
+
+    static boolean updateGoldenRecordField(final String uid, final String fieldName, final String val) {
+        String predicate = "GoldenRecord." + camelToSnake(fieldName);
+        return updateGoldenRecordPredicate(uid, predicate, val);
     }
 
     static Either<MpiGeneralError, LinkInfo> unLink(final String goldenID,

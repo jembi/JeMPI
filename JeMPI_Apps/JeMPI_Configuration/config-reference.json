@@ -171,6 +171,18 @@
       "groups": ["none"],
       "scope": ["/patient-record/:uid", "/golden-record/:uid"],
       "accessLevel": []
+    },
+    {
+      "fieldName": "sourceId",
+      "fieldType": "SourceId",
+      "fieldLabel": "Site Code",
+      "groups": ["registering_facility"],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/golden-record/:uid/linked-records"
+      ],
+      "accessLevel": []
     }
   ],
   "rules": {
