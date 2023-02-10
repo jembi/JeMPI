@@ -37,7 +37,10 @@ public interface LibMPIClientInterface {
 
     List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity, boolean applyDeterministicFilter);
 
-    List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList);
+    List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> idList);
+
+    List<MpiExpandedEntity> getMpiExpandedEntityList(final List<String> idList);
+
 
     List<String> getGoldenIdListByPredicate(final String predicate, final String val);
 

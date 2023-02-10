@@ -5,10 +5,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
-import org.jembi.jempi.libmpi.MpiGeneralError;
-import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.libmpi.*;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -101,6 +98,11 @@ public class LibDgraph implements LibMPIClientInterface {
         // mpiEntity.score());
         final var candidates = CustomLibMPIQueries.getCandidates(customEntity, applyDeterministicFilter);
         return candidates.stream().map(CustomLibMPIGoldenRecord::toCustomGoldenRecord).toList();
+    }
+
+    public List<MpiExpandedEntity> getMpiExpandedEntityList(final List<String> idList) {
+        final var list = Queries.getExpandedEntityList(idList);
+        return list.stream().map(CustomLibMPIExpandedEntity::toMpiExpandedEntity).toList();
     }
 
     public List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList) {

@@ -218,9 +218,9 @@ final class Queries {
         return candidateGoldenRecords;
     }
 
-    static List<CustomLibMPIExpandedGoldenRecord> getExpandedGoldenRecordList(final List<String> goldenIdList) {
-        final String query = String.format(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_ENTITIES,
-                String.join(",", goldenIdList));
+    static List<CustomLibMPIExpandedGoldenRecord> getExpandedGoldenRecordList(final List<String> idList) {
+        final String query = String.format(CustomLibMPIConstants.QUERY_GET_EXPANDED_GOLDEN_RECORD,
+                String.join(",", idList));
         final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
         try {
             final var records = AppUtils.OBJECT_MAPPER.readValue(json, LibMPIExpandedGoldenRecordList.class);
@@ -230,6 +230,21 @@ final class Queries {
             return List.of();
         }
     }
+
+    static List<CustomLibMPIExpandedEntity> getExpandedEntityList(final List<String> idList) {
+        final String query = String.format(CustomLibMPIConstants.QUERY_GET_EXPANDED_ENTITY,
+                                           String.join(",", idList));
+        final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
+        try {
+            final var records = AppUtils.OBJECT_MAPPER.readValue(json, LibMPIExpandedEntityList.class);
+            return records.all();
+        } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage());
+            return List.of();
+        }
+    }
+
+
 
     static String camelToSnake(String str) {
         return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
