@@ -59,7 +59,20 @@ private object CustomLibMPIConstants {
       writer.println(s"            GoldenRecord.$name")
     })
     writer.println(
-      s"""         }
+      s"""            GoldenRecord.entity_list @facets(score) {
+         |               uid
+         |               Entity.source_id {
+         |                 uid
+         |                 SourceId.facility
+         |                 SourceId.patient
+         |               }""".stripMargin)
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"               Entity.$name")
+    })
+    writer.println(
+      s"""            }
+         |         }
          |      }
          |      \"\"\";
          |""".stripMargin)
