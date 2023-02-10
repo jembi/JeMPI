@@ -6,6 +6,6 @@ import org.jembi.jempi.shared.models.CustomEntity;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record MpiExpandedEntity(CustomEntity customEntity,
+public record MpiExpandedEntity(CustomEntity patient,
                                 List<MpiGoldenRecord> mpiGoldenRecordList) {
 }
