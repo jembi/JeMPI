@@ -19,7 +19,7 @@ record CustomLibMPIExpandedGoldenRecord(@JsonProperty("uid") String uid,
                                         @JsonProperty("GoldenRecord.city") String city,
                                         @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
                                         @JsonProperty("GoldenRecord.national_id") String nationalId,
-                                        @JsonProperty("GoldenRecord.entity_list") List<CustomLibMPIDGraphEntity> dgraphEntityList) {
+                                        @JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatient> patients) {
 
 
    CustomGoldenRecord toCustomGoldenRecord() {
@@ -39,9 +39,9 @@ record CustomLibMPIExpandedGoldenRecord(@JsonProperty("uid") String uid,
 
    MpiExpandedGoldenRecord toMpiExpandedGoldenRecord() {
       return new MpiExpandedGoldenRecord(this.toCustomGoldenRecord(),
-                                         this.dgraphEntityList()
+                                         this.patients()
                                              .stream()
-                                             .map(CustomLibMPIDGraphEntity::toMpiEntity)
+                                             .map(CustomLibMPIDGraphPatient::toMpiPatient)
                                              .toList());
    }
 

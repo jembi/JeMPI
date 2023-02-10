@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record LibMPIDGraphEntityList(@JsonProperty("all") List<CustomLibMPIDGraphEntity> all,
-                              @JsonProperty("pagination") List<LibMPIPagination> pagination) {
-    public LibMPIDGraphEntityList(@JsonProperty("all") List<CustomLibMPIDGraphEntity> all) {
+record LibMPIDGraphPatients(@JsonProperty("all") List<CustomLibMPIDGraphPatient> all,
+                            @JsonProperty("pagination") List<LibMPIPagination> pagination) {
+    public LibMPIDGraphPatients(@JsonProperty("all") List<CustomLibMPIDGraphPatient> all) {
         this(all, Arrays.asList(new LibMPIPagination(all.size())));
     }
 }

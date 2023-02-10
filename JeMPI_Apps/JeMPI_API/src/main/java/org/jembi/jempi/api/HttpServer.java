@@ -98,11 +98,11 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.EventGetDocumentCountRsp> getDocumentCount(final ActorSystem<Void> actorSystem,
-                                                                              final ActorRef<BackEnd.Event> backEnd) {
+   private CompletionStage<BackEnd.EventGetPatientCountRsp> getPatientCount(final ActorSystem<Void> actorSystem,
+                                                                            final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.debug("getDocumentCount");
-      CompletionStage<BackEnd.EventGetDocumentCountRsp> stage = AskPattern.ask(backEnd,
-                                                                               BackEnd.EventGetDocumentCountReq::new,
+      CompletionStage<BackEnd.EventGetPatientCountRsp> stage = AskPattern.ask(backEnd,
+                                                                               BackEnd.EventGetPatientCountReq::new,
                                                                                java.time.Duration.ofSeconds(10),
                                                                                actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -346,11 +346,11 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
 
-   private Route routeDocumentCount(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
+   private Route routePatientCount(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(
-            getDocumentCount(actorSystem, backEnd),
+            getPatientCount(actorSystem, backEnd),
             result -> result.isSuccess()
-                      ? complete(StatusCodes.OK, new DocumentCount(result.get().count()), Jackson.marshaller())
+                      ? complete(StatusCodes.OK, new PatientCount(result.get().count()), Jackson.marshaller())
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -359,7 +359,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
             getNumberOfRecords(actorSystem, backEnd),
             result -> result.isSuccess()
                       ? complete(StatusCodes.OK,
-                                 new NumberOfRecords(result.get().goldenRecords(), result.get().documents()),
+                                 new NumberOfRecords(result.get().goldenRecords(), result.get().patients()),
                                  Jackson.marshaller())
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
@@ -441,7 +441,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return requiredSession(refreshable, sessionTransport, session ->
             onComplete(findPatientRecordByUid(actorSystem, backEnd, uid),
                        result -> result.isSuccess()
-                                 ? complete(StatusCodes.OK, result.get().document(), Jackson.marshaller())
+                                 ? complete(StatusCodes.OK, result.get().patient(), Jackson.marshaller())
                                  : complete(StatusCodes.IM_A_TEAPOT)));
    }
 
@@ -677,14 +677,14 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                                                      type.equals(
                                                                                                            "golden") ?
                                                                                                      RecordType.GoldenRecord :
-                                                                                                     RecordType.Entity)),
+                                                                                                     RecordType.Patient)),
                                                                     path(segment("custom-search").slash(
                                                                                segment(Pattern.compile("^(golden|patient)$"))),
                                                                          (type) -> routeCustomSearch(actorSystem, backEnd,
                                                                                                      type.equals(
                                                                                                            "golden") ?
                                                                                                      RecordType.GoldenRecord :
-                                                                                                     RecordType.Entity)),
+                                                                                                     RecordType.Patient)),
                                                                     path("upload", () -> routeUpload(actorSystem, backEnd)))),
                                                               patch(() -> concat(
                                                                     path(segment("golden-record").slash(
@@ -705,7 +705,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                     path("GoldenRecordCount",
                                                                          () -> routeGoldenRecordCount(actorSystem, backEnd)),
                                                                     path("DocumentCount",
-                                                                         () -> routeDocumentCount(actorSystem, backEnd)),
+                                                                         () -> routePatientCount(actorSystem, backEnd)),
                                                                     path("NumberOfRecords",
                                                                          () -> routeNumberOfRecords(actorSystem, backEnd)),
                                                                     path("GoldenIdList",
@@ -772,11 +772,11 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private record GoldenRecordCount(Long count) {
    }
 
-   private record DocumentCount(Long count) {
+   private record PatientCount(Long count) {
    }
 
    private record NumberOfRecords(Long goldenRecords,
-                                  Long documents) {
+                                  Long patients) {
    }
 
 }

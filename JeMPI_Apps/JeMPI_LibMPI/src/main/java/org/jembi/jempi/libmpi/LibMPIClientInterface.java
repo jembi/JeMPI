@@ -2,109 +2,115 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.CustomPatient;
+import org.jembi.jempi.shared.models.LinkInfo;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
 import java.util.List;
 
 public interface LibMPIClientInterface {
 
-    /*
-     * *****************************************************************************
-     * *
-     * Database
-     * *****************************************************************************
-     * *
-     */
-    void startTransaction();
+   /*
+    * *****************************************************************************
+    * *
+    * Database
+    * *****************************************************************************
+    * *
+    */
+   void startTransaction();
 
-    void closeTransaction();
+   void closeTransaction();
 
-    Option<MpiGeneralError> dropAll();
+   Option<MpiGeneralError> dropAll();
 
-    Option<MpiGeneralError> dropAllData();
+   Option<MpiGeneralError> dropAllData();
 
-    Option<MpiGeneralError> createSchema();
+   Option<MpiGeneralError> createSchema();
 
-    /*
-     * *****************************************************************************
-     * *
-     * Queries
-     * *****************************************************************************
-     * *
-     */
+   /*
+    * *****************************************************************************
+    * *
+    * Queries
+    * *****************************************************************************
+    * *
+    */
 
-    List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity, boolean applyDeterministicFilter);
+   List<CustomGoldenRecord> getCandidates(final CustomPatient patient, boolean applyDeterministicFilter);
 
-    List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> idList);
+   List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> idList);
 
-    List<MpiExpandedEntity> getMpiExpandedEntityList(final List<String> idList);
+   List<MpiExpandedPatient> getMpiExpandedPatients(final List<String> idList);
+
+   List<String> getGoldenIdListByPredicate(final String predicate, final String val);
+
+   CustomGoldenRecord getGoldenRecordByUid(final String uid);
+
+   CustomPatient getPatient(final String uid);
+
+   List<String> getGoldenIdList();
+
+   LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+         List<SimpleSearchRequestPayload.SearchParameter> params,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc);
+
+   LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+         List<SimpleSearchRequestPayload> params,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc);
+
+   LibMPIPaginatedResultSet<CustomPatient> simpleSearchPatientRecords(
+         List<SimpleSearchRequestPayload.SearchParameter> params,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc);
+
+   LibMPIPaginatedResultSet<CustomPatient> customSearchPatientRecords(
+         List<SimpleSearchRequestPayload> params,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc);
 
 
-    List<String> getGoldenIdListByPredicate(final String predicate, final String val);
+   long countGoldenRecords();
 
-    CustomGoldenRecord getGoldenRecordByUid(final String uid);
+   long countPatients();
 
-    CustomEntity getMpiEntity(final String uid);
+   /*
+    * *****************************************************************************
+    * *
+    * Mutations
+    * *****************************************************************************
+    * *
+    */
 
-    List<String> getGoldenIdList();
+   boolean updateGoldenRecordField(final String uid,
+                                   final String fieldName,
+                                   final String value);
 
-    LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
-            List<SimpleSearchRequestPayload.SearchParameter> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc);
-    LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
-            List<SimpleSearchRequestPayload> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc);
-    LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
-            List<SimpleSearchRequestPayload.SearchParameter> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc);
-    LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
-            List<SimpleSearchRequestPayload> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc);
+   Either<MpiGeneralError, LinkInfo> unLink(final String goldenID,
+                                            final String entityID,
+                                            final float score);
 
-    CustomEntity getDocument(String uid);
+   Either<MpiGeneralError, LinkInfo> updateLink(final String goldenID,
+                                                final String newGoldenID,
+                                                final String entityID,
+                                                final float score);
 
-    long countGoldenRecords();
+   LinkInfo createPatientAndLinkToExistingGoldenRecord(final CustomPatient patient,
+                                                       final GoldenIdScore goldenIdScore);
 
-    long countEntities();
+   LinkInfo createPatientAndLinkToClonedGoldenRecord(final CustomPatient patient, float score);
 
-    /*
-     * *****************************************************************************
-     * *
-     * Mutations
-     * *****************************************************************************
-     * *
-     */
-
-    boolean updateGoldenRecordField(final String uid, final String fieldName, final String value);
-
-    Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID, final float score);
-
-    Either<MpiGeneralError, LinkInfo> updateLink(
-            final String goldenID, final String newGoldenID, final String entityID, final float score);
-
-    LinkInfo createEntityAndLinkToExistingGoldenRecord(final CustomEntity customEntity,
-            final GoldenIdScore goldenIdScore);
-
-    LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score);
-
-//    record LinkInfo(String goldenId, String entityId, float score) {
-//    }
-
-    record GoldenIdScore(String goldenId, float score) {
-    }
+   record GoldenIdScore(String goldenId, float score) {
+   }
 
 }

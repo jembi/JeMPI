@@ -13,14 +13,14 @@ import org.jembi.jempi.api.keycloak.AkkaKeycloakDeploymentBuilder;
 import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.libmpi.MpiExpandedEntity;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
+import org.jembi.jempi.libmpi.MpiExpandedPatient;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
-import org.jembi.jempi.shared.models.CustomEntity;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.LinkInfo;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
 import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
@@ -85,7 +85,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return builder
             .onMessage(EventLoginWithKeycloakRequest.class, this::eventLoginWithKeycloakHandler)
             .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
-            .onMessage(EventGetDocumentCountReq.class, this::eventGetDocumentCountHandler)
+            .onMessage(EventGetPatientCountReq.class, this::eventGetPatientCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
             .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
             .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
@@ -225,12 +225,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetDocumentCountHandler(final EventGetDocumentCountReq request) {
+   private Behavior<Event> eventGetPatientCountHandler(final EventGetPatientCountReq request) {
       LOGGER.debug("getDocumentCount");
       libMPI.startTransaction();
-      final var count = libMPI.countEntities();
+      final var count = libMPI.countPatients();
       libMPI.closeTransaction();
-      request.replyTo.tell(new EventGetDocumentCountRsp(count));
+      request.replyTo.tell(new EventGetPatientCountRsp(count));
       return Behaviors.same();
    }
 
@@ -238,7 +238,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("getNumberOfRecords");
       libMPI.startTransaction();
       var recs = libMPI.countGoldenRecords();
-      var docs = libMPI.countEntities();
+      var docs = libMPI.countPatients();
       libMPI.closeTransaction();
       request.replyTo.tell(new BackEnd.EventGetNumberOfRecordsRsp(recs, docs));
       return Behaviors.same();
@@ -283,8 +283,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventGetExpandedPatientsHandler(final EventGetExpandedPatientsReq request) {
       LOGGER.debug("getExpandedPatients");
       libMPI.startTransaction();
-      final var list = libMPI.getMpiExpandedEntityList(request.uids);
-      request.replyTo.tell(new EventGetExpandedPatientsRsp(list));
+      final var patients = libMPI.getMpiExpandedPatients(request.uids);
+      request.replyTo.tell(new EventGetExpandedPatientsRsp(patients));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
@@ -292,7 +292,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> findPatientByUidEventHandler(final EventFindPatientByUidRequest request) {
       LOGGER.debug("findPatientByUidEventHandler");
       libMPI.startTransaction();
-      final var patient = libMPI.getDocument(request.uid);
+      final var patient = libMPI.getMpiPatient(request.uid);
       request.replyTo.tell(new EventFindPatientRecordByUidResponse(patient));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -302,8 +302,8 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.docID, request.mu);
       libMPI.startTransaction();
-      final var mpiEntity = libMPI.getMpiEntity(request.docID);
-      final var recs = libMPI.getCandidates(mpiEntity, true);
+      final var patient = libMPI.getMpiPatient(request.docID);
+      final var recs = libMPI.getCandidates(patient, true);
 
       CustomLinkerProbabilistic.updateMU(request.mu);
       CustomLinkerProbabilistic.checkUpdatedMU();
@@ -311,7 +311,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .stream()
             .map(candidate -> new EventGetCandidatesRsp.Candidate(candidate,
                                                                   CustomLinkerProbabilistic.probabilisticScore(candidate,
-                                                                                                               mpiEntity)))
+                                                                                                               patient)))
             .toList();
       request.replyTo.tell(new EventGetCandidatesRsp(Either.right(candidates)));
       libMPI.closeTransaction();
@@ -387,16 +387,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetGoldenRecordCountRsp(long count) implements EventResponse {
    }
 
-   public record EventGetDocumentCountReq(ActorRef<EventGetDocumentCountRsp> replyTo) implements Event {
+   public record EventGetPatientCountReq(ActorRef<EventGetPatientCountRsp> replyTo) implements Event {
    }
 
-   public record EventGetDocumentCountRsp(long count) implements EventResponse {
+   public record EventGetPatientCountRsp(long count) implements EventResponse {
    }
 
    public record EventGetNumberOfRecordsReq(ActorRef<EventGetNumberOfRecordsRsp> replyTo) implements Event {
    }
 
-   public record EventGetNumberOfRecordsRsp(long goldenRecords, long documents) implements EventResponse {
+   public record EventGetNumberOfRecordsRsp(long goldenRecords, long patients) implements EventResponse {
    }
 
    public record EventGetGoldenIdListByPredicateReq(ActorRef<EventGetGoldenIdListByPredicateRsp> replyTo,
@@ -432,7 +432,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                              List<String> uids) implements Event {
    }
 
-   public record EventGetExpandedPatientsRsp(List<MpiExpandedEntity> expandedPatients)
+   public record EventGetExpandedPatientsRsp(List<MpiExpandedPatient> expandedPatients)
          implements EventResponse {
    }
 
@@ -447,7 +447,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {
    }
 
-   public record EventFindPatientRecordByUidResponse(CustomEntity document)
+   public record EventFindPatientRecordByUidResponse(CustomPatient patient)
          implements EventResponse {
    }
 
@@ -531,7 +531,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                         CustomSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<CustomEntity> records) implements EventResponse {
+   public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<CustomPatient> records) implements EventResponse {
    }
 
    public record EventPostCsvFileRequest(ActorRef<EventPostCsvFileResponse> replyTo, FileInfo info, File file)

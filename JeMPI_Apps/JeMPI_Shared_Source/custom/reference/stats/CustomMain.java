@@ -99,7 +99,7 @@ public final class CustomMain {
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiEntityList().forEach(mpiEntity -> list.add(mpiEntity.entity().auxId()));
+      goldenRecord.mpiPatients().forEach(mpiPatient -> list.add(mpiPatient.patient().auxId()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -117,15 +117,15 @@ public final class CustomMain {
                        rot.givenName(), rot.familyName(), rot.gender(),
                        rot.dob(),
                        rot.phoneNumber(), rot.nationalId());
-         goldenRecord.mpiEntityList().forEach(mpiEntity -> {
-            final var entity = mpiEntity.entity();
+         goldenRecord.mpiPatients().forEach(mpiPatient -> {
+            final var patient = mpiPatient.patient();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-                          entity.uid(), entity.auxId(),
-                          entity.givenName(), entity.familyName(), entity.gender(),
-                          entity.dob(),
-                          entity.phoneNumber(), entity.nationalId(),
-                          mpiEntity.score());
+                          patient.uid(), patient.auxId(),
+                          patient.givenName(), patient.familyName(), patient.gender(),
+                          patient.dob(),
+                          patient.phoneNumber(), patient.nationalId(),
+                          mpiPatient.score());
          });
       }
 
@@ -162,7 +162,7 @@ public final class CustomMain {
       var goldenIdList = getGoldenIdList();
       LOGGER.info("Document Count:       {}", documentCount);
       LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
-      LOGGER.info("Number of Records:    {},{}", numberOfRecords.documents, numberOfRecords.goldenRecords);
+      LOGGER.info("Number of Records:    {},{}", numberOfRecords.patients, numberOfRecords.goldenRecords);
       LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
       final var goldenRecords = goldenIdList.records.size();
       final var subListSize = 100L;
@@ -219,14 +219,14 @@ public final class CustomMain {
 
       LOGGER.info("Golden Records Found: {}", dataSet.size());
       LOGGER.info("TP:{}  FP:{}  FN:{}  Precision:{}  Recall:{}  F-score:{}",
-              truePositives[0], falsePositives[0], falseNegatives[0],
-              precision, recall, fScore);
+                  truePositives[0], falsePositives[0], falseNegatives[0],
+                  precision, recall, fScore);
    }
 
    private record Count(Long count) {
    }
 
-   private record NumberOfRecords(Long documents,
+   private record NumberOfRecords(Long patients,
                                   Long goldenRecords) {
    }
 

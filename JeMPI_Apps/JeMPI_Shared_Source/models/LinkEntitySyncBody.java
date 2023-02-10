@@ -7,4 +7,4 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record LinkEntitySyncBody(@JsonProperty("stan") String stan,
                                  @JsonProperty("externalLinkRange") ExternalLinkRange externalLinkRange,
                                  @JsonProperty("matchThreshold") Float matchThreshold,
-                                 @JsonProperty("entity") CustomEntity entity) {}
+                                 @JsonProperty("patient") CustomPatient patient) {}

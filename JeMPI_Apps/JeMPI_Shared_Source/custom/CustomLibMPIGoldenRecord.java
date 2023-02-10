@@ -19,17 +19,17 @@ record CustomLibMPIGoldenRecord (@JsonProperty("uid") String uid,
                                  @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
                                  @JsonProperty("GoldenRecord.national_id") String nationalId) {
 
-   CustomLibMPIGoldenRecord(final CustomLibMPIDGraphEntity dgraphEntity) {
+   CustomLibMPIGoldenRecord(final CustomLibMPIDGraphPatient patient) {
       this(null,
-           List.of(dgraphEntity.sourceId()),
-           dgraphEntity.auxId(),
-           dgraphEntity.givenName(),
-           dgraphEntity.familyName(),
-           dgraphEntity.gender(),
-           dgraphEntity.dob(),
-           dgraphEntity.city(),
-           dgraphEntity.phoneNumber(),
-           dgraphEntity.nationalId());
+           List.of(patient.sourceId()),
+           patient.auxId(),
+           patient.givenName(),
+           patient.familyName(),
+           patient.gender(),
+           patient.dob(),
+           patient.city(),
+           patient.phoneNumber(),
+           patient.nationalId());
    }
 
    CustomGoldenRecord toCustomGoldenRecord() {

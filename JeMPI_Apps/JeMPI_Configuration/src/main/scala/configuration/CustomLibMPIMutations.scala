@@ -18,32 +18,32 @@ private object CustomLibMPIMutations {
          |
          |import java.util.UUID;
          |
-         |import org.jembi.jempi.shared.models.CustomEntity;
+         |import org.jembi.jempi.shared.models.CustomPatient;
          |import org.jembi.jempi.shared.utils.AppUtils;
          |
          |class $custom_className {
          |
          |${" " * 3}private $custom_className() {}
          |
-         |${" " * 3}static String createEntityTriple(final CustomEntity customEntity, final String sourceIdUid) {
+         |${" " * 3}static String createPatientTriple(final CustomPatient patient, final String sourceUID) {
          |${" " * 6}final String uuid = UUID.randomUUID().toString();
          |${" " * 6}return String.format(
          |${" " * 9}\"\"\"""".stripMargin)
 
     // createDocumentTriple
-    writer.println(s"""${" " * 9}_:%s  <Entity.source_id>${" " * 16}<%s>${" " * 8}.""".stripMargin)
+    writer.println(s"""${" " * 9}_:%s  <Patient.source_id>${" " * 16}<%s>${" " * 8}.""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val name = field.fieldName
-        writer.println(s"""${" " * 9}_:%s  <Entity.$name>${" " * (25 - name.length)}%s${" " * 10}.""".stripMargin)
+        writer.println(s"""${" " * 9}_:%s  <Patient.$name>${" " * (25 - name.length)}%s${" " * 10}.""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}_:%s  <dgraph.type>                     \"Entity\"    .
+      s"""${" " * 9}_:%s  <dgraph.type>                     \"Patient\"    .
          |${" " * 9}\"\"\",""".stripMargin)
-    writer.println(s"""${" " * 9}uuid, sourceIdUid,""".stripMargin)
+    writer.println(s"""${" " * 9}uuid, sourceUID,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val name = "customEntity." + field.fieldName
+        val name = "patient." + field.fieldName
         writer.println(
           s"""${" " * 9}uuid, AppUtils.quotedValue(${Utils.snakeCaseToCamelCase(name)}()),""".stripMargin)
     }
@@ -54,9 +54,9 @@ private object CustomLibMPIMutations {
 
     // createLinkedGoldenRecordTriple
     writer.println(
-      s"""   static String createLinkedGoldenRecordTriple(final CustomEntity customEntity,
-         |                                                final String entityUid,
-         |                                                final String sourceUid,
+      s"""   static String createLinkedGoldenRecordTriple(final CustomPatient patient,
+         |                                                final String patientUID,
+         |                                                final String sourceUID,
          |                                                final float score) {
          |      final String uuid = UUID.randomUUID().toString();
          |      return String.format(
@@ -69,17 +69,17 @@ private object CustomLibMPIMutations {
           s"""${" " * 9}_:%s  <GoldenRecord.$name>${" " * (30 - name.length)}%s${" " * 15}.""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}_:%s  <GoldenRecord.entity_list>                   <%s> (score=%f)  .
+      s"""${" " * 9}_:%s  <GoldenRecord.patients>                      <%s> (score=%f)  .
          |${" " * 9}_:%s  <dgraph.type>                                "GoldenRecord"   .
          |${" " * 9}\"\"\",
-         |${" " * 9}uuid, sourceUid,""".stripMargin)
+         |${" " * 9}uuid, sourceUID,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val name = "customEntity." + Utils.snakeCaseToCamelCase(field.fieldName)
+        val name = "patient." + Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(s"""${" " * 9}uuid, AppUtils.quotedValue($name()),""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}uuid, entityUid, score,
+      s"""${" " * 9}uuid, patientUID, score,
          |${" " * 9}uuid);
          |${" " * 3}}
          |}""".stripMargin)

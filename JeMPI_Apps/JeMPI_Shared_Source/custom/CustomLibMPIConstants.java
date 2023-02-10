@@ -12,42 +12,42 @@ public final class CustomLibMPIConstants {
    public static final String PREDICATE_GOLDEN_RECORD_CITY = "GoldenRecord.city";
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
-   public static final String PREDICATE_GOLDEN_RECORD_ENTITY_LIST = "GoldenRecord.entity_list";
+   public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
 
-   public static final String PREDICATE_ENTITY_AUX_ID = "Entity.aux_id";
+   public static final String PREDICATE_PATIENT_AUX_ID = "Patient.aux_id";
 
-   public static final String PREDICATE_ENTITY_GIVEN_NAME = "Entity.given_name";
+   public static final String PREDICATE_PATIENT_GIVEN_NAME = "Patient.given_name";
 
-   public static final String PREDICATE_ENTITY_FAMILY_NAME = "Entity.family_name";
+   public static final String PREDICATE_PATIENT_FAMILY_NAME = "Patient.family_name";
 
-   public static final String PREDICATE_ENTITY_GENDER = "Entity.gender";
+   public static final String PREDICATE_PATIENT_GENDER = "Patient.gender";
 
-   public static final String PREDICATE_ENTITY_DOB = "Entity.dob";
+   public static final String PREDICATE_PATIENT_DOB = "Patient.dob";
 
-   public static final String PREDICATE_ENTITY_CITY = "Entity.city";
+   public static final String PREDICATE_PATIENT_CITY = "Patient.city";
 
-   public static final String PREDICATE_ENTITY_PHONE_NUMBER = "Entity.phone_number";
+   public static final String PREDICATE_PATIENT_PHONE_NUMBER = "Patient.phone_number";
 
-   public static final String PREDICATE_ENTITY_NATIONAL_ID = "Entity.national_id";
+   public static final String PREDICATE_PATIENT_NATIONAL_ID = "Patient.national_id";
 
-   static final String QUERY_GET_ENTITY_BY_UID =
+   static final String QUERY_GET_PATIENT_BY_UID =
       """
-      query entityByUid($uid: string) {
+      query patientByUid($uid: string) {
          all(func: uid($uid)) {
             uid
-            Entity.source_id {
+            Patient.source_id {
               uid
               SourceId.facility
               SourceId.patient
             }
-            Entity.aux_id
-            Entity.given_name
-            Entity.family_name
-            Entity.gender
-            Entity.dob
-            Entity.city
-            Entity.phone_number
-            Entity.national_id
+            Patient.aux_id
+            Patient.given_name
+            Patient.family_name
+            Patient.gender
+            Patient.dob
+            Patient.city
+            Patient.phone_number
+            Patient.national_id
          }
       }
       """;
@@ -74,25 +74,25 @@ public final class CustomLibMPIConstants {
       }
       """;
 
-   static final String QUERY_GET_EXPANDED_ENTITY =
+   static final String QUERY_GET_EXPANDED_PATIENTS =
       """
-      query expandedEntity() {
+      query expandedPatient() {
          all(func: uid(%s)) {
             uid
-            Entity.source_id {
+            Patient.source_id {
                uid
                SourceId.facility
                SourceId.patient
             }
-            Entity.aux_id
-            Entity.given_name
-            Entity.family_name
-            Entity.gender
-            Entity.dob
-            Entity.city
-            Entity.phone_number
-            Entity.national_id
-            ~GoldenRecord.entity_list @facets(score) {
+            Patient.aux_id
+            Patient.given_name
+            Patient.family_name
+            Patient.gender
+            Patient.dob
+            Patient.city
+            Patient.phone_number
+            Patient.national_id
+            ~GoldenRecord.patients @facets(score) {
                uid
                GoldenRecord.source_id {
                  uid
@@ -112,7 +112,7 @@ public final class CustomLibMPIConstants {
       }
       """;
 
-   static final String QUERY_GET_EXPANDED_GOLDEN_RECORD =
+   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
       """
       query expandedGoldenRecord() {
          all(func: uid(%s)) {
@@ -130,21 +130,21 @@ public final class CustomLibMPIConstants {
             GoldenRecord.city
             GoldenRecord.phone_number
             GoldenRecord.national_id
-            GoldenRecord.entity_list @facets(score) {
+            GoldenRecord.patients @facets(score) {
                uid
-               Entity.source_id {
+               Patient.source_id {
                  uid
                  SourceId.facility
                  SourceId.patient
                }
-               Entity.aux_id
-               Entity.given_name
-               Entity.family_name
-               Entity.gender
-               Entity.dob
-               Entity.city
-               Entity.phone_number
-               Entity.national_id
+               Patient.aux_id
+               Patient.given_name
+               Patient.family_name
+               Patient.gender
+               Patient.dob
+               Patient.city
+               Patient.phone_number
+               Patient.national_id
             }
          }
       }
@@ -177,8 +177,7 @@ public final class CustomLibMPIConstants {
          GoldenRecord.city
          GoldenRecord.phone_number
          GoldenRecord.national_id
-         GoldenRecord.entity_list:               [Entity]
-         <~Entity.golden_record_list>
+         GoldenRecord.patients:                  [Patient]
       }
       """;
          
@@ -193,38 +192,36 @@ public final class CustomLibMPIConstants {
       GoldenRecord.city:                     string    @index(trigram)                    .
       GoldenRecord.phone_number:             string    @index(exact,trigram)              .
       GoldenRecord.national_id:              string    @index(exact,trigram)              .
-      GoldenRecord.entity_list:              [uid]     @reverse                           .
+      GoldenRecord.patients:                 [uid]     @reverse                           .
       """;
 
-   static final String MUTATION_CREATE_ENTITY_TYPE =
+   static final String MUTATION_CREATE_PATIENT_TYPE =
       """
 
-      type Entity {
-         Entity.source_id:                     SourceId
-         Entity.aux_id
-         Entity.given_name
-         Entity.family_name
-         Entity.gender
-         Entity.dob
-         Entity.city
-         Entity.phone_number
-         Entity.national_id
-         Entity.golden_record_list:            [GoldenRecord]
+      type Patient {
+         Patient.source_id:                     SourceId
+         Patient.aux_id
+         Patient.given_name
+         Patient.family_name
+         Patient.gender
+         Patient.dob
+         Patient.city
+         Patient.phone_number
+         Patient.national_id
       }
       """;
 
-   static final String MUTATION_CREATE_ENTITY_FIELDS =
+   static final String MUTATION_CREATE_PATIENT_FIELDS =
       """
-      Entity.source_id:                    uid                                          .
-      Entity.aux_id:                       string                                       .
-      Entity.given_name:                   string                                       .
-      Entity.family_name:                  string    @index(exact,trigram)              .
-      Entity.gender:                       string                                       .
-      Entity.dob:                          string                                       .
-      Entity.city:                         string                                       .
-      Entity.phone_number:                 string                                       .
-      Entity.national_id:                  string    @index(exact,trigram)              .
-      Entity.golden_record_list:           [uid]     @reverse                           .
+      Patient.source_id:                    uid                                          .
+      Patient.aux_id:                       string                                       .
+      Patient.given_name:                   string                                       .
+      Patient.family_name:                  string    @index(exact,trigram)              .
+      Patient.gender:                       string                                       .
+      Patient.dob:                          string                                       .
+      Patient.city:                         string                                       .
+      Patient.phone_number:                 string                                       .
+      Patient.national_id:                  string    @index(exact,trigram)              .
       """;
 
 }

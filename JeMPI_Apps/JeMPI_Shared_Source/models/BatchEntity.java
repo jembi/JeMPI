@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BatchEntity(@JsonProperty("entityType") EntityType entityType,
                           @JsonProperty("stan") String stan, // System Trace Audit Number
-                          @JsonProperty("entity") CustomEntity entity) {
+                          @JsonProperty("patient") CustomPatient patient) {
 
    public BatchEntity(EntityType entityType) {
       this(entityType, null, null);

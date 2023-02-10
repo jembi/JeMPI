@@ -26,13 +26,13 @@ object CustomLinkerProbalistic {
       writer.println(
         s"""
            |import org.jembi.jempi.shared.models.CustomMU;
-           |import org.jembi.jempi.shared.models.CustomEntity;
+           |import org.jembi.jempi.shared.models.CustomPatient;
            |import org.jembi.jempi.shared.models.CustomGoldenRecord;
            |
            |public class $custom_className {
            |
            |  public static float probabilisticScore(final CustomGoldenRecord goldenRecord,
-           |                                         final CustomEntity customEntity) {
+           |                                         final CustomPatient patient) {
            |    return 0.0F;
            |  }
            |
@@ -55,7 +55,7 @@ object CustomLinkerProbalistic {
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomMU;
-           |import org.jembi.jempi.shared.models.CustomEntity;
+           |import org.jembi.jempi.shared.models.CustomPatient;
            |import org.jembi.jempi.shared.models.CustomGoldenRecord;
            |
            |import static java.lang.Math.log;
@@ -174,14 +174,13 @@ object CustomLinkerProbalistic {
       })
       writer.println()
       writer.println(
-        """   public static float probabilisticScore(final CustomGoldenRecord goldenRecord, final CustomEntity
-          |   customEntity) {
+        """   public static float probabilisticScore(final CustomGoldenRecord goldenRecord, final CustomPatient patient) {
           |      // min, max, score, missingPenalty
           |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
       muList.zipWithIndex.foreach((field, _) => {
         writer.println(" " * 6 + "updateMetricsForStringField(metrics,")
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(" " * 34 + s"goldenRecord.$fieldName(), customEntity.$fieldName(), currentFields" +
+        writer.println(" " * 34 + s"goldenRecord.$fieldName(), patient.$fieldName(), currentFields" +
                          s".$fieldName);")
       })
       writer.println(" " * 6 + "return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];")

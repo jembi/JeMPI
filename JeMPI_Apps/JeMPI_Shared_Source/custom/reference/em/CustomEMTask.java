@@ -104,7 +104,7 @@ class CustomEMTask {
                                             final long nRecords) {
         final var jaroWinklerSimilarity = new JaroWinklerSimilarity();
         final var gamma = new ArrayList<int[]>();
-        final var patients = new ArrayList<CustomPatient>();
+        final var patients = new ArrayList<CustomEMPatient>();
         final int[] rowNumber = {0};
 
         boolean busy = true;
@@ -120,7 +120,7 @@ class CustomEMTask {
                     if (r.value().entityType() == BatchEntity.EntityType.BATCH_RECORD && count[0] < nRecords) {
                         count[0] += 1;
                         final var v = r.value();
-                        final var patient = new CustomPatient(v.entity());
+                        final var patient = new CustomEMPatient(v.patient());
                         patients.forEach(p -> {
                             var k = 0;
                             k += (patient.col1Phonetic() == null || !patient.col1Phonetic().equals(p.col1Phonetic())) ? 0 : 1;

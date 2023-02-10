@@ -20,7 +20,7 @@ object CustomLinkerDeterministic {
     writer.println(
       """import org.apache.commons.lang3.StringUtils;
         |
-        |import org.jembi.jempi.shared.models.CustomEntity;
+        |import org.jembi.jempi.shared.models.CustomPatient;
         |import org.jembi.jempi.shared.models.CustomGoldenRecord;
         |""".stripMargin)
     writer.println(s"class $custom_className {")
@@ -69,7 +69,7 @@ object CustomLinkerDeterministic {
 
     writer.println(
       """   static boolean deterministicMatch(final CustomGoldenRecord goldenRecord,
-        |                                     final CustomEntity customEntity) {""".stripMargin)
+        |                                     final CustomPatient patient) {""".stripMargin)
     val map = rules.deterministic
     map.foreach((_, rule) => {
       val expression: Ast.Expression = ParseRule.parse(rule.text)
@@ -79,7 +79,7 @@ object CustomLinkerDeterministic {
         val left = field + "_l"
         val right = field + "_r"
         writer.println(" " * 6 + s"final var $left = goldenRecord.$field();")
-        writer.println(" " * 6 + s"final var $right = customEntity.$field();")
+        writer.println(" " * 6 + s"final var $right = patient.$field();")
       })
       writer.println(s"      return $expr_1;")
     })

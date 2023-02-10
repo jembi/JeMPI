@@ -23,17 +23,20 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CustomSourceRecordStream {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
-   private KafkaStreams patientKafkaStreams = null;
-   private final Random random = new Random(1234);
    private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
+   private final Random random = new Random(1234);
    ExecutorService executorService = Executors.newFixedThreadPool(1);
+   private KafkaStreams patientKafkaStreams = null;
 
    public void open() {
 
@@ -66,22 +69,22 @@ public class CustomSourceRecordStream {
                var entity = new BatchEntity(
                      entityType,
                      rec.stan(),
-                     new CustomEntity(null,
-                                      new SourceId(null,
-                                                   FACILITY.get(random.nextInt(FACILITY.size())),
-                                                   StringUtils.isNotBlank(rec.nationalID()) ? rec.nationalID() : "ANON"),
-                                      rec.auxId(),
-                                      rec.givenName(),
-                                      rec.familyName(),
-                                      rec.gender(),
-                                      rec.dob(),
-                                      rec.city(),
-                                      rec.phoneNumber(),
-                                      rec.nationalID()));
+                     new CustomPatient(null,
+                                       new SourceId(null,
+                                                    FACILITY.get(random.nextInt(FACILITY.size())),
+                                                    StringUtils.isNotBlank(rec.nationalID()) ? rec.nationalID() : "ANON"),
+                                       rec.auxId(),
+                                       rec.givenName(),
+                                       rec.familyName(),
+                                       rec.gender(),
+                                       rec.dob(),
+                                       rec.city(),
+                                       rec.phoneNumber(),
+                                       rec.nationalID()));
                return KeyValue.pair(k, entity);
             })
             .filter((key, value) -> !(value.entityType() == BatchEntity.EntityType.BATCH_RECORD && StringUtils.isBlank(
-                  value.entity().auxId())))
+                  value.patient().auxId())))
             .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchEntitySerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();

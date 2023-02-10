@@ -5,7 +5,7 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.models.CustomEntity;
+import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 import static java.lang.Math.log;
@@ -106,24 +106,23 @@ public class CustomLinkerProbabilistic {
                  new Field(0.920281F, 0.322629F),
                  new Field(0.832336F, 1.33E-4F));
 
-   public static float probabilisticScore(final CustomGoldenRecord goldenRecord, final CustomEntity
-   customEntity) {
+   public static float probabilisticScore(final CustomGoldenRecord goldenRecord, final CustomPatient patient) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       updateMetricsForStringField(metrics,
-                                  goldenRecord.givenName(), customEntity.givenName(), currentFields.givenName);
+                                  goldenRecord.givenName(), patient.givenName(), currentFields.givenName);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.familyName(), customEntity.familyName(), currentFields.familyName);
+                                  goldenRecord.familyName(), patient.familyName(), currentFields.familyName);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.gender(), customEntity.gender(), currentFields.gender);
+                                  goldenRecord.gender(), patient.gender(), currentFields.gender);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.dob(), customEntity.dob(), currentFields.dob);
+                                  goldenRecord.dob(), patient.dob(), currentFields.dob);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.city(), customEntity.city(), currentFields.city);
+                                  goldenRecord.city(), patient.city(), currentFields.city);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.phoneNumber(), customEntity.phoneNumber(), currentFields.phoneNumber);
+                                  goldenRecord.phoneNumber(), patient.phoneNumber(), currentFields.phoneNumber);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.nationalId(), customEntity.nationalId(), currentFields.nationalId);
+                                  goldenRecord.nationalId(), patient.nationalId(), currentFields.nationalId);
       return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
    }
 

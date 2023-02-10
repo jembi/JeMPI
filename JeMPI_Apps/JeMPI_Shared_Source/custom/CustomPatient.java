@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record CustomEntity(String uid,
+public record CustomPatient(String uid,
                            SourceId sourceId,
                            String auxId,
                            String givenName,
@@ -15,7 +15,7 @@ public record CustomEntity(String uid,
                            String city,
                            String phoneNumber,
                            String nationalId) {
-   public CustomEntity() {
+   public CustomPatient() {
       this(null,
            null,
            null,
@@ -27,9 +27,9 @@ public record CustomEntity(String uid,
            null,
            null);
    }
-   public String getNames(final CustomEntity entity) {
-      return ((StringUtils.isBlank(entity.givenName) ? "" : " " + entity.givenName) + 
-              (StringUtils.isBlank(entity.familyName) ? "" : " " + entity.familyName)).trim();
+   public static String getNames(final CustomPatient patient) {
+      return ((StringUtils.isBlank(patient.givenName) ? "" : " " + patient.givenName) + 
+              (StringUtils.isBlank(patient.familyName) ? "" : " " + patient.familyName)).trim();
    }
 
 }

@@ -2,14 +2,14 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomEntity {
+private object CustomPatient {
 
   private val classLocation = "../JeMPI_Shared_Source/custom"
-  private val customClassNameDoc = "CustomEntity"
+  private val customClassNameDoc = "CustomPatient"
   private val customClassNameMpi = "CustomGoldenRecord"
   private val packageText = "org.jembi.jempi.shared.models"
 
-  def generateEntity(fields: Array[Field]): Unit =
+  def generatePatient(fields: Array[Field]): Unit =
     val classFile: String = classLocation + File.separator + customClassNameDoc + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
@@ -44,7 +44,7 @@ private object CustomEntity {
       s"""   }""".stripMargin)
 
     writer.print(
-      s"""   public String getNames(final CustomEntity entity) {
+      s"""   public static String getNames(final CustomPatient patient) {
          |      return """.stripMargin)
     val names = fields.filter(f => f.fieldName.contains("name"))
     println(names.length)
@@ -54,7 +54,7 @@ private object CustomEntity {
           if (idx > 0) writer.print(" " * 14)
           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
           writer.print(if (idx == 0) "(" else "")
-          writer.print(s"""(StringUtils.isBlank(entity.$fieldName) ? "" : " " + entity.$fieldName)""")
+          writer.print(s"""(StringUtils.isBlank(patient.$fieldName) ? "" : " " + patient.$fieldName)""")
           writer.println(if (idx + 1 < names.length) " + " else ").trim();")
       }
     } else {
@@ -67,9 +67,8 @@ private object CustomEntity {
          |}""".stripMargin)
     writer.flush()
     writer.close()
-  end generateEntity
-
-
+  end generatePatient
+  
   def generateGoldenRecord(fields: Array[Field]): Unit =
     val classFile: String = classLocation + File.separator + customClassNameMpi + ".java"
     println("Creating " + classFile)
@@ -106,14 +105,14 @@ private object CustomEntity {
     writer.println(
       s"""   }
          |
-         |   public CustomGoldenRecord(final CustomEntity entity) {
+         |   public CustomGoldenRecord(final CustomPatient patient) {
          |      this(null,
-         |           List.of(entity.sourceId()),""".stripMargin)
+         |           List.of(patient.sourceId()),""".stripMargin)
 
     fields.zipWithIndex.foreach {
       case (field, idx) =>
         val fieldName = (if (field.isList.isDefined && field.isList.get) "List.of(" else "")
-          + "entity." + Utils.snakeCaseToCamelCase(field.fieldName) + "()"
+          + "patient." + Utils.snakeCaseToCamelCase(field.fieldName) + "()"
           + (if (field.isList.isDefined && field.isList.get) ")" else "")
         writer.println(s"""${" " * 11}$fieldName${if (idx + 1 < fields.length) "," else ");"}""")
     }

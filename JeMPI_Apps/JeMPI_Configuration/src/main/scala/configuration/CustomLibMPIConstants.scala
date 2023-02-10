@@ -17,16 +17,16 @@ private object CustomLibMPIConstants {
             .stripMargin)
     }
     writer.println(
-      s"""   public static final String PREDICATE_GOLDEN_RECORD_ENTITY_LIST = "GoldenRecord.entity_list";
+      s"""   public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
          |""".stripMargin)
   }
 
-  private def entity_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def patient_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
-          s"""   public static final String PREDICATE_ENTITY_${fieldName.toUpperCase} = "Entity.$fieldName";
+          s"""   public static final String PREDICATE_PATIENT_${fieldName.toUpperCase} = "Patient.$fieldName";
              |""".stripMargin)
     }
   }
@@ -54,9 +54,9 @@ private object CustomLibMPIConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_golden_record(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_expanded_golden_records(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORD =
+      s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          |      \"\"\"
          |      query expandedGoldenRecord() {
          |         all(func: uid(%s)) {
@@ -71,16 +71,16 @@ private object CustomLibMPIConstants {
       writer.println(s"            GoldenRecord.$name")
     })
     writer.println(
-      s"""            GoldenRecord.entity_list @facets(score) {
+      s"""            GoldenRecord.patients @facets(score) {
          |               uid
-         |               Entity.source_id {
+         |               Patient.source_id {
          |                 uid
          |                 SourceId.facility
          |                 SourceId.patient
          |               }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"               Entity.$name")
+      writer.println(s"               Patient.$name")
     })
     writer.println(
       s"""            }
@@ -90,24 +90,24 @@ private object CustomLibMPIConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_entity(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_expanded_patients(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      s"""   static final String QUERY_GET_EXPANDED_ENTITY =
+      s"""   static final String QUERY_GET_EXPANDED_PATIENTS =
          |      \"\"\"
-         |      query expandedEntity() {
+         |      query expandedPatient() {
          |         all(func: uid(%s)) {
          |            uid
-         |            Entity.source_id {
+         |            Patient.source_id {
          |               uid
          |               SourceId.facility
          |               SourceId.patient
          |            }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"            Entity.$name")
+      writer.println(s"            Patient.$name")
     })
     writer.println(
-      s"""            ~GoldenRecord.entity_list @facets(score) {
+      s"""            ~GoldenRecord.patients @facets(score) {
          |               uid
          |               GoldenRecord.source_id {
          |                 uid
@@ -126,21 +126,21 @@ private object CustomLibMPIConstants {
          |""".stripMargin)
   }
 
-  private def query_get_entity_by_uid(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_patient_by_uid(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      s"""   static final String QUERY_GET_ENTITY_BY_UID =
+      s"""   static final String QUERY_GET_PATIENT_BY_UID =
          |      \"\"\"
-         |      query entityByUid($$uid: string) {
+         |      query patientByUid($$uid: string) {
          |         all(func: uid($$uid)) {
          |            uid
-         |            Entity.source_id {
+         |            Patient.source_id {
          |              uid
          |              SourceId.facility
          |              SourceId.patient
          |            }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"            Entity.$name")
+      writer.println(s"            Patient.$name")
     })
     writer.println(
       s"""         }
@@ -183,8 +183,7 @@ private object CustomLibMPIConstants {
       writer.println(s"         GoldenRecord.$name")
     })
     writer.println(
-      s"""         GoldenRecord.entity_list:               [Entity]
-         |         <~Entity.golden_record_list>
+      s"""         GoldenRecord.patients:                  [Patient]
          |      }
          |      \"\"\";
          """.stripMargin)
@@ -208,40 +207,39 @@ private object CustomLibMPIConstants {
         }$index${" " * (35 - index.length)}.""".stripMargin)
     })
     writer.println(
-      s"""      GoldenRecord.entity_list:              [uid]     @reverse                           .
+      s"""      GoldenRecord.patients:                 [uid]     @reverse                           .
          |      \"\"\";
          |""".stripMargin)
   }
 
-  private def mutation_create_entity_type(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_patient_type(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      s"""   static final String MUTATION_CREATE_ENTITY_TYPE =
+      s"""   static final String MUTATION_CREATE_PATIENT_TYPE =
          |      \"\"\"
          |
-         |      type Entity {
-         |         Entity.source_id:                     SourceId""".stripMargin)
+         |      type Patient {
+         |         Patient.source_id:                     SourceId""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"         Entity.$name")
+      writer.println(s"         Patient.$name")
     })
     writer.println(
-      s"""         Entity.golden_record_list:            [GoldenRecord]
-         |      }
+      s"""      }
          |      \"\"\";
          |""".stripMargin)
   }
 
-  private def mutation_create_entity_fields(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_patient_fields(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      s"""   static final String MUTATION_CREATE_ENTITY_FIELDS =
+      s"""   static final String MUTATION_CREATE_PATIENT_FIELDS =
          |      \"\"\"
-         |      Entity.source_id:                    uid                                          .""".stripMargin)
+         |      Patient.source_id:                    uid                                          .""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
       val index = field.indexEntity.getOrElse("")
       val fieldType = field.fieldType.toLowerCase
       writer.println(
-        s"""${" " * 6}Entity.$name:${
+        s"""${" " * 6}Patient.$name:${
           " " * (29 - name.length)
         }$fieldType${
           " " * (10 - fieldType.length)
@@ -250,8 +248,7 @@ private object CustomLibMPIConstants {
         }.""".stripMargin)
     })
     writer.println(
-      s"""      Entity.golden_record_list:           [uid]     @reverse                           .
-         |      \"\"\";
+      s"""      \"\"\";
          |""".stripMargin)
   }
 
@@ -269,17 +266,17 @@ private object CustomLibMPIConstants {
          |""".stripMargin)
 
     golden_record_predicates(writer, fields)
-    entity_predicates(writer, fields)
-    query_get_entity_by_uid(writer, fields)
+    patient_predicates(writer, fields)
+    query_get_patient_by_uid(writer, fields)
     query_get_golden_record_by_uid(writer, fields)
-    query_get_expanded_entity(writer, fields)
-    query_get_expanded_golden_record(writer, fields)
+    query_get_expanded_patients(writer, fields)
+    query_get_expanded_golden_records(writer, fields)
     mutation_create_source_id_type(writer)
     mutation_create_source_id_fields(writer, fields)
     mutation_create_golden_record_type(writer, fields)
     mutation_create_golden_record_fields(writer, fields)
-    mutation_create_entity_type(writer, fields)
-    mutation_create_entity_fields(writer, fields)
+    mutation_create_patient_type(writer, fields)
+    mutation_create_patient_fields(writer, fields)
     writer.println(s"""}""".stripMargin)
     writer.flush()
     writer.close()

@@ -43,7 +43,7 @@ public class EntityStreamAsync {
         if (batchEntity.entityType() != BatchEntity.EntityType.BATCH_RECORD) {
             return;
         }
-        LOGGER.debug("{}", batchEntity.entity());
+        LOGGER.debug("{}", batchEntity.patient());
         final CompletionStage<BackEnd.EventLinkEntityAsyncRsp> result =
                 AskPattern.ask(
                         backEnd,

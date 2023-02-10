@@ -28,17 +28,17 @@ public record CustomGoldenRecord(String uid,
            null);
    }
 
-   public CustomGoldenRecord(final CustomEntity entity) {
+   public CustomGoldenRecord(final CustomPatient patient) {
       this(null,
-           List.of(entity.sourceId()),
-           entity.auxId(),
-           entity.givenName(),
-           entity.familyName(),
-           entity.gender(),
-           entity.dob(),
-           entity.city(),
-           entity.phoneNumber(),
-           entity.nationalId());
+           List.of(patient.sourceId()),
+           patient.auxId(),
+           patient.givenName(),
+           patient.familyName(),
+           patient.gender(),
+           patient.dob(),
+           patient.city(),
+           patient.phoneNumber(),
+           patient.nationalId());
    }
 
 }

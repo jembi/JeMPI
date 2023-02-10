@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomEntity;
+import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 public class CustomLinkerMU {
@@ -38,25 +38,25 @@ public class CustomLinkerMU {
       }
    }
 
-   void updateMatchSums(final CustomEntity customEntity, final CustomGoldenRecord customGoldenRecord) {
-      updateMatchedPair(fields.givenName, customEntity.givenName(), customGoldenRecord.givenName());
-      updateMatchedPair(fields.familyName, customEntity.familyName(), customGoldenRecord.familyName());
-      updateMatchedPair(fields.gender, customEntity.gender(), customGoldenRecord.gender());
-      updateMatchedPair(fields.dob, customEntity.dob(), customGoldenRecord.dob());
-      updateMatchedPair(fields.city, customEntity.city(), customGoldenRecord.city());
-      updateMatchedPair(fields.phoneNumber, customEntity.phoneNumber(), customGoldenRecord.phoneNumber());
-      updateMatchedPair(fields.nationalId, customEntity.nationalId(), customGoldenRecord.nationalId());
+   void updateMatchSums(final CustomPatient patient, final CustomGoldenRecord customGoldenRecord) {
+      updateMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
+      updateMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
+      updateMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());
+      updateMatchedPair(fields.dob, patient.dob(), customGoldenRecord.dob());
+      updateMatchedPair(fields.city, patient.city(), customGoldenRecord.city());
+      updateMatchedPair(fields.phoneNumber, patient.phoneNumber(), customGoldenRecord.phoneNumber());
+      updateMatchedPair(fields.nationalId, patient.nationalId(), customGoldenRecord.nationalId());
       LOGGER.debug("{}", fields);
    }
 
-   void updateMissmatchSums(final CustomEntity customEntity, final CustomGoldenRecord customGoldenRecord) {
-      updateUnMatchedPair(fields.givenName, customEntity.givenName(), customGoldenRecord.givenName());
-      updateUnMatchedPair(fields.familyName, customEntity.familyName(), customGoldenRecord.familyName());
-      updateUnMatchedPair(fields.gender, customEntity.gender(), customGoldenRecord.gender());
-      updateUnMatchedPair(fields.dob, customEntity.dob(), customGoldenRecord.dob());
-      updateUnMatchedPair(fields.city, customEntity.city(), customGoldenRecord.city());
-      updateUnMatchedPair(fields.phoneNumber, customEntity.phoneNumber(), customGoldenRecord.phoneNumber());
-      updateUnMatchedPair(fields.nationalId, customEntity.nationalId(), customGoldenRecord.nationalId());
+   void updateMissmatchSums(final CustomPatient patient, final CustomGoldenRecord customGoldenRecord) {
+      updateUnMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
+      updateUnMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
+      updateUnMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());
+      updateUnMatchedPair(fields.dob, patient.dob(), customGoldenRecord.dob());
+      updateUnMatchedPair(fields.city, patient.city(), customGoldenRecord.city());
+      updateUnMatchedPair(fields.phoneNumber, patient.phoneNumber(), customGoldenRecord.phoneNumber());
+      updateUnMatchedPair(fields.nationalId, patient.nationalId(), customGoldenRecord.nationalId());
       LOGGER.debug("{}", fields);
    }
 

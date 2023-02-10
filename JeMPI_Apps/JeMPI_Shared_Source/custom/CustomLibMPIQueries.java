@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jembi.jempi.shared.models.CustomEntity;
+import org.jembi.jempi.shared.models.CustomPatient;
 
 import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
 
@@ -115,11 +115,11 @@ class CustomLibMPIQueries {
       """;
       
 
-   static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomEntity customEntity) {
-      final var givenName = customEntity.givenName();
-      final var familyName = customEntity.familyName();
-      final var phoneNumber = customEntity.phoneNumber();
-      final var nationalId = customEntity.nationalId();
+   static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomPatient patient) {
+      final var givenName = patient.givenName();
+      final var familyName = patient.familyName();
+      final var phoneNumber = patient.phoneNumber();
+      final var nationalId = patient.nationalId();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
@@ -147,10 +147,10 @@ class CustomLibMPIQueries {
       return runGoldenRecordsQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(final CustomEntity customEntity) {
-      final var givenName = customEntity.givenName();
-      final var familyName = customEntity.familyName();
-      final var city = customEntity.city();
+   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(final CustomPatient patient) {
+      final var givenName = patient.givenName();
+      final var familyName = patient.familyName();
+      final var city = patient.city();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var cityIsBlank = StringUtils.isBlank(city);
@@ -173,19 +173,19 @@ class CustomLibMPIQueries {
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomEntity customEntity) {
-      if (StringUtils.isBlank(customEntity.phoneNumber())) {
+   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomPatient patient) {
+      if (StringUtils.isBlank(patient.phoneNumber())) {
          return new LibMPIGoldenRecordList(List.of());
       }
-      final Map<String, String> map = Map.of("$phone_number", customEntity.phoneNumber());
+      final Map<String, String> map = Map.of("$phone_number", patient.phoneNumber());
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final CustomEntity customEntity) {
-      if (StringUtils.isBlank(customEntity.nationalId())) {
+   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final CustomPatient patient) {
+      if (StringUtils.isBlank(patient.nationalId())) {
          return new LibMPIGoldenRecordList(List.of());
       }
-      final Map<String, String> map = Map.of("$national_id", customEntity.nationalId());
+      final Map<String, String> map = Map.of("$national_id", patient.nationalId());
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
    }
 
@@ -208,19 +208,19 @@ class CustomLibMPIQueries {
       }
    }
 
-   static List<CustomLibMPIGoldenRecord> getCandidates(final CustomEntity dgraphEntity,
+   static List<CustomLibMPIGoldenRecord> getCandidates(final CustomPatient patient,
                                                        final boolean applyDeterministicFilter) {
 
       if (applyDeterministicFilter) {
-         final var result = Queries.deterministicFilter(dgraphEntity);
+         final var result = Queries.deterministicFilter(patient);
          if (!result.isEmpty()) {
             return result;
          }
       }
       var result = new LinkedList<CustomLibMPIGoldenRecord>();
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(dgraphEntity));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(dgraphEntity));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(dgraphEntity));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(patient));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(patient));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
       return result;
    }
 

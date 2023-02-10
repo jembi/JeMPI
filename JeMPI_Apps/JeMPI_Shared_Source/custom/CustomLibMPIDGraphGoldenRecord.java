@@ -19,7 +19,7 @@ record CustomLibMPIDGraphGoldenRecord(@JsonProperty("uid") String uid,
                                        @JsonProperty("GoldenRecord.city") String city,
                                        @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
                                        @JsonProperty("GoldenRecord.national_id") String nationalId,
-                                       @JsonProperty("~GoldenRecord.entity_list|score") Float score) {
+                                       @JsonProperty("~GoldenRecord.patients|score") Float score) {
 
    CustomGoldenRecord toCustomGoldenRecord() {
       return new CustomGoldenRecord(this.uid(),

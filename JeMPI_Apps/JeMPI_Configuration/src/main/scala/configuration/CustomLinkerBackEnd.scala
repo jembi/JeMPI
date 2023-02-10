@@ -27,7 +27,7 @@ object CustomLinkerBackEnd {
     writer.println()
     writer.println(
       s"""import org.jembi.jempi.libmpi.LibMPI;
-         |import org.jembi.jempi.shared.models.CustomEntity;
+         |import org.jembi.jempi.shared.models.CustomPatient;
          |
          |import java.util.List;
          |
@@ -44,7 +44,7 @@ object CustomLinkerBackEnd {
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
         s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord, "$fieldName",
-           |${" " * 38}expandedGoldenRecord.customGoldenRecord().$fieldName(), CustomEntity::$fieldName);""".stripMargin)
+           |${" " * 38}expandedGoldenRecord.customGoldenRecord().$fieldName(), CustomPatient::$fieldName);""".stripMargin)
     })
     writer.println()
     config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {

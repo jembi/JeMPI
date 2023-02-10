@@ -34,7 +34,7 @@ object CustomLinkerMU {
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
-           |import org.jembi.jempi.shared.models.CustomEntity;
+           |import org.jembi.jempi.shared.models.CustomPatient;
            |import org.jembi.jempi.shared.models.CustomGoldenRecord;
            |
            |public class $custom_className {
@@ -69,13 +69,13 @@ object CustomLinkerMU {
            |   }
            |""".stripMargin)
 
-      writer.println("   void updateMatchSums(final CustomEntity customEntity, final CustomGoldenRecord " +
+      writer.println("   void updateMatchSums(final CustomPatient patient, final CustomGoldenRecord " +
                        "customGoldenRecord) {")
       if (muList.nonEmpty) {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
-            s"      updateMatchedPair(fields.$fieldName, customEntity.$fieldName(), customGoldenRecord.$fieldName()" +
+            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName(), customGoldenRecord.$fieldName()" +
               s");")
         })
         writer.println(
@@ -84,12 +84,12 @@ object CustomLinkerMU {
             |""".stripMargin)
       }
 
-      writer.println("   void updateMissmatchSums(final CustomEntity customEntity, final CustomGoldenRecord " +
+      writer.println("   void updateMissmatchSums(final CustomPatient patient, final CustomGoldenRecord " +
                        "customGoldenRecord) {")
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, customEntity.$fieldName(), customGoldenRecord.$fieldName" +
+          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName(), customGoldenRecord.$fieldName" +
             s"()" +
             s");")
       })

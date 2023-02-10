@@ -18,7 +18,7 @@ private object CustomLibMPIDGraphGoldenRecord {
         writer.println(
           s"""${" " * margin}@JsonProperty("$propertyName") $parameterType $parameterName,""".stripMargin)
     }
-    writer.println(s"""${" " * margin}@JsonProperty("~GoldenRecord.entity_list|score") Float score) {""")
+    writer.println(s"""${" " * margin}@JsonProperty("~GoldenRecord.patients|score") Float score) {""")
   }
 
   def generate(fields: Array[Field]): Unit =
@@ -52,7 +52,7 @@ private object CustomLibMPIDGraphGoldenRecord {
     //    }
     //
     //    writer.println(
-    //      s"""${" " * margin}@JsonProperty("~GoldenRecord.entity_list|score") Float score) {"""
+    //      s"""${" " * margin}@JsonProperty("~GoldenRecord.patients|score") Float score) {"""
     //    )
 
 //    writer.println(

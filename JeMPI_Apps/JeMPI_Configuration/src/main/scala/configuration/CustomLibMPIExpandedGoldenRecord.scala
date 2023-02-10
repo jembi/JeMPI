@@ -36,7 +36,7 @@ private object CustomLibMPIExpandedGoldenRecord {
         writer.println(s"""${" " * margin}@JsonProperty("GoldenRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * margin}@JsonProperty("GoldenRecord.entity_list") List<CustomLibMPIDGraphEntity> dgraphEntityList) {
+      s"""${" " * margin}@JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatient> patients) {
          |""".stripMargin)
 
     writer.println(
@@ -59,9 +59,9 @@ private object CustomLibMPIExpandedGoldenRecord {
       """
         |   MpiExpandedGoldenRecord toMpiExpandedGoldenRecord() {
         |      return new MpiExpandedGoldenRecord(this.toCustomGoldenRecord(),
-        |                                         this.dgraphEntityList()
+        |                                         this.patients()
         |                                             .stream()
-        |                                             .map(CustomLibMPIDGraphEntity::toMpiEntity)
+        |                                             .map(CustomLibMPIDGraphPatient::toMpiPatient)
         |                                             .toList());
         |   }
         |""".stripMargin)

@@ -24,7 +24,7 @@ object CustomLibMPIQueries {
          |import java.util.List;
          |import java.util.Map;
          |
-         |import org.jembi.jempi.shared.models.CustomEntity;
+         |import org.jembi.jempi.shared.models.CustomPatient;
          |
          |import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
          |
@@ -65,11 +65,11 @@ object CustomLibMPIQueries {
         |      }
         |   }
         |
-        |   static List<CustomLibMPIGoldenRecord> getCandidates(final CustomEntity dgraphEntity,
+        |   static List<CustomLibMPIGoldenRecord> getCandidates(final CustomPatient patient,
         |                                                       final boolean applyDeterministicFilter) {
         |
         |      if (applyDeterministicFilter) {
-        |         final var result = Queries.deterministicFilter(dgraphEntity);
+        |         final var result = Queries.deterministicFilter(patient);
         |         if (!result.isEmpty()) {
         |            return result;
         |         }
@@ -78,7 +78,7 @@ object CustomLibMPIQueries {
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
-        val vars = "dgraphEntity"
+        val vars = "patient"
         writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
       })
     }
@@ -119,20 +119,20 @@ object CustomLibMPIQueries {
     if (vars.length == 1)
       val v = vars(0)
       writer.println(
-        s"""   static LibMPIGoldenRecordList $functionName(final CustomEntity customEntity) {
-           |      if (StringUtils.isBlank(customEntity.${Utils.snakeCaseToCamelCase(v)}())) {
+        s"""   static LibMPIGoldenRecordList $functionName(final CustomPatient patient) {
+           |      if (StringUtils.isBlank(patient.${Utils.snakeCaseToCamelCase(v)}())) {
            |         return new LibMPIGoldenRecordList(List.of());
            |      }
-           |      final Map<String, String> map = Map.of("$$$v", customEntity.${Utils.snakeCaseToCamelCase(v)}());
+           |      final Map<String, String> map = Map.of("$$$v", patient.${Utils.snakeCaseToCamelCase(v)}());
            |      return runGoldenRecordsQuery($name, map);
            |   }
            |""".stripMargin)
     else
       val expr = expression(ParseRule.parse(text))
-      writer.println(s"   static LibMPIGoldenRecordList $functionName(final CustomEntity customEntity) {")
+      writer.println(s"   static LibMPIGoldenRecordList $functionName(final CustomPatient patient) {")
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
-        writer.println(s"      final var $camelCaseVarName = customEntity.$camelCaseVarName();")
+        writer.println(s"      final var $camelCaseVarName = patient.$camelCaseVarName();")
       })
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)

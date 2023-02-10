@@ -43,13 +43,13 @@ private object CustomLibMPIGoldenRecord {
     }
     writer.println(
       s"""
-         |${" " * 3}$customClassName(final CustomLibMPIDGraphEntity dgraphEntity) {
+         |${" " * 3}$customClassName(final CustomLibMPIDGraphPatient patient) {
          |${" " * 6}this(null,
-         |${" " * 11}List.of(dgraphEntity.sourceId()),""".stripMargin)
+         |${" " * 11}List.of(patient.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
         val arg = (if (field.isList.isDefined && field.isList.get) "List.of(" else "") +
-          "dgraphEntity." + Utils.snakeCaseToCamelCase(field.fieldName) +
+          "patient." + Utils.snakeCaseToCamelCase(field.fieldName) +
           "()" +
           (if (field.isList.isDefined && field.isList.get) ")" else "")
         writer.println(
