@@ -114,12 +114,12 @@ public class LibDgraph implements LibMPIClientInterface {
         return Queries.getGoldenIdListByPredicate(predicate, val);
     }
 
-    public CustomGoldenRecord getGoldenRecordByUid(final String uid) {
+    public MpiExpandedGoldenRecord getGoldenRecordByUid(final String uid) {
         final var rec = Queries.getGoldenRecordByUid(uid);
         if (rec == null) {
             return null;
         }
-        return rec.toCustomGoldenRecord();
+        return rec.toMpiExpandedGoldenRecord();
     }
 
     public CustomEntity getMpiEntity(final String uid) {

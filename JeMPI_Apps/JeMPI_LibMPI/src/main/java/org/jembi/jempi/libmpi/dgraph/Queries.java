@@ -104,12 +104,13 @@ final class Queries {
         return dgraphEntityList.get(0).toMpiEntity().entity();
     }
 
-    static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {
+    static CustomLibMPIExpandedGoldenRecord getGoldenRecordByUid(final String uid) {
         if (StringUtils.isBlank(uid)) {
             return null;
         }
         final var vars = Map.of("$uid", uid);
-        final var goldenRecordList = runGoldenRecordsQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
+        LOGGER.debug(vars);
+        final var goldenRecordList = runExpandedGoldenRecordsQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
                 .all();
 
         if (AppUtils.isNullOrEmpty(goldenRecordList)) {
