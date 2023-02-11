@@ -27,7 +27,7 @@ object CustomLinkerBackEnd {
     writer.println()
     writer.println(
       s"""import org.jembi.jempi.libmpi.LibMPI;
-         |import org.jembi.jempi.shared.models.CustomPatient;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
          |
          |import java.util.List;
          |
@@ -35,16 +35,21 @@ object CustomLinkerBackEnd {
          |
          |   private $custom_className() {}
          |
-         |   static void updateGoldenRecordFields(final LibMPI libMPI, final String uid) {
-         |      final var expandedGoldenRecord = libMPI.getMpiExpandedGoldenRecordList(List.of(uid)).get(0);
+         |   static void updateGoldenRecordFields(
+         |         final LibMPI libMPI,
+         |         final String uid) {
+         |      final var expandedGoldenRecord = libMPI.getMpiExpandedGoldenRecordList(List.of(uid))
+         |                                             .get(0);
+         |      final var customGoldenRecord = expandedGoldenRecord.customGoldenRecord();
+         |      final var demographicData = customGoldenRecord.demographicData();
          |""".stripMargin)
 
     muList.zipWithIndex.foreach((mu, _) => {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord, "$fieldName",
-           |${" " * 38}expandedGoldenRecord.customGoldenRecord().$fieldName(), CustomPatient::$fieldName);""".stripMargin)
+        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+           |${" " * 6}                                "$fieldName", demographicData.$fieldName(), CustomDemographicData::$fieldName);""".stripMargin)
     })
     writer.println()
     config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {

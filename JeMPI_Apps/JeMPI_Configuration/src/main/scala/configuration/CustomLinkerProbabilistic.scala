@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 import scala.language.{existentials, postfixOps}
 
 
-object CustomLinkerProbalistic {
+object CustomLinkerProbabilistic {
 
   private val classLocation = "../JeMPI_Shared_Source/custom"
   private val custom_className = "CustomLinkerProbabilistic"
@@ -54,6 +54,7 @@ object CustomLinkerProbalistic {
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
+           |import org.jembi.jempi.shared.models.CustomDemographicData;
            |import org.jembi.jempi.shared.models.CustomMU;
            |import org.jembi.jempi.shared.models.CustomPatient;
            |import org.jembi.jempi.shared.models.CustomGoldenRecord;
@@ -78,14 +79,20 @@ object CustomLinkerProbalistic {
            |      return p;
            |   }
            |
-           |   private static float fieldScore(final boolean match, final float m, final float u) {
+           |   private static float fieldScore(
+           |         final boolean match,
+           |         final float m,
+           |         final float u) {
            |      if (match) {
            |         return (float) (log(m / u) / LOG2);
            |      }
            |      return (float) (log((1.0 - m) / (1.0 - u)) / LOG2);
            |   }
            |
-           |   private static float fieldScore(final String left, final String right, final Field field) {
+           |   private static float fieldScore(
+           |         final String left,
+           |         final String right,
+           |         final Field field) {
            |      return fieldScore(JARO_WINKLER_SIMILARITY.apply(left, right) > 0.92, field.m, field.u);
            |   }
            |
@@ -115,9 +122,11 @@ object CustomLinkerProbalistic {
            |
            |   }
            |
-           |   private static void updateMetricsForStringField(final float[] metrics,
-           |                                                   final String left, final String right,
-           |                                                   final Field field) {
+           |   private static void updateMetricsForStringField(
+           |         final float[] metrics,
+           |         final String left,
+           |         final String right,
+           |         final Field field) {
            |      final float MISSING_PENALTY = 0.925F;
            |      if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
            |         metrics[0] += field.min;
@@ -143,13 +152,9 @@ object CustomLinkerProbalistic {
       })
 
 
-      writer.print("   private record Fields(")
+      writer.println("   private record Fields(")
       muList.zipWithIndex.foreach((mu, idx) => {
-        if (idx == 0)
-          writer.print("Field ")
-        else
-          writer.print(" " * 10 + "Field ")
-        end if
+        writer.print(s"""${" " * 9}Field """)
         writer.print(Utils.snakeCaseToCamelCase(mu.fieldName))
         if (idx + 1 < muList.length)
           writer.println(",")
@@ -174,14 +179,16 @@ object CustomLinkerProbalistic {
       })
       writer.println()
       writer.println(
-        """   public static float probabilisticScore(final CustomGoldenRecord goldenRecord, final CustomPatient patient) {
+        """   public static float probabilisticScore(
+          |         final CustomDemographicData goldenRecord,
+          |         final CustomDemographicData patient) {
           |      // min, max, score, missingPenalty
           |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
       muList.zipWithIndex.foreach((field, _) => {
         writer.println(" " * 6 + "updateMetricsForStringField(metrics,")
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(" " * 34 + s"goldenRecord.$fieldName(), patient.$fieldName(), currentFields" +
-                         s".$fieldName);")
+          s".$fieldName);")
       })
       writer.println(" " * 6 + "return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];")
       writer.println(" " * 3 + "}")

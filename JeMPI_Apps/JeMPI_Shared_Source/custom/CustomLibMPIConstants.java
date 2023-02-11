@@ -40,6 +40,7 @@ public final class CustomLibMPIConstants {
             }
          }
          """;
+
    static final String QUERY_GET_GOLDEN_RECORD_BY_UID =
          """
          query goldenRecordByUid($uid: string) {
@@ -61,6 +62,7 @@ public final class CustomLibMPIConstants {
             }
          }
          """;
+
    static final String QUERY_GET_EXPANDED_PATIENTS =
          """
          query expandedPatient() {
@@ -98,6 +100,7 @@ public final class CustomLibMPIConstants {
             }
          }
          """;
+
    static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          """
          query expandedGoldenRecord() {
@@ -135,6 +138,7 @@ public final class CustomLibMPIConstants {
             }
          }
          """;
+
    static final String MUTATION_CREATE_SOURCE_ID_TYPE =
          """
          type SourceId {
@@ -142,11 +146,13 @@ public final class CustomLibMPIConstants {
             SourceId.patient
          }
          """;
+     
    static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
          """
          SourceId.facility:                     string    @index(exact)                      .
          SourceId.patient:                      string    @index(exact)                      .
          """;
+       
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE =
          """
 
@@ -163,6 +169,7 @@ public final class CustomLibMPIConstants {
             GoldenRecord.patients:                  [Patient]
          }
          """;
+         
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
          GoldenRecord.source_id:                [uid]                                        .
@@ -176,6 +183,7 @@ public final class CustomLibMPIConstants {
          GoldenRecord.national_id:              string    @index(exact,trigram)              .
          GoldenRecord.patients:                 [uid]     @reverse                           .
          """;
+
    static final String MUTATION_CREATE_PATIENT_TYPE =
          """
 
@@ -191,6 +199,7 @@ public final class CustomLibMPIConstants {
             Patient.national_id
          }
          """;
+
    static final String MUTATION_CREATE_PATIENT_FIELDS =
          """
          Patient.source_id:                    uid                                          .

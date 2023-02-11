@@ -20,8 +20,7 @@ object CustomLinkerDeterministic {
     writer.println(
       """import org.apache.commons.lang3.StringUtils;
         |
-        |import org.jembi.jempi.shared.models.CustomPatient;
-        |import org.jembi.jempi.shared.models.CustomGoldenRecord;
+        |import org.jembi.jempi.shared.models.CustomDemographicData;
         |""".stripMargin)
     writer.println(s"class $custom_className {")
     writer.println()
@@ -36,7 +35,9 @@ object CustomLinkerDeterministic {
   def emitDeterminsticMatch(writer: PrintWriter, rules: Rules): Unit = {
 
     writer.println(
-      """   private static boolean isMatch(final String left, final String right) {
+      """   private static boolean isMatch(
+        |         final String left,
+        |         final String right) {
         |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
         |   }
         |""".stripMargin)
@@ -68,8 +69,9 @@ object CustomLinkerDeterministic {
     }
 
     writer.println(
-      """   static boolean deterministicMatch(final CustomGoldenRecord goldenRecord,
-        |                                     final CustomPatient patient) {""".stripMargin)
+      """   static boolean deterministicMatch(
+        |         final CustomDemographicData goldenRecord,
+        |         final CustomDemographicData patient) {""".stripMargin)
     val map = rules.deterministic
     map.foreach((_, rule) => {
       val expression: Ast.Expression = ParseRule.parse(rule.text)

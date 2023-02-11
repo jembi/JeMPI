@@ -8,12 +8,14 @@ public record CustomPatient(
       String uid,
       SourceId sourceId,
       CustomDemographicData demographicData) {
+
    public static String getNames(final CustomPatient patient) {
       return ((StringUtils.isBlank(patient.demographicData.givenName())
                      ? ""
-                     : " " + patient.demographicData.givenName()) + (StringUtils.isBlank(patient.demographicData.familyName())
-                                                                           ? ""
-                                                                           : " " + patient.demographicData.familyName())).trim();
+                     : " " + patient.demographicData.givenName()) +
+              (StringUtils.isBlank(patient.demographicData.familyName())
+                     ? ""
+                     : " " + patient.demographicData.familyName())).trim();
    }
 
 }

@@ -16,71 +16,72 @@ private object CustomLibMPIMutations {
     writer.println(
       s"""package $packageText;
          |
-         |import java.util.UUID;
-         |
-         |import org.jembi.jempi.shared.models.CustomPatient;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.utils.AppUtils;
+         |
+         |import java.util.UUID;
          |
          |class $custom_className {
          |
          |${" " * 3}private $custom_className() {}
          |
-         |${" " * 3}static String createPatientTriple(final CustomPatient patient, final String sourceUID) {
+         |${" " * 3}static String createPatientTriple(
+         |${" " * 9}final CustomDemographicData demographicData,
+         |${" " * 9}final String sourceUID) {
          |${" " * 6}final String uuid = UUID.randomUUID().toString();
-         |${" " * 6}return String.format(
-         |${" " * 9}\"\"\"""".stripMargin)
+         |${" " * 6}return String.format(\"\"\"""".stripMargin)
 
     // createDocumentTriple
-    writer.println(s"""${" " * 9}_:%s  <Patient.source_id>${" " * 16}<%s>${" " * 8}.""".stripMargin)
+    writer.println(s"""${" " * 27}_:%s  <Patient.source_id>${" " * 16}<%s>${" " * 8}.""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val name = field.fieldName
-        writer.println(s"""${" " * 9}_:%s  <Patient.$name>${" " * (25 - name.length)}%s${" " * 10}.""".stripMargin)
+        writer.println(s"""${" " * 27}_:%s  <Patient.$name>${" " * (25 - name.length)}%s${" " * 10}.""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}_:%s  <dgraph.type>                     \"Patient\"    .
-         |${" " * 9}\"\"\",""".stripMargin)
-    writer.println(s"""${" " * 9}uuid, sourceUID,""".stripMargin)
+      s"""${" " * 27}_:%s  <dgraph.type>                     \"Patient\"    .
+         |${" " * 27}\"\"\",""".stripMargin)
+    writer.println(s"""${" " * 27}uuid, sourceUID,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val name = "patient." + field.fieldName
+        val name = "demographicData." + field.fieldName
         writer.println(
-          s"""${" " * 9}uuid, AppUtils.quotedValue(${Utils.snakeCaseToCamelCase(name)}()),""".stripMargin)
+          s"""${" " * 27}uuid, AppUtils.quotedValue(${Utils.snakeCaseToCamelCase(name)}()),""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}uuid);
+      s"""${" " * 27}uuid);
          |   }
          |""".stripMargin)
 
     // createLinkedGoldenRecordTriple
     writer.println(
-      s"""   static String createLinkedGoldenRecordTriple(final CustomPatient patient,
-         |                                                final String patientUID,
-         |                                                final String sourceUID,
-         |                                                final float score) {
+      s"""   static String createLinkedGoldenRecordTriple(
+         |         final CustomDemographicData demographicData,
+         |         final String patientUID,
+         |         final String sourceUID,
+         |         final float score) {
          |      final String uuid = UUID.randomUUID().toString();
-         |      return String.format(
-         |         \"\"\"
-         |         _:%s  <GoldenRecord.source_id>                     <%s>             .""".stripMargin)
+         |      return String.format(\"\"\"
+         |                           _:%s  <GoldenRecord.source_id>                     <%s>             .""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val name = field.fieldName
         writer.println(
-          s"""${" " * 9}_:%s  <GoldenRecord.$name>${" " * (30 - name.length)}%s${" " * 15}.""".stripMargin)
+          s"""${" " * 27}_:%s  <GoldenRecord.$name>${" " * (30 - name.length)}%s${" " * 15}.""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}_:%s  <GoldenRecord.patients>                      <%s> (score=%f)  .
-         |${" " * 9}_:%s  <dgraph.type>                                "GoldenRecord"   .
-         |${" " * 9}\"\"\",
-         |${" " * 9}uuid, sourceUID,""".stripMargin)
+      s"""${" " * 27}_:%s  <GoldenRecord.patients>                      <%s> (score=%f)  .
+         |${" " * 27}_:%s  <dgraph.type>                                "GoldenRecord"   .
+         |${" " * 27}\"\"\",
+         |${" " * 27}uuid, sourceUID,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val name = "patient." + Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(s"""${" " * 9}uuid, AppUtils.quotedValue($name()),""".stripMargin)
+        val name = "demographicData." + Utils.snakeCaseToCamelCase(field.fieldName)
+        writer.println(s"""${" " * 27}uuid, AppUtils.quotedValue($name()),""".stripMargin)
     }
     writer.println(
-      s"""${" " * 9}uuid, patientUID, score,
-         |${" " * 9}uuid);
+      s"""${" " * 27}uuid, patientUID, score,
+         |${" " * 27}uuid);
          |${" " * 3}}
          |}""".stripMargin)
     writer.flush()

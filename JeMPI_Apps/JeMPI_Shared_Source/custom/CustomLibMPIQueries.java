@@ -42,6 +42,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
+      
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE =
          """
          query query_match_golden_record_candidates_by_distance($given_name: string, $family_name: string, $city: string) {
@@ -70,6 +71,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
+      
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER =
          """
          query query_match_golden_record_candidates_by_phone_number($phone_number: string) {
@@ -89,6 +91,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
+      
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID =
          """
          query query_match_golden_record_candidates_by_national_id($national_id: string) {
@@ -108,8 +111,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
-
-   private CustomLibMPIQueries() {}
+      
 
    static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
@@ -219,5 +221,7 @@ class CustomLibMPIQueries {
       updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
       return result;
    }
+
+   private CustomLibMPIQueries() {}
 
 }

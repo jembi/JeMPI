@@ -29,14 +29,20 @@ public class CustomLinkerProbabilistic {
       return p;
    }
 
-   private static float fieldScore(final boolean match, final float m, final float u) {
+   private static float fieldScore(
+         final boolean match,
+         final float m,
+         final float u) {
       if (match) {
          return (float) (log(m / u) / LOG2);
       }
       return (float) (log((1.0 - m) / (1.0 - u)) / LOG2);
    }
 
-   private static float fieldScore(final String left, final String right, final Field field) {
+   private static float fieldScore(
+         final String left,
+         final String right,
+         final Field field) {
       return fieldScore(JARO_WINKLER_SIMILARITY.apply(left, right) > 0.92, field.m, field.u);
    }
 
@@ -66,9 +72,11 @@ public class CustomLinkerProbabilistic {
 
    }
 
-   private static void updateMetricsForStringField(final float[] metrics,
-                                                   final String left, final String right,
-                                                   final Field field) {
+   private static void updateMetricsForStringField(
+         final float[] metrics,
+         final String left,
+         final String right,
+         final Field field) {
       final float MISSING_PENALTY = 0.925F;
       if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
          metrics[0] += field.min;
@@ -90,13 +98,14 @@ public class CustomLinkerProbabilistic {
          getProbability(currentFields.nationalId));
    }
 
-   private record Fields(Field givenName,
-          Field familyName,
-          Field gender,
-          Field dob,
-          Field city,
-          Field phoneNumber,
-          Field nationalId) {}
+   private record Fields(
+         Field givenName,
+         Field familyName,
+         Field gender,
+         Field dob,
+         Field city,
+         Field phoneNumber,
+         Field nationalId) {}
 
    private static Fields currentFields =
       new Fields(new Field(0.782501F, 0.02372F),
@@ -107,7 +116,9 @@ public class CustomLinkerProbabilistic {
                  new Field(0.920281F, 0.322629F),
                  new Field(0.832336F, 1.33E-4F));
 
-   public static float probabilisticScore(final CustomDemographicData goldenRecord, final CustomDemographicData patient) {
+   public static float probabilisticScore(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData patient) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       updateMetricsForStringField(metrics,

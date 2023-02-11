@@ -3,19 +3,20 @@ package org.jembi.jempi.linker;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomPatient;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 class CustomLinkerDeterministic {
 
    private CustomLinkerDeterministic() {}
 
-   private static boolean isMatch(final String left, final String right) {
+   private static boolean isMatch(
+         final String left,
+         final String right) {
       return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
    }
 
-   static boolean deterministicMatch(final CustomDemographicData goldenRecord,
-                                     final CustomDemographicData patient) {
+   static boolean deterministicMatch(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData patient) {
       final var givenName_l = goldenRecord.givenName();
       final var givenName_r = patient.givenName();
       final var familyName_l = goldenRecord.familyName();

@@ -18,11 +18,16 @@ public class CustomLinkerMU {
       LOGGER.debug("CustomLinkerMU");
    }
 
-   private static boolean fieldMismatch(final String left, final String right) {
+   private static boolean fieldMismatch(
+         final String left,
+         final String right) {
       return JARO_WINKLER_SIMILARITY.apply(left, right) <= 0.92;
    }
 
-   private void updateMatchedPair(final Field field, final String left, final String right) {
+   private void updateMatchedPair(
+         final Field field,
+         final String left,
+         final String right) {
       if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(left, right)) {
          field.matchedPairFieldUnmatched += 1;
       } else {
@@ -30,7 +35,10 @@ public class CustomLinkerMU {
       }
    }
 
-   private void updateUnMatchedPair(final Field field, final String left, final String right) {
+   private void updateUnMatchedPair(
+         final Field field,
+         final String left,
+         final String right) {
       if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(left, right)) {
          field.unMatchedPairFieldUnmatched += 1;
       } else {
@@ -38,7 +46,9 @@ public class CustomLinkerMU {
       }
    }
 
-   void updateMatchSums(final CustomDemographicData patient, final CustomDemographicData customGoldenRecord) {
+   void updateMatchSums(
+         final CustomDemographicData patient,
+         final CustomDemographicData customGoldenRecord) {
       updateMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
       updateMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
       updateMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());
@@ -49,7 +59,9 @@ public class CustomLinkerMU {
       LOGGER.debug("{}", fields);
    }
 
-   void updateMissmatchSums(final CustomDemographicData patient, final CustomDemographicData customGoldenRecord) {
+   void updateMissmatchSums(
+         final CustomDemographicData patient,
+         final CustomDemographicData customGoldenRecord) {
       updateUnMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
       updateUnMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
       updateUnMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());

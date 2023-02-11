@@ -19,39 +19,41 @@ private object CustomLibMPIExpandedGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
+         |import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.CustomGoldenRecord;
          |
          |import java.util.List;
          |
-         |import org.jembi.jempi.shared.models.CustomGoldenRecord;
-         |import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
-         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
-         |record $customClassName(@JsonProperty("uid") String uid,
-         |${" " * margin}@JsonProperty("GoldenRecord.source_id") List<LibMPISourceId> sourceId,""".stripMargin)
+         |record $customClassName(
+         |${" " * 6}@JsonProperty("uid") String uid,
+         |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<LibMPISourceId> sourceId,""".stripMargin)
     fields.foreach {
       case field =>
         val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
         val parameterType = (if field.isList.isDefined && field.isList.get then "List<" else "") +
           field.fieldType + (if field.isList.isDefined && field.isList.get then ">" else "")
-        writer.println(s"""${" " * margin}@JsonProperty("GoldenRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
+        writer.println(s"""${" " * 6}@JsonProperty("GoldenRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * margin}@JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatient> patients) {
+      s"""${" " * 6}@JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatient> patients) {
          |""".stripMargin)
 
-    writer.println(
+    writer.print(
       """
         |   CustomGoldenRecord toCustomGoldenRecord() {
         |      return new CustomGoldenRecord(this.uid(),
         |                                    this.sourceId() != null
-        |                                       ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-        |                                       : List.of(),""".stripMargin)
+        |                                          ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+        |                                          : List.of(),
+        |                                    new CustomDemographicData(""".stripMargin)
 
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
-          s"${" " * 36}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
-            (if (idx + 1 < fields.length) "," else ");"))
+          s"${" " * (if (idx == 0) 0 else 62)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
+            (if (idx + 1 < fields.length) "," else "));"))
     }
     writer.println("   }")
 
@@ -59,10 +61,7 @@ private object CustomLibMPIExpandedGoldenRecord {
       """
         |   MpiExpandedGoldenRecord toMpiExpandedGoldenRecord() {
         |      return new MpiExpandedGoldenRecord(this.toCustomGoldenRecord(),
-        |                                         this.patients()
-        |                                             .stream()
-        |                                             .map(CustomLibMPIDGraphPatient::toMpiPatient)
-        |                                             .toList());
+        |                                         this.patients().stream().map(CustomLibMPIDGraphPatient::toMpiPatient).toList());
         |   }
         |""".stripMargin)
 

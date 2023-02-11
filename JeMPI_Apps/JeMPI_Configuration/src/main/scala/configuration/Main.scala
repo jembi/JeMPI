@@ -35,7 +35,7 @@ object Main {
     CustomLibMPIMutations.generate(config.fields)
     CustomLibMPIQueries.parseRules(config)
     CustomLinkerDeterministic.parseRules(config)
-    CustomLinkerProbalistic.parseRules(config)
+    CustomLinkerProbabilistic.parseRules(config)
     CustomLinkerBackEnd.parseRules(config)
     CustomLinkerMU.parseRules(config)
 
