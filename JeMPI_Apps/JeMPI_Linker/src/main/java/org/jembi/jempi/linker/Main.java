@@ -12,7 +12,7 @@ import org.jembi.jempi.AppConfig;
 public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
-   private EntityStreamSync entityStreamSync;
+   private PatientStreamSync patientStreamSync;
 
    private Main() {
    }
@@ -27,16 +27,16 @@ public final class Main {
                final var system = context.getSystem();
                final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEnd);
-               final EntityStreamAsync entityStreamAsync = EntityStreamAsync.create();
-               entityStreamAsync.open(system, backEnd);
+               final PatientStreamAsync patientStreamAsync = PatientStreamAsync.create();
+               patientStreamAsync.open(system, backEnd);
                final FrontEndMUStream frontEndMUStream = new FrontEndMUStream();
                frontEndMUStream.open(system, backEnd);
-               entityStreamSync = EntityStreamSync.create();
-               entityStreamSync.open(system, backEnd);
+               patientStreamSync = PatientStreamSync.create();
+               patientStreamSync.open(system, backEnd);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> {
-                                            entityStreamSync.close(system);
+                                            patientStreamSync.close(system);
                                             return Behaviors.stopped();
                                          })
                                .build();

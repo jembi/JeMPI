@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -33,7 +34,9 @@ final class Queries {
       return new LibMPISourceIdList(List.of());
    }
 
-   static LibMPIDGraphPatients runPatientRecordsQuery(final String query, final Map<String, String> vars) {
+   static LibMPIDGraphPatients runPatientRecordsQuery(
+         final String query,
+         final Map<String, String> vars) {
       try {
          final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
@@ -45,7 +48,9 @@ final class Queries {
       return new LibMPIDGraphPatients(List.of());
    }
 
-   static LibMPIGoldenRecordList runGoldenRecordsQuery(final String query, final Map<String, String> vars) {
+   static LibMPIGoldenRecordList runGoldenRecordsQuery(
+         final String query,
+         final Map<String, String> vars) {
       try {
          final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
@@ -57,7 +62,9 @@ final class Queries {
       return new LibMPIGoldenRecordList(List.of());
    }
 
-   static LibMPIExpandedGoldenRecordList runExpandedGoldenRecordsQuery(final String query, final Map<String, String> vars) {
+   static LibMPIExpandedGoldenRecordList runExpandedGoldenRecordsQuery(
+         final String query,
+         final Map<String, String> vars) {
       try {
          final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
@@ -69,7 +76,9 @@ final class Queries {
       return new LibMPIExpandedGoldenRecordList(List.of());
    }
 
-   static List<String> getGoldenIdListByPredicate(final String predicate, final String val) {
+   static List<String> getGoldenIdListByPredicate(
+         final String predicate,
+         final String val) {
       if (StringUtils.isBlank(predicate) || StringUtils.isBlank(val)) {
          return Collections.emptyList();
       }
@@ -97,11 +106,11 @@ final class Queries {
          return null;
       }
       final var vars = Map.of("$uid", uid);
-      final var dgraphEntityList = runPatientRecordsQuery(CustomLibMPIConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
-      if (AppUtils.isNullOrEmpty(dgraphEntityList)) {
+      final var patientList = runPatientRecordsQuery(CustomLibMPIConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
+      if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return dgraphEntityList.get(0).toMpiPatient().patient();
+      return patientList.get(0).toMpiPatient().patient();
    }
 
    static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {
@@ -119,10 +128,10 @@ final class Queries {
       return goldenRecordList.get(0);
    }
 
-   static List<String> getGoldenIdEntityIdList(final String uid) {
+   static List<String> getGoldenUidPatientUidList(final String uid) {
       final String query = String
             .format("""
-                    query recordGoldenIdEntityIdList() {
+                    query recordGoldenUidPatientUidList() {
                         list(func: uid(%s)) {
                             uid
                             list: GoldenRecord.patients {
@@ -205,7 +214,7 @@ final class Queries {
       return getCount(query);
    }
 
-   static LinkedList<CustomLibMPIGoldenRecord> deterministicFilter(final CustomPatient patient) {
+   static LinkedList<CustomLibMPIGoldenRecord> deterministicFilter(final CustomDemographicData patient) {
       final LinkedList<CustomLibMPIGoldenRecord> candidateGoldenRecords = new LinkedList<>();
       var block = CustomLibMPIQueries.queryDeterministicGoldenRecordCandidates(patient);
       if (!block.all().isEmpty()) {
@@ -251,10 +260,14 @@ final class Queries {
 
    static <T> List<String> getRecordFieldNamesByType(RecordType recordType) {
       List<String> fieldNames = new ArrayList<String>();
-      Class C = recordType == RecordType.GoldenRecord ? CustomGoldenRecord.class : CustomPatient.class;
+      Class C = recordType == RecordType.GoldenRecord
+            ? CustomGoldenRecord.class
+            : CustomPatient.class;
       Field[] fields = C.getDeclaredFields();
       for (Field field : fields) {
-         fieldNames.add(field.getName() == "uid" ? "uid" : recordType + "." + camelToSnake(field.getName()));
+         fieldNames.add(field.getName() == "uid"
+                              ? "uid"
+                              : recordType + "." + camelToSnake(field.getName()));
       }
       return fieldNames;
    }
@@ -315,7 +328,9 @@ final class Queries {
       return vars;
    }
 
-   static String getSimpleSearchQueryFilters(RecordType recordType, List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+   static String getSimpleSearchQueryFilters(
+         RecordType recordType,
+         List<SimpleSearchRequestPayload.SearchParameter> parameters) {
       List<String> gqlFilters = new ArrayList<String>();
       for (int i = 0; i < parameters.size(); i++) {
          SimpleSearchRequestPayload.SearchParameter param = parameters.get(i);
@@ -335,7 +350,9 @@ final class Queries {
       return "";
    }
 
-   static String getCustomSearchQueryFilters(RecordType recordType, List<SimpleSearchRequestPayload> payloads) {
+   static String getCustomSearchQueryFilters(
+         RecordType recordType,
+         List<SimpleSearchRequestPayload> payloads) {
       List<String> gqlOrCondition = new ArrayList<String>();
       for (int i = 0; i < payloads.size(); i++) {
          List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
@@ -363,8 +380,15 @@ final class Queries {
       return "";
    }
 
-   static String getSearchQueryFunc(RecordType recordType, Integer offset, Integer limit, String sortBy, Boolean sortAsc) {
-      String direction = sortAsc ? "asc" : "desc";
+   static String getSearchQueryFunc(
+         RecordType recordType,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc) {
+      String direction = sortAsc
+            ? "asc"
+            : "desc";
       String sort = "";
       // Sort by default is by uid
       if (sortBy != null && !sortBy.isBlank() && !sortBy.equals("uid")) {
@@ -373,8 +397,10 @@ final class Queries {
       return String.format("func: type(%s), first: %d, offset: %d", recordType, limit, offset) + sort;
    }
 
-   static String getSearchQueryPagination(RecordType recordType, String gqlFilters) {
-      return String.format("pagination(func: type(%s)) @filter(%s) {\ntotal: count(uid)\n}", recordType, gqlFilters);
+   static String getSearchQueryPagination(
+         RecordType recordType,
+         String gqlFilters) {
+      return String.format("pagination(func: type(%s)) @filter(%s) {%ntotal: count(uid)%n}", recordType, gqlFilters);
    }
 
    static LibMPIExpandedGoldenRecordList searchGoldenRecords(
@@ -395,7 +421,7 @@ final class Queries {
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
       gql += String.join("\n", goldenRecordFieldNames) + "\n";
-      gql += RecordType.GoldenRecord + ".entity_list {\n" + String.join("\n", patientRecordFieldNames) + "}\n";
+      gql += RecordType.GoldenRecord + ".patients {\n" + String.join("\n", patientRecordFieldNames) + "}\n";
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";

@@ -44,7 +44,7 @@ pushd JeMPI_EM/src/main/java/org/jembi/jempi/em
   rm -f CustomEMTask.java
   rm -f CustomPatient.java
   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/em/CustomEMTask.java CustomEMTask.java  
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/em/CustomPatient.java CustomPatient.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/em/CustomEMPatient.java CustomEMPatient.java
 popd
 
 # JeMPI_Stats

@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.BatchEntity;
+import org.jembi.jempi.shared.models.BatchPatient;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -23,7 +23,7 @@ import java.util.Properties;
 public class FrontEndStreamAsync {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamAsync.class);
-   private MyKafkaProducer<String, BatchEntity> topicEM;
+   private MyKafkaProducer<String, BatchPatient> topicEM;
    private KafkaStreams patientKafkaStreams = null;
 
    void open(final ActorSystem<Void> system, final ActorRef<BackEnd.Event> backEnd) {
@@ -32,26 +32,26 @@ public class FrontEndStreamAsync {
       final Properties props = loadConfig();
 
       final Serde<String> stringSerde = Serdes.String();
-      final Serializer<BatchEntity> batchEntitySerializer = new JsonPojoSerializer<>();
-      final Deserializer<BatchEntity> batchEntityDeserializer = new JsonPojoDeserializer<>(BatchEntity.class);
-      final Serde<BatchEntity> batchEntitySerde = Serdes.serdeFrom(batchEntitySerializer, batchEntityDeserializer);
+      final Serializer<BatchPatient> batchPatientSerializer = new JsonPojoSerializer<>();
+      final Deserializer<BatchPatient> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchPatient.class);
+      final Serde<BatchPatient> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchEntity> batchEntityStream = streamsBuilder.stream(
+      final KStream<String, BatchPatient> batchPatientStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_CONTROLLER,
-            Consumed.with(stringSerde, batchEntitySerde));
+            Consumed.with(stringSerde, batchPatientSerde));
       topicEM = new MyKafkaProducer<>(GlobalConstants.TOPIC_PATIENT_EM,
                                       new StringSerializer(), new JsonPojoSerializer<>(),
                                       AppConfig.KAFKA_CLIENT_ID);
-      batchEntityStream
-            .peek((key, batchEntity) -> {
-               LOGGER.info("{}/{}", key, batchEntity);
-               topicEM.produceAsync(key, batchEntity, ((metadata, exception) -> {
+      batchPatientStream
+            .peek((key, batchPatient) -> {
+               LOGGER.info("{}/{}", key, batchPatient);
+               topicEM.produceAsync(key, batchPatient, ((metadata, exception) -> {
                   if (exception != null) {
                      LOGGER.error(exception.toString());
                   }
                }));
             })
-            .to(GlobalConstants.TOPIC_PATIENT_LINKER, Produced.with(stringSerde, batchEntitySerde));
+            .to(GlobalConstants.TOPIC_PATIENT_LINKER, Produced.with(stringSerde, batchPatientSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
       patientKafkaStreams.start();

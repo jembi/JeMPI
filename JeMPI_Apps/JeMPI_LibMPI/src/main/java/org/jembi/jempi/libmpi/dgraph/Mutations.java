@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.LinkInfo;
 import org.jembi.jempi.shared.models.SourceId;
@@ -62,7 +63,10 @@ final class Mutations {
       return Queries.runSourceIdQuery(query);
    }
 
-   private static boolean updateGoldenRecordPredicate(final String uid, final String predicate, final String value) {
+   private static boolean updateGoldenRecordPredicate(
+         final String uid,
+         final String predicate,
+         final String value) {
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      """
@@ -74,7 +78,10 @@ final class Mutations {
       return StringUtil.isNullOrEmpty(result);
    }
 
-   private static boolean deletePredicate(final String uid, final String predicate, final String value) {
+   private static boolean deletePredicate(
+         final String uid,
+         final String predicate,
+         final String value) {
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setDelNquads(ByteString.copyFromUtf8(String.format(
                                                      """
@@ -85,12 +92,12 @@ final class Mutations {
       return result != null;
    }
 
-   private static void addScoreFacets(final List<LibMPIEntityScore> entityScoreList) {
+   private static void addScoreFacets(final List<LibMPIPatientScore> patientScoreList) {
       StringBuilder simWeightFacet = new StringBuilder();
-      for (LibMPIEntityScore entityScore : entityScoreList) {
+      for (LibMPIPatientScore patientScore : patientScoreList) {
          simWeightFacet.append(
                String.format("<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
-                             entityScore.goldenUid(), entityScore.entityUid(), entityScore.score()));
+                             patientScore.goldenUID(), patientScore.patientUID(), patientScore.score()));
       }
 
       final var s = simWeightFacet.toString();
@@ -99,34 +106,37 @@ final class Mutations {
       Client.getInstance().doMutateTransaction(mu);
    }
 
-   private static void addSourceId(final String uid, final String sourceId) {
+   private static void addSourceId(
+         final String uid,
+         final String sourceId) {
       var mutation = String.format("<%s> <GoldenRecord.source_id> <%s> .%n", uid, sourceId);
       final DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFromUtf8(mutation)).build();
       Client.getInstance().doMutateTransaction(mu);
    }
 
-   private static InsertEntityResult insertPatient(final CustomPatient patient) {
+   private static InsertPatientResult insertPatient(final CustomPatient patient) {
       final DgraphProto.Mutation sourceIdMutation =
             DgraphProto.Mutation.newBuilder()
-                                .setSetNquads(
-                                      ByteString.copyFromUtf8(createSourceIdTriple(patient.sourceId())))
+                                .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(patient.sourceId())))
                                 .build();
       final var sourceId = getSourceId(patient.sourceId()).all();
       final var sourceIdUid = !sourceId.isEmpty()
-                              ? sourceId.get(0).uid()
-                              : Client.getInstance().doMutateTransaction(sourceIdMutation);
+            ? sourceId.get(0).uid()
+            : Client.getInstance().doMutateTransaction(sourceIdMutation);
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().setSetNquads(
-            ByteString.copyFromUtf8(CustomLibMPIMutations.createPatientTriple(patient, sourceIdUid))).build();
-      return new InsertEntityResult(Client.getInstance().doMutateTransaction(mutation), sourceIdUid);
+            ByteString.copyFromUtf8(CustomLibMPIMutations.createPatientTriple(patient.demographicData(), sourceIdUid))).build();
+      return new InsertPatientResult(Client.getInstance().doMutateTransaction(mutation), sourceIdUid);
    }
 
-   private static String cloneGoldenRecordFromPatient(final CustomPatient patient,
-                                                      final String entityUid,
-                                                      final String sourceUid,
-                                                      final float score) {
-      final var command = CustomLibMPIMutations.createLinkedGoldenRecordTriple(patient, entityUid, sourceUid, score);
-      final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().setSetNquads(
-            ByteString.copyFromUtf8(command)).build();
+   private static String cloneGoldenRecordFromPatient(
+         final CustomDemographicData patient,
+         final String patientUID,
+         final String sourceUID,
+         final float score) {
+      final var command = CustomLibMPIMutations.createLinkedGoldenRecordTriple(patient, patientUID, sourceUID, score);
+      final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
+                                                                .setSetNquads(ByteString.copyFromUtf8(command))
+                                                                .build();
       return Client.getInstance().doMutateTransaction(mutation);
    }
 
@@ -143,48 +153,52 @@ final class Mutations {
 
    static LinkInfo addNewDGraphPatient(final CustomPatient patient) {
       final var result = insertPatient(patient);
-      if (result.entityUid == null) {
-         LOGGER.error("Failed to insert dgraphEntity");
+      if (result.patientUID == null) {
+         LOGGER.error("Failed to insert patient");
          return null;
       }
-      final var grUID = cloneGoldenRecordFromPatient(patient, result.entityUid, result.sourceUid, 1.0F);
+      final var grUID = cloneGoldenRecordFromPatient(patient.demographicData(), result.patientUID, result.sourceUID, 1.0F);
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
       }
-      return new LinkInfo(grUID, result.entityUid, 1.0F);
+      return new LinkInfo(grUID, result.patientUID, 1.0F);
    }
 
    static String camelToSnake(String str) {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
-   static boolean updateGoldenRecordField(final String uid, final String fieldName, final String val) {
+   static boolean updateGoldenRecordField(
+         final String uid,
+         final String fieldName,
+         final String val) {
       String predicate = "GoldenRecord." + camelToSnake(fieldName);
       return updateGoldenRecordPredicate(uid, predicate, val);
    }
 
-   static Either<MpiGeneralError, LinkInfo> unLink(final String goldenUID,
-                                                   final String patientUID,
-                                                   final float score) {
+   static Either<MpiGeneralError, LinkInfo> unLink(
+         final String goldenUID,
+         final String patientUID,
+         final float score) {
 
-      final var goldenIdEntityIdList = Queries.getGoldenIdEntityIdList(goldenUID);
-      if (goldenIdEntityIdList.isEmpty() || !goldenIdEntityIdList.contains(patientUID)) {
+      final var goldenUidPatientUidList = Queries.getGoldenUidPatientUidList(goldenUID);
+      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientUID)) {
          return Either.left(
-               new MpiServiceError.GoldenIDEntityConflictError("Entity not linked to GoldenRecord",
-                                                               goldenUID,
-                                                               patientUID));
+               new MpiServiceError.GoldenUIDPatientConflictError("Patient not linked to GoldenRecord",
+                                                                 goldenUID,
+                                                                 patientUID));
       }
-      final var count = goldenIdEntityIdList.size();
+      final var count = goldenUidPatientUidList.size();
 
-      final var dGraphEntity = Queries.getDGraphPatient(patientUID);
-      if (dGraphEntity == null) {
-         LOGGER.warn("entity {} not found", patientUID);
-         return Either.left(new MpiServiceError.EntityIDDoesNotExistError("Patient not found", patientUID));
+      final var patient = Queries.getDGraphPatient(patientUID);
+      if (patient == null) {
+         LOGGER.warn("patient {} not found", patientUID);
+         return Either.left(new MpiServiceError.PatientUIDDoesNotExistError("Patient not found", patientUID));
       }
       final var grec = Queries.getGoldenRecordByUid(goldenUID);
       if (grec == null) {
-         return Either.left(new MpiServiceError.GoldenIDDoesNotExistError("Golden Record not found", goldenUID));
+         return Either.left(new MpiServiceError.GoldenUIDDoesNotExistError("Golden Record not found", goldenUID));
       }
       if (!deletePredicate(goldenUID, PREDICATE_GOLDEN_RECORD_PATIENTS, patientUID)) {
          return Either.left(new MpiServiceError.DeletePredicateError(patientUID, PREDICATE_GOLDEN_RECORD_PATIENTS));
@@ -192,47 +206,52 @@ final class Mutations {
       if (count == 1) {
          deleteGoldenRecord(goldenUID);
       }
-      final var newGoldenID = cloneGoldenRecordFromPatient(dGraphEntity, dGraphEntity.uid(), dGraphEntity.sourceId().uid(),
+      final var newGoldenID = cloneGoldenRecordFromPatient(patient.demographicData(), patient.uid(),
+                                                           patient.sourceId().uid(),
                                                            score);
       return Either.right(new LinkInfo(newGoldenID, patientUID, score));
    }
 
-   static Either<MpiGeneralError, LinkInfo> updateLink(final String goldenID, final String newGoldenID,
-                                                       final String entityID, float score) {
+   static Either<MpiGeneralError, LinkInfo> updateLink(
+         final String goldenUID,
+         final String newGoldenUID,
+         final String patientUID,
+         float score) {
 
-      final var goldenIdEntityIdList = Queries.getGoldenIdEntityIdList(goldenID);
-      if (goldenIdEntityIdList.isEmpty() || !goldenIdEntityIdList.contains(entityID)) {
+      final var goldenUidPatientUidList = Queries.getGoldenUidPatientUidList(goldenUID);
+      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientUID)) {
          return Either.left(
-               new MpiServiceError.GoldenIDEntityConflictError("Entity not linked to GoldenRecord", goldenID, entityID));
+               new MpiServiceError.GoldenUIDPatientConflictError("Patient not linked to GoldenRecord", goldenUID, patientUID));
       }
 
-      final var count = Queries.countGoldenRecordEntities(goldenID);
-      deletePredicate(goldenID, "GoldenRecord.entity_list", entityID);
+      final var count = Queries.countGoldenRecordEntities(goldenUID);
+      deletePredicate(goldenUID, "GoldenRecord.patients", patientUID);
       if (count == 1) {
-         deleteGoldenRecord(goldenID);
+         deleteGoldenRecord(goldenUID);
       }
 
-      final var scoreList = new ArrayList<LibMPIEntityScore>();
-      scoreList.add(new LibMPIEntityScore(newGoldenID, entityID, score));
+      final var scoreList = new ArrayList<LibMPIPatientScore>();
+      scoreList.add(new LibMPIPatientScore(newGoldenUID, patientUID, score));
       addScoreFacets(scoreList);
-      return Either.right(new LinkInfo(newGoldenID, entityID, score));
+      return Either.right(new LinkInfo(newGoldenUID, patientUID, score));
    }
 
-   static LinkInfo linkDGraphPatient(final CustomPatient patient,
-                                     final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
+   static LinkInfo linkDGraphPatient(
+         final CustomPatient patient,
+         final LibMPIClientInterface.GoldenUIDScore goldenUIDScore) {
       final var result = insertPatient(patient);
 
-      if (result.entityUid == null) {
+      if (result.patientUID == null) {
          LOGGER.error("Failed to insert dgraphPatient");
          return null;
       }
-      final List<LibMPIEntityScore> entityScoreList = new ArrayList<>();
-      entityScoreList.add(new LibMPIEntityScore(goldenIdScore.goldenId(), result.entityUid, goldenIdScore.score()));
-      addScoreFacets(entityScoreList);
-      addSourceId(entityScoreList.get(0).goldenUid(), result.sourceUid);
-      final var grUID = entityScoreList.get(0).goldenUid();
-      final var theScore = entityScoreList.get(0).score();
-      return new LinkInfo(grUID, result.entityUid, theScore);
+      final List<LibMPIPatientScore> patientScoreList = new ArrayList<>();
+      patientScoreList.add(new LibMPIPatientScore(goldenUIDScore.goldenUID(), result.patientUID, goldenUIDScore.score()));
+      addScoreFacets(patientScoreList);
+      addSourceId(patientScoreList.get(0).goldenUID(), result.sourceUID);
+      final var grUID = patientScoreList.get(0).goldenUID();
+      final var theScore = patientScoreList.get(0).score();
+      return new LinkInfo(grUID, result.patientUID, theScore);
    }
 
    static Option<MpiGeneralError> createSchema() {
@@ -254,7 +273,9 @@ final class Mutations {
       }
    }
 
-   private record InsertEntityResult(String entityUid, String sourceUid) {
+   private record InsertPatientResult(
+         String patientUID,
+         String sourceUID) {
    }
 
 }

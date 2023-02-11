@@ -13,8 +13,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.LinkEntitySyncBody;
-import org.jembi.jempi.shared.models.LinkEntityToGidSyncBody;
+import org.jembi.jempi.shared.models.LinkPatientSyncBody;
+import org.jembi.jempi.shared.models.LinkPatientToGidSyncBody;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Arrays;
@@ -43,19 +43,19 @@ public class FrontEndStreamSync extends AllDirectives {
         LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
     }
 
-    private CompletionStage<HttpResponse> postLinkEntity(final LinkEntitySyncBody body) throws JsonProcessingException {
+    private CompletionStage<HttpResponse> postLinkPatient(final LinkPatientSyncBody body) throws JsonProcessingException {
         final HttpRequest request;
         request = HttpRequest
-                .create("http://jempi-linker:50000/JeMPI/link_entity")
+                .create("http://jempi-linker:50000/JeMPI/link_patient")
                 .withMethod(HttpMethods.POST)
                 .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
         final var stage = http.singleRequest(request);
         return stage.thenApply(response -> response);
     }
 
-    private CompletionStage<HttpResponse> postLinkEntityToGid(final LinkEntityToGidSyncBody body) throws JsonProcessingException {
+    private CompletionStage<HttpResponse> postLinkPatientToGid(final LinkPatientToGidSyncBody body) throws JsonProcessingException {
         final var request = HttpRequest
-                .create("http://jempi-linker:50000/JeMPI/link_entity_to_gid")
+                .create("http://jempi-linker:50000/JeMPI/link_patient_to_gid")
                 .withMethod(HttpMethods.POST)
                 .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
         final var stage = http.singleRequest(request);
@@ -70,12 +70,12 @@ public class FrontEndStreamSync extends AllDirectives {
         return stage.thenApply(response -> response);
     }
 
-    private Route routeLinkEntity() {
-        return entity(Jackson.unmarshaller(LinkEntitySyncBody.class),
+    private Route routeLinkPatient() {
+        return entity(Jackson.unmarshaller(LinkPatientSyncBody.class),
                 obj -> {
                     try {
                         LOGGER.debug("{}", obj);
-                        return onComplete(postLinkEntity(obj),
+                        return onComplete(postLinkPatient(obj),
                                 response -> response.isSuccess()
                                         ? complete(response.get())
                                         : complete(StatusCodes.IM_A_TEAPOT));
@@ -86,11 +86,11 @@ public class FrontEndStreamSync extends AllDirectives {
                 });
     }
 
-    private Route routeLinkEntityToGid() {
-        return entity(Jackson.unmarshaller(LinkEntityToGidSyncBody.class),
+    private Route routeLinkPatientToGid() {
+        return entity(Jackson.unmarshaller(LinkPatientToGidSyncBody.class),
                 obj -> {
                     try {
-                        return onComplete(postLinkEntityToGid(obj),
+                        return onComplete(postLinkPatientToGid(obj),
                                 response -> response.isSuccess()
                                         ? complete(response.get())
                                         : complete(StatusCodes.IM_A_TEAPOT));
@@ -116,8 +116,8 @@ public class FrontEndStreamSync extends AllDirectives {
                 () -> pathPrefix("JeMPI",
                         () -> concat(
                                 post(() -> concat(
-                                        path("link_entity", this::routeLinkEntity),
-                                        path("link_entity_to_gid", this::routeLinkEntityToGid))),
+                                        path("link_patient", this::routeLinkPatient),
+                                        path("link_patient_to_gid", this::routeLinkPatientToGid))),
                                 get(() -> path("mu", this::routeMU)))));
     }
 

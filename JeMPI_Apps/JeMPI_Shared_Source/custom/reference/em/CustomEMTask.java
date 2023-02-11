@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaConsumerByPartition;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.BatchEntity;
+import org.jembi.jempi.shared.models.BatchPatient;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
@@ -60,8 +60,8 @@ class CustomEMTask {
         return new StringDeserializer();
     }
 
-    private static Deserializer<BatchEntity> entityJsonValueDeserializer() {
-        return new JsonPojoDeserializer<>(BatchEntity.class);
+    private static Deserializer<BatchPatient> patientJsonValueDeserializer() {
+        return new JsonPojoDeserializer<>(BatchPatient.class);
     }
 
     static String getPhonetic(String s) {
@@ -100,7 +100,7 @@ class CustomEMTask {
     }
 
     // Assumption:  consumer offset already set to postion to read from.
-    private ArrayList<int[]> getGammaMatrix(final MyKafkaConsumerByPartition<String, BatchEntity> consumer,
+    private ArrayList<int[]> getGammaMatrix(final MyKafkaConsumerByPartition<String, BatchPatient> consumer,
                                             final long nRecords) {
         final var jaroWinklerSimilarity = new JaroWinklerSimilarity();
         final var gamma = new ArrayList<int[]>();
@@ -117,10 +117,10 @@ class CustomEMTask {
                 busy = false;
             } else {
                 records.forEach(r -> {
-                    if (r.value().entityType() == BatchEntity.EntityType.BATCH_RECORD && count[0] < nRecords) {
+                    if (r.value().batchType() == BatchPatient.BatchType.BATCH_PATIENT && count[0] < nRecords) {
                         count[0] += 1;
                         final var v = r.value();
-                        final var patient = new CustomEMPatient(v.patient());
+                        final var patient = new CustomEMPatient(v.patient().demographicData());
                         patients.forEach(p -> {
                             var k = 0;
                             k += (patient.col1Phonetic() == null || !patient.col1Phonetic().equals(p.col1Phonetic())) ? 0 : 1;
@@ -235,7 +235,7 @@ class CustomEMTask {
         LOGGER.debug("doIt: {} {}", startOffset, nRecords);
 
         var topic = GlobalConstants.TOPIC_PATIENT_EM;
-        var consumer = new MyKafkaConsumerByPartition<>(topic, stringDeserializer(), entityJsonValueDeserializer(),
+        var consumer = new MyKafkaConsumerByPartition<>(topic, stringDeserializer(), patientJsonValueDeserializer(),
                                                         AppConfig.KAFKA_CLIENT_ID + topic,
                                                         AppConfig.KAFKA_GROUP_ID + topic, 500, 10);
         try {

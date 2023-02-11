@@ -38,7 +38,7 @@ public class JsonFieldsConfig {
             field.put("fieldName", snakeToCamelCase(fieldName));
             // Remove extra attributes
             field.remove("indexGoldenRecord");
-            field.remove("indexEntity");
+            field.remove("indexPatient");
             field.remove("m");
             field.remove("u");
             // Mark field as editable

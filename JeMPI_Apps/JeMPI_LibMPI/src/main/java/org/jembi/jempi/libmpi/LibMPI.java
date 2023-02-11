@@ -5,6 +5,7 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.LinkInfo;
@@ -18,7 +19,9 @@ public class LibMPI {
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
 
-   public LibMPI(final String[] host, final int[] port) {
+   public LibMPI(
+         final String[] host,
+         final int[] port) {
       LOGGER.info("{}", "LibMPI Constructor");
       client = new LibDgraph(host, port);
    }
@@ -99,8 +102,9 @@ public class LibMPI {
       return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
 
-   public List<CustomGoldenRecord> getCandidates(final CustomPatient patient,
-                                                 final boolean applyDeterministicFilter) {
+   public List<CustomGoldenRecord> getCandidates(
+         final CustomDemographicData patient,
+         final boolean applyDeterministicFilter) {
       LOGGER.debug("get candidates <- {}", patient);
       final var candidates = client.getCandidates(patient, applyDeterministicFilter);
       candidates.forEach(candidate -> LOGGER.debug("get candidates -> {}", candidate));
@@ -115,7 +119,9 @@ public class LibMPI {
       return client.getMpiExpandedPatients(idList);
    }
 
-   public List<String> getGoldenIdListByPredicate(final String predicate, final String val) {
+   public List<String> getGoldenIdListByPredicate(
+         final String predicate,
+         final String val) {
       return client.getGoldenIdListByPredicate(predicate, val);
    }
 
@@ -139,9 +145,6 @@ public class LibMPI {
       return client.countPatients();
    }
 
-//   public CustomPatient getDocument(String uid) {
-//      return client.getPatient(uid);
-//   }
 
    /*
     * *****************************************************************************
@@ -151,32 +154,41 @@ public class LibMPI {
     * *
     */
 
-   public boolean updateGoldenRecordField(final String goldenID, final String fieldName, final String value) {
+   public boolean updateGoldenRecordField(
+         final String goldenID,
+         final String fieldName,
+         final String value) {
       return client.updateGoldenRecordField(goldenID, fieldName, value);
    }
 
-   public Either<MpiGeneralError, LinkInfo> unLink(final String goldenRecordUID, final String patientUID,
-                                                   final float score) {
+   public Either<MpiGeneralError, LinkInfo> unLink(
+         final String goldenRecordUID,
+         final String patientUID,
+         final float score) {
       return client.unLink(goldenRecordUID, patientUID, score);
    }
 
-   public Either<MpiGeneralError, LinkInfo> updateLink(final String goldenRecordUID,
-                                                       final String newGoldenRecordUID,
-                                                       final String patientUID, final float score) {
+   public Either<MpiGeneralError, LinkInfo> updateLink(
+         final String goldenRecordUID,
+         final String newGoldenRecordUID,
+         final String patientUID,
+         final float score) {
       return client.updateLink(goldenRecordUID, newGoldenRecordUID, patientUID, score);
    }
 
-   public LinkInfo createPatientAndLinkToExistingGoldenRecord(final CustomPatient patient,
-                                                              final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
+   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
+         final CustomPatient patient,
+         final LibMPIClientInterface.GoldenUIDScore goldenUIDScore) {
       LOGGER.debug("link existing <- {}", patient);
-      LOGGER.debug("link existing <- {}", goldenIdScore);
-      final var linkInfo = client.createPatientAndLinkToExistingGoldenRecord(patient, goldenIdScore);
+      LOGGER.debug("link existing <- {}", goldenUIDScore);
+      final var linkInfo = client.createPatientAndLinkToExistingGoldenRecord(patient, goldenUIDScore);
       LOGGER.debug("link existing -> {}", linkInfo);
       return linkInfo;
    }
 
-   public LinkInfo createPatientAndLinkToClonedGoldenRecord(final CustomPatient patient,
-                                                            float score) {
+   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
+         final CustomPatient patient,
+         float score) {
       LOGGER.debug("link new <- {}", patient);
       LOGGER.debug("link new <- {}", score);
       final var linkInfo = client.createPatientAndLinkToClonedGoldenRecord(patient, score);

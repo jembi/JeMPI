@@ -13,7 +13,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchEntity;
+import org.jembi.jempi.shared.models.BatchPatient;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -33,15 +33,15 @@ public class FrontEndStream {
         LOGGER.info("FrontEndStream constructor");
     }
 
-    void addEntity(final ActorSystem<Void> system,
+    void addPatient(final ActorSystem<Void> system,
                    final ActorRef<BackEnd.Event> backEnd,
                    final String key,
-                   final BatchEntity batchEntity) {
-        if (batchEntity.entityType() == BatchEntity.EntityType.BATCH_RECORD) {
-            final CompletionStage<BackEnd.EventEntityRsp> result =
+                   final BatchPatient batchPatient) {
+        if (batchPatient.batchType() == BatchPatient.BatchType.BATCH_PATIENT) {
+            final CompletionStage<BackEnd.EventPatientRsp> result =
                     AskPattern.ask(
                             backEnd,
-                            replyTo -> new BackEnd.EventEntityReq(key, batchEntity, replyTo),
+                            replyTo -> new BackEnd.EventPatientReq(key, batchPatient, replyTo),
                             java.time.Duration.ofSeconds(3),
                             system.scheduler());
             final var completableFuture = result.toCompletableFuture();
@@ -65,13 +65,13 @@ public class FrontEndStream {
         LOGGER.info("EM Stream Processor");
         final Properties props = loadConfig();
         final Serde<String> stringSerde = Serdes.String();
-        final Serde<BatchEntity> batchEntitySerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
-                                                                     new JsonPojoDeserializer<>(BatchEntity.class));
+        final Serde<BatchPatient> batchPatientSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+                                                                     new JsonPojoDeserializer<>(BatchPatient.class));
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
-        final KStream<String, BatchEntity> entityStream = streamsBuilder.stream(
+        final KStream<String, BatchPatient> patientStream = streamsBuilder.stream(
                 GlobalConstants.TOPIC_PATIENT_EM,
-                Consumed.with(stringSerde, batchEntitySerde));
-        entityStream.foreach((key, entity) -> addEntity(system, backEnd, key, entity));
+                Consumed.with(stringSerde, batchPatientSerde));
+        patientStream.foreach((key, patient) -> addPatient(system, backEnd, key, patient));
         patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
         patientKafkaStreams.cleanUp();
         patientKafkaStreams.start();

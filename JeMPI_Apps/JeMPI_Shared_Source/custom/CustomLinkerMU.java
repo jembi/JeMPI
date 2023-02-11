@@ -4,8 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomPatient;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.CustomDemographicData;
+
 
 public class CustomLinkerMU {
 
@@ -38,7 +38,7 @@ public class CustomLinkerMU {
       }
    }
 
-   void updateMatchSums(final CustomPatient patient, final CustomGoldenRecord customGoldenRecord) {
+   void updateMatchSums(final CustomDemographicData patient, final CustomDemographicData customGoldenRecord) {
       updateMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
       updateMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
       updateMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());
@@ -49,7 +49,7 @@ public class CustomLinkerMU {
       LOGGER.debug("{}", fields);
    }
 
-   void updateMissmatchSums(final CustomPatient patient, final CustomGoldenRecord customGoldenRecord) {
+   void updateMissmatchSums(final CustomDemographicData patient, final CustomDemographicData customGoldenRecord) {
       updateUnMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
       updateUnMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
       updateUnMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());

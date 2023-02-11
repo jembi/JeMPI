@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
@@ -106,7 +107,7 @@ public class CustomLinkerProbabilistic {
                  new Field(0.920281F, 0.322629F),
                  new Field(0.832336F, 1.33E-4F));
 
-   public static float probabilisticScore(final CustomGoldenRecord goldenRecord, final CustomPatient patient) {
+   public static float probabilisticScore(final CustomDemographicData goldenRecord, final CustomDemographicData patient) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       updateMetricsForStringField(metrics,

@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaConsumerByPartition;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.BatchEntity;
+import org.jembi.jempi.shared.models.BatchPatient;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
@@ -62,8 +62,8 @@ class CustomEMTask {
         return new StringDeserializer();
     }
 
-    private static Deserializer<BatchEntity> entityJsonValueDeserializer() {
-        return new JsonPojoDeserializer<>(BatchEntity.class);
+    private static Deserializer<BatchPatient> entityJsonValueDeserializer() {
+        return new JsonPojoDeserializer<>(BatchPatient.class);
     }
 
     static String getPhonetic(String s) {

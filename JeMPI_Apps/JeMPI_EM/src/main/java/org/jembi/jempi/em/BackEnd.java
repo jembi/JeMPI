@@ -7,7 +7,7 @@ import akka.actor.typed.javadsl.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchEntity;
+import org.jembi.jempi.shared.models.BatchPatient;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -37,7 +37,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     public Receive<Event> createReceive() {
         ReceiveBuilder<BackEnd.Event> builder = newReceiveBuilder();
         return builder
-                .onMessage(EventEntityReq.class, this::eventEntityReqHandler)
+                .onMessage(EventPatientReq.class, this::eventPatientReqHandler)
                 .onMessage(EventWorkTimeReq.class, this::eventWorkTimeReqHandler)
                 .build();
     }
@@ -74,9 +74,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
         }
     }
 
-    private Behavior<Event> eventEntityReqHandler(EventEntityReq request) {
+    private Behavior<Event> eventPatientReqHandler(EventPatientReq request) {
         doWork(true);
-        request.replyTo.tell(new BackEnd.EventEntityRsp(true));
+        request.replyTo.tell(new BackEnd.EventPatientRsp(true));
         return Behaviors.same();
     }
 
@@ -96,12 +96,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     interface EventResponse {
     }
 
-    public record EventEntityReq(String key,
-                                 BatchEntity entity,
-                                 ActorRef<EventEntityRsp> replyTo) implements Event {
+    public record EventPatientReq(String key,
+                                 BatchPatient batchPatient,
+                                 ActorRef<EventPatientRsp> replyTo) implements Event {
     }
 
-    public record EventEntityRsp(boolean result) implements EventResponse {
+    public record EventPatientRsp(boolean result) implements EventResponse {
     }
 
 }

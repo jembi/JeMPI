@@ -31,7 +31,7 @@ class CustomReceiver extends AllDirectives {
         LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
     }
 
-    private CompletionStage<HttpResponse> postLinkEntity(final String json) {
+    private CompletionStage<HttpResponse> postLinkPatient(final String json) {
         LOGGER.debug("{}", json);
         final HttpRequest request;
         request = HttpRequest
@@ -42,11 +42,11 @@ class CustomReceiver extends AllDirectives {
         return stage.thenApply(response -> response);
     }
 
-    private Route routeLinkEntity() {
+    private Route routeLinkPatient() {
         return entity(Unmarshaller.entityToString(),
                 json -> {
                     LOGGER.debug("{}", json);
-                    return onComplete(postLinkEntity(json), response -> response.isSuccess()
+                    return onComplete(postLinkPatient(json), response -> response.isSuccess()
                             ? complete(response.get())
                             : complete(StatusCodes.IM_A_TEAPOT));
                 }
@@ -56,7 +56,7 @@ class CustomReceiver extends AllDirectives {
     private Route createRoute() {
         return pathPrefix("fhir",
                 () -> concat(
-                        post(this::routeLinkEntity)));
+                        post(this::routeLinkPatient)));
     }
 
 }

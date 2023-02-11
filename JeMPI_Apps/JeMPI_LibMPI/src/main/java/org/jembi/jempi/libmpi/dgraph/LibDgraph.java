@@ -6,6 +6,7 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.*;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomGoldenRecord;
 import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.LinkInfo;
@@ -20,7 +21,9 @@ public class LibDgraph implements LibMPIClientInterface {
 
    private static final Logger LOGGER = LogManager.getLogger(LibDgraph.class);
 
-   public LibDgraph(final String[] host, final int[] port) {
+   public LibDgraph(
+         final String[] host,
+         final int[] port) {
       LOGGER.info("{}", "LibDgraph Constructor");
 
       Client.getInstance().config(host, port);
@@ -97,11 +100,10 @@ public class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet(data, pagination);
    }
 
-   public List<CustomGoldenRecord> getCandidates(final CustomPatient patient,
-                                                 final boolean applyDeterministicFilter) {
-      // final var dgraphEntity = new CustomLibMPIDGraphEntity(mpiEntity.entity(),
-      // mpiEntity.score());
-      final var candidates = CustomLibMPIQueries.getCandidates(patient, applyDeterministicFilter);
+   public List<CustomGoldenRecord> getCandidates(
+         final CustomDemographicData demographicData,
+         final boolean applyDeterministicFilter) {
+      final var candidates = CustomLibMPIQueries.getCandidates(demographicData, applyDeterministicFilter);
       return candidates.stream().map(CustomLibMPIGoldenRecord::toCustomGoldenRecord).toList();
    }
 
@@ -115,7 +117,9 @@ public class LibDgraph implements LibMPIClientInterface {
       return list.stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
    }
 
-   public List<String> getGoldenIdListByPredicate(final String predicate, final String val) {
+   public List<String> getGoldenIdListByPredicate(
+         final String predicate,
+         final String val) {
       return Queries.getGoldenIdListByPredicate(predicate, val);
    }
 
@@ -149,30 +153,37 @@ public class LibDgraph implements LibMPIClientInterface {
     * *******************************************************
     */
 
-   public boolean updateGoldenRecordField(final String uid, final String fieldName, final String val) {
-      final var rc = Mutations.updateGoldenRecordField(uid, fieldName, val);
-      return rc;
+   public boolean updateGoldenRecordField(
+         final String uid,
+         final String fieldName,
+         final String val) {
+      return Mutations.updateGoldenRecordField(uid, fieldName, val);
    }
 
-   public Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID, final float score) {
-      return Mutations.unLink(goldenID, entityID, score);
+   public Either<MpiGeneralError, LinkInfo> unLink(
+         final String goldenUID,
+         final String patientUID,
+         final float score) {
+      return Mutations.unLink(goldenUID, patientUID, score);
    }
 
-   public Either<MpiGeneralError, LinkInfo> updateLink(final String goldenID, final String newGoldenID,
-                                                       final String entityID,
-                                                       final float score) {
-      return Mutations.updateLink(goldenID, newGoldenID, entityID, score);
+   public Either<MpiGeneralError, LinkInfo> updateLink(
+         final String goldenUID,
+         final String newGoldenUID,
+         final String patientUID,
+         final float score) {
+      return Mutations.updateLink(goldenUID, newGoldenUID, patientUID, score);
    }
 
-   public LinkInfo createPatientAndLinkToExistingGoldenRecord(final CustomPatient patient,
-                                                              final GoldenIdScore goldenIdScore) {
-      // final var dgraphEntity = new CustomLibMPIDGraphEntity(customEntity,
-      // goldenIdScore);
-      return Mutations.linkDGraphPatient(patient, goldenIdScore);
+   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
+         final CustomPatient patient,
+         final GoldenUIDScore goldenUIDScore) {
+      return Mutations.linkDGraphPatient(patient, goldenUIDScore);
    }
 
-   public LinkInfo createPatientAndLinkToClonedGoldenRecord(final CustomPatient patient,
-                                                            float score) {
+   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
+         final CustomPatient patient,
+         float score) {
       return Mutations.addNewDGraphPatient(patient);
    }
 

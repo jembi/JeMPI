@@ -303,15 +303,15 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("{} {}", request.docID, request.mu);
       libMPI.startTransaction();
       final var patient = libMPI.getMpiPatient(request.docID);
-      final var recs = libMPI.getCandidates(patient, true);
+      final var recs = libMPI.getCandidates(patient.demographicData(), true);
 
       CustomLinkerProbabilistic.updateMU(request.mu);
       CustomLinkerProbabilistic.checkUpdatedMU();
       final var candidates = recs
             .stream()
             .map(candidate -> new EventGetCandidatesRsp.Candidate(candidate,
-                                                                  CustomLinkerProbabilistic.probabilisticScore(candidate,
-                                                                                                               patient)))
+                                                                  CustomLinkerProbabilistic.probabilisticScore(candidate.demographicData(),
+                                                                                                               patient.demographicData())))
             .toList();
       request.replyTo.tell(new EventGetCandidatesRsp(Either.right(candidates)));
       libMPI.closeTransaction();

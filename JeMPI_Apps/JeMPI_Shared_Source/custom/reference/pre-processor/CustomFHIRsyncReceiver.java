@@ -16,10 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.CustomPatient;
-import org.jembi.jempi.shared.models.ExtendedLinkInfo;
-import org.jembi.jempi.shared.models.LinkEntitySyncBody;
-import org.jembi.jempi.shared.models.SourceId;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -54,11 +51,11 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
-   private CompletionStage<HttpResponse> postLinkEntity(final ActorSystem<Void> system,
+   private CompletionStage<HttpResponse> postLinkPatient(final ActorSystem<Void> system,
                                                         final String json) {
       LOGGER.debug("json : {}", json);
       final var request = HttpRequest
-            .create("http://jempi-controller:50000/JeMPI/link_entity")
+            .create("http://jempi-controller:50000/JeMPI/link_patient")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, json);
       return http.singleRequest(request)
@@ -79,7 +76,7 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                                 LOGGER.debug("{}", extendedLinkInfo);
                                 final var patient = new Patient();
                                 final var patientLinkComponent = new Patient.PatientLinkComponent();
-                                patientLinkComponent.setOther(new Reference(extendedLinkInfo.linkInfo().entityId()));
+                                patientLinkComponent.setOther(new Reference(extendedLinkInfo.linkInfo().patientUID()));
                                 patient.addLink(patientLinkComponent);
                                 final var jsonFHIR = parser.encodeResourceToString(patient);
                                 return HttpResponse.create()
@@ -88,7 +85,7 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                              }));
    }
 
-   private Route routeLinkEntity(final ActorSystem<Void> system, final Materializer materializer) {
+   private Route routeLinkPatient(final ActorSystem<Void> system, final Materializer materializer) {
       return entity(Unmarshaller.entityToString(),
                     json -> {
                        LOGGER.debug("{}", json);
@@ -123,14 +120,16 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                        }
                        final String givenName = name != null && name.hasGiven() ? name.getGiven().get(0).getValue() : null;
                        final String familyName = name != null ? name.getFamily() : null;
-                       final var customEntity = new CustomPatient(null,
-                                                                  sourceId, secondaryID,
-                                                                  givenName, familyName, gender, dob, city, phone, officialID);
-                       LOGGER.debug("{}", customEntity);
+                       final var customPatient = new CustomPatient(null,
+                                                                  sourceId,
+                                                                  new CustomDemographicData(secondaryID,
+                                                                                            givenName, familyName, gender, dob,
+                                                                                            city, phone, officialID));
+                       LOGGER.debug("{}", customPatient);
                        try {
                           final var jsonIn = AppUtils.OBJECT_MAPPER.writeValueAsString(
-                                new LinkEntitySyncBody(secondaryID, null, 0.65F, customEntity));
-                          return onComplete(postLinkEntity(system, jsonIn),
+                                new LinkPatientSyncBody(secondaryID, null, 0.65F, customPatient));
+                          return onComplete(postLinkPatient(system, jsonIn),
                                             response -> {
                                                if (response.isSuccess()) {
                                                   return complete(response.get());
@@ -149,7 +148,7 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
    private Route createRoute(final ActorSystem<Void> system, final Materializer materializer) {
       return pathPrefix("fhir",
                         () -> concat(
-                              post(() -> routeLinkEntity(system, materializer))));
+                              post(() -> routeLinkPatient(system, materializer))));
    }
 
 }

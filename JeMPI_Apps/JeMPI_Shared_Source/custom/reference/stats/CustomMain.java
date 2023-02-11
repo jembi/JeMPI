@@ -91,12 +91,12 @@ public final class CustomMain {
    }
 
    private void updateStatsDataSet(MpiExpandedGoldenRecord goldenRecord) {
-      final String goldenRecordAuxId = goldenRecord.customGoldenRecord().auxId();
+      final String goldenRecordAuxId = goldenRecord.customGoldenRecord().demographicData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, 12);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiPatients().forEach(mpiPatient -> list.add(mpiPatient.patient().auxId()));
+      goldenRecord.mpiPatients().forEach(mpiPatient -> list.add(mpiPatient.patient().demographicData().auxId()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -110,18 +110,18 @@ public final class CustomMain {
       final var rot = goldenRecord.customGoldenRecord();
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                       rot.uid(), rot.auxId(),
-                       rot.givenName(), rot.familyName(), rot.gender(),
-                       rot.dob(),
-                       rot.phoneNumber(), rot.nationalId());
+                       rot.uid(), rot.demographicData().auxId(),
+                       rot.demographicData().givenName(), rot.demographicData().familyName(), rot.demographicData().gender(),
+                       rot.demographicData().dob(),
+                       rot.demographicData().phoneNumber(), rot.demographicData().nationalId());
          goldenRecord.mpiPatients().forEach(mpiPatient -> {
             final var patient = mpiPatient.patient();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-                          patient.uid(), patient.auxId(),
-                          patient.givenName(), patient.familyName(), patient.gender(),
-                          patient.dob(),
-                          patient.phoneNumber(), patient.nationalId(),
+                          patient.uid(), patient.demographicData().auxId(),
+                          patient.demographicData().givenName(), patient.demographicData().familyName(), patient.demographicData().gender(),
+                          patient.demographicData().dob(),
+                          patient.demographicData().phoneNumber(), patient.demographicData().nationalId(),
                           mpiPatient.score());
          });
       }
