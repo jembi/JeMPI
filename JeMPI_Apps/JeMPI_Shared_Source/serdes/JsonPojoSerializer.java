@@ -11,10 +11,14 @@ public class JsonPojoSerializer<T> implements Serializer<T> {
    public JsonPojoSerializer() {}
 
    @Override
-   public void configure(Map<String, ?> props, boolean isKey) {}
+   public void configure(
+         Map<String, ?> props,
+         boolean isKey) {}
 
    @Override
-   public byte[] serialize(String topic, T data) {
+   public byte[] serialize(
+         String topic,
+         T data) {
       if (data == null)
          return new byte[0];
 

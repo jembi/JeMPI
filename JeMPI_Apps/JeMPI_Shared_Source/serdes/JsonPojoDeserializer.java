@@ -12,11 +12,15 @@ public record JsonPojoDeserializer<T>(Class<T> toClazz) implements Deserializer<
    private static final Logger LOGGER = LogManager.getLogger(JsonPojoDeserializer.class);
 
    @Override
-   public void configure(Map<String, ?> props, boolean isKey) {
+   public void configure(
+         Map<String, ?> props,
+         boolean isKey) {
    }
 
    @Override
-   public T deserialize(String topic, byte[] bytes) {
+   public T deserialize(
+         String topic,
+         byte[] bytes) {
       if (bytes == null)
          return null;
       T data;

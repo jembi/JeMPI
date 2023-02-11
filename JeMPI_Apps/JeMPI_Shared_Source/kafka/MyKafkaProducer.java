@@ -12,9 +12,11 @@ public class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
    private final String topic;
    private final Producer<KEY_TYPE, VAL_TYPE> producer;
 
-   public MyKafkaProducer(final String topic,
-                          final Serializer<KEY_TYPE> keySerializer, final Serializer<VAL_TYPE> valueSerializer,
-                          final String clientId) {
+   public MyKafkaProducer(
+         final String topic,
+         final Serializer<KEY_TYPE> keySerializer,
+         final Serializer<VAL_TYPE> valueSerializer,
+         final String clientId) {
       final Properties properties = new Properties();
       this.topic = topic;
       properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
@@ -44,13 +46,18 @@ public class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
       producer.commitTransaction();
    }
 
-   public final RecordMetadata produceSync(final KEY_TYPE key, final VAL_TYPE item) throws ExecutionException,
-                                                                                           InterruptedException {
+   public final RecordMetadata produceSync(
+         final KEY_TYPE key,
+         final VAL_TYPE item) throws ExecutionException,
+                                     InterruptedException {
       final ProducerRecord<KEY_TYPE, VAL_TYPE> rec = new ProducerRecord<>(topic, key, item);
       return producer.send(rec).get();
    }
 
-   public final void produceAsync(final KEY_TYPE key, final VAL_TYPE item, final Callback callback) {
+   public final void produceAsync(
+         final KEY_TYPE key,
+         final VAL_TYPE item,
+         final Callback callback) {
       final ProducerRecord<KEY_TYPE, VAL_TYPE> rec = new ProducerRecord<>(topic, key, item);
       producer.send(rec, callback);
    }
