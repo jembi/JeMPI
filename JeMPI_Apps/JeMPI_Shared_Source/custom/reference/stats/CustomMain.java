@@ -46,7 +46,6 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, Count.class).count;
       }
    }
@@ -60,7 +59,6 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, NumberOfRecords.class);
       }
    }
@@ -88,7 +86,6 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-//         LOGGER.info("{}", json);
          return OBJECT_MAPPER.readValue(json, GoldenRecordDocuments.class);
       }
    }
@@ -128,23 +125,6 @@ public final class CustomMain {
                           mpiPatient.score());
          });
       }
-
-//      System.out.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
-//                        rot.uid(), rot.auxId(),
-//                        rot.givenName(), rot.familyName(), rot.gender(),
-//                        rot.dob(),
-//                        rot.phoneNumber(), rot.nationalId());
-//      goldenRecord.mpiEntityList().forEach(mpiEntity -> {
-//         final var entity = mpiEntity.entity();
-//         System.out.format(Locale.ENGLISH,
-//                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-//                           entity.uid(), entity.auxId(),
-//                           entity.givenName(), entity.familyName(), entity.gender(),
-//                           entity.dob(),
-//                           entity.phoneNumber(), entity.nationalId(),
-//                           mpiEntity.score());
-//      });
-
    }
 
    private void processSubList(final PrintWriter writer, final int fromIdx, final int toIdx,
@@ -198,18 +178,13 @@ public final class CustomMain {
                maxGoldenRecordCount = n;
             }
          }
-//         System.out.printf("%s %d%n", k, v.size());
-         v.forEach(gr -> {
-//            System.out.printf("  %s%n", gr.id);
-            gr.member.forEach(m -> {
-//               System.out.printf("    %s%n", m);
-               if (m.substring(0, 12).equals(k)) {
-                  falseNegatives[0] += 1;
-               } else {
-                  falsePositives[0] += 1;
-               }
-            });
-         });
+         v.forEach(gr -> gr.member.forEach(m -> {
+            if (m.substring(0, 12).equals(k)) {
+               falseNegatives[0] += 1;
+            } else {
+               falsePositives[0] += 1;
+            }
+         }));
          falseNegatives[0] -= maxGoldenRecordCount;
          truePositives[0] += maxGoldenRecordCount;
       });

@@ -22,6 +22,7 @@ object Main {
     val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
 
+    CustomPatient.generateDemographicData(config.fields)
     CustomPatient.generatePatient(config.fields)
     CustomPatient.generateGoldenRecord(config.fields)
     CustomMU.generate(config.fields)

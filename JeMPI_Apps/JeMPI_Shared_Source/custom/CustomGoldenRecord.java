@@ -15,18 +15,6 @@ public record CustomGoldenRecord(String uid,
                                  String city,
                                  String phoneNumber,
                                  String nationalId) {
-   public CustomGoldenRecord() {
-      this(null,
-           null,
-           null,
-           null,
-           null,
-           null,
-           null,
-           null,
-           null,
-           null);
-   }
 
    public CustomGoldenRecord(final CustomPatient patient) {
       this(null,
