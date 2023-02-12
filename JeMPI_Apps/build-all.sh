@@ -27,7 +27,7 @@ popd
 pushd JeMPI_SyncReceiver
   ./build.sh || exit 1
 popd
-pushd JeMPI_PreProcessor
+pushd JeMPI_ETL
   ./build.sh || exit 1
 popd
 pushd JeMPI_Controller
@@ -49,7 +49,7 @@ popd
 pushd JeMPI_SyncReceiver
   ./push.sh
 popd
-pushd JeMPI_PreProcessor
+pushd JeMPI_ETL
   ./push.sh
 popd
 pushd JeMPI_Controller

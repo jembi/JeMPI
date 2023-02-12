@@ -1,4 +1,4 @@
-package org.jembi.jempi.pre_processor;
+package org.jembi.jempi.etl;
 
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
@@ -30,11 +30,11 @@ public final class Main {
    }
 
    private void run() {
-      LOGGER.info("PreProcessor");
+      LOGGER.info("ETL");
       LOGGER.info("KAFKA: {} {} {}",
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);
-      ActorSystem.create(this.create(), "PreProcessor");
+      ActorSystem.create(this.create(), "ETL");
    }
 }

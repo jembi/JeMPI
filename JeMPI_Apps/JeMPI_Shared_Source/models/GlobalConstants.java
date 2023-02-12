@@ -2,7 +2,7 @@ package org.jembi.jempi.shared.models;
 
 public final class GlobalConstants {
 
-   public static final String TOPIC_PATIENT_ASYNC_PREPROCESSOR = "JeMPI-async-preprocessor";
+   public static final String TOPIC_PATIENT_ASYNC_ETL = "JeMPI-async-etl";
    public static final String TOPIC_PATIENT_CONTROLLER = "JeMPI-patient-controller";
    public static final String TOPIC_PATIENT_EM = "JeMPI-patient-em";
    public static final String TOPIC_PATIENT_LINKER = "JeMPI-patient-linker";

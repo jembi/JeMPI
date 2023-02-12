@@ -6,8 +6,8 @@ set -u
 source ../../docker/conf/images/conf-app-images.sh
 source ../build-check-jdk.sh
 
-JAR_FILE=${PREPROCESSOR_JAR}
-APP_IMAGE=${PREPROCESSOR_IMAGE}
-APP=preprocessor
+JAR_FILE=${ETL_JAR}
+APP_IMAGE=${ETL_IMAGE}
+APP=etl
  
 source ../build-app.sh

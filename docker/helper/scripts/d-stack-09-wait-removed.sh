@@ -13,15 +13,13 @@ pushd .
     test-01
     staging-01
     input-02
-    staging-02
-    input-disi
-    staging-disi
+    jempi-etl
     jempi-controller
     jempi-em
     jempi-linker
-    jempi-0api
-    jempi-0ratel
-    jempi-0alpha-03
+    jempi-api
+    jempi-ratel
+    jempi-alpha-03
     jempi-alpha-02
     jempi-alpha-01
     jempi-zero-01

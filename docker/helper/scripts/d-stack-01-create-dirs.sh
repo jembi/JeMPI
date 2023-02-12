@@ -35,9 +35,9 @@ pushd .
   rm -rf   ${DATA_DIR_SYNC_RECEIVER}/logs
   mkdir -p ${DATA_DIR_SYNC_RECEIVER}/logs
 
-  mkdir -p ${DATA_DIR_PREPROCESSOR}/conf
-  rm -rf   ${DATA_DIR_PREPROCESSOR}/logs
-  mkdir -p ${DATA_DIR_PREPROCESSOR}/logs
+  mkdir -p ${DATA_DIR_ETL}/conf
+  rm -rf   ${DATA_DIR_ETL}/logs
+  mkdir -p ${DATA_DIR_ETL}/logs
 
   mkdir -p ${DATA_DIR_CONTROLLER}/conf
   rm -rf   ${DATA_DIR_CONTROLLER}/logs

@@ -25,18 +25,18 @@ popd
 #   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/sync_receiver/CustomMain.java CustomMain.java
 # popd
 
-# JeMPI_Preprocessor
-pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/shared/models
+# JeMPI_ETL
+pushd JeMPI_ETL/src/main/java/org/jembi/jempi/shared/models
   rm -f CustomSourceRecord.java
   ln -s ../../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/CustomSourceRecord.java CustomSourceRecord.java
 popd
-pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/pre_processor
+pushd JeMPI_ETL/src/main/java/org/jembi/jempi/etl
   rm -f CustomSourceRecordStream.java
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/pre-processor/CustomSourceRecordStream.java CustomSourceRecordStream.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/etl/CustomSourceRecordStream.java CustomSourceRecordStream.java
 popd
-pushd JeMPI_PreProcessor/src/main/java/org/jembi/jempi/pre_processor
+pushd JeMPI_ETL/src/main/java/org/jembi/jempi/etl
   rm -f CustomFHIRsyncReceiver.java
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/pre-processor/CustomFHIRsyncReceiver.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/etl/CustomFHIRsyncReceiver.java
 popd
 
 # JeMPI_EM

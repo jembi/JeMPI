@@ -1,4 +1,4 @@
-package org.jembi.jempi.pre_processor;
+package org.jembi.jempi.etl;
 
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
@@ -52,7 +52,7 @@ public class CustomSourceRecordStream {
       final Serde<BatchPatientRecord> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, CustomSourceRecord> patientKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_ASYNC_PREPROCESSOR, Consumed.with(stringSerde, customSourceRecordSerde));
+            GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, customSourceRecordSerde));
       patientKStream
             .map((key, rec) -> {
                var k = rec.familyName();
