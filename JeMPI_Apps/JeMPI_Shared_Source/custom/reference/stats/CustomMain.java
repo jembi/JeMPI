@@ -7,7 +7,7 @@ import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
+import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -90,7 +90,7 @@ public final class CustomMain {
       }
    }
 
-   private void updateStatsDataSet(MpiExpandedGoldenRecord goldenRecord) {
+   private void updateStatsDataSet(ExpandedGoldenRecord goldenRecord) {
       final String goldenRecordAuxId = goldenRecord.goldenRecord().demographicData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, 12);
 
@@ -109,7 +109,7 @@ public final class CustomMain {
 
    private void displayGoldenRecordDocuments(
          final PrintWriter writer,
-         final MpiExpandedGoldenRecord mpiGoldenRecord) {
+         final ExpandedGoldenRecord mpiGoldenRecord) {
       final var rot = mpiGoldenRecord.goldenRecord();
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
@@ -219,7 +219,7 @@ public final class CustomMain {
    private record GoldenIdList(List<String> records) {
    }
 
-   private record GoldenRecordDocuments(List<MpiExpandedGoldenRecord> goldenRecords) {
+   private record GoldenRecordDocuments(List<ExpandedGoldenRecord> goldenRecords) {
    }
 
    private record GoldenRecordMembers(

@@ -37,6 +37,14 @@ class Client {
       this.port = port;
    }
 
+   /*
+    * *****************************************************************************
+    * *
+    * Database
+    * *****************************************************************************
+    * *
+    */
+
    void startTransaction() {
       if (dgraphClient == null) {
          var hostList = new ArrayList<>(List.of(new Client.AlphaHost(host[0], port[0]),
@@ -57,6 +65,11 @@ class Client {
       }
    }
 
+   void closeTransaction() {
+   }
+
+
+
    void zapTransaction() {
       if (dgraphClient != null) {
          dgraphClient.shutdown();
@@ -64,8 +77,7 @@ class Client {
       }
    }
 
-   void closeTransaction() {
-   }
+
 
    private void sleep() {
       try {

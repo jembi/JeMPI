@@ -2,7 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jembi.jempi.libmpi.MpiPatientRecord;
+import org.jembi.jempi.shared.models.RatedPatientRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.PatientRecord;
 
@@ -50,8 +50,8 @@ record CustomLibMPIDGraphPatientRecord(
                                                          this.nationalId()));
    }
 
-   MpiPatientRecord toMpiPatientRecord() {
-      return new MpiPatientRecord(toPatientRecord(), this.score());
+   RatedPatientRecord toRatedPatientRecord() {
+      return new RatedPatientRecord(toPatientRecord(), this.score());
    }
 
 }

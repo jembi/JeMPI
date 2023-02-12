@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -84,7 +83,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    static void updateGoldenRecordField(
-         final MpiExpandedGoldenRecord expandedGoldenRecord,
+         final ExpandedGoldenRecord expandedGoldenRecord,
          final String fieldName,
          final String goldenRecordFieldValue,
          final Function<CustomDemographicData, String> getDocumentField) {

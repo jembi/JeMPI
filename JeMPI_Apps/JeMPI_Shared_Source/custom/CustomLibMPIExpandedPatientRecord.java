@@ -2,8 +2,8 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jembi.jempi.libmpi.MpiExpandedPatientRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.ExpandedPatientRecord;
 import org.jembi.jempi.shared.models.PatientRecord;
 
 import java.util.List;
@@ -36,12 +36,12 @@ record CustomLibMPIExpandedPatientRecord(
                                      this.nationalId()));
    }
 
-   MpiExpandedPatientRecord toMpiExpandedPatientRecord() {
-      return new MpiExpandedPatientRecord(this.toPatientRecord(),
-                                          this.dgraphGoldenRecordList()
-                                              .stream()
-                                              .map(CustomLibMPIDGraphGoldenRecord::toMpiGoldenRecord)
-                                              .toList());
+   ExpandedPatientRecord toExpandedPatientRecord() {
+      return new ExpandedPatientRecord(this.toPatientRecord(),
+                                       this.dgraphGoldenRecordList()
+                                           .stream()
+                                           .map(CustomLibMPIDGraphGoldenRecord::toRatedGoldenRecord)
+                                           .toList());
    }
 
 }

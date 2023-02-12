@@ -1,10 +1,9 @@
-package org.jembi.jempi.libmpi;
+package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.jembi.jempi.shared.models.GoldenRecord;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record MpiGoldenRecord(
+public record RatedGoldenRecord(
       GoldenRecord goldenRecord,
       Float score) {}
 

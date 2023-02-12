@@ -41,14 +41,14 @@ private object CustomLibMPIExpandedPatientRecord {
              |""".stripMargin)
   }
 
-  private def toMpiExpandedPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toExpandedPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      """   MpiExpandedPatientRecord toMpiExpandedPatientRecord() {
-        |      return new MpiExpandedPatientRecord(this.toPatientRecord(),
-        |                                          this.dgraphGoldenRecordList()
-        |                                              .stream()
-        |                                              .map(CustomLibMPIDGraphGoldenRecord::toMpiGoldenRecord)
-        |                                              .toList());
+      """   ExpandedPatientRecord toExpandedPatientRecord() {
+        |      return new ExpandedPatientRecord(this.toPatientRecord(),
+        |                                       this.dgraphGoldenRecordList()
+        |                                           .stream()
+        |                                           .map(CustomLibMPIDGraphGoldenRecord::toRatedGoldenRecord)
+        |                                           .toList());
         |   }
         |""".stripMargin)
   }
@@ -64,8 +64,8 @@ private object CustomLibMPIExpandedPatientRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.libmpi.MpiExpandedPatientRecord;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.ExpandedPatientRecord;
          |import org.jembi.jempi.shared.models.PatientRecord;
          |
          |import java.util.List;
@@ -76,7 +76,7 @@ private object CustomLibMPIExpandedPatientRecord {
          |${" " * 6}@JsonProperty("Patient.source_id") LibMPISourceId sourceId,""".stripMargin)
     addFields(writer, fields)
     toPatientRecord(writer, fields)
-    toMpiExpandedPatientRecord(writer, fields)
+    toExpandedPatientRecord(writer, fields)
     writer.println("}")
     writer.flush()
     writer.close()

@@ -38,7 +38,7 @@ object CustomLinkerBackEnd {
          |   static void updateGoldenRecordFields(
          |         final LibMPI libMPI,
          |         final String uid) {
-         |      final var expandedGoldenRecord = libMPI.getMpiExpandedGoldenRecordList(List.of(uid))
+         |      final var expandedGoldenRecord = libMPI.getExpandedGoldenRecords(List.of(uid))
          |                                             .get(0);
          |      final var goldenRecord = expandedGoldenRecord.goldenRecord();
          |      final var demographicData = goldenRecord.demographicData();

@@ -2,10 +2,7 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.models.PatientRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
@@ -47,12 +44,14 @@ public interface LibMPIClientInterface {
    GoldenRecord getGoldenRecord(final String uid);
 
    List<GoldenRecord> getCandidates(
-         final CustomDemographicData patient,
+         final CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
 
-   List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> idList);
+   List<ExpandedPatientRecord> getExpandedPatients(final List<String> idList);
 
-   List<MpiExpandedPatientRecord> getMpiExpandedPatients(final List<String> idList);
+   List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> idList);
+
+   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
    List<String> getGoldenIdListByPredicate(
          final String predicate,
@@ -61,14 +60,14 @@ public interface LibMPIClientInterface {
 
    List<String> getGoldenIdList();
 
-   LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+   LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+   LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
          List<SimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,

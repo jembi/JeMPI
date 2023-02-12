@@ -5,10 +5,7 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
-import org.jembi.jempi.shared.models.PatientRecord;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
@@ -62,7 +59,44 @@ public class LibMPI {
     * *
     */
 
-   public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+
+   public long countPatientRecords() {
+      return client.countPatientRecords();
+   }
+
+   public long countGoldenRecords() {
+      return client.countGoldenRecords();
+   }
+
+   public PatientRecord getPatientRecord(final String uid) {
+      return client.getPatientRecord(uid);
+   }
+
+   public GoldenRecord getGoldenRecord(final String uid) {
+      return client.getGoldenRecord(uid);
+   }
+
+   public List<GoldenRecord> getCandidates(
+         final CustomDemographicData demographicData,
+         final boolean applyDeterministicFilter) {
+      LOGGER.debug("get candidates <- {}", demographicData);
+      final var candidates = client.getCandidates(demographicData, applyDeterministicFilter);
+      candidates.forEach(candidate -> LOGGER.debug("get candidates -> {}", candidate));
+      return candidates;
+   }
+
+   public List<ExpandedPatientRecord> getMpiExpandedPatients(final List<String> idList) {
+      return client.getExpandedPatients(idList);
+   }
+
+   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> idList) {
+      return client.getExpandedGoldenRecords(idList);
+   }
+
+   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
          Integer offset,
          Integer limit,
@@ -72,7 +106,7 @@ public class LibMPI {
       return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
          List<SimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
@@ -102,22 +136,6 @@ public class LibMPI {
       return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
 
-   public List<GoldenRecord> getCandidates(
-         final CustomDemographicData patient,
-         final boolean applyDeterministicFilter) {
-      LOGGER.debug("get candidates <- {}", patient);
-      final var candidates = client.getCandidates(patient, applyDeterministicFilter);
-      candidates.forEach(candidate -> LOGGER.debug("get candidates -> {}", candidate));
-      return candidates;
-   }
-
-   public List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> idList) {
-      return client.getMpiExpandedGoldenRecordList(idList);
-   }
-
-   public List<MpiExpandedPatientRecord> getMpiExpandedPatients(final List<String> idList) {
-      return client.getMpiExpandedPatients(idList);
-   }
 
    public List<String> getGoldenIdListByPredicate(
          final String predicate,
@@ -125,25 +143,12 @@ public class LibMPI {
       return client.getGoldenIdListByPredicate(predicate, val);
    }
 
-   public GoldenRecord getGoldenRecord(final String uid) {
-      return client.getGoldenRecord(uid);
-   }
-
-   public long countGoldenRecords() {
-      return client.countGoldenRecords();
-   }
 
    public List<String> getGoldenIdList() {
       return client.getGoldenIdList();
    }
 
-   public PatientRecord getMpiPatient(final String uid) {
-      return client.getPatientRecord(uid);
-   }
 
-   public long countPatientRecords() {
-      return client.countPatientRecords();
-   }
 
 
    /*

@@ -6,10 +6,7 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.*;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.models.LinkInfo;
-import org.jembi.jempi.shared.models.PatientRecord;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
@@ -36,12 +33,12 @@ public class LibDgraph implements LibMPIClientInterface {
     *
     */
 
-   public long countGoldenRecords() {
-      return Queries.countGoldenRecords();
-   }
-
    public long countPatientRecords() {
       return Queries.countPatients();
+   }
+
+   public long countGoldenRecords() {
+      return Queries.countGoldenRecords();
    }
 
    public PatientRecord getPatientRecord(final String uid) {
@@ -56,8 +53,28 @@ public class LibDgraph implements LibMPIClientInterface {
       return rec.toGoldenRecord();
    }
 
+   public List<GoldenRecord> getCandidates(
+         final CustomDemographicData demographicData,
+         final boolean applyDeterministicFilter) {
+      final var candidates = CustomLibMPIQueries.getCandidates(demographicData, applyDeterministicFilter);
+      return candidates.stream().map(CustomLibMPIGoldenRecord::toGoldenRecord).toList();
+   }
 
-   public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
+   public List<ExpandedPatientRecord> getExpandedPatients(final List<String> idList) {
+      final var list = Queries.getExpandedPatientRecords(idList);
+      return list.stream().map(CustomLibMPIExpandedPatientRecord::toExpandedPatientRecord).toList();
+   }
+
+   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIdList) {
+      final var list = Queries.getExpandedGoldenRecordList(goldenIdList);
+      return list.stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+   }
+
+
+   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
          Integer offset,
          Integer limit,
@@ -68,12 +85,12 @@ public class LibDgraph implements LibMPIClientInterface {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
+      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet(data, pagination);
    }
 
-   public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
+   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
          List<SimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
@@ -84,7 +101,7 @@ public class LibDgraph implements LibMPIClientInterface {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
+      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet(data, pagination);
    }
@@ -121,22 +138,6 @@ public class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet(data, pagination);
    }
 
-   public List<GoldenRecord> getCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
-      final var candidates = CustomLibMPIQueries.getCandidates(demographicData, applyDeterministicFilter);
-      return candidates.stream().map(CustomLibMPIGoldenRecord::toGoldenRecord).toList();
-   }
-
-   public List<MpiExpandedPatientRecord> getMpiExpandedPatients(final List<String> idList) {
-      final var list = Queries.getExpandedPatientRecords(idList);
-      return list.stream().map(CustomLibMPIExpandedPatientRecord::toMpiExpandedPatientRecord).toList();
-   }
-
-   public List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList) {
-      final var list = Queries.getExpandedGoldenRecordList(goldenIdList);
-      return list.stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
-   }
 
    public List<String> getGoldenIdListByPredicate(
          final String predicate,

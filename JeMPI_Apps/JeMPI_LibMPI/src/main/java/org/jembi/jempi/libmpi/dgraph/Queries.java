@@ -110,7 +110,7 @@ final class Queries {
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return patientList.get(0).toMpiPatientRecord().patientRecord();
+      return patientList.get(0).toRatedPatientRecord().patientRecord();
    }
 
    static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {

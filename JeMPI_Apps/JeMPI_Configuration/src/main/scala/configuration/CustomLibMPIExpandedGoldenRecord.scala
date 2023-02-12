@@ -19,7 +19,7 @@ private object CustomLibMPIExpandedGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
+         |import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
          |
@@ -59,9 +59,9 @@ private object CustomLibMPIExpandedGoldenRecord {
 
     writer.println(
       """
-        |   MpiExpandedGoldenRecord toMpiExpandedGoldenRecord() {
-        |      return new MpiExpandedGoldenRecord(this.toGoldenRecord(),
-        |                                         this.patients().stream().map(CustomLibMPIDGraphPatientRecord::toMpiPatientRecord).toList());
+        |   ExpandedGoldenRecord toExpandedGoldenRecord() {
+        |      return new ExpandedGoldenRecord(this.toGoldenRecord(),
+        |                                      this.patients().stream().map(CustomLibMPIDGraphPatientRecord::toRatedPatientRecord).toList());
         |   }
         |""".stripMargin)
 
