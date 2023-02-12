@@ -5,7 +5,9 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.*;
+import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -70,9 +72,15 @@ public class LibDgraph implements LibMPIClientInterface {
       return list.stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
    }
 
+//   public List<String> getGoldenIdListByPredicate(
+//         final String predicate,
+//         final String val) {
+//      return Queries.getGoldenIdListByPredicate(predicate, val);
+//   }
 
-   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+   public List<String> getGoldenIdList() {
+      return Queries.getGoldenIdList();
+   }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
@@ -80,7 +88,7 @@ public class LibDgraph implements LibMPIClientInterface {
          Integer limit,
          String sortBy,
          Boolean sortAsc
-                                                                                     ) {
+                                                                                  ) {
       final var list = Queries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
       if (list == null) {
          return null;
@@ -96,7 +104,7 @@ public class LibDgraph implements LibMPIClientInterface {
          Integer limit,
          String sortBy,
          Boolean sortAsc
-                                                                                     ) {
+                                                                                  ) {
       final var list = Queries.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
       if (list == null) {
          return null;
@@ -137,19 +145,6 @@ public class LibDgraph implements LibMPIClientInterface {
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet(data, pagination);
    }
-
-
-   public List<String> getGoldenIdListByPredicate(
-         final String predicate,
-         final String val) {
-      return Queries.getGoldenIdListByPredicate(predicate, val);
-   }
-
-
-   public List<String> getGoldenIdList() {
-      return Queries.getGoldenIdList();
-   }
-
 
    /*
     * *******************************************************

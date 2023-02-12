@@ -59,7 +59,6 @@ public class LibMPI {
     * *
     */
 
-
    public long countPatientRecords() {
       return client.countPatientRecords();
    }
@@ -76,6 +75,15 @@ public class LibMPI {
       return client.getGoldenRecord(uid);
    }
 
+//   public List<String> getGoldenIdListByPredicate(
+//         final String predicate,
+//         final String val) {
+//      return client.getGoldenIdListByPredicate(predicate, val);
+//   }
+
+   public List<String> getGoldenIdList() {
+      return client.getGoldenIdList();
+   }
    public List<GoldenRecord> getCandidates(
          final CustomDemographicData demographicData,
          final boolean applyDeterministicFilter) {
@@ -93,16 +101,13 @@ public class LibMPI {
       return client.getExpandedGoldenRecords(idList);
    }
 
-   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc
-                                                                                     ) {
+                                                                                  ) {
       return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
@@ -112,7 +117,7 @@ public class LibMPI {
          Integer limit,
          String sortBy,
          Boolean sortAsc
-                                                                                     ) {
+                                                                                  ) {
       return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
@@ -135,21 +140,6 @@ public class LibMPI {
                                                                             ) {
       return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
-
-
-   public List<String> getGoldenIdListByPredicate(
-         final String predicate,
-         final String val) {
-      return client.getGoldenIdListByPredicate(predicate, val);
-   }
-
-
-   public List<String> getGoldenIdList() {
-      return client.getGoldenIdList();
-   }
-
-
-
 
    /*
     * *****************************************************************************

@@ -82,7 +82,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
             .onMessage(EventGetPatientCountReq.class, this::eventGetPatientCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
-            .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
+//            .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
             .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
             .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
             .onMessage(EventGetExpandedGoldenRecordsReq.class, this::eventGetExpandedGoldenRecordsHandler)
@@ -239,14 +239,14 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetGoldenIdListByPredicateHandler(EventGetGoldenIdListByPredicateReq request) {
-      LOGGER.debug("getGoldenRecordsByPredicate");
-      libMPI.startTransaction();
-      var recs = libMPI.getGoldenIdListByPredicate(request.predicate, request.val);
-      request.replyTo.tell(new EventGetGoldenIdListByPredicateRsp(recs));
-      libMPI.closeTransaction();
-      return Behaviors.same();
-   }
+//   private Behavior<Event> eventGetGoldenIdListByPredicateHandler(EventGetGoldenIdListByPredicateReq request) {
+//      LOGGER.debug("getGoldenRecordsByPredicate");
+//      libMPI.startTransaction();
+//      var recs = libMPI.getGoldenIdListByPredicate(request.predicate, request.val);
+//      request.replyTo.tell(new EventGetGoldenIdListByPredicateRsp(recs));
+//      libMPI.closeTransaction();
+//      return Behaviors.same();
+//   }
 
    private Behavior<Event> eventGetGoldenIdListHandler(final EventGetGoldenIdListReq request) {
       LOGGER.debug("getGoldenIdList");
@@ -394,13 +394,13 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetNumberOfRecordsRsp(long goldenRecords, long patients) implements EventResponse {
    }
 
-   public record EventGetGoldenIdListByPredicateReq(ActorRef<EventGetGoldenIdListByPredicateRsp> replyTo,
-                                                    String predicate,
-                                                    String val) implements Event {
-   }
-
-   public record EventGetGoldenIdListByPredicateRsp(List<String> records) implements EventResponse {
-   }
+//   public record EventGetGoldenIdListByPredicateReq(ActorRef<EventGetGoldenIdListByPredicateRsp> replyTo,
+//                                                    String predicate,
+//                                                    String val) implements Event {
+//   }
+//
+//   public record EventGetGoldenIdListByPredicateRsp(List<String> records) implements EventResponse {
+//   }
 
    public record EventGetGoldenIdListReq(ActorRef<EventGetGoldenIdListRsp> replyTo) implements Event {
    }

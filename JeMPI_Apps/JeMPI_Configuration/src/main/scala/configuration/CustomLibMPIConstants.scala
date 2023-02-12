@@ -29,6 +29,124 @@ private object CustomLibMPIConstants {
     }
   }
 
+  private def golden_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+    writer.println(
+      s"""
+         |   static final String GOLDEN_RECORD_FIELD_NAMES =
+         |         \"\"\"
+         |         uid
+         |         GoldenRecord.source_id {
+         |            uid
+         |            SourceId.facility
+         |            SourceId.patient
+         |         }""".stripMargin
+    )
+
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"         GoldenRecord.$name")
+    })
+
+    writer.println(
+      s"""         \"\"\";""".stripMargin
+    )
+
+  }
+
+  private def expanded_golden_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+    writer.println(
+      s"""
+         |   static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
+         |         \"\"\"
+         |         uid
+         |         GoldenRecord.source_id {
+         |            uid
+         |            SourceId.facility
+         |            SourceId.patient
+         |         }""".stripMargin
+    )
+
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"         GoldenRecord.$name")
+    })
+
+    writer.println(
+      s"""         GoldenRecord.patients @facets(score) {
+         |            uid
+         |            Patient.source_id {
+         |               uid
+         |               SourceId.facility
+         |               SourceId.patient
+         |            }""".stripMargin)
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"            Patient.$name")
+    })
+    writer.println(
+      s"""         }
+         |         \"\"\";""".stripMargin)
+  }
+
+  private def patient_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+    writer.println(
+      s"""   static final String PATIENT_RECORD_FIELD_NAMES =
+         |         \"\"\"
+         |         uid
+         |         Patient.source_id {
+         |            uid
+         |            SourceId.facility
+         |            SourceId.patient
+         |         }""".stripMargin
+    )
+
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"         PatientRecord.$name")
+    })
+
+    writer.println(
+      s"""         \"\"\";""".stripMargin
+    )
+
+  }
+
+  private def expanded_patient_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+    writer.println(
+      s"""   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
+         |         \"\"\"
+         |         uid
+         |         Patient.source_id {
+         |            uid
+         |            SourceId.facility
+         |            SourceId.patient
+         |         }""".stripMargin
+    )
+
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"         PatientRecord.$name")
+    })
+
+    writer.println(
+      s"""         ~GoldenRecord.patients @facets(score) {
+         |            uid
+         |            GoldenRecord.source_id {
+         |              uid
+         |              SourceId.facility
+         |              SourceId.patient
+         |            }""".stripMargin)
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"            GoldenRecord.$name")
+    })
+    writer.println(
+      s"""         }
+         |         \"\"\";
+         |""".stripMargin)
+
+  }
+
   private def query_get_golden_record_by_uid(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_GOLDEN_RECORD_BY_UID =
@@ -263,6 +381,10 @@ private object CustomLibMPIConstants {
 
     golden_record_predicates(writer, fields)
     patient_predicates(writer, fields)
+    golden_record_field_names(writer, fields)
+    expanded_golden_record_field_names(writer, fields)
+    patient_record_field_names(writer, fields)
+    expanded_patient_record_field_names(writer, fields)
     query_get_patient_by_uid(writer, fields)
     query_get_golden_record_by_uid(writer, fields)
     query_get_expanded_patients(writer, fields)

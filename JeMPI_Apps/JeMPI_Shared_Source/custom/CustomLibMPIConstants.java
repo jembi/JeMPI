@@ -19,6 +19,109 @@ public final class CustomLibMPIConstants {
    public static final String PREDICATE_PATIENT_CITY = "Patient.city";
    public static final String PREDICATE_PATIENT_PHONE_NUMBER = "Patient.phone_number";
    public static final String PREDICATE_PATIENT_NATIONAL_ID = "Patient.national_id";
+
+   static final String GOLDEN_RECORD_FIELD_NAMES =
+         """
+         uid
+         GoldenRecord.source_id {
+            uid
+            SourceId.facility
+            SourceId.patient
+         }
+         GoldenRecord.aux_id
+         GoldenRecord.given_name
+         GoldenRecord.family_name
+         GoldenRecord.gender
+         GoldenRecord.dob
+         GoldenRecord.city
+         GoldenRecord.phone_number
+         GoldenRecord.national_id
+         """;
+
+   static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
+         """
+         uid
+         GoldenRecord.source_id {
+            uid
+            SourceId.facility
+            SourceId.patient
+         }
+         GoldenRecord.aux_id
+         GoldenRecord.given_name
+         GoldenRecord.family_name
+         GoldenRecord.gender
+         GoldenRecord.dob
+         GoldenRecord.city
+         GoldenRecord.phone_number
+         GoldenRecord.national_id
+         GoldenRecord.patients @facets(score) {
+            uid
+            Patient.source_id {
+               uid
+               SourceId.facility
+               SourceId.patient
+            }
+            Patient.aux_id
+            Patient.given_name
+            Patient.family_name
+            Patient.gender
+            Patient.dob
+            Patient.city
+            Patient.phone_number
+            Patient.national_id
+         }
+         """;
+   static final String PATIENT_RECORD_FIELD_NAMES =
+         """
+         uid
+         Patient.source_id {
+            uid
+            SourceId.facility
+            SourceId.patient
+         }
+         PatientRecord.aux_id
+         PatientRecord.given_name
+         PatientRecord.family_name
+         PatientRecord.gender
+         PatientRecord.dob
+         PatientRecord.city
+         PatientRecord.phone_number
+         PatientRecord.national_id
+         """;
+   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
+         """
+         uid
+         Patient.source_id {
+            uid
+            SourceId.facility
+            SourceId.patient
+         }
+         PatientRecord.aux_id
+         PatientRecord.given_name
+         PatientRecord.family_name
+         PatientRecord.gender
+         PatientRecord.dob
+         PatientRecord.city
+         PatientRecord.phone_number
+         PatientRecord.national_id
+         ~GoldenRecord.patients @facets(score) {
+            uid
+            GoldenRecord.source_id {
+              uid
+              SourceId.facility
+              SourceId.patient
+            }
+            GoldenRecord.aux_id
+            GoldenRecord.given_name
+            GoldenRecord.family_name
+            GoldenRecord.gender
+            GoldenRecord.dob
+            GoldenRecord.city
+            GoldenRecord.phone_number
+            GoldenRecord.national_id
+         }
+         """;
+
    static final String QUERY_GET_PATIENT_BY_UID =
          """
          query patientByUid($uid: string) {

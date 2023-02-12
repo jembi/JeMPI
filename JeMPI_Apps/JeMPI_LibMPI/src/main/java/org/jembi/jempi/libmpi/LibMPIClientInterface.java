@@ -51,12 +51,9 @@ public interface LibMPIClientInterface {
 
    List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> idList);
 
-   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-   List<String> getGoldenIdListByPredicate(
-         final String predicate,
-         final String val);
-
+//   List<String> getGoldenIdListByPredicate(
+//         final String predicate,
+//         final String val);
 
    List<String> getGoldenIdList();
 
