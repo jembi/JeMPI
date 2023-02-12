@@ -77,8 +77,9 @@ public final class CustomMain {
    }
 
    private GoldenRecordDocuments getGoldenRecordDocumentsList(final List<String> ids) throws IOException {
+      LOGGER.debug(ids);
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenRecordDocuments")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenRecord")).newBuilder();
       ids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
@@ -141,8 +142,8 @@ public final class CustomMain {
          final List<String> ids) throws IOException {
       var subList = ids.subList(fromIdx, toIdx);
       var goldenRecordDocuments = getGoldenRecordDocumentsList(subList);
-      goldenRecordDocuments.goldenRecords.forEach(this::updateStatsDataSet);
-      goldenRecordDocuments.goldenRecords.forEach(rec -> displayGoldenRecordDocuments(writer, rec));
+      goldenRecordDocuments.expandedGoldenRecords.forEach(this::updateStatsDataSet);
+      goldenRecordDocuments.expandedGoldenRecords.forEach(rec -> displayGoldenRecordDocuments(writer, rec));
    }
 
    private void run() throws IOException {
@@ -219,7 +220,7 @@ public final class CustomMain {
    private record GoldenIdList(List<String> records) {
    }
 
-   private record GoldenRecordDocuments(List<ExpandedGoldenRecord> goldenRecords) {
+   private record GoldenRecordDocuments(List<ExpandedGoldenRecord> expandedGoldenRecords) {
    }
 
    private record GoldenRecordMembers(
