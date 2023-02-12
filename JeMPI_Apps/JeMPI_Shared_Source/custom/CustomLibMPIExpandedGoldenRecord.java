@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.GoldenRecord;
 
 import java.util.List;
 
@@ -20,27 +20,27 @@ record CustomLibMPIExpandedGoldenRecord(
       @JsonProperty("GoldenRecord.city") String city,
       @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
       @JsonProperty("GoldenRecord.national_id") String nationalId,
-      @JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatient> patients) {
+      @JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatientRecord> patients) {
 
 
-   CustomGoldenRecord toCustomGoldenRecord() {
-      return new CustomGoldenRecord(this.uid(),
-                                    this.sourceId() != null
-                                          ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-                                          : List.of(),
-                                    new CustomDemographicData(this.auxId(),
-                                                              this.givenName(),
-                                                              this.familyName(),
-                                                              this.gender(),
-                                                              this.dob(),
-                                                              this.city(),
-                                                              this.phoneNumber(),
-                                                              this.nationalId()));
+   GoldenRecord toGoldenRecord() {
+      return new GoldenRecord(this.uid(),
+                              this.sourceId() != null
+                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+                                    : List.of(),
+                              new CustomDemographicData(this.auxId(),
+                                                        this.givenName(),
+                                                        this.familyName(),
+                                                        this.gender(),
+                                                        this.dob(),
+                                                        this.city(),
+                                                        this.phoneNumber(),
+                                                        this.nationalId()));
    }
 
    MpiExpandedGoldenRecord toMpiExpandedGoldenRecord() {
-      return new MpiExpandedGoldenRecord(this.toCustomGoldenRecord(),
-                                         this.patients().stream().map(CustomLibMPIDGraphPatient::toMpiPatient).toList());
+      return new MpiExpandedGoldenRecord(this.toGoldenRecord(),
+                                         this.patients().stream().map(CustomLibMPIDGraphPatientRecord::toMpiPatientRecord).toList());
    }
 
 }

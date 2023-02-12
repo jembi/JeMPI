@@ -40,8 +40,8 @@ object CustomLinkerBackEnd {
          |         final String uid) {
          |      final var expandedGoldenRecord = libMPI.getMpiExpandedGoldenRecordList(List.of(uid))
          |                                             .get(0);
-         |      final var customGoldenRecord = expandedGoldenRecord.customGoldenRecord();
-         |      final var demographicData = customGoldenRecord.demographicData();
+         |      final var goldenRecord = expandedGoldenRecord.goldenRecord();
+         |      final var demographicData = goldenRecord.demographicData();
          |""".stripMargin)
 
     muList.zipWithIndex.foreach((mu, _) => {

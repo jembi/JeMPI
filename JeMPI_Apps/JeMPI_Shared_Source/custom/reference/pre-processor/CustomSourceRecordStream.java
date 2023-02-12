@@ -45,11 +45,11 @@ public class CustomSourceRecordStream {
       final Serializer<CustomSourceRecord> customSourceRecordSerializer = new JsonPojoSerializer<>();
       final Deserializer<CustomSourceRecord> customSourceRecordDeserializer = new JsonPojoDeserializer<>(
             CustomSourceRecord.class);
-      final Serializer<BatchPatient> batchPatientSerializer = new JsonPojoSerializer<>();
-      final Deserializer<BatchPatient> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchPatient.class);
+      final Serializer<BatchPatientRecord> batchPatientSerializer = new JsonPojoSerializer<>();
+      final Deserializer<BatchPatientRecord> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchPatientRecord.class);
       final Serde<CustomSourceRecord> customSourceRecordSerde = Serdes.serdeFrom(customSourceRecordSerializer,
                                                                                  customSourceRecordDeserializer);
-      final Serde<BatchPatient> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
+      final Serde<BatchPatientRecord> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, CustomSourceRecord> patientKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_ASYNC_PREPROCESSOR, Consumed.with(stringSerde, customSourceRecordSerde));
@@ -62,17 +62,19 @@ public class CustomSourceRecordStream {
                k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
                LOGGER.info("{} : {}", k, rec);
                var batchType = switch (rec.recordType().type) {
-                  case CustomSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatient.BatchType.BATCH_START;
-                  case CustomSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatient.BatchType.BATCH_END;
-                  default -> BatchPatient.BatchType.BATCH_PATIENT;
+                  case CustomSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
+                  case CustomSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
+                  default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
                };
-               var batchPatient = new BatchPatient(
+               var batchPatient = new BatchPatientRecord(
                      batchType,
                      rec.stan(),
-                     new CustomPatient(null,
+                     new PatientRecord(null,
                                        new SourceId(null,
                                                     FACILITY.get(random.nextInt(FACILITY.size())),
-                                                    StringUtils.isNotBlank(rec.nationalID()) ? rec.nationalID() : "ANON"),
+                                                    StringUtils.isNotBlank(rec.nationalID())
+                                                          ? rec.nationalID()
+                                                          : "ANON"),
                                        new CustomDemographicData(rec.auxId(),
                                                                  rec.givenName(),
                                                                  rec.familyName(),
@@ -83,15 +85,17 @@ public class CustomSourceRecordStream {
                                                                  rec.nationalID())));
                return KeyValue.pair(k, batchPatient);
             })
-            .filter((key, value) -> !(value.batchType() == BatchPatient.BatchType.BATCH_PATIENT && StringUtils.isBlank(
-                  value.patient().demographicData().auxId())))
+            .filter((key, value) -> !(value.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT && StringUtils.isBlank(
+                  value.patientRecord().demographicData().auxId())))
             .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
       patientKafkaStreams.start();
    }
 
-   private String getEncodedMF(String value, OperationType algorithmType) {
+   private String getEncodedMF(
+         String value,
+         OperationType algorithmType) {
       return switch (algorithmType) {
          case OPERATION_TYPE_METAPHONE -> (new Metaphone()).metaphone(value);
          case OPERATION_TYPE_DOUBLE_METAPHONE -> (new DoubleMetaphone()).doubleMetaphone(value);

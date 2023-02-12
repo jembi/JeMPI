@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record BatchPatient(
+public record BatchPatientRecord(
       @JsonProperty("batchType") BatchType batchType,
       @JsonProperty("stan") String stan,
       // System Trace Audit Number
-      @JsonProperty("patient") CustomPatient patient) {
+      @JsonProperty("patientRecord") PatientRecord patientRecord) {
 
-   public BatchPatient(BatchType batchType) {
+   public BatchPatientRecord(BatchType batchType) {
       this(batchType, null, null);
    }
 

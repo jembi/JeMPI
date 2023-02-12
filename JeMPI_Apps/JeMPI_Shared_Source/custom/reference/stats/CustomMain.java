@@ -91,12 +91,13 @@ public final class CustomMain {
    }
 
    private void updateStatsDataSet(MpiExpandedGoldenRecord goldenRecord) {
-      final String goldenRecordAuxId = goldenRecord.customGoldenRecord().demographicData().auxId();
+      final String goldenRecordAuxId = goldenRecord.goldenRecord().demographicData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, 12);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiPatients().forEach(mpiPatient -> list.add(mpiPatient.patient().demographicData().auxId()));
+      goldenRecord.mpiPatientRecords()
+                  .forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord().demographicData().auxId()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -106,29 +107,38 @@ public final class CustomMain {
       }
    }
 
-   private void displayGoldenRecordDocuments(final PrintWriter writer, final MpiExpandedGoldenRecord goldenRecord) {
-      final var rot = goldenRecord.customGoldenRecord();
+   private void displayGoldenRecordDocuments(
+         final PrintWriter writer,
+         final MpiExpandedGoldenRecord mpiGoldenRecord) {
+      final var rot = mpiGoldenRecord.goldenRecord();
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
                        rot.uid(), rot.demographicData().auxId(),
                        rot.demographicData().givenName(), rot.demographicData().familyName(), rot.demographicData().gender(),
                        rot.demographicData().dob(),
                        rot.demographicData().phoneNumber(), rot.demographicData().nationalId());
-         goldenRecord.mpiPatients().forEach(mpiPatient -> {
-            final var patient = mpiPatient.patient();
+         mpiGoldenRecord.mpiPatientRecords().forEach(mpiPatient -> {
+            final var patient = mpiPatient.patientRecord();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-                          patient.uid(), patient.demographicData().auxId(),
-                          patient.demographicData().givenName(), patient.demographicData().familyName(), patient.demographicData().gender(),
+                          patient.uid(),
+                          patient.demographicData().auxId(),
+                          patient.demographicData().givenName(),
+                          patient.demographicData().familyName(),
+                          patient.demographicData().gender(),
                           patient.demographicData().dob(),
-                          patient.demographicData().phoneNumber(), patient.demographicData().nationalId(),
+                          patient.demographicData().phoneNumber(),
+                          patient.demographicData().nationalId(),
                           mpiPatient.score());
          });
       }
    }
 
-   private void processSubList(final PrintWriter writer, final int fromIdx, final int toIdx,
-                               final List<String> ids) throws IOException {
+   private void processSubList(
+         final PrintWriter writer,
+         final int fromIdx,
+         final int toIdx,
+         final List<String> ids) throws IOException {
       var subList = ids.subList(fromIdx, toIdx);
       var goldenRecordDocuments = getGoldenRecordDocumentsList(subList);
       goldenRecordDocuments.goldenRecords.forEach(this::updateStatsDataSet);
@@ -201,8 +211,9 @@ public final class CustomMain {
    private record Count(Long count) {
    }
 
-   private record NumberOfRecords(Long patients,
-                                  Long goldenRecords) {
+   private record NumberOfRecords(
+         Long patients,
+         Long goldenRecords) {
    }
 
    private record GoldenIdList(List<String> records) {
@@ -211,8 +222,9 @@ public final class CustomMain {
    private record GoldenRecordDocuments(List<MpiExpandedGoldenRecord> goldenRecords) {
    }
 
-   private record GoldenRecordMembers(String id,
-                                      List<String> member) {
+   private record GoldenRecordMembers(
+         String id,
+         List<String> member) {
    }
 
 }

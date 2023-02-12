@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIExpandedPatient {
+private object CustomLibMPIExpandedPatientRecord {
 
   private val classLocation = "../JeMPI_Shared_Source/custom"
-  private val customClassName = "CustomLibMPIExpandedPatient"
+  private val customClassName = "CustomLibMPIExpandedPatientRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   private def addFields(writer: PrintWriter, fields: Array[Field]): Unit = {
@@ -23,11 +23,10 @@ private object CustomLibMPIExpandedPatient {
          |""".stripMargin)
   }
 
-  private def toCustomPatient(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
         writer.println(
-          """
-            |   CustomPatient toCustomPatient() {
-            |      return new CustomPatient(this.uid(),
+          """   PatientRecord toPatientRecord() {
+            |      return new PatientRecord(this.uid(),
             |                               this.sourceId().toSourceId(),
             |                               new CustomDemographicData(""".stripMargin)
 
@@ -37,18 +36,19 @@ private object CustomLibMPIExpandedPatient {
               s"${" " * 37}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
                 (if (idx + 1 < fields.length) "," else "));"))
         }
-        writer.println("   }")
+        writer.println(
+          s"""   }
+             |""".stripMargin)
   }
 
-  private def toMpiExpandedPatient(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toMpiExpandedPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      """
-        |   MpiExpandedPatient toMpiExpandedPatient() {
-        |      return new MpiExpandedPatient(this.toCustomPatient(),
-        |                                    this.dgraphGoldenRecordList()
-        |                                        .stream()
-        |                                        .map(CustomLibMPIDGraphGoldenRecord::toMpiGoldenRecord)
-        |                                        .toList());
+      """   MpiExpandedPatientRecord toMpiExpandedPatientRecord() {
+        |      return new MpiExpandedPatientRecord(this.toPatientRecord(),
+        |                                          this.dgraphGoldenRecordList()
+        |                                              .stream()
+        |                                              .map(CustomLibMPIDGraphGoldenRecord::toMpiGoldenRecord)
+        |                                              .toList());
         |   }
         |""".stripMargin)
   }
@@ -64,9 +64,9 @@ private object CustomLibMPIExpandedPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.libmpi.MpiExpandedPatient;
+         |import org.jembi.jempi.libmpi.MpiExpandedPatientRecord;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.CustomPatient;
+         |import org.jembi.jempi.shared.models.PatientRecord;
          |
          |import java.util.List;
          |
@@ -75,8 +75,8 @@ private object CustomLibMPIExpandedPatient {
          |${" " * 6}@JsonProperty("uid") String uid,
          |${" " * 6}@JsonProperty("Patient.source_id") LibMPISourceId sourceId,""".stripMargin)
     addFields(writer, fields)
-    toCustomPatient(writer, fields)
-    toMpiExpandedPatient(writer, fields)
+    toPatientRecord(writer, fields)
+    toMpiExpandedPatientRecord(writer, fields)
     writer.println("}")
     writer.flush()
     writer.close()

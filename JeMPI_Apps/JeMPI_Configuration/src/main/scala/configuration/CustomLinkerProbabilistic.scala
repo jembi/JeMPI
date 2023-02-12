@@ -26,13 +26,13 @@ object CustomLinkerProbabilistic {
       writer.println(
         s"""
            |import org.jembi.jempi.shared.models.CustomMU;
-           |import org.jembi.jempi.shared.models.CustomPatient;
-           |import org.jembi.jempi.shared.models.CustomGoldenRecord;
+           |import org.jembi.jempi.shared.models.PatientRecord;
+           |import org.jembi.jempi.shared.models.GoldenRecord;
            |
            |public class $custom_className {
            |
-           |  public static float probabilisticScore(final CustomGoldenRecord goldenRecord,
-           |                                         final CustomPatient patient) {
+           |  public static float probabilisticScore(final GoldenRecord goldenRecord,
+           |                                         final PatientRecord patientRecord) {
            |    return 0.0F;
            |  }
            |
@@ -56,8 +56,8 @@ object CustomLinkerProbabilistic {
            |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |import org.jembi.jempi.shared.models.CustomMU;
-           |import org.jembi.jempi.shared.models.CustomPatient;
-           |import org.jembi.jempi.shared.models.CustomGoldenRecord;
+           |import org.jembi.jempi.shared.models.PatientRecord;
+           |import org.jembi.jempi.shared.models.GoldenRecord;
            |
            |import static java.lang.Math.log;
            |

@@ -90,12 +90,12 @@ public class CustomLinkerMU {
 
       private float computeM(Field field) {
          return (float) (field.matchedPairFieldMatched)
-              / (float) (field.matchedPairFieldMatched + field.matchedPairFieldUnmatched);
+                / (float) (field.matchedPairFieldMatched + field.matchedPairFieldUnmatched);
       }
 
       private float computeU(Field field) {
          return (float) (field.unMatchedPairFieldMatched)
-              / (float) (field.unMatchedPairFieldMatched + field.unMatchedPairFieldUnmatched);
+                / (float) (field.unMatchedPairFieldMatched + field.unMatchedPairFieldUnmatched);
       }
 
       @Override

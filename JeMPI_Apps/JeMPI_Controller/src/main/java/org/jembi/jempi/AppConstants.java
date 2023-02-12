@@ -1,8 +1,8 @@
 package org.jembi.jempi;
 
 public final class AppConstants {
-    private AppConstants() {}
+   public static final String TAG_PATIENT = "patient";
 
-    public static final String TAG_PATIENT = "patient";
+   private AppConstants() {}
 
 }

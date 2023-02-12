@@ -6,8 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.models.CustomPatient;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
 
 import static java.lang.Math.log;
 
@@ -17,6 +15,14 @@ public class CustomLinkerProbabilistic {
    private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    private static final double LOG2 = java.lang.Math.log(2.0);
    private static Fields updatedFields = null;
+   private static Fields currentFields =
+         new Fields(new Field(0.782501F, 0.02372F),
+                    new Field(0.850909F, 0.02975F),
+                    new Field(0.786614F, 0.443018F),
+                    new Field(0.894637F, 0.012448F),
+                    new Field(0.872691F, 0.132717F),
+                    new Field(0.920281F, 0.322629F),
+                    new Field(0.832336F, 1.33E-4F));
 
    private CustomLinkerProbabilistic() {}
 
@@ -58,20 +64,6 @@ public class CustomLinkerProbabilistic {
       }
    }
 
-   private record Field(float m, float u, float min, float max) {
-      Field {
-         m = limitProbability(m);
-         u = limitProbability(u);
-         min = fieldScore(false, m, u);
-         max = fieldScore(true, m, u);
-      }
-
-      Field(final float m, final float u) {
-         this(m, u, 0.0F, 0.0F);
-      }
-
-   }
-
    private static void updateMetricsForStringField(
          final float[] metrics,
          final String left,
@@ -89,32 +81,14 @@ public class CustomLinkerProbabilistic {
 
    static CustomMU getMU() {
       return new CustomMU(
-         getProbability(currentFields.givenName),
-         getProbability(currentFields.familyName),
-         getProbability(currentFields.gender),
-         getProbability(currentFields.dob),
-         getProbability(currentFields.city),
-         getProbability(currentFields.phoneNumber),
-         getProbability(currentFields.nationalId));
+            getProbability(currentFields.givenName),
+            getProbability(currentFields.familyName),
+            getProbability(currentFields.gender),
+            getProbability(currentFields.dob),
+            getProbability(currentFields.city),
+            getProbability(currentFields.phoneNumber),
+            getProbability(currentFields.nationalId));
    }
-
-   private record Fields(
-         Field givenName,
-         Field familyName,
-         Field gender,
-         Field dob,
-         Field city,
-         Field phoneNumber,
-         Field nationalId) {}
-
-   private static Fields currentFields =
-      new Fields(new Field(0.782501F, 0.02372F),
-                 new Field(0.850909F, 0.02975F),
-                 new Field(0.786614F, 0.443018F),
-                 new Field(0.894637F, 0.012448F),
-                 new Field(0.872691F, 0.132717F),
-                 new Field(0.920281F, 0.322629F),
-                 new Field(0.832336F, 1.33E-4F));
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,
@@ -147,14 +121,43 @@ public class CustomLinkerProbabilistic {
           && mu.phoneNumber().m() > mu.phoneNumber().u()
           && mu.nationalId().m() > mu.nationalId().u()) {
          updatedFields = new Fields(
-            new Field(mu.givenName().m(), mu.givenName().u()),
-            new Field(mu.familyName().m(), mu.familyName().u()),
-            new Field(mu.gender().m(), mu.gender().u()),
-            new Field(mu.dob().m(), mu.dob().u()),
-            new Field(mu.city().m(), mu.city().u()),
-            new Field(mu.phoneNumber().m(), mu.phoneNumber().u()),
-            new Field(mu.nationalId().m(), mu.nationalId().u()));
+               new Field(mu.givenName().m(), mu.givenName().u()),
+               new Field(mu.familyName().m(), mu.familyName().u()),
+               new Field(mu.gender().m(), mu.gender().u()),
+               new Field(mu.dob().m(), mu.dob().u()),
+               new Field(mu.city().m(), mu.city().u()),
+               new Field(mu.phoneNumber().m(), mu.phoneNumber().u()),
+               new Field(mu.nationalId().m(), mu.nationalId().u()));
       }
    }
+
+   private record Field(
+         float m,
+         float u,
+         float min,
+         float max) {
+      Field {
+         m = limitProbability(m);
+         u = limitProbability(u);
+         min = fieldScore(false, m, u);
+         max = fieldScore(true, m, u);
+      }
+
+      Field(
+            final float m,
+            final float u) {
+         this(m, u, 0.0F, 0.0F);
+      }
+
+   }
+
+   private record Fields(
+         Field givenName,
+         Field familyName,
+         Field gender,
+         Field dob,
+         Field city,
+         Field phoneNumber,
+         Field nationalId) {}
 
 }

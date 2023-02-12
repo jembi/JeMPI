@@ -8,9 +8,9 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record LibMPIDGraphPatients(
-      @JsonProperty("all") List<CustomLibMPIDGraphPatient> all,
+      @JsonProperty("all") List<CustomLibMPIDGraphPatientRecord> all,
       @JsonProperty("pagination") List<LibMPIPagination> pagination) {
-   public LibMPIDGraphPatients(@JsonProperty("all") List<CustomLibMPIDGraphPatient> all) {
+   public LibMPIDGraphPatients(@JsonProperty("all") List<CustomLibMPIDGraphPatientRecord> all) {
       this(all, List.of(new LibMPIPagination(all.size())));
    }
 }

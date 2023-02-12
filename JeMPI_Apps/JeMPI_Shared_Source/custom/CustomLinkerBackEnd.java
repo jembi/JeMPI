@@ -14,8 +14,8 @@ public final class CustomLinkerBackEnd {
          final String uid) {
       final var expandedGoldenRecord = libMPI.getMpiExpandedGoldenRecordList(List.of(uid))
                                              .get(0);
-      final var customGoldenRecord = expandedGoldenRecord.customGoldenRecord();
-      final var demographicData = customGoldenRecord.demographicData();
+      final var goldenRecord = expandedGoldenRecord.goldenRecord();
+      final var demographicData = goldenRecord.demographicData();
 
       BackEnd.updateGoldenRecordField(expandedGoldenRecord,
                                       "givenName", demographicData.givenName(), CustomDemographicData::givenName);

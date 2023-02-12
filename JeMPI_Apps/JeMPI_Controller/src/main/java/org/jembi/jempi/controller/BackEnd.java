@@ -19,11 +19,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       super(context);
    }
 
-   public void close() {
-   }
-
    public static Behavior<Event> create() {
       return Behaviors.setup(BackEnd::new);
+   }
+
+   public void close() {
    }
 
    public Receive<Event> createReceive() {

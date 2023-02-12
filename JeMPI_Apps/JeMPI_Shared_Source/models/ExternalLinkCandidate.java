@@ -1,6 +1,6 @@
 package org.jembi.jempi.shared.models;
 
 public record ExternalLinkCandidate(
-      CustomGoldenRecord goldenRecord,
+      GoldenRecord goldenRecord,
       float score) {
 }

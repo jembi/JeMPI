@@ -1,10 +1,10 @@
 package org.jembi.jempi.libmpi;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.GoldenRecord;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record MpiGoldenRecord(
-      CustomGoldenRecord goldenRecord,
+      GoldenRecord goldenRecord,
       Float score) {}
 

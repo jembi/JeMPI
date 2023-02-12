@@ -4,51 +4,50 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 
 import java.time.Duration;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Properties;
 
 public class MyKafkaConsumerByTopic<KEY_TYPE, VAL_TYPE> {
 
-    private static final Logger LOGGER = LogManager.getLogger(MyKafkaConsumerByTopic.class);
-    private final String topic;
-    private Consumer<KEY_TYPE, VAL_TYPE> consumer;
+   private static final Logger LOGGER = LogManager.getLogger(MyKafkaConsumerByTopic.class);
+   private final String topic;
+   private Consumer<KEY_TYPE, VAL_TYPE> consumer;
 
-    public MyKafkaConsumerByTopic(final String topic,
-                                  final Deserializer<KEY_TYPE> keyDeserializer,
-                                  final Deserializer<VAL_TYPE> valueDeserializer,
-                                  final String clientId,
-                                  final String groupId,
-                                  final int fetchMaxWaitMSConfig) {
-        this.topic = topic;
-        final Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
-        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 1800000);
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10000);
-        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMSConfig);
-        try {
-            consumer = new KafkaConsumer<>(properties, keyDeserializer, valueDeserializer);
-            consumer.subscribe(Collections.singletonList(topic));
-        } catch (Exception ex) {
-            LOGGER.error(ex.getLocalizedMessage(), ex);
-            consumer = null;
-        }
-    }
+   public MyKafkaConsumerByTopic(
+         final String topic,
+         final Deserializer<KEY_TYPE> keyDeserializer,
+         final Deserializer<VAL_TYPE> valueDeserializer,
+         final String clientId,
+         final String groupId,
+         final int fetchMaxWaitMSConfig) {
+      this.topic = topic;
+      final Properties properties = new Properties();
+      properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+      properties.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
+      properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+      properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+      properties.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 1800000);
+      properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10000);
+      properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMSConfig);
+      try {
+         consumer = new KafkaConsumer<>(properties, keyDeserializer, valueDeserializer);
+         consumer.subscribe(Collections.singletonList(topic));
+      } catch (Exception ex) {
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+         consumer = null;
+      }
+   }
 
-    public ConsumerRecords<KEY_TYPE, VAL_TYPE> poll(Duration duration) {
-        return consumer.poll(duration);
-    }
+   public ConsumerRecords<KEY_TYPE, VAL_TYPE> poll(Duration duration) {
+      return consumer.poll(duration);
+   }
 
 /*
     public Map<Integer, Long> getEndingOffsets() {
@@ -91,8 +90,8 @@ public class MyKafkaConsumerByTopic<KEY_TYPE, VAL_TYPE> {
     }
 */
 
-    public final void close() {
-        consumer.close();
-    }
+   public final void close() {
+      consumer.close();
+   }
 
 }

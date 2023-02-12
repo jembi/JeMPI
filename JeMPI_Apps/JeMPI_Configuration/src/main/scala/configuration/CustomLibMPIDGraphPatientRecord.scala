@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIDGraphPatient {
+private object CustomLibMPIDGraphPatientRecord {
 
   private val classLocation = "../JeMPI_Shared_Source/custom"
-  private val customClassName = "CustomLibMPIDGraphPatient"
+  private val customClassName = "CustomLibMPIDGraphPatientRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(fields: Array[Field]): Unit =
@@ -19,9 +19,9 @@ private object CustomLibMPIDGraphPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.libmpi.MpiPatient;
+         |import org.jembi.jempi.libmpi.MpiPatientRecord;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.CustomPatient;
+         |import org.jembi.jempi.shared.models.PatientRecord;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
@@ -38,13 +38,13 @@ private object CustomLibMPIDGraphPatient {
     writer.println(
       s"""${" " * 6}@JsonProperty("GoldenRecord.patients|score") Float score) {
          |   $customClassName(
-         |         final CustomPatient patient,
+         |         final PatientRecord patientRecord,
          |         final Float score) {
-         |      this(patient.uid(),
-         |           new LibMPISourceId(patient.sourceId()),""".stripMargin)
+         |      this(patientRecord.uid(),
+         |           new LibMPISourceId(patientRecord.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        writer.println(s"${" " * 11}patient.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)}(),")
+        writer.println(s"${" " * 11}patientRecord.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)}(),")
     }
     writer.println(
       s"""${" " * 11}score);
@@ -53,8 +53,8 @@ private object CustomLibMPIDGraphPatient {
 
     writer.print(
       """
-        |   CustomPatient toCustomPatient() {
-        |      return new CustomPatient(this.uid(),
+        |   PatientRecord toPatientRecord() {
+        |      return new PatientRecord(this.uid(),
         |                               this.sourceId() != null
         |                                     ? this.sourceId().toSourceId()
         |                                     : null,
@@ -68,8 +68,8 @@ private object CustomLibMPIDGraphPatient {
     writer.println("   }")
     writer.println(
       """
-        |   MpiPatient toMpiPatient() {
-        |      return new MpiPatient(toCustomPatient(), this.score());
+        |   MpiPatientRecord toMpiPatientRecord() {
+        |      return new MpiPatientRecord(toPatientRecord(), this.score());
         |   }""".stripMargin)
     writer.println(
       """

@@ -3,7 +3,7 @@ package org.jembi.jempi.libmpi.dgraph;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.GoldenRecord;
 
 import java.util.List;
 
@@ -20,32 +20,32 @@ record CustomLibMPIGoldenRecord(
       @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
       @JsonProperty("GoldenRecord.national_id") String nationalId) {
 
-   CustomLibMPIGoldenRecord(final CustomLibMPIDGraphPatient patient) {
+   CustomLibMPIGoldenRecord(final CustomLibMPIDGraphPatientRecord rec) {
       this(null,
-           List.of(patient.sourceId()),
-           patient.auxId(),
-           patient.givenName(),
-           patient.familyName(),
-           patient.gender(),
-           patient.dob(),
-           patient.city(),
-           patient.phoneNumber(),
-           patient.nationalId());
+           List.of(rec.sourceId()),
+           rec.auxId(),
+           rec.givenName(),
+           rec.familyName(),
+           rec.gender(),
+           rec.dob(),
+           rec.city(),
+           rec.phoneNumber(),
+           rec.nationalId());
    }
 
-   CustomGoldenRecord toCustomGoldenRecord() {
-      return new CustomGoldenRecord(this.uid(),
-                                    this.sourceId() != null
-                                          ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-                                          : List.of(),
-                                    new CustomDemographicData(this.auxId(),
-                                                              this.givenName(),
-                                                              this.familyName(),
-                                                              this.gender(),
-                                                              this.dob(),
-                                                              this.city(),
-                                                              this.phoneNumber(),
-                                                              this.nationalId()));
+   GoldenRecord toGoldenRecord() {
+      return new GoldenRecord(this.uid(),
+                              this.sourceId() != null
+                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+                                    : List.of(),
+                              new CustomDemographicData(this.auxId(),
+                                                        this.givenName(),
+                                                        this.familyName(),
+                                                        this.gender(),
+                                                        this.dob(),
+                                                        this.city(),
+                                                        this.phoneNumber(),
+                                                        this.nationalId()));
    }
 
 }

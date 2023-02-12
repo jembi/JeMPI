@@ -20,7 +20,7 @@ private object CustomLibMPIGoldenRecord {
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.CustomGoldenRecord;
+         |import org.jembi.jempi.shared.models.GoldenRecord;
          |
          |import java.util.List;
          |
@@ -44,13 +44,13 @@ private object CustomLibMPIGoldenRecord {
     }
     writer.println(
       s"""
-         |${" " * 3}$customClassName(final CustomLibMPIDGraphPatient patient) {
+         |${" " * 3}$customClassName(final CustomLibMPIDGraphPatientRecord rec) {
          |${" " * 6}this(null,
-         |${" " * 11}List.of(patient.sourceId()),""".stripMargin)
+         |${" " * 11}List.of(rec.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
         val arg = (if (field.isList.isDefined && field.isList.get) "List.of(" else "") +
-          "patient." + Utils.snakeCaseToCamelCase(field.fieldName) +
+          "rec." + Utils.snakeCaseToCamelCase(field.fieldName) +
           "()" +
           (if (field.isList.isDefined && field.isList.get) ")" else "")
         writer.println(
@@ -60,16 +60,16 @@ private object CustomLibMPIGoldenRecord {
 
     writer.print(
       s"""
-         |   CustomGoldenRecord toCustomGoldenRecord() {
-         |      return new CustomGoldenRecord(this.uid(),
-         |                                    this.sourceId() != null
-         |                                          ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-         |                                          : List.of(),
-         |                                    new CustomDemographicData(""".stripMargin)
+         |   GoldenRecord toGoldenRecord() {
+         |      return new GoldenRecord(this.uid(),
+         |                              this.sourceId() != null
+         |                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+         |                                    : List.of(),
+         |                              new CustomDemographicData(""".stripMargin)
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
-          s"${" " * (if (idx == 0) 0 else 62)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
+          s"${" " * (if (idx == 0) 0 else 56)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
             (if (idx + 1 < fields.length) "," else "));"))
     }
     writer.println("   }")

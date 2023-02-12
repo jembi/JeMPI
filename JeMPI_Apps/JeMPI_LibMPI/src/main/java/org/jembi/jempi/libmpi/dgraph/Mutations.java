@@ -12,8 +12,8 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomPatient;
 import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -114,17 +114,21 @@ final class Mutations {
       Client.getInstance().doMutateTransaction(mu);
    }
 
-   private static InsertPatientResult insertPatient(final CustomPatient patient) {
+   private static InsertPatientResult insertPatientRecord(final PatientRecord patientRecord) {
       final DgraphProto.Mutation sourceIdMutation =
             DgraphProto.Mutation.newBuilder()
-                                .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(patient.sourceId())))
+                                .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(patientRecord.sourceId())))
                                 .build();
-      final var sourceId = getSourceId(patient.sourceId()).all();
+      final var sourceId = getSourceId(patientRecord.sourceId()).all();
       final var sourceIdUid = !sourceId.isEmpty()
             ? sourceId.get(0).uid()
             : Client.getInstance().doMutateTransaction(sourceIdMutation);
-      final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder().setSetNquads(
-            ByteString.copyFromUtf8(CustomLibMPIMutations.createPatientTriple(patient.demographicData(), sourceIdUid))).build();
+      final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
+                                                                .setSetNquads(
+                                                                      ByteString.copyFromUtf8(CustomLibMPIMutations.createPatientTriple(
+                                                                            patientRecord.demographicData(),
+                                                                            sourceIdUid)))
+                                                                .build();
       return new InsertPatientResult(Client.getInstance().doMutateTransaction(mutation), sourceIdUid);
    }
 
@@ -151,13 +155,13 @@ final class Mutations {
       Client.getInstance().doMutateTransaction(mutation);
    }
 
-   static LinkInfo addNewDGraphPatient(final CustomPatient patient) {
-      final var result = insertPatient(patient);
+   static LinkInfo addNewDGraphPatient(final PatientRecord patientRecord) {
+      final var result = insertPatientRecord(patientRecord);
       if (result.patientUID == null) {
          LOGGER.error("Failed to insert patient");
          return null;
       }
-      final var grUID = cloneGoldenRecordFromPatient(patient.demographicData(), result.patientUID, result.sourceUID, 1.0F);
+      final var grUID = cloneGoldenRecordFromPatient(patientRecord.demographicData(), result.patientUID, result.sourceUID, 1.0F);
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
@@ -191,7 +195,7 @@ final class Mutations {
       }
       final var count = goldenUidPatientUidList.size();
 
-      final var patient = Queries.getDGraphPatient(patientUID);
+      final var patient = Queries.getDGraphPatientRecord(patientUID);
       if (patient == null) {
          LOGGER.warn("patient {} not found", patientUID);
          return Either.left(new MpiServiceError.PatientUIDDoesNotExistError("Patient not found", patientUID));
@@ -237,9 +241,9 @@ final class Mutations {
    }
 
    static LinkInfo linkDGraphPatient(
-         final CustomPatient patient,
+         final PatientRecord patientRecord,
          final LibMPIClientInterface.GoldenUIDScore goldenUIDScore) {
-      final var result = insertPatient(patient);
+      final var result = insertPatientRecord(patientRecord);
 
       if (result.patientUID == null) {
          LOGGER.error("Failed to insert dgraphPatient");

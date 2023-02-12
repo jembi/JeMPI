@@ -56,7 +56,9 @@ public final class AppConfig {
 
       Builder withResource(final String resource) {
          Config resourceConfig = ConfigFactory.parseResources(resource);
-         String empty = resourceConfig.entrySet().isEmpty() ? " contains no values" : "";
+         String empty = resourceConfig.entrySet().isEmpty()
+               ? " contains no values"
+               : "";
          conf = conf.withFallback(resourceConfig);
          LOGGER.info("Loaded config file from resource ({}){}", resource, empty);
          return this;

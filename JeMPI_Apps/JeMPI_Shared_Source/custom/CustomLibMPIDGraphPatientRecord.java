@@ -2,12 +2,12 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jembi.jempi.libmpi.MpiPatient;
+import org.jembi.jempi.libmpi.MpiPatientRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomPatient;
+import org.jembi.jempi.shared.models.PatientRecord;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record CustomLibMPIDGraphPatient(
+record CustomLibMPIDGraphPatientRecord(
       @JsonProperty("uid") String uid,
       @JsonProperty("Patient.source_id") LibMPISourceId sourceId,
       @JsonProperty("Patient.aux_id") String auxId,
@@ -19,24 +19,24 @@ record CustomLibMPIDGraphPatient(
       @JsonProperty("Patient.phone_number") String phoneNumber,
       @JsonProperty("Patient.national_id") String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
-   CustomLibMPIDGraphPatient(
-         final CustomPatient patient,
+   CustomLibMPIDGraphPatientRecord(
+         final PatientRecord patientRecord,
          final Float score) {
-      this(patient.uid(),
-           new LibMPISourceId(patient.sourceId()),
-           patient.demographicData().auxId(),
-           patient.demographicData().givenName(),
-           patient.demographicData().familyName(),
-           patient.demographicData().gender(),
-           patient.demographicData().dob(),
-           patient.demographicData().city(),
-           patient.demographicData().phoneNumber(),
-           patient.demographicData().nationalId(),
+      this(patientRecord.uid(),
+           new LibMPISourceId(patientRecord.sourceId()),
+           patientRecord.demographicData().auxId(),
+           patientRecord.demographicData().givenName(),
+           patientRecord.demographicData().familyName(),
+           patientRecord.demographicData().gender(),
+           patientRecord.demographicData().dob(),
+           patientRecord.demographicData().city(),
+           patientRecord.demographicData().phoneNumber(),
+           patientRecord.demographicData().nationalId(),
            score);
    }
 
-   CustomPatient toCustomPatient() {
-      return new CustomPatient(this.uid(),
+   PatientRecord toPatientRecord() {
+      return new PatientRecord(this.uid(),
                                this.sourceId() != null
                                      ? this.sourceId().toSourceId()
                                      : null,
@@ -50,8 +50,8 @@ record CustomLibMPIDGraphPatient(
                                                          this.nationalId()));
    }
 
-   MpiPatient toMpiPatient() {
-      return new MpiPatient(toCustomPatient(), this.score());
+   MpiPatientRecord toMpiPatientRecord() {
+      return new MpiPatientRecord(toPatientRecord(), this.score());
    }
 
 }

@@ -1,10 +1,10 @@
 package org.jembi.jempi.libmpi;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.jembi.jempi.shared.models.CustomPatient;
+import org.jembi.jempi.shared.models.PatientRecord;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record MpiPatient(
-      CustomPatient patient,
+public record MpiPatientRecord(
+      PatientRecord patientRecord,
       Float score) {}
 

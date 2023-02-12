@@ -34,7 +34,7 @@ private object CustomLibMPIDGraphGoldenRecord {
          |import com.fasterxml.jackson.annotation.JsonProperty;
          |import org.jembi.jempi.libmpi.MpiGoldenRecord;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.CustomGoldenRecord;
+         |import org.jembi.jempi.shared.models.GoldenRecord;
          |
          |import java.util.List;
          |
@@ -46,12 +46,12 @@ private object CustomLibMPIDGraphGoldenRecord {
 
     writer.print(
       """
-        |   CustomGoldenRecord toCustomGoldenRecord() {
-        |      return new CustomGoldenRecord(this.uid(),
-        |                                    this.sourceId() != null
-        |                                          ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-        |                                          : List.of(),
-        |                                    new CustomDemographicData(""".stripMargin)
+        |   GoldenRecord toGoldenRecord() {
+        |      return new GoldenRecord(this.uid(),
+        |                              this.sourceId() != null
+        |                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+        |                                    : List.of(),
+        |                              new CustomDemographicData(""".stripMargin)
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
@@ -62,7 +62,7 @@ private object CustomLibMPIDGraphGoldenRecord {
     writer.println(
       """
         |   MpiGoldenRecord toMpiGoldenRecord() {
-        |      return new MpiGoldenRecord(toCustomGoldenRecord(), score);
+        |      return new MpiGoldenRecord(toGoldenRecord(), score);
         |   }""".stripMargin)
     writer.println(
       """

@@ -5,8 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.CustomPatient;
+import org.jembi.jempi.shared.models.GoldenRecord;
+import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.shared.utils.RecordType;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -101,7 +101,7 @@ final class Queries {
       return Collections.emptyList();
    }
 
-   static CustomPatient getDGraphPatient(final String uid) {
+   static PatientRecord getDGraphPatientRecord(final String uid) {
       if (StringUtils.isBlank(uid)) {
          return null;
       }
@@ -110,7 +110,7 @@ final class Queries {
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return patientList.get(0).toMpiPatient().patient();
+      return patientList.get(0).toMpiPatientRecord().patientRecord();
    }
 
    static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {
@@ -240,7 +240,7 @@ final class Queries {
       }
    }
 
-   static List<CustomLibMPIExpandedPatient> getExpandedPatients(final List<String> idList) {
+   static List<CustomLibMPIExpandedPatientRecord> getExpandedPatientRecords(final List<String> idList) {
       final String query = String.format(CustomLibMPIConstants.QUERY_GET_EXPANDED_PATIENTS,
                                          String.join(",", idList));
       final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
@@ -261,8 +261,8 @@ final class Queries {
    static <T> List<String> getRecordFieldNamesByType(RecordType recordType) {
       List<String> fieldNames = new ArrayList<String>();
       Class C = recordType == RecordType.GoldenRecord
-            ? CustomGoldenRecord.class
-            : CustomPatient.class;
+            ? GoldenRecord.class
+            : PatientRecord.class;
       Field[] fields = C.getDeclaredFields();
       for (Field field : fields) {
          fieldNames.add(field.getName() == "uid"

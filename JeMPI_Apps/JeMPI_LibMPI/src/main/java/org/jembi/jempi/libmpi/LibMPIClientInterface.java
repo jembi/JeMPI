@@ -3,8 +3,8 @@ package org.jembi.jempi.libmpi;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.CustomPatient;
+import org.jembi.jempi.shared.models.GoldenRecord;
+import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.models.LinkInfo;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -38,21 +38,26 @@ public interface LibMPIClientInterface {
     * *
     */
 
-   List<CustomGoldenRecord> getCandidates(
+   long countPatientRecords();
+
+   long countGoldenRecords();
+
+   PatientRecord getPatientRecord(final String uid);
+
+   GoldenRecord getGoldenRecord(final String uid);
+
+   List<GoldenRecord> getCandidates(
          final CustomDemographicData patient,
          boolean applyDeterministicFilter);
 
    List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> idList);
 
-   List<MpiExpandedPatient> getMpiExpandedPatients(final List<String> idList);
+   List<MpiExpandedPatientRecord> getMpiExpandedPatients(final List<String> idList);
 
    List<String> getGoldenIdListByPredicate(
          final String predicate,
          final String val);
 
-   CustomGoldenRecord getGoldenRecordByUid(final String uid);
-
-   CustomPatient getPatient(final String uid);
 
    List<String> getGoldenIdList();
 
@@ -70,24 +75,19 @@ public interface LibMPIClientInterface {
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<CustomPatient> simpleSearchPatientRecords(
+   LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<CustomPatient> customSearchPatientRecords(
+   LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
          List<SimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
-
-
-   long countGoldenRecords();
-
-   long countPatients();
 
    /*
     * *****************************************************************************
@@ -114,11 +114,11 @@ public interface LibMPIClientInterface {
          final float score);
 
    LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         final CustomPatient patient,
+         final PatientRecord patientRecord,
          final GoldenUIDScore goldenUIDScore);
 
    LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         final CustomPatient patient,
+         final PatientRecord patientRecord,
          float score);
 
    record GoldenUIDScore(

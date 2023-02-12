@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jembi.jempi.libmpi.MpiGoldenRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
+import org.jembi.jempi.shared.models.GoldenRecord;
 
 import java.util.List;
 
@@ -22,12 +22,12 @@ record CustomLibMPIDGraphGoldenRecord(
       @JsonProperty("GoldenRecord.national_id") String nationalId,
       @JsonProperty("~GoldenRecord.patients|score") Float score) {
 
-   CustomGoldenRecord toCustomGoldenRecord() {
-      return new CustomGoldenRecord(this.uid(),
-                                    this.sourceId() != null
-                                          ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-                                          : List.of(),
-                                    new CustomDemographicData(this.auxId(),
+   GoldenRecord toGoldenRecord() {
+      return new GoldenRecord(this.uid(),
+                              this.sourceId() != null
+                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+                                    : List.of(),
+                              new CustomDemographicData(this.auxId(),
                                                               this.givenName(),
                                                               this.familyName(),
                                                               this.gender(),
@@ -38,7 +38,7 @@ record CustomLibMPIDGraphGoldenRecord(
    }
 
    MpiGoldenRecord toMpiGoldenRecord() {
-      return new MpiGoldenRecord(toCustomGoldenRecord(), score);
+      return new MpiGoldenRecord(toGoldenRecord(), score);
    }
 
 }

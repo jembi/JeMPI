@@ -51,8 +51,9 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
-   private CompletionStage<HttpResponse> postLinkPatient(final ActorSystem<Void> system,
-                                                        final String json) {
+   private CompletionStage<HttpResponse> postLinkPatient(
+         final ActorSystem<Void> system,
+         final String json) {
       LOGGER.debug("json : {}", json);
       final var request = HttpRequest
             .create("http://jempi-controller:50000/JeMPI/link_patient")
@@ -85,7 +86,9 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                              }));
    }
 
-   private Route routeLinkPatient(final ActorSystem<Void> system, final Materializer materializer) {
+   private Route routeLinkPatient(
+         final ActorSystem<Void> system,
+         final Materializer materializer) {
       return entity(Unmarshaller.entityToString(),
                     json -> {
                        LOGGER.debug("{}", json);
@@ -93,14 +96,32 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                        final var patients = BundleUtil.toListOfResourcesOfType(ctx, bundle, Patient.class);
                        final var patient = patients.get(0);
                        LOGGER.debug("{}", parser.encodeResourceToString(patient));
-                       final HumanName name = patient.hasName() ? patient.getName().get(0) : null;
-                       final String gender = patient.hasGender() ? patient.getGender().toCode() : null;
-                       final Address address = patient.hasAddress() ? patient.getAddress().get(0) : null;
-                       final String city = address != null ? address.hasCity() ? address.getCity() : null : null;
-                       final String dob = patient.hasBirthDate() ? DF.format(patient.getBirthDate()) : null;
-                       final List<ContactPoint> telecomList = patient.hasTelecom() ? patient.getTelecom() : null;
-                       final ContactPoint contactPoint = telecomList != null ? telecomList.get(0) : null;
-                       final String phone = contactPoint != null ? contactPoint.getValue() : null;
+                       final HumanName name = patient.hasName()
+                             ? patient.getName().get(0)
+                             : null;
+                       final String gender = patient.hasGender()
+                             ? patient.getGender().toCode()
+                             : null;
+                       final Address address = patient.hasAddress()
+                             ? patient.getAddress().get(0)
+                             : null;
+                       final String city = address != null
+                             ? (address.hasCity()
+                                      ? address.getCity()
+                                      : null)
+                             : null;
+                       final String dob = patient.hasBirthDate()
+                             ? DF.format(patient.getBirthDate())
+                             : null;
+                       final List<ContactPoint> telecomList = patient.hasTelecom()
+                             ? patient.getTelecom()
+                             : null;
+                       final ContactPoint contactPoint = telecomList != null
+                             ? telecomList.get(0)
+                             : null;
+                       final String phone = contactPoint != null
+                             ? contactPoint.getValue()
+                             : null;
                        final List<Identifier> identifierList = patient.getIdentifier();
                        String secondaryID = null;
                        String officialID = null;
@@ -118,13 +139,17 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                              );
                           }
                        }
-                       final String givenName = name != null && name.hasGiven() ? name.getGiven().get(0).getValue() : null;
-                       final String familyName = name != null ? name.getFamily() : null;
-                       final var customPatient = new CustomPatient(null,
-                                                                  sourceId,
-                                                                  new CustomDemographicData(secondaryID,
-                                                                                            givenName, familyName, gender, dob,
-                                                                                            city, phone, officialID));
+                       final String givenName = name != null && name.hasGiven()
+                             ? name.getGiven().get(0).getValue()
+                             : null;
+                       final String familyName = name != null
+                             ? name.getFamily()
+                             : null;
+                       final var customPatient = new PatientRecord(null,
+                                                                   sourceId,
+                                                                   new CustomDemographicData(secondaryID,
+                                                                                             givenName, familyName, gender, dob,
+                                                                                             city, phone, officialID));
                        LOGGER.debug("{}", customPatient);
                        try {
                           final var jsonIn = AppUtils.OBJECT_MAPPER.writeValueAsString(
@@ -145,7 +170,9 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
                     });
    }
 
-   private Route createRoute(final ActorSystem<Void> system, final Materializer materializer) {
+   private Route createRoute(
+         final ActorSystem<Void> system,
+         final Materializer materializer) {
       return pathPrefix("fhir",
                         () -> concat(
                               post(() -> routeLinkPatient(system, materializer))));

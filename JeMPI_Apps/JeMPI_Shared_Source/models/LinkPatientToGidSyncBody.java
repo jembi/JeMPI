@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LinkPatientToGidSyncBody(
       @JsonProperty("stan") String stan,
-      @JsonProperty("patient") CustomPatient patient,
+      @JsonProperty("patientRecord") PatientRecord patientRecord,
       @JsonProperty("gid") String gid) {}

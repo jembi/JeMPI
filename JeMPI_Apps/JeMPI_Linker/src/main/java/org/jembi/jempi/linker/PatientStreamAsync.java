@@ -12,7 +12,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchPatient;
+import org.jembi.jempi.shared.models.BatchPatientRecord;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -40,15 +40,15 @@ public class PatientStreamAsync {
          ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd,
          String key,
-         BatchPatient batchPatient) {
-      if (batchPatient.batchType() != BatchPatient.BatchType.BATCH_PATIENT) {
+         BatchPatientRecord batchPatientRecord) {
+      if (batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return;
       }
-      LOGGER.debug("{}", batchPatient.patient());
+      LOGGER.debug("{}", batchPatientRecord.patientRecord());
       final CompletionStage<BackEnd.EventLinkPatientAsyncRsp> result =
             AskPattern.ask(
                   backEnd,
-                  replyTo -> new BackEnd.EventLinkPatientAsyncReq(key, batchPatient, replyTo),
+                  replyTo -> new BackEnd.EventLinkPatientAsyncReq(key, batchPatientRecord, replyTo),
                   java.time.Duration.ofSeconds(60),
                   system.scheduler());
       final var completableFuture = result.toCompletableFuture();
@@ -69,13 +69,13 @@ public class PatientStreamAsync {
       LOGGER.info("EM Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
-      final var batchPatientSerde = Serdes.serdeFrom(
+      final var batchPatientRecordSerde = Serdes.serdeFrom(
             new JsonPojoSerializer<>(),
-            new JsonPojoDeserializer<>(BatchPatient.class));
+            new JsonPojoDeserializer<>(BatchPatientRecord.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchPatient> patientsStream = streamsBuilder.stream(
+      final KStream<String, BatchPatientRecord> patientsStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_LINKER,
-            Consumed.with(stringSerde, batchPatientSerde));
+            Consumed.with(stringSerde, batchPatientRecordSerde));
       patientsStream.foreach((key, patient) -> linkPatient(system, backEnd, key, patient));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
