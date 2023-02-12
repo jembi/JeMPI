@@ -32,17 +32,15 @@ pushd JeMPI_ETL/src/main/java/org/jembi/jempi/shared/models
 popd
 pushd JeMPI_ETL/src/main/java/org/jembi/jempi/etl
   rm -f CustomSourceRecordStream.java
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/etl/CustomSourceRecordStream.java CustomSourceRecordStream.java
-popd
-pushd JeMPI_ETL/src/main/java/org/jembi/jempi/etl
   rm -f CustomFHIRsyncReceiver.java
-  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/etl/CustomFHIRsyncReceiver.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/etl/CustomSourceRecordStream.java CustomSourceRecordStream.java
+  ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/etl/CustomFHIRsyncReceiver.java CustomFHIRsyncReceiver.java
 popd
 
 # JeMPI_EM
 pushd JeMPI_EM/src/main/java/org/jembi/jempi/em
   rm -f CustomEMTask.java
-  rm -f CustomPatient.java
+  rm -f CustomEMPatient.java
   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/em/CustomEMTask.java CustomEMTask.java  
   ln -s ../../../../../../../../JeMPI_Shared_Source/custom/$PROJECT/em/CustomEMPatient.java CustomEMPatient.java
 popd

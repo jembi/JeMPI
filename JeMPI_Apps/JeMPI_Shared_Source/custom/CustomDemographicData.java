@@ -1,7 +1,7 @@
 package org.jembi.jempi.shared.models;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CustomDemographicData(

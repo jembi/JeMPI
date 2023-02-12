@@ -1,6 +1,7 @@
 package org.jembi.jempi.linker;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 class CustomLinkerDeterministic {
@@ -24,10 +25,7 @@ class CustomLinkerDeterministic {
       final var phoneNumber_r = patient.phoneNumber();
       final var nationalId_l = goldenRecord.nationalId();
       final var nationalId_r = patient.nationalId();
-      return (isMatch(nationalId_l, nationalId_r) || (isMatch(givenName_l, givenName_r) && isMatch(familyName_l,
-                                                                                                   familyName_r) && isMatch(
-            phoneNumber_l,
-            phoneNumber_r)));
+      return (isMatch(nationalId_l, nationalId_r) || (isMatch(givenName_l, givenName_r) && isMatch(familyName_l, familyName_r) && isMatch(phoneNumber_l, phoneNumber_r)));
    }
 
 }
