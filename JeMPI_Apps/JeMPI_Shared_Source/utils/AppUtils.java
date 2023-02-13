@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-public class AppUtils implements Serializable {
+public final class AppUtils implements Serializable {
    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
    @Serial
    private static final long serialVersionUID = 1L;

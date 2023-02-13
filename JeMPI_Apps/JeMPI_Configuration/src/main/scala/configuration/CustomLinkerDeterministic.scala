@@ -22,7 +22,7 @@ object CustomLinkerDeterministic {
         |
         |import org.jembi.jempi.shared.models.CustomDemographicData;
         |""".stripMargin)
-    writer.println(s"class $custom_className {")
+    writer.println(s"final class $custom_className {")
     writer.println()
     writer.println(" " * 3 + s"private $custom_className() {}")
     writer.println()
@@ -55,13 +55,13 @@ object CustomLinkerDeterministic {
           "NOT (" + checkNullExpression(x) + ")"
         case Ast.Match(variable, _) =>
           val field = Utils.snakeCaseToCamelCase(variable.name)
-          val left = field + "_l"
-          val right = field + "_r"
+          val left = field + "L"
+          val right = field + "R"
           s"isMatch($left, $right)"
         case Ast.Eq(variable) =>
           val field = Utils.snakeCaseToCamelCase(variable.name)
-          val left = field + "_l"
-          val right = field + "_r"
+          val left = field + "L"
+          val right = field + "R"
           s"isMatch($left, $right)"
         case _ =>
           "ERROR"
@@ -78,8 +78,8 @@ object CustomLinkerDeterministic {
       val expr_1 = checkNullExpression(expression)
       rule.vars.foreach(v => {
         val field = Utils.snakeCaseToCamelCase(v)
-        val left = field + "_l"
-        val right = field + "_r"
+        val left = field + "L"
+        val right = field + "R"
         writer.println(" " * 6 + s"final var $left = goldenRecord.$field();")
         writer.println(" " * 6 + s"final var $right = patient.$field();")
       })

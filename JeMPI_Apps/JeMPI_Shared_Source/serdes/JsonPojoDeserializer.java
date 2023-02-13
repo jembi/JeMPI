@@ -21,8 +21,9 @@ public record JsonPojoDeserializer<T>(Class<T> toClazz) implements Deserializer<
    public T deserialize(
          String topic,
          byte[] bytes) {
-      if (bytes == null)
+      if (bytes == null) {
          return null;
+      }
       T data;
       try {
          data = AppUtils.OBJECT_MAPPER.readValue(bytes, toClazz);

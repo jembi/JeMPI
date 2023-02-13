@@ -29,7 +29,7 @@ object CustomLinkerProbabilistic {
            |import org.jembi.jempi.shared.models.PatientRecord;
            |import org.jembi.jempi.shared.models.GoldenRecord;
            |
-           |public class $custom_className {
+           |public final class $custom_className {
            |
            |  public static float probabilisticScore(final GoldenRecord goldenRecord,
            |                                         final PatientRecord patientRecord) {
@@ -56,16 +56,15 @@ object CustomLinkerProbabilistic {
            |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |import org.jembi.jempi.shared.models.CustomMU;
-           |import org.jembi.jempi.shared.models.PatientRecord;
-           |import org.jembi.jempi.shared.models.GoldenRecord;
            |
            |import static java.lang.Math.log;
            |
-           |public class $custom_className {
+           |public final class $custom_className {
            |
            |   private static final Logger LOGGER = LogManager.getLogger(CustomLinkerProbabilistic.class);
            |   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
            |   private static final double LOG2 = java.lang.Math.log(2.0);
+           |   private static final float MISSING_PENALTY = 0.925F;
            |   private static Fields updatedFields = null;
            |
            |   private $custom_className() {}
@@ -127,7 +126,6 @@ object CustomLinkerProbabilistic {
            |         final String left,
            |         final String right,
            |         final Field field) {
-           |      final float MISSING_PENALTY = 0.925F;
            |      if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
            |         metrics[0] += field.min;
            |         metrics[1] += field.max;

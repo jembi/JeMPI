@@ -132,6 +132,11 @@
             3.3.0
         </version.org.apache.maven.plugins.maven-resources-plugin>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-checkstyle-plugin -->
+        <version.org.apache.maven.plugins.maven-checkstyle-plugin>
+            3.2.1
+        </version.org.apache.maven.plugins.maven-checkstyle-plugin>
+
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
         <version.org.apache.maven.plugins.maven-deploy-plugin>
             3.0.0

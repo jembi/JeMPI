@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+
+    <suppress
+            checks="(JavadocMethod|JavadocVariable|JavadocStyle|JavadocPackage|JavadocType|DesignForExtension)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(LineLength|AvoidStarImport|HiddenField|MagicNumber)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(ParameterName|WhitespaceAround|UnusedImports|NewlineAtEndOfFile)"
+            files="().java"
+    />
+    <suppress
+            checks="(VisibilityModifier|FinalParameters|RegexpSingleline|OperatorWrap)"
+            files="().java"
+    />
+
+</suppressions>

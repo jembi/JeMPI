@@ -18,7 +18,7 @@ import org.jembi.jempi.shared.models.LinkPatientToGidSyncBody;
 
 import java.util.concurrent.CompletionStage;
 
-class PatientStreamSync extends AllDirectives {
+final class PatientStreamSync extends AllDirectives {
 
    private static final Logger LOGGER = LogManager.getLogger(PatientStreamSync.class);
    private CompletionStage<ServerBinding> binding = null;

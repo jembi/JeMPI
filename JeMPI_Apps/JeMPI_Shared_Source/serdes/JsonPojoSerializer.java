@@ -19,8 +19,9 @@ public class JsonPojoSerializer<T> implements Serializer<T> {
    public byte[] serialize(
          String topic,
          T data) {
-      if (data == null)
+      if (data == null) {
          return new byte[0];
+      }
 
       try {
          return AppUtils.OBJECT_MAPPER.writeValueAsBytes(data);

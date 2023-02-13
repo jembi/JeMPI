@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class PatientStreamAsync {
+public final class PatientStreamAsync {
 
    private static final Logger LOGGER = LogManager.getLogger(PatientStreamAsync.class);
    private KafkaStreams patientKafkaStreams;
@@ -37,9 +37,9 @@ public class PatientStreamAsync {
    }
 
    private void linkPatient(
-         ActorSystem<Void> system,
+         final ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd,
-         String key,
+         final String key,
          BatchPatientRecord batchPatientRecord) {
       if (batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return;

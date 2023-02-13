@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BackEnd extends AbstractBehavior<BackEnd.Event> {
+public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
@@ -37,7 +37,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private final MyKafkaProducer<String, Notification> topicNotifications;
 
-   private BackEnd(ActorContext<Event> context) {
+   private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
          openMPI();
@@ -121,19 +121,19 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    }
 
-   private Behavior<Event> eventUpdateMUReqHandler(EventUpdateMUReq req) {
+   private Behavior<Event> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
       LOGGER.info("*************** {} **************", req);
       CustomLinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventWorkTimeHandler(EventWorkTime request) {
+   private Behavior<Event> eventWorkTimeHandler(final EventWorkTime request) {
       LOGGER.info("WORK TIME");
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventTeaTimeHandler(EventTeaTime request) {
+   private Behavior<Event> eventTeaTimeHandler(final EventTeaTime request) {
       LOGGER.info("TEA TIME");
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventWorkTime.INSTANCE, Duration.ofSeconds(5));
@@ -287,12 +287,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             : Either.left(linkInfo);
    }
 
-   private Behavior<Event> eventGetMUReqHandler(EventGetMUReq req) {
+   private Behavior<Event> eventGetMUReqHandler(final EventGetMUReq req) {
       req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventLinkPatientAsyncHandler(EventLinkPatientAsyncReq req) {
+   private Behavior<Event> eventLinkPatientAsyncHandler(final EventLinkPatientAsyncReq req) {
       if (req.batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(5));
@@ -313,7 +313,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       });
    }
 
-   private Behavior<Event> eventLinkPatientSyncHandler(EventLinkPatientSyncReq request) {
+   private Behavior<Event> eventLinkPatientSyncHandler(final EventLinkPatientSyncReq request) {
       final var listLinkInfo = linkPatient(
             request.link.stan(),
             request.link.patientRecord(),
@@ -329,7 +329,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventLinkPatientToGidSyncHandler(EventLinkPatientToGidSyncReq request) {
+   private Behavior<Event> eventLinkPatientToGidSyncHandler(final EventLinkPatientToGidSyncReq request) {
       final var linkInfo = linkPatientToGid(
             request.link.patientRecord(),
             request.link.gid(),
