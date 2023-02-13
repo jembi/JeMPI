@@ -76,31 +76,6 @@ final class Queries {
       return new LibMPIExpandedGoldenRecordList(List.of());
    }
 
-//   static List<String> getGoldenIdListByPredicate(
-//         final String predicate,
-//         final String val) {
-//      if (StringUtils.isBlank(predicate) || StringUtils.isBlank(val)) {
-//         return Collections.emptyList();
-//      }
-//      final String query = String
-//            .format("""
-//                    query goldenIdListByPredicate() {
-//                      list(func: eq(%s, %s)) {
-//                        uid
-//                      }
-//                    }""", predicate, val);
-//      final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
-//      try {
-//         final var response = AppUtils.OBJECT_MAPPER.readValue(json, LibMPIUidList.class);
-//         final List<String> list = new ArrayList<>();
-//         response.list().forEach(x -> list.add(x.uid()));
-//         return list;
-//      } catch (JsonProcessingException ex) {
-//         LOGGER.error(ex.getLocalizedMessage(), ex);
-//      }
-//      return Collections.emptyList();
-//   }
-
    static PatientRecord getDGraphPatientRecord(final String uid) {
       if (StringUtils.isBlank(uid)) {
          return null;
@@ -119,7 +94,7 @@ final class Queries {
       }
       final var vars = Map.of("$uid", uid);
       final var goldenRecordList = runGoldenRecordsQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
-            .all();
+              .all();
 
       if (AppUtils.isNullOrEmpty(goldenRecordList)) {
          LOGGER.warn("No goldenRecord for {}", uid);

@@ -75,11 +75,13 @@ public class LibMPI {
       return client.getGoldenRecord(uid);
    }
 
-//   public List<String> getGoldenIdListByPredicate(
-//         final String predicate,
-//         final String val) {
-//      return client.getGoldenIdListByPredicate(predicate, val);
-//   }
+   public ExpandedGoldenRecord getExpandedGoldenRecord(final String uid) {
+      final var records = client.getExpandedGoldenRecords(List.of(uid));
+      if (records.size() > 0) {
+         return records.get(0);
+      }
+      return null;
+   }
 
    public List<String> getGoldenIdList() {
       return client.getGoldenIdList();

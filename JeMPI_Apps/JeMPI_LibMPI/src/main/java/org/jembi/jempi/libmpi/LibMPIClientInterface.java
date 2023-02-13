@@ -48,6 +48,8 @@ public interface LibMPIClientInterface {
          boolean applyDeterministicFilter);
 
    List<ExpandedPatientRecord> getExpandedPatients(final List<String> idList);
+    
+    GoldenRecord getGoldenRecordByUid(final String uid);
 
    List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> idList);
 

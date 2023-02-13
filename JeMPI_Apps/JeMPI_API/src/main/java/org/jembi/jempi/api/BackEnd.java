@@ -260,7 +260,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> findGoldenRecordByUidEventHandler(final EventFindGoldenRecordByUidRequest request) {
       LOGGER.debug("findGoldenRecordByUidEventHandler");
       libMPI.startTransaction();
-      final var rec = libMPI.getGoldenRecord(request.uid);
+      final var rec = libMPI.getExpandedGoldenRecord(request.uid);
       request.replyTo.tell(new EventFindGoldenRecordByUidResponse(rec));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -412,7 +412,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements Event {
    }
 
-   public record EventFindGoldenRecordByUidResponse(GoldenRecord goldenRecord) implements EventResponse {
+   public record EventFindGoldenRecordByUidResponse(ExpandedGoldenRecord goldenRecord) implements EventResponse {
    }
 
    public record EventGetExpandedGoldenRecordsReq(ActorRef<EventGetExpandedGoldenRecordsRsp> replyTo,
