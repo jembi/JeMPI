@@ -13,14 +13,14 @@ public record JsonPojoDeserializer<T>(Class<T> toClazz) implements Deserializer<
 
    @Override
    public void configure(
-         Map<String, ?> props,
-         boolean isKey) {
+         final Map<String, ?> props,
+         final boolean isKey) {
    }
 
    @Override
    public T deserialize(
-         String topic,
-         byte[] bytes) {
+         final String topic,
+         final byte[] bytes) {
       if (bytes == null) {
          return null;
       }

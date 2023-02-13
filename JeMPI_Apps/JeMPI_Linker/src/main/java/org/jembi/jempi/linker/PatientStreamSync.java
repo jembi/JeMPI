@@ -30,7 +30,7 @@ final class PatientStreamSync extends AllDirectives {
       return new PatientStreamSync();
    }
 
-   void close(ActorSystem<Void> system) {
+   void close(final ActorSystem<Void> system) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
              .thenAccept(unbound -> system.terminate()); // and shutdown when done
    }

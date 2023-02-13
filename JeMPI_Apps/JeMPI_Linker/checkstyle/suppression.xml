@@ -17,11 +17,11 @@
     />
 
     <suppress
-            checks="(ParameterName|WhitespaceAround|UnusedImports|NewlineAtEndOfFile)"
+            checks="(ParameterName|WhitespaceAround|NewlineAtEndOfFile)"
             files="().java"
     />
     <suppress
-            checks="(VisibilityModifier|FinalParameters|RegexpSingleline|OperatorWrap)"
+            checks="(VisibilityModifier|RegexpSingleline|OperatorWrap)"
             files="().java"
     />
 

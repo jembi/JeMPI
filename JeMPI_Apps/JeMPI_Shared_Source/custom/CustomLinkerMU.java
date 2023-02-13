@@ -88,12 +88,12 @@ public class CustomLinkerMU {
       final Field phoneNumber = new Field();
       final Field nationalId = new Field();
 
-      private float computeM(Field field) {
+      private float computeM(final Field field) {
          return (float) (field.matchedPairFieldMatched)
               / (float) (field.matchedPairFieldMatched + field.matchedPairFieldUnmatched);
       }
 
-      private float computeU(Field field) {
+      private float computeU(final Field field) {
          return (float) (field.unMatchedPairFieldMatched)
               / (float) (field.unMatchedPairFieldMatched + field.unMatchedPairFieldUnmatched);
       }

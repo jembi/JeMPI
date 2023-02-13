@@ -40,7 +40,7 @@ public final class PatientStreamAsync {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd,
          final String key,
-         BatchPatientRecord batchPatientRecord) {
+         final BatchPatientRecord batchPatientRecord) {
       if (batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return;
       }

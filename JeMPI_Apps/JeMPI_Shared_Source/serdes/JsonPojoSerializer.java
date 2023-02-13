@@ -12,13 +12,13 @@ public class JsonPojoSerializer<T> implements Serializer<T> {
 
    @Override
    public void configure(
-         Map<String, ?> props,
-         boolean isKey) {}
+         final Map<String, ?> props,
+         final boolean isKey) {}
 
    @Override
    public byte[] serialize(
-         String topic,
-         T data) {
+         final String topic,
+         final T data) {
       if (data == null) {
          return new byte[0];
       }
