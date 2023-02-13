@@ -93,7 +93,7 @@ final class Queries {
       }
       final var vars = Map.of("$uid", uid);
       final var goldenRecordList = runGoldenRecordsQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
-              .all();
+            .all();
 
       if (AppUtils.isNullOrEmpty(goldenRecordList)) {
          LOGGER.warn("No goldenRecord for {}", uid);

@@ -119,22 +119,6 @@ public final class CustomLibMPIConstants {
             GoldenRecord.city
             GoldenRecord.phone_number
             GoldenRecord.national_id
-            GoldenRecord.entity_list @facets(score) {
-               uid
-               Entity.source_id {
-                 uid
-                 SourceId.facility
-                 SourceId.patient
-               }
-               Entity.aux_id
-               Entity.given_name
-               Entity.family_name
-               Entity.gender
-               Entity.dob
-               Entity.city
-               Entity.phone_number
-               Entity.national_id
-            }
          }
          """;
 

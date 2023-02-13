@@ -55,7 +55,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
       keycloakConfig = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfigStream);
       keycloak = AkkaKeycloakDeploymentBuilder.build(keycloakConfig);
-      LOGGER.debug("Keycloak configured, realm : " + keycloak.getRealm());
+      LOGGER.debug("Keycloak configured, realm : {}", keycloak.getRealm());
    }
 
    public static Behavior<BackEnd.Event> create() {
@@ -179,22 +179,22 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
          User user = PsqlQueries.getUserByEmail(email);
          if (user == null) {
             // Register new user
-            LOGGER.debug("User registration ... " + email);
+            LOGGER.debug("User registration ... {}", email);
             User newUser = User.buildUserFromToken(token);
             user = PsqlQueries.registerUser(newUser);
          }
-         LOGGER.debug("User has signed in : " + user.getEmail());
+         LOGGER.debug("User has signed in : {}", user.getEmail());
          request.replyTo.tell(new EventLoginWithKeycloakResponse(user));
          return Behaviors.same();
       } catch (SQLException e) {
-         LOGGER.error("failed sql query: " + e.getMessage());
+         LOGGER.error("failed sql query: {}", e.getMessage());
       } catch (VerificationException e) {
-         LOGGER.error("failed verification of token: " + e.getMessage());
+         LOGGER.error("failed verification of token: {}", e.getMessage());
       } catch (ServerRequest.HttpFailure failure) {
          LOGGER.error("failed to turn code into token");
-         LOGGER.error("status from server: " + failure.getStatus());
+         LOGGER.error("status from server: {}", failure.getStatus());
          if (failure.getError() != null && !failure.getError().trim().isEmpty()) {
-            LOGGER.error("   " + failure.getError());
+            LOGGER.error(failure.getLocalizedMessage(), failure);
          }
       } catch (IOException e) {
          LOGGER.error("failed to turn code into token", e);
@@ -309,12 +309,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       List<GoldenRecordUpdateRequestPayload.Field> updatedFields = new ArrayList();
       LOGGER.debug("Golden record {} update.", uid);
-      for (int i = 0; i < fields.size(); i++) {
-         final var field = fields.get(i);
+      for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
          final var result = libMPI.updateGoldenRecordField(uid, field.name(), field.value());
          if (result) {
             LOGGER.debug("Golden record field update {} has been successfully updated.", field);
-            updatedFields.add(fields.get(i));
+            updatedFields.add(field);
          } else {
             LOGGER.debug("Golden record field update {} update has failed.", field);
          }

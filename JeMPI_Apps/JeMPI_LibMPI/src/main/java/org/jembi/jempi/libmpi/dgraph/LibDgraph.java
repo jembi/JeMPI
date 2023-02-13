@@ -67,14 +67,6 @@ public class LibDgraph implements LibMPIClientInterface {
       return list.stream().map(CustomLibMPIExpandedPatientRecord::toExpandedPatientRecord).toList();
    }
 
-   public GoldenRecord getGoldenRecordByUid(final String uid) {
-      final var rec = Queries.getGoldenRecordByUid(uid);
-      if (rec == null) {
-         return null;
-      }
-      return rec.toGoldenRecord();
-   }
-
    public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIdList) {
       final var list = Queries.getExpandedGoldenRecordList(goldenIdList);
       return list.stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
