@@ -116,8 +116,8 @@ object CustomLinkerProbabilistic {
            |         max = fieldScore(true, m, u);
            |      }
            |
-           |      Field(final float m, final float u) {
-           |         this(m, u, 0.0F, 0.0F);
+           |      Field(final float m_, final float u_) {
+           |         this(m_, u_, 0.0F, 0.0F);
            |      }
            |
            |   }

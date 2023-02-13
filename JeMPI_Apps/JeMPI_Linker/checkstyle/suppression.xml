@@ -7,21 +7,17 @@
 <suppressions>
 
     <suppress
-            checks="(JavadocMethod|JavadocVariable|JavadocStyle|JavadocPackage|JavadocType|DesignForExtension)"
+            checks="(JavadocMethod|JavadocVariable|JavadocStyle|JavadocPackage|JavadocType)"
             files="().java"
     />
 
     <suppress
-            checks="(LineLength|AvoidStarImport|HiddenField|MagicNumber)"
+            checks="(LineLength|AvoidStarImport|MagicNumber)"
             files="().java"
     />
 
     <suppress
-            checks="(ParameterName|ewlineAtEndOfFile)"
-            files="().java"
-    />
-    <suppress
-            checks="(VisibilityModifier|RegexpSingleline|OperatorWrap)"
+            checks="(ParameterName|VisibilityModifier)"
             files="().java"
     />
 

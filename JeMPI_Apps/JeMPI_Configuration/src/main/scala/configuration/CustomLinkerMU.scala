@@ -37,7 +37,7 @@ object CustomLinkerMU {
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |
            |
-           |public class $custom_className {
+           |public final class $custom_className {
            |
            |   private static final Logger LOGGER = LogManager.getLogger($custom_className.class);
            |   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
@@ -153,7 +153,7 @@ object CustomLinkerMU {
         })
       }
 
-      writer.print(
+      writer.println(
         s"""      }
            |
            |   }

@@ -10,8 +10,8 @@ public record BatchPatientRecord(
       // System Trace Audit Number
       @JsonProperty("patientRecord") PatientRecord patientRecord) {
 
-   public BatchPatientRecord(final BatchType batchType) {
-      this(batchType, null, null);
+   public BatchPatientRecord(final BatchType type) {
+      this(type, null, null);
    }
 
    public enum BatchType {
@@ -24,8 +24,8 @@ public record BatchPatientRecord(
 
       public final int type;
 
-      BatchType(final int type) {
-         this.type = type;
+      BatchType(final int type_) {
+         this.type = type_;
       }
    }
 

@@ -33,31 +33,28 @@ private object CustomPatient {
         writer.println(if (idx + 1 < fields.length) "," else ") {")
     }
 
-    writer.print(
+    writer.println(
       s"""
          |   public static String getNames(final $customClassNameDemographicData demographicData) {
-         |      return """.stripMargin)
+         |      var names = "";""".stripMargin)
     val names = fields.filter(f => f.fieldName.contains("name"))
     if (names.length > 0) {
       names.zipWithIndex.foreach {
         case (field, idx) =>
-          if (idx > 0) writer.print(" " * 14)
           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-          writer.print(if (idx == 0) "(" else "")
           writer.print(
-            s"""(StringUtils.isBlank(demographicData.$fieldName())
-               |${" " * 21}? ""
-               |${" " * 21}: " " + demographicData.$fieldName())""".stripMargin)
-          writer.println(if (idx + 1 < names.length) " +" else ").trim();")
+            s"""      if (!StringUtils.isBlank(demographicData.$fieldName())) {
+               |         names += ${(if (idx > 0) "\" \" + " else "")}demographicData.$fieldName();
+               |      }
+               |""".stripMargin);
       }
     } else {
       writer.println(
         """ "";""".stripMargin)
     }
-
-
     writer.println(
-      s"""   }
+      s"""      return names;
+         |   }
          |
          |}""".stripMargin)
     writer.flush()

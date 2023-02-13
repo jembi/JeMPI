@@ -7,18 +7,18 @@ import org.jembi.jempi.AppConfig;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
+public final class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
 
    private final String topic;
    private final Producer<KEY_TYPE, VAL_TYPE> producer;
 
    public MyKafkaProducer(
-         final String topic,
+         final String topic_,
          final Serializer<KEY_TYPE> keySerializer,
          final Serializer<VAL_TYPE> valueSerializer,
          final String clientId) {
       final Properties properties = new Properties();
-      this.topic = topic;
+      this.topic = topic_;
       properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       properties.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
 
@@ -30,7 +30,7 @@ public class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
       producer = new KafkaProducer<>(properties, keySerializer, valueSerializer);
    }
 
-   public final void close() {
+   public void close() {
       producer.close();
    }
 
@@ -46,7 +46,7 @@ public class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
       producer.commitTransaction();
    }
 
-   public final RecordMetadata produceSync(
+   public RecordMetadata produceSync(
          final KEY_TYPE key,
          final VAL_TYPE item) throws ExecutionException,
                                      InterruptedException {
@@ -54,7 +54,7 @@ public class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
       return producer.send(rec).get();
    }
 
-   public final void produceAsync(
+   public void produceAsync(
          final KEY_TYPE key,
          final VAL_TYPE item,
          final Callback callback) {

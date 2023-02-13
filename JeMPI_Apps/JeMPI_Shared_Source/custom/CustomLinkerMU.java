@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 
-public class CustomLinkerMU {
+public final class CustomLinkerMU {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomLinkerMU.class);
    private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();

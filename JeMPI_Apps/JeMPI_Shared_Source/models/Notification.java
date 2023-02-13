@@ -17,8 +17,8 @@ public record Notification(
 
       public final String label;
 
-      NotificationType(final String label) {
-         this.label = label;
+      NotificationType(final String label_) {
+         this.label = label_;
       }
    }
 

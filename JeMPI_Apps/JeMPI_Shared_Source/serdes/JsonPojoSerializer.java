@@ -6,7 +6,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Map;
 
-public class JsonPojoSerializer<T> implements Serializer<T> {
+public final class JsonPojoSerializer<T> implements Serializer<T> {
 
    public JsonPojoSerializer() {
    }

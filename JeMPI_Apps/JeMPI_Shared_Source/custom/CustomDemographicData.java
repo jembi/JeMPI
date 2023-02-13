@@ -15,12 +15,14 @@ public record CustomDemographicData(
       String nationalId) {
 
    public static String getNames(final CustomDemographicData demographicData) {
-      return ((StringUtils.isBlank(demographicData.givenName())
-                     ? ""
-                     : " " + demographicData.givenName()) +
-              (StringUtils.isBlank(demographicData.familyName())
-                     ? ""
-                     : " " + demographicData.familyName())).trim();
+      var names = "";
+      if (!StringUtils.isBlank(demographicData.givenName())) {
+         names += demographicData.givenName();
+      }
+      if (!StringUtils.isBlank(demographicData.familyName())) {
+         names += " " + demographicData.familyName();
+      }
+      return names;
    }
 
 }
