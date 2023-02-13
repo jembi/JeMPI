@@ -24,7 +24,9 @@ object CustomLinkerDeterministic {
         |""".stripMargin)
     writer.println(s"final class $custom_className {")
     writer.println()
-    writer.println(" " * 3 + s"private $custom_className() {}")
+    writer.println(
+      s"""    private $custom_className() {
+         |    }""".stripMargin)
     writer.println()
     emitDeterminsticMatch(writer, config.rules)
     writer.println("}")

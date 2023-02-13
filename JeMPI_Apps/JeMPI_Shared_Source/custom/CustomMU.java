@@ -21,6 +21,7 @@ public record CustomMU(Probability givenName,
            new CustomMU.Probability((float) mHat[6], (float) uHat[6]));
    }
 
-   public record Probability(float m, float u) {}
+   public record Probability(float m, float u) {
+   }
 
 }

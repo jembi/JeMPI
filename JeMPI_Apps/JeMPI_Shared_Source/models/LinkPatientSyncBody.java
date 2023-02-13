@@ -8,4 +8,5 @@ public record LinkPatientSyncBody(
       @JsonProperty("stan") String stan,
       @JsonProperty("externalLinkRange") ExternalLinkRange externalLinkRange,
       @JsonProperty("matchThreshold") Float matchThreshold,
-      @JsonProperty("patientRecord") PatientRecord patientRecord) {}
+      @JsonProperty("patientRecord") PatientRecord patientRecord) {
+}

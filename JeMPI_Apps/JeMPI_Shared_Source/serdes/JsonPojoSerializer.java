@@ -8,12 +8,14 @@ import java.util.Map;
 
 public class JsonPojoSerializer<T> implements Serializer<T> {
 
-   public JsonPojoSerializer() {}
+   public JsonPojoSerializer() {
+   }
 
    @Override
    public void configure(
          final Map<String, ?> props,
-         final boolean isKey) {}
+         final boolean isKey) {
+   }
 
    @Override
    public byte[] serialize(
@@ -31,6 +33,7 @@ public class JsonPojoSerializer<T> implements Serializer<T> {
    }
 
    @Override
-   public void close() {}
+   public void close() {
+   }
 
 }

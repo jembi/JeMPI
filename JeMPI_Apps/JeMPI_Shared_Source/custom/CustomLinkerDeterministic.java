@@ -6,7 +6,8 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 
 final class CustomLinkerDeterministic {
 
-   private CustomLinkerDeterministic() {}
+    private CustomLinkerDeterministic() {
+    }
 
    private static boolean isMatch(
          final String left,

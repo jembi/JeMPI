@@ -7,7 +7,8 @@ import java.util.List;
 
 public final class CustomLinkerBackEnd {
 
-   private CustomLinkerBackEnd() {}
+   private CustomLinkerBackEnd() {
+   }
 
    static void updateGoldenRecordFields(
          final LibMPI libMPI,

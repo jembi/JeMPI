@@ -64,7 +64,8 @@ private object CustomMU {
     writer.println(
       s"""   }
          |
-         |   public record Probability(float m, float u) {}
+         |   public record Probability(float m, float u) {
+         |   }
          |
          |}""".stripMargin)
     writer.flush()

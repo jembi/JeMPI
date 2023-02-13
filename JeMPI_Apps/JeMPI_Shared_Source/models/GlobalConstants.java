@@ -9,6 +9,7 @@ public final class GlobalConstants {
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
 
-   private GlobalConstants() {}
+   private GlobalConstants() {
+   }
 
 }

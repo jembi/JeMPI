@@ -67,7 +67,8 @@ object CustomLinkerProbabilistic {
            |   private static final float MISSING_PENALTY = 0.925F;
            |   private static Fields updatedFields = null;
            |
-           |   private $custom_className() {}
+           |   private $custom_className() {
+           |   }
            |
            |   private static float limitProbability(final float p) {
            |      if (p > 1.0F - 1E-5F) {
@@ -157,7 +158,9 @@ object CustomLinkerProbabilistic {
         if (idx + 1 < muList.length)
           writer.println(",")
         else
-          writer.println(") {}")
+          writer.println(
+            s""") {
+               |   }""".stripMargin)
           writer.println()
         end if
       })

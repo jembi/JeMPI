@@ -17,7 +17,7 @@
     />
 
     <suppress
-            checks="(ParameterName|WhitespaceAround|NewlineAtEndOfFile)"
+            checks="(ParameterName|ewlineAtEndOfFile)"
             files="().java"
     />
     <suppress

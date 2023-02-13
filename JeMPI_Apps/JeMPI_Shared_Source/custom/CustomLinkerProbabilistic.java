@@ -17,7 +17,8 @@ public final class CustomLinkerProbabilistic {
    private static final float MISSING_PENALTY = 0.925F;
    private static Fields updatedFields = null;
 
-   private CustomLinkerProbabilistic() {}
+   private CustomLinkerProbabilistic() {
+   }
 
    private static float limitProbability(final float p) {
       if (p > 1.0F - 1E-5F) {
@@ -103,7 +104,8 @@ public final class CustomLinkerProbabilistic {
          Field dob,
          Field city,
          Field phoneNumber,
-         Field nationalId) {}
+         Field nationalId) {
+   }
 
    private static Fields currentFields =
       new Fields(new Field(0.782501F, 0.02372F),

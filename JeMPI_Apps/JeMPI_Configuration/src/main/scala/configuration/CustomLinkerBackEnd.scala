@@ -33,7 +33,8 @@ object CustomLinkerBackEnd {
          |
          |public final class $custom_className {
          |
-         |   private $custom_className() {}
+         |   private $custom_className() {
+         |   }
          |
          |   static void updateGoldenRecordFields(
          |         final LibMPI libMPI,
