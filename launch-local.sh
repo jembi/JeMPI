@@ -39,7 +39,7 @@ popd
 pushd ./JeMPI_Apps/JeMPI_SyncReceiver
   ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_PreProcessor
+pushd ./JeMPI_Apps/JeMPI_ETL
   ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_Controller

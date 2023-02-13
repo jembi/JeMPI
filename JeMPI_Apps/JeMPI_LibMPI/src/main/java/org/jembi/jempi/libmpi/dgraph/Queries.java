@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.shared.utils.RecordType;
@@ -233,16 +232,13 @@ final class Queries {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
-   private static <T> List<String> getRecordFieldNamesByType(RecordType recordType) {
+   private static List<String> getRecordFieldNamesByType(RecordType recordType) {
       List<String> fieldNames = new ArrayList<String>();
-      Class C = recordType == RecordType.GoldenRecord
-            ? GoldenRecord.class
-            : PatientRecord.class;
+      Class C = CustomDemographicData.class;
       Field[] fields = C.getDeclaredFields();
+      fieldNames.add("uid");
       for (Field field : fields) {
-         fieldNames.add(field.getName() == "uid"
-                              ? "uid"
-                              : recordType + "." + camelToSnake(field.getName()));
+         fieldNames.add(recordType + "." + camelToSnake(field.getName()));
       }
       return fieldNames;
    }

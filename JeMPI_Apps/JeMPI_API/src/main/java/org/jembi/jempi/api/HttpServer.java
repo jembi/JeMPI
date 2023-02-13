@@ -119,22 +119,6 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
-//   private CompletionStage<BackEnd.EventGetGoldenIdListByPredicateRsp> getGoldenIdListByPredicate(
-//         final ActorSystem<Void> actorSystem,
-//         final ActorRef<BackEnd.Event> backEnd,
-//         final String predicate,
-//         final String val) {
-//      LOGGER.debug("getGoldenIdListByPredicate");
-//      CompletionStage<BackEnd.EventGetGoldenIdListByPredicateRsp> stage = AskPattern.ask(backEnd,
-//                                                                                         replyTo -> new BackEnd.EventGetGoldenIdListByPredicateReq(
-//                                                                                               replyTo,
-//                                                                                               predicate,
-//                                                                                               val),
-//                                                                                         java.time.Duration.ofSeconds(20),
-//                                                                                         actorSystem.scheduler());
-//      return stage.thenApply(response -> response);
-//   }
-
    private CompletionStage<BackEnd.EventGetGoldenIdListRsp> getGoldenIdList(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -408,22 +392,6 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
-
-//   private Route routeGoldenIdListByPredicate(
-//         final ActorSystem<Void> actorSystem,
-//         final ActorRef<BackEnd.Event> backEnd) {
-//      return parameter("predicate",
-//                       predicate -> parameter("value",
-//                                              value -> onComplete(getGoldenIdListByPredicate(actorSystem,
-//                                                                                             backEnd,
-//                                                                                             predicate,
-//                                                                                             value),
-//                                                                  result -> result.isSuccess()
-//                                                                        ? complete(StatusCodes.OK,
-//                                                                                   result.get(),
-//                                                                                   Jackson.marshaller())
-//                                                                        : complete(StatusCodes.IM_A_TEAPOT))));
-//   }
 
    private Route routeGoldenRecord(
          final ActorSystem<Void> actorSystem,
@@ -778,10 +746,6 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                                                       () -> routeGoldenIdList(
                                                                                                             actorSystem,
                                                                                                             backEnd)),
-//                                                                                                 path("GoldenIdListByPredicate",
-//                                                                                                      () -> routeGoldenIdListByPredicate(
-//                                                                                                            actorSystem,
-//                                                                                                            backEnd)),
                                                                                                  path("GoldenRecord",
                                                                                                       () -> routeGoldenRecord(
                                                                                                             actorSystem,
