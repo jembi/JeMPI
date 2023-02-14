@@ -181,7 +181,7 @@ final class Queries {
    static long countPatients() {
       final var query = """
                         query recordCount() {
-                          list(func: type(Patient)) {
+                          list(func: type(PatientRecord)) {
                             count(uid)
                           }
                         }""";
@@ -378,7 +378,7 @@ final class Queries {
          Boolean sortAsc
                                                                     ) {
       String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
-      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Patient);
+      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord);
       List<String> goldenRecordFieldNames = getRecordFieldNamesByType(RecordType.GoldenRecord);
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
 
@@ -435,15 +435,15 @@ final class Queries {
          String sortBy,
          Boolean sortAsc
                                                            ) {
-      String gqlFunc = getSearchQueryFunc(RecordType.Patient, offset, limit, sortBy, sortAsc);
-      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.Patient);
-      String gqlPagination = getSearchQueryPagination(RecordType.Patient, gqlFilters);
+      String gqlFunc = getSearchQueryFunc(RecordType.PatientRecord, offset, limit, sortBy, sortAsc);
+      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord);
+      String gqlPagination = getSearchQueryPagination(RecordType.PatientRecord, gqlFilters);
 
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
       gql += String.join("\n", patientRecordFieldNames) + "\n";
-      gql += RecordType.Patient + ".golden_record_list {\nuid\n}\n";
+      gql += RecordType.PatientRecord + ".golden_record_list {\nuid\n}\n";
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
@@ -461,7 +461,7 @@ final class Queries {
          Boolean sortAsc
                                                          ) {
       LOGGER.debug("Simple Search Patient Records Params {}", params);
-      String gqlFilters = getSimpleSearchQueryFilters(RecordType.Patient, params);
+      String gqlFilters = getSimpleSearchQueryFilters(RecordType.PatientRecord, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
 
@@ -476,7 +476,7 @@ final class Queries {
          Boolean sortAsc
                                                          ) {
       LOGGER.debug("Simple Search Patient Records Params {}", payloads);
-      String gqlFilters = getCustomSearchQueryFilters(RecordType.Patient, payloads);
+      String gqlFilters = getCustomSearchQueryFilters(RecordType.PatientRecord, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
 

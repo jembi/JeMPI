@@ -690,7 +690,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                                                              type.equals("golden")
                                                                                                                    ?
                                                                                                                    RecordType.GoldenRecord
-                                                                                                                   : RecordType.Patient)),
+                                                                                                                   : RecordType.PatientRecord)),
                                                                                                   path(segment("custom-search").slash(
                                                                                                              segment(Pattern.compile(
                                                                                                                    "^(golden" +
@@ -701,7 +701,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                                                              type.equals("golden")
                                                                                                                    ?
                                                                                                                    RecordType.GoldenRecord
-                                                                                                                   : RecordType.Patient)),
+                                                                                                                   : RecordType.PatientRecord)),
                                                                                                   path("upload",
                                                                                                        () -> routeUpload(
                                                                                                              actorSystem,
