@@ -410,7 +410,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uidList", items -> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
-         return onComplete(getExpandedPatientRecords(actorSystem, backEnd, uidList),
+         return onComplete(getExpandedGoldenRecords(actorSystem, backEnd, uidList),
                            result -> result.isSuccess()
                                  ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                                  : complete(StatusCodes.IM_A_TEAPOT));
