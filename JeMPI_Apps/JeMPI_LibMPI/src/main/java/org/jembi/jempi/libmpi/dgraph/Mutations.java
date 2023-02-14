@@ -41,8 +41,8 @@ final class Mutations {
    }
 
    private static LibMPISourceIdList getSourceId(final SourceId sourceId) {
-      if (StringUtils.isBlank(sourceId.facility()) ||
-          StringUtils.isBlank(sourceId.patient())) {
+      if (StringUtils.isBlank(sourceId.facility())
+          || StringUtils.isBlank(sourceId.patient())) {
          return new LibMPISourceIdList(List.of());
       }
       final String query = String.format(
@@ -169,7 +169,7 @@ final class Mutations {
       return new LinkInfo(grUID, result.patientUID, 1.0F);
    }
 
-   static String camelToSnake(String str) {
+   static String camelToSnake(final String str) {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
@@ -220,7 +220,7 @@ final class Mutations {
          final String goldenUID,
          final String newGoldenUID,
          final String patientUID,
-         float score) {
+         final float score) {
 
       final var goldenUidPatientUidList = Queries.getGoldenUidPatientUidList(goldenUID);
       if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientUID)) {

@@ -6,4 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record LibMPICountList(@JsonProperty("list") List<LibMPICount> list) {}
+record LibMPICountList(@JsonProperty("list") List<LibMPICount> list) {
+}

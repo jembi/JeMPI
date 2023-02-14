@@ -11,7 +11,7 @@ import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 
 import java.util.List;
 
-public class LibMPI {
+public final class LibMPI {
 
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
@@ -104,41 +104,41 @@ public class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                                   ) {
       return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         List<SimpleSearchRequestPayload> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                                   ) {
       return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
    public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                             ) {
       return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
 
    public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
-         List<SimpleSearchRequestPayload> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                             ) {
       return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
@@ -185,7 +185,7 @@ public class LibMPI {
 
    public LinkInfo createPatientAndLinkToClonedGoldenRecord(
          final PatientRecord patientRecord,
-         float score) {
+         final float score) {
       LOGGER.debug("link new <- {}", patientRecord);
       LOGGER.debug("link new <- {}", score);
       final var linkInfo = client.createPatientAndLinkToClonedGoldenRecord(patientRecord, score);

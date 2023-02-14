@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-class Client {
+final class Client {
 
    private static final Logger LOGGER = LogManager.getLogger(Client.class);
    private DgraphClient dgraphClient;
@@ -31,10 +31,10 @@ class Client {
    }
 
    void config(
-         final String[] host,
-         final int[] port) {
-      this.host = host;
-      this.port = port;
+         final String[] host_,
+         final int[] port_) {
+      this.host = host_;
+      this.port = port_;
    }
 
    /*
@@ -87,7 +87,7 @@ class Client {
       }
    }
 
-   void alter(DgraphProto.Operation op) {
+   void alter(final DgraphProto.Operation op) {
       dgraphClient.alter(op);
    }
 
@@ -182,7 +182,8 @@ class Client {
 
    record AlphaHost(
          String host,
-         int port) {}
+         int port) {
+   }
 
    private static class ClientHolder {
       public static final Client INSTANCE = new Client();

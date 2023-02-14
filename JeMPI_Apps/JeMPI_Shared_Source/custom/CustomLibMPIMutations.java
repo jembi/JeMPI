@@ -5,9 +5,10 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.UUID;
 
-class CustomLibMPIMutations {
+final class CustomLibMPIMutations {
 
-   private CustomLibMPIMutations() {}
+   private CustomLibMPIMutations() {
+   }
 
    static String createPatientTriple(
          final CustomDemographicData demographicData,

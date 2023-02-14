@@ -21,9 +21,10 @@ private object CustomLibMPIMutations {
          |
          |import java.util.UUID;
          |
-         |class $custom_className {
+         |final class $custom_className {
          |
-         |${" " * 3}private $custom_className() {}
+         |${" " * 3}private $custom_className() {
+         |${" " * 3}}
          |
          |${" " * 3}static String createPatientTriple(
          |${" " * 9}final CustomDemographicData demographicData,

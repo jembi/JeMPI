@@ -16,7 +16,7 @@ import java.util.List;
 
 import static io.dgraph.DgraphProto.Operation.DropOp.DATA;
 
-public class LibDgraph implements LibMPIClientInterface {
+public final class LibDgraph implements LibMPIClientInterface {
 
    private static final Logger LOGGER = LogManager.getLogger(LibDgraph.class);
 
@@ -77,11 +77,11 @@ public class LibDgraph implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                                   ) {
       final var list = Queries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
       if (list == null) {
@@ -93,11 +93,11 @@ public class LibDgraph implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         List<SimpleSearchRequestPayload> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                                   ) {
       final var list = Queries.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
       if (list == null) {
@@ -109,11 +109,11 @@ public class LibDgraph implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                             ) {
       final var list = Queries.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
       if (list == null) {
@@ -125,11 +125,11 @@ public class LibDgraph implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
-         List<SimpleSearchRequestPayload> params,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc
+         final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
                                                                             ) {
       final var list = Queries.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
       if (list == null) {
@@ -176,7 +176,7 @@ public class LibDgraph implements LibMPIClientInterface {
 
    public LinkInfo createPatientAndLinkToClonedGoldenRecord(
          final PatientRecord patientRecord,
-         float score) {
+         final float score) {
       return Mutations.addNewDGraphPatient(patientRecord);
    }
 

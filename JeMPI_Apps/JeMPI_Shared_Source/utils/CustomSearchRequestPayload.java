@@ -15,11 +15,11 @@ public record CustomSearchRequestPayload(
       Boolean sortAsc) {
 
    public CustomSearchRequestPayload(
-         List<SimpleSearchRequestPayload> $or,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc) {
+         final List<SimpleSearchRequestPayload> $or,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc) {
       this.$or = ObjectUtils.defaultIfNull($or, new ArrayList<>());
       this.offset = ObjectUtils.defaultIfNull(offset, 0);
       this.limit = ObjectUtils.defaultIfNull(limit, 10);
