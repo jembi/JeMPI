@@ -233,14 +233,14 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenID,
          final String newGoldenID,
-         final String docID,
+         final String patientID,
          final Float score) {
       LOGGER.debug("patchLink");
       final CompletionStage<BackEnd.EventPatchLinkRsp> stage = AskPattern.ask(backEnd,
                                                                               replyTo -> new BackEnd.EventPatchLinkReq(replyTo,
                                                                                                                        goldenID,
                                                                                                                        newGoldenID,
-                                                                                                                       docID,
+                                                                                                                       patientID,
                                                                                                                        score),
                                                                               java.time.Duration.ofSeconds(6),
                                                                               actorSystem.scheduler());
@@ -251,12 +251,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenID,
-         final String docID) {
+         final String patientID) {
       LOGGER.debug("patchUnLink");
       final CompletionStage<BackEnd.EventPatchUnLinkRsp> stage = AskPattern.ask(backEnd,
                                                                                 replyTo -> new BackEnd.EventPatchUnLinkReq(replyTo,
                                                                                                                            goldenID,
-                                                                                                                           docID,
+                                                                                                                           patientID,
                                                                                                                            2.0F),
                                                                                 java.time.Duration.ofSeconds(6),
                                                                                 actorSystem.scheduler());
@@ -305,8 +305,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("goldenID",
-                       goldenID -> parameter("docID",
-                                             docID -> onComplete(patchUnLink(actorSystem, backEnd, goldenID, docID),
+                       goldenID -> parameter("patientID",
+                                             patientID -> onComplete(patchUnLink(actorSystem, backEnd, goldenID, patientID),
                                                                  result -> result.isSuccess()
                                                                        ? result.get()
                                                                                .linkInfo()
@@ -323,13 +323,13 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("goldenID",
                        goldenID -> parameter("newGoldenID",
-                                             newGoldenID -> parameter("docID",
-                                                                      docID -> parameter("score",
+                                             newGoldenID -> parameter("patientID",
+                                                                      patientID -> parameter("score",
                                                                                          score -> onComplete(patchLink(actorSystem,
                                                                                                                        backEnd,
                                                                                                                        goldenID,
                                                                                                                        newGoldenID,
-                                                                                                                       docID,
+                                                                                                                       patientID,
                                                                                                                        Float.parseFloat(
                                                                                                                              score)),
                                                                                                              result -> result.isSuccess()
