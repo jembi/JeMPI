@@ -3,25 +3,26 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.jembi.jempi</groupId>
         <artifactId>JeMPI</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../parent.xml</relativePath>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jembi.jempi.sync_receiver</groupId>
     <artifactId>SyncReceiver</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-
     <properties>
-        <start-class>${project.groupId}.Main</start-class>
+        <start-class>${project.groupId}.sync_receiver.Main</start-class>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.jembi.jempi</groupId>
+            <artifactId>JeMPI_Shared</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -244,8 +245,5 @@
         </plugins>
 
     </build>
-
-
-
 
 </project>

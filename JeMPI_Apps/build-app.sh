@@ -1,6 +1,7 @@
 #!/bin/bash
 
-mvn clean package
+#mvn clean package
+pwd
 cp ./target/$JAR_FILE ./docker/.
   
 pushd ./docker
