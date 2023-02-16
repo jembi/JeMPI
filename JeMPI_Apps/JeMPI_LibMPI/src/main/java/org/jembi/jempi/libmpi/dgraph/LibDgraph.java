@@ -62,18 +62,18 @@ public final class LibDgraph implements LibMPIClientInterface {
       return candidates.stream().map(CustomLibMPIGoldenRecord::toGoldenRecord).toList();
    }
 
-   public List<ExpandedPatientRecord> getExpandedPatients(final List<String> idList) {
-      final var list = Queries.getExpandedPatientRecords(idList);
+   public List<ExpandedPatientRecord> getExpandedPatients(final List<String> ids) {
+      final var list = Queries.getExpandedPatientRecords(ids);
       return list.stream().map(CustomLibMPIExpandedPatientRecord::toExpandedPatientRecord).toList();
    }
 
-   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIdList) {
-      final var list = Queries.getExpandedGoldenRecordList(goldenIdList);
+   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> GoldenIds) {
+      final var list = Queries.getExpandedGoldenRecordList(GoldenIds);
       return list.stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
    }
 
-   public List<String> getGoldenIdList() {
-      return Queries.getGoldenIdList();
+   public List<String> getGoldenIds() {
+      return Queries.getGoldenIds();
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

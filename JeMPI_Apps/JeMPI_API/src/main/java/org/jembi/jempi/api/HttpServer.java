@@ -100,7 +100,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private CompletionStage<BackEnd.EventGetPatientCountRsp> getPatientCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getDocumentCount");
+      LOGGER.debug("getPatientCount");
       CompletionStage<BackEnd.EventGetPatientCountRsp> stage = AskPattern.ask(backEnd,
                                                                               BackEnd.EventGetPatientCountReq::new,
                                                                               java.time.Duration.ofSeconds(10),
@@ -119,12 +119,12 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.EventGetGoldenIdListRsp> getGoldenIdList(
+   private CompletionStage<BackEnd.EventGetGoldenIdsRsp> getGoldenIds(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getGoldenIdList");
-      CompletionStage<BackEnd.EventGetGoldenIdListRsp> stage = AskPattern.ask(backEnd,
-                                                                              BackEnd.EventGetGoldenIdListReq::new,
+      LOGGER.debug("getGoldenIds");
+      CompletionStage<BackEnd.EventGetGoldenIdsRsp> stage = AskPattern.ask(backEnd,
+                                                                              BackEnd.EventGetGoldenIdsReq::new,
                                                                               java.time.Duration.ofSeconds(30),
                                                                               actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -233,14 +233,14 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenID,
          final String newGoldenID,
-         final String docID,
+         final String patientID,
          final Float score) {
       LOGGER.debug("patchLink");
       final CompletionStage<BackEnd.EventPatchLinkRsp> stage = AskPattern.ask(backEnd,
                                                                               replyTo -> new BackEnd.EventPatchLinkReq(replyTo,
                                                                                                                        goldenID,
                                                                                                                        newGoldenID,
-                                                                                                                       docID,
+                                                                                                                       patientID,
                                                                                                                        score),
                                                                               java.time.Duration.ofSeconds(6),
                                                                               actorSystem.scheduler());
@@ -251,12 +251,12 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenID,
-         final String docID) {
+         final String patientID) {
       LOGGER.debug("patchUnLink");
       final CompletionStage<BackEnd.EventPatchUnLinkRsp> stage = AskPattern.ask(backEnd,
                                                                                 replyTo -> new BackEnd.EventPatchUnLinkReq(replyTo,
                                                                                                                            goldenID,
-                                                                                                                           docID,
+                                                                                                                           patientID,
                                                                                                                            2.0F),
                                                                                 java.time.Duration.ofSeconds(6),
                                                                                 actorSystem.scheduler());
@@ -305,8 +305,8 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("goldenID",
-                       goldenID -> parameter("docID",
-                                             docID -> onComplete(patchUnLink(actorSystem, backEnd, goldenID, docID),
+                       goldenID -> parameter("patientID",
+                                             patientID -> onComplete(patchUnLink(actorSystem, backEnd, goldenID, patientID),
                                                                  result -> result.isSuccess()
                                                                        ? result.get()
                                                                                .linkInfo()
@@ -323,13 +323,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("goldenID",
                        goldenID -> parameter("newGoldenID",
-                                             newGoldenID -> parameter("docID",
-                                                                      docID -> parameter("score",
+                                             newGoldenID -> parameter("patientID",
+                                                                      patientID -> parameter("score",
                                                                                          score -> onComplete(patchLink(actorSystem,
                                                                                                                        backEnd,
                                                                                                                        goldenID,
                                                                                                                        newGoldenID,
-                                                                                                                       docID,
+                                                                                                                       patientID,
                                                                                                                        Float.parseFloat(
                                                                                                                              score)),
                                                                                                              result -> result.isSuccess()
@@ -375,10 +375,10 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
-   private Route routeGoldenIdList(
+   private Route routeGoldenIds(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(getGoldenIdList(actorSystem, backEnd),
+      return onComplete(getGoldenIds(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));

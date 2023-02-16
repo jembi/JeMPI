@@ -14,7 +14,6 @@ import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
-import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
@@ -81,7 +80,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
             .onMessage(EventGetPatientCountReq.class, this::eventGetPatientCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
-            .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
+            .onMessage(EventGetGoldenIdsReq.class, this::eventGetGoldenIdsHandler)
             .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
             .onMessage(EventGetExpandedGoldenRecordsReq.class, this::eventGetExpandedGoldenRecordsHandler)
             .onMessage(EventGetExpandedPatientRecordsReq.class, this::eventGetExpandedPatientRecordsHandler)
@@ -237,11 +236,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetGoldenIdListHandler(final EventGetGoldenIdListReq request) {
-      LOGGER.debug("getGoldenIdList");
+   private Behavior<Event> eventGetGoldenIdsHandler(final EventGetGoldenIdsReq request) {
+      LOGGER.debug("getGoldenIds");
       libMPI.startTransaction();
-      var recs = libMPI.getGoldenIdList();
-      request.replyTo.tell(new EventGetGoldenIdListRsp(recs));
+      var recs = libMPI.getGoldenIds();
+      request.replyTo.tell(new EventGetGoldenIdsRsp(recs));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
@@ -267,7 +266,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventGetExpandedPatientRecordsHandler(final EventGetExpandedPatientRecordsReq request) {
       LOGGER.debug("getExpandedPatients");
       libMPI.startTransaction();
-      final var patients = libMPI.getMpiExpandedPatients(request.uids);
+      final var patients = libMPI.getExpandedPatients(request.uids);
       request.replyTo.tell(new EventGetExpandedPatientRecordsRsp(patients));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -386,10 +385,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          long patients) implements EventResponse {
    }
 
-   public record EventGetGoldenIdListReq(ActorRef<EventGetGoldenIdListRsp> replyTo) implements Event {
+   public record EventGetGoldenIdsReq(ActorRef<EventGetGoldenIdsRsp> replyTo) implements Event {
    }
 
-   public record EventGetGoldenIdListRsp(List<String> records) implements EventResponse {
+   public record EventGetGoldenIdsRsp(List<String> records) implements EventResponse {
    }
 
    public record EventFindGoldenRecordByUidRequest(
