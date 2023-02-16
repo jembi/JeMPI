@@ -719,7 +719,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                 path("NumberOfRecords",
                                                                      () -> routeNumberOfRecords(actorSystem, backEnd)),
                                                                 path("GoldenIdList",
-                                                                     () -> routeGoldenIdList(actorSystem, backEnd)),
+                                                                     () -> routeGoldenIds(actorSystem, backEnd)),
                                                                 path("GoldenRecord",
                                                                      () -> routeGoldenRecord(actorSystem, backEnd)),
                                                                 path("ExpandedGoldenRecords",

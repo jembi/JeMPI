@@ -19,6 +19,7 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
