@@ -41,8 +41,8 @@ final class Mutations {
    }
 
    private static LibMPISourceIdList getSourceId(final SourceId sourceId) {
-      if (StringUtils.isBlank(sourceId.facility()) ||
-          StringUtils.isBlank(sourceId.patient())) {
+      if (StringUtils.isBlank(sourceId.facility())
+          || StringUtils.isBlank(sourceId.patient())) {
          return new LibMPISourceIdList(List.of());
       }
       final String query = String.format(
@@ -92,9 +92,9 @@ final class Mutations {
       return result != null;
    }
 
-   private static void addScoreFacets(final List<LibMPIPatientScore> patientScoreList) {
+   private static void addScoreFacets(final List<LibMPIPairWithScore> patientScoreList) {
       StringBuilder simWeightFacet = new StringBuilder();
-      for (LibMPIPatientScore patientScore : patientScoreList) {
+      for (LibMPIPairWithScore patientScore : patientScoreList) {
          simWeightFacet.append(
                String.format("<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
                              patientScore.goldenUID(), patientScore.patientUID(), patientScore.score()));
@@ -169,7 +169,7 @@ final class Mutations {
       return new LinkInfo(grUID, result.patientUID, 1.0F);
    }
 
-   static String camelToSnake(String str) {
+   static String camelToSnake(final String str) {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
@@ -220,7 +220,7 @@ final class Mutations {
          final String goldenUID,
          final String newGoldenUID,
          final String patientUID,
-         float score) {
+         final float score) {
 
       final var goldenUidPatientUidList = Queries.getGoldenUidPatientUidList(goldenUID);
       if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientUID)) {
@@ -234,8 +234,8 @@ final class Mutations {
          deleteGoldenRecord(goldenUID);
       }
 
-      final var scoreList = new ArrayList<LibMPIPatientScore>();
-      scoreList.add(new LibMPIPatientScore(newGoldenUID, patientUID, score));
+      final var scoreList = new ArrayList<LibMPIPairWithScore>();
+      scoreList.add(new LibMPIPairWithScore(newGoldenUID, patientUID, score));
       addScoreFacets(scoreList);
       return Either.right(new LinkInfo(newGoldenUID, patientUID, score));
    }
@@ -249,8 +249,8 @@ final class Mutations {
          LOGGER.error("Failed to insert dgraphPatient");
          return null;
       }
-      final List<LibMPIPatientScore> patientScoreList = new ArrayList<>();
-      patientScoreList.add(new LibMPIPatientScore(goldenUIDScore.goldenUID(), result.patientUID, goldenUIDScore.score()));
+      final List<LibMPIPairWithScore> patientScoreList = new ArrayList<>();
+      patientScoreList.add(new LibMPIPairWithScore(goldenUIDScore.goldenUID(), result.patientUID, goldenUIDScore.score()));
       addScoreFacets(patientScoreList);
       addSourceId(patientScoreList.get(0).goldenUID(), result.sourceUID);
       final var grUID = patientScoreList.get(0).goldenUID();

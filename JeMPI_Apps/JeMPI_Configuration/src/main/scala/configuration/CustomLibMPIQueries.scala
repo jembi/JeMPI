@@ -27,7 +27,7 @@ object CustomLibMPIQueries {
          |
          |import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
          |
-         |class $custom_className {
+         |final class $custom_className {
          |""".stripMargin)
     config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
     if (config.rules.probabilistic != null)
@@ -38,8 +38,8 @@ object CustomLibMPIQueries {
       config.rules.probabilistic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     emitGetCandidates(writer, config.rules)
     writer.println(
-      s"""   private $custom_className() {}
-         |
+      s"""   private $custom_className() {
+         |   }
          |}""".stripMargin)
     writer.flush()
     writer.close()
@@ -261,7 +261,7 @@ object CustomLibMPIQueries {
     writer.println(
       s"""${" " * 9}}
          |${" " * 9}\"\"\";
-      """.stripMargin)
+         |""".stripMargin)
   }
 
 }

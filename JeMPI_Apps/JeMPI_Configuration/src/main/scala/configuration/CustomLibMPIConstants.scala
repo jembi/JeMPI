@@ -20,12 +20,12 @@ private object CustomLibMPIConstants {
       s"""   public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";""".stripMargin)
   }
 
-  private def patient_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def patient_record_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
-          s"""   public static final String PREDICATE_PATIENT_${fieldName.toUpperCase} = "Patient.$fieldName";""".stripMargin)
+          s"""   public static final String PREDICATE_PATIENT_RECORD${fieldName.toUpperCase} = "PatientRecord.$fieldName";""".stripMargin)
     }
   }
 
@@ -74,14 +74,14 @@ private object CustomLibMPIConstants {
     writer.println(
       s"""         GoldenRecord.patients @facets(score) {
          |            uid
-         |            Patient.source_id {
+         |            PatientRecord.source_id {
          |               uid
          |               SourceId.facility
          |               SourceId.patient
          |            }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"            Patient.$name")
+      writer.println(s"            PatientRecord.$name")
     })
     writer.println(
       s"""         }
@@ -93,7 +93,7 @@ private object CustomLibMPIConstants {
       s"""   static final String PATIENT_RECORD_FIELD_NAMES =
          |         \"\"\"
          |         uid
-         |         Patient.source_id {
+         |         PatientRecord.source_id {
          |            uid
          |            SourceId.facility
          |            SourceId.patient
@@ -116,7 +116,7 @@ private object CustomLibMPIConstants {
       s"""   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
          |         \"\"\"
          |         uid
-         |         Patient.source_id {
+         |         PatientRecord.source_id {
          |            uid
          |            SourceId.facility
          |            SourceId.patient
@@ -189,14 +189,14 @@ private object CustomLibMPIConstants {
     writer.println(
       s"""               GoldenRecord.patients @facets(score) {
          |                  uid
-         |                  Patient.source_id {
+         |                  PatientRecord.source_id {
          |                    uid
          |                    SourceId.facility
          |                    SourceId.patient
          |                  }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"                  Patient.$name")
+      writer.println(s"                  PatientRecord.$name")
     })
     writer.println(
       s"""               }
@@ -213,14 +213,14 @@ private object CustomLibMPIConstants {
          |         query expandedPatient() {
          |            all(func: uid(%s)) {
          |               uid
-         |               Patient.source_id {
+         |               PatientRecord.source_id {
          |                  uid
          |                  SourceId.facility
          |                  SourceId.patient
          |               }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"               Patient.$name")
+      writer.println(s"               PatientRecord.$name")
     })
     writer.println(
       s"""               ~GoldenRecord.patients @facets(score) {
@@ -249,14 +249,14 @@ private object CustomLibMPIConstants {
          |         query patientByUid($$uid: string) {
          |            all(func: uid($$uid)) {
          |               uid
-         |               Patient.source_id {
+         |               PatientRecord.source_id {
          |                 uid
          |                 SourceId.facility
          |                 SourceId.patient
          |               }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"               Patient.$name")
+      writer.println(s"               PatientRecord.$name")
     })
     writer.println(
       s"""            }
@@ -299,7 +299,7 @@ private object CustomLibMPIConstants {
       writer.println(s"            GoldenRecord.$name")
     })
     writer.println(
-      s"""            GoldenRecord.patients:                  [Patient]
+      s"""            GoldenRecord.patients:                  [PatientRecord]
          |         }
          |         \"\"\";
          """.stripMargin)
@@ -333,11 +333,11 @@ private object CustomLibMPIConstants {
       s"""   static final String MUTATION_CREATE_PATIENT_TYPE =
          |         \"\"\"
          |
-         |         type Patient {
-         |            Patient.source_id:                     SourceId""".stripMargin)
+         |         type PatientRecord {
+         |            PatientRecord.source_id:                     SourceId""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"            Patient.$name")
+      writer.println(s"            PatientRecord.$name")
     })
     writer.println(
       s"""         }
@@ -349,13 +349,13 @@ private object CustomLibMPIConstants {
     writer.println(
       s"""   static final String MUTATION_CREATE_PATIENT_FIELDS =
          |         \"\"\"
-         |         Patient.source_id:                    uid                                          .""".stripMargin)
+         |         PatientRecord.source_id:                    uid                                          .""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
       val index = field.indexEntity.getOrElse("")
       val fieldType = field.fieldType.toLowerCase
       writer.println(
-        s"""${" " * 9}Patient.$name:${
+        s"""${" " * 9}PatientRecord.$name:${
           " " * (29 - name.length)
         }$fieldType${
           " " * (10 - fieldType.length)
@@ -380,7 +380,7 @@ private object CustomLibMPIConstants {
          |""".stripMargin)
 
     golden_record_predicates(writer, fields)
-    patient_predicates(writer, fields)
+    patient_record_predicates(writer, fields)
     golden_record_field_names(writer, fields)
     expanded_golden_record_field_names(writer, fields)
     patient_record_field_names(writer, fields)

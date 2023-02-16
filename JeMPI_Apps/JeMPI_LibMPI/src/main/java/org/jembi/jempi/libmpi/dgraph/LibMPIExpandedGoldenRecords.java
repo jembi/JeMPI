@@ -7,11 +7,11 @@ import org.jembi.jempi.shared.utils.LibMPIPagination;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record LibMPIExpandedPatients(
-      @JsonProperty("all") List<CustomLibMPIExpandedPatientRecord> all,
+record LibMPIExpandedGoldenRecords(
+      @JsonProperty("all") List<CustomLibMPIExpandedGoldenRecord> all,
       @JsonProperty("pagination") List<LibMPIPagination> pagination) {
 
-   public LibMPIExpandedPatients(@JsonProperty("all") List<CustomLibMPIExpandedPatientRecord> all) {
+   LibMPIExpandedGoldenRecords(@JsonProperty("all") final List<CustomLibMPIExpandedGoldenRecord> all) {
       this(all, List.of(new LibMPIPagination(all.size())));
    }
 

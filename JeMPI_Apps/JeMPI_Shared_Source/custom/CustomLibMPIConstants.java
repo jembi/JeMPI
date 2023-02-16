@@ -11,14 +11,14 @@ public final class CustomLibMPIConstants {
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
    public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
-   public static final String PREDICATE_PATIENT_AUX_ID = "Patient.aux_id";
-   public static final String PREDICATE_PATIENT_GIVEN_NAME = "Patient.given_name";
-   public static final String PREDICATE_PATIENT_FAMILY_NAME = "Patient.family_name";
-   public static final String PREDICATE_PATIENT_GENDER = "Patient.gender";
-   public static final String PREDICATE_PATIENT_DOB = "Patient.dob";
-   public static final String PREDICATE_PATIENT_CITY = "Patient.city";
-   public static final String PREDICATE_PATIENT_PHONE_NUMBER = "Patient.phone_number";
-   public static final String PREDICATE_PATIENT_NATIONAL_ID = "Patient.national_id";
+   public static final String PREDICATE_PATIENT_RECORDAUX_ID = "PatientRecord.aux_id";
+   public static final String PREDICATE_PATIENT_RECORDGIVEN_NAME = "PatientRecord.given_name";
+   public static final String PREDICATE_PATIENT_RECORDFAMILY_NAME = "PatientRecord.family_name";
+   public static final String PREDICATE_PATIENT_RECORDGENDER = "PatientRecord.gender";
+   public static final String PREDICATE_PATIENT_RECORDDOB = "PatientRecord.dob";
+   public static final String PREDICATE_PATIENT_RECORDCITY = "PatientRecord.city";
+   public static final String PREDICATE_PATIENT_RECORDPHONE_NUMBER = "PatientRecord.phone_number";
+   public static final String PREDICATE_PATIENT_RECORDNATIONAL_ID = "PatientRecord.national_id";
 
    static final String GOLDEN_RECORD_FIELD_NAMES =
          """
@@ -56,25 +56,25 @@ public final class CustomLibMPIConstants {
          GoldenRecord.national_id
          GoldenRecord.patients @facets(score) {
             uid
-            Patient.source_id {
+            PatientRecord.source_id {
                uid
                SourceId.facility
                SourceId.patient
             }
-            Patient.aux_id
-            Patient.given_name
-            Patient.family_name
-            Patient.gender
-            Patient.dob
-            Patient.city
-            Patient.phone_number
-            Patient.national_id
+            PatientRecord.aux_id
+            PatientRecord.given_name
+            PatientRecord.family_name
+            PatientRecord.gender
+            PatientRecord.dob
+            PatientRecord.city
+            PatientRecord.phone_number
+            PatientRecord.national_id
          }
          """;
    static final String PATIENT_RECORD_FIELD_NAMES =
          """
          uid
-         Patient.source_id {
+         PatientRecord.source_id {
             uid
             SourceId.facility
             SourceId.patient
@@ -91,7 +91,7 @@ public final class CustomLibMPIConstants {
    static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
          """
          uid
-         Patient.source_id {
+         PatientRecord.source_id {
             uid
             SourceId.facility
             SourceId.patient
@@ -127,19 +127,19 @@ public final class CustomLibMPIConstants {
          query patientByUid($uid: string) {
             all(func: uid($uid)) {
                uid
-               Patient.source_id {
+               PatientRecord.source_id {
                  uid
                  SourceId.facility
                  SourceId.patient
                }
-               Patient.aux_id
-               Patient.given_name
-               Patient.family_name
-               Patient.gender
-               Patient.dob
-               Patient.city
-               Patient.phone_number
-               Patient.national_id
+               PatientRecord.aux_id
+               PatientRecord.given_name
+               PatientRecord.family_name
+               PatientRecord.gender
+               PatientRecord.dob
+               PatientRecord.city
+               PatientRecord.phone_number
+               PatientRecord.national_id
             }
          }
          """;
@@ -171,19 +171,19 @@ public final class CustomLibMPIConstants {
          query expandedPatient() {
             all(func: uid(%s)) {
                uid
-               Patient.source_id {
+               PatientRecord.source_id {
                   uid
                   SourceId.facility
                   SourceId.patient
                }
-               Patient.aux_id
-               Patient.given_name
-               Patient.family_name
-               Patient.gender
-               Patient.dob
-               Patient.city
-               Patient.phone_number
-               Patient.national_id
+               PatientRecord.aux_id
+               PatientRecord.given_name
+               PatientRecord.family_name
+               PatientRecord.gender
+               PatientRecord.dob
+               PatientRecord.city
+               PatientRecord.phone_number
+               PatientRecord.national_id
                ~GoldenRecord.patients @facets(score) {
                   uid
                   GoldenRecord.source_id {
@@ -224,19 +224,19 @@ public final class CustomLibMPIConstants {
                GoldenRecord.national_id
                GoldenRecord.patients @facets(score) {
                   uid
-                  Patient.source_id {
+                  PatientRecord.source_id {
                     uid
                     SourceId.facility
                     SourceId.patient
                   }
-                  Patient.aux_id
-                  Patient.given_name
-                  Patient.family_name
-                  Patient.gender
-                  Patient.dob
-                  Patient.city
-                  Patient.phone_number
-                  Patient.national_id
+                  PatientRecord.aux_id
+                  PatientRecord.given_name
+                  PatientRecord.family_name
+                  PatientRecord.gender
+                  PatientRecord.dob
+                  PatientRecord.city
+                  PatientRecord.phone_number
+                  PatientRecord.national_id
                }
             }
          }
@@ -269,7 +269,7 @@ public final class CustomLibMPIConstants {
             GoldenRecord.city
             GoldenRecord.phone_number
             GoldenRecord.national_id
-            GoldenRecord.patients:                  [Patient]
+            GoldenRecord.patients:                  [PatientRecord]
          }
          """;
          
@@ -290,30 +290,30 @@ public final class CustomLibMPIConstants {
    static final String MUTATION_CREATE_PATIENT_TYPE =
          """
 
-         type Patient {
-            Patient.source_id:                     SourceId
-            Patient.aux_id
-            Patient.given_name
-            Patient.family_name
-            Patient.gender
-            Patient.dob
-            Patient.city
-            Patient.phone_number
-            Patient.national_id
+         type PatientRecord {
+            PatientRecord.source_id:                     SourceId
+            PatientRecord.aux_id
+            PatientRecord.given_name
+            PatientRecord.family_name
+            PatientRecord.gender
+            PatientRecord.dob
+            PatientRecord.city
+            PatientRecord.phone_number
+            PatientRecord.national_id
          }
          """;
 
    static final String MUTATION_CREATE_PATIENT_FIELDS =
          """
-         Patient.source_id:                    uid                                          .
-         Patient.aux_id:                       string                                       .
-         Patient.given_name:                   string                                       .
-         Patient.family_name:                  string    @index(exact,trigram)              .
-         Patient.gender:                       string                                       .
-         Patient.dob:                          string                                       .
-         Patient.city:                         string                                       .
-         Patient.phone_number:                 string                                       .
-         Patient.national_id:                  string    @index(exact,trigram)              .
+         PatientRecord.source_id:                    uid                                          .
+         PatientRecord.aux_id:                       string                                       .
+         PatientRecord.given_name:                   string                                       .
+         PatientRecord.family_name:                  string    @index(exact,trigram)              .
+         PatientRecord.gender:                       string                                       .
+         PatientRecord.dob:                          string                                       .
+         PatientRecord.city:                         string                                       .
+         PatientRecord.phone_number:                 string                                       .
+         PatientRecord.national_id:                  string    @index(exact,trigram)              .
          """;
 
    private CustomLibMPIConstants() {}

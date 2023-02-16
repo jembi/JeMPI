@@ -15,11 +15,11 @@ public record SimpleSearchRequestPayload(
       Boolean sortAsc) {
 
    public SimpleSearchRequestPayload(
-         List<SearchParameter> parameters,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc) {
+         final List<SearchParameter> parameters,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc) {
       this.parameters = ObjectUtils.defaultIfNull(parameters, new ArrayList<>());
       this.offset = ObjectUtils.defaultIfNull(offset, 0);
       this.limit = ObjectUtils.defaultIfNull(limit, 10);

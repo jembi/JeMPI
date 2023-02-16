@@ -11,15 +11,15 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomLibMPIExpandedPatientRecord(
       @JsonProperty("uid") String uid,
-      @JsonProperty("Patient.source_id") LibMPISourceId sourceId,
-      @JsonProperty("Patient.aux_id") String auxId,
-      @JsonProperty("Patient.given_name") String givenName,
-      @JsonProperty("Patient.family_name") String familyName,
-      @JsonProperty("Patient.gender") String gender,
-      @JsonProperty("Patient.dob") String dob,
-      @JsonProperty("Patient.city") String city,
-      @JsonProperty("Patient.phone_number") String phoneNumber,
-      @JsonProperty("Patient.national_id") String nationalId,
+      @JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,
+      @JsonProperty("PatientRecord.aux_id") String auxId,
+      @JsonProperty("PatientRecord.given_name") String givenName,
+      @JsonProperty("PatientRecord.family_name") String familyName,
+      @JsonProperty("PatientRecord.gender") String gender,
+      @JsonProperty("PatientRecord.dob") String dob,
+      @JsonProperty("PatientRecord.city") String city,
+      @JsonProperty("PatientRecord.phone_number") String phoneNumber,
+      @JsonProperty("PatientRecord.national_id") String nationalId,
       @JsonProperty("~GoldenRecord.patients") List<CustomLibMPIDGraphGoldenRecord> dgraphGoldenRecordList) {
 
    PatientRecord toPatientRecord() {

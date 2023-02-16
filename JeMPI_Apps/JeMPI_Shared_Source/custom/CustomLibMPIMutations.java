@@ -5,25 +5,26 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.UUID;
 
-class CustomLibMPIMutations {
+final class CustomLibMPIMutations {
 
-   private CustomLibMPIMutations() {}
+   private CustomLibMPIMutations() {
+   }
 
    static String createPatientTriple(
          final CustomDemographicData demographicData,
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
-                           _:%s  <Patient.source_id>                <%s>        .
-                           _:%s  <Patient.aux_id>                   %s          .
-                           _:%s  <Patient.given_name>               %s          .
-                           _:%s  <Patient.family_name>              %s          .
-                           _:%s  <Patient.gender>                   %s          .
-                           _:%s  <Patient.dob>                      %s          .
-                           _:%s  <Patient.city>                     %s          .
-                           _:%s  <Patient.phone_number>             %s          .
-                           _:%s  <Patient.national_id>              %s          .
-                           _:%s  <dgraph.type>                     "Patient"    .
+                           _:%s  <PatientRecord.source_id>                <%s>        .
+                           _:%s  <PatientRecord.aux_id>                   %s          .
+                           _:%s  <PatientRecord.given_name>               %s          .
+                           _:%s  <PatientRecord.family_name>              %s          .
+                           _:%s  <PatientRecord.gender>                   %s          .
+                           _:%s  <PatientRecord.dob>                      %s          .
+                           _:%s  <PatientRecord.city>                     %s          .
+                           _:%s  <PatientRecord.phone_number>             %s          .
+                           _:%s  <PatientRecord.national_id>              %s          .
+                           _:%s  <dgraph.type>                     "PatientRecord"    .
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(demographicData.auxId()),

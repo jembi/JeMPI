@@ -7,5 +7,5 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ExpandedGoldenRecord(
       GoldenRecord goldenRecord,
-      List<RatedPatientRecord> mpiPatientRecords) {
+      List<PatientRecordWithScore> mpiPatientRecords) {
 }

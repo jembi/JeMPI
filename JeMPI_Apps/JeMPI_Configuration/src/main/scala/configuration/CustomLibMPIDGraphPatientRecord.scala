@@ -26,10 +26,10 @@ private object CustomLibMPIDGraphPatientRecord {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |      @JsonProperty("uid") String uid,
-         |      @JsonProperty("Patient.source_id") LibMPISourceId sourceId,""".stripMargin)
+         |      @JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val propertyName = s"Patient.${field.fieldName}"
+        val propertyName = s"PatientRecord.${field.fieldName}"
         val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
         val parameterType = field.fieldType
         writer.println(

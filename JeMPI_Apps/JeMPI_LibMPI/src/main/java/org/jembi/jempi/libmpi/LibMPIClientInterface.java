@@ -39,12 +39,12 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   PatientRecord getPatientRecord(final String uid);
+   PatientRecord getPatientRecord(String uid);
 
-   GoldenRecord getGoldenRecord(final String uid);
+   GoldenRecord getGoldenRecord(String uid);
 
    List<GoldenRecord> getCandidates(
-         final CustomDemographicData demographicData,
+         CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
 
    List<ExpandedPatientRecord> getExpandedPatients(final List<String> ids);
@@ -90,27 +90,27 @@ public interface LibMPIClientInterface {
     */
 
    boolean updateGoldenRecordField(
-         final String uid,
-         final String fieldName,
-         final String value);
+         String uid,
+         String fieldName,
+         String value);
 
    Either<MpiGeneralError, LinkInfo> unLink(
-         final String goldenUID,
-         final String patientUID,
-         final float score);
+         String goldenUID,
+         String patientUID,
+         float score);
 
    Either<MpiGeneralError, LinkInfo> updateLink(
-         final String goldenUID,
-         final String newGoldenUID,
-         final String patientUID,
-         final float score);
+         String goldenUID,
+         String newGoldenUID,
+         String patientUID,
+         float score);
 
    LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         final PatientRecord patientRecord,
-         final GoldenUIDScore goldenUIDScore);
+         PatientRecord patientRecord,
+         GoldenUIDScore goldenUIDScore);
 
    LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         final PatientRecord patientRecord,
+         PatientRecord patientRecord,
          float score);
 
    record GoldenUIDScore(

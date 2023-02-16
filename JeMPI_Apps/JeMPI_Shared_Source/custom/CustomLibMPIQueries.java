@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
 
-class CustomLibMPIQueries {
+final class CustomLibMPIQueries {
 
    static final String QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES =
          """
@@ -42,7 +42,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
-      
+
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE =
          """
          query query_match_golden_record_candidates_by_distance($given_name: string, $family_name: string, $city: string) {
@@ -71,7 +71,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
-      
+
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER =
          """
          query query_match_golden_record_candidates_by_phone_number($phone_number: string) {
@@ -91,7 +91,7 @@ class CustomLibMPIQueries {
             }
          }
          """;
-      
+
    static final String QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID =
          """
          query query_match_golden_record_candidates_by_national_id($national_id: string) {
@@ -111,9 +111,9 @@ class CustomLibMPIQueries {
             }
          }
          """;
-      
 
-   static LibMPIGoldenRecordList queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
+
+   static LibMPIGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
       final var familyName = demographicData.familyName();
       final var phoneNumber = demographicData.phoneNumber();
@@ -123,7 +123,7 @@ class CustomLibMPIQueries {
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
       final var nationalIdIsBlank = StringUtils.isBlank(nationalId);
       if ((nationalIdIsBlank && (givenNameIsBlank || familyNameIsBlank || phoneNumberIsBlank))) {
-         return new LibMPIGoldenRecordList(List.of());
+         return new LibMPIGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
                              StringUtils.isNotBlank(givenName)
@@ -144,7 +144,7 @@ class CustomLibMPIQueries {
       return runGoldenRecordsQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByDistance(final CustomDemographicData demographicData) {
+   static LibMPIGoldenRecords queryMatchGoldenRecordCandidatesByDistance(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
       final var familyName = demographicData.familyName();
       final var city = demographicData.city();
@@ -152,7 +152,7 @@ class CustomLibMPIQueries {
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var cityIsBlank = StringUtils.isBlank(city);
       if (((givenNameIsBlank || familyNameIsBlank) && (givenNameIsBlank || cityIsBlank) && (familyNameIsBlank || cityIsBlank))) {
-         return new LibMPIGoldenRecordList(List.of());
+         return new LibMPIGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
                              StringUtils.isNotBlank(givenName)
@@ -169,17 +169,17 @@ class CustomLibMPIQueries {
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomDemographicData demographicData) {
+   static LibMPIGoldenRecords queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.phoneNumber())) {
-         return new LibMPIGoldenRecordList(List.of());
+         return new LibMPIGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$phone_number", demographicData.phoneNumber());
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
 
-   static LibMPIGoldenRecordList queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
+   static LibMPIGoldenRecords queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.nationalId())) {
-         return new LibMPIGoldenRecordList(List.of());
+         return new LibMPIGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", demographicData.nationalId());
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
@@ -187,7 +187,7 @@ class CustomLibMPIQueries {
 
    private static void updateCandidates(
          final List<CustomLibMPIGoldenRecord> goldenRecords,
-         final LibMPIGoldenRecordList block) {
+         final LibMPIGoldenRecords block) {
       final var candidates = block.all();
       if (!candidates.isEmpty()) {
          candidates.forEach(candidate -> {
@@ -222,6 +222,6 @@ class CustomLibMPIQueries {
       return result;
    }
 
-   private CustomLibMPIQueries() {}
-
+   private CustomLibMPIQueries() {
+   }
 }

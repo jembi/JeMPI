@@ -16,7 +16,7 @@ private object CustomLibMPIExpandedPatientRecord {
         val parameterType = (if field.isList.isDefined && field.isList.get then "List<" else "") +
           field.fieldType + (if field.isList.isDefined && field.isList.get then ">" else "")
         writer.println(
-          s"""${" " * margin}@JsonProperty("Patient.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
+          s"""${" " * margin}@JsonProperty("PatientRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
       s"""${" " * margin}@JsonProperty("~GoldenRecord.patients") List<CustomLibMPIDGraphGoldenRecord> dgraphGoldenRecordList) {
@@ -73,7 +73,7 @@ private object CustomLibMPIExpandedPatientRecord {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |${" " * 6}@JsonProperty("uid") String uid,
-         |${" " * 6}@JsonProperty("Patient.source_id") LibMPISourceId sourceId,""".stripMargin)
+         |${" " * 6}@JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,""".stripMargin)
     addFields(writer, fields)
     toPatientRecord(writer, fields)
     toExpandedPatientRecord(writer, fields)
