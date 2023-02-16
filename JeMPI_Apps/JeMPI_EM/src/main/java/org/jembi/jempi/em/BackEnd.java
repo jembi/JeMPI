@@ -17,8 +17,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
 
    private final Executor ec;
-   private long receivedCount = 0L;  // TODO: do not start from beginning of time - start from (currentOffset - 10000)
-   private long processedCount = 0L; // TODO:                              "
+   private long receivedCount = 0L;
+   private long processedCount = 0L;
    private boolean taskBusy = false;
 
    private BackEnd(final ActorContext<Event> context) {
