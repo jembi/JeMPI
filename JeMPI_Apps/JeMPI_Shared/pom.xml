@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>JeMPI_LibMPI</artifactId>
+    <artifactId>JeMPI_Shared</artifactId>
     <packaging>jar</packaging>
 
     <properties>
@@ -19,48 +19,17 @@
     </properties>
 
     <dependencies>
-
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
         <dependency>
-            <groupId>org.jembi.jempi</groupId>
-            <artifactId>JeMPI_Shared</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${version.org.apache.commons.commons-lang3}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-            <version>${version.com.typesafe.config}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.vavr</groupId>
-            <artifactId>vavr</artifactId>
-            <version>${version.io.vavr.vavr}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>io.dgraph</groupId>
-            <artifactId>dgraph4j</artifactId>
-            <version>${version.io.dgraph.dgraph4j}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.datastax.oss</groupId>
-            <artifactId>java-driver-core</artifactId>
-            <version>${version.com.datastax.oss.java-driver-core}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.datastax.oss</groupId>
-            <artifactId>java-driver-mapper-runtime</artifactId>
-            <version>${version.com.datastax.oss.java-driver-mapper-runtimer}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${version.org.apache.commons.commons-text}</version>
         </dependency>
 
         <dependency>
@@ -70,15 +39,21 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${version.commons-codec.commons-codec}</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${version.org.apache.commons.commons-lang3}</version>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${version.org.apache.kafka.kafka-clients}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams</artifactId>
+            <version>${version.org.apache.kafka.kafka-streams}</version>
         </dependency>
 
         <dependency>
@@ -95,28 +70,20 @@
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-slf4j-impl}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
             <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>${version.org.apache.commons.commons-text}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${version.org.apache.logging.log4j.log4j-slf4j-impl}</version>
         </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
-
             <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-checkstyle-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -135,6 +102,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -183,11 +151,7 @@
                 <version>${version.org.apache.maven.plugins.maven-jar-plugin}</version>
             </plugin>
 
-
         </plugins>
-
-
     </build>
-
 
 </project>

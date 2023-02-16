@@ -3,24 +3,26 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.jembi.jempi.em</groupId>
-    <artifactId>EM</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>org.jembi.jempi</groupId>
         <artifactId>JeMPI</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../parent.xml</relativePath>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>EM</artifactId>
+    <packaging>jar</packaging>
+
     <properties>
-        <start-class>${project.groupId}.${project.artifactId}</start-class>
+        <start-class>${project.groupId}.em</start-class>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.jembi.jempi</groupId>
+            <artifactId>JeMPI_Shared</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -108,12 +110,12 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
-<!--        <dependency>-->
-<!--            <groupId>org.slf4j</groupId>-->
-<!--            <artifactId>slf4j-simple</artifactId>-->
-<!--            <version>1.7.36</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.slf4j</groupId>-->
+        <!--            <artifactId>slf4j-simple</artifactId>-->
+        <!--            <version>1.7.36</version>-->
+        <!--            <scope>test</scope>-->
+        <!--        </dependency>-->
 
     </dependencies>
 
@@ -233,5 +235,6 @@
         </plugins>
 
     </build>
+
 
 </project>

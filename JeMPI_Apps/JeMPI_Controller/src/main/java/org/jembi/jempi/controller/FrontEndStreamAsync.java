@@ -43,7 +43,8 @@ public class FrontEndStreamAsync {
       final KStream<String, BatchPatientRecord> batchPatientRecordKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_CONTROLLER,
             Consumed.with(stringSerde, batchPatientRecordSerde));
-      topicEM = new MyKafkaProducer<>(GlobalConstants.TOPIC_PATIENT_EM,
+      topicEM = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                      GlobalConstants.TOPIC_PATIENT_EM,
                                       new StringSerializer(), new JsonPojoSerializer<>(),
                                       AppConfig.KAFKA_CLIENT_ID);
       batchPatientRecordKStream
