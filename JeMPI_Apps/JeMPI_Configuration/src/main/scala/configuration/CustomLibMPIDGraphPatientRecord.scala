@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomLibMPIDGraphPatientRecord {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomLibMPIDGraphPatientRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 

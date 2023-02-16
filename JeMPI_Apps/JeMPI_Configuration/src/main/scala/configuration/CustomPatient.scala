@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomPatient {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/shared/models"
   private val customClassNameDemographicData = "CustomDemographicData"
   private val customClassNamePatientRecord = "PatientRecord"
   private val customClassNameGoldenRecord = "GoldenRecord"
@@ -62,52 +62,53 @@ private object CustomPatient {
   end generateDemographicData
 
 
-  def generatePatientRecord(fields: Array[Field]): Unit =
-    val classFile: String = classLocation + File.separator + customClassNamePatientRecord + ".java"
-    println("Creating " + classFile)
-    val file: File = new File(classFile)
-    val writer: PrintWriter = new PrintWriter(file)
-    writer.println(
-      s"""package $packageText;
-         |
-         |import com.fasterxml.jackson.annotation.JsonInclude;
-         |
-         |@JsonInclude(JsonInclude.Include.NON_NULL)
-         |public record $customClassNamePatientRecord(
-         |${" " * 6}String uid,
-         |${" " * 6}SourceId sourceId,
-         |${" " * 6}$customClassNameDemographicData demographicData) {
-         |}
-         |""".stripMargin)
-    writer.flush()
-    writer.close()
-  end generatePatientRecord
+//   def generatePatientRecord(fields: Array[Field]): Unit =
+//     val classFile: String = classLocation + File.separator + customClassNamePatientRecord + ".java"
+//     println("Creating " + classFile)
+//     val file: File = new File(classFile)
+//     val writer: PrintWriter = new PrintWriter(file)
+//     writer.println(
+//       s"""package $packageText;
+//          |
+//          |import com.fasterxml.jackson.annotation.JsonInclude;
+//          |
+//          |@JsonInclude(JsonInclude.Include.NON_NULL)
+//          |public record $customClassNamePatientRecord(
+//          |${" " * 6}String uid,
+//          |${" " * 6}SourceId sourceId,
+//          |${" " * 6}$customClassNameDemographicData demographicData) {
+//          |}
+//          |""".stripMargin)
+//     writer.flush()
+//     writer.close()
+//   end generatePatientRecord
 
-  def generateGoldenRecord(fields: Array[Field]): Unit =
-    val classFile: String = classLocation + File.separator + customClassNameGoldenRecord + ".java"
-    println("Creating " + classFile)
-    val file: File = new File(classFile)
-    val writer: PrintWriter = new PrintWriter(file)
-    writer.println(
-      s"""package $packageText;
-         |
-         |import com.fasterxml.jackson.annotation.JsonInclude;
-         |
-         |import java.util.List;
-         |
-         |@JsonInclude(JsonInclude.Include.NON_NULL)
-         |public record $customClassNameGoldenRecord(
-         |${" " * 6}String uid,
-         |${" " * 6}List<SourceId> sourceId,
-         |${" " * 6}$customClassNameDemographicData demographicData) {
-         |
-         |${" " * 3}public $customClassNameGoldenRecord(final $customClassNamePatientRecord patient) {
-         |${" " * 6}this(null, List.of(patient.sourceId()), patient.demographicData());
-         |${" " * 3}}
-         |
-         |}""".stripMargin)
+//   def generateGoldenRecord(fields: Array[Field]): Unit =
+//     val classFile: String = classLocation + File.separator + customClassNameGoldenRecord + ".java"
+//     println("Creating " + classFile)
+//     val file: File = new File(classFile)
+//     val writer: PrintWriter = new PrintWriter(file)
+//     writer.println(
+//       s"""package $packageText;
+//          |
+//          |import com.fasterxml.jackson.annotation.JsonInclude;
+//          |
+//          |import java.util.List;
+//          |
+//          |@JsonInclude(JsonInclude.Include.NON_NULL)
+//          |public record $customClassNameGoldenRecord(
+//          |${" " * 6}String uid,
+//          |${" " * 6}List<SourceId> sourceId,
+//          |${" " * 6}$customClassNameDemographicData demographicData) {
+//          |
+//          |${" " * 3}public $customClassNameGoldenRecord(final $customClassNamePatientRecord patient) {
+//          |${" " * 6}this(null, List.of(patient.sourceId()), patient.demographicData());
+//          |${" " * 3}}
+//          |
+//          |}""".stripMargin)
 
-    writer.flush()
-    writer.close()
-  end generateGoldenRecord
+//     writer.flush()
+//     writer.close()
+//   end generateGoldenRecord
+
 }

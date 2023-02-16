@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerMU {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerMU"
   private val packageText = "org.jembi.jempi.linker"
 

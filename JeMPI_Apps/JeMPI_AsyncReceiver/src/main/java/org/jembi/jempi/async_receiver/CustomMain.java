@@ -36,7 +36,7 @@ public final class CustomMain {
    }
 
    @SuppressWarnings("unchecked")
-   private static <T> WatchEvent<T> cast(WatchEvent<?> event) {
+   private static <T> WatchEvent<T> cast(final WatchEvent<?> event) {
       return (WatchEvent<T>) event;
    }
 
@@ -123,7 +123,7 @@ public final class CustomMain {
       }
    }
 
-   private void handleEvent(WatchEvent<?> event)
+   private void handleEvent(final WatchEvent<?> event)
          throws InterruptedException, ExecutionException {
       WatchEvent.Kind<?> kind = event.kind();
       LOGGER.info("EVENT: {}", kind);

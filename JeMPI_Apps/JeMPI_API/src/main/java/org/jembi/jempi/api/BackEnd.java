@@ -35,7 +35,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BackEnd extends AbstractBehavior<BackEnd.Event> {
+public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
 
@@ -43,7 +43,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final AkkaAdapterConfig keycloakConfig;
    private final KeycloakDeployment keycloak;
 
-   private BackEnd(ActorContext<Event> context) {
+   private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
          openMPI();
@@ -99,7 +99,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .build();
    }
 
-   private Behavior<Event> eventSimpleSearchGoldenRecordsHandler(EventSimpleSearchGoldenRecordsRequest request) {
+   private Behavior<Event> eventSimpleSearchGoldenRecordsHandler(final EventSimpleSearchGoldenRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -113,7 +113,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventCustomSearchGoldenRecordsHandler(EventCustomSearchGoldenRecordsRequest request) {
+   private Behavior<Event> eventCustomSearchGoldenRecordsHandler(final EventCustomSearchGoldenRecordsRequest request) {
       CustomSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -127,7 +127,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventSimpleSearchPatientRecordsHandler(EventSimpleSearchPatientRecordsRequest request) {
+   private Behavior<Event> eventSimpleSearchPatientRecordsHandler(final EventSimpleSearchPatientRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -141,7 +141,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventCustomSearchPatientRecordsHandler(EventCustomSearchPatientRecordsRequest request) {
+   private Behavior<Event> eventCustomSearchPatientRecordsHandler(final EventCustomSearchPatientRecordsRequest request) {
       CustomSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -335,7 +335,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventNotificationRequestHandler(EventNotificationRequestReq request) {
+   private Behavior<Event> eventNotificationRequestHandler(final EventNotificationRequestReq request) {
       try {
          PsqlQueries.updateNotificationState(request.notificationId, request.state);
       } catch (SQLException exception) {
@@ -345,14 +345,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventPostCsvFileRequestHandler(EventPostCsvFileRequest request) throws IOException {
+   private Behavior<Event> eventPostCsvFileRequestHandler(final EventPostCsvFileRequest request) throws IOException {
       File file = request.file();
       FileInfo info = request.info();
       try {
          Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
          LOGGER.debug("File moved successfully");
          file.delete();
-      } catch (IOException e) {LOGGER.error(e);}
+      } catch (IOException e) {
+         LOGGER.error(e);
+      }
       request.replyTo.tell(new EventPostCsvFileResponse());
       return Behaviors.same();
    }
@@ -378,7 +380,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetNumberOfRecordsReq(ActorRef<EventGetNumberOfRecordsRsp> replyTo) implements Event {
    }
 
-   public record EventGetNumberOfRecordsRsp(long goldenRecords, long patients) implements EventResponse {
+   public record EventGetNumberOfRecordsRsp(
+         long goldenRecords,
+         long patients) implements EventResponse {
    }
 
    public record EventGetGoldenIdsReq(ActorRef<EventGetGoldenIdsRsp> replyTo) implements Event {
@@ -387,23 +391,27 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetGoldenIdsRsp(List<String> records) implements EventResponse {
    }
 
-   public record EventFindGoldenRecordByUidRequest(ActorRef<EventFindGoldenRecordByUidResponse> replyTo, String uid)
+   public record EventFindGoldenRecordByUidRequest(
+         ActorRef<EventFindGoldenRecordByUidResponse> replyTo,
+         String uid)
          implements Event {
    }
 
    public record EventFindGoldenRecordByUidResponse(ExpandedGoldenRecord goldenRecord) implements EventResponse {
    }
 
-   public record EventGetExpandedGoldenRecordsReq(ActorRef<EventGetExpandedGoldenRecordsRsp> replyTo,
-                                                  List<String> uids) implements Event {
+   public record EventGetExpandedGoldenRecordsReq(
+         ActorRef<EventGetExpandedGoldenRecordsRsp> replyTo,
+         List<String> uids) implements Event {
    }
 
    public record EventGetExpandedGoldenRecordsRsp(List<ExpandedGoldenRecord> expandedGoldenRecords)
          implements EventResponse {
    }
 
-   public record EventGetExpandedPatientRecordsReq(ActorRef<EventGetExpandedPatientRecordsRsp> replyTo,
-                                             List<String> uids) implements Event {
+   public record EventGetExpandedPatientRecordsReq(
+         ActorRef<EventGetExpandedPatientRecordsRsp> replyTo,
+         List<String> uids) implements Event {
    }
 
    public record EventGetExpandedPatientRecordsRsp(List<ExpandedPatientRecord> expandedPatientRecords)
@@ -411,8 +419,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
 
-   public record EventFindPatientByUidRequest(ActorRef<EventFindPatientRecordByUidResponse> replyTo,
-                                              String uid) implements Event {
+   public record EventFindPatientByUidRequest(
+         ActorRef<EventFindPatientRecordByUidResponse> replyTo,
+         String uid) implements Event {
    }
 
    public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {
@@ -425,47 +434,55 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements EventResponse {
    }
 
-   public record EventUpdateGoldenRecordRequest(ActorRef<EventUpdateGoldenRecordResponse> replyTo,
-                                                String uid,
-                                                List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
+   public record EventUpdateGoldenRecordRequest(
+         ActorRef<EventUpdateGoldenRecordResponse> replyTo,
+         String uid,
+         List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
    }
 
    public record EventUpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
    }
 
-   public record EventPatchLinkReq(ActorRef<EventPatchLinkRsp> replyTo,
-                                   String goldenID,
-                                   String newGoldenID,
-                                   String docID,
-                                   Float score) implements Event {
+   public record EventPatchLinkReq(
+         ActorRef<EventPatchLinkRsp> replyTo,
+         String goldenID,
+         String newGoldenID,
+         String docID,
+         Float score) implements Event {
    }
 
    public record EventPatchLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
-   public record EventPatchUnLinkReq(ActorRef<EventPatchUnLinkRsp> replyTo,
-                                     String goldenID,
-                                     String docID,
-                                     float score) implements Event {
+   public record EventPatchUnLinkReq(
+         ActorRef<EventPatchUnLinkRsp> replyTo,
+         String goldenID,
+         String docID,
+         float score) implements Event {
    }
 
    public record EventPatchUnLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
-   public record EventGetCandidatesReq(ActorRef<EventGetCandidatesRsp> replyTo,
-                                       String docID, CustomMU mu) implements Event {
+   public record EventGetCandidatesReq(
+         ActorRef<EventGetCandidatesRsp> replyTo,
+         String docID,
+         CustomMU mu) implements Event {
    }
 
    public record EventGetCandidatesRsp(Either<MpiGeneralError, List<Candidate>> candidates) implements EventResponse {
-      record Candidate(GoldenRecord goldenRecord, float score) {
+      record Candidate(
+            GoldenRecord goldenRecord,
+            float score) {
       }
    }
 
-   public record EventNotificationRequestReq(ActorRef<EventNotificationRequestRsp> replyTo,
-                                             String notificationId,
-                                             String state) implements Event {
+   public record EventNotificationRequestReq(
+         ActorRef<EventNotificationRequestRsp> replyTo,
+         String notificationId,
+         String state) implements Event {
    }
 
    public record EventNotificationRequestRsp() implements EventResponse {
@@ -475,8 +492,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     * Authentication events
     */
 
-   public record EventLoginWithKeycloakRequest(ActorRef<EventLoginWithKeycloakResponse> replyTo,
-                                               OAuthCodeRequestPayload payload) implements Event {
+   public record EventLoginWithKeycloakRequest(
+         ActorRef<EventLoginWithKeycloakResponse> replyTo,
+         OAuthCodeRequestPayload payload) implements Event {
    }
 
    public record EventLoginWithKeycloakResponse(User user) implements EventResponse {
@@ -485,30 +503,37 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    /**
     * Search events
     */
-   public record EventSimpleSearchGoldenRecordsRequest(ActorRef<EventSearchGoldenRecordsResponse> replyTo,
-                                                       SimpleSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventSimpleSearchGoldenRecordsRequest(
+         ActorRef<EventSearchGoldenRecordsResponse> replyTo,
+         SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record EventCustomSearchGoldenRecordsRequest(ActorRef<EventSearchGoldenRecordsResponse> replyTo,
-                                                       CustomSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventCustomSearchGoldenRecordsRequest(
+         ActorRef<EventSearchGoldenRecordsResponse> replyTo,
+         CustomSearchRequestPayload searchRequestPayload) implements Event {
    }
 
    public record EventSearchGoldenRecordsResponse(
          LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {
    }
 
-   public record EventSimpleSearchPatientRecordsRequest(ActorRef<EventSearchPatientRecordsResponse> replyTo,
-                                                        SimpleSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventSimpleSearchPatientRecordsRequest(
+         ActorRef<EventSearchPatientRecordsResponse> replyTo,
+         SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record EventCustomSearchPatientRecordsRequest(ActorRef<EventSearchPatientRecordsResponse> replyTo,
-                                                        CustomSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventCustomSearchPatientRecordsRequest(
+         ActorRef<EventSearchPatientRecordsResponse> replyTo,
+         CustomSearchRequestPayload searchRequestPayload) implements Event {
    }
 
    public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<PatientRecord> records) implements EventResponse {
    }
 
-   public record EventPostCsvFileRequest(ActorRef<EventPostCsvFileResponse> replyTo, FileInfo info, File file)
+   public record EventPostCsvFileRequest(
+         ActorRef<EventPostCsvFileResponse> replyTo,
+         FileInfo info,
+         File file)
          implements Event {
    }
 

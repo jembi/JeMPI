@@ -64,7 +64,7 @@ class CustomEMTask {
       return new JsonPojoDeserializer<>(BatchPatientRecord.class);
    }
 
-   static String getPhonetic(String s) {
+   static String getPhonetic(final String s) {
       return s == null
             ? null
             : DOUBLE_METAPHONE.doubleMetaphone(s);

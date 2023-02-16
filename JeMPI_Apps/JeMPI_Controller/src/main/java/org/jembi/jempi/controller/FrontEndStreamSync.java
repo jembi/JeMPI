@@ -22,14 +22,14 @@ import java.util.concurrent.CompletionStage;
 
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
-public class FrontEndStreamSync extends AllDirectives {
+public final class FrontEndStreamSync extends AllDirectives {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamSync.class);
 
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;
 
-   void close(ActorSystem<Void> system) {
+   void close(final ActorSystem<Void> system) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
              .thenAccept(unbound -> system.terminate()); // and shutdown when done
    }
