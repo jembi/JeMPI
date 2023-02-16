@@ -61,7 +61,7 @@ private object CustomLibMPIExpandedGoldenRecord {
       """
         |   ExpandedGoldenRecord toExpandedGoldenRecord() {
         |      return new ExpandedGoldenRecord(this.toGoldenRecord(),
-        |                                      this.patients().stream().map(CustomLibMPIDGraphPatientRecord::toRatedPatientRecord).toList());
+        |                                      this.patients().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecordWithScore).toList());
         |   }
         |""".stripMargin)
 

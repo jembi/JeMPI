@@ -37,7 +37,7 @@ record CustomLibMPIDGraphGoldenRecord(
                                                               this.nationalId()));
    }
 
-   GoldenRecordWithScore toRatedGoldenRecord() {
+   GoldenRecordWithScore toGoldenRecordWithScore() {
       return new GoldenRecordWithScore(toGoldenRecord(), score);
    }
 

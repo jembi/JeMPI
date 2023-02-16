@@ -32,7 +32,7 @@ private object CustomLibMPIDGraphGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.shared.models.RatedGoldenRecord;
+         |import org.jembi.jempi.shared.models.GoldenRecordWithScore;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
          |
@@ -61,8 +61,8 @@ private object CustomLibMPIDGraphGoldenRecord {
     writer.println("   }")
     writer.println(
       """
-        |   RatedGoldenRecord toRatedGoldenRecord() {
-        |      return new RatedGoldenRecord(toGoldenRecord(), score);
+        |   GoldenRecordWithScore toGoldenRecordWithScore() {
+        |      return new GoldenRecordWithScore(toGoldenRecord(), score);
         |   }""".stripMargin)
     writer.println(
       """

@@ -84,7 +84,7 @@ final class Queries {
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return patientList.get(0).toRatedPatientRecord().patientRecord();
+      return patientList.get(0).toPatientRecordWithScore().patientRecord();
    }
 
    static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {
