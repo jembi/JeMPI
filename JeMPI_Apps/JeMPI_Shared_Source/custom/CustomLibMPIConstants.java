@@ -307,7 +307,7 @@ public final class CustomLibMPIConstants {
          """
          PatientRecord.source_id:                    uid                                          .
          PatientRecord.aux_id:                       string                                       .
-         PatientRecord.given_name:                   string                                       .
+         PatientRecord.given_name:                   string    @index(exact,trigram)                                   .
          PatientRecord.family_name:                  string    @index(exact,trigram)              .
          PatientRecord.gender:                       string                                       .
          PatientRecord.dob:                          string                                       .
