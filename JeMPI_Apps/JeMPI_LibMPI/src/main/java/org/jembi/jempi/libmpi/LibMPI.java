@@ -83,8 +83,8 @@ public class LibMPI {
       return null;
    }
 
-   public List<String> getGoldenIdList() {
-      return client.getGoldenIdList();
+   public List<String> getGoldenIds() {
+      return client.getGoldenIds();
    }
    public List<GoldenRecord> getCandidates(
          final CustomDemographicData demographicData,
@@ -95,12 +95,12 @@ public class LibMPI {
       return candidates;
    }
 
-   public List<ExpandedPatientRecord> getMpiExpandedPatients(final List<String> idList) {
-      return client.getExpandedPatients(idList);
+   public List<ExpandedPatientRecord> getMpiExpandedPatients(final List<String> ids) {
+      return client.getExpandedPatients(ids);
    }
 
-   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> idList) {
-      return client.getExpandedGoldenRecords(idList);
+   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
+      return client.getExpandedGoldenRecords(ids);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

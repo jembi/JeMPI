@@ -82,7 +82,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
             .onMessage(EventGetPatientCountReq.class, this::eventGetPatientCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
-            .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
+            .onMessage(EventGetGoldenIdsReq.class, this::eventGetGoldenIdsHandler)
             .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
             .onMessage(EventGetExpandedGoldenRecordsReq.class, this::eventGetExpandedGoldenRecordsHandler)
             .onMessage(EventGetExpandedPatientRecordsReq.class, this::eventGetExpandedPatientRecordsHandler)
@@ -238,11 +238,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetGoldenIdListHandler(final EventGetGoldenIdListReq request) {
-      LOGGER.debug("getGoldenIdList");
+   private Behavior<Event> eventGetGoldenIdsHandler(final EventGetGoldenIdsReq request) {
+      LOGGER.debug("getGoldenIds");
       libMPI.startTransaction();
-      var recs = libMPI.getGoldenIdList();
-      request.replyTo.tell(new EventGetGoldenIdListRsp(recs));
+      var recs = libMPI.getGoldenIds();
+      request.replyTo.tell(new EventGetGoldenIdsRsp(recs));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
@@ -383,10 +383,10 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetNumberOfRecordsRsp(long goldenRecords, long patients) implements EventResponse {
    }
 
-   public record EventGetGoldenIdListReq(ActorRef<EventGetGoldenIdListRsp> replyTo) implements Event {
+   public record EventGetGoldenIdsReq(ActorRef<EventGetGoldenIdsRsp> replyTo) implements Event {
    }
 
-   public record EventGetGoldenIdListRsp(List<String> records) implements EventResponse {
+   public record EventGetGoldenIdsRsp(List<String> records) implements EventResponse {
    }
 
    public record EventFindGoldenRecordByUidRequest(ActorRef<EventFindGoldenRecordByUidResponse> replyTo, String uid)

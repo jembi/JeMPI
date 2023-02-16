@@ -119,12 +119,12 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.EventGetGoldenIdListRsp> getGoldenIdList(
+   private CompletionStage<BackEnd.EventGetGoldenIdsRsp> getGoldenIds(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getGoldenIdList");
-      CompletionStage<BackEnd.EventGetGoldenIdListRsp> stage = AskPattern.ask(backEnd,
-                                                                              BackEnd.EventGetGoldenIdListReq::new,
+      LOGGER.debug("getGoldenIds");
+      CompletionStage<BackEnd.EventGetGoldenIdsRsp> stage = AskPattern.ask(backEnd,
+                                                                              BackEnd.EventGetGoldenIdsReq::new,
                                                                               java.time.Duration.ofSeconds(30),
                                                                               actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -375,10 +375,10 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
-   private Route routeGoldenIdList(
+   private Route routeGoldenIds(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(getGoldenIdList(actorSystem, backEnd),
+      return onComplete(getGoldenIds(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
@@ -742,8 +742,8 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                                                       () -> routeNumberOfRecords(
                                                                                                             actorSystem,
                                                                                                             backEnd)),
-                                                                                                 path("GoldenIdList",
-                                                                                                      () -> routeGoldenIdList(
+                                                                                                 path("GoldenIds",
+                                                                                                      () -> routeGoldenIds(
                                                                                                             actorSystem,
                                                                                                             backEnd)),
                                                                                                  path("GoldenRecord",
