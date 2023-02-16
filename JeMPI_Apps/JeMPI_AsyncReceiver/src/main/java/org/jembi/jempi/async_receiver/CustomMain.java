@@ -1,9 +1,5 @@
 package org.jembi.jempi.async_receiver;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.enums.CSVReaderNullFieldIndicator;
-import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.kafka.common.serialization.Serializer;
@@ -16,7 +12,6 @@ import org.jembi.jempi.shared.models.CustomSourceRecord;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -91,16 +86,19 @@ public final class CustomMain {
                .parse(reader);
 
          int index = 0;
+         sendToKafka(CustomSourceRecord.RecordType.BATCH_START);
          for (CSVRecord csvRecord : csvParser) {
             index += 1;
             final var stan = String.format("%s:%07d", stanDate, index);
             sendToKafka(stan, csvRecord.toList().toArray(new String[0]));
          }
+         sendToKafka(CustomSourceRecord.RecordType.BATCH_END);
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
 
+/*
    private void openCsvReadCSV(final String filename) throws InterruptedException, ExecutionException {
       try (CSVReader reader = new CSVReaderBuilder(new FileReader(filename))
             .withSkipLines(1)
@@ -122,6 +120,7 @@ public final class CustomMain {
          LOGGER.error(e.toString());
       }
    }
+*/
 
    private void handleEvent(final WatchEvent<?> event)
          throws InterruptedException, ExecutionException {
@@ -134,8 +133,8 @@ public final class CustomMain {
          LOGGER.info("A new file {} was created", filename);
          if (name.endsWith(".csv")) {
             LOGGER.info("Process CSV file: {}", filename);
-//                apacheReadCSV("csv/" + filename)
-            openCsvReadCSV("csv/" + filename);
+            apacheReadCSV("csv/" + filename);
+//            openCsvReadCSV("csv/" + filename);
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
          LOGGER.info("EVENT:{}", kind);

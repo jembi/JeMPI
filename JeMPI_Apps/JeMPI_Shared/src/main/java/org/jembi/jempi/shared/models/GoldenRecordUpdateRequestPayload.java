@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.utils;
+package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

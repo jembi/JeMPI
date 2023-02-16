@@ -234,8 +234,8 @@ final class Queries {
 
    private static List<String> getRecordFieldNamesByType(final RecordType recordType) {
       List<String> fieldNames = new ArrayList<String>();
-      Class C = CustomDemographicData.class;
-      Field[] fields = C.getDeclaredFields();
+      // Class C = CustomDemographicData.class;
+      Field[] fields = CustomDemographicData.class.getDeclaredFields();
       fieldNames.add("uid");
       for (Field field : fields) {
          fieldNames.add(recordType + "." + camelToSnake(field.getName()));

@@ -18,7 +18,6 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
-import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 import org.keycloak.adapters.KeycloakDeployment;

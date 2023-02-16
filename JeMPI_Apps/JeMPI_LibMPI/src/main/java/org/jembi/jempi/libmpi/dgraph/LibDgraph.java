@@ -89,7 +89,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       }
       final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
       final var pagination = list.pagination().get(0);
-      return new LibMPIPaginatedResultSet(data, pagination);
+      return new LibMPIPaginatedResultSet<ExpandedGoldenRecord>(data, pagination);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
@@ -105,7 +105,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       }
       final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
       final var pagination = list.pagination().get(0);
-      return new LibMPIPaginatedResultSet(data, pagination);
+      return new LibMPIPaginatedResultSet<ExpandedGoldenRecord>(data, pagination);
    }
 
    public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
@@ -121,7 +121,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       }
       final var data = list.all().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecord).toList();
       final var pagination = list.pagination().get(0);
-      return new LibMPIPaginatedResultSet(data, pagination);
+      return new LibMPIPaginatedResultSet<PatientRecord>(data, pagination);
    }
 
    public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
@@ -137,7 +137,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       }
       final var data = list.all().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecord).toList();
       final var pagination = list.pagination().get(0);
-      return new LibMPIPaginatedResultSet(data, pagination);
+      return new LibMPIPaginatedResultSet<PatientRecord>(data, pagination);
    }
 
    /*
