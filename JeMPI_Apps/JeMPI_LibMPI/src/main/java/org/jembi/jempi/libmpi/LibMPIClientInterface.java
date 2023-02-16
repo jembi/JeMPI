@@ -47,9 +47,9 @@ public interface LibMPIClientInterface {
          CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
 
-   List<ExpandedPatientRecord> getExpandedPatients(final List<String> ids);
+   List<ExpandedPatientRecord> getExpandedPatients(List<String> ids);
 
-   List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids);
+   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> ids);
 
    List<String> getGoldenIds();
 
