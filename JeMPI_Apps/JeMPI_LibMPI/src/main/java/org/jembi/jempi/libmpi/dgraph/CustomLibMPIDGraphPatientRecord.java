@@ -50,7 +50,7 @@ record CustomLibMPIDGraphPatientRecord(
                                                          this.nationalId()));
    }
 
-   PatientRecordWithScore toRatedPatientRecord() {
+   PatientRecordWithScore toPatientRecordWithScore() {
       return new PatientRecordWithScore(toPatientRecord(), this.score());
    }
 

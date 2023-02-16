@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
 
-public class BackEnd extends AbstractBehavior<BackEnd.Event> {
+public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
 
-   private BackEnd(ActorContext<Event> context) {
+   private BackEnd(final ActorContext<Event> context) {
       super(context);
    }
 
@@ -33,12 +33,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .build();
    }
 
-   private Behavior<Event> eventWorkTimeHandler(EventWorkTime request) {
+   private Behavior<Event> eventWorkTimeHandler(final EventWorkTime request) {
       LOGGER.info("WORK TIME");
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventTeaTimeHandler(EventTeaTime request) {
+   private Behavior<Event> eventTeaTimeHandler(final EventTeaTime request) {
       LOGGER.info("TEA TIME");
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventWorkTime.INSTANCE, Duration.ofSeconds(5));
@@ -54,6 +54,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       INSTANCE
    }
 
-   interface Event {}
+   interface Event {
+   }
 
 }

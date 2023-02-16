@@ -20,7 +20,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
 
-public class FrontEndStreamAsync {
+public final class FrontEndStreamAsync {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamAsync.class);
    private MyKafkaProducer<String, BatchPatientRecord> topicEM;

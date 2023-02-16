@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomLibMPIDGraphGoldenRecord {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomLibMPIDGraphGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
@@ -32,7 +32,7 @@ private object CustomLibMPIDGraphGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.shared.models.RatedGoldenRecord;
+         |import org.jembi.jempi.shared.models.GoldenRecordWithScore;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
          |
@@ -61,8 +61,8 @@ private object CustomLibMPIDGraphGoldenRecord {
     writer.println("   }")
     writer.println(
       """
-        |   RatedGoldenRecord toRatedGoldenRecord() {
-        |      return new RatedGoldenRecord(toGoldenRecord(), score);
+        |   GoldenRecordWithScore toGoldenRecordWithScore() {
+        |      return new GoldenRecordWithScore(toGoldenRecord(), score);
         |   }""".stripMargin)
     writer.println(
       """

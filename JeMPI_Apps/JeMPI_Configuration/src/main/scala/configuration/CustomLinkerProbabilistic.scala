@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerProbabilistic {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerProbabilistic"
   private val packageText = "org.jembi.jempi.linker"
 

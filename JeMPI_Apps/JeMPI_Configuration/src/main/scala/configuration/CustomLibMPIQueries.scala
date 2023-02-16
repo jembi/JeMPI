@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLibMPIQueries {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val custom_className = "CustomLibMPIQueries"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
@@ -49,7 +49,7 @@ object CustomLibMPIQueries {
     writer.println(
       """   private static void updateCandidates(
         |         final List<CustomLibMPIGoldenRecord> goldenRecords,
-        |         final LibMPIGoldenRecordList block) {
+        |         final LibMPIGoldenRecords block) {
         |      final var candidates = block.all();
         |      if (!candidates.isEmpty()) {
         |         candidates.forEach(candidate -> {
@@ -122,9 +122,9 @@ object CustomLibMPIQueries {
     if (vars.length == 1)
       val v = vars(0)
       writer.println(
-        s"""   static LibMPIGoldenRecordList $functionName(final CustomDemographicData demographicData) {
+        s"""   static LibMPIGoldenRecords $functionName(final CustomDemographicData demographicData) {
            |      if (StringUtils.isBlank(demographicData.${Utils.snakeCaseToCamelCase(v)}())) {
-           |         return new LibMPIGoldenRecordList(List.of());
+           |         return new LibMPIGoldenRecords(List.of());
            |      }
            |      final Map<String, String> map = Map.of("$$$v", demographicData.${Utils.snakeCaseToCamelCase(v)}());
            |      return runGoldenRecordsQuery($name, map);
@@ -132,7 +132,7 @@ object CustomLibMPIQueries {
            |""".stripMargin)
     else
       val expr = expression(ParseRule.parse(text))
-      writer.println(s"   static LibMPIGoldenRecordList $functionName(final CustomDemographicData demographicData) {")
+      writer.println(s"   static LibMPIGoldenRecords $functionName(final CustomDemographicData demographicData) {")
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
         writer.println(s"      final var $camelCaseVarName = demographicData.$camelCaseVarName();")
@@ -144,7 +144,7 @@ object CustomLibMPIQueries {
       })
       writer.print(
         s"""      if ($expr) {
-           |         return new LibMPIGoldenRecordList(List.of());
+           |         return new LibMPIGoldenRecords(List.of());
            |      }
            |      final var map = Map.of(""".stripMargin)
 

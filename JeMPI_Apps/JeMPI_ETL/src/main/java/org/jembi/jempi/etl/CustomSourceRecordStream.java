@@ -30,7 +30,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CustomSourceRecordStream {
+public final class CustomSourceRecordStream {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
    private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
@@ -94,8 +94,8 @@ public class CustomSourceRecordStream {
    }
 
    private String getEncodedMF(
-         String value,
-         OperationType algorithmType) {
+         final String value,
+         final OperationType algorithmType) {
       return switch (algorithmType) {
          case OPERATION_TYPE_METAPHONE -> (new Metaphone()).metaphone(value);
          case OPERATION_TYPE_DOUBLE_METAPHONE -> (new DoubleMetaphone()).doubleMetaphone(value);

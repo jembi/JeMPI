@@ -40,7 +40,7 @@ record CustomLibMPIExpandedPatientRecord(
       return new ExpandedPatientRecord(this.toPatientRecord(),
                                        this.dgraphGoldenRecordList()
                                            .stream()
-                                           .map(CustomLibMPIDGraphGoldenRecord::toRatedGoldenRecord)
+                                           .map(CustomLibMPIDGraphGoldenRecord::toGoldenRecordWithScore)
                                            .toList());
    }
 

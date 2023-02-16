@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
-public class CustomFHIRsyncReceiver extends AllDirectives {
+public final class CustomFHIRsyncReceiver extends AllDirectives {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomFHIRsyncReceiver.class);
    private static final String PATTERN = "yyyy-MM-dd";
@@ -38,7 +38,7 @@ public class CustomFHIRsyncReceiver extends AllDirectives {
    private Http http = null;
 
 
-   void close(ActorSystem<Void> system) {
+   void close(final ActorSystem<Void> system) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
              .thenAccept(unbound -> system.terminate()); // and shutdown when done
    }

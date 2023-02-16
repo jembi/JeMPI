@@ -19,7 +19,7 @@ class CustomReceiver extends AllDirectives {
     private CompletionStage<ServerBinding> binding = null;
     private Http http = null;
 
-    void close(ActorSystem<Void> system) {
+    void close(final ActorSystem<Void> system) {
         binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
                 .thenAccept(unbound -> system.terminate()); // and shutdown when done
     }

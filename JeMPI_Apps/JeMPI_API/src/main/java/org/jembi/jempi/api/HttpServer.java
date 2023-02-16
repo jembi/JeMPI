@@ -43,7 +43,7 @@ import static akka.http.javadsl.server.PathMatchers.segment;
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
 
-public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
+public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
@@ -52,16 +52,16 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    // in-memory refresh token storage
    private static final RefreshTokenStorage<UserSession> REFRESH_TOKEN_STORAGE = new InMemoryRefreshTokenStorage<UserSession>() {
       @Override
-      public void log(String msg) {
+      public void log(final String msg) {
          LOGGER.info(msg);
       }
    };
-   private static final Function<Entry<String, String>, String> paramString = Entry::getValue;
+   private static final Function<Entry<String, String>, String> PARAM_STRING = Entry::getValue;
    private final Refreshable<UserSession> refreshable;
    private final SetSessionTransport sessionTransport;
    private CompletionStage<ServerBinding> binding = null;
 
-   public HttpServer(MessageDispatcher dispatcher) {
+   public HttpServer(final MessageDispatcher dispatcher) {
       super(new SessionManager<>(SessionConfig.defaultConfig(AppConfig.SESSION_SECRET), BASIC_ENCODER));
 
       // use Refreshable for sessions, which needs to be refreshed or OneOff otherwise
@@ -72,7 +72,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       sessionTransport = CookieST;
    }
 
-   void close(ActorSystem<Void> actorSystem) {
+   void close(final ActorSystem<Void> actorSystem) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
              .thenAccept(unbound -> actorSystem.terminate()); // and shutdown when done
    }
@@ -397,7 +397,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameterList(params -> {
-         final var uidList = params.stream().map(paramString).toList();
+         final var uidList = params.stream().map(PARAM_STRING).toList();
          return onComplete(getExpandedGoldenRecords(actorSystem, backEnd, uidList),
                            result -> result.isSuccess()
                                  ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
@@ -490,7 +490,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private Route routeLoginWithKeycloakRequest(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         CheckHeader<UserSession> checkHeader) {
+         final CheckHeader<UserSession> checkHeader) {
       return entity(Jackson.unmarshaller(OAuthCodeRequestPayload.class),
                     obj -> onComplete(loginWithKeycloakRequest(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
@@ -669,117 +669,75 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       final var settings = CorsSettings.create(AppConfig.CONFIG);
       CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
       return cors(settings,
-                  () -> randomTokenCsrfProtection(checkHeader,
-                                                  () -> pathPrefix("JeMPI",
-                                                                   () -> concat(post(() -> concat(path("NotificationRequest",
-                                                                                                       () -> routeNotificationRequest(
-                                                                                                             actorSystem,
-                                                                                                             backEnd)),
-                                                                                                  path("authenticate",
-                                                                                                       () -> routeLoginWithKeycloakRequest(
-                                                                                                             actorSystem,
-                                                                                                             backEnd,
-                                                                                                             checkHeader)),
-                                                                                                  path(segment("search").slash(
-                                                                                                             segment(Pattern.compile(
-                                                                                                                   "^(golden" +
-                                                                                                                   "|patient)$"))),
-                                                                                                       (type) -> routeSimpleSearch(
-                                                                                                             actorSystem,
-                                                                                                             backEnd,
-                                                                                                             type.equals("golden")
-                                                                                                                   ?
-                                                                                                                   RecordType.GoldenRecord
-                                                                                                                   : RecordType.PatientRecord)),
-                                                                                                  path(segment("custom-search").slash(
-                                                                                                             segment(Pattern.compile(
-                                                                                                                   "^(golden" +
-                                                                                                                   "|patient)$"))),
-                                                                                                       (type) -> routeCustomSearch(
-                                                                                                             actorSystem,
-                                                                                                             backEnd,
-                                                                                                             type.equals("golden")
-                                                                                                                   ?
-                                                                                                                   RecordType.GoldenRecord
-                                                                                                                   : RecordType.PatientRecord)),
-                                                                                                  path("upload",
-                                                                                                       () -> routeUpload(
-                                                                                                             actorSystem,
-                                                                                                             backEnd)))),
-                                                                                patch(() -> concat(path(segment("golden-record").slash(
-                                                                                                              segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                                                                        (uid) -> routeUpdateGoldenRecord(
-                                                                                                              actorSystem,
-                                                                                                              backEnd,
-                                                                                                              uid)),
-                                                                                                   path("Unlink",
-                                                                                                        () -> routeUnlink(
-                                                                                                              actorSystem,
-                                                                                                              backEnd)),
-                                                                                                   path("Link",
-                                                                                                        () -> routeLink(
-                                                                                                              actorSystem,
-                                                                                                              backEnd)))),
-                                                                                get(() -> concat(path("config",
-                                                                                                      () -> setNewCsrfToken(
-                                                                                                            checkHeader,
-                                                                                                            () -> complete(
-                                                                                                                  StatusCodes.OK,
-                                                                                                                  fields.toJSONString()))),
-                                                                                                 path("current-user",
-                                                                                                      this::routeCurrentUser),
-                                                                                                 path("logout",
-                                                                                                      this::routeLogout),
-                                                                                                 path("GoldenRecordCount",
-                                                                                                      () -> routeGoldenRecordCount(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("DocumentCount",
-                                                                                                      () -> routePatientCount(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("NumberOfRecords",
-                                                                                                      () -> routeNumberOfRecords(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("GoldenIdList",
-                                                                                                      () -> routeGoldenIdList(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("GoldenRecord",
-                                                                                                      () -> routeGoldenRecord(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("ExpandedGoldenRecords",
-                                                                                                      () -> routeExpandedGoldenRecords(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("ExpandedPatientRecords",
-                                                                                                      () -> routeExpandedPatientRecords(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path("MatchesForReview",
-                                                                                                      () -> routeMatchesForReviewList(
-                                                                                                            actorSystem,
-                                                                                                            backEnd)),
-                                                                                                 path(segment("patient-record").slash(
-                                                                                                            segment(Pattern.compile(
-                                                                                                                  "^[A-z0-9]+$"))),
-                                                                                                      (uid) -> routeFindPatientRecordByUid(
-                                                                                                            actorSystem,
-                                                                                                            backEnd,
-                                                                                                            uid)),
-                                                                                                 path(segment("golden-record").slash(
-                                                                                                            segment(Pattern.compile(
-                                                                                                                  "^[A-z0-9]+$"))),
-                                                                                                      (uid) -> routeFindGoldenRecordByUid(
-                                                                                                            actorSystem,
-                                                                                                            backEnd,
-                                                                                                            uid)),
-                                                                                                 path("Candidates",
-                                                                                                      () -> routeCandidates(
-                                                                                                            actorSystem,
-                                                                                                            backEnd))))))));
+                  () -> randomTokenCsrfProtection(
+                        checkHeader,
+                        () -> pathPrefix("JeMPI",
+                                         () -> concat(
+                                               post(() -> concat(path("NotificationRequest",
+                                                                      () -> routeNotificationRequest(
+                                                                            actorSystem, backEnd)),
+                                                                 path("authenticate",
+                                                                      () -> routeLoginWithKeycloakRequest(
+                                                                            actorSystem, backEnd, checkHeader)),
+                                                                 path(segment("search").slash(
+                                                                            segment(Pattern.compile(
+                                                                                  "^(golden|patient)$"))),
+                                                                      (type) -> routeSimpleSearch(
+                                                                            actorSystem, backEnd,
+                                                                            type.equals("golden")
+                                                                                  ? RecordType.GoldenRecord
+                                                                                  : RecordType.PatientRecord)),
+                                                                 path(segment("custom-search").slash(
+                                                                            segment(Pattern.compile(
+                                                                                  "^(golden|patient)$"))),
+                                                                      (type) -> routeCustomSearch(
+                                                                            actorSystem, backEnd,
+                                                                            type.equals("golden")
+                                                                                  ? RecordType.GoldenRecord
+                                                                                  : RecordType.PatientRecord)),
+                                                                 path("upload",
+                                                                      () -> routeUpload(actorSystem, backEnd)))),
+                                               patch(() -> concat(path(segment("golden-record").slash(
+                                                                             segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                                       (uid) -> routeUpdateGoldenRecord(
+                                                                             actorSystem, backEnd, uid)),
+                                                                  path("Unlink",
+                                                                       () -> routeUnlink(actorSystem, backEnd)),
+                                                                  path("Link",
+                                                                       () -> routeLink(actorSystem, backEnd)))),
+                                               get(() -> concat(path("config",
+                                                                     () -> setNewCsrfToken(
+                                                                           checkHeader,
+                                                                           () -> complete(StatusCodes.OK,
+                                                                                          fields.toJSONString()))),
+                                                                path("current-user", this::routeCurrentUser),
+                                                                path("logout", this::routeLogout),
+                                                                path("GoldenRecordCount",
+                                                                     () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                                                                path("DocumentCount",
+                                                                     () -> routePatientCount(actorSystem, backEnd)),
+                                                                path("NumberOfRecords",
+                                                                     () -> routeNumberOfRecords(actorSystem, backEnd)),
+                                                                path("GoldenIdList",
+                                                                     () -> routeGoldenIdList(actorSystem, backEnd)),
+                                                                path("GoldenRecord",
+                                                                     () -> routeGoldenRecord(actorSystem, backEnd)),
+                                                                path("ExpandedGoldenRecords",
+                                                                     () -> routeExpandedGoldenRecords(actorSystem, backEnd)),
+                                                                path("ExpandedPatientRecords",
+                                                                     () -> routeExpandedPatientRecords(actorSystem, backEnd)),
+                                                                path("MatchesForReview",
+                                                                     () -> routeMatchesForReviewList(actorSystem, backEnd)),
+                                                                path(segment("patient-record").slash(
+                                                                           segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                                     (uid) -> routeFindPatientRecordByUid(
+                                                                           actorSystem, backEnd, uid)),
+                                                                path(segment("golden-record").slash(
+                                                                           segment(Pattern.compile("^[A-z0-9]+$"))),
+                                                                     (uid) -> routeFindGoldenRecordByUid(
+                                                                           actorSystem, backEnd, uid)),
+                                                                path("Candidates",
+                                                                     () -> routeCandidates(actorSystem, backEnd))))))));
    }
 
    private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(
@@ -824,12 +782,15 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
-   private record GoldenRecordCount(Long count) {}
+   private record GoldenRecordCount(Long count) {
+   }
 
-   private record PatientCount(Long count) {}
+   private record PatientCount(Long count) {
+   }
 
    private record NumberOfRecords(
          Long goldenRecords,
-         Long patients) {}
+         Long patients) {
+   }
 
 }
