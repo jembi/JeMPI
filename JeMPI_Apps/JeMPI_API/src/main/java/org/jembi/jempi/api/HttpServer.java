@@ -100,7 +100,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private CompletionStage<BackEnd.EventGetPatientCountRsp> getPatientCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getDocumentCount");
+      LOGGER.debug("getPatientCount");
       CompletionStage<BackEnd.EventGetPatientCountRsp> stage = AskPattern.ask(backEnd,
                                                                               BackEnd.EventGetPatientCountReq::new,
                                                                               java.time.Duration.ofSeconds(10),
@@ -734,7 +734,7 @@ public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                                                       () -> routeGoldenRecordCount(
                                                                                                             actorSystem,
                                                                                                             backEnd)),
-                                                                                                 path("DocumentCount",
+                                                                                                 path("PatientCount",
                                                                                                       () -> routePatientCount(
                                                                                                             actorSystem,
                                                                                                             backEnd)),
