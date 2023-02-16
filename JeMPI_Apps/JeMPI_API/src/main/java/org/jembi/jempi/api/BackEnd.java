@@ -268,7 +268,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventGetExpandedPatientRecordsHandler(final EventGetExpandedPatientRecordsReq request) {
       LOGGER.debug("getExpandedPatients");
       libMPI.startTransaction();
-      final var patients = libMPI.getMpiExpandedPatients(request.uids);
+      final var patients = libMPI.getExpandedPatients(request.uids);
       request.replyTo.tell(new EventGetExpandedPatientRecordsRsp(patients));
       libMPI.closeTransaction();
       return Behaviors.same();

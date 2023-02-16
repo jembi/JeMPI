@@ -95,7 +95,7 @@ public class LibMPI {
       return candidates;
    }
 
-   public List<ExpandedPatientRecord> getMpiExpandedPatients(final List<String> ids) {
+   public List<ExpandedPatientRecord> getExpandedPatients(final List<String> ids) {
       return client.getExpandedPatients(ids);
    }
 
