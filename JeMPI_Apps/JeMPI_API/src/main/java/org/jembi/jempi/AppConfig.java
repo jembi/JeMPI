@@ -42,6 +42,8 @@ public final class AppConfig {
 
    public static final String SESSION_SECRET = CONFIG.getString("akka.http.session.server-secret");
 
+   public static final Boolean AKKA_HTTP_SESSION_ENABLED = CONFIG.getBoolean("akka.http.session.enabled");
+
    private AppConfig() {
    }
 

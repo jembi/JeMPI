@@ -124,9 +124,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.debug("getGoldenIds");
       CompletionStage<BackEnd.EventGetGoldenIdsRsp> stage = AskPattern.ask(backEnd,
-                                                                              BackEnd.EventGetGoldenIdsReq::new,
-                                                                              java.time.Duration.ofSeconds(30),
-                                                                              actorSystem.scheduler());
+                                                                           BackEnd.EventGetGoldenIdsReq::new,
+                                                                           java.time.Duration.ofSeconds(30),
+                                                                           actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -278,22 +278,43 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String uid) {
+      return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
+                    payload -> onComplete(updateGoldenRecord(actorSystem, backEnd, uid, payload), result -> {
+                       if (result.isSuccess()) {
+                          final var updatedFields = result.get().fields();
+                          if (updatedFields.size() == 0) {
+                             return complete(StatusCodes.BAD_REQUEST);
+                          } else {
+                             return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
+                          }
+                       } else {
+                          return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                       }
+                    }));
+   }
+
+
+   private Route routeSessionUpdateGoldenRecord(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String uid) {
       return requiredSession(refreshable, sessionTransport, session -> {
          if (session != null) {
             LOGGER.info("Current session: " + session.getEmail());
-            return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
-                          payload -> onComplete(updateGoldenRecord(actorSystem, backEnd, uid, payload), result -> {
-                             if (result.isSuccess()) {
-                                final var updatedFields = result.get().fields();
-                                if (updatedFields.size() == 0) {
-                                   return complete(StatusCodes.BAD_REQUEST);
-                                } else {
-                                   return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
-                                }
-                             } else {
-                                return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-                             }
-                          }));
+            return routeUpdateGoldenRecord(actorSystem, backEnd, uid);
+//            return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
+//                          payload -> onComplete(updateGoldenRecord(actorSystem, backEnd, uid, payload), result -> {
+//                             if (result.isSuccess()) {
+//                                final var updatedFields = result.get().fields();
+//                                if (updatedFields.size() == 0) {
+//                                   return complete(StatusCodes.BAD_REQUEST);
+//                                } else {
+//                                   return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
+//                                }
+//                             } else {
+//                                return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+//                             }
+//                          }));
          }
          LOGGER.info("No active session");
          return complete(StatusCodes.FORBIDDEN);
@@ -307,15 +328,15 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return parameter("goldenID",
                        goldenID -> parameter("patientID",
                                              patientID -> onComplete(patchUnLink(actorSystem, backEnd, goldenID, patientID),
-                                                                 result -> result.isSuccess()
-                                                                       ? result.get()
-                                                                               .linkInfo()
-                                                                               .mapLeft(this::mapError)
-                                                                               .fold(error -> error,
-                                                                                     linkInfo -> complete(StatusCodes.OK,
-                                                                                                          linkInfo,
-                                                                                                          Jackson.marshaller()))
-                                                                       : complete(StatusCodes.IM_A_TEAPOT))));
+                                                                     result -> result.isSuccess()
+                                                                           ? result.get()
+                                                                                   .linkInfo()
+                                                                                   .mapLeft(this::mapError)
+                                                                                   .fold(error -> error,
+                                                                                         linkInfo -> complete(StatusCodes.OK,
+                                                                                                              linkInfo,
+                                                                                                              Jackson.marshaller()))
+                                                                           : complete(StatusCodes.IM_A_TEAPOT))));
    }
 
    private Route routeLink(
@@ -325,25 +346,28 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                        goldenID -> parameter("newGoldenID",
                                              newGoldenID -> parameter("patientID",
                                                                       patientID -> parameter("score",
-                                                                                         score -> onComplete(patchLink(actorSystem,
-                                                                                                                       backEnd,
-                                                                                                                       goldenID,
-                                                                                                                       newGoldenID,
-                                                                                                                       patientID,
-                                                                                                                       Float.parseFloat(
-                                                                                                                             score)),
-                                                                                                             result -> result.isSuccess()
-                                                                                                                   ? result.get()
-                                                                                                                           .linkInfo()
-                                                                                                                           .mapLeft(
-                                                                                                                                 this::mapError)
-                                                                                                                           .fold(error -> error,
-                                                                                                                                 linkInfo -> complete(
-                                                                                                                                       StatusCodes.OK,
-                                                                                                                                       linkInfo,
-                                                                                                                                       Jackson.marshaller()))
-                                                                                                                   : complete(
-                                                                                                                         StatusCodes.IM_A_TEAPOT))))));
+                                                                                             score -> onComplete(
+                                                                                                   patchLink(
+                                                                                                         actorSystem,
+                                                                                                         backEnd,
+                                                                                                         goldenID,
+                                                                                                         newGoldenID,
+                                                                                                         patientID,
+                                                                                                         Float.parseFloat(
+                                                                                                               score)),
+                                                                                                   result -> result.isSuccess()
+                                                                                                         ?
+                                                                                                         result.get()
+                                                                                                               .linkInfo()
+                                                                                                               .mapLeft(
+                                                                                                                     this::mapError)
+                                                                                                               .fold(error -> error,
+                                                                                                                     linkInfo -> complete(
+                                                                                                                           StatusCodes.OK,
+                                                                                                                           linkInfo,
+                                                                                                                           Jackson.marshaller()))
+                                                                                                         : complete(
+                                                                                                               StatusCodes.IM_A_TEAPOT))))));
    }
 
    private Route routeGoldenRecordCount(
@@ -448,12 +472,24 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String uid) {
+      return onComplete(findPatientRecordByUid(actorSystem, backEnd, uid),
+                        result -> result.isSuccess()
+                              ? complete(StatusCodes.OK, result.get().patient(), Jackson.marshaller())
+                              : complete(StatusCodes.IM_A_TEAPOT));
+   }
+
+   private Route routeSessionFindPatientRecordByUid(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String uid) {
       return requiredSession(refreshable,
                              sessionTransport,
-                             session -> onComplete(findPatientRecordByUid(actorSystem, backEnd, uid),
-                                                   result -> result.isSuccess()
-                                                         ? complete(StatusCodes.OK, result.get().patient(), Jackson.marshaller())
-                                                         : complete(StatusCodes.IM_A_TEAPOT)));
+                             session -> routeFindPatientRecordByUid(actorSystem, backEnd, uid));
+//      onComplete(findPatientRecordByUid(actorSystem, backEnd, uid),
+//                                                   result -> result.isSuccess()
+//                                                         ? complete(StatusCodes.OK, result.get().patient(), Jackson
+//                                                         .marshaller())
+//                                                         : complete(StatusCodes.IM_A_TEAPOT)));
    }
 
    private Route routeCandidates(
@@ -699,7 +735,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                       () -> routeUpload(actorSystem, backEnd)))),
                                                patch(() -> concat(path(segment("golden-record").slash(
                                                                              segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                                       (uid) -> routeUpdateGoldenRecord(
+                                                                       (uid) -> routeSessionUpdateGoldenRecord(
                                                                              actorSystem, backEnd, uid)),
                                                                   path("Unlink",
                                                                        () -> routeUnlink(actorSystem, backEnd)),
@@ -730,8 +766,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                      () -> routeMatchesForReviewList(actorSystem, backEnd)),
                                                                 path(segment("patient-record").slash(
                                                                            segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                                     (uid) -> routeFindPatientRecordByUid(
-                                                                           actorSystem, backEnd, uid)),
+                                                                     (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                                                           ? routeSessionFindPatientRecordByUid(actorSystem,
+                                                                                                                backEnd,
+                                                                                                                uid)
+                                                                           : routeFindPatientRecordByUid(actorSystem,
+                                                                                                         backEnd,
+                                                                                                         uid)),
                                                                 path(segment("golden-record").slash(
                                                                            segment(Pattern.compile("^[A-z0-9]+$"))),
                                                                      (uid) -> routeFindGoldenRecordByUid(
