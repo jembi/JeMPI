@@ -23,8 +23,6 @@ object Main {
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
 
     CustomPatient.generateDemographicData(config.fields)
-//    CustomPatient.generatePatientRecord(config.fields)
-//    CustomPatient.generateGoldenRecord(config.fields)
     CustomMU.generate(config.fields)
     CustomLibMPIConstants.generate(config.fields)
     CustomLibMPIDGraphPatientRecord.generate(config.fields)

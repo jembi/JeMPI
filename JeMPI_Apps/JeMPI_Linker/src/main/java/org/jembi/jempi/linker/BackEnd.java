@@ -42,7 +42,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (libMPI == null) {
          openMPI();
       }
-      topicNotifications = new MyKafkaProducer<>(GlobalConstants.TOPIC_NOTIFICATIONS,
+      topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                 GlobalConstants.TOPIC_NOTIFICATIONS,
                                                  new StringSerializer(), new JsonPojoSerializer<>(),
                                                  AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }

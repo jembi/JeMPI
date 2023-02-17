@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerMU {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerMU"
   private val packageText = "org.jembi.jempi.linker"
 
@@ -80,12 +80,12 @@ object CustomLinkerMU {
       writer.println(
         s"""   void updateMatchSums(
            |         final CustomDemographicData patient,
-           |         final CustomDemographicData customGoldenRecord) {""".stripMargin)
+           |         final CustomDemographicData goldenRecord) {""".stripMargin)
       if (muList.nonEmpty) {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
-            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName(), customGoldenRecord.$fieldName()" +
+            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName(), goldenRecord.$fieldName()" +
               s");")
         })
         writer.println(
@@ -97,11 +97,11 @@ object CustomLinkerMU {
       writer.println(
         s"""   void updateMissmatchSums(
            |         final CustomDemographicData patient,
-           |         final CustomDemographicData customGoldenRecord) {""".stripMargin)
+           |         final CustomDemographicData goldenRecord) {""".stripMargin)
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName(), customGoldenRecord.$fieldName" +
+          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName(), goldenRecord.$fieldName" +
             s"()" +
             s");")
       })

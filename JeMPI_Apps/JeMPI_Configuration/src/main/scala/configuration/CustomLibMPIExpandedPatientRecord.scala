@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomLibMPIExpandedPatientRecord {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomLibMPIExpandedPatientRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
@@ -47,7 +47,7 @@ private object CustomLibMPIExpandedPatientRecord {
         |      return new ExpandedPatientRecord(this.toPatientRecord(),
         |                                       this.dgraphGoldenRecordList()
         |                                           .stream()
-        |                                           .map(CustomLibMPIDGraphGoldenRecord::toRatedGoldenRecord)
+        |                                           .map(CustomLibMPIDGraphGoldenRecord::toGoldenRecordWithScore)
         |                                           .toList());
         |   }
         |""".stripMargin)

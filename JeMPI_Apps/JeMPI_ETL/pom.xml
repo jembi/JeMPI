@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.jembi.jempi.etl</groupId>
-    <artifactId>ETL</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>org.jembi.jempi</groupId>
         <artifactId>JeMPI</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../parent.xml</relativePath>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>ETL</artifactId>
+    <packaging>jar</packaging>
+
     <properties>
-        <start-class>${project.groupId}.Main</start-class>
+        <start-class>${project.groupId}.etl.Main</start-class>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.jembi.jempi</groupId>
+            <artifactId>JeMPI_Shared</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -137,7 +138,7 @@
             <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
         <!--        <dependency>-->
         <!--            <groupId>org.slf4j</groupId>-->
         <!--            <artifactId>slf4j-simple</artifactId>-->
@@ -244,6 +245,25 @@
                 <version>${version.org.apache.maven.plugins.maven-failsafe-plugin}</version>
             </plugin>
 
+            <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-checkstyle-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-checkstyle-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <suppressionsLocation>checkstyle/suppression.xml</suppressionsLocation>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -262,6 +282,35 @@
             </plugin>
 
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-enforcer-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>enforce</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
     </build>
 

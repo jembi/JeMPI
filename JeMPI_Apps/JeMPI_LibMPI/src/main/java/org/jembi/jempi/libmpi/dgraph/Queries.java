@@ -84,7 +84,7 @@ final class Queries {
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return patientList.get(0).toRatedPatientRecord().patientRecord();
+      return patientList.get(0).toPatientRecordWithScore().patientRecord();
    }
 
    static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {
@@ -127,7 +127,7 @@ final class Queries {
       return List.of();
    }
 
-   static List<String> getGoldenIdList() {
+   static List<String> getGoldenIds() {
       final String query = """
                            query recordGoldenId() {
                              list(func: type(GoldenRecord)) {
@@ -200,10 +200,10 @@ final class Queries {
       return candidateGoldenRecords;
    }
 
-   static List<CustomLibMPIExpandedGoldenRecord> getExpandedGoldenRecordList(final List<String> idList) {
+   static List<CustomLibMPIExpandedGoldenRecord> getExpandedGoldenRecordList(final List<String> ids) {
       final String query = String.format(
             CustomLibMPIConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS,
-            String.join(",", idList));
+            String.join(",", ids));
       final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, LibMPIExpandedGoldenRecords.class);
@@ -214,9 +214,9 @@ final class Queries {
       }
    }
 
-   static List<CustomLibMPIExpandedPatientRecord> getExpandedPatientRecords(final List<String> idList) {
+   static List<CustomLibMPIExpandedPatientRecord> getExpandedPatientRecords(final List<String> ids) {
       final String query = String.format(CustomLibMPIConstants.QUERY_GET_EXPANDED_PATIENTS,
-                                         String.join(",", idList));
+                                         String.join(",", ids));
       final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, LibMPIExpandedPatientRecords.class);
@@ -234,8 +234,8 @@ final class Queries {
 
    private static List<String> getRecordFieldNamesByType(final RecordType recordType) {
       List<String> fieldNames = new ArrayList<String>();
-      Class C = CustomDemographicData.class;
-      Field[] fields = C.getDeclaredFields();
+      // Class C = CustomDemographicData.class;
+      Field[] fields = CustomDemographicData.class.getDeclaredFields();
       fieldNames.add("uid");
       for (Field field : fields) {
          fieldNames.add(recordType + "." + camelToSnake(field.getName()));

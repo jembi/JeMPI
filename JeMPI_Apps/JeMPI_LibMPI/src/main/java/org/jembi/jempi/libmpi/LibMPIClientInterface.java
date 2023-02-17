@@ -47,11 +47,11 @@ public interface LibMPIClientInterface {
          CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
 
-   List<ExpandedPatientRecord> getExpandedPatients(List<String> idList);
+   List<ExpandedPatientRecord> getExpandedPatients(List<String> ids);
 
-   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> idList);
+   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> ids);
 
-   List<String> getGoldenIdList();
+   List<String> getGoldenIds();
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,

@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerBackEnd {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerBackEnd"
   private val packageText = "org.jembi.jempi.linker"
 

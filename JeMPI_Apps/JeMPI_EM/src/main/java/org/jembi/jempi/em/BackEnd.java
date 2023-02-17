@@ -12,16 +12,16 @@ import org.jembi.jempi.shared.models.BatchPatientRecord;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class BackEnd extends AbstractBehavior<BackEnd.Event> {
+public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
 
    private final Executor ec;
-   private long receivedCount = 0L;  // TODO: do not start from beginning of time - start from (currentOffset - 10000)
-   private long processedCount = 0L; // TODO:                              "
+   private long receivedCount = 0L;
+   private long processedCount = 0L;
    private boolean taskBusy = false;
 
-   private BackEnd(ActorContext<Event> context) {
+   private BackEnd(final ActorContext<Event> context) {
       super(context);
       ec = context
             .getSystem()
@@ -42,7 +42,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .build();
    }
 
-   private void doWork(boolean newRecord) {
+   private void doWork(final boolean newRecord) {
       if (newRecord) {
          receivedCount += 1;
       }
@@ -74,13 +74,13 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
    }
 
-   private Behavior<Event> eventPatientReqHandler(EventPatientReq request) {
+   private Behavior<Event> eventPatientReqHandler(final EventPatientReq request) {
       doWork(true);
       request.replyTo.tell(new BackEnd.EventPatientRsp(true));
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventWorkTimeReqHandler(EventWorkTimeReq request) {
+   private Behavior<Event> eventWorkTimeReqHandler(final EventWorkTimeReq request) {
       doWork(false);
       return Behaviors.same();
    }

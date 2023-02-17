@@ -51,11 +51,6 @@ public final class Main {
                   AppConfig.KAFKA_APPLICATION_ID_MU,
                   AppConfig.KAFKA_CLIENT_ID_MU);
 
-      var hello1 = new HelloScala().hello();
-      var hello2 = HelloScala$.MODULE$.hello();
-      var hello3 = HelloScala$.MODULE$.hallo();
-      LOGGER.debug("{} {} {}", hello1, hello2, hello3);
-
       ActorSystem.create(this.create(), "LinkerApp");
    }
 

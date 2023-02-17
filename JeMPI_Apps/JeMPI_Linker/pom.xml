@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.jembi.jempi</groupId>
         <artifactId>JeMPI</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../parent.xml</relativePath>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jembi.jempi.linker</groupId>
     <artifactId>Linker</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <start-class>${project.groupId}.Main</start-class>
+        <start-class>${project.groupId}.linker.Main</start-class>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.jembi.jempi</groupId>
+            <artifactId>JeMPI_Shared</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jembi.jempi</groupId>
+            <artifactId>JeMPI_LibMPI</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>io.vavr</groupId>
@@ -107,11 +114,11 @@
             <version>${version.org.apache.commons.commons-text}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>${version.com.opencsv.opencsv}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.opencsv</groupId>-->
+<!--            <artifactId>opencsv</artifactId>-->
+<!--            <version>${version.com.opencsv.opencsv}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>io.dgraph</groupId>
@@ -161,15 +168,10 @@
             <version>${version.org.apache.logging.log4j.log4j-slf4j-impl}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jembi.jempi.libmpi</groupId>
-            <artifactId>LibMPI</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
     <build>
+
         <plugins>
 
             <plugin>
@@ -286,6 +288,7 @@
                 </executions>
             </plugin>
 
+<!--
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
@@ -315,6 +318,7 @@
                     </execution>
                 </executions>
             </plugin>
+-->
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -334,6 +338,35 @@
             </plugin>
 
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-enforcer-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>enforce</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>       
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
     </build>
 

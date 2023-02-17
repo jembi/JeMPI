@@ -3,23 +3,25 @@
 set -e
 set -u
 
-pushd JeMPI_LibMPI
-  ./build.sh || exit 1
-popd
+mvn clean package
 
-pushd JeMPI_FHIRsyncSender
-  mvn clean
-  mvn package
-popd
+#pushd JeMPI_LibMPI
+#  ./build.sh || exit 1
+#popd
 
-pushd JeMPI_Stats
-  mvn clean
-  mvn package
-popd
-pushd JeMPI_EM_Ref
-  mvn clean
-  mvn package
-popd
+#pushd JeMPI_FHIRsyncSender
+#  mvn clean
+#  mvn package
+#popd
+
+#pushd JeMPI_Stats
+#  mvn clean
+#  mvn package
+#popd
+#pushd JeMPI_EM_Ref
+#  mvn clean
+#  mvn package
+#popd
 
 pushd JeMPI_AsyncReceiver
   ./build.sh || exit 1

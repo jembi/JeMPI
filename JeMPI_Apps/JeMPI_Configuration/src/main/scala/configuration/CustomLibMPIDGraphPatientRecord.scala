@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomLibMPIDGraphPatientRecord {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomLibMPIDGraphPatientRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
@@ -19,7 +19,7 @@ private object CustomLibMPIDGraphPatientRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.shared.models.RatedPatientRecord;
+         |import org.jembi.jempi.shared.models.PatientRecordWithScore;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.PatientRecord;
          |
@@ -68,8 +68,8 @@ private object CustomLibMPIDGraphPatientRecord {
     writer.println("   }")
     writer.println(
       """
-        |   RatedPatientRecord toRatedPatientRecord() {
-        |      return new RatedPatientRecord(toPatientRecord(), this.score());
+        |   PatientRecordWithScore toPatientRecordWithScore() {
+        |      return new PatientRecordWithScore(toPatientRecord(), this.score());
         |   }""".stripMargin)
     writer.println(
       """

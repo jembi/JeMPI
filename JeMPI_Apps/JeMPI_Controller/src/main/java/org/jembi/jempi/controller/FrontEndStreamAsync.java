@@ -20,7 +20,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
 
-public class FrontEndStreamAsync {
+public final class FrontEndStreamAsync {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamAsync.class);
    private MyKafkaProducer<String, BatchPatientRecord> topicEM;
@@ -43,7 +43,8 @@ public class FrontEndStreamAsync {
       final KStream<String, BatchPatientRecord> batchPatientRecordKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_CONTROLLER,
             Consumed.with(stringSerde, batchPatientRecordSerde));
-      topicEM = new MyKafkaProducer<>(GlobalConstants.TOPIC_PATIENT_EM,
+      topicEM = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                      GlobalConstants.TOPIC_PATIENT_EM,
                                       new StringSerializer(), new JsonPojoSerializer<>(),
                                       AppConfig.KAFKA_CLIENT_ID);
       batchPatientRecordKStream

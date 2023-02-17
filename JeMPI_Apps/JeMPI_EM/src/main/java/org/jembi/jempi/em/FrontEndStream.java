@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class FrontEndStream {
+public final class FrontEndStream {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStream.class);
    private KafkaStreams patientKafkaStreams;
