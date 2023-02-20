@@ -17,6 +17,7 @@
       "fieldName": "given_name",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
+      "indexEntity": "@index(exact,trigram)",
       "m": 0.782501,
       "u": 0.02372,
       "fieldLabel": "First Name",
