@@ -302,19 +302,6 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          if (session != null) {
             LOGGER.info("Current session: " + session.getEmail());
             return routeUpdateGoldenRecord(actorSystem, backEnd, uid);
-//            return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
-//                          payload -> onComplete(updateGoldenRecord(actorSystem, backEnd, uid, payload), result -> {
-//                             if (result.isSuccess()) {
-//                                final var updatedFields = result.get().fields();
-//                                if (updatedFields.size() == 0) {
-//                                   return complete(StatusCodes.BAD_REQUEST);
-//                                } else {
-//                                   return complete(StatusCodes.OK, result.get(), Jackson.marshaller());
-//                                }
-//                             } else {
-//                                return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-//                             }
-//                          }));
          }
          LOGGER.info("No active session");
          return complete(StatusCodes.FORBIDDEN);
@@ -485,11 +472,6 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return requiredSession(refreshable,
                              sessionTransport,
                              session -> routeFindPatientRecordByUid(actorSystem, backEnd, uid));
-//      onComplete(findPatientRecordByUid(actorSystem, backEnd, uid),
-//                                                   result -> result.isSuccess()
-//                                                         ? complete(StatusCodes.OK, result.get().patient(), Jackson
-//                                                         .marshaller())
-//                                                         : complete(StatusCodes.IM_A_TEAPOT)));
    }
 
    private Route routeCandidates(

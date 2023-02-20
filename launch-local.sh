@@ -30,9 +30,6 @@ fi
 pushd ./docker/ || exit
     ./a-images-1-pull-from-hub.sh
 popd || exit
-# pushd ./JeMPI_Apps/JeMPI_LibMPI
-#   ./build.sh || exit 1
-# popd
 pushd ./JeMPI_Apps/JeMPI_AsyncReceiver
   ./build.sh || exit 1
 popd

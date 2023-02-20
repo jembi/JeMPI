@@ -114,12 +114,6 @@
             <version>${version.org.apache.commons.commons-text}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.opencsv</groupId>-->
-<!--            <artifactId>opencsv</artifactId>-->
-<!--            <version>${version.com.opencsv.opencsv}</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>io.dgraph</groupId>
             <artifactId>dgraph4j</artifactId>
@@ -287,38 +281,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-<!--
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>${version.net.alchim31.maven.scala-maven-plugin}</version>
-                <executions>
-                    <execution>
-                        <id>scala-compile</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <args>
-                                <arg>-verbose</arg>
-                                <arg>-unchecked</arg>
-                                <arg>-deprecation</arg>
-                                <arg>-feature</arg>
-                                <arg>-explaintypes</arg>
-                                <arg>-target:${maven.compiler.target}</arg>
-                            </args>
-                            <scalaVersion>
-                                ${scala.version}
-                            </scalaVersion>
-                            <compileOrder>ScalaThenJava</compileOrder>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
--->
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
