@@ -662,23 +662,29 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
+      LOGGER.info("Simple search on {}", recordType);
+      return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class), searchParameters -> onComplete(() -> {
+         if (recordType == RecordType.GoldenRecord) {
+            return simpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+         } else {
+            return simpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
+         }
+      }, response -> {
+         if (response.isSuccess()) {
+            final var eventSearchRsp = response.get();
+            return complete(StatusCodes.OK, eventSearchRsp, Jackson.marshaller());
+         } else {
+            return complete(StatusCodes.IM_A_TEAPOT);
+         }
+      }));
+   }
+
+   private Route routeSessionSimpleSearch(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final RecordType recordType) {
       return requiredSession(refreshable, sessionTransport, session -> {
-         LOGGER.info("Simple search on {}", recordType);
-         // Simple search for golden records
-         return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class), searchParameters -> onComplete(() -> {
-            if (recordType == RecordType.GoldenRecord) {
-               return simpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
-            } else {
-               return simpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
-            }
-         }, response -> {
-            if (response.isSuccess()) {
-               final var eventSearchRsp = response.get();
-               return complete(StatusCodes.OK, eventSearchRsp, Jackson.marshaller());
-            } else {
-               return complete(StatusCodes.IM_A_TEAPOT);
-            }
-         }));
+         return routeSimpleSearch(actorSystem, backEnd, recordType);
       });
    }
 
@@ -733,11 +739,14 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                  path(segment("search").slash(
                                                                             segment(Pattern.compile(
                                                                                   "^(golden|patient)$"))),
-                                                                      (type) -> routeSimpleSearch(
-                                                                            actorSystem, backEnd,
-                                                                            type.equals("golden")
-                                                                                  ? RecordType.GoldenRecord
-                                                                                  : RecordType.PatientRecord)),
+                                                                      (type) -> {
+                                                                         final var t = type.equals("golden")
+                                                                               ? RecordType.GoldenRecord
+                                                                               : RecordType.PatientRecord;
+                                                                         return AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                                                               ? routeSessionSimpleSearch(actorSystem, backEnd, t)
+                                                                               : routeSimpleSearch(actorSystem, backEnd, t);
+                                                                      }),
                                                                  path(segment("custom-search").slash(
                                                                             segment(Pattern.compile("^(golden|patient)$"))),
                                                                       (type) -> {
