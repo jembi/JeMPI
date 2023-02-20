@@ -48,27 +48,27 @@ public final class CustomLinkerMU {
 
    void updateMatchSums(
          final CustomDemographicData patient,
-         final CustomDemographicData customGoldenRecord) {
-      updateMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
-      updateMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
-      updateMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());
-      updateMatchedPair(fields.dob, patient.dob(), customGoldenRecord.dob());
-      updateMatchedPair(fields.city, patient.city(), customGoldenRecord.city());
-      updateMatchedPair(fields.phoneNumber, patient.phoneNumber(), customGoldenRecord.phoneNumber());
-      updateMatchedPair(fields.nationalId, patient.nationalId(), customGoldenRecord.nationalId());
+         final CustomDemographicData goldenRecord) {
+      updateMatchedPair(fields.givenName, patient.givenName(), goldenRecord.givenName());
+      updateMatchedPair(fields.familyName, patient.familyName(), goldenRecord.familyName());
+      updateMatchedPair(fields.gender, patient.gender(), goldenRecord.gender());
+      updateMatchedPair(fields.dob, patient.dob(), goldenRecord.dob());
+      updateMatchedPair(fields.city, patient.city(), goldenRecord.city());
+      updateMatchedPair(fields.phoneNumber, patient.phoneNumber(), goldenRecord.phoneNumber());
+      updateMatchedPair(fields.nationalId, patient.nationalId(), goldenRecord.nationalId());
       LOGGER.debug("{}", fields);
    }
 
    void updateMissmatchSums(
          final CustomDemographicData patient,
-         final CustomDemographicData customGoldenRecord) {
-      updateUnMatchedPair(fields.givenName, patient.givenName(), customGoldenRecord.givenName());
-      updateUnMatchedPair(fields.familyName, patient.familyName(), customGoldenRecord.familyName());
-      updateUnMatchedPair(fields.gender, patient.gender(), customGoldenRecord.gender());
-      updateUnMatchedPair(fields.dob, patient.dob(), customGoldenRecord.dob());
-      updateUnMatchedPair(fields.city, patient.city(), customGoldenRecord.city());
-      updateUnMatchedPair(fields.phoneNumber, patient.phoneNumber(), customGoldenRecord.phoneNumber());
-      updateUnMatchedPair(fields.nationalId, patient.nationalId(), customGoldenRecord.nationalId());
+         final CustomDemographicData goldenRecord) {
+      updateUnMatchedPair(fields.givenName, patient.givenName(), goldenRecord.givenName());
+      updateUnMatchedPair(fields.familyName, patient.familyName(), goldenRecord.familyName());
+      updateUnMatchedPair(fields.gender, patient.gender(), goldenRecord.gender());
+      updateUnMatchedPair(fields.dob, patient.dob(), goldenRecord.dob());
+      updateUnMatchedPair(fields.city, patient.city(), goldenRecord.city());
+      updateUnMatchedPair(fields.phoneNumber, patient.phoneNumber(), goldenRecord.phoneNumber());
+      updateUnMatchedPair(fields.nationalId, patient.nationalId(), goldenRecord.nationalId());
       LOGGER.debug("{}", fields);
    }
 
