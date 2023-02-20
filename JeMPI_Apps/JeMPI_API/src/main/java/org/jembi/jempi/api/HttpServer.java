@@ -83,7 +83,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final JSONArray fields) {
       final Http http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(this.createRoutes(actorSystem, backEnd, fields));
+                    .bind(AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                ? this.createCorsRoutes(actorSystem, backEnd, fields)
+                                : this.createRoutes(actorSystem, backEnd, fields));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
@@ -683,9 +685,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
-      return requiredSession(refreshable, sessionTransport, session -> {
-         return routeSimpleSearch(actorSystem, backEnd, recordType);
-      });
+      return requiredSession(refreshable, sessionTransport, session -> routeSimpleSearch(actorSystem, backEnd, recordType));
    }
 
    private Route routeCustomSearch(
@@ -719,93 +719,88 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       });
    }
 
+   private Route createJeMPIRoutes(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final JSONArray fields) {
+      return concat(
+            post(() -> concat(path("NotificationRequest", () -> routeNotificationRequest(actorSystem, backEnd)),
+                              path(segment("search").slash(segment(Pattern.compile("^(golden|patient)$"))),
+                                   (type) -> {
+                                      final var t = type.equals("golden")
+                                            ? RecordType.GoldenRecord
+                                            : RecordType.PatientRecord;
+                                      return AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                            ? routeSessionSimpleSearch(actorSystem, backEnd, t)
+                                            : routeSimpleSearch(actorSystem, backEnd, t);
+                                   }),
+                              path(segment("custom-search").slash(segment(Pattern.compile("^(golden|patient)$"))),
+                                   (type) -> {
+                                      final var t = type.equals("golden")
+                                            ? RecordType.GoldenRecord
+                                            : RecordType.PatientRecord;
+                                      return AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                            ? routeSessionCustomSearch(actorSystem, backEnd, t)
+                                            : routeCustomSearch(actorSystem, backEnd, t);
+                                   }),
+                              path("upload", () -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                    ? routeSessionUpload(actorSystem, backEnd)
+                                    : routeUpload(actorSystem, backEnd)))),
+            patch(() -> concat(
+                  path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                       (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                             ? routeSessionUpdateGoldenRecord(actorSystem, backEnd, uid)
+                             : routeUpdateGoldenRecord(actorSystem, backEnd, uid)),
+                  path("Unlink", () -> routeUnlink(actorSystem, backEnd)),
+                  path("Link", () -> routeLink(actorSystem, backEnd)))),
+            get(() -> concat(
+                  path("current-user", this::routeCurrentUser),
+                  path("logout", this::routeLogout),
+                  path("GoldenRecordCount", () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                  path("DocumentCount", () -> routePatientCount(actorSystem, backEnd)),
+                  path("NumberOfRecords", () -> routeNumberOfRecords(actorSystem, backEnd)),
+                  path("GoldenIdList", () -> routeGoldenIds(actorSystem, backEnd)),
+                  path("GoldenRecord", () -> routeGoldenRecord(actorSystem, backEnd)),
+                  path("ExpandedGoldenRecords", () -> routeExpandedGoldenRecords(actorSystem, backEnd)),
+                  path("ExpandedPatientRecords", () -> routeExpandedPatientRecords(actorSystem, backEnd)),
+                  path("MatchesForReview", () -> routeMatchesForReviewList(actorSystem, backEnd)),
+                  path(segment("patient-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                       (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                             ? routeSessionFindPatientRecordByUid(actorSystem, backEnd, uid)
+                             : routeFindPatientRecordByUid(actorSystem, backEnd, uid)),
+                  path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                       (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                             ? routeSessionFindGoldenRecordByUid(actorSystem, backEnd, uid)
+                             : routeFindGoldenRecordByUid(actorSystem, backEnd, uid)),
+                  path("Candidates", () -> routeCandidates(actorSystem, backEnd)))));
+   }
+
    private Route createRoutes(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final JSONArray fields) {
+      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd, fields));
+   }
+
+   private Route createCorsRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final JSONArray fields) {
       final var settings = CorsSettings.create(AppConfig.CONFIG);
       CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
-      return cors(settings,
-                  () -> randomTokenCsrfProtection(
-                        checkHeader,
-                        () -> pathPrefix("JeMPI",
-                                         () -> concat(
-                                               post(() -> concat(path("NotificationRequest",
-                                                                      () -> routeNotificationRequest(
-                                                                            actorSystem, backEnd)),
-                                                                 path("authenticate",
-                                                                      () -> routeLoginWithKeycloakRequest(
-                                                                            actorSystem, backEnd, checkHeader)),
-                                                                 path(segment("search").slash(
-                                                                            segment(Pattern.compile(
-                                                                                  "^(golden|patient)$"))),
-                                                                      (type) -> {
-                                                                         final var t = type.equals("golden")
-                                                                               ? RecordType.GoldenRecord
-                                                                               : RecordType.PatientRecord;
-                                                                         return AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                                                               ? routeSessionSimpleSearch(actorSystem, backEnd, t)
-                                                                               : routeSimpleSearch(actorSystem, backEnd, t);
-                                                                      }),
-                                                                 path(segment("custom-search").slash(
-                                                                            segment(Pattern.compile("^(golden|patient)$"))),
-                                                                      (type) -> {
-                                                                         final var t = type.equals("golden")
-                                                                               ? RecordType.GoldenRecord
-                                                                               : RecordType.PatientRecord;
-                                                                         return AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                                                               ? routeSessionCustomSearch(actorSystem, backEnd, t)
-                                                                               : routeCustomSearch(actorSystem, backEnd, t);
-                                                                      }),
-                                                                 path("upload",
-                                                                      () -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                                                            ? routeSessionUpload(actorSystem, backEnd)
-                                                                            : routeUpload(actorSystem, backEnd)))),
-                                               patch(() -> concat(
-                                                     path(segment("golden-record")
-                                                                .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                          (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                                                ? routeSessionUpdateGoldenRecord(actorSystem, backEnd, uid)
-                                                                : routeUpdateGoldenRecord(actorSystem, backEnd, uid)),
-                                                     path("Unlink",
-                                                          () -> routeUnlink(actorSystem, backEnd)),
-                                                     path("Link",
-                                                          () -> routeLink(actorSystem, backEnd)))),
-                                               get(() -> concat(
-                                                     path("config",
-                                                          () -> setNewCsrfToken(checkHeader,
-                                                                                () -> complete(StatusCodes.OK,
-                                                                                               fields.toJSONString()))),
-                                                     path("current-user", this::routeCurrentUser),
-                                                     path("logout", this::routeLogout),
-                                                     path("GoldenRecordCount",
-                                                          () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                                                     path("DocumentCount",
-                                                          () -> routePatientCount(actorSystem, backEnd)),
-                                                     path("NumberOfRecords",
-                                                          () -> routeNumberOfRecords(actorSystem, backEnd)),
-                                                     path("GoldenIdList",
-                                                          () -> routeGoldenIds(actorSystem, backEnd)),
-                                                     path("GoldenRecord",
-                                                          () -> routeGoldenRecord(actorSystem, backEnd)),
-                                                     path("ExpandedGoldenRecords",
-                                                          () -> routeExpandedGoldenRecords(actorSystem, backEnd)),
-                                                     path("ExpandedPatientRecords",
-                                                          () -> routeExpandedPatientRecords(actorSystem, backEnd)),
-                                                     path("MatchesForReview",
-                                                          () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                                     path(segment("patient-record")
-                                                                .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                          (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                                                ? routeSessionFindPatientRecordByUid(actorSystem, backEnd, uid)
-                                                                : routeFindPatientRecordByUid(actorSystem, backEnd, uid)),
-                                                     path(segment("golden-record")
-                                                                .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                                                          (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                                                ? routeSessionFindGoldenRecordByUid(actorSystem, backEnd, uid)
-                                                                : routeFindGoldenRecordByUid(actorSystem, backEnd, uid)),
-                                                     path("Candidates",
-                                                          () -> routeCandidates(actorSystem, backEnd))))))));
+      return cors(
+            settings,
+            () -> randomTokenCsrfProtection(
+                  checkHeader,
+                  () -> pathPrefix("JeMPI",
+                                   () -> concat(
+                                         createJeMPIRoutes(actorSystem, backEnd, fields),
+                                         post(() -> path("authenticate",
+                                                         () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader))),
+                                         get(() -> path("config",
+                                                        () -> setNewCsrfToken(
+                                                              checkHeader,
+                                                              () -> complete(StatusCodes.OK, fields.toJSONString()))))))));
    }
 
    private CompletionStage<BackEnd.EventNotificationRequestRsp> postNotificationRequest(
@@ -828,8 +823,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final OAuthCodeRequestPayload body) {
       CompletionStage<BackEnd.EventLoginWithKeycloakResponse> stage = AskPattern.ask(backEnd,
                                                                                      replyTo -> new BackEnd.EventLoginWithKeycloakRequest(
-                                                                                           replyTo,
-                                                                                           body),
+                                                                                           replyTo, body),
                                                                                      java.time.Duration.ofSeconds(11),
                                                                                      actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -842,9 +836,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final File file) {
       CompletionStage<BackEnd.EventPostCsvFileResponse> stage = AskPattern.ask(backEnd,
                                                                                replyTo -> new BackEnd.EventPostCsvFileRequest(
-                                                                                     replyTo,
-                                                                                     info,
-                                                                                     file),
+                                                                                     replyTo, info, file),
                                                                                java.time.Duration.ofSeconds(11),
                                                                                actorSystem.scheduler());
       return stage.thenApply(response -> response);
