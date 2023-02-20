@@ -753,8 +753,8 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                             ? routeSessionUpload(actorSystem, backEnd)
                                                                             : routeUpload(actorSystem, backEnd)))),
                                                patch(() -> concat(
-                                                     path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9" +
-                                                                                                                 "]+$"))),
+                                                     path(segment("golden-record")
+                                                                .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                                           (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                                                 ? routeSessionUpdateGoldenRecord(actorSystem, backEnd, uid)
                                                                 : routeUpdateGoldenRecord(actorSystem, backEnd, uid)),
@@ -785,13 +785,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                           () -> routeExpandedPatientRecords(actorSystem, backEnd)),
                                                      path("MatchesForReview",
                                                           () -> routeMatchesForReviewList(actorSystem, backEnd)),
-                                                     path(segment("patient-record").slash(segment(Pattern.compile("^[A-z0-9" +
-                                                                                                                  "]+$"))),
+                                                     path(segment("patient-record")
+                                                                .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                                           (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                                                 ? routeSessionFindPatientRecordByUid(actorSystem, backEnd, uid)
                                                                 : routeFindPatientRecordByUid(actorSystem, backEnd, uid)),
-                                                     path(segment("golden-record").slash(segment(Pattern.compile("^[A-z0-9" +
-                                                                                                                 "]+$"))),
+                                                     path(segment("golden-record")
+                                                                .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                                           (uid) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                                                 ? routeSessionFindGoldenRecordByUid(actorSystem, backEnd, uid)
                                                                 : routeFindGoldenRecordByUid(actorSystem, backEnd, uid)),
