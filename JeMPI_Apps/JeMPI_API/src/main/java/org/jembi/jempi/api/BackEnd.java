@@ -47,14 +47,20 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
 
    private static LibMPI libMPI = null;
-   private final AkkaAdapterConfig keycloakConfig;
-   private final KeycloakDeployment keycloak;
+   private AkkaAdapterConfig keycloakConfig = null;
+   private KeycloakDeployment keycloak = null;
+   private static PsqlQueries psql = new PsqlQueries();
+
 
    private BackEnd(ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
          openMPI();
       }
+
+
+
+
       // Init keycloak
       ClassLoader classLoader = getClass().getClassLoader();
       InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
@@ -67,6 +73,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.setup(BackEnd::new);
    }
 
+   private BackEnd(ActorContext<Event> context, LibMPI libMPI) {
+      super(context);
+      this.libMPI = libMPI;
+   }
+
+   public static Behavior<Event> create(LibMPI lib) {
+      return Behaviors.setup(context -> new BackEnd(context, lib));
+   }
+
+
    private static void openMPI() {
       final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
                                     AppConfig.DGRAPH_ALPHA3_HOST};
@@ -74,6 +90,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                  AppConfig.DGRAPH_ALPHA3_PORT};
       libMPI = new LibMPI(host, port);
    }
+
 
    @Override
    public Receive<Event> createReceive() {
@@ -211,7 +228,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
       LOGGER.debug("getMatchesForReview");
-      var recs = PsqlQueries.getMatchesForReview();
+      var recs = psql.getMatchesForReview();
       request.replyTo.tell(new EventGetMatchesForReviewListRsp(recs));
       return Behaviors.same();
    }
@@ -293,6 +310,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("findPatientByUidEventHandler");
       libMPI.startTransaction();
       final var patient = libMPI.getDocument(request.uid);
+      LOGGER.debug(patient + "  I want custom entity here");
       request.replyTo.tell(new EventFindPatientRecordByUidResponse(patient));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -448,7 +466,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record EventFindPatientRecordByUidResponse(CustomEntity document)
-         implements EventResponse {
+           implements EventResponse, Event {
    }
 
    public record EventUpdateGoldenRecordRequest(ActorRef<EventUpdateGoldenRecordResponse> replyTo,

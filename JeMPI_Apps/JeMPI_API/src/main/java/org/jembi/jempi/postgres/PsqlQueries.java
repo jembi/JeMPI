@@ -27,7 +27,7 @@ public class PsqlQueries {
             "JOIN match M ON M.notification_id = N.id";
     private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
 
-    public static List getMatchesForReview() {
+    public List getMatchesForReview() {
 
         ArrayList list = new ArrayList();
 
