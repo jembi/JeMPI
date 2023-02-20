@@ -6,7 +6,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomMU {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/shared/models"
   private val customClassName = "CustomMU"
   private val packageSharedModels = "org.jembi.jempi.shared.models"
 
@@ -64,7 +64,8 @@ private object CustomMU {
     writer.println(
       s"""   }
          |
-         |   public record Probability(float m, float u) {}
+         |   public record Probability(float m, float u) {
+         |   }
          |
          |}""".stripMargin)
     writer.flush()

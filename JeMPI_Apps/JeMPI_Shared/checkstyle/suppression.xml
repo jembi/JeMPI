@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+
+    <suppress
+            checks="(JavadocMethod|JavadocVariable|JavadocStyle|JavadocPackage|JavadocType)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(LineLength|AvoidStarImport|MagicNumber)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(ParameterName|VisibilityModifier)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(RegexpSingleline)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(LocalVariableName|HiddenField)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(ParameterNumber)"
+            files="MyKafkaConsumerByPartition.java"
+    />
+
+
+
+</suppressions>

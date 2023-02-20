@@ -13,7 +13,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchEntity;
+import org.jembi.jempi.shared.models.BatchPatientRecord;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -24,71 +24,73 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class FrontEndStream {
+public final class FrontEndStream {
 
-    private static final Logger LOGGER = LogManager.getLogger(FrontEndStream.class);
-    private KafkaStreams patientKafkaStreams;
+   private static final Logger LOGGER = LogManager.getLogger(FrontEndStream.class);
+   private KafkaStreams patientKafkaStreams;
 
-    FrontEndStream() {
-        LOGGER.info("FrontEndStream constructor");
-    }
+   FrontEndStream() {
+      LOGGER.info("FrontEndStream constructor");
+   }
 
-    void addEntity(final ActorSystem<Void> system,
-                   final ActorRef<BackEnd.Event> backEnd,
-                   final String key,
-                   final BatchEntity batchEntity) {
-        if (batchEntity.entityType() == BatchEntity.EntityType.BATCH_RECORD) {
-            final CompletionStage<BackEnd.EventEntityRsp> result =
-                    AskPattern.ask(
-                            backEnd,
-                            replyTo -> new BackEnd.EventEntityReq(key, batchEntity, replyTo),
-                            java.time.Duration.ofSeconds(3),
-                            system.scheduler());
-            final var completableFuture = result.toCompletableFuture();
-            try {
-                final var reply = completableFuture.get(5, TimeUnit.SECONDS);
-                if (reply != null) {
-                    if (!reply.result()) {
-                        LOGGER.error("BACK END RESPONSE(ERROR)");
-                    }
-                } else {
-                    LOGGER.error("Incorrect class response");
-                }
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                LOGGER.error(e.getMessage());
+   void addPatient(
+         final ActorSystem<Void> system,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String key,
+         final BatchPatientRecord batchPatientRecord) {
+      if (batchPatientRecord.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT) {
+         final CompletionStage<BackEnd.EventPatientRsp> result =
+               AskPattern.ask(
+                     backEnd,
+                     replyTo -> new BackEnd.EventPatientReq(key, batchPatientRecord, replyTo),
+                     java.time.Duration.ofSeconds(3),
+                     system.scheduler());
+         final var completableFuture = result.toCompletableFuture();
+         try {
+            final var reply = completableFuture.get(5, TimeUnit.SECONDS);
+            if (reply != null) {
+               if (!reply.result()) {
+                  LOGGER.error("BACK END RESPONSE(ERROR)");
+               }
+            } else {
+               LOGGER.error("Incorrect class response");
             }
-        }
-    }
+         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOGGER.error(e.getMessage());
+         }
+      }
+   }
 
-    public void open(final ActorSystem<Void> system,
-                     final ActorRef<BackEnd.Event> backEnd) {
-        LOGGER.info("EM Stream Processor");
-        final Properties props = loadConfig();
-        final Serde<String> stringSerde = Serdes.String();
-        final Serde<BatchEntity> batchEntitySerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
-                                                                     new JsonPojoDeserializer<>(BatchEntity.class));
-        final StreamsBuilder streamsBuilder = new StreamsBuilder();
-        final KStream<String, BatchEntity> entityStream = streamsBuilder.stream(
-                GlobalConstants.TOPIC_PATIENT_EM,
-                Consumed.with(stringSerde, batchEntitySerde));
-        entityStream.foreach((key, entity) -> addEntity(system, backEnd, key, entity));
-        patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
-        patientKafkaStreams.cleanUp();
-        patientKafkaStreams.start();
-        LOGGER.info("KafkaStreams started");
-    }
+   public void open(
+         final ActorSystem<Void> system,
+         final ActorRef<BackEnd.Event> backEnd) {
+      LOGGER.info("EM Stream Processor");
+      final Properties props = loadConfig();
+      final Serde<String> stringSerde = Serdes.String();
+      final Serde<BatchPatientRecord> batchPatientRecordSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+                                                                                 new JsonPojoDeserializer<>(BatchPatientRecord.class));
+      final StreamsBuilder streamsBuilder = new StreamsBuilder();
+      final KStream<String, BatchPatientRecord> patientRecordKStream = streamsBuilder.stream(
+            GlobalConstants.TOPIC_PATIENT_EM,
+            Consumed.with(stringSerde, batchPatientRecordSerde));
+      patientRecordKStream.foreach((key, patient) -> addPatient(system, backEnd, key, patient));
+      patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
+      patientKafkaStreams.cleanUp();
+      patientKafkaStreams.start();
+      LOGGER.info("KafkaStreams started");
+   }
 
-    public void close() {
-        LOGGER.warn("Stream closed");
-        patientKafkaStreams.close();
-    }
+   public void close() {
+      LOGGER.warn("Stream closed");
+      patientKafkaStreams.close();
+   }
 
-    private Properties loadConfig() {
-        final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID);
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-        return props;
-    }
+   private Properties loadConfig() {
+      final Properties props = new Properties();
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
+      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID);
+      props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      return props;
+   }
 
 }

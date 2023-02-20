@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerMU {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerMU"
   private val packageText = "org.jembi.jempi.linker"
 
@@ -34,10 +34,10 @@ object CustomLinkerMU {
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
-           |import org.jembi.jempi.shared.models.CustomEntity;
-           |import org.jembi.jempi.shared.models.CustomGoldenRecord;
+           |import org.jembi.jempi.shared.models.CustomDemographicData;
            |
-           |public class $custom_className {
+           |
+           |public final class $custom_className {
            |
            |   private static final Logger LOGGER = LogManager.getLogger($custom_className.class);
            |   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
@@ -48,11 +48,16 @@ object CustomLinkerMU {
            |      LOGGER.debug("CustomLinkerMU");
            |   }
            |
-           |   private static boolean fieldMismatch(final String left, final String right) {
+           |   private static boolean fieldMismatch(
+           |         final String left,
+           |         final String right) {
            |      return JARO_WINKLER_SIMILARITY.apply(left, right) <= 0.92;
            |   }
            |
-           |   private void updateMatchedPair(final Field field, final String left, final String right) {
+           |   private void updateMatchedPair(
+           |         final Field field,
+           |         final String left,
+           |         final String right) {
            |      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(left, right)) {
            |         field.matchedPairFieldUnmatched += 1;
            |      } else {
@@ -60,7 +65,10 @@ object CustomLinkerMU {
            |      }
            |   }
            |
-           |   private void updateUnMatchedPair(final Field field, final String left, final String right) {
+           |   private void updateUnMatchedPair(
+           |         final Field field,
+           |         final String left,
+           |         final String right) {
            |      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(left, right)) {
            |         field.unMatchedPairFieldUnmatched += 1;
            |      } else {
@@ -69,13 +77,15 @@ object CustomLinkerMU {
            |   }
            |""".stripMargin)
 
-      writer.println("   void updateMatchSums(final CustomEntity customEntity, final CustomGoldenRecord " +
-                       "customGoldenRecord) {")
+      writer.println(
+        s"""   void updateMatchSums(
+           |         final CustomDemographicData patient,
+           |         final CustomDemographicData goldenRecord) {""".stripMargin)
       if (muList.nonEmpty) {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
-            s"      updateMatchedPair(fields.$fieldName, customEntity.$fieldName(), customGoldenRecord.$fieldName()" +
+            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName(), goldenRecord.$fieldName()" +
               s");")
         })
         writer.println(
@@ -84,12 +94,14 @@ object CustomLinkerMU {
             |""".stripMargin)
       }
 
-      writer.println("   void updateMissmatchSums(final CustomEntity customEntity, final CustomGoldenRecord " +
-                       "customGoldenRecord) {")
+      writer.println(
+        s"""   void updateMissmatchSums(
+           |         final CustomDemographicData patient,
+           |         final CustomDemographicData goldenRecord) {""".stripMargin)
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, customEntity.$fieldName(), customGoldenRecord.$fieldName" +
+          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName(), goldenRecord.$fieldName" +
             s"()" +
             s");")
       })
@@ -111,12 +123,12 @@ object CustomLinkerMU {
       })
       writer.println(
         """
-          |      private float computeM(Field field) {
+          |      private float computeM(final Field field) {
           |         return (float) (field.matchedPairFieldMatched)
           |              / (float) (field.matchedPairFieldMatched + field.matchedPairFieldUnmatched);
           |      }
           |
-          |      private float computeU(Field field) {
+          |      private float computeU(final Field field) {
           |         return (float) (field.unMatchedPairFieldMatched)
           |              / (float) (field.unMatchedPairFieldMatched + field.unMatchedPairFieldUnmatched);
           |      }
@@ -141,7 +153,7 @@ object CustomLinkerMU {
         })
       }
 
-      writer.print(
+      writer.println(
         s"""      }
            |
            |   }

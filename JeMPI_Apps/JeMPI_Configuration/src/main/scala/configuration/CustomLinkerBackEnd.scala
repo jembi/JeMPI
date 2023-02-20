@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerBackEnd {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerBackEnd"
   private val packageText = "org.jembi.jempi.linker"
 
@@ -27,24 +27,30 @@ object CustomLinkerBackEnd {
     writer.println()
     writer.println(
       s"""import org.jembi.jempi.libmpi.LibMPI;
-         |import org.jembi.jempi.shared.models.CustomEntity;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
          |
          |import java.util.List;
          |
          |public final class $custom_className {
          |
-         |   private $custom_className() {}
+         |   private $custom_className() {
+         |   }
          |
-         |   static void updateGoldenRecordFields(final LibMPI libMPI, final String uid) {
-         |      final var expandedGoldenRecord = libMPI.getMpiExpandedGoldenRecordList(List.of(uid)).get(0);
+         |   static void updateGoldenRecordFields(
+         |         final LibMPI libMPI,
+         |         final String uid) {
+         |      final var expandedGoldenRecord = libMPI.getExpandedGoldenRecords(List.of(uid))
+         |                                             .get(0);
+         |      final var goldenRecord = expandedGoldenRecord.goldenRecord();
+         |      final var demographicData = goldenRecord.demographicData();
          |""".stripMargin)
 
     muList.zipWithIndex.foreach((mu, _) => {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord, "$fieldName",
-           |${" " * 38}expandedGoldenRecord.customGoldenRecord().$fieldName(), CustomEntity::$fieldName);""".stripMargin)
+        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord,
+           |${" " * 6}                                "$fieldName", demographicData.$fieldName(), CustomDemographicData::$fieldName);""".stripMargin)
     })
     writer.println()
     config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {
