@@ -47,7 +47,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
-   private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder(UserSession.getSerializer());
+   private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder<>(UserSession.getSerializer());
 
    // in-memory refresh token storage
    private static final RefreshTokenStorage<UserSession> REFRESH_TOKEN_STORAGE = new InMemoryRefreshTokenStorage<UserSession>() {
@@ -85,7 +85,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
                     .bind(AppConfig.AKKA_HTTP_SESSION_ENABLED
                                 ? this.createCorsRoutes(actorSystem, backEnd, fields)
-                                : this.createRoutes(actorSystem, backEnd, fields));
+                                : this.createRoutes(actorSystem, backEnd));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
@@ -721,8 +721,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
    private Route createJeMPIRoutes(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final JSONArray fields) {
+         final ActorRef<BackEnd.Event> backEnd) {
       return concat(
             post(() -> concat(path("NotificationRequest", () -> routeNotificationRequest(actorSystem, backEnd)),
                               path(segment("search").slash(segment(Pattern.compile("^(golden|patient)$"))),
@@ -777,9 +776,8 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
    private Route createRoutes(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final JSONArray fields) {
-      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd, fields));
+         final ActorRef<BackEnd.Event> backEnd) {
+      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd));
    }
 
    private Route createCorsRoutes(
@@ -794,7 +792,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                   checkHeader,
                   () -> pathPrefix("JeMPI",
                                    () -> concat(
-                                         createJeMPIRoutes(actorSystem, backEnd, fields),
+                                         createJeMPIRoutes(actorSystem, backEnd),
                                          post(() -> path("authenticate",
                                                          () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader))),
                                          get(() -> path("config",
