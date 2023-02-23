@@ -21,23 +21,23 @@ final class DgraphQueries {
    private DgraphQueries() {
    }
 
-   static DgraphSourceIdList runSourceIdQuery(final String query) {
+   static DgraphSourceIds runSourceIdQuery(final String query) {
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, null);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          if (!StringUtils.isBlank(json)) {
-            return AppUtils.OBJECT_MAPPER.readValue(json, DgraphSourceIdList.class);
+            return AppUtils.OBJECT_MAPPER.readValue(json, DgraphSourceIds.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return new DgraphSourceIdList(List.of());
+      return new DgraphSourceIds(List.of());
    }
 
    static DgraphPatientRecords runPatientRecordsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
             return AppUtils.OBJECT_MAPPER.readValue(json, DgraphPatientRecords.class);
          }
@@ -51,7 +51,7 @@ final class DgraphQueries {
          final String query,
          final Map<String, String> vars) {
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
             return AppUtils.OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
          }
@@ -65,7 +65,7 @@ final class DgraphQueries {
          final String query,
          final Map<String, String> vars) {
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, vars);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
             return AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
          }
@@ -75,28 +75,28 @@ final class DgraphQueries {
       return new DgraphExpandedGoldenRecords(List.of());
    }
 
-   static PatientRecord getDGraphPatientRecord(final String patientId) {
+   static PatientRecord getPatientRecord(final String patientId) {
       if (StringUtils.isBlank(patientId)) {
          return null;
       }
       final var vars = Map.of("$uid", patientId);
-      final var patientList = runPatientRecordsQuery(CustomLibMPIConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
+      final var patientList = runPatientRecordsQuery(CustomDgraphConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
       return patientList.get(0).toPatientRecordWithScore().patientRecord();
    }
 
-   static CustomLibMPIGoldenRecord getGoldenRecordByUid(final String uid) {
-      if (StringUtils.isBlank(uid)) {
+   static CustomDgraphGoldenRecord getDgraphGoldenRecord(final String goldenId) {
+      if (StringUtils.isBlank(goldenId)) {
          return null;
       }
-      final var vars = Map.of("$uid", uid);
-      final var goldenRecordList = runGoldenRecordsQuery(CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
+      final var vars = Map.of("$uid", goldenId);
+      final var goldenRecordList = runGoldenRecordsQuery(CustomDgraphConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars)
             .all();
 
       if (AppUtils.isNullOrEmpty(goldenRecordList)) {
-         LOGGER.warn("No goldenRecord for {}", uid);
+         LOGGER.warn("No goldenRecord for {}", goldenId);
          return null;
       }
       return goldenRecordList.get(0);
@@ -114,7 +114,7 @@ final class DgraphQueries {
                         }
                     }""", uid);
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, null);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphUidUidList.class);
          if (response.list().size() == 1) {
             final var list = new ArrayList<String>();
@@ -135,7 +135,7 @@ final class DgraphQueries {
                              }
                            }""";
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, null);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphUidList.class);
          final var list = new ArrayList<String>();
          response.list().forEach(x -> list.add(x.uid()));
@@ -148,7 +148,7 @@ final class DgraphQueries {
 
    private static long getCount(final String query) {
       try {
-         final var json = Client.getInstance().executeReadOnlyTransaction(query, null);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphCountList.class);
          return response.list().get(0).count();
       } catch (JsonProcessingException e) {
@@ -188,11 +188,11 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   static LinkedList<CustomLibMPIGoldenRecord> deterministicFilter(final CustomDemographicData patient) {
-      final LinkedList<CustomLibMPIGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      var block = CustomLibMPIQueries.queryDeterministicGoldenRecordCandidates(patient);
+   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData patient) {
+      final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
+      var block = CustomDgraphQueries.queryDeterministicGoldenRecordCandidates(patient);
       if (!block.all().isEmpty()) {
-         final List<CustomLibMPIGoldenRecord> list = block.all();
+         final List<CustomDgraphGoldenRecord> list = block.all();
          if (!AppUtils.isNullOrEmpty(list)) {
             candidateGoldenRecords.addAll(list);
          }
@@ -200,11 +200,24 @@ final class DgraphQueries {
       return candidateGoldenRecords;
    }
 
-   static List<CustomLibMPIGoldenRecord> getGoldenRecords(final List<String> ids) {
+   static List<CustomDgraphExpandedPatientRecord> getExpandedPatientRecords(final List<String> ids) {
+      final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_PATIENTS,
+                                         String.join(",", ids));
+      final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+      try {
+         final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedPatientRecords.class);
+         return records.all();
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage());
+         return List.of();
+      }
+   }
+
+   static List<CustomDgraphGoldenRecord> getGoldenRecords(final List<String> ids) {
       final String query = String.format(
-            CustomLibMPIConstants.QUERY_GET_GOLDEN_RECORDS,
+            CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS,
             String.join(",", ids));
-      final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
+      final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
          return records.all();
@@ -214,26 +227,13 @@ final class DgraphQueries {
       }
    }
 
-   static List<CustomLibMPIExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
+   static List<CustomDgraphExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
       final String query = String.format(
-            CustomLibMPIConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS,
+            CustomDgraphConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS,
             String.join(",", ids));
-      final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
+      final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
-         return records.all();
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage());
-         return List.of();
-      }
-   }
-
-   static List<CustomLibMPIExpandedPatientRecord> getExpandedPatientRecords(final List<String> ids) {
-      final String query = String.format(CustomLibMPIConstants.QUERY_GET_EXPANDED_PATIENTS,
-                                         String.join(",", ids));
-      final String json = Client.getInstance().executeReadOnlyTransaction(query, null);
-      try {
-         final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedPatientRecords.class);
          return records.all();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());

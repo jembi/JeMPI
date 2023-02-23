@@ -25,7 +25,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final int[] port) {
       LOGGER.info("{}", "LibDgraph Constructor");
 
-      Client.getInstance().config(host, port);
+      DgraphClient.getInstance().config(host, port);
    }
 
    /*
@@ -44,34 +44,36 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public PatientRecord getPatientRecord(final String patientId) {
-      return DgraphQueries.getDGraphPatientRecord(patientId);
-   }
-
-   public GoldenRecord getGoldenRecord(final String uid) {
-      final var rec = DgraphQueries.getGoldenRecordByUid(uid);
-      if (rec == null) {
-         return null;
-      }
-      return rec.toGoldenRecord();
+      return DgraphQueries.getPatientRecord(patientId);
    }
 
    public List<PatientRecord> getPatientRecords(final List<String> ids) {
       return List.of();
    }
 
-   public List<GoldenRecord> getGoldenRecords(final List<String> ids) {
-      final var list = DgraphQueries.getGoldenRecords(ids);
-      return list.stream().map(CustomLibMPIGoldenRecord::toGoldenRecord).toList();
-   }
-
    public List<ExpandedPatientRecord> getExpandedPatientRecords(final List<String> ids) {
       final var list = DgraphQueries.getExpandedPatientRecords(ids);
-      return list.stream().map(CustomLibMPIExpandedPatientRecord::toExpandedPatientRecord).toList();
+      return list.stream().map(CustomDgraphExpandedPatientRecord::toExpandedPatientRecord).toList();
    }
+
+
+   public GoldenRecord getGoldenRecord(final String goldenId) {
+      final var rec = DgraphQueries.getDgraphGoldenRecord(goldenId);
+      if (rec == null) {
+         return null;
+      }
+      return rec.toGoldenRecord();
+   }
+
+   public List<GoldenRecord> getGoldenRecords(final List<String> ids) {
+      final var list = DgraphQueries.getGoldenRecords(ids);
+      return list.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+   }
+
 
    public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIds) {
       final var list = DgraphQueries.getExpandedGoldenRecords(goldenIds);
-      return list.stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+      return list.stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
    }
 
    public List<String> getGoldenIds() {
@@ -81,15 +83,15 @@ public final class LibDgraph implements LibMPIClientInterface {
    public List<GoldenRecord> getCandidates(
          final CustomDemographicData demographicData,
          final boolean applyDeterministicFilter) {
-      final var candidates = CustomLibMPIQueries.getCandidates(demographicData, applyDeterministicFilter);
-      return candidates.stream().map(CustomLibMPIGoldenRecord::toGoldenRecord).toList();
+      final var candidates = CustomDgraphQueries.getCandidates(demographicData, applyDeterministicFilter);
+      return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
    private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(final DgraphExpandedGoldenRecords list) {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+      final var data = list.all().stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
@@ -98,7 +100,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecord).toList();
+      final var data = list.all().stream().map(CustomDgraphPatientRecord::toPatientRecord).toList();
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
@@ -188,11 +190,11 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public void startTransaction() {
-      Client.getInstance().startTransaction();
+      DgraphClient.getInstance().startTransaction();
    }
 
    public void closeTransaction() {
-      Client.getInstance().closeTransaction();
+      DgraphClient.getInstance().closeTransaction();
    }
 
    /*
@@ -203,7 +205,7 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    public Option<MpiGeneralError> dropAll() {
       try {
-         Client.getInstance().alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
+         DgraphClient.getInstance().alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
          return Option.none();
       } catch (RuntimeException e) {
          LOGGER.error(e.getMessage(), e);
@@ -213,7 +215,7 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    public Option<MpiGeneralError> dropAllData() {
       try {
-         Client.getInstance().alter(DgraphProto.Operation.newBuilder().setDropOp(DATA).build());
+         DgraphClient.getInstance().alter(DgraphProto.Operation.newBuilder().setDropOp(DATA).build());
          return Option.none();
       } catch (RuntimeException e) {
          LOGGER.error(e.getMessage());

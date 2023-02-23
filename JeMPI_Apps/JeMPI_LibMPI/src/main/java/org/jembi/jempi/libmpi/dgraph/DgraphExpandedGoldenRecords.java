@@ -8,10 +8,10 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record DgraphExpandedGoldenRecords(
-      @JsonProperty("all") List<CustomLibMPIExpandedGoldenRecord> all,
+      @JsonProperty("all") List<CustomDgraphExpandedGoldenRecord> all,
       @JsonProperty("pagination") List<LibMPIPagination> pagination) {
 
-   DgraphExpandedGoldenRecords(@JsonProperty("all") final List<CustomLibMPIExpandedGoldenRecord> all) {
+   DgraphExpandedGoldenRecords(@JsonProperty("all") final List<CustomDgraphExpandedGoldenRecord> all) {
       this(all, List.of(new LibMPIPagination(all.size())));
    }
 

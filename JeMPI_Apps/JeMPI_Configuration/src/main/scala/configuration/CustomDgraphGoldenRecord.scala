@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIGoldenRecord {
+private object CustomDgraphGoldenRecord {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val customClassName = "CustomLibMPIGoldenRecord"
+  private val customClassName = "CustomDgraphGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(fields: Array[Field]): Unit =
@@ -44,7 +44,7 @@ private object CustomLibMPIGoldenRecord {
     }
     writer.println(
       s"""
-         |${" " * 3}$customClassName(final CustomLibMPIDGraphPatientRecord rec) {
+         |${" " * 3}$customClassName(final CustomDgraphPatientRecord rec) {
          |${" " * 6}this(null,
          |${" " * 11}List.of(rec.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 
-final class CustomLibMPIQueries {
+final class CustomDgraphQueries {
 
    static final String QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES =
          """
@@ -186,13 +186,13 @@ final class CustomLibMPIQueries {
    }
 
    private static void updateCandidates(
-         final List<CustomLibMPIGoldenRecord> goldenRecords,
+         final List<CustomDgraphGoldenRecord> goldenRecords,
          final DgraphGoldenRecords block) {
       final var candidates = block.all();
       if (!candidates.isEmpty()) {
          candidates.forEach(candidate -> {
             var found = false;
-            for (CustomLibMPIGoldenRecord goldenRecord : goldenRecords) {
+            for (CustomDgraphGoldenRecord goldenRecord : goldenRecords) {
                if (candidate.uid().equals(goldenRecord.uid())) {
                   found = true;
                   break;
@@ -205,7 +205,7 @@ final class CustomLibMPIQueries {
       }
    }
 
-   static List<CustomLibMPIGoldenRecord> getCandidates(
+   static List<CustomDgraphGoldenRecord> getCandidates(
          final CustomDemographicData patient,
          final boolean applyDeterministicFilter) {
 
@@ -215,13 +215,13 @@ final class CustomLibMPIQueries {
             return result;
          }
       }
-      var result = new LinkedList<CustomLibMPIGoldenRecord>();
+      var result = new LinkedList<CustomDgraphGoldenRecord>();
       updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(patient));
       updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(patient));
       updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
       return result;
    }
 
-   private CustomLibMPIQueries() {
+   private CustomDgraphQueries() {
    }
 }

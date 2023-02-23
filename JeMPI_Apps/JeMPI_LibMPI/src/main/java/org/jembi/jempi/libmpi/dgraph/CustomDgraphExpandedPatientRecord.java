@@ -9,7 +9,7 @@ import org.jembi.jempi.shared.models.PatientRecord;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record CustomLibMPIExpandedPatientRecord(
+record CustomDgraphExpandedPatientRecord(
       @JsonProperty("uid") String uid,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
@@ -20,7 +20,7 @@ record CustomLibMPIExpandedPatientRecord(
       @JsonProperty("PatientRecord.city") String city,
       @JsonProperty("PatientRecord.phone_number") String phoneNumber,
       @JsonProperty("PatientRecord.national_id") String nationalId,
-      @JsonProperty("~GoldenRecord.patients") List<CustomLibMPIDGraphGoldenRecord> dgraphGoldenRecordList) {
+      @JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
    PatientRecord toPatientRecord() {
       return new PatientRecord(this.uid(),
@@ -40,7 +40,7 @@ record CustomLibMPIExpandedPatientRecord(
       return new ExpandedPatientRecord(this.toPatientRecord(),
                                        this.dgraphGoldenRecordList()
                                            .stream()
-                                           .map(CustomLibMPIDGraphGoldenRecord::toGoldenRecordWithScore)
+                                           .map(CustomDgraphReverseGoldenRecord::toGoldenRecordWithScore)
                                            .toList());
    }
 

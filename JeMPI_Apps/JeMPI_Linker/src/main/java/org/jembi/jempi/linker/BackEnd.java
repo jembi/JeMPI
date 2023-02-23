@@ -88,7 +88,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String fieldName,
          final String goldenRecordFieldValue,
          final Function<CustomDemographicData, String> getDocumentField) {
-      final var mpiPatientList = expandedGoldenRecord.mpiPatientRecords();
+      final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       final var freqMapGroupedByField =
             mpiPatientList
                   .stream()

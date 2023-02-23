@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIMutations {
+private object CustomDgraphMutations {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val custom_className = "CustomLibMPIMutations"
+  private val custom_className = "CustomDgraphMutations"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(fields: Array[Field]): Unit =

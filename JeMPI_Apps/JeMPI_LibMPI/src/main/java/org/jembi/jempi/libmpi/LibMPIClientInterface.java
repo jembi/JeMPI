@@ -39,15 +39,16 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   PatientRecord getPatientRecord(String patientId);
 
-   GoldenRecord getGoldenRecord(String goldenId);
+   PatientRecord getPatientRecord(String patientId);
 
    List<PatientRecord> getPatientRecords(List<String> patientIds);
 
-   List<GoldenRecord> getGoldenRecords(List<String> goldenIds);
-
    List<ExpandedPatientRecord> getExpandedPatientRecords(List<String> patientIds);
+
+   GoldenRecord getGoldenRecord(String goldenId);
+
+   List<GoldenRecord> getGoldenRecords(List<String> goldenIds);
 
    List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> goldenIds);
 

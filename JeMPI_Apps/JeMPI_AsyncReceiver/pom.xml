@@ -202,6 +202,7 @@
                 <version>${version.org.apache.maven.plugins.maven-checkstyle-plugin}</version>
                 <executions>
                     <execution>
+                        <?m2e execute onConfiguration,onIncremental?>
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration>

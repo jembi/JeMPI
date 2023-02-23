@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIDGraphGoldenRecord {
+private object CustomDgraphReverseGoldenRecord {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val customClassName = "CustomLibMPIDGraphGoldenRecord"
+  private val customClassName = "CustomDgraphReverseGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   private def addFields(writer: PrintWriter, fields: Array[Field]): Unit = {
@@ -55,7 +55,7 @@ private object CustomLibMPIDGraphGoldenRecord {
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
-          s"${" " * (if (idx == 0) 0 else 62)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
+          s"${" " * (if (idx == 0) 0 else 56)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
             (if (idx + 1 < fields.length) "," else "));"))
     }
     writer.println("   }")

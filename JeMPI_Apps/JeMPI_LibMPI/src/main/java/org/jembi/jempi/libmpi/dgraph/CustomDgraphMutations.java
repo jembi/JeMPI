@@ -5,9 +5,9 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.UUID;
 
-final class CustomLibMPIMutations {
+final class CustomDgraphMutations {
 
-   private CustomLibMPIMutations() {
+   private CustomDgraphMutations() {
    }
 
    static String createPatientTriple(

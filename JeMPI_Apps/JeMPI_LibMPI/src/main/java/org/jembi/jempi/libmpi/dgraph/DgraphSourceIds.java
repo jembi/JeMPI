@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record DgraphSourceIdList(@JsonProperty("all") List<DgraphSourceId> all) {
+record DgraphSourceIds(@JsonProperty("all") List<DgraphSourceId> all) {
 }

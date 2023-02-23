@@ -7,7 +7,7 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.PatientRecord;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record CustomLibMPIDGraphPatientRecord(
+record CustomDgraphPatientRecord(
       @JsonProperty("uid") String uid,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
@@ -19,7 +19,7 @@ record CustomLibMPIDGraphPatientRecord(
       @JsonProperty("PatientRecord.phone_number") String phoneNumber,
       @JsonProperty("PatientRecord.national_id") String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
-   CustomLibMPIDGraphPatientRecord(
+   CustomDgraphPatientRecord(
          final PatientRecord patientRecord,
          final Float score) {
       this(patientRecord.uid(),

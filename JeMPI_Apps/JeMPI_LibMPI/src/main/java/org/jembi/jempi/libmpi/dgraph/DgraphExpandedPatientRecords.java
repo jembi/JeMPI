@@ -8,10 +8,10 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record DgraphExpandedPatientRecords(
-      @JsonProperty("all") List<CustomLibMPIExpandedPatientRecord> all,
+      @JsonProperty("all") List<CustomDgraphExpandedPatientRecord> all,
       @JsonProperty("pagination") List<LibMPIPagination> pagination) {
 
-   DgraphExpandedPatientRecords(@JsonProperty("all") final List<CustomLibMPIExpandedPatientRecord> all) {
+   DgraphExpandedPatientRecords(@JsonProperty("all") final List<CustomDgraphExpandedPatientRecord> all) {
       this(all, List.of(new LibMPIPagination(all.size())));
    }
 

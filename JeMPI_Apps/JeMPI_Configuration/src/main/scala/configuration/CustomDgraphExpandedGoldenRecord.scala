@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIExpandedGoldenRecord {
+private object CustomDgraphExpandedGoldenRecord {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val customClassName = "CustomLibMPIExpandedGoldenRecord"
+  private val customClassName = "CustomDgraphExpandedGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(fields: Array[Field]): Unit =
@@ -37,7 +37,7 @@ private object CustomLibMPIExpandedGoldenRecord {
         writer.println(s"""${" " * 6}@JsonProperty("GoldenRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * 6}@JsonProperty("GoldenRecord.patients") List<CustomLibMPIDGraphPatientRecord> patients) {
+      s"""${" " * 6}@JsonProperty("GoldenRecord.patients") List<CustomDgraphPatientRecord> patients) {
          |""".stripMargin)
 
     writer.print(
@@ -61,7 +61,7 @@ private object CustomLibMPIExpandedGoldenRecord {
       """
         |   ExpandedGoldenRecord toExpandedGoldenRecord() {
         |      return new ExpandedGoldenRecord(this.toGoldenRecord(),
-        |                                      this.patients().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecordWithScore).toList());
+        |                                      this.patients().stream().map(CustomDgraphPatientRecord::toPatientRecordWithScore).toList());
         |   }
         |""".stripMargin)
 

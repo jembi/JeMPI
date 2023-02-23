@@ -1,6 +1,6 @@
 package org.jembi.jempi.libmpi.dgraph;
 
-public final class CustomLibMPIConstants {
+public final class CustomDgraphConstants {
 
    public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
    public static final String PREDICATE_GOLDEN_RECORD_GIVEN_NAME = "GoldenRecord.given_name";
@@ -338,6 +338,6 @@ public final class CustomLibMPIConstants {
          PatientRecord.national_id:                  string    @index(exact,trigram)              .
          """;
 
-   private CustomLibMPIConstants() {}
+   private CustomDgraphConstants() {}
 
 }

@@ -97,7 +97,7 @@ public final class CustomMain {
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiPatientRecords()
+      goldenRecord.patientRecordsWithScore()
                   .forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord().demographicData().auxId()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
@@ -118,7 +118,7 @@ public final class CustomMain {
                        rot.demographicData().givenName(), rot.demographicData().familyName(), rot.demographicData().gender(),
                        rot.demographicData().dob(),
                        rot.demographicData().phoneNumber(), rot.demographicData().nationalId());
-         mpiGoldenRecord.mpiPatientRecords().forEach(mpiPatient -> {
+         mpiGoldenRecord.patientRecordsWithScore().forEach(mpiPatient -> {
             final var patient = mpiPatient.patientRecord();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",

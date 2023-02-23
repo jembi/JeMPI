@@ -1,6 +1,5 @@
 package org.jembi.jempi.libmpi.dgraph;
 
-import io.dgraph.DgraphClient;
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
 import io.dgraph.TxnConflictException;
@@ -15,18 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-final class Client {
+final class DgraphClient {
 
-   private static final Logger LOGGER = LogManager.getLogger(Client.class);
-   private DgraphClient dgraphClient;
+   private static final Logger LOGGER = LogManager.getLogger(DgraphClient.class);
+   private io.dgraph.DgraphClient dgraphClient;
    private String[] host;
    private int[] port;
 
-   private Client() {
+   private DgraphClient() {
       dgraphClient = null;
    }
 
-   static Client getInstance() {
+   static DgraphClient getInstance() {
       return ClientHolder.INSTANCE;
    }
 
@@ -47,9 +46,9 @@ final class Client {
 
    void startTransaction() {
       if (dgraphClient == null) {
-         var hostList = new ArrayList<>(List.of(new Client.AlphaHost(host[0], port[0]),
-                                                new Client.AlphaHost(host[1], port[1]),
-                                                new Client.AlphaHost(host[2], port[2])));
+         var hostList = new ArrayList<>(List.of(new DgraphClient.AlphaHost(host[0], port[0]),
+                                                new DgraphClient.AlphaHost(host[1], port[1]),
+                                                new DgraphClient.AlphaHost(host[2], port[2])));
          var dgraphStubs = new DgraphGrpc.DgraphStub[hostList.size()];
          for (int i = 0; i < 3; i++) {
             AlphaHost alphaHost = hostList.get(i);
@@ -57,7 +56,7 @@ final class Client {
                                                                      .usePlaintext()
                                                                      .build());
          }
-         dgraphClient = new DgraphClient(dgraphStubs);
+         dgraphClient = new io.dgraph.DgraphClient(dgraphStubs);
          var version = dgraphClient.checkVersion().getTag();
          if (StringUtils.isBlank(version)) {
             LOGGER.error("Cannot create client");
@@ -186,7 +185,7 @@ final class Client {
    }
 
    private static class ClientHolder {
-      public static final Client INSTANCE = new Client();
+      public static final DgraphClient INSTANCE = new DgraphClient();
    }
 
 }

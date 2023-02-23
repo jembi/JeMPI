@@ -4,10 +4,10 @@ import java.io.{File, PrintWriter}
 import scala.language.{existentials, postfixOps}
 
 
-object CustomLibMPIQueries {
+object CustomDgraphQueries {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val custom_className = "CustomLibMPIQueries"
+  private val custom_className = "CustomDgraphQueries"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def parseRules(config: Config): Any = {
@@ -48,13 +48,13 @@ object CustomLibMPIQueries {
   private def emitGetCandidates(writer: PrintWriter, rules: Rules): Unit = {
     writer.println(
       """   private static void updateCandidates(
-        |         final List<CustomLibMPIGoldenRecord> goldenRecords,
+        |         final List<CustomDgraphGoldenRecord> goldenRecords,
         |         final DgraphGoldenRecords block) {
         |      final var candidates = block.all();
         |      if (!candidates.isEmpty()) {
         |         candidates.forEach(candidate -> {
         |            var found = false;
-        |            for (CustomLibMPIGoldenRecord goldenRecord : goldenRecords) {
+        |            for (CustomDgraphGoldenRecord goldenRecord : goldenRecords) {
         |               if (candidate.uid().equals(goldenRecord.uid())) {
         |                  found = true;
         |                  break;
@@ -67,7 +67,7 @@ object CustomLibMPIQueries {
         |      }
         |   }
         |
-        |   static List<CustomLibMPIGoldenRecord> getCandidates(
+        |   static List<CustomDgraphGoldenRecord> getCandidates(
         |         final CustomDemographicData patient,
         |         final boolean applyDeterministicFilter) {
         |
@@ -77,7 +77,7 @@ object CustomLibMPIQueries {
         |            return result;
         |         }
         |      }
-        |      var result = new LinkedList<CustomLibMPIGoldenRecord>();""".stripMargin)
+        |      var result = new LinkedList<CustomDgraphGoldenRecord>();""".stripMargin)
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)

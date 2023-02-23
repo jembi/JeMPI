@@ -67,15 +67,22 @@ public final class LibMPI {
       return client.countGoldenRecords();
    }
 
+
    public PatientRecord getPatientRecord(final String uid) {
       return client.getPatientRecord(uid);
    }
 
-   public GoldenRecord getGoldenRecord(final String uid) {
-      return client.getGoldenRecord(uid);
-   }
    public List<PatientRecord> getPatientRecords(final List<String> patientIds) {
       return client.getPatientRecords(patientIds);
+   }
+
+   public List<ExpandedPatientRecord> getExpandedPatientRecords(final List<String> patientIds) {
+      return client.getExpandedPatientRecords(patientIds);
+   }
+
+
+   public GoldenRecord getGoldenRecord(final String uid) {
+      return client.getGoldenRecord(uid);
    }
 
    public List<GoldenRecord> getGoldenRecords(final List<String> goldenIds) {
@@ -88,10 +95,6 @@ public final class LibMPI {
          return records.get(0);
       }
       return null;
-   }
-
-   public List<ExpandedPatientRecord> getExpandedPatientRecords(final List<String> patientIds) {
-      return client.getExpandedPatientRecords(patientIds);
    }
 
    public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIds) {

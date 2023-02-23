@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomLibMPIConstants {
+private object CustomDgraphConstants {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val customClassName = "CustomLibMPIConstants"
+  private val customClassName = "CustomDgraphConstants"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   private def golden_record_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
