@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class FrontEndMUStream {
+public final class FrontEndMUStream {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndMUStream.class);
    private KafkaStreams muKafkaStreams;
@@ -33,10 +33,11 @@ public class FrontEndMUStream {
       LOGGER.info("FrontEndMUStream constructor");
    }
 
-   void installMU(final ActorSystem<Void> system,
-                  final ActorRef<BackEnd.Event> backEnd,
-                  final String key,
-                  final CustomMU mu) {
+   void installMU(
+         final ActorSystem<Void> system,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String key,
+         final CustomMU mu) {
       LOGGER.info("New MU set: {}/{}", key, mu);
       final CompletionStage<BackEnd.EventUpdateMURsp> result =
             AskPattern.ask(
@@ -56,7 +57,9 @@ public class FrontEndMUStream {
       }
    }
 
-   public void open(final ActorSystem<Void> system, final ActorRef<BackEnd.Event> backEnd) {
+   public void open(
+         final ActorSystem<Void> system,
+         final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("MY Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();

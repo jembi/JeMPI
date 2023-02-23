@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLibMPIQueries {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val custom_className = "CustomLibMPIQueries"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
@@ -19,18 +19,16 @@ object CustomLibMPIQueries {
       s"""package $packageText;
          |
          |import org.apache.commons.lang3.StringUtils;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
          |
          |import java.util.LinkedList;
          |import java.util.List;
          |import java.util.Map;
          |
-         |import org.jembi.jempi.shared.models.CustomEntity;
-         |
          |import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
          |
-         |class $custom_className {
-         |
-         |   private $custom_className() {}""".stripMargin)
+         |final class $custom_className {
+         |""".stripMargin)
     config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
     if (config.rules.probabilistic != null)
       config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
@@ -39,15 +37,19 @@ object CustomLibMPIQueries {
     if (config.rules.probabilistic != null)
       config.rules.probabilistic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     emitGetCandidates(writer, config.rules)
-    writer.println("}")
+    writer.println(
+      s"""   private $custom_className() {
+         |   }
+         |}""".stripMargin)
     writer.flush()
     writer.close()
   }
 
   private def emitGetCandidates(writer: PrintWriter, rules: Rules): Unit = {
     writer.println(
-      """   private static void updateCandidates(final List<CustomLibMPIGoldenRecord> goldenRecords,
-        |                                        final LibMPIGoldenRecordList block) {
+      """   private static void updateCandidates(
+        |         final List<CustomLibMPIGoldenRecord> goldenRecords,
+        |         final LibMPIGoldenRecords block) {
         |      final var candidates = block.all();
         |      if (!candidates.isEmpty()) {
         |         candidates.forEach(candidate -> {
@@ -65,11 +67,12 @@ object CustomLibMPIQueries {
         |      }
         |   }
         |
-        |   static List<CustomLibMPIGoldenRecord> getCandidates(final CustomEntity dgraphEntity,
-        |                                                       final boolean applyDeterministicFilter) {
+        |   static List<CustomLibMPIGoldenRecord> getCandidates(
+        |         final CustomDemographicData patient,
+        |         final boolean applyDeterministicFilter) {
         |
         |      if (applyDeterministicFilter) {
-        |         final var result = Queries.deterministicFilter(dgraphEntity);
+        |         final var result = Queries.deterministicFilter(patient);
         |         if (!result.isEmpty()) {
         |            return result;
         |         }
@@ -78,7 +81,7 @@ object CustomLibMPIQueries {
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
-        val vars = "dgraphEntity"
+        val vars = "patient"
         writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
       })
     }
@@ -119,39 +122,39 @@ object CustomLibMPIQueries {
     if (vars.length == 1)
       val v = vars(0)
       writer.println(
-        s"""   static LibMPIGoldenRecordList $functionName(final CustomEntity customEntity) {
-           |      if (StringUtils.isBlank(customEntity.${Utils.snakeCaseToCamelCase(v)}())) {
-           |         return new LibMPIGoldenRecordList(List.of());
+        s"""   static LibMPIGoldenRecords $functionName(final CustomDemographicData demographicData) {
+           |      if (StringUtils.isBlank(demographicData.${Utils.snakeCaseToCamelCase(v)}())) {
+           |         return new LibMPIGoldenRecords(List.of());
            |      }
-           |      final Map<String, String> map = Map.of("$$$v", customEntity.${Utils.snakeCaseToCamelCase(v)}());
+           |      final Map<String, String> map = Map.of("$$$v", demographicData.${Utils.snakeCaseToCamelCase(v)}());
            |      return runGoldenRecordsQuery($name, map);
            |   }
            |""".stripMargin)
     else
       val expr = expression(ParseRule.parse(text))
-      writer.println(s"   static LibMPIGoldenRecordList $functionName(final CustomEntity customEntity) {")
+      writer.println(s"   static LibMPIGoldenRecords $functionName(final CustomDemographicData demographicData) {")
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
-        writer.println(s"      final var $camelCaseVarName = customEntity.$camelCaseVarName();")
+        writer.println(s"      final var $camelCaseVarName = demographicData.$camelCaseVarName();")
       })
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
         val isNullVar = camelCaseVarName + s"IsBlank"
         writer.println(s"      final var $isNullVar = StringUtils.isBlank($camelCaseVarName);")
       })
-      writer.println(
+      writer.print(
         s"""      if ($expr) {
-           |         return new LibMPIGoldenRecordList(List.of());
+           |         return new LibMPIGoldenRecords(List.of());
            |      }
            |      final var map = Map.of(""".stripMargin)
 
       vars.zipWithIndex.foreach((v, idx) => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
         writer.println(
-          s"""         "$$$v",
-             |         StringUtils.isNotBlank($camelCaseVarName)
-             |            ? $camelCaseVarName
-             |            : Queries.EMPTY_FIELD_SENTINEL${if (idx + 1 < vars.length) "," else ");"}""".stripMargin)
+          s"""${" " * (if (idx == 0) 0 else 29)}"$$$v",
+             |${" " * 29}StringUtils.isNotBlank($camelCaseVarName)
+             |${" " * 29}      ? $camelCaseVarName
+             |${" " * 29}      : Queries.EMPTY_FIELD_SENTINEL${if (idx + 1 < vars.length) "," else ");"}""".stripMargin)
       })
       writer.println(
         s"""      return runGoldenRecordsQuery($name, map);
@@ -193,18 +196,18 @@ object CustomLibMPIQueries {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
-          s"""${" " * 9}all(func: $fn(GoldenRecord.$v, $$$v${
+          s"""${" " * 12}all(func: $fn(GoldenRecord.$v, $$$v${
             if (meta(v)._2.isDefined) ", " + meta(v)._2.get else
               ""
           })) {
-             |${" " * 12}uid
-             |${" " * 12}GoldenRecord.source_id {
              |${" " * 15}uid
-             |${" " * 12}}""".stripMargin)
+             |${" " * 15}GoldenRecord.source_id {
+             |${" " * 18}uid
+             |${" " * 15}}""".stripMargin)
         fields.foreach(field => {
-          writer.println(s"${" " * 12}GoldenRecord.${field.fieldName}")
+          writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
         })
-        writer.println(s"${" " * 9}}")
+        writer.println(s"${" " * 12}}")
       })
     }
 
@@ -212,24 +215,24 @@ object CustomLibMPIQueries {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
-          s"""${" " * 9}var(func: $fn(GoldenRecord.$v, $$$v${
+          s"""${" " * 12}var(func: $fn(GoldenRecord.$v, $$$v${
             if (meta(v)._2.isDefined) ", " + meta(v)._2.get else ""
           })) {
-             |${" " * 12}${varsMap(v)} as uid
-             |${" " * 9}}""".stripMargin)
+             |${" " * 15}${varsMap(v)} as uid
+             |${" " * 12}}""".stripMargin)
       })
       writer.println(
-        s"""${" " * 9}all(func: uid(${(for (field <- varsMap) yield field._2).mkString(",")})) @filter ${
+        s"""${" " * 12}all(func: uid(${(for (field <- varsMap) yield field._2).mkString(",")})) @filter ${
           if (all_func_str.startsWith("(")) "" else "("
         }$all_func_str${if (all_func_str.startsWith("(")) "" else "("} {
-           |${" " * 12}uid
-           |${" " * 12}GoldenRecord.source_id {
            |${" " * 15}uid
-           |${" " * 12}}""".stripMargin)
+           |${" " * 15}GoldenRecord.source_id {
+           |${" " * 18}uid
+           |${" " * 15}}""".stripMargin)
       fields.foreach(field => {
-        writer.println(s"${" " * 12}GoldenRecord.${field.fieldName}")
+        writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
       })
-      writer.println(s"${" " * 9}}")
+      writer.println(s"${" " * 12}}")
     }
 
     var all_func_str = main_func(expression)
@@ -239,8 +242,8 @@ object CustomLibMPIQueries {
 
     writer.print(
       s"""${" " * 3}static final String ${name.toUpperCase} =
-         |${" " * 6}\"\"\"
-         |${" " * 6}query ${name.toLowerCase}(""".stripMargin)
+         |${" " * 9}\"\"\"
+         |${" " * 9}query ${name.toLowerCase}(""".stripMargin)
 
     vars.zipWithIndex.foreach((v, i) => {
       if (i > 0)
@@ -256,9 +259,9 @@ object CustomLibMPIQueries {
       createFilterFunc(fields, all_func_str)
     end if
     writer.println(
-      s"""${" " * 6}}
-         |${" " * 6}\"\"\";
-      """.stripMargin)
+      s"""${" " * 9}}
+         |${" " * 9}\"\"\";
+         |""".stripMargin)
   }
 
 }

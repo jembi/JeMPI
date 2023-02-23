@@ -10,19 +10,22 @@ pushd .
   source ./0-conf.env
 
   declare -a APPS=(
-    test-01
-    staging-01
-    controller
-    em
-    linker
-    api
+    jempi-sync-receiver
+    jempi-async-receiver
+    jempi-etl
+    jempi-controller
+    jempi-em
+    jempi-linker
+    jempi-api
   )
 
   for APP in ${APPS[@]}; do
     SERVICE=${STACK_NAME}_${APP}
     NAME=`docker ps -f name=$SERVICE --format "{{.Names}}"`
+    echo $SERVICE
     if [ -n "$NAME" ]; then
-#     docker service scale $SERVICE=0
+      echo $SERVICE
+      docker service scale $SERVICE=0
       docker wait $NAME
     fi
   done

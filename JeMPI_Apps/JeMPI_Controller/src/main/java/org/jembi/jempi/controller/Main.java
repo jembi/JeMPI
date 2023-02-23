@@ -25,8 +25,8 @@ public final class Main {
             context -> {
                final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEndActor);
-               final var entityStreamAsync = new FrontEndStreamAsync();
-               entityStreamAsync.open(context.getSystem(), backEndActor);
+               final var patientStreamAsync = new FrontEndStreamAsync();
+               patientStreamAsync.open(context.getSystem(), backEndActor);
                frontEndStreamSync = new FrontEndStreamSync();
                frontEndStreamSync.open(context.getSystem(), backEndActor);
                return Behaviors.receive(Void.class)

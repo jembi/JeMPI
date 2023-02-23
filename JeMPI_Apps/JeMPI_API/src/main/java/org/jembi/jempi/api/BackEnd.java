@@ -13,19 +13,13 @@ import org.jembi.jempi.api.keycloak.AkkaKeycloakDeploymentBuilder;
 import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.libmpi.MpiExpandedEntity;
-import org.jembi.jempi.libmpi.MpiExpandedGoldenRecord;
 import org.jembi.jempi.libmpi.MpiGeneralError;
-import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
-import org.jembi.jempi.shared.models.CustomEntity;
-import org.jembi.jempi.shared.models.CustomGoldenRecord;
-import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.models.LinkInfo;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
-import org.jembi.jempi.shared.utils.GoldenRecordUpdateRequestPayload;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
@@ -42,7 +36,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BackEnd extends AbstractBehavior<BackEnd.Event> {
+public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
 
@@ -52,7 +46,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static PsqlQueries psql = new PsqlQueries();
 
 
-   private BackEnd(ActorContext<Event> context) {
+   private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
          openMPI();
@@ -66,7 +60,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
       keycloakConfig = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfigStream);
       keycloak = AkkaKeycloakDeploymentBuilder.build(keycloakConfig);
-      LOGGER.debug("Keycloak configured, realm : " + keycloak.getRealm());
+      LOGGER.debug("Keycloak configured, realm : {}", keycloak.getRealm());
    }
 
    public static Behavior<BackEnd.Event> create() {
@@ -102,13 +96,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return builder
             .onMessage(EventLoginWithKeycloakRequest.class, this::eventLoginWithKeycloakHandler)
             .onMessage(EventGetGoldenRecordCountReq.class, this::eventGetGoldenRecordCountHandler)
-            .onMessage(EventGetDocumentCountReq.class, this::eventGetDocumentCountHandler)
+            .onMessage(EventGetPatientCountReq.class, this::eventGetPatientCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
-            .onMessage(EventGetGoldenIdListByPredicateReq.class, this::eventGetGoldenIdListByPredicateHandler)
-            .onMessage(EventGetGoldenIdListReq.class, this::eventGetGoldenIdListHandler)
+            .onMessage(EventGetGoldenIdsReq.class, this::eventGetGoldenIdsHandler)
             .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
-            .onMessage(EventGetGoldenRecordDocumentsReq.class, this::eventGetGoldenRecordDocumentsHandler)
-            .onMessage(EventGetExpandedPatientsReq.class, this::eventGetExpandedPatientsHandler)
+            .onMessage(EventGetExpandedGoldenRecordsReq.class, this::eventGetExpandedGoldenRecordsHandler)
+            .onMessage(EventGetExpandedPatientRecordsReq.class, this::eventGetExpandedPatientRecordsHandler)
             .onMessage(EventFindPatientByUidRequest.class, this::findPatientByUidEventHandler)
             .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
             .onMessage(EventUpdateGoldenRecordRequest.class, this::eventUpdateGoldenRecordHandler)
@@ -124,7 +117,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .build();
    }
 
-   private Behavior<Event> eventSimpleSearchGoldenRecordsHandler(EventSimpleSearchGoldenRecordsRequest request) {
+   private Behavior<Event> eventSimpleSearchGoldenRecordsHandler(final EventSimpleSearchGoldenRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -138,7 +131,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventCustomSearchGoldenRecordsHandler(EventCustomSearchGoldenRecordsRequest request) {
+   private Behavior<Event> eventCustomSearchGoldenRecordsHandler(final EventCustomSearchGoldenRecordsRequest request) {
       CustomSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -152,7 +145,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventSimpleSearchPatientRecordsHandler(EventSimpleSearchPatientRecordsRequest request) {
+   private Behavior<Event> eventSimpleSearchPatientRecordsHandler(final EventSimpleSearchPatientRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -166,7 +159,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventCustomSearchPatientRecordsHandler(EventCustomSearchPatientRecordsRequest request) {
+   private Behavior<Event> eventCustomSearchPatientRecordsHandler(final EventCustomSearchPatientRecordsRequest request) {
       CustomSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -202,22 +195,22 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
          User user = PsqlQueries.getUserByEmail(email);
          if (user == null) {
             // Register new user
-            LOGGER.debug("User registration ... " + email);
+            LOGGER.debug("User registration ... {}", email);
             User newUser = User.buildUserFromToken(token);
             user = PsqlQueries.registerUser(newUser);
          }
-         LOGGER.debug("User has signed in : " + user.getEmail());
+         LOGGER.debug("User has signed in : {}", user.getEmail());
          request.replyTo.tell(new EventLoginWithKeycloakResponse(user));
          return Behaviors.same();
       } catch (SQLException e) {
-         LOGGER.error("failed sql query: " + e.getMessage());
+         LOGGER.error("failed sql query: {}", e.getMessage());
       } catch (VerificationException e) {
-         LOGGER.error("failed verification of token: " + e.getMessage());
+         LOGGER.error("failed verification of token: {}", e.getMessage());
       } catch (ServerRequest.HttpFailure failure) {
          LOGGER.error("failed to turn code into token");
-         LOGGER.error("status from server: " + failure.getStatus());
+         LOGGER.error("status from server: {}", failure.getStatus());
          if (failure.getError() != null && !failure.getError().trim().isEmpty()) {
-            LOGGER.error("   " + failure.getError());
+            LOGGER.error(failure.getLocalizedMessage(), failure);
          }
       } catch (IOException e) {
          LOGGER.error("failed to turn code into token", e);
@@ -242,12 +235,12 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetDocumentCountHandler(final EventGetDocumentCountReq request) {
+   private Behavior<Event> eventGetPatientCountHandler(final EventGetPatientCountReq request) {
       LOGGER.debug("getDocumentCount");
       libMPI.startTransaction();
-      final var count = libMPI.countEntities();
+      final var count = libMPI.countPatientRecords();
       libMPI.closeTransaction();
-      request.replyTo.tell(new EventGetDocumentCountRsp(count));
+      request.replyTo.tell(new EventGetPatientCountRsp(count));
       return Behaviors.same();
    }
 
@@ -255,26 +248,17 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("getNumberOfRecords");
       libMPI.startTransaction();
       var recs = libMPI.countGoldenRecords();
-      var docs = libMPI.countEntities();
+      var docs = libMPI.countPatientRecords();
       libMPI.closeTransaction();
       request.replyTo.tell(new BackEnd.EventGetNumberOfRecordsRsp(recs, docs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetGoldenIdListByPredicateHandler(EventGetGoldenIdListByPredicateReq request) {
-      LOGGER.debug("getGoldenRecordsByPredicate");
+   private Behavior<Event> eventGetGoldenIdsHandler(final EventGetGoldenIdsReq request) {
+      LOGGER.debug("getGoldenIds");
       libMPI.startTransaction();
-      var recs = libMPI.getGoldenIdListByPredicate(request.predicate, request.val);
-      request.replyTo.tell(new EventGetGoldenIdListByPredicateRsp(recs));
-      libMPI.closeTransaction();
-      return Behaviors.same();
-   }
-
-   private Behavior<Event> eventGetGoldenIdListHandler(final EventGetGoldenIdListReq request) {
-      LOGGER.debug("getGoldenIdList");
-      libMPI.startTransaction();
-      var recs = libMPI.getGoldenIdList();
-      request.replyTo.tell(new EventGetGoldenIdListRsp(recs));
+      var recs = libMPI.getGoldenIds();
+      request.replyTo.tell(new EventGetGoldenIdsRsp(recs));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
@@ -282,26 +266,26 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> findGoldenRecordByUidEventHandler(final EventFindGoldenRecordByUidRequest request) {
       LOGGER.debug("findGoldenRecordByUidEventHandler");
       libMPI.startTransaction();
-      final var rec = libMPI.getGoldenRecord(request.uid);
+      final var rec = libMPI.getExpandedGoldenRecord(request.uid);
       request.replyTo.tell(new EventFindGoldenRecordByUidResponse(rec));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetGoldenRecordDocumentsHandler(final EventGetGoldenRecordDocumentsReq request) {
+   private Behavior<Event> eventGetExpandedGoldenRecordsHandler(final EventGetExpandedGoldenRecordsReq request) {
       LOGGER.debug("getGoldenRecordDocuments");
       libMPI.startTransaction();
-      final var mpiExpandedGoldenRecordList = libMPI.getMpiExpandedGoldenRecordList(request.uids);
-      request.replyTo.tell(new EventGetGoldenRecordDocumentsRsp(mpiExpandedGoldenRecordList));
+      final var mpiExpandedGoldenRecordList = libMPI.getExpandedGoldenRecords(request.uids);
+      request.replyTo.tell(new EventGetExpandedGoldenRecordsRsp(mpiExpandedGoldenRecordList));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetExpandedPatientsHandler(final EventGetExpandedPatientsReq request) {
+   private Behavior<Event> eventGetExpandedPatientRecordsHandler(final EventGetExpandedPatientRecordsReq request) {
       LOGGER.debug("getExpandedPatients");
       libMPI.startTransaction();
-      final var list = libMPI.getMpiExpandedEntityList(request.uids);
-      request.replyTo.tell(new EventGetExpandedPatientsRsp(list));
+      final var patients = libMPI.getExpandedPatients(request.uids);
+      request.replyTo.tell(new EventGetExpandedPatientRecordsRsp(patients));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
@@ -309,8 +293,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> findPatientByUidEventHandler(final EventFindPatientByUidRequest request) {
       LOGGER.debug("findPatientByUidEventHandler");
       libMPI.startTransaction();
-      final var patient = libMPI.getDocument(request.uid);
-      LOGGER.debug(patient + "  I want custom entity here");
+      final var patient = libMPI.getPatientRecord(request.uid);
       request.replyTo.tell(new EventFindPatientRecordByUidResponse(patient));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -320,16 +303,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.docID, request.mu);
       libMPI.startTransaction();
-      final var mpiEntity = libMPI.getMpiEntity(request.docID);
-      final var recs = libMPI.getCandidates(mpiEntity, true);
+      final var patient = libMPI.getPatientRecord(request.docID);
+      final var recs = libMPI.getCandidates(patient.demographicData(), true);
 
       CustomLinkerProbabilistic.updateMU(request.mu);
       CustomLinkerProbabilistic.checkUpdatedMU();
       final var candidates = recs
             .stream()
             .map(candidate -> new EventGetCandidatesRsp.Candidate(candidate,
-                                                                  CustomLinkerProbabilistic.probabilisticScore(candidate,
-                                                                                                               mpiEntity)))
+                                                                  CustomLinkerProbabilistic.probabilisticScore(candidate.demographicData(),
+                                                                                                               patient.demographicData())))
             .toList();
       request.replyTo.tell(new EventGetCandidatesRsp(Either.right(candidates)));
       libMPI.closeTransaction();
@@ -342,12 +325,11 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       List<GoldenRecordUpdateRequestPayload.Field> updatedFields = new ArrayList();
       LOGGER.debug("Golden record {} update.", uid);
-      for (int i = 0; i < fields.size(); i++) {
-         final var field = fields.get(i);
+      for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
          final var result = libMPI.updateGoldenRecordField(uid, field.name(), field.value());
          if (result) {
             LOGGER.debug("Golden record field update {} has been successfully updated.", field);
-            updatedFields.add(fields.get(i));
+            updatedFields.add(field);
          } else {
             LOGGER.debug("Golden record field update {} update has failed.", field);
          }
@@ -371,7 +353,7 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventNotificationRequestHandler(EventNotificationRequestReq request) {
+   private Behavior<Event> eventNotificationRequestHandler(final EventNotificationRequestReq request) {
       try {
          PsqlQueries.updateNotificationState(request.notificationId, request.state);
       } catch (SQLException exception) {
@@ -381,14 +363,16 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventPostCsvFileRequestHandler(EventPostCsvFileRequest request) throws IOException {
+   private Behavior<Event> eventPostCsvFileRequestHandler(final EventPostCsvFileRequest request) throws IOException {
       File file = request.file();
       FileInfo info = request.info();
       try {
          Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
          LOGGER.debug("File moved successfully");
          file.delete();
-      } catch (IOException e) {LOGGER.error(e);}
+      } catch (IOException e) {
+         LOGGER.error(e);
+      }
       request.replyTo.tell(new EventPostCsvFileResponse());
       return Behaviors.same();
    }
@@ -405,58 +389,57 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetGoldenRecordCountRsp(long count) implements EventResponse {
    }
 
-   public record EventGetDocumentCountReq(ActorRef<EventGetDocumentCountRsp> replyTo) implements Event {
+   public record EventGetPatientCountReq(ActorRef<EventGetPatientCountRsp> replyTo) implements Event {
    }
 
-   public record EventGetDocumentCountRsp(long count) implements EventResponse {
+   public record EventGetPatientCountRsp(long count) implements EventResponse {
    }
 
    public record EventGetNumberOfRecordsReq(ActorRef<EventGetNumberOfRecordsRsp> replyTo) implements Event {
    }
 
-   public record EventGetNumberOfRecordsRsp(long goldenRecords, long documents) implements EventResponse {
+   public record EventGetNumberOfRecordsRsp(
+         long goldenRecords,
+         long patients) implements EventResponse {
    }
 
-   public record EventGetGoldenIdListByPredicateReq(ActorRef<EventGetGoldenIdListByPredicateRsp> replyTo,
-                                                    String predicate,
-                                                    String val) implements Event {
+   public record EventGetGoldenIdsReq(ActorRef<EventGetGoldenIdsRsp> replyTo) implements Event {
    }
 
-   public record EventGetGoldenIdListByPredicateRsp(List<String> records) implements EventResponse {
+   public record EventGetGoldenIdsRsp(List<String> records) implements EventResponse {
    }
 
-   public record EventGetGoldenIdListReq(ActorRef<EventGetGoldenIdListRsp> replyTo) implements Event {
-   }
-
-   public record EventGetGoldenIdListRsp(List<String> records) implements EventResponse {
-   }
-
-   public record EventFindGoldenRecordByUidRequest(ActorRef<EventFindGoldenRecordByUidResponse> replyTo, String uid)
+   public record EventFindGoldenRecordByUidRequest(
+         ActorRef<EventFindGoldenRecordByUidResponse> replyTo,
+         String uid)
          implements Event {
    }
 
-   public record EventFindGoldenRecordByUidResponse(MpiExpandedGoldenRecord goldenRecord) implements EventResponse {
+   public record EventFindGoldenRecordByUidResponse(ExpandedGoldenRecord goldenRecord) implements EventResponse {
    }
 
-   public record EventGetGoldenRecordDocumentsReq(ActorRef<EventGetGoldenRecordDocumentsRsp> replyTo,
-                                                  List<String> uids) implements Event {
+   public record EventGetExpandedGoldenRecordsReq(
+         ActorRef<EventGetExpandedGoldenRecordsRsp> replyTo,
+         List<String> uids) implements Event {
    }
 
-   public record EventGetGoldenRecordDocumentsRsp(List<MpiExpandedGoldenRecord> goldenRecords)
+   public record EventGetExpandedGoldenRecordsRsp(List<ExpandedGoldenRecord> expandedGoldenRecords)
          implements EventResponse {
    }
 
-   public record EventGetExpandedPatientsReq(ActorRef<EventGetExpandedPatientsRsp> replyTo,
-                                             List<String> uids) implements Event {
+   public record EventGetExpandedPatientRecordsReq(
+         ActorRef<EventGetExpandedPatientRecordsRsp> replyTo,
+         List<String> uids) implements Event {
    }
 
-   public record EventGetExpandedPatientsRsp(List<MpiExpandedEntity> expandedPatients)
+   public record EventGetExpandedPatientRecordsRsp(List<ExpandedPatientRecord> expandedPatientRecords)
          implements EventResponse {
    }
 
 
-   public record EventFindPatientByUidRequest(ActorRef<EventFindPatientRecordByUidResponse> replyTo,
-                                              String uid) implements Event {
+   public record EventFindPatientByUidRequest(
+         ActorRef<EventFindPatientRecordByUidResponse> replyTo,
+         String uid) implements Event {
    }
 
    public record EventGetMatchesForReviewReq(ActorRef<EventGetMatchesForReviewListRsp> replyTo) implements Event {
@@ -465,51 +448,59 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetMatchesForReviewListRsp(List records) implements EventResponse {
    }
 
-   public record EventFindPatientRecordByUidResponse(CustomEntity document)
-           implements EventResponse, Event {
+   public record EventFindPatientRecordByUidResponse(PatientRecord patient)
+         implements EventResponse {
    }
 
-   public record EventUpdateGoldenRecordRequest(ActorRef<EventUpdateGoldenRecordResponse> replyTo,
-                                                String uid,
-                                                List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
+   public record EventUpdateGoldenRecordRequest(
+         ActorRef<EventUpdateGoldenRecordResponse> replyTo,
+         String uid,
+         List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
    }
 
    public record EventUpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
    }
 
-   public record EventPatchLinkReq(ActorRef<EventPatchLinkRsp> replyTo,
-                                   String goldenID,
-                                   String newGoldenID,
-                                   String docID,
-                                   Float score) implements Event {
+   public record EventPatchLinkReq(
+         ActorRef<EventPatchLinkRsp> replyTo,
+         String goldenID,
+         String newGoldenID,
+         String docID,
+         Float score) implements Event {
    }
 
    public record EventPatchLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
-   public record EventPatchUnLinkReq(ActorRef<EventPatchUnLinkRsp> replyTo,
-                                     String goldenID,
-                                     String docID,
-                                     float score) implements Event {
+   public record EventPatchUnLinkReq(
+         ActorRef<EventPatchUnLinkRsp> replyTo,
+         String goldenID,
+         String docID,
+         float score) implements Event {
    }
 
    public record EventPatchUnLinkRsp(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
-   public record EventGetCandidatesReq(ActorRef<EventGetCandidatesRsp> replyTo,
-                                       String docID, CustomMU mu) implements Event {
+   public record EventGetCandidatesReq(
+         ActorRef<EventGetCandidatesRsp> replyTo,
+         String docID,
+         CustomMU mu) implements Event {
    }
 
    public record EventGetCandidatesRsp(Either<MpiGeneralError, List<Candidate>> candidates) implements EventResponse {
-      record Candidate(CustomGoldenRecord goldenRecord, float score) {
+      record Candidate(
+            GoldenRecord goldenRecord,
+            float score) {
       }
    }
 
-   public record EventNotificationRequestReq(ActorRef<EventNotificationRequestRsp> replyTo,
-                                             String notificationId,
-                                             String state) implements Event {
+   public record EventNotificationRequestReq(
+         ActorRef<EventNotificationRequestRsp> replyTo,
+         String notificationId,
+         String state) implements Event {
    }
 
    public record EventNotificationRequestRsp() implements EventResponse {
@@ -519,8 +510,9 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
     * Authentication events
     */
 
-   public record EventLoginWithKeycloakRequest(ActorRef<EventLoginWithKeycloakResponse> replyTo,
-                                               OAuthCodeRequestPayload payload) implements Event {
+   public record EventLoginWithKeycloakRequest(
+         ActorRef<EventLoginWithKeycloakResponse> replyTo,
+         OAuthCodeRequestPayload payload) implements Event {
    }
 
    public record EventLoginWithKeycloakResponse(User user) implements EventResponse {
@@ -529,30 +521,37 @@ public class BackEnd extends AbstractBehavior<BackEnd.Event> {
    /**
     * Search events
     */
-   public record EventSimpleSearchGoldenRecordsRequest(ActorRef<EventSearchGoldenRecordsResponse> replyTo,
-                                                       SimpleSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventSimpleSearchGoldenRecordsRequest(
+         ActorRef<EventSearchGoldenRecordsResponse> replyTo,
+         SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record EventCustomSearchGoldenRecordsRequest(ActorRef<EventSearchGoldenRecordsResponse> replyTo,
-                                                       CustomSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventCustomSearchGoldenRecordsRequest(
+         ActorRef<EventSearchGoldenRecordsResponse> replyTo,
+         CustomSearchRequestPayload searchRequestPayload) implements Event {
    }
 
    public record EventSearchGoldenRecordsResponse(
-         LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> records) implements EventResponse {
+         LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {
    }
 
-   public record EventSimpleSearchPatientRecordsRequest(ActorRef<EventSearchPatientRecordsResponse> replyTo,
-                                                        SimpleSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventSimpleSearchPatientRecordsRequest(
+         ActorRef<EventSearchPatientRecordsResponse> replyTo,
+         SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record EventCustomSearchPatientRecordsRequest(ActorRef<EventSearchPatientRecordsResponse> replyTo,
-                                                        CustomSearchRequestPayload searchRequestPayload) implements Event {
+   public record EventCustomSearchPatientRecordsRequest(
+         ActorRef<EventSearchPatientRecordsResponse> replyTo,
+         CustomSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<CustomEntity> records) implements EventResponse {
+   public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<PatientRecord> records) implements EventResponse {
    }
 
-   public record EventPostCsvFileRequest(ActorRef<EventPostCsvFileResponse> replyTo, FileInfo info, File file)
+   public record EventPostCsvFileRequest(
+         ActorRef<EventPostCsvFileResponse> replyTo,
+         FileInfo info,
+         File file)
          implements Event {
    }
 

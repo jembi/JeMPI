@@ -7,6 +7,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record RecUidUidList(@JsonProperty("list") List<RecUidList> list) {
-   record RecUidList(@JsonProperty("uid") String uid,
-                     @JsonProperty("list") List<LibMPIUid> list) {}
+   record RecUidList(
+         @JsonProperty("uid") String uid,
+         @JsonProperty("list") List<LibMPIUid> list) {}
 }
