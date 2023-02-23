@@ -5,7 +5,9 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.*;
+import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
 import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
@@ -14,207 +16,206 @@ import java.util.List;
 
 import static io.dgraph.DgraphProto.Operation.DropOp.DATA;
 
-public class LibDgraph implements LibMPIClientInterface {
+public final class LibDgraph implements LibMPIClientInterface {
 
-    private static final Logger LOGGER = LogManager.getLogger(LibDgraph.class);
+   private static final Logger LOGGER = LogManager.getLogger(LibDgraph.class);
 
-    public LibDgraph(final String[] host, final int[] port) {
-        LOGGER.info("{}", "LibDgraph Constructor");
+   public LibDgraph(
+         final String[] host,
+         final int[] port) {
+      LOGGER.info("{}", "LibDgraph Constructor");
 
-        Client.getInstance().config(host, port);
-    }
+      Client.getInstance().config(host, port);
+   }
 
-    /*
-     * *******************************************************
-     * QUERIES
-     * *******************************************************
-     *
-     */
+   /*
+    * *******************************************************
+    * QUERIES
+    * *******************************************************
+    *
+    */
 
-    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> simpleSearchGoldenRecords(
-            List<SimpleSearchRequestPayload.SearchParameter> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc
-    ) {
-        final var list = Queries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
-        if (list == null) {
-            return null;
-        }
-        final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
-        final var pagination = list.pagination().get(0);
-        return new LibMPIPaginatedResultSet(data, pagination);
-    }
-    public LibMPIPaginatedResultSet<MpiExpandedGoldenRecord> customSearchGoldenRecords(
-            List<SimpleSearchRequestPayload> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc
-    ) {
-        final var list = Queries.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
-        if (list == null) {
-            return null;
-        }
-        final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
-        final var pagination = list.pagination().get(0);
-        return new LibMPIPaginatedResultSet(data, pagination);
-    }
-    public LibMPIPaginatedResultSet<CustomEntity> simpleSearchPatientRecords(
-            List<SimpleSearchRequestPayload.SearchParameter> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc
-    ) {
-        final var list = Queries.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
-        if (list == null) {
-            return null;
-        }
-        final var data = list.all().stream().map(CustomLibMPIDGraphEntity::toCustomEntity).toList();
-        final var pagination = list.pagination().get(0);
-        return new LibMPIPaginatedResultSet(data, pagination);
-    }
-    public LibMPIPaginatedResultSet<CustomEntity> customSearchPatientRecords(
-            List<SimpleSearchRequestPayload> params,
-            Integer offset,
-            Integer limit,
-            String sortBy,
-            Boolean sortAsc
-    ) {
-        final var list = Queries.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
-        if (list == null) {
-            return null;
-        }
-        final var data = list.all().stream().map(CustomLibMPIDGraphEntity::toCustomEntity).toList();
-        final var pagination = list.pagination().get(0);
-        return new LibMPIPaginatedResultSet(data, pagination);
-    }
+   public long countPatientRecords() {
+      return Queries.countPatients();
+   }
 
-    public List<CustomGoldenRecord> getCandidates(final CustomEntity customEntity,
-            final boolean applyDeterministicFilter) {
-        // final var dgraphEntity = new CustomLibMPIDGraphEntity(mpiEntity.entity(),
-        // mpiEntity.score());
-        final var candidates = CustomLibMPIQueries.getCandidates(customEntity, applyDeterministicFilter);
-        return candidates.stream().map(CustomLibMPIGoldenRecord::toCustomGoldenRecord).toList();
-    }
+   public long countGoldenRecords() {
+      return Queries.countGoldenRecords();
+   }
 
-    public List<MpiExpandedEntity> getMpiExpandedEntityList(final List<String> idList) {
-        final var list = Queries.getExpandedEntityList(idList);
-        return list.stream().map(CustomLibMPIExpandedEntity::toMpiExpandedEntity).toList();
-    }
+   public PatientRecord getPatientRecord(final String uid) {
+      return Queries.getDGraphPatientRecord(uid);
+   }
 
-    public List<MpiExpandedGoldenRecord> getMpiExpandedGoldenRecordList(final List<String> goldenIdList) {
-        final var list = Queries.getExpandedGoldenRecordList(goldenIdList);
-        return list.stream().map(CustomLibMPIExpandedGoldenRecord::toMpiExpandedGoldenRecord).toList();
-    }
+   public GoldenRecord getGoldenRecord(final String uid) {
+      final var rec = Queries.getGoldenRecordByUid(uid);
+      if (rec == null) {
+         return null;
+      }
+      return rec.toGoldenRecord();
+   }
 
-    public List<String> getGoldenIdListByPredicate(final String predicate, final String val) {
-        return Queries.getGoldenIdListByPredicate(predicate, val);
-    }
+   public List<GoldenRecord> getCandidates(
+         final CustomDemographicData demographicData,
+         final boolean applyDeterministicFilter) {
+      final var candidates = CustomLibMPIQueries.getCandidates(demographicData, applyDeterministicFilter);
+      return candidates.stream().map(CustomLibMPIGoldenRecord::toGoldenRecord).toList();
+   }
 
-    public MpiExpandedGoldenRecord getGoldenRecordByUid(final String uid) {
-        final var rec = Queries.getGoldenRecordByUid(uid);
-        if (rec == null) {
-            return null;
-        }
-        return rec.toMpiExpandedGoldenRecord();
-    }
+   public List<ExpandedPatientRecord> getExpandedPatients(final List<String> ids) {
+      final var list = Queries.getExpandedPatientRecords(ids);
+      return list.stream().map(CustomLibMPIExpandedPatientRecord::toExpandedPatientRecord).toList();
+   }
 
-    public CustomEntity getMpiEntity(final String uid) {
-        final var customEntity = Queries.getDGraphEntity(uid);
-        return customEntity;
-    }
+   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> GoldenIds) {
+      final var list = Queries.getExpandedGoldenRecordList(GoldenIds);
+      return list.stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+   }
 
-    public List<String> getGoldenIdList() {
-        return Queries.getGoldenIdList();
-    }
+   public List<String> getGoldenIds() {
+      return Queries.getGoldenIds();
+   }
 
-    @Override
-    public CustomEntity getDocument(String uid) {
-        final var rec = Queries.getDGraphEntity(uid);
-        return rec;
-    }
+   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
+         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
+                                                                                  ) {
+      final var list = Queries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      if (list == null) {
+         return null;
+      }
+      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+      final var pagination = list.pagination().get(0);
+      return new LibMPIPaginatedResultSet<ExpandedGoldenRecord>(data, pagination);
+   }
 
-    public long countGoldenRecords() {
-        return Queries.countGoldenRecords();
-    }
+   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
+         final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
+                                                                                  ) {
+      final var list = Queries.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      if (list == null) {
+         return null;
+      }
+      final var data = list.all().stream().map(CustomLibMPIExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+      final var pagination = list.pagination().get(0);
+      return new LibMPIPaginatedResultSet<ExpandedGoldenRecord>(data, pagination);
+   }
 
-    public long countEntities() {
-        return Queries.countEntities();
-    }
+   public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
+         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
+                                                                            ) {
+      final var list = Queries.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+      if (list == null) {
+         return null;
+      }
+      final var data = list.all().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecord).toList();
+      final var pagination = list.pagination().get(0);
+      return new LibMPIPaginatedResultSet<PatientRecord>(data, pagination);
+   }
 
-    /*
-     * *******************************************************
-     * MUTATIONS
-     * *******************************************************
-     */
+   public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
+         final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
+                                                                            ) {
+      final var list = Queries.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+      if (list == null) {
+         return null;
+      }
+      final var data = list.all().stream().map(CustomLibMPIDGraphPatientRecord::toPatientRecord).toList();
+      final var pagination = list.pagination().get(0);
+      return new LibMPIPaginatedResultSet<PatientRecord>(data, pagination);
+   }
 
-    public boolean updateGoldenRecordField(final String uid, final String fieldName, final String val) {
-        final var rc = Mutations.updateGoldenRecordField(uid, fieldName, val);
-        return rc;
-    }
+   /*
+    * *******************************************************
+    * MUTATIONS
+    * *******************************************************
+    */
 
-    public Either<MpiGeneralError, LinkInfo> unLink(final String goldenID, final String entityID, final float score) {
-        return Mutations.unLink(goldenID, entityID, score);
-    }
+   public boolean updateGoldenRecordField(
+         final String uid,
+         final String fieldName,
+         final String val) {
+      return Mutations.updateGoldenRecordField(uid, fieldName, val);
+   }
 
-    public Either<MpiGeneralError, LinkInfo> updateLink(final String goldenID, final String newGoldenID,
-            final String entityID,
-            final float score) {
-        return Mutations.updateLink(goldenID, newGoldenID, entityID, score);
-    }
+   public Either<MpiGeneralError, LinkInfo> unLink(
+         final String goldenUID,
+         final String patientUID,
+         final float score) {
+      return Mutations.unLink(goldenUID, patientUID, score);
+   }
 
-    public LinkInfo createEntityAndLinkToExistingGoldenRecord(final CustomEntity customEntity,
-            final GoldenIdScore goldenIdScore) {
-        // final var dgraphEntity = new CustomLibMPIDGraphEntity(customEntity,
-        // goldenIdScore);
-        return Mutations.linkDGraphEntity(customEntity, goldenIdScore);
-    }
+   public Either<MpiGeneralError, LinkInfo> updateLink(
+         final String goldenUID,
+         final String newGoldenUID,
+         final String patientUID,
+         final float score) {
+      return Mutations.updateLink(goldenUID, newGoldenUID, patientUID, score);
+   }
 
-    public LinkInfo createEntityAndLinkToClonedGoldenRecord(final CustomEntity customEntity, float score) {
-        final var dgraphEntity = new CustomLibMPIDGraphEntity(customEntity, score);
-        final var linkInfo = Mutations.addNewDGraphEntity(customEntity);
-        return linkInfo;
-    }
+   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
+         final PatientRecord patientRecord,
+         final GoldenUIDScore goldenUIDScore) {
+      return Mutations.linkDGraphPatient(patientRecord, goldenUIDScore);
+   }
 
-    public void startTransaction() {
-        Client.getInstance().startTransaction();
-    }
+   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
+         final PatientRecord patientRecord,
+         final float score) {
+      return Mutations.addNewDGraphPatient(patientRecord);
+   }
 
-    public void closeTransaction() {
-        Client.getInstance().closeTransaction();
-    }
+   public void startTransaction() {
+      Client.getInstance().startTransaction();
+   }
 
-    /*
-     * *******************************************************
-     * DATABASE
-     * *******************************************************
-     */
+   public void closeTransaction() {
+      Client.getInstance().closeTransaction();
+   }
 
-    public Option<MpiGeneralError> dropAll() {
-        try {
-            Client.getInstance().alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
-            return Option.none();
-        } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage(), e);
-            return Option.of(new MpiServiceError.GeneralError("Drop All Error"));
-        }
-    }
+   /*
+    * *******************************************************
+    * DATABASE
+    * *******************************************************
+    */
 
-    public Option<MpiGeneralError> dropAllData() {
-        try {
-            Client.getInstance().alter(DgraphProto.Operation.newBuilder().setDropOp(DATA).build());
-            return Option.none();
-        } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage());
-            return Option.of(new MpiServiceError.GeneralError("Drop All Data Error"));
-        }
-    }
+   public Option<MpiGeneralError> dropAll() {
+      try {
+         Client.getInstance().alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
+         return Option.none();
+      } catch (RuntimeException e) {
+         LOGGER.error(e.getMessage(), e);
+         return Option.of(new MpiServiceError.GeneralError("Drop All Error"));
+      }
+   }
 
-    public Option<MpiGeneralError> createSchema() {
-        return Mutations.createSchema();
-    }
+   public Option<MpiGeneralError> dropAllData() {
+      try {
+         Client.getInstance().alter(DgraphProto.Operation.newBuilder().setDropOp(DATA).build());
+         return Option.none();
+      } catch (RuntimeException e) {
+         LOGGER.error(e.getMessage());
+         return Option.of(new MpiServiceError.GeneralError("Drop All Data Error"));
+      }
+   }
+
+   public Option<MpiGeneralError> createSchema() {
+      return Mutations.createSchema();
+   }
 
 }

@@ -10,8 +10,8 @@ export ASYNC_RECEIVER_JAR=AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar
 export SYNC_RECEIVER_IMAGE=sync_receiver:1.0-SNAPSHOT
 export SYNC_RECEIVER_JAR=SyncReceiver-1.0-SNAPSHOT-spring-boot.jar
 
-export PREPROCESSOR_IMAGE=preprocessor:1.0-SNAPSHOT
-export PREPROCESSOR_JAR=PreProcessor-1.0-SNAPSHOT-spring-boot.jar
+export ETL_IMAGE=etl:1.0-SNAPSHOT
+export ETL_JAR=ETL-1.0-SNAPSHOT-spring-boot.jar
 
 export CONTROLLER_IMAGE=controller:1.0-SNAPSHOT
 export CONTROLLER_JAR=Controller-1.0-SNAPSHOT-spring-boot.jar

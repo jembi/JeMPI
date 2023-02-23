@@ -4,7 +4,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomLibMPIGoldenRecord {
 
-  private val classLocation = "../JeMPI_Shared_Source/custom"
+  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomLibMPIGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
@@ -19,14 +19,15 @@ private object CustomLibMPIGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.GoldenRecord;
          |
          |import java.util.List;
          |
-         |import org.jembi.jempi.shared.models.CustomGoldenRecord;
-         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
-         |record $customClassName (@JsonProperty("uid") String uid,
-         |${" "* margin}@JsonProperty("GoldenRecord.source_id") List<LibMPISourceId> sourceId,""".stripMargin)
+         |record $customClassName(
+         |${" " * 6}@JsonProperty("uid") String uid,
+         |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<LibMPISourceId> sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
         val propertyName = "GoldenRecord." + field.fieldName
@@ -36,20 +37,20 @@ private object CustomLibMPIGoldenRecord {
             (if (field.isList.isDefined && field.isList.get) ">" else "")
         val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(
-          s"""${" " * margin}@JsonProperty("$propertyName") $parameterType $parameterName${
+          s"""${" " * 6}@JsonProperty("$propertyName") $parameterType $parameterName${
             if (idx + 1 < fields.length) ","
             else ") {"
           }""".stripMargin)
     }
     writer.println(
       s"""
-         |${" " * 3}$customClassName(final CustomLibMPIDGraphEntity dgraphEntity) {
+         |${" " * 3}$customClassName(final CustomLibMPIDGraphPatientRecord rec) {
          |${" " * 6}this(null,
-         |${" " * 11}List.of(dgraphEntity.sourceId()),""".stripMargin)
+         |${" " * 11}List.of(rec.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
         val arg = (if (field.isList.isDefined && field.isList.get) "List.of(" else "") +
-          "dgraphEntity." + Utils.snakeCaseToCamelCase(field.fieldName) +
+          "rec." + Utils.snakeCaseToCamelCase(field.fieldName) +
           "()" +
           (if (field.isList.isDefined && field.isList.get) ")" else "")
         writer.println(
@@ -57,18 +58,19 @@ private object CustomLibMPIGoldenRecord {
     }
     writer.println(s"   }")
 
-    writer.println(
+    writer.print(
       s"""
-         |   CustomGoldenRecord toCustomGoldenRecord() {
-         |      return new CustomGoldenRecord(this.uid(),
-         |                                    this.sourceId() != null
-         |                                      ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
-         |                                      : List.of(),""".stripMargin)
+         |   GoldenRecord toGoldenRecord() {
+         |      return new GoldenRecord(this.uid(),
+         |                              this.sourceId() != null
+         |                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+         |                                    : List.of(),
+         |                              new CustomDemographicData(""".stripMargin)
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
-          s"${" " * 36}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
-            (if (idx + 1 < fields.length) "," else ");"))
+          s"${" " * (if (idx == 0) 0 else 56)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
+            (if (idx + 1 < fields.length) "," else "));"))
     }
     writer.println("   }")
     writer.println()

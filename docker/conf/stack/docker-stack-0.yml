@@ -299,7 +299,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_POSTGRESQL}    
+        - node.hostname == ${PLACEMENT_POSTGRESQL}
 
 
   jempi-async-receiver:
@@ -365,17 +365,17 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_SYNC_RECEIVER}
 
-  jempi-pre-processor:
-    image: ${IMAGE_REGISTRY}${PREPROCESSOR_IMAGE}
+  jempi-etl:
+    image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     networks:
     - backend-kafka
     volumes:
     - type: bind
-      source: $DATA_DIR_PREPROCESSOR/conf
+      source: $DATA_DIR_ETL/conf
       target: /app/conf
       read_only: true
     - type: bind
-      source: $DATA_DIR_PREPROCESSOR/logs
+      source: $DATA_DIR_ETL/logs
       target: /app/logs
       read_only: false
     deploy:
@@ -390,7 +390,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_PREPROCESSOR}
+        - node.hostname == ${PLACEMENT_ETL}
 
   jempi-controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
