@@ -18,4 +18,4 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file ../../JeMPI_Apps/pom.xml
+      run: mvn -B package --file ./JeMPI_Apps/pom.xml
