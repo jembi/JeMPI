@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
+import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 
 final class CustomLibMPIQueries {
 
@@ -113,7 +113,7 @@ final class CustomLibMPIQueries {
          """;
 
 
-   static LibMPIGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
+   static DgraphGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
       final var familyName = demographicData.familyName();
       final var phoneNumber = demographicData.phoneNumber();
@@ -123,28 +123,28 @@ final class CustomLibMPIQueries {
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
       final var nationalIdIsBlank = StringUtils.isBlank(nationalId);
       if ((nationalIdIsBlank && (givenNameIsBlank || familyNameIsBlank || phoneNumberIsBlank))) {
-         return new LibMPIGoldenRecords(List.of());
+         return new DgraphGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
                              StringUtils.isNotBlank(givenName)
                                    ? givenName
-                                   : Queries.EMPTY_FIELD_SENTINEL,
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$family_name",
                              StringUtils.isNotBlank(familyName)
                                    ? familyName
-                                   : Queries.EMPTY_FIELD_SENTINEL,
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$phone_number",
                              StringUtils.isNotBlank(phoneNumber)
                                    ? phoneNumber
-                                   : Queries.EMPTY_FIELD_SENTINEL,
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$national_id",
                              StringUtils.isNotBlank(nationalId)
                                    ? nationalId
-                                   : Queries.EMPTY_FIELD_SENTINEL);
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL);
       return runGoldenRecordsQuery(QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES, map);
    }
 
-   static LibMPIGoldenRecords queryMatchGoldenRecordCandidatesByDistance(final CustomDemographicData demographicData) {
+   static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByDistance(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName();
       final var familyName = demographicData.familyName();
       final var city = demographicData.city();
@@ -152,34 +152,34 @@ final class CustomLibMPIQueries {
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var cityIsBlank = StringUtils.isBlank(city);
       if (((givenNameIsBlank || familyNameIsBlank) && (givenNameIsBlank || cityIsBlank) && (familyNameIsBlank || cityIsBlank))) {
-         return new LibMPIGoldenRecords(List.of());
+         return new DgraphGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
                              StringUtils.isNotBlank(givenName)
                                    ? givenName
-                                   : Queries.EMPTY_FIELD_SENTINEL,
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$family_name",
                              StringUtils.isNotBlank(familyName)
                                    ? familyName
-                                   : Queries.EMPTY_FIELD_SENTINEL,
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$city",
                              StringUtils.isNotBlank(city)
                                    ? city
-                                   : Queries.EMPTY_FIELD_SENTINEL);
+                                   : DgraphQueries.EMPTY_FIELD_SENTINEL);
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE, map);
    }
 
-   static LibMPIGoldenRecords queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomDemographicData demographicData) {
+   static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.phoneNumber())) {
-         return new LibMPIGoldenRecords(List.of());
+         return new DgraphGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$phone_number", demographicData.phoneNumber());
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
 
-   static LibMPIGoldenRecords queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
+   static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.nationalId())) {
-         return new LibMPIGoldenRecords(List.of());
+         return new DgraphGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", demographicData.nationalId());
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
@@ -187,7 +187,7 @@ final class CustomLibMPIQueries {
 
    private static void updateCandidates(
          final List<CustomLibMPIGoldenRecord> goldenRecords,
-         final LibMPIGoldenRecords block) {
+         final DgraphGoldenRecords block) {
       final var candidates = block.all();
       if (!candidates.isEmpty()) {
          candidates.forEach(candidate -> {
@@ -210,7 +210,7 @@ final class CustomLibMPIQueries {
          final boolean applyDeterministicFilter) {
 
       if (applyDeterministicFilter) {
-         final var result = Queries.deterministicFilter(patient);
+         final var result = DgraphQueries.deterministicFilter(patient);
          if (!result.isEmpty()) {
             return result;
          }

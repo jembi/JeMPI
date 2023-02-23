@@ -170,6 +170,29 @@ private object CustomLibMPIConstants {
          |""".stripMargin)
   }
 
+  private def query_get_golden_records(writer: PrintWriter, fields: Array[Field]): Unit = {
+    writer.println(
+      s"""   static final String QUERY_GET_GOLDEN_RECORDS =
+         |         \"\"\"
+         |         query goldenRecord() {
+         |            all(func: uid(%s)) {
+         |               uid
+         |               GoldenRecord.source_id {
+         |                  uid
+         |                  SourceId.facility
+         |                  SourceId.patient
+         |               }""".stripMargin)
+    fields.foreach(field => {
+      val name = field.fieldName
+      writer.println(s"               GoldenRecord.$name")
+    })
+    writer.println(
+      s"""            }
+         |         }
+         |         \"\"\";
+         |""".stripMargin)
+  }
+
   private def query_get_expanded_golden_records(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
@@ -388,6 +411,7 @@ private object CustomLibMPIConstants {
     query_get_patient_by_uid(writer, fields)
     query_get_golden_record_by_uid(writer, fields)
     query_get_expanded_patients(writer, fields)
+    query_get_golden_records(writer, fields)
     query_get_expanded_golden_records(writer, fields)
     mutation_create_source_id_type(writer)
     mutation_create_source_id_fields(writer, fields)

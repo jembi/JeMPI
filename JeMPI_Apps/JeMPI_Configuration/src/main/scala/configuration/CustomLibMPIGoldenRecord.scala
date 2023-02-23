@@ -27,7 +27,7 @@ private object CustomLibMPIGoldenRecord {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |${" " * 6}@JsonProperty("uid") String uid,
-         |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<LibMPISourceId> sourceId,""".stripMargin)
+         |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
         val propertyName = "GoldenRecord." + field.fieldName
@@ -63,7 +63,7 @@ private object CustomLibMPIGoldenRecord {
          |   GoldenRecord toGoldenRecord() {
          |      return new GoldenRecord(this.uid(),
          |                              this.sourceId() != null
-         |                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+         |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
          |                                    : List.of(),
          |                              new CustomDemographicData(""".stripMargin)
     fields.zipWithIndex.foreach {

@@ -10,13 +10,13 @@ pushd .
   source ./0-conf.env
 
   declare -a APPS=(
-    jempi-sync-receiver
-    jempi-async-receiver
-    jempi-etl
-    jempi-controller
-    jempi-em
-    jempi-linker
-    jempi-api
+    sync-receiver
+    async-receiver
+    etl
+    controller
+    em
+    linker
+    api
   )
 
   for APP in ${APPS[@]}; do

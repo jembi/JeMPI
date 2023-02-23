@@ -12,6 +12,7 @@ import akka.http.javadsl.server.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.models.CalculateScoresRequest;
 import org.jembi.jempi.shared.models.ExtendedLinkInfo;
 import org.jembi.jempi.shared.models.LinkPatientSyncBody;
 import org.jembi.jempi.shared.models.LinkPatientToGidSyncBody;
@@ -55,28 +56,6 @@ final class PatientStreamSync extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.EventLinkPatientToGidSyncRsp> postLinkPatientToGid(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final LinkPatientToGidSyncBody body) {
-      CompletionStage<BackEnd.EventLinkPatientToGidSyncRsp> stage = AskPattern.ask(backEnd,
-                                                                                   replyTo -> new BackEnd.EventLinkPatientToGidSyncReq(
-                                                                                         body,
-                                                                                         replyTo),
-                                                                                   java.time.Duration.ofSeconds(11),
-                                                                                   actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-
-   private CompletionStage<BackEnd.EventGetMURsp> getMU(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.EventGetMURsp> stage =
-            AskPattern.ask(backEnd, BackEnd.EventGetMUReq::new, java.time.Duration.ofSeconds(11), actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
    private Route routeLinkPatient(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -95,6 +74,19 @@ final class PatientStreamSync extends AllDirectives {
                     }));
    }
 
+   private CompletionStage<BackEnd.EventLinkPatientToGidSyncRsp> postLinkPatientToGid(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final LinkPatientToGidSyncBody body) {
+      CompletionStage<BackEnd.EventLinkPatientToGidSyncRsp> stage = AskPattern.ask(backEnd,
+                                                                                   replyTo -> new BackEnd.EventLinkPatientToGidSyncReq(
+                                                                                         body,
+                                                                                         replyTo),
+                                                                                   java.time.Duration.ofSeconds(11),
+                                                                                   actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    private Route routeLinkPatientToGid(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -103,6 +95,14 @@ final class PatientStreamSync extends AllDirectives {
                                       response -> response.isSuccess()
                                             ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
                                             : complete(StatusCodes.IM_A_TEAPOT)));
+   }
+
+   private CompletionStage<BackEnd.EventGetMURsp> getMU(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.EventGetMURsp> stage =
+            AskPattern.ask(backEnd, BackEnd.EventGetMUReq::new, java.time.Duration.ofSeconds(11), actorSystem.scheduler());
+      return stage.thenApply(response -> response);
    }
 
    private Route routeMU(
@@ -114,14 +114,39 @@ final class PatientStreamSync extends AllDirectives {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+   private CompletionStage<BackEnd.EventCalculateScoresRsp> postCalculateScores(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final CalculateScoresRequest body) {
+      CompletionStage<BackEnd.EventCalculateScoresRsp> stage = AskPattern.ask(
+            backEnd,
+            replyTo -> new BackEnd.EventCalculateScoresReq(body, replyTo),
+            java.time.Duration.ofSeconds(11),
+            actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   private Route routeCalculateScores(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return entity(Jackson.unmarshaller(CalculateScoresRequest.class),
+                    obj -> onComplete(postCalculateScores(actorSystem, backEnd, obj),
+                                      response -> response.isSuccess()
+                                            ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
+                                            : complete(StatusCodes.IM_A_TEAPOT)));
+   }
+
    private Route createRoute(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(post(() -> concat(path("link_patient", () -> routeLinkPatient(actorSystem, backEnd)),
-                                                       path("link_patient_to_gid",
-                                                            () -> routeLinkPatientToGid(actorSystem, backEnd)))),
-                                     get(() -> concat(path("mu", () -> routeMU(actorSystem, backEnd))))));
+                        () -> concat(
+                              post(() -> concat(
+                                    path("link_patient", () -> routeLinkPatient(actorSystem, backEnd)),
+                                    path("link_patient_to_gid", () -> routeLinkPatientToGid(actorSystem, backEnd)),
+                                    path("calculate-scores", () -> routeCalculateScores(actorSystem, backEnd)))),
+                              get(() -> concat(
+                                    path("mu", () -> routeMU(actorSystem, backEnd))))));
    }
 
 }

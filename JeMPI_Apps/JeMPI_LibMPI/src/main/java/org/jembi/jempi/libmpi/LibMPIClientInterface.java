@@ -39,19 +39,23 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   PatientRecord getPatientRecord(String uid);
+   PatientRecord getPatientRecord(String patientId);
 
-   GoldenRecord getGoldenRecord(String uid);
+   GoldenRecord getGoldenRecord(String goldenId);
+
+   List<PatientRecord> getPatientRecords(List<String> patientIds);
+
+   List<GoldenRecord> getGoldenRecords(List<String> goldenIds);
+
+   List<ExpandedPatientRecord> getExpandedPatientRecords(List<String> patientIds);
+
+   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> goldenIds);
+
+   List<String> getGoldenIds();
 
    List<GoldenRecord> getCandidates(
          CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
-
-   List<ExpandedPatientRecord> getExpandedPatients(List<String> ids);
-
-   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> ids);
-
-   List<String> getGoldenIds();
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
@@ -90,31 +94,31 @@ public interface LibMPIClientInterface {
     */
 
    boolean updateGoldenRecordField(
-         String uid,
+         String goldenId,
          String fieldName,
          String value);
 
    Either<MpiGeneralError, LinkInfo> unLink(
-         String goldenUID,
-         String patientUID,
+         String goldenId,
+         String patientId,
          float score);
 
    Either<MpiGeneralError, LinkInfo> updateLink(
-         String goldenUID,
-         String newGoldenUID,
-         String patientUID,
+         String goldenId,
+         String newGoldenId,
+         String patientId,
          float score);
 
    LinkInfo createPatientAndLinkToExistingGoldenRecord(
          PatientRecord patientRecord,
-         GoldenUIDScore goldenUIDScore);
+         GoldenIdScore goldenIdScore);
 
    LinkInfo createPatientAndLinkToClonedGoldenRecord(
          PatientRecord patientRecord,
          float score);
 
-   record GoldenUIDScore(
-         String goldenUID,
+   record GoldenIdScore(
+         String goldenId,
          float score) {
    }
 

@@ -118,8 +118,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventLinkPatientToGidSyncReq.class, this::eventLinkPatientToGidSyncHandler)
             .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
             .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+            .onMessage(EventCalculateScoresReq.class, this::eventCalculateScoresHandler)
             .build();
-
    }
 
    private Behavior<Event> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
@@ -161,7 +161,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          } else {
             linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(
                   patientRecord,
-                  new LibMPIClientInterface.GoldenUIDScore(gid, score));
+                  new LibMPIClientInterface.GoldenIdScore(gid, score));
             CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, gid);
          }
       } finally {
@@ -252,11 +252,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                                                              candidate.score)));
                }
             } else {
-               final var linkToGoldenId = new LibMPIClientInterface.GoldenUIDScore(
+               final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
                      candidatesAboveMatchThreshold.get(0).goldenRecord.uid(),
                      candidatesAboveMatchThreshold.get(0).score);
                linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(patientRecord, linkToGoldenId);
-               CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenUID());
+               CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenId());
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
@@ -286,6 +286,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return linkInfo == null
             ? Either.right(externalLinkCandidateList)
             : Either.left(linkInfo);
+   }
+
+   private CalculateScoresResponse calculateScores(final CalculateScoresRequest request) {
+      final var patientRecord = libMPI.getPatientRecord(request.patientUid());
+      final var goldenRecords = libMPI.getGoldenRecords(request.goldenUids());
+      LOGGER.debug("{}", patientRecord);
+      LOGGER.debug("{}", goldenRecords);
+      final var scores = goldenRecords
+            .parallelStream()
+            .unordered()
+            .map(goldenRecord -> new CalculateScoresResponse.Score(
+                  goldenRecord.uid(),
+                  calcNormalizedScore(goldenRecord.demographicData(), patientRecord.demographicData())))
+            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+            .collect(Collectors.toCollection(ArrayList::new));
+      return new CalculateScoresResponse(request.patientUid(), scores);
+   }
+
+   private Behavior<Event> eventCalculateScoresHandler(final EventCalculateScoresReq req) {
+      req.replyTo.tell(new EventCalculateScoresRsp(calculateScores(req.calculateScoresRequest)));
+      return Behaviors.same();
    }
 
    private Behavior<Event> eventGetMUReqHandler(final EventGetMUReq req) {
@@ -380,6 +401,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record EventGetMURsp(CustomMU mu) implements EventResponse {
+   }
+
+   public record EventCalculateScoresReq(
+         CalculateScoresRequest calculateScoresRequest,
+         ActorRef<EventCalculateScoresRsp> replyTo) implements Event {
+
+   }
+
+   public record EventCalculateScoresRsp(
+         CalculateScoresResponse calculateScoresResponse) {
+
    }
 
    public record EventLinkPatientSyncReq(

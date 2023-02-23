@@ -73,7 +73,7 @@ private object CustomLibMPIExpandedPatientRecord {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |${" " * 6}@JsonProperty("uid") String uid,
-         |${" " * 6}@JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,""".stripMargin)
+         |${" " * 6}@JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
     addFields(writer, fields)
     toPatientRecord(writer, fields)
     toExpandedPatientRecord(writer, fields)

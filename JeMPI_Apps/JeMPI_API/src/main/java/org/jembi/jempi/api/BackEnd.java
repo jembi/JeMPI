@@ -82,8 +82,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventGetPatientCountReq.class, this::eventGetPatientCountHandler)
             .onMessage(EventGetNumberOfRecordsReq.class, this::eventGetNumberOfRecordsHandler)
             .onMessage(EventGetGoldenIdsReq.class, this::eventGetGoldenIdsHandler)
-            .onMessage(EventFindGoldenRecordByUidRequest.class, this::findGoldenRecordByUidEventHandler)
-            .onMessage(EventGetExpandedGoldenRecordsReq.class, this::eventGetExpandedGoldenRecordsHandler)
+            .onMessage(EventFindExpandedGoldenRecordRequest.class, this::eventFindExpandedGoldenRecordHandler)
+            .onMessage(EventFindExpandedGoldenRecordsRequest.class, this::eventFindExpandedGoldenRecordsHandler)
             .onMessage(EventGetExpandedPatientRecordsReq.class, this::eventGetExpandedPatientRecordsHandler)
             .onMessage(EventFindPatientByUidRequest.class, this::findPatientByUidEventHandler)
             .onMessage(EventGetCandidatesReq.class, this::eventGetCandidatesHandler)
@@ -246,20 +246,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> findGoldenRecordByUidEventHandler(final EventFindGoldenRecordByUidRequest request) {
+   private Behavior<Event> eventFindExpandedGoldenRecordHandler(final EventFindExpandedGoldenRecordRequest request) {
       LOGGER.debug("findGoldenRecordByUidEventHandler");
       libMPI.startTransaction();
       final var rec = libMPI.getExpandedGoldenRecord(request.uid);
-      request.replyTo.tell(new EventFindGoldenRecordByUidResponse(rec));
+      request.replyTo.tell(new EventFindExpandedGoldenRecordResponse(rec));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
 
-   private Behavior<Event> eventGetExpandedGoldenRecordsHandler(final EventGetExpandedGoldenRecordsReq request) {
-      LOGGER.debug("getGoldenRecordDocuments");
+   private Behavior<Event> eventFindExpandedGoldenRecordsHandler(final EventFindExpandedGoldenRecordsRequest request) {
+      LOGGER.debug("getExpandedGoldenRecords");
       libMPI.startTransaction();
-      final var mpiExpandedGoldenRecordList = libMPI.getExpandedGoldenRecords(request.uids);
-      request.replyTo.tell(new EventGetExpandedGoldenRecordsRsp(mpiExpandedGoldenRecordList));
+      final var list = libMPI.getExpandedGoldenRecords(request.uids);
+      request.replyTo.tell(new EventFindExpandedGoldenRecordsResponse(list));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
@@ -267,7 +267,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventGetExpandedPatientRecordsHandler(final EventGetExpandedPatientRecordsReq request) {
       LOGGER.debug("getExpandedPatients");
       libMPI.startTransaction();
-      final var patients = libMPI.getExpandedPatients(request.uids);
+      final var patients = libMPI.getExpandedPatientRecords(request.uids);
       request.replyTo.tell(new EventGetExpandedPatientRecordsRsp(patients));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -392,21 +392,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record EventGetGoldenIdsRsp(List<String> records) implements EventResponse {
    }
 
-   public record EventFindGoldenRecordByUidRequest(
-         ActorRef<EventFindGoldenRecordByUidResponse> replyTo,
+   public record EventFindExpandedGoldenRecordRequest(
+         ActorRef<EventFindExpandedGoldenRecordResponse> replyTo,
          String uid)
          implements Event {
    }
 
-   public record EventFindGoldenRecordByUidResponse(ExpandedGoldenRecord goldenRecord) implements EventResponse {
+   public record EventFindExpandedGoldenRecordResponse(ExpandedGoldenRecord goldenRecord) implements EventResponse {
    }
 
-   public record EventGetExpandedGoldenRecordsReq(
-         ActorRef<EventGetExpandedGoldenRecordsRsp> replyTo,
+   public record EventFindExpandedGoldenRecordsRequest(
+         ActorRef<EventFindExpandedGoldenRecordsResponse> replyTo,
          List<String> uids) implements Event {
    }
 
-   public record EventGetExpandedGoldenRecordsRsp(List<ExpandedGoldenRecord> expandedGoldenRecords)
+   public record EventFindExpandedGoldenRecordsResponse(List<ExpandedGoldenRecord> expandedGoldenRecords)
          implements EventResponse {
    }
 

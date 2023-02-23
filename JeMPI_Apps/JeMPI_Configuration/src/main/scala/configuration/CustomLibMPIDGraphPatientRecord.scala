@@ -26,7 +26,7 @@ private object CustomLibMPIDGraphPatientRecord {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |      @JsonProperty("uid") String uid,
-         |      @JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,""".stripMargin)
+         |      @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val propertyName = s"PatientRecord.${field.fieldName}"
@@ -41,7 +41,7 @@ private object CustomLibMPIDGraphPatientRecord {
          |         final PatientRecord patientRecord,
          |         final Float score) {
          |      this(patientRecord.uid(),
-         |           new LibMPISourceId(patientRecord.sourceId()),""".stripMargin)
+         |           new DgraphSourceId(patientRecord.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
         writer.println(s"${" " * 11}patientRecord.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)}(),")

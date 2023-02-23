@@ -25,7 +25,7 @@ object CustomLibMPIQueries {
          |import java.util.List;
          |import java.util.Map;
          |
-         |import static org.jembi.jempi.libmpi.dgraph.Queries.runGoldenRecordsQuery;
+         |import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
          |
          |final class $custom_className {
          |""".stripMargin)
@@ -49,7 +49,7 @@ object CustomLibMPIQueries {
     writer.println(
       """   private static void updateCandidates(
         |         final List<CustomLibMPIGoldenRecord> goldenRecords,
-        |         final LibMPIGoldenRecords block) {
+        |         final DgraphGoldenRecords block) {
         |      final var candidates = block.all();
         |      if (!candidates.isEmpty()) {
         |         candidates.forEach(candidate -> {
@@ -72,7 +72,7 @@ object CustomLibMPIQueries {
         |         final boolean applyDeterministicFilter) {
         |
         |      if (applyDeterministicFilter) {
-        |         final var result = Queries.deterministicFilter(patient);
+        |         final var result = DgraphQueries.deterministicFilter(patient);
         |         if (!result.isEmpty()) {
         |            return result;
         |         }
@@ -122,9 +122,9 @@ object CustomLibMPIQueries {
     if (vars.length == 1)
       val v = vars(0)
       writer.println(
-        s"""   static LibMPIGoldenRecords $functionName(final CustomDemographicData demographicData) {
+        s"""   static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {
            |      if (StringUtils.isBlank(demographicData.${Utils.snakeCaseToCamelCase(v)}())) {
-           |         return new LibMPIGoldenRecords(List.of());
+           |         return new DgraphGoldenRecords(List.of());
            |      }
            |      final Map<String, String> map = Map.of("$$$v", demographicData.${Utils.snakeCaseToCamelCase(v)}());
            |      return runGoldenRecordsQuery($name, map);
@@ -132,7 +132,7 @@ object CustomLibMPIQueries {
            |""".stripMargin)
     else
       val expr = expression(ParseRule.parse(text))
-      writer.println(s"   static LibMPIGoldenRecords $functionName(final CustomDemographicData demographicData) {")
+      writer.println(s"   static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {")
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
         writer.println(s"      final var $camelCaseVarName = demographicData.$camelCaseVarName();")
@@ -144,7 +144,7 @@ object CustomLibMPIQueries {
       })
       writer.print(
         s"""      if ($expr) {
-           |         return new LibMPIGoldenRecords(List.of());
+           |         return new DgraphGoldenRecords(List.of());
            |      }
            |      final var map = Map.of(""".stripMargin)
 
@@ -154,7 +154,7 @@ object CustomLibMPIQueries {
           s"""${" " * (if (idx == 0) 0 else 29)}"$$$v",
              |${" " * 29}StringUtils.isNotBlank($camelCaseVarName)
              |${" " * 29}      ? $camelCaseVarName
-             |${" " * 29}      : Queries.EMPTY_FIELD_SENTINEL${if (idx + 1 < vars.length) "," else ");"}""".stripMargin)
+             |${" " * 29}      : DgraphQueries.EMPTY_FIELD_SENTINEL${if (idx + 1 < vars.length) "," else ");"}""".stripMargin)
       })
       writer.println(
         s"""      return runGoldenRecordsQuery($name, map);

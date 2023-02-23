@@ -11,7 +11,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomLibMPIDGraphGoldenRecord(
       @JsonProperty("uid") String uid,
-      @JsonProperty("GoldenRecord.source_id") List<LibMPISourceId> sourceId,
+      @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty("GoldenRecord.aux_id") String auxId,
       @JsonProperty("GoldenRecord.given_name") String givenName,
       @JsonProperty("GoldenRecord.family_name") String familyName,
@@ -25,7 +25,7 @@ record CustomLibMPIDGraphGoldenRecord(
    GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.uid(),
                               this.sourceId() != null
-                                    ? this.sourceId().stream().map(LibMPISourceId::toSourceId).toList()
+                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
                               new CustomDemographicData(this.auxId(),
                                                               this.givenName(),

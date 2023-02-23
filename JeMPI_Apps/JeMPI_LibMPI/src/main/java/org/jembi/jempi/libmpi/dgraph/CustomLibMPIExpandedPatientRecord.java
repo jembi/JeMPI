@@ -11,7 +11,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomLibMPIExpandedPatientRecord(
       @JsonProperty("uid") String uid,
-      @JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,
+      @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
       @JsonProperty("PatientRecord.given_name") String givenName,
       @JsonProperty("PatientRecord.family_name") String familyName,

@@ -9,7 +9,7 @@ import org.jembi.jempi.shared.models.PatientRecord;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomLibMPIDGraphPatientRecord(
       @JsonProperty("uid") String uid,
-      @JsonProperty("PatientRecord.source_id") LibMPISourceId sourceId,
+      @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
       @JsonProperty("PatientRecord.given_name") String givenName,
       @JsonProperty("PatientRecord.family_name") String familyName,
@@ -23,7 +23,7 @@ record CustomLibMPIDGraphPatientRecord(
          final PatientRecord patientRecord,
          final Float score) {
       this(patientRecord.uid(),
-           new LibMPISourceId(patientRecord.sourceId()),
+           new DgraphSourceId(patientRecord.sourceId()),
            patientRecord.demographicData().auxId(),
            patientRecord.demographicData().givenName(),
            patientRecord.demographicData().familyName(),

@@ -9,7 +9,7 @@ pushd .
 
   source ./0-conf.env
 
-  docker exec $(docker ps -q -f name=jempi-postgres) \
+  docker exec $(docker ps -q -f name=postgres) \
   psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} \
    -a -f /conf/config.sql
 popd

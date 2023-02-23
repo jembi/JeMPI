@@ -204,6 +204,28 @@ public final class CustomLibMPIConstants {
          }
          """;
 
+   static final String QUERY_GET_GOLDEN_RECORDS =
+         """
+         query goldenRecord() {
+            all(func: uid(%s)) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+                  SourceId.facility
+                  SourceId.patient
+               }
+               GoldenRecord.aux_id
+               GoldenRecord.given_name
+               GoldenRecord.family_name
+               GoldenRecord.gender
+               GoldenRecord.dob
+               GoldenRecord.city
+               GoldenRecord.phone_number
+               GoldenRecord.national_id
+            }
+         }
+         """;
+
    static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          """
          query expandedGoldenRecord() {
@@ -307,7 +329,7 @@ public final class CustomLibMPIConstants {
          """
          PatientRecord.source_id:                    uid                                          .
          PatientRecord.aux_id:                       string                                       .
-         PatientRecord.given_name:                   string                                       .
+         PatientRecord.given_name:                   string    @index(exact,trigram)              .
          PatientRecord.family_name:                  string    @index(exact,trigram)              .
          PatientRecord.gender:                       string                                       .
          PatientRecord.dob:                          string                                       .

@@ -47,7 +47,7 @@ public final class FrontEndStreamSync extends AllDirectives {
    private CompletionStage<HttpResponse> postLinkPatient(final LinkPatientSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
-            .create("http://jempi-linker:50000/JeMPI/link_patient")
+            .create("http://linker:50000/JeMPI/link_patient")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -56,7 +56,7 @@ public final class FrontEndStreamSync extends AllDirectives {
 
    private CompletionStage<HttpResponse> postLinkPatientToGid(final LinkPatientToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://jempi-linker:50000/JeMPI/link_patient_to_gid")
+            .create("http://linker:50000/JeMPI/link_patient_to_gid")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -65,7 +65,7 @@ public final class FrontEndStreamSync extends AllDirectives {
 
    private CompletionStage<HttpResponse> getMU() {
       final var request = HttpRequest
-            .create("http://jempi-linker:50000/JeMPI/mu")
+            .create("http://linker:50000/JeMPI/mu")
             .withMethod(HttpMethods.GET);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
