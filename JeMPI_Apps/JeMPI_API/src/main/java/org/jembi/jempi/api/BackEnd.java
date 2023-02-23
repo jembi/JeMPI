@@ -39,16 +39,16 @@ import java.util.List;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
-
    private static LibMPI libMPI = null;
-   private final AkkaAdapterConfig keycloakConfig;
-   private final KeycloakDeployment keycloak;
+   private AkkaAdapterConfig keycloakConfig = null;
+   private KeycloakDeployment keycloak = null;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
          openMPI();
       }
+
       // Init keycloak
       ClassLoader classLoader = getClass().getClassLoader();
       InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
@@ -59,6 +59,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public static Behavior<BackEnd.Event> create() {
       return Behaviors.setup(BackEnd::new);
+   }
+
+   private BackEnd(final ActorContext<Event> context, final LibMPI libMPI) {
+      super(context);
+      this.libMPI = libMPI;
+   }
+
+   public static Behavior<Event> create(final LibMPI lib) {
+      return Behaviors.setup(context -> new BackEnd(context, lib));
    }
 
    private static void openMPI() {
