@@ -39,12 +39,9 @@ import java.util.List;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
-
    private static LibMPI libMPI = null;
    private AkkaAdapterConfig keycloakConfig = null;
    private KeycloakDeployment keycloak = null;
-   private static PsqlQueries psql = new PsqlQueries();
-
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
@@ -80,7 +77,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                  AppConfig.DGRAPH_ALPHA3_PORT};
       libMPI = new LibMPI(host, port);
    }
-
 
    @Override
    public Receive<Event> createReceive() {
@@ -217,7 +213,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> eventGetMatchesForReviewHandler(final EventGetMatchesForReviewReq request) {
       LOGGER.debug("getMatchesForReview");
-      var recs = psql.getMatchesForReview();
+      var recs = PsqlQueries.getMatchesForReview();
       request.replyTo.tell(new EventGetMatchesForReviewListRsp(recs));
       return Behaviors.same();
    }

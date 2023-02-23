@@ -10,8 +10,6 @@ import java.util.*;
 
 
 public final class PsqlQueries {
-
- 
    private static final String QUERY = """
                                        select N.patient_id, N.id, N.names, N.created, NS.state,
                                               NT.type, M.score, M.golden_id from notification N
@@ -82,7 +80,6 @@ public final class PsqlQueries {
       return list;
    }
 
-
    public static void insert(
          final UUID id,
          final String type,
@@ -121,11 +118,8 @@ public final class PsqlQueries {
       sql = "INSERT INTO match (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
       stmt.addBatch(sql);
 
-
       int[] count = stmt.executeBatch();
       conn.commit();
-
-
    }
 
    public static void insertCandidates(
