@@ -11,6 +11,7 @@ import java.util.*;
 
 public final class PsqlQueries {
 
+ 
    private static final String QUERY = """
                                        select N.patient_id, N.id, N.names, N.created, NS.state,
                                               NT.type, M.score, M.golden_id from notification N
@@ -189,4 +190,4 @@ public final class PsqlQueries {
       LOGGER.info("Registered a new user");
       return getUserByEmail(user.getEmail());
    }
-}
+ }
