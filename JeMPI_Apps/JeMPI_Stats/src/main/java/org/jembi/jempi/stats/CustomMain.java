@@ -1,5 +1,6 @@
 package org.jembi.jempi.stats;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -89,7 +90,7 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return new GoldenRecordDocuments(Arrays.stream(OBJECT_MAPPER.readValue(json, ApiExpandedGoldenRecord[].class)).toList());
+         return new GoldenRecordDocuments(OBJECT_MAPPER.readValue(json, new TypeReference<>() {}));
       }
    }
 
