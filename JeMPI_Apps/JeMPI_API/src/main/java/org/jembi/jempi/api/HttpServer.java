@@ -352,7 +352,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
     *************************** PROXY ***************************
     */
 
-   private CompletionStage<HttpResponse> proxyPostComputeScores(final CalculateScoresRequest body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> proxyPostCalculateScores(final CalculateScoresRequest body) throws JsonProcessingException {
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/calculate-scores")
             .withMethod(HttpMethods.POST)
@@ -758,7 +758,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return entity(Jackson.unmarshaller(CalculateScoresRequest.class),
                     obj -> {
                        try {
-                          return onComplete(proxyPostComputeScores(obj),
+                          return onComplete(proxyPostCalculateScores(obj),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
