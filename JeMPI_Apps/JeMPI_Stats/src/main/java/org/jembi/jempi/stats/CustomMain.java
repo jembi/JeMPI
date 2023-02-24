@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
+import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,13 +53,14 @@ public final class CustomMain {
 
    private NumberOfRecords getNumberOfRecords() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "NumberOfRecords")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_RECORDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
+         LOGGER.debug("{}", json);
          return OBJECT_MAPPER.readValue(json, NumberOfRecords.class);
       }
    }
@@ -147,13 +149,13 @@ public final class CustomMain {
    }
 
    private void run() throws IOException {
-      var documentCount = getCount("DocumentCount");
-      var goldenRecordCount = getCount("GoldenRecordCount");
+      var numPatientRecords = getCount(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS);
+      var numGoldenRecords = getCount(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS);
       var numberOfRecords = getNumberOfRecords();
       var goldenIdList = getGoldenIdList();
-      LOGGER.info("Document Count:       {}", documentCount);
-      LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
-      LOGGER.info("Number of Records:    {},{}", numberOfRecords.patients, numberOfRecords.goldenRecords);
+      LOGGER.info("Patient Records:      {}", numPatientRecords);
+      LOGGER.info("Golden Records:       {}", numGoldenRecords);
+      LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
       LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
       final var goldenRecords = goldenIdList.records.size();
       final var subListSize = 100L;
@@ -213,7 +215,7 @@ public final class CustomMain {
    }
 
    private record NumberOfRecords(
-         Long patients,
+         Long patientRecords,
          Long goldenRecords) {
    }
 
