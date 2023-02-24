@@ -7,8 +7,8 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.utils.AppUtils;
-import org.jembi.jempi.shared.utils.RecordType;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.models.RecordType;
+import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -246,8 +246,8 @@ final class DgraphQueries {
    }
 
    private static List<String> getRecordFieldNamesByType(final RecordType recordType) {
-      List<String> fieldNames = new ArrayList<String>();
-      // Class C = CustomDemographicData.class;
+      List<String> fieldNames = new ArrayList<>();
+      // Class C = CustomDemographicData.class
       Field[] fields = CustomDemographicData.class.getDeclaredFields();
       fieldNames.add("uid");
       for (Field field : fields) {
@@ -257,7 +257,7 @@ final class DgraphQueries {
    }
 
    private static List<String> getSimpleSearchQueryArguments(final List<SimpleSearchRequestPayload.SearchParameter> parameters) {
-      List<String> args = new ArrayList<String>();
+      List<String> args = new ArrayList<>();
       for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
@@ -268,7 +268,7 @@ final class DgraphQueries {
    }
 
    private static List<String> getCustomSearchQueryArguments(final List<SimpleSearchRequestPayload> payloads) {
-      List<String> args = new ArrayList<String>();
+      List<String> args = new ArrayList<>();
       for (int i = 0; i < payloads.size(); i++) {
          List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
          for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
@@ -311,7 +311,7 @@ final class DgraphQueries {
    private static String getSimpleSearchQueryFilters(
          final RecordType recordType,
          final List<SimpleSearchRequestPayload.SearchParameter> parameters) {
-      List<String> gqlFilters = new ArrayList<String>();
+      List<String> gqlFilters = new ArrayList<>();
       for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
@@ -332,10 +332,10 @@ final class DgraphQueries {
    private static String getCustomSearchQueryFilters(
          final RecordType recordType,
          final List<SimpleSearchRequestPayload> payloads) {
-      final List<String> gqlOrCondition = new ArrayList<String>();
+      final List<String> gqlOrCondition = new ArrayList<>();
       for (int i = 0; i < payloads.size(); i++) {
          List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
-         List<String> gqlAndCondition = new ArrayList<String>();
+         List<String> gqlAndCondition = new ArrayList<>();
          for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
@@ -391,15 +391,20 @@ final class DgraphQueries {
          final Boolean sortAsc
                                                                  ) {
       String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
+/*
       List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord);
       List<String> goldenRecordFieldNames = getRecordFieldNamesByType(RecordType.GoldenRecord);
+*/
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
 
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
+      gql += CustomDgraphConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES;
+/*
       gql += String.join("\n", goldenRecordFieldNames) + "\n";
       gql += RecordType.GoldenRecord + ".patients {\n" + String.join("\n", patientRecordFieldNames) + "}\n";
+*/
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";

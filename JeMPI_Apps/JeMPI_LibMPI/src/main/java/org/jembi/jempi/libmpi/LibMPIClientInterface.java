@@ -3,8 +3,8 @@ package org.jembi.jempi.libmpi;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 

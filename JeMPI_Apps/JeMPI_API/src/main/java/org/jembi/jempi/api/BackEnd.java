@@ -16,9 +16,9 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
-import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.models.CustomSearchRequestPayload;
+import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
@@ -124,7 +124,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> eventCustomSearchGoldenRecordsHandler(final EventCustomSearchGoldenRecordsRequest request) {
-      CustomSearchRequestPayload payload = request.searchRequestPayload();
+      CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
@@ -152,7 +152,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> eventCustomSearchPatientRecordsHandler(final EventCustomSearchPatientRecordsRequest request) {
-      CustomSearchRequestPayload payload = request.searchRequestPayload();
+      CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
@@ -520,7 +520,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record EventCustomSearchGoldenRecordsRequest(
          ActorRef<EventSearchGoldenRecordsResponse> replyTo,
-         CustomSearchRequestPayload searchRequestPayload) implements Event {
+         CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
    public record EventSearchGoldenRecordsResponse(
@@ -534,7 +534,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record EventCustomSearchPatientRecordsRequest(
          ActorRef<EventSearchPatientRecordsResponse> replyTo,
-         CustomSearchRequestPayload searchRequestPayload) implements Event {
+         CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
    public record EventSearchPatientRecordsResponse(LibMPIPaginatedResultSet<PatientRecord> records) implements EventResponse {

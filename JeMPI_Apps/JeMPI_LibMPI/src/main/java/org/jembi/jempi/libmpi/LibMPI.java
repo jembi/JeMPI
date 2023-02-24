@@ -6,8 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -79,7 +79,6 @@ public final class LibMPI {
    public List<ExpandedPatientRecord> getExpandedPatientRecords(final List<String> patientIds) {
       return client.getExpandedPatientRecords(patientIds);
    }
-
 
    public GoldenRecord getGoldenRecord(final String uid) {
       return client.getGoldenRecord(uid);

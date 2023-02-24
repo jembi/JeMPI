@@ -9,8 +9,8 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 

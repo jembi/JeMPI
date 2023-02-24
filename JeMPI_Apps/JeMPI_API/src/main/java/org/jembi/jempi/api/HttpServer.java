@@ -11,6 +11,8 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.server.directives.FileInfo;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
@@ -25,9 +27,6 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
-import org.jembi.jempi.shared.utils.CustomSearchRequestPayload;
-import org.jembi.jempi.shared.utils.RecordType;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
 import org.json.simple.JSONArray;
 
 import java.io.File;
@@ -261,7 +260,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.EventResponse> askSimpleSearchGoldenRecords(
+   private CompletionStage<ApiPaginatedResultSet> askSimpleSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final SimpleSearchRequestPayload searchRequestPayload) {
@@ -270,22 +269,10 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  replyTo -> new BackEnd.EventSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<BackEnd.EventResponse> askCustomSearchGoldenRecords(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final CustomSearchRequestPayload searchRequestPayload) {
-      CompletionStage<BackEnd.EventSearchGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.EventCustomSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.EventResponse> askSimpleSearchPatientRecords(
+   private CompletionStage<ApiPaginatedResultSet> askSimpleSearchPatientRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final SimpleSearchRequestPayload simpleSearchRequestPayload) {
@@ -294,16 +281,28 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  replyTo -> new BackEnd.EventSimpleSearchPatientRecordsRequest(replyTo, simpleSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
+      return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+   }
+
+   private CompletionStage<BackEnd.EventResponse> askCustomSearchGoldenRecords(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final CustomSearchRequestPayload customSearchRequestPayload) {
+      CompletionStage<BackEnd.EventSearchGoldenRecordsResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.EventCustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
+                 java.time.Duration.ofSeconds(11),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
    private CompletionStage<BackEnd.EventResponse> askCustomSearchPatientRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final CustomSearchRequestPayload searchRequestPayload) {
+         final CustomSearchRequestPayload customSearchRequestPayload) {
       CompletionStage<BackEnd.EventSearchPatientRecordsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.EventCustomSearchPatientRecordsRequest(replyTo, searchRequestPayload),
+                 replyTo -> new BackEnd.EventCustomSearchPatientRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -464,7 +463,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(askGoldenRecordCount(actorSystem, backEnd),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, new GoldenRecordCount(result.get().count()), Jackson.marshaller())
+                              ? complete(StatusCodes.OK, new ApiGoldenRecordCount(result.get().count()), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -473,7 +472,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(askPatientCount(actorSystem, backEnd),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, new PatientCount(result.get().count()), Jackson.marshaller())
+                              ? complete(StatusCodes.OK, new ApiPatientCount(result.get().count()), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -483,7 +482,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return onComplete(askNumberOfRecords(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK,
-                                         new NumberOfRecords(result.get().goldenRecords(), result.get().patients()),
+                                         new ApiNumberOfRecords(result.get().goldenRecords(), result.get().patients()),
                                          Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
@@ -506,21 +505,22 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
-/*
    private Route routeGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameterList(params -> {
          final var uidList = params.stream().map(PARAM_STRING).toList();
-         LOGGER.debug("routeGoldenRecord: {}", uidList);
          return onComplete(askExpandedGoldenRecords(actorSystem, backEnd, uidList),
                            result -> result.isSuccess()
-                                 ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
+                                 ? complete(StatusCodes.OK, result.get()
+                                                                  .expandedGoldenRecords()
+                                                                  .stream()
+                                                                  .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                  .toList(),
+                                            Jackson.marshaller())
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
-*/
-
 
    private Route routeExpandedGoldenRecords(
          final ActorSystem<Void> actorSystem,
@@ -534,8 +534,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                 result.get()
                                       .expandedGoldenRecords()
                                       .stream()
-                                      .map(expandedGoldenRecord -> new ApiExpandedGoldenRecord(expandedGoldenRecord.goldenRecord(),
-                                                                                               expandedGoldenRecord.patientRecordsWithScore()))
+                                      .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
                                       .toList(),
                                 Jackson.marshaller())
                      : complete(StatusCodes.IM_A_TEAPOT));
@@ -721,20 +720,23 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       LOGGER.info("Simple search on {}", recordType);
-      return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class), searchParameters -> onComplete(() -> {
-         if (recordType == RecordType.GoldenRecord) {
-            return askSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
-         } else {
-            return askSimpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
-         }
-      }, response -> {
-         if (response.isSuccess()) {
-            final var eventSearchRsp = response.get();
-            return complete(StatusCodes.OK, eventSearchRsp, Jackson.marshaller());
-         } else {
-            return complete(StatusCodes.IM_A_TEAPOT);
-         }
-      }));
+      return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class),
+                    searchParameters -> onComplete(
+                          () -> {
+                             if (recordType == RecordType.GoldenRecord) {
+                                return askSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+                             } else {
+                                return askSimpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
+                             }
+                          },
+                          response -> {
+                             if (response.isSuccess()) {
+                                final var eventSearchRsp = response.get();
+                                return complete(StatusCodes.OK, eventSearchRsp, Jackson.marshaller());
+                             } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                             }
+                          }));
    }
 
    private Route routeSessionSimpleSearch(
@@ -834,7 +836,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                   path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientCount(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
-//                path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeMatchesForReviewList(actorSystem, backEnd)),
@@ -876,23 +878,71 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                               () -> complete(StatusCodes.OK, fields.toJSONString()))))))));
    }
 
-   private record GoldenRecordCount(Long count) {
+   private interface ApiPaginatedResultSet {
    }
 
-   private record PatientCount(Long count) {
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiPagination(@JsonProperty("total") Integer total) {
+      static ApiPagination fromLibMPIPagination(final LibMPIPagination pagination) {
+         return new ApiPagination(pagination.total());
+      }
+   }
+
+   private record ApiExpandedGoldenRecordsPaginatedResultSet(
+         List<ApiExpandedGoldenRecord> data,
+         ApiPagination pagination) implements ApiPaginatedResultSet {
+
+      static ApiExpandedGoldenRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(final LibMPIPaginatedResultSet<ExpandedGoldenRecord> resultSet) {
+         final var data = resultSet.data()
+                                   .stream()
+                                   .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                   .toList();
+         return new ApiExpandedGoldenRecordsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+      }
+
+   }
+
+   private record ApiPatientRecordsPaginatedResultSet(
+         List<ApiPatientRecord> data,
+         ApiPagination pagination) implements ApiPaginatedResultSet {
+
+      static ApiPatientRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(final LibMPIPaginatedResultSet<PatientRecord> resultSet) {
+         final var data = resultSet.data()
+                                   .stream()
+                                   .map(ApiPatientRecord::fromPatientRecord)
+                                   .toList();
+         return new ApiPatientRecordsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+      }
+
+   }
+
+   private record ApiGoldenRecordCount(Long count) {
+   }
+
+   private record ApiPatientCount(Long count) {
    }
 
    private record ApiExpandedGoldenRecord(
          GoldenRecord goldenRecord,
          List<PatientRecordWithScore> mpiPatientRecords) {
+
+      static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
+         return new ApiExpandedGoldenRecord(expandedGoldenRecord.goldenRecord(),
+                                            expandedGoldenRecord.patientRecordsWithScore());
+      }
+
    }
 
-   private record ApiExpandedPatientRecord(
-         PatientRecord patientRecord,
-         List<GoldenRecordWithScore> mpiGoldenRecords) {
+   private record ApiPatientRecord(
+         PatientRecord patientRecord) {
+
+      static ApiPatientRecord fromPatientRecord(final PatientRecord patientRecord) {
+         return new ApiPatientRecord(patientRecord);
+      }
+
    }
 
-   private record NumberOfRecords(
+   private record ApiNumberOfRecords(
          Long goldenRecords,
          Long patientRecords) {
    }
