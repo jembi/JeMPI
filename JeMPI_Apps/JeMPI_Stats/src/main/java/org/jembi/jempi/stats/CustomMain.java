@@ -80,7 +80,6 @@ public final class CustomMain {
    }
 
    private GoldenRecordDocuments getGoldenRecordDocumentsList(final List<String> ids) throws IOException {
-      LOGGER.debug(ids);
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenRecord")).newBuilder();
       ids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
