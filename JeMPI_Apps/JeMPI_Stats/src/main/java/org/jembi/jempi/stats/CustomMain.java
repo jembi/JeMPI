@@ -67,7 +67,7 @@ public final class CustomMain {
 
    private GoldenIdList getGoldenIdList() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenIdList")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GOLDEN_IDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);

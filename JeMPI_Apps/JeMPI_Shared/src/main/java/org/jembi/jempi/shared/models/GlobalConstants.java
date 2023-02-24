@@ -14,7 +14,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_GET_NOTIFICATIONS = "MatchesForReview";
    public static final String SEGMENT_PATIENT_RECORD_ROUTE = "patient-record";
    public static final String SEGMENT_GOLDEN_RECORD_ROUTE = "golden-record";
-   public static final String SEGMENT_GET_GOLDEN_ID_DOCUMENTS = "GoldenRecord";
+   //   public static final String SEGMENT_GET_GOLDEN_ID_DOCUMENTS = "GoldenRecord"
    public static final String SEGMENT_UPDATE_NOTIFICATION = "NotificationRequest";
    public static final String SEGMENT_CREATE_GOLDEN_RECORD = "Unlink";
    public static final String SEGMENT_LINK_RECORD = "Link";
@@ -31,6 +31,10 @@ public final class GlobalConstants {
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "count-golden-records";
    public static final String SEGMENT_COUNT_PATIENT_RECORDS = "count-patient-records";
    public static final String SEGMENT_COUNT_RECORDS = "count-records";
+   public static final String SEGMENT_GOLDEN_IDS = "golden-ids";
+   public static final String SEGMENT_EXPANDED_GOLDEN_RECORDS = "expanded-golden-records";
+   public static final String SEGMENT_EXPANDED_PATIENT_RECORDS = "expanded-patient-records";
+   public static final String SEGMENT_CANDIDATE_GOLDEN_RECORDS = "candidate-golden-records";
 
 
    private GlobalConstants() {

@@ -447,16 +447,14 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                                 ) {
+                                                           ) {
       String gqlFunc = getSearchQueryFunc(RecordType.PatientRecord, offset, limit, sortBy, sortAsc);
-      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord);
+//      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord)
       String gqlPagination = getSearchQueryPagination(RecordType.PatientRecord, gqlFilters);
-
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += String.join("\n", patientRecordFieldNames) + "\n";
-      gql += RecordType.PatientRecord + ".golden_record_list {\nuid\n}\n";
+      gql += CustomDgraphConstants.PATIENT_RECORD_FIELD_NAMES; // String.join("\n", patientRecordFieldNames) + "\n"
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
@@ -472,7 +470,7 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                               ) {
+                                                         ) {
       LOGGER.debug("Simple Search Patient Records Params {}", params);
       String gqlFilters = getSimpleSearchQueryFilters(RecordType.PatientRecord, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
@@ -487,7 +485,7 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                               ) {
+                                                         ) {
       LOGGER.debug("Simple Search Patient Records Params {}", payloads);
       String gqlFilters = getCustomSearchQueryFilters(RecordType.PatientRecord, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
