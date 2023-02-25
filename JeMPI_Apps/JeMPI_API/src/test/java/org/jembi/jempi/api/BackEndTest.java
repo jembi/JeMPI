@@ -102,24 +102,24 @@ class BackEndTest {
 
       // mock LibMPI interface
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.getExpandedGoldenRecords(uids)).thenReturn(expandedGoldenRecords);
+      when(libMPI.findExpandedGoldenRecords(uids)).thenReturn(expandedGoldenRecords);
 
       // create ActorSystem and ActorRef using ActorTestKit
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
 
       // create TestProbe to receive response from actor
-      TestProbe<BackEnd.EventFindExpandedGoldenRecordsResponse> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.FindExpandedGoldenRecordsResponse> replyTo = testKit.createTestProbe();
 
       // send request to actor
-      myActorRef.tell(new BackEnd.EventFindExpandedGoldenRecordsRequest(replyTo.getRef(), uids));
+      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordsRequest(replyTo.getRef(), uids));
 
       // assert that response matches expected value
-      replyTo.expectMessage(new BackEnd.EventFindExpandedGoldenRecordsResponse(expandedGoldenRecords));
+      replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordsResponse(expandedGoldenRecords));
    }
 
    @Test
-   public void testFindPatientByUidEventHandler() {
+   void testFindPatientByUidEventHandler() {
       // Create a mock libMPI instance
       final var libMPI = mock(LibMPI.class);
 
@@ -127,10 +127,10 @@ class BackEndTest {
       final var backend = testKit.spawn(BackEnd.create(libMPI));
 
       // Create a TestProbe to receive responses
-      final var probe = testKit.createTestProbe(BackEnd.EventFindPatientRecordByUidResponse.class);
+      final var probe = testKit.createTestProbe(BackEnd.FindPatientRecordResponse.class);
 
       // Create an EventFindPatientByUidRequest message with a specific UID value
-      final var request = new BackEnd.EventFindPatientByUidRequest(probe.getRef(), "1234");
+      final var request = new BackEnd.FindPatientRecordRequest(probe.getRef(), "1234");
 
       // Stub the mock libMPI instance to return a CustomEntity object when `getDocument()` is called
       final var patientRecord = new PatientRecord(
@@ -146,7 +146,7 @@ class BackEndTest {
                   "555-1234", // phoneNumber
                   "123-45-6789")); // nationalId
 
-      when(libMPI.getPatientRecord("1234")).thenReturn(patientRecord);
+      when(libMPI.findPatientRecord("1234")).thenReturn(patientRecord);
 
       // Send the message to the actor
       backend.tell(request);
@@ -157,7 +157,7 @@ class BackEndTest {
 
       // Verify that libMPI was called with the correct arguments
       verify(libMPI).startTransaction();
-      verify(libMPI).getPatientRecord("1234");
+      verify(libMPI).findPatientRecord("1234");
       verify(libMPI).closeTransaction();
    }
 }

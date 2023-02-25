@@ -87,7 +87,7 @@ final class DgraphQueries {
       return patientList.get(0).toPatientRecordWithScore().patientRecord();
    }
 
-   static CustomDgraphGoldenRecord getDgraphGoldenRecord(final String goldenId) {
+   static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {
       if (StringUtils.isBlank(goldenId)) {
          return null;
       }
@@ -102,7 +102,7 @@ final class DgraphQueries {
       return goldenRecordList.get(0);
    }
 
-   static List<String> getGoldenUidPatientUidList(final String uid) {
+   static List<String> findGoldenUidPatientUidList(final String uid) {
       final String query = String
             .format("""
                     query recordGoldenUidPatientUidList() {
@@ -200,7 +200,7 @@ final class DgraphQueries {
       return candidateGoldenRecords;
    }
 
-   static List<CustomDgraphExpandedPatientRecord> getExpandedPatientRecords(final List<String> ids) {
+   static List<CustomDgraphExpandedPatientRecord> findExpandedPatientRecords(final List<String> ids) {
       final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_PATIENTS,
                                          String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
@@ -213,7 +213,7 @@ final class DgraphQueries {
       }
    }
 
-   static List<CustomDgraphGoldenRecord> getGoldenRecords(final List<String> ids) {
+   static List<CustomDgraphGoldenRecord> findGoldenRecords(final List<String> ids) {
       final String query = String.format(
             CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS,
             String.join(",", ids));
@@ -245,7 +245,7 @@ final class DgraphQueries {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
-   private static List<String> getRecordFieldNamesByType(final RecordType recordType) {
+   private static List<String> findRecordFieldNamesByType(final RecordType recordType) {
       List<String> fieldNames = new ArrayList<>();
       // Class C = CustomDemographicData.class
       Field[] fields = CustomDemographicData.class.getDeclaredFields();

@@ -90,7 +90,8 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return new GoldenRecordDocuments(OBJECT_MAPPER.readValue(json, new TypeReference<>() {}));
+         return new GoldenRecordDocuments(OBJECT_MAPPER.readValue(json, new TypeReference<>() {
+         }));
       }
    }
 

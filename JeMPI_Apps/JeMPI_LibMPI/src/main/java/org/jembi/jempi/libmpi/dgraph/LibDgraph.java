@@ -43,44 +43,43 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.countGoldenRecords();
    }
 
-   public PatientRecord getPatientRecord(final String patientId) {
+   public PatientRecord findPatientRecord(final String patientId) {
       return DgraphQueries.getPatientRecord(patientId);
    }
 
-   public List<PatientRecord> getPatientRecords(final List<String> ids) {
+   public List<PatientRecord> findPatientRecords(final List<String> patientIds) {
       return List.of();
    }
 
-   public List<ExpandedPatientRecord> getExpandedPatientRecords(final List<String> ids) {
-      final var list = DgraphQueries.getExpandedPatientRecords(ids);
+   public List<ExpandedPatientRecord> findExpandedPatientRecords(final List<String> patientIds) {
+      final var list = DgraphQueries.findExpandedPatientRecords(patientIds);
       return list.stream().map(CustomDgraphExpandedPatientRecord::toExpandedPatientRecord).toList();
    }
 
-
-   public GoldenRecord getGoldenRecord(final String goldenId) {
-      final var rec = DgraphQueries.getDgraphGoldenRecord(goldenId);
+   public GoldenRecord findGoldenRecord(final String goldenId) {
+      final var rec = DgraphQueries.findDgraphGoldenRecord(goldenId);
       if (rec == null) {
          return null;
       }
       return rec.toGoldenRecord();
    }
 
-   public List<GoldenRecord> getGoldenRecords(final List<String> ids) {
-      final var list = DgraphQueries.getGoldenRecords(ids);
+   public List<GoldenRecord> findGoldenRecords(final List<String> ids) {
+      final var list = DgraphQueries.findGoldenRecords(ids);
       return list.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
 
-   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIds) {
+   public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
       final var list = DgraphQueries.getExpandedGoldenRecords(goldenIds);
       return list.stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
    }
 
-   public List<String> getGoldenIds() {
+   public List<String> findGoldenIds() {
       return DgraphQueries.getGoldenIds();
    }
 
-   public List<GoldenRecord> getCandidates(
+   public List<GoldenRecord> findCandidates(
          final CustomDemographicData demographicData,
          final boolean applyDeterministicFilter) {
       final var candidates = CustomDgraphQueries.getCandidates(demographicData, applyDeterministicFilter);
@@ -162,11 +161,11 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphMutations.updateGoldenRecordField(uid, fieldName, val);
    }
 
-   public Either<MpiGeneralError, LinkInfo> unLink(
+   public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String goldenUID,
          final String patientUID,
          final float score) {
-      return DgraphMutations.unLink(goldenUID, patientUID, score);
+      return DgraphMutations.linkToNewGoldenRecord(goldenUID, patientUID, score);
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(

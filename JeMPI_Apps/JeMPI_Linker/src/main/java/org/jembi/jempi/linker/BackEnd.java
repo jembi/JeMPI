@@ -289,8 +289,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private CalculateScoresResponse calculateScores(final CalculateScoresRequest request) {
-      final var patientRecord = libMPI.getPatientRecord(request.patientUid());
-      final var goldenRecords = libMPI.getGoldenRecords(request.goldenUids());
+      final var patientRecord = libMPI.findPatientRecord(request.patientId());
+      final var goldenRecords = libMPI.findGoldenRecords(request.goldenIds());
       LOGGER.debug("{}", patientRecord);
       LOGGER.debug("{}", goldenRecords);
       final var scores = goldenRecords
@@ -301,7 +301,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                   calcNormalizedScore(goldenRecord.demographicData(), patientRecord.demographicData())))
             .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
             .collect(Collectors.toCollection(ArrayList::new));
-      return new CalculateScoresResponse(request.patientUid(), scores);
+      return new CalculateScoresResponse(request.patientId(), scores);
    }
 
    private Behavior<Event> eventCalculateScoresHandler(final EventCalculateScoresReq req) {

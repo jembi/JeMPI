@@ -68,47 +68,47 @@ public final class LibMPI {
    }
 
 
-   public PatientRecord getPatientRecord(final String uid) {
-      return client.getPatientRecord(uid);
+   public PatientRecord findPatientRecord(final String patientId) {
+      return client.findPatientRecord(patientId);
    }
 
-   public List<PatientRecord> getPatientRecords(final List<String> patientIds) {
-      return client.getPatientRecords(patientIds);
+   public List<PatientRecord> findPatientRecords(final List<String> patientIds) {
+      return client.findPatientRecords(patientIds);
    }
 
-   public List<ExpandedPatientRecord> getExpandedPatientRecords(final List<String> patientIds) {
-      return client.getExpandedPatientRecords(patientIds);
+   public List<ExpandedPatientRecord> findExpandedPatientRecords(final List<String> patientIds) {
+      return client.findExpandedPatientRecords(patientIds);
    }
 
-   public GoldenRecord getGoldenRecord(final String uid) {
-      return client.getGoldenRecord(uid);
+   public GoldenRecord findGoldenRecord(final String goldenId) {
+      return client.findGoldenRecord(goldenId);
    }
 
-   public List<GoldenRecord> getGoldenRecords(final List<String> goldenIds) {
-      return client.getGoldenRecords(goldenIds);
+   public List<GoldenRecord> findGoldenRecords(final List<String> goldenIds) {
+      return client.findGoldenRecords(goldenIds);
    }
 
-   public ExpandedGoldenRecord getExpandedGoldenRecord(final String goldenId) {
-      final var records = client.getExpandedGoldenRecords(List.of(goldenId));
+   public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
+      final var records = client.findExpandedGoldenRecords(List.of(goldenId));
       if (!records.isEmpty()) {
          return records.get(0);
       }
       return null;
    }
 
-   public List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> goldenIds) {
-      return client.getExpandedGoldenRecords(goldenIds);
+   public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
+      return client.findExpandedGoldenRecords(goldenIds);
    }
 
-   public List<String> getGoldenIds() {
-      return client.getGoldenIds();
+   public List<String> findGoldenIds() {
+      return client.findGoldenIds();
    }
 
    public List<GoldenRecord> getCandidates(
          final CustomDemographicData demographicData,
          final boolean applyDeterministicFilter) {
       LOGGER.debug("get candidates <- {}", demographicData);
-      final var candidates = client.getCandidates(demographicData, applyDeterministicFilter);
+      final var candidates = client.findCandidates(demographicData, applyDeterministicFilter);
       candidates.forEach(candidate -> LOGGER.debug("get candidates -> {}", candidate));
       return candidates;
    }
@@ -168,11 +168,11 @@ public final class LibMPI {
       return client.updateGoldenRecordField(goldenId, fieldName, value);
    }
 
-   public Either<MpiGeneralError, LinkInfo> unLink(
-         final String goldenId,
+   public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
+         final String currentGoldenId,
          final String patientId,
          final float score) {
-      return client.unLink(goldenId, patientId, score);
+      return client.linkToNewGoldenRecord(currentGoldenId, patientId, score);
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(

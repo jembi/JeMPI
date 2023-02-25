@@ -40,21 +40,21 @@ public interface LibMPIClientInterface {
    long countGoldenRecords();
 
 
-   PatientRecord getPatientRecord(String patientId);
+   PatientRecord findPatientRecord(String patientId);
 
-   List<PatientRecord> getPatientRecords(List<String> patientIds);
+   List<PatientRecord> findPatientRecords(List<String> patientIds);
 
-   List<ExpandedPatientRecord> getExpandedPatientRecords(List<String> patientIds);
+   List<ExpandedPatientRecord> findExpandedPatientRecords(List<String> patientIds);
 
-   GoldenRecord getGoldenRecord(String goldenId);
+   GoldenRecord findGoldenRecord(String goldenId);
 
-   List<GoldenRecord> getGoldenRecords(List<String> goldenIds);
+   List<GoldenRecord> findGoldenRecords(List<String> goldenIds);
 
-   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> goldenIds);
+   List<ExpandedGoldenRecord> findExpandedGoldenRecords(List<String> goldenIds);
 
-   List<String> getGoldenIds();
+   List<String> findGoldenIds();
 
-   List<GoldenRecord> getCandidates(
+   List<GoldenRecord> findCandidates(
          CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
 
@@ -99,8 +99,8 @@ public interface LibMPIClientInterface {
          String fieldName,
          String value);
 
-   Either<MpiGeneralError, LinkInfo> unLink(
-         String goldenId,
+   Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
+         String currentGoldenId,
          String patientId,
          float score);
 
