@@ -135,12 +135,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${version.org.apache.maven.plugins.maven-jar-plugin}</version>
-            </plugin>
-
         </plugins>
 
         <pluginManagement>
