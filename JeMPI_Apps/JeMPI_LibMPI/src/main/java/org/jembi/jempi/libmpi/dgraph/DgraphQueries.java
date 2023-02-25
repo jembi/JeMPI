@@ -6,11 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.PatientRecord;
-import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.shared.models.RecordType;
 import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 final class DgraphQueries {
@@ -102,7 +101,7 @@ final class DgraphQueries {
       return goldenRecordList.get(0);
    }
 
-   static List<String> findGoldenUidPatientUidList(final String uid) {
+   static List<String> findExpandedGoldenIds(final String goldenId) {
       final String query = String
             .format("""
                     query recordGoldenUidPatientUidList() {
@@ -112,7 +111,7 @@ final class DgraphQueries {
                                 uid
                             }
                         }
-                    }""", uid);
+                    }""", goldenId);
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphUidUidList.class);
@@ -167,14 +166,14 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   static long countGoldenRecordEntities(final String uid) {
+   static long countGoldenRecordEntities(final String goldenId) {
       final var query = String.format(
             """
             query recordCount() {
               list(func: uid(%s)) {
                 count: count(GoldenRecord.patients)
               }
-            }""", uid);
+            }""", goldenId);
       return getCount(query);
    }
 
@@ -245,6 +244,7 @@ final class DgraphQueries {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
+/*
    private static List<String> findRecordFieldNamesByType(final RecordType recordType) {
       List<String> fieldNames = new ArrayList<>();
       // Class C = CustomDemographicData.class
@@ -255,6 +255,7 @@ final class DgraphQueries {
       }
       return fieldNames;
    }
+*/
 
    private static List<String> getSimpleSearchQueryArguments(final List<SimpleSearchRequestPayload.SearchParameter> parameters) {
       List<String> args = new ArrayList<>();

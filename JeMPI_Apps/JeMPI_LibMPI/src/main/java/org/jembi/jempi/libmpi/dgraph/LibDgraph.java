@@ -155,10 +155,10 @@ public final class LibDgraph implements LibMPIClientInterface {
     */
 
    public boolean updateGoldenRecordField(
-         final String uid,
+         final String goldenId,
          final String fieldName,
          final String val) {
-      return DgraphMutations.updateGoldenRecordField(uid, fieldName, val);
+      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
    }
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(

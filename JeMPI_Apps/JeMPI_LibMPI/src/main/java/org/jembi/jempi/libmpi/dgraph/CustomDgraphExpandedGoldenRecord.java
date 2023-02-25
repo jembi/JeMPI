@@ -10,7 +10,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphExpandedGoldenRecord(
-      @JsonProperty("uid") String uid,
+      @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty("GoldenRecord.aux_id") String auxId,
       @JsonProperty("GoldenRecord.given_name") String givenName,
@@ -24,7 +24,7 @@ record CustomDgraphExpandedGoldenRecord(
 
 
    GoldenRecord toGoldenRecord() {
-      return new GoldenRecord(this.uid(),
+      return new GoldenRecord(this.goldenId(),
                               this.sourceId() != null
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),

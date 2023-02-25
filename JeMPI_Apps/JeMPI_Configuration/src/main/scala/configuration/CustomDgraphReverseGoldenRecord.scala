@@ -40,14 +40,14 @@ private object CustomDgraphReverseGoldenRecord {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |      @JsonProperty("uid") String uid,
+         |      @JsonProperty("uid") String goldenId,
          |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,""".stripMargin)
     addFields(writer, fields)
 
     writer.print(
       """
         |   GoldenRecord toGoldenRecord() {
-        |      return new GoldenRecord(this.uid(),
+        |      return new GoldenRecord(this.goldenId(),
         |                              this.sourceId() != null
         |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
         |                                    : List.of(),

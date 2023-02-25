@@ -6,7 +6,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record GoldenRecord(
-      String uid,
+      String goldenId,
       List<SourceId> sourceId,
       CustomDemographicData demographicData) {
 

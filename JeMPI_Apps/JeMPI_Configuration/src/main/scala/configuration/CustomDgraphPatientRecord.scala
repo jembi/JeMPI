@@ -25,7 +25,7 @@ private object CustomDgraphPatientRecord {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |      @JsonProperty("uid") String uid,
+         |      @JsonProperty("uid") String patientId,
          |      @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
@@ -40,7 +40,7 @@ private object CustomDgraphPatientRecord {
          |   $customClassName(
          |         final PatientRecord patientRecord,
          |         final Float score) {
-         |      this(patientRecord.uid(),
+         |      this(patientRecord.patientId(),
          |           new DgraphSourceId(patientRecord.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
@@ -54,7 +54,7 @@ private object CustomDgraphPatientRecord {
     writer.print(
       """
         |   PatientRecord toPatientRecord() {
-        |      return new PatientRecord(this.uid(),
+        |      return new PatientRecord(this.patientId(),
         |                               this.sourceId() != null
         |                                     ? this.sourceId().toSourceId()
         |                                     : null,

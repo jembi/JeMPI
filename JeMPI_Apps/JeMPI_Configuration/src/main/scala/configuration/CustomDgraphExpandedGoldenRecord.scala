@@ -27,7 +27,7 @@ private object CustomDgraphExpandedGoldenRecord {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |${" " * 6}@JsonProperty("uid") String uid,
+         |${" " * 6}@JsonProperty("uid") String goldenId,
          |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,""".stripMargin)
     fields.foreach {
       case field =>
@@ -43,7 +43,7 @@ private object CustomDgraphExpandedGoldenRecord {
     writer.print(
       """
         |   GoldenRecord toGoldenRecord() {
-        |      return new GoldenRecord(this.uid(),
+        |      return new GoldenRecord(this.goldenId(),
         |                              this.sourceId() != null
         |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
         |                                    : List.of(),

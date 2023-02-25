@@ -26,7 +26,7 @@ private object CustomDgraphExpandedPatientRecord {
   private def toPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
         writer.println(
           """   PatientRecord toPatientRecord() {
-            |      return new PatientRecord(this.uid(),
+            |      return new PatientRecord(this.patientId(),
             |                               this.sourceId().toSourceId(),
             |                               new CustomDemographicData(""".stripMargin)
 
@@ -72,7 +72,7 @@ private object CustomDgraphExpandedPatientRecord {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |${" " * 6}@JsonProperty("uid") String uid,
+         |${" " * 6}@JsonProperty("uid") String patientId,
          |${" " * 6}@JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
     addFields(writer, fields)
     toPatientRecord(writer, fields)

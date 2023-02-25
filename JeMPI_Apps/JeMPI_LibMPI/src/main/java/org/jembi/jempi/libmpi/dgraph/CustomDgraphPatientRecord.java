@@ -8,7 +8,7 @@ import org.jembi.jempi.shared.models.PatientRecord;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphPatientRecord(
-      @JsonProperty("uid") String uid,
+      @JsonProperty("uid") String patientId,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
       @JsonProperty("PatientRecord.given_name") String givenName,
@@ -22,7 +22,7 @@ record CustomDgraphPatientRecord(
    CustomDgraphPatientRecord(
          final PatientRecord patientRecord,
          final Float score) {
-      this(patientRecord.uid(),
+      this(patientRecord.patientId(),
            new DgraphSourceId(patientRecord.sourceId()),
            patientRecord.demographicData().auxId(),
            patientRecord.demographicData().givenName(),
@@ -36,7 +36,7 @@ record CustomDgraphPatientRecord(
    }
 
    PatientRecord toPatientRecord() {
-      return new PatientRecord(this.uid(),
+      return new PatientRecord(this.patientId(),
                                this.sourceId() != null
                                      ? this.sourceId().toSourceId()
                                      : null,

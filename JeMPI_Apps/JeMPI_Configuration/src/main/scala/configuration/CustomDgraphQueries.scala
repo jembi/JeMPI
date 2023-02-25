@@ -55,7 +55,7 @@ object CustomDgraphQueries {
         |         candidates.forEach(candidate -> {
         |            var found = false;
         |            for (CustomDgraphGoldenRecord goldenRecord : goldenRecords) {
-        |               if (candidate.uid().equals(goldenRecord.uid())) {
+        |               if (candidate.goldenId().equals(goldenRecord.goldenId())) {
         |                  found = true;
         |                  break;
         |               }

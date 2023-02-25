@@ -1,5 +1,6 @@
 package org.jembi.jempi.stats;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -8,9 +9,9 @@ import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.models.PatientRecordWithScore;
+import org.jembi.jempi.shared.models.SourceId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -118,7 +119,7 @@ public final class CustomMain {
       final var rot = mpiGoldenRecord.goldenRecord();
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                       rot.uid(), rot.demographicData().auxId(),
+                       rot.uid, rot.demographicData().auxId(),
                        rot.demographicData().givenName(), rot.demographicData().familyName(), rot.demographicData().gender(),
                        rot.demographicData().dob(),
                        rot.demographicData().phoneNumber(), rot.demographicData().nationalId());
@@ -126,7 +127,7 @@ public final class CustomMain {
             final var patient = mpiPatient.patientRecord();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-                          patient.uid(),
+                          patient.uid,
                           patient.demographicData().auxId(),
                           patient.demographicData().givenName(),
                           patient.demographicData().familyName(),
@@ -224,11 +225,29 @@ public final class CustomMain {
    private record GoldenIdList(List<String> records) {
    }
 
-   public record ApiExpandedGoldenRecord(
-         GoldenRecord goldenRecord,
-         List<PatientRecordWithScore> mpiPatientRecords) {
+   private record ApiGoldenRecord(
+         String uid,
+         List<SourceId> sourceId,
+         CustomDemographicData demographicData) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiPatientRecord(
+         String uid,
+         SourceId sourceId,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   private record ApiPatientRecordWithScore(
+         ApiPatientRecord patientRecord,
+         Float score) {
+   }
+
+   private record ApiExpandedGoldenRecord(
+         ApiGoldenRecord goldenRecord,
+         List<ApiPatientRecordWithScore> mpiPatientRecords) {
+   }
 
    private record GoldenRecordDocuments(List<ApiExpandedGoldenRecord> expandedGoldenRecords) {
    }

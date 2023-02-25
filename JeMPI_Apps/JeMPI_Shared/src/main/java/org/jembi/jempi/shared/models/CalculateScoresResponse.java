@@ -3,11 +3,11 @@ package org.jembi.jempi.shared.models;
 import java.util.List;
 
 public record CalculateScoresResponse(
-      String patientUid,
+      String patientId,
       List<Score> scores) {
 
    public record Score(
-         String goldenUid,
+         String goldenId,
          float score) {
    }
 

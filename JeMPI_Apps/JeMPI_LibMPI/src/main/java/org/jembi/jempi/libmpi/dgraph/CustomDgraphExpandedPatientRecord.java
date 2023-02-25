@@ -10,7 +10,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphExpandedPatientRecord(
-      @JsonProperty("uid") String uid,
+      @JsonProperty("uid") String patientId,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
       @JsonProperty("PatientRecord.given_name") String givenName,
@@ -23,7 +23,7 @@ record CustomDgraphExpandedPatientRecord(
       @JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
    PatientRecord toPatientRecord() {
-      return new PatientRecord(this.uid(),
+      return new PatientRecord(this.patientId(),
                                this.sourceId().toSourceId(),
                                new CustomDemographicData(
                                      this.auxId(),

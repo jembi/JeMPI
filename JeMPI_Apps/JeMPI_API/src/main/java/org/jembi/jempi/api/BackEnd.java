@@ -99,7 +99,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(FindCandidatesRequest.class, this::findCandidatesHandler)
             .onMessage(FindMatchesForReviewRequest.class, this::findMatchesForReviewHandler)
             .onMessage(UpdateGoldenRecordFieldsRequest.class, this::updateGoldenRecordFieldsHandler)
-            .onMessage(UpdateLinkRequest.class, this::updateLinkHandler)
+            .onMessage(UpdateLinkToExistingGoldenRecordRequest.class, this::updateLinkToExistingGoldenRecordHandler)
             .onMessage(UpdateLinkToNewGoldenRecordRequest.class, this::updateLinkToNewGoldenRecordHandler)
             .onMessage(UpdateNotificationStateRequest.class, this::updateNotificationStateHandler)
             .onMessage(SimpleSearchGoldenRecordsRequest.class, this::simpleSearchGoldenRecordsHandler)
@@ -332,9 +332,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> updateLinkHandler(final UpdateLinkRequest request) {
-      var result = libMPI.updateLink(request.goldenId, request.newGoldenId, request.patientId, request.score);
-      request.replyTo.tell(new UpdateLinkResponse(result));
+   private Behavior<Event> updateLinkToExistingGoldenRecordHandler(final UpdateLinkToExistingGoldenRecordRequest request) {
+      var result = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+      request.replyTo.tell(new UpdateLinkToExistingGoldenRecordResponse(result));
       return Behaviors.same();
    }
 
@@ -453,15 +453,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record UpdateGoldenRecordFieldsResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
    }
 
-   public record UpdateLinkRequest(
-         ActorRef<UpdateLinkResponse> replyTo,
-         String goldenId,
+   public record UpdateLinkToExistingGoldenRecordRequest(
+         ActorRef<UpdateLinkToExistingGoldenRecordResponse> replyTo,
+         String currentGoldenId,
          String newGoldenId,
          String patientId,
          Float score) implements Event {
    }
 
-   public record UpdateLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
+   public record UpdateLinkToExistingGoldenRecordResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
