@@ -32,9 +32,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private static LibMPI libMPI = null;
-
-   private final CustomLinkerMU customLinkerMU = new CustomLinkerMU();
-
    private final MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(final ActorContext<Event> context) {

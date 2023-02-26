@@ -29,87 +29,72 @@
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>${version.com.typesafe.config}</version>
         </dependency>
 
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>${version.io.vavr.vavr}</version>
         </dependency>
-
 
         <dependency>
             <groupId>io.dgraph</groupId>
             <artifactId>dgraph4j</artifactId>
-            <version>${version.io.dgraph.dgraph4j}</version>
         </dependency>
 
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
-            <version>${version.com.datastax.oss.java-driver-core}</version>
         </dependency>
 
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
-            <version>${version.com.datastax.oss.java-driver-mapper-runtimer}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-annotations}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>${version.commons-codec.commons-codec}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${version.org.apache.commons.commons-lang3}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-api}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-core}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-slf4j-impl}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>${version.org.apache.commons.commons-text}</version>
         </dependency>
 
     </dependencies>

@@ -27,92 +27,77 @@
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-actor-typed_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-stream_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-stream_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-http_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-http-jackson_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.megard</groupId>
-            <artifactId>akka-http-cors_2.13</artifactId>
-            <version>${version.ch.megard.akka-http-cors_2.13}</version>
+            <artifactId>akka-http-cors_${scala.tools.version}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${version.org.apache.commons.commons-lang3}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>${version.org.apache.commons.commons-text}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${version.org.apache.kafka.kafka-clients}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
-            <version>${version.org.apache.kafka.kafka-streams}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-annotations}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-api}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-core}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-slf4j-impl}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
 
     </dependencies>

@@ -33,205 +33,165 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${version.org.postgresql.postgresql}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>${version.com.typesafe.config}</version>
         </dependency>
 
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>${version.io.vavr.vavr}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${version.org.apache.kafka.kafka-clients}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
-            <version>${version.org.apache.kafka.kafka-streams}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-actor-typed_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-stream_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-stream_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-http_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
-            <version>${version.com.typesafe.akka.akka-http-jackson_2.13}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.megard</groupId>
-            <artifactId>akka-http-cors_2.13</artifactId>
-            <version>${version.ch.megard.akka-http-cors_2.13}</version>
+            <artifactId>akka-http-cors_${scala.tools.version}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-annotations}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>${version.commons-codec.commons-codec}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${version.org.apache.commons.commons-lang3}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>${version.org.apache.commons.commons-text}</version>
         </dependency>
 
         <dependency>
             <groupId>io.dgraph</groupId>
             <artifactId>dgraph4j</artifactId>
-            <version>${version.io.dgraph.dgraph4j}</version>
         </dependency>
 
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
-            <version>${version.com.datastax.oss.java-driver-core}</version>
         </dependency>
 
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-query-builder</artifactId>
-            <version>${version.com.datastax.oss.java-driver-query-builder}</version>
         </dependency>
 
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
-            <version>${version.com.datastax.oss.java-driver-mapper-runtimer}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-api}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-core}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-slf4j-impl}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <version>${version.org.apache.logging.log4j.log4j-jcl}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.softwaremill.akka-http-session/core -->
         <dependency>
             <groupId>com.softwaremill.akka-http-session</groupId>
-            <artifactId>core_2.13</artifactId>
-            <version>0.7.0</version>
+            <artifactId>core_${scala.tools.version}</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-adapter-core -->
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-adapter-core</artifactId>
-            <version>20.0.3</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
         <dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
-            <version>3.5.0.Final</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.6</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.6</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.9.2</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.1.1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor-testkit-typed_2.13</artifactId>
-            <version>${version.com.typesafe.akka.akka-actor-typed_2.13}</version>
+            <artifactId>akka-actor-testkit-typed_${scala.tools.version}</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -274,7 +234,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
