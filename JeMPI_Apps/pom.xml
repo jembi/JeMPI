@@ -15,9 +15,9 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.version>[3.8.6,)</maven.version>
+        <java.version>17.0.6</java.version>
         <scala.tools.version>2.13</scala.tools.version>
         <scala.version>2.13.10</scala.version>
-        <java.version>17.0.6</java.version>
         <hapi-fhir-version>6.1.3</hapi-fhir-version>
 
         <!--    <javac.executable>${JAVA_HOME}/bin/javac</javac.executable>    -->
