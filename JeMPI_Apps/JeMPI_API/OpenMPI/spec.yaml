@@ -1,0 +1,121 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:50000'
+paths:
+    /JeMPI/NumberOfRecords:
+      get:
+        summary: Get the number of records
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    goldenRecords:
+                      type: integer
+                      example: 444
+                    patients:
+                      type: integer
+                      example: 607
+    /JeMPI/GoldenRecordCount:
+      get:
+        summary: Get the number of Golden Records
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    goldenRecords:
+                      type: integer
+                      example: 444
+    /JeMPI/patient-record/{uid}:
+      parameters:
+        - schema:
+            type: string
+            example: "0x4"
+          name: uid
+          in: path
+          required: true
+      get:
+        summary: Fetches patient record
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/patientRecord"
+    /JeMPI/Unlink:
+      parameters:
+        - schema:
+            type: string
+            example: "0x5"
+          name: goldenId
+          in: header
+          required: true
+      patch:
+        responses:
+          "200":
+            description: "OK"
+
+
+components:
+  schemas:
+    demographicData:
+      type: object
+      properties:
+        auxId:
+          type: string
+          example: "rec-00000681-bbb-1"
+        givenName:
+          type: string
+          example: "Leuleselassie"
+        familyName:
+          type: string
+          example: ""
+        gender:
+          type: string
+          example: "male"
+        dob:
+          type: string
+          example: "20140421"
+        city:
+          type: string
+          example: "Mwingi"
+        phoneNumber:
+          type: string
+          example: "034-263-8586"
+        nationalId:
+          type: string
+          example: "200006222481549"
+    sourceId:
+      type: object
+      properties:
+        facility:
+          type: string
+          example: "LABORATORY"
+        patient:
+          type: string
+          example: "200006222481549"
+        uid:
+          type: string
+          example: "0x3"
+    patientRecord:
+      type: object
+      properties:
+        demographicData:
+          $ref: "#/components/schemas/demographicData"
+        sourceId:
+          $ref: "#/components/schemas/sourceId"
+        uid:
+          type: string
+          example: "0x4"

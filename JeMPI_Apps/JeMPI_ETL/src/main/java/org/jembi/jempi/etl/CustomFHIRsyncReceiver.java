@@ -56,7 +56,7 @@ public final class CustomFHIRsyncReceiver extends AllDirectives {
          final String json) {
       LOGGER.debug("json : {}", json);
       final var request = HttpRequest
-            .create("http://jempi-controller:50000/JeMPI/link_patient")
+            .create("http://controller:50000/JeMPI/link_patient")
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, json);
       return http.singleRequest(request)

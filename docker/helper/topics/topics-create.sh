@@ -14,8 +14,8 @@ pushd .
   SEGMENT_BYTES=`echo "1024*1024*4" | bc`
 
   for TOPIC in ${TOPICS[@]}; do
-    docker exec $(docker ps -q -f name=jempi-kafka-01) kafka-topics.sh \
-    --bootstrap-server jempi-kafka-01:9092 \
+    docker exec $(docker ps -q -f name=kafka-01) kafka-topics.sh \
+    --bootstrap-server kafka-01:9092 \
     --create \
     --replication-factor ${REPLICATION[$TOPIC]} \
     --partitions ${PARTITIONS[$TOPIC]} \

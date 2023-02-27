@@ -2,18 +2,18 @@ package org.jembi.jempi.libmpi;
 
 public sealed interface MpiServiceError extends MpiGeneralError {
 
-   record PatientUIDDoesNotExistError(
+   record PatientIdDoesNotExistError(
          String error,
-         String uid) implements MpiServiceError {}
+         String patientId) implements MpiServiceError {}
 
-   record GoldenUIDDoesNotExistError(
+   record GoldenIdDoesNotExistError(
          String error,
-         String uid) implements MpiServiceError {}
+         String goldenId) implements MpiServiceError {}
 
-   record GoldenUIDPatientConflictError(
+   record GoldenIdPatientConflictError(
          String error,
-         String goldenUID,
-         String patientUID) implements MpiServiceError {}
+         String goldenId,
+         String patientId) implements MpiServiceError {}
 
    record DeletePredicateError(
          String uid,

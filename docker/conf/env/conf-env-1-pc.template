@@ -7,7 +7,7 @@ export NODE1_IP=${NODE1_IP}
 # export NODE3=${NODE3}
 # export NODE3_IP=${NODE3_IP}
 
-export STACK_NAME=JeMPI
+export STACK_NAME=jempi
 
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps

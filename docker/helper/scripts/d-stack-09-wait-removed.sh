@@ -10,22 +10,21 @@ pushd .
   source ./0-conf.env
 
   declare -a SERVICES=(
-    test-01
-    staging-01
-    input-02
-    jempi-etl
-    jempi-controller
-    jempi-em
-    jempi-linker
-    jempi-api
-    jempi-ratel
-    jempi-alpha-03
-    jempi-alpha-02
-    jempi-alpha-01
-    jempi-zero-01
-    jempi-kafka-03
-    jempi-kafka-02
-    jempi-kafka-01
+    async-receiver
+    sync-receiver
+    etl
+    controller
+    em
+    linker
+    api
+    ratel
+    alpha-03
+    alpha-02
+    alpha-01
+    zero-01
+    kafka-03
+    kafka-02
+    kafka-01
   )
 
   for SERVICE in ${SERVICES[@]}; do

@@ -3,8 +3,8 @@ package org.jembi.jempi.libmpi;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.utils.SimpleSearchRequestPayload;
+import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
+import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -39,19 +39,24 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   PatientRecord getPatientRecord(String uid);
 
-   GoldenRecord getGoldenRecord(String uid);
+   PatientRecord findPatientRecord(String patientId);
 
-   List<GoldenRecord> getCandidates(
+   List<PatientRecord> findPatientRecords(List<String> patientIds);
+
+   List<ExpandedPatientRecord> findExpandedPatientRecords(List<String> patientIds);
+
+   GoldenRecord findGoldenRecord(String goldenId);
+
+   List<GoldenRecord> findGoldenRecords(List<String> goldenIds);
+
+   List<ExpandedGoldenRecord> findExpandedGoldenRecords(List<String> goldenIds);
+
+   List<String> findGoldenIds();
+
+   List<GoldenRecord> findCandidates(
          CustomDemographicData demographicData,
          boolean applyDeterministicFilter);
-
-   List<ExpandedPatientRecord> getExpandedPatients(List<String> ids);
-
-   List<ExpandedGoldenRecord> getExpandedGoldenRecords(List<String> ids);
-
-   List<String> getGoldenIds();
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
@@ -90,31 +95,31 @@ public interface LibMPIClientInterface {
     */
 
    boolean updateGoldenRecordField(
-         String uid,
+         String goldenId,
          String fieldName,
          String value);
 
-   Either<MpiGeneralError, LinkInfo> unLink(
-         String goldenUID,
-         String patientUID,
+   Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
+         String currentGoldenId,
+         String patientId,
          float score);
 
    Either<MpiGeneralError, LinkInfo> updateLink(
-         String goldenUID,
-         String newGoldenUID,
-         String patientUID,
+         String goldenId,
+         String newGoldenId,
+         String patientId,
          float score);
 
    LinkInfo createPatientAndLinkToExistingGoldenRecord(
          PatientRecord patientRecord,
-         GoldenUIDScore goldenUIDScore);
+         GoldenIdScore goldenIdScore);
 
    LinkInfo createPatientAndLinkToClonedGoldenRecord(
          PatientRecord patientRecord,
          float score);
 
-   record GoldenUIDScore(
-         String goldenUID,
+   record GoldenIdScore(
+         String goldenId,
          float score) {
    }
 

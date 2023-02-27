@@ -35,7 +35,7 @@ class CustomReceiver extends AllDirectives {
         LOGGER.debug("{}", json);
         final HttpRequest request;
         request = HttpRequest
-                .create("http://jempi-etl:50000/fhir")
+                .create("http://etl:50000/fhir")
                 .withMethod(HttpMethods.POST)
                 .withEntity(ContentTypes.APPLICATION_JSON, json);
         final var stage = http.singleRequest(request);

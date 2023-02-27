@@ -32,9 +32,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private static LibMPI libMPI = null;
-
-   private final CustomLinkerMU customLinkerMU = new CustomLinkerMU();
-
    private final MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(final ActorContext<Event> context) {
@@ -88,7 +85,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String fieldName,
          final String goldenRecordFieldValue,
          final Function<CustomDemographicData, String> getDocumentField) {
-      final var mpiPatientList = expandedGoldenRecord.mpiPatientRecords();
+      final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       final var freqMapGroupedByField =
             mpiPatientList
                   .stream()
@@ -99,10 +96,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var count = freqMapGroupedByField.getOrDefault(goldenRecordFieldValue, 0L);
          final var maxEntry = Collections.max(freqMapGroupedByField.entrySet(), Map.Entry.comparingByValue());
          if (isBetterValue(goldenRecordFieldValue, count, maxEntry.getKey(), maxEntry.getValue())) {
-            final var uid = expandedGoldenRecord.goldenRecord().uid();
-            final var result = libMPI.updateGoldenRecordField(uid, fieldName, maxEntry.getKey());
+            final var goldenId = expandedGoldenRecord.goldenRecord().goldenId();
+            final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
             if (!result) {
-               LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", uid, fieldName, maxEntry.getKey());
+               LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
             }
          }
       }
@@ -118,8 +115,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(EventLinkPatientToGidSyncReq.class, this::eventLinkPatientToGidSyncHandler)
             .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
             .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+            .onMessage(EventCalculateScoresReq.class, this::eventCalculateScoresHandler)
             .build();
-
    }
 
    private Behavior<Event> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
@@ -161,7 +158,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          } else {
             linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(
                   patientRecord,
-                  new LibMPIClientInterface.GoldenUIDScore(gid, score));
+                  new LibMPIClientInterface.GoldenIdScore(gid, score));
             CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, gid);
          }
       } finally {
@@ -228,7 +225,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                   .stream()
                   .peek(v -> {
                      if (v.score() >= matchThreshold - 0.1 && v.score() <= matchThreshold + 0.1) {
-                        notificationCandidates.add(new Notification.MatchData(v.goldenRecord().uid(), v.score()));
+                        notificationCandidates.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
                      }
                   })
                   .filter(v -> v.score() >= matchThreshold)
@@ -252,11 +249,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                                                              candidate.score)));
                }
             } else {
-               final var linkToGoldenId = new LibMPIClientInterface.GoldenUIDScore(
-                     candidatesAboveMatchThreshold.get(0).goldenRecord.uid(),
+               final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
+                     candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
                      candidatesAboveMatchThreshold.get(0).score);
                linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(patientRecord, linkToGoldenId);
-               CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenUID());
+               CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, linkToGoldenId.goldenId());
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
@@ -264,7 +261,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                   for (var i = 1; i < candidatesAboveMatchThreshold.size(); i++) {
                      final var candidate = candidatesAboveMatchThreshold.get(i);
                      if (firstCandidate.score - candidate.score <= 0.1) {
-                        marginalCandidates.add(new Notification.MatchData(candidate.goldenRecord.uid(), candidate.score));
+                        marginalCandidates.add(new Notification.MatchData(candidate.goldenRecord.goldenId(), candidate.score));
                      } else {
                         break;
                      }
@@ -286,6 +283,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return linkInfo == null
             ? Either.right(externalLinkCandidateList)
             : Either.left(linkInfo);
+   }
+
+   private CalculateScoresResponse calculateScores(final CalculateScoresRequest request) {
+      final var patientRecord = libMPI.findPatientRecord(request.patientId());
+      final var goldenRecords = libMPI.findGoldenRecords(request.goldenIds());
+      LOGGER.debug("{}", patientRecord);
+      LOGGER.debug("{}", goldenRecords);
+      final var scores = goldenRecords
+            .parallelStream()
+            .unordered()
+            .map(goldenRecord -> new CalculateScoresResponse.Score(
+                  goldenRecord.goldenId(),
+                  calcNormalizedScore(goldenRecord.demographicData(), patientRecord.demographicData())))
+            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+            .collect(Collectors.toCollection(ArrayList::new));
+      return new CalculateScoresResponse(request.patientId(), scores);
+   }
+
+   private Behavior<Event> eventCalculateScoresHandler(final EventCalculateScoresReq req) {
+      req.replyTo.tell(new EventCalculateScoresRsp(calculateScores(req.calculateScoresRequest)));
+      return Behaviors.same();
    }
 
    private Behavior<Event> eventGetMUReqHandler(final EventGetMUReq req) {
@@ -380,6 +398,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record EventGetMURsp(CustomMU mu) implements EventResponse {
+   }
+
+   public record EventCalculateScoresReq(
+         CalculateScoresRequest calculateScoresRequest,
+         ActorRef<EventCalculateScoresRsp> replyTo) implements Event {
+
+   }
+
+   public record EventCalculateScoresRsp(
+         CalculateScoresResponse calculateScoresResponse) {
+
    }
 
    public record EventLinkPatientSyncReq(

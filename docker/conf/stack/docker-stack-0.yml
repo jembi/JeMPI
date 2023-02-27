@@ -20,7 +20,7 @@ networks:
 
 services:
 
-  jempi-kafka-01:
+  kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
     networks:
@@ -35,8 +35,8 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-01:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
@@ -56,7 +56,7 @@ services:
         constraints:
           - node.hostname == $PLACEMENT_KAFKA_01
   
-  jempi-kafka-02:
+  kafka-02:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
     user: root
     networks:
@@ -71,8 +71,8 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-02:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-02:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
@@ -92,7 +92,7 @@ services:
         constraints:
           - node.hostname == $PLACEMENT_KAFKA_02
   
-  jempi-kafka-03:
+  kafka-03:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
     user: root
     networks:
@@ -107,8 +107,8 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-03:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-03:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
@@ -128,9 +128,9 @@ services:
         constraints:
           - node.hostname == $PLACEMENT_KAFKA_03
 
-  jempi-zero-01:
+  zero-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "jempi-zero-01"
+    hostname: "zero-01"
     networks:
     - backend-dgraph
     ports:
@@ -156,11 +156,11 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ZERO_01}
-    command: dgraph zero --my=jempi-zero-01:5080 --replicas 1
+    command: dgraph zero --my=zero-01:5080 --replicas 1
 
-  jempi-alpha-01:
+  alpha-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "jempi-alpha-01"
+    hostname: "alpha-01"
     networks:
     - backend-dgraph
     volumes:
@@ -186,11 +186,11 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=jempi-alpha-01:7080 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
-  jempi-alpha-02:
+  alpha-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "jempi-alpha-02"
+    hostname: "alpha-02"
     networks:
     - backend-dgraph
     volumes:
@@ -216,11 +216,11 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
-  jempi-alpha-03:
+  alpha-03:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "jempi-alpha-03"
+    hostname: "alpha-03"
     networks:
     - backend-dgraph
     volumes:
@@ -246,9 +246,9 @@ services:
       placement:
         constraints:
         - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_03}
-    command: dgraph alpha --my=jempi-alpha-03:7082 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
-  jempi-ratel:
+  ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
     ports:
     - published: 8010
@@ -269,7 +269,7 @@ services:
         - node.hostname == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
-  jempi-postgresql:
+  postgresql:
     image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
@@ -302,7 +302,7 @@ services:
         - node.hostname == ${PLACEMENT_POSTGRESQL}
 
 
-  jempi-async-receiver:
+  async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
@@ -333,7 +333,7 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_ASYNC_RECEIVER}
 
-  jempi-sync-receiver:
+  sync-receiver:
     image: ${IMAGE_REGISTRY}${SYNC_RECEIVER_IMAGE}
     networks:
     - backend-kafka
@@ -365,7 +365,7 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_SYNC_RECEIVER}
 
-  jempi-etl:
+  etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     networks:
     - backend-kafka
@@ -392,7 +392,7 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_ETL}
 
-  jempi-controller:
+  controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     networks:
     - backend-kafka
@@ -424,7 +424,7 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_CONTROLLER}
        
-  jempi-em:
+  em:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
     networks:
     - backend-kafka
@@ -451,7 +451,7 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_EM}
 
-  jempi-linker:
+  linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     networks:
     - backend-kafka
@@ -479,7 +479,7 @@ services:
         constraints:
         - node.hostname == ${PLACEMENT_LINKER}
 
-  jempi-api:
+  api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
     environment:
       KC_REALM_NAME: ${KC_REALM_NAME}

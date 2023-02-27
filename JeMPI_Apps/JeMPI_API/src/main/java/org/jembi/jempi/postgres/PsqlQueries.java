@@ -22,27 +22,22 @@ public final class PsqlQueries {
    private PsqlQueries() {
    }
 
-   public static List getMatchesForReview() {
-
-      ArrayList list = new ArrayList();
-
+   public static List<HashMap<String, Object>> getMatchesForReview() {
+      final var list = new ArrayList<HashMap<String, Object>>();
       try (Connection connection = DbConnect.connect();
            PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
          UUID notificationID = null;
-         HashMap row = new HashMap(columns);
-
          while (rs.next()) {
-            row = new HashMap(columns);
+            final var row = new HashMap<String, Object>(columns);
             for (int i = 1; i <= columns; i++) {
                if (md.getColumnName(i).equals("id")) {
                   notificationID = rs.getObject(i, java.util.UUID.class);
                }
                row.put(md.getColumnName(i), (rs.getObject(i)));
             }
-
             list.add(row);
             row.put("candidates", getCandidates(notificationID));
          }
@@ -52,9 +47,8 @@ public final class PsqlQueries {
       return list;
    }
 
-   public static List getCandidates(final UUID nID) {
-
-      ArrayList list = new ArrayList();
+   public static List<HashMap<String, Object>> getCandidates(final UUID nID) {
+      final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
       try (Connection connection = DbConnect.connect();
            PreparedStatement preparedStatement = connection.prepareStatement(candidates)) {
@@ -62,13 +56,12 @@ public final class PsqlQueries {
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
          while (rs.next()) {
-            HashMap row = new HashMap(columns);
+            final var row = new HashMap<String, Object>(columns);
             for (int i = 1; i <= columns; i++) {
                if (md.getColumnName(i).equals("notification_id")) {
                   row.put("score", (rs.getObject("score")));
                   row.put("golden_id", (rs.getObject("golden_id")));
                }
-
             }
             if (!row.isEmpty()) {
                list.add(row);
@@ -160,14 +153,13 @@ public final class PsqlQueries {
          ResultSet rs = stmt.executeQuery("select * from users where email = '" + email + "'");
          // Check if empty then return null
          if (rs.next()) {
-            User user = new User(
+            return new User(
                   rs.getString("id"),
                   rs.getString("username"),
                   rs.getString("email"),
                   rs.getString("family_name"),
                   rs.getString("given_name")
             );
-            return user;
          }
       } catch (SQLException e) {
          LOGGER.error(e);
@@ -184,4 +176,4 @@ public final class PsqlQueries {
       LOGGER.info("Registered a new user");
       return getUserByEmail(user.getEmail());
    }
- }
+}

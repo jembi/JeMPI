@@ -8,18 +8,6 @@
     <artifactId>JeMPI</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <modules>
-        <module>JeMPI_Shared</module>
-        <module>JeMPI_LibMPI</module>
-        <module>JeMPI_Linker</module>
-        <module>JeMPI_Controller</module>
-        <module>JeMPI_EM</module>
-        <module>JeMPI_ETL</module>
-        <module>JeMPI_AsyncReceiver</module>
-        <module>JeMPI_SyncReceiver</module>
-        <module>JeMPI_API</module>
-        <module>JeMPI_Stats</module>
-    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,95 +15,13 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.version>[3.8.6,)</maven.version>
+        <java.version>17.0.6</java.version>
         <scala.tools.version>2.13</scala.tools.version>
         <scala.version>2.13.10</scala.version>
-        <java.version>17.0.6</java.version>
+        <hapi-fhir-version>6.1.3</hapi-fhir-version>
 
-        <javac.executable>${JAVA_HOME}/bin/javac</javac.executable>
-
-        <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
-        <version.com.typesafe.config>1.4.2</version.com.typesafe.config>
-
-        <!-- https://mvnrepository.com/artifact/io.vavr/vavr -->
-        <version.io.vavr.vavr>0.10.4</version.io.vavr.vavr>
-
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor-typed -->
-        <version.com.typesafe.akka.akka-actor-typed_2.13>2.7.0</version.com.typesafe.akka.akka-actor-typed_2.13>
-
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-stream -->
-        <version.com.typesafe.akka.akka-stream_2.13>2.7.0</version.com.typesafe.akka.akka-stream_2.13>
-
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http -->
-        <version.com.typesafe.akka.akka-http_2.13>10.4.0</version.com.typesafe.akka.akka-http_2.13>
-
-        <!-- https://mvnrepository.com/artifact/ch.megard/akka-http-cors -->
-        <version.ch.megard.akka-http-cors_2.13>1.1.3</version.ch.megard.akka-http-cors_2.13>
-
-        <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-jackson -->
-        <version.com.typesafe.akka.akka-http-jackson_2.13>10.4.0</version.com.typesafe.akka.akka-http-jackson_2.13>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <version.org.apache.commons.commons-lang3>3.12.0</version.org.apache.commons.commons-lang3>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
-        <version.org.apache.commons.commons-text>1.10.0</version.org.apache.commons.commons-text>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
-        <version.org.apache.commons.commons-csv>1.10.0</version.org.apache.commons.commons-csv>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
-        <version.org.apache.kafka.kafka-clients>3.4.0</version.org.apache.kafka.kafka-clients>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
-        <version.org.apache.kafka.kafka-streams>3.4.0</version.org.apache.kafka.kafka-streams>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
-        <version.org.apache.logging.log4j.log4j-api>2.19.0</version.org.apache.logging.log4j.log4j-api>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-        <version.org.apache.logging.log4j.log4j-core>2.19.0</version.org.apache.logging.log4j.log4j-core>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
-        <version.org.apache.logging.log4j.log4j-slf4j-impl>2.19.0</version.org.apache.logging.log4j.log4j-slf4j-impl>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-jcl -->
-        <version.org.apache.logging.log4j.log4j-jcl>2.19.0</version.org.apache.logging.log4j.log4j-jcl>
-
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
-        <version.com.fasterxml.jackson.core.jackson-annotations>2.14.2
-        </version.com.fasterxml.jackson.core.jackson-annotations>
-
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-        <version.com.fasterxml.jackson.core.jackson-databind>2.14.2
-        </version.com.fasterxml.jackson.core.jackson-databind>
-
-        <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-base -->
-        <version.ca.uhn.hapi.fhir>6.1.3</version.ca.uhn.hapi.fhir>
-
-        <!-- https://mvnrepository.com/artifact/io.dgraph/dgraph4j -->
-        <version.io.dgraph.dgraph4j>21.03.2</version.io.dgraph.dgraph4j>
-
-        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
-        <version.com.squareup.okhttp3.okhttp>4.10.0</version.com.squareup.okhttp3.okhttp>
-
-        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-        <version.commons-codec.commons-codec>1.15</version.commons-codec.commons-codec>
-
-        <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
-        <version.com.opencsv.opencsv>5.7.1</version.com.opencsv.opencsv>
-
-        <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core -->
-        <version.com.datastax.oss.java-driver-core>4.15.0</version.com.datastax.oss.java-driver-core>
-
-        <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-query-builder -->
-        <version.com.datastax.oss.java-driver-query-builder>4.15.0</version.com.datastax.oss.java-driver-query-builder>
-
-        <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-mapper-runtime -->
-        <version.com.datastax.oss.java-driver-mapper-runtimer>4.15.0
-        </version.com.datastax.oss.java-driver-mapper-runtimer>
-
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
-        <version.org.postgresql.postgresql>42.5.3</version.org.postgresql.postgresql>
+        <!--    <javac.executable>${JAVA_HOME}/bin/javac</javac.executable>    -->
+        <javac.executable>javac</javac.executable>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-enforcer-plugin -->
         <version.org.apache.maven.plugins.maven-enforcer-plugin>
@@ -184,15 +90,428 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
         <version.org.apache.maven.plugins.maven-shade-plugin>
-            3.4.1
+            3.5.0
         </version.org.apache.maven.plugins.maven-shade-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            3.0.2
+            3.0.3
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
 
+    <dependencyManagement>
+
+        <dependencies>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>1.4.2</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor-typed -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
+                <version>2.7.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/io.vavr/vavr -->
+            <dependency>
+                <groupId>io.vavr</groupId>
+                <artifactId>vavr</artifactId>
+                <version>0.10.4</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-stream -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-stream_${scala.tools.version}</artifactId>
+                <version>2.7.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-testkit_${scala.tools.version}</artifactId>
+                <version>2.7.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor-testkit-typed -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-actor-testkit-typed_${scala.tools.version}</artifactId>
+                <version>2.7.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-http_${scala.tools.version}</artifactId>
+                <version>10.5.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ch.megard/akka-http-cors -->
+            <dependency>
+                <groupId>ch.megard</groupId>
+                <artifactId>akka-http-cors_${scala.tools.version}</artifactId>
+                <version>1.1.3</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.softwaremill.akka-http-session/core -->
+            <dependency>
+                <groupId>com.softwaremill.akka-http-session</groupId>
+                <artifactId>core_${scala.tools.version}</artifactId>
+                <version>0.7.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-http-jackson -->
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
+                <version>10.5.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-adapter-core -->
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-adapter-core</artifactId>
+                <version>20.0.5</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.12.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.10.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>1.10.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>3.4.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams</artifactId>
+                <version>3.4.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.20.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.20.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>2.20.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-jcl -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-jcl</artifactId>
+                <version>2.20.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>2.0.6</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.6</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
+            <dependency>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging</artifactId>
+                <version>3.5.0.Final</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.14.2</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.14.2</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-base -->
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-base</artifactId>
+                <version>${hapi-fhir-version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-structures-r4 -->
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-structures-r4</artifactId>
+                <version>${hapi-fhir-version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-validation-resources-dstu2 -->
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-validation-resources-dstu2</artifactId>
+                <version>${hapi-fhir-version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-validation-resources-r4 -->
+            <dependency>
+                <groupId>ca.uhn.hapi.fhir</groupId>
+                <artifactId>hapi-fhir-validation-resources-r4</artifactId>
+                <version>${hapi-fhir-version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/io.dgraph/dgraph4j -->
+            <dependency>
+                <groupId>io.dgraph</groupId>
+                <artifactId>dgraph4j</artifactId>
+                <version>21.03.2</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>4.10.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.15</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+            <dependency>
+                <groupId>com.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>5.7.1</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core -->
+            <dependency>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-core</artifactId>
+                <version>4.15.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-query-builder -->
+            <dependency>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-query-builder</artifactId>
+                <version>4.15.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-mapper-runtime -->
+            <dependency>
+                <groupId>com.datastax.oss</groupId>
+                <artifactId>java-driver-mapper-runtime</artifactId>
+                <version>4.15.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.5.4</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+            <dependency>
+                <groupId>com.googlecode.json-simple</groupId>
+                <artifactId>json-simple</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.9.2</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>5.1.1</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-clean-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-deploy-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-install-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-jar-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-site-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-surefire-plugin}</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-failsafe-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-resources-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-enforcer-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>${maven.version}</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>${java.version}</version>
+                                </requireJavaVersion>
+                                <requireOS>
+                                    <family>unix</family>
+                                </requireOS>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-checkstyle-plugin}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.org.apache.maven.plugins.maven-compiler-plugin}</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <fork>true</fork>
+                    <executable>${javac.executable}</executable>
+                    <release>${maven.compiler.release}</release>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <modules>
+        <module>JeMPI_Shared</module>
+        <module>JeMPI_LibMPI</module>
+        <module>JeMPI_Linker</module>
+        <module>JeMPI_Controller</module>
+        <module>JeMPI_EM</module>
+        <module>JeMPI_ETL</module>
+        <module>JeMPI_AsyncReceiver</module>
+        <module>JeMPI_SyncReceiver</module>
+        <module>JeMPI_API</module>
+        <module>JeMPI_Stats</module>
+    </modules>
 
 </project>

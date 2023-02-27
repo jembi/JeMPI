@@ -1,8 +1,8 @@
 package org.jembi.jempi.api;
 
+import akka.actor.testkit.typed.javadsl.ActorTestKit;
 import akka.actor.testkit.typed.javadsl.TestProbe;
 import akka.actor.typed.ActorRef;
-import akka.actor.testkit.typed.javadsl.ActorTestKit;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.shared.models.*;
 import org.junit.jupiter.api.AfterAll;
@@ -77,17 +77,17 @@ class BackEndTest {
 
       GoldenRecord goldenRecord3 = new GoldenRecord(
             new PatientRecord(
-            "9012",
-            new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
-            new CustomDemographicData(
-                  "auxId3",
-               "Robert",
-               "Johnson",
-               "Male",
-               "1975-12-18",
-               "Chicago",
-               "555-9012",
-               "456-78-9012")
+                  "9012",
+                  new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
+                  new CustomDemographicData(
+                        "auxId3",
+                        "Robert",
+                        "Johnson",
+                        "Male",
+                        "1975-12-18",
+                        "Chicago",
+                        "555-9012",
+                        "456-78-9012")
             ));
 
       List<PatientRecordWithScore> patientRecordWithScoreList3 = List.of(
@@ -102,24 +102,24 @@ class BackEndTest {
 
       // mock LibMPI interface
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.getExpandedGoldenRecords(uids)).thenReturn(expandedGoldenRecords);
+      when(libMPI.findExpandedGoldenRecords(uids)).thenReturn(expandedGoldenRecords);
 
       // create ActorSystem and ActorRef using ActorTestKit
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
 
       // create TestProbe to receive response from actor
-      TestProbe<BackEnd.EventGetExpandedGoldenRecordsRsp> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.FindExpandedGoldenRecordsResponse> replyTo = testKit.createTestProbe();
 
       // send request to actor
-      myActorRef.tell(new BackEnd.EventGetExpandedGoldenRecordsReq(replyTo.getRef(), uids));
+      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordsRequest(replyTo.getRef(), uids));
 
       // assert that response matches expected value
-      replyTo.expectMessage(new BackEnd.EventGetExpandedGoldenRecordsRsp(expandedGoldenRecords));
+      replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordsResponse(expandedGoldenRecords));
    }
 
    @Test
-   public void testFindPatientByUidEventHandler() {
+   void testFindPatientByUidEventHandler() {
       // Create a mock libMPI instance
       final var libMPI = mock(LibMPI.class);
 
@@ -127,10 +127,10 @@ class BackEndTest {
       final var backend = testKit.spawn(BackEnd.create(libMPI));
 
       // Create a TestProbe to receive responses
-      final var probe = testKit.createTestProbe(BackEnd.EventFindPatientRecordByUidResponse.class);
+      final var probe = testKit.createTestProbe(BackEnd.FindPatientRecordResponse.class);
 
       // Create an EventFindPatientByUidRequest message with a specific UID value
-      final var request = new BackEnd.EventFindPatientByUidRequest(probe.getRef(), "1234");
+      final var request = new BackEnd.FindPatientRecordRequest(probe.getRef(), "1234");
 
       // Stub the mock libMPI instance to return a CustomEntity object when `getDocument()` is called
       final var patientRecord = new PatientRecord(
@@ -138,15 +138,15 @@ class BackEndTest {
             new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"), // sourceId
             new CustomDemographicData(
                   "auxId", // auxId
-               "John", // givenName
-               "Doe", // familyName
-               "Male", // gender
-               "1990-01-01", // dob
-               "New York", // city
-               "555-1234", // phoneNumber
-               "123-45-6789")); // nationalId
+                  "John", // givenName
+                  "Doe", // familyName
+                  "Male", // gender
+                  "1990-01-01", // dob
+                  "New York", // city
+                  "555-1234", // phoneNumber
+                  "123-45-6789")); // nationalId
 
-      when(libMPI.getPatientRecord("1234")).thenReturn(patientRecord);
+      when(libMPI.findPatientRecord("1234")).thenReturn(patientRecord);
 
       // Send the message to the actor
       backend.tell(request);
@@ -157,7 +157,7 @@ class BackEndTest {
 
       // Verify that libMPI was called with the correct arguments
       verify(libMPI).startTransaction();
-      verify(libMPI).getPatientRecord("1234");
+      verify(libMPI).findPatientRecord("1234");
       verify(libMPI).closeTransaction();
    }
 }

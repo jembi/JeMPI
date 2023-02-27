@@ -1,5 +1,7 @@
 package org.jembi.jempi.stats;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -7,7 +9,9 @@ import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
+import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.SourceId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,20 +56,21 @@ public final class CustomMain {
 
    private NumberOfRecords getNumberOfRecords() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "NumberOfRecords")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_RECORDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
+         LOGGER.debug("{}", json);
          return OBJECT_MAPPER.readValue(json, NumberOfRecords.class);
       }
    }
 
    private GoldenIdList getGoldenIdList() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenIdList")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GOLDEN_IDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
@@ -77,7 +82,6 @@ public final class CustomMain {
    }
 
    private GoldenRecordDocuments getGoldenRecordDocumentsList(final List<String> ids) throws IOException {
-      LOGGER.debug(ids);
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenRecord")).newBuilder();
       ids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
@@ -87,11 +91,12 @@ public final class CustomMain {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, GoldenRecordDocuments.class);
+         return new GoldenRecordDocuments(OBJECT_MAPPER.readValue(json, new TypeReference<>() {
+         }));
       }
    }
 
-   private void updateStatsDataSet(final ExpandedGoldenRecord goldenRecord) {
+   private void updateStatsDataSet(final ApiExpandedGoldenRecord goldenRecord) {
       final String goldenRecordAuxId = goldenRecord.goldenRecord().demographicData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, 12);
 
@@ -110,11 +115,11 @@ public final class CustomMain {
 
    private void displayGoldenRecordDocuments(
          final PrintWriter writer,
-         final ExpandedGoldenRecord mpiGoldenRecord) {
+         final ApiExpandedGoldenRecord mpiGoldenRecord) {
       final var rot = mpiGoldenRecord.goldenRecord();
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                       rot.uid(), rot.demographicData().auxId(),
+                       rot.uid, rot.demographicData().auxId(),
                        rot.demographicData().givenName(), rot.demographicData().familyName(), rot.demographicData().gender(),
                        rot.demographicData().dob(),
                        rot.demographicData().phoneNumber(), rot.demographicData().nationalId());
@@ -122,7 +127,7 @@ public final class CustomMain {
             final var patient = mpiPatient.patientRecord();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%s,%s,%s,%s,%f%n",
-                          patient.uid(),
+                          patient.uid,
                           patient.demographicData().auxId(),
                           patient.demographicData().givenName(),
                           patient.demographicData().familyName(),
@@ -147,13 +152,13 @@ public final class CustomMain {
    }
 
    private void run() throws IOException {
-      var documentCount = getCount("DocumentCount");
-      var goldenRecordCount = getCount("GoldenRecordCount");
+      var numPatientRecords = getCount(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS);
+      var numGoldenRecords = getCount(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS);
       var numberOfRecords = getNumberOfRecords();
       var goldenIdList = getGoldenIdList();
-      LOGGER.info("Document Count:       {}", documentCount);
-      LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
-      LOGGER.info("Number of Records:    {},{}", numberOfRecords.patients, numberOfRecords.goldenRecords);
+      LOGGER.info("Patient Records:      {}", numPatientRecords);
+      LOGGER.info("Golden Records:       {}", numGoldenRecords);
+      LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
       LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
       final var goldenRecords = goldenIdList.records.size();
       final var subListSize = 100L;
@@ -213,14 +218,38 @@ public final class CustomMain {
    }
 
    private record NumberOfRecords(
-         Long patients,
+         Long patientRecords,
          Long goldenRecords) {
    }
 
    private record GoldenIdList(List<String> records) {
    }
 
-   private record GoldenRecordDocuments(List<ExpandedGoldenRecord> expandedGoldenRecords) {
+   private record ApiGoldenRecord(
+         String uid,
+         List<SourceId> sourceId,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiPatientRecord(
+         String uid,
+         SourceId sourceId,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   private record ApiPatientRecordWithScore(
+         ApiPatientRecord patientRecord,
+         Float score) {
+   }
+
+   private record ApiExpandedGoldenRecord(
+         ApiGoldenRecord goldenRecord,
+         List<ApiPatientRecordWithScore> mpiPatientRecords) {
+   }
+
+   private record GoldenRecordDocuments(List<ApiExpandedGoldenRecord> expandedGoldenRecords) {
    }
 
    private record GoldenRecordMembers(
