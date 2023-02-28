@@ -14,13 +14,13 @@ public record CustomDemographicData(
       String phoneNumber,
       String nationalId) {
 
-   public static String getNames(final CustomDemographicData demographicData) {
+   public String getNames() {
       var names = "";
-      if (!StringUtils.isBlank(demographicData.givenName())) {
-         names += demographicData.givenName();
+      if (!StringUtils.isBlank(givenName())) {
+         names += givenName();
       }
-      if (!StringUtils.isBlank(demographicData.familyName())) {
-         names += " " + demographicData.familyName();
+      if (!StringUtils.isBlank(familyName())) {
+         names += " " + familyName();
       }
       return names;
    }

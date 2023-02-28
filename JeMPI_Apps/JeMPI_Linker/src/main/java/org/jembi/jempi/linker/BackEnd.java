@@ -238,7 +238,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      sendNotification(
                            Notification.NotificationType.THRESHOLD,
                            linkInfo.patientUID(),
-                           CustomDemographicData.getNames(patientRecord.demographicData()),
+                           patientRecord.demographicData().getNames(),
                            new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                            notificationCandidates
                                      );
@@ -270,7 +270,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      sendNotification(
                            Notification.NotificationType.MARGIN,
                            linkInfo.patientUID(),
-                           CustomDemographicData.getNames(patientRecord.demographicData()),
+                           patientRecord.demographicData().getNames(),
                            new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                            marginalCandidates);
                   }
