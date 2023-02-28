@@ -392,20 +392,12 @@ final class DgraphQueries {
          final Boolean sortAsc
                                                                  ) {
       String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
-/*
-      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord);
-      List<String> goldenRecordFieldNames = getRecordFieldNamesByType(RecordType.GoldenRecord);
-*/
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
 
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
       gql += CustomDgraphConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES;
-/*
-      gql += String.join("\n", goldenRecordFieldNames) + "\n";
-      gql += RecordType.GoldenRecord + ".patients {\n" + String.join("\n", patientRecordFieldNames) + "}\n";
-*/
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
@@ -455,12 +447,11 @@ final class DgraphQueries {
          final Boolean sortAsc
                                                            ) {
       String gqlFunc = getSearchQueryFunc(RecordType.PatientRecord, offset, limit, sortBy, sortAsc);
-//      List<String> patientRecordFieldNames = getRecordFieldNamesByType(RecordType.PatientRecord)
       String gqlPagination = getSearchQueryPagination(RecordType.PatientRecord, gqlFilters);
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += CustomDgraphConstants.PATIENT_RECORD_FIELD_NAMES; // String.join("\n", patientRecordFieldNames) + "\n"
+      gql += CustomDgraphConstants.PATIENT_RECORD_FIELD_NAMES;
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
