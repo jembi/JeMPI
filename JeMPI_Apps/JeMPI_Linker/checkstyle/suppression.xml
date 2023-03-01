@@ -21,4 +21,9 @@
             files="().java"
     />
 
+    <suppress
+            checks="(UnusedImports)"
+            files="CustomLinkerBackEnd.java"
+    />
+
 </suppressions>

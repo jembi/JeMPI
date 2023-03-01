@@ -22,18 +22,18 @@
     />
 
     <suppress
-            checks="(RegexpSingleline)"
-            files="().java"
-    />
-
-    <suppress
-            checks="(LocalVariableName|HiddenField)"
+            checks="(RegexpSingleline|LocalVariableName|HiddenField)"
             files="().java"
     />
 
     <suppress
             checks="(ParameterNumber)"
             files="MyKafkaConsumerByPartition.java"
+    />
+
+    <suppress
+            checks="(UnusedImports)"
+            files="CustomDemographicData.java"
     />
 
 
