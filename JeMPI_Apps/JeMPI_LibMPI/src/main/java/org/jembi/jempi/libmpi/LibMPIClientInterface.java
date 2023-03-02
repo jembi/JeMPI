@@ -93,6 +93,10 @@ public interface LibMPIClientInterface {
     * *****************************************************************************
     * *
     */
+   boolean reComputeScore(
+           String patientUID,
+           String goldenRecordUid,
+           float score);
 
    boolean updateGoldenRecordField(
          String goldenId,

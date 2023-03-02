@@ -33,7 +33,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private static LibMPI libMPI = null;
-   private final MyKafkaProducer<String, Notification> topicNotifications;
+   private MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
@@ -59,6 +59,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public static Behavior<Event> create() {
       return Behaviors.setup(BackEnd::new);
+   }
+   private BackEnd(final ActorContext<Event> context, final LibMPI lib) {
+      super(context);
+      this.libMPI = lib;
+   }
+
+   public static Behavior<Event> create(final LibMPI lib) {
+      return Behaviors.setup(context -> new BackEnd(context, lib));
    }
 
    private static float calcNormalizedScore(
@@ -100,6 +108,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             final var goldenId = expandedGoldenRecord.goldenRecord().goldenId();
             final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
             if (!result) {
+               LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
+            }  else {
+               // Update scores of all associated entities
+               mpiPatientList.forEach(mpiPatient -> {
+                  final var patient = mpiPatient.patientRecord();
+                  final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(), patient.demographicData());
+                  final var reCompute = libMPI.reComputeScores(patient.patientId(), goldenId, score);
+                  LOGGER.debug("I am just testing out update Golden Record Field " + patient.demographicData().givenName() + " "
+                          + expandedGoldenRecord.goldenRecord().demographicData().givenName() + " " + score);
+                  if (!reCompute) {
+                     LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
+                  } else {
+                     LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
+                  }
+               });
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
             }
          }
