@@ -17,6 +17,7 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -238,7 +239,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      sendNotification(
                            Notification.NotificationType.THRESHOLD,
                            linkInfo.patientUID(),
-                           patientRecord.demographicData().getNames(),
+                           AppUtils.getNames(patientRecord.demographicData()),
                            new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                            notificationCandidates
                                      );
@@ -270,7 +271,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      sendNotification(
                            Notification.NotificationType.MARGIN,
                            linkInfo.patientUID(),
-                           patientRecord.demographicData().getNames(),
+                           AppUtils.getNames(patientRecord.demographicData()),
                            new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                            marginalCandidates);
                   }

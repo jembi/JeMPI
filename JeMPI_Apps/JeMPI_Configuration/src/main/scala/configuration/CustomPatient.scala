@@ -16,7 +16,6 @@ private object CustomPatient {
     writer.print(
       s"""package $packageText;
          |
-         |import org.apache.commons.lang3.StringUtils;
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,28 +32,9 @@ private object CustomPatient {
 
     writer.println(
       s"""
-         |   public String getNames() {
-         |      var names = "";""".stripMargin)
-    val names = fields.filter(f => f.fieldName.contains("name"))
-    if (names.length > 0) {
-      names.zipWithIndex.foreach {
-        case (field, idx) =>
-          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-          writer.print(
-            s"""      if (!StringUtils.isBlank($fieldName())) {
-               |         names += ${(if (idx > 0) "\" \" + " else "")}$fieldName();
-               |      }
-               |""".stripMargin);
-      }
-    } else {
-      writer.println(
-        """ "";""".stripMargin)
-    }
-    writer.println(
-      s"""      return names;
-         |   }
-         |
-         |}""".stripMargin)
+         |}
+         |""".stripMargin)
+
     writer.flush()
     writer.close()
   end generateDemographicData

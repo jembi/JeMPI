@@ -1,6 +1,5 @@
 package org.jembi.jempi.em;
 
-
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 record CustomEMPatient(
