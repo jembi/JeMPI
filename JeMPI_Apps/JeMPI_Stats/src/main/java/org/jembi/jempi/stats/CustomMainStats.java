@@ -20,7 +20,8 @@ import static java.lang.Math.min;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 
-public final class CustomMainStats {
+public final class CustomMainStats {   // 01234567890123456
+   // rec-0000000001-00
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMainStats.class);
    private static final String URL = String.format("http://%s:%d", AppConfig.API_SERVER_HOST,

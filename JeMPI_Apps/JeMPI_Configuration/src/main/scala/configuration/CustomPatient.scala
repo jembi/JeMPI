@@ -30,32 +30,6 @@ private object CustomPatient {
         writer.println(if (idx + 1 < fields.length) "," else ") {")
     }
 
-    /*
-        writer.println(
-          s"""
-             |   public String getNames() {
-             |      var names = "";""".stripMargin)
-        val names = fields.filter(f => f.fieldName.contains("name"))
-        if (names.length > 0) {
-          names.zipWithIndex.foreach {
-            case (field, idx) =>
-              val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-              writer.print(
-                s"""      if (!StringUtils.isBlank($fieldName())) {
-                   |         names += ${(if (idx > 0) "\" \" + " else "")}$fieldName();
-                   |      }
-                   |""".stripMargin);
-          }
-        } else {
-    //      writer.println(
-    //        """ "";""".stripMargin)
-        }
-        writer.println(
-          s"""      return names;
-             |   }
-             |
-             |}""".stripMargin)
-    */
     writer.println(
       s"""
          |}
