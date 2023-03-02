@@ -275,7 +275,17 @@ final class DgraphMutations {
          return Option.of(new MpiServiceError.GeneralError("Create Schema Error"));
       }
    }
-
+   public static boolean reComputeScore(
+           final String patientUid,
+           final String goldenRecordUid,
+           final float score) {
+      final var mutation = DgraphProto.Mutation.newBuilder()
+              .setSetNquads(ByteString.copyFromUtf8(String.format("<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
+                      goldenRecordUid, patientUid, score)))
+              .build();
+      final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
+      return StringUtil.isNullOrEmpty(result);
+   }
    private record InsertPatientResult(
          String patientUID,
          String sourceUID) {
