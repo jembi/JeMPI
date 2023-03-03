@@ -115,8 +115,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                   final var patient = mpiPatient.patientRecord();
                   final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(), patient.demographicData());
                   final var reCompute = libMPI.reComputeScores(patient.patientId(), goldenId, score);
-                  LOGGER.debug("I am just testing out update Golden Record Field " + patient.demographicData().givenName() + " "
-                          + expandedGoldenRecord.goldenRecord().demographicData().givenName() + " " + score);
                   if (!reCompute) {
                      LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
                   } else {
