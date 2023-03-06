@@ -275,7 +275,7 @@ final class DgraphMutations {
          return Option.of(new MpiServiceError.GeneralError("Create Schema Error"));
       }
    }
-   public static boolean reComputeScore(
+   public static boolean setScore(
            final String patientUid,
            final String goldenRecordUid,
            final float score) {

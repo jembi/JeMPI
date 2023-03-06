@@ -103,11 +103,11 @@ public final class LibDgraph implements LibMPIClientInterface {
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
-   public boolean reComputeScore(
+   public boolean setScore(
            final String patientUID,
            final String goldenRecordUid,
            final float score) {
-      return DgraphMutations.reComputeScore(patientUID, goldenRecordUid, score);
+      return DgraphMutations.setScore(patientUID, goldenRecordUid, score);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

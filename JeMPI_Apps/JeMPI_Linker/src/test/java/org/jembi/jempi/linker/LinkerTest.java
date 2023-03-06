@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class LinkerTest {
@@ -31,12 +32,26 @@ class LinkerTest {
         ExpandedGoldenRecord expandedGoldenRecord = new ExpandedGoldenRecord(new GoldenRecord("1", null, goldenRecord), patientRecords);
 
         when(libMPI.updateGoldenRecordField(eq("1"), eq("city"), anyString())).thenReturn(true);
-        when(libMPI.reComputeScores(eq("2"), eq("1"), anyFloat())).thenReturn(true);
+        when(libMPI.setScore(eq("2"), eq("1"), anyFloat())).thenReturn(true);
 
         BackEnd.updateGoldenRecordField(expandedGoldenRecord, "city", "New York", CustomDemographicData::city);
         // Assert
         verify(libMPI).updateGoldenRecordField(eq("1"), eq("city"), anyString());
-        verify(libMPI).reComputeScores(eq("2"), eq("1"), eq( 0.14604087F));
+        verify(libMPI).setScore(eq("2"), eq("1"), eq( 0.14604087F));
 
+        // Error case: null fieldName
+        assertThrows(NullPointerException.class, () -> {
+            BackEnd.updateGoldenRecordField(expandedGoldenRecord, null, "New York", CustomDemographicData::city);
+        });
+
+        // Error case: empty fieldName
+        assertThrows(IllegalArgumentException.class, () -> {
+            BackEnd.updateGoldenRecordField(expandedGoldenRecord, "", "New York", CustomDemographicData::city);
+        });
+
+        // Error case: null expandedGoldenRecord
+        assertThrows(NullPointerException.class, () -> {
+            BackEnd.updateGoldenRecordField(null, "city", "New York", CustomDemographicData::city);
+        });
     }
 }

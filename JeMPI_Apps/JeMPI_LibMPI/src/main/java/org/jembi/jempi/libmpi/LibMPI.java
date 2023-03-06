@@ -161,11 +161,11 @@ public final class LibMPI {
     * *
     */
 
-   public boolean reComputeScores(
+   public boolean setScore(
            final String patientuid,
            final String goldenRecordUid,
            final float score) {
-      return client.reComputeScore(patientuid, goldenRecordUid, score);
+      return client.setScore(patientuid, goldenRecordUid, score);
    }
 
    public boolean updateGoldenRecordField(

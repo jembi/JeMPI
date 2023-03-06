@@ -94,6 +94,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String fieldName,
          final String goldenRecordFieldValue,
          final Function<CustomDemographicData, String> getDocumentField) {
+
+      if (fieldName == null) {
+         throw new NullPointerException("fieldName cannot be null");
+      }
+      if (fieldName.isEmpty()) {
+         throw new IllegalArgumentException("fieldName cannot be empty");
+      }
+      if (expandedGoldenRecord == null) {
+         throw new NullPointerException("expandedGoldenRecord cannot be null");
+      }
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       final var freqMapGroupedByField =
             mpiPatientList
@@ -109,23 +119,29 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
             if (!result) {
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
-            }  else {
-               // Update scores of all associated entities
-               mpiPatientList.forEach(mpiPatient -> {
-                  final var patient = mpiPatient.patientRecord();
-                  final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(), patient.demographicData());
-                  final var reCompute = libMPI.reComputeScores(patient.patientId(), goldenId, score);
-                  if (!reCompute) {
-                     LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
-                  } else {
-                     LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
-                  }
-               });
-               LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
+            } else {
+               if (!mpiPatientList.isEmpty()) {
+                  updateScoresOfAssociatedEntities(expandedGoldenRecord, goldenId);
+               }
             }
          }
       }
    }
+
+   static void updateScoresOfAssociatedEntities(final ExpandedGoldenRecord expandedGoldenRecord, final String goldenRecordId) {
+      final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
+      mpiPatientList.forEach(mpiPatient -> {
+         final var patient = mpiPatient.patientRecord();
+         final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(), patient.demographicData());
+         final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
+         if (!reCompute) {
+            LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
+         } else {
+            LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
+         }
+      });
+   }
+
 
    @Override
    public Receive<Event> createReceive() {
