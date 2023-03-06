@@ -121,14 +121,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
             } else {
                if (!mpiPatientList.isEmpty()) {
-                  updateScoresOfAssociatedEntities(expandedGoldenRecord, goldenId);
+                  updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
                }
             }
          }
       }
    }
 
-   static void updateScoresOfAssociatedEntities(final ExpandedGoldenRecord expandedGoldenRecord, final String goldenRecordId) {
+   static void updateMatchingPatientRecordScoreForGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord, final String goldenRecordId) {
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       mpiPatientList.forEach(mpiPatient -> {
          final var patient = mpiPatient.patientRecord();
@@ -141,7 +141,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          }
       });
    }
-
 
    @Override
    public Receive<Event> createReceive() {
