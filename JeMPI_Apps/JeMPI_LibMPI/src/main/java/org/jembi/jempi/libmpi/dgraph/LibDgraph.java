@@ -69,7 +69,6 @@ public final class LibDgraph implements LibMPIClientInterface {
       return list.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
-
    public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
       final var list = DgraphQueries.getExpandedGoldenRecords(goldenIds);
       return list.stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
@@ -86,7 +85,8 @@ public final class LibDgraph implements LibMPIClientInterface {
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
-   private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(final DgraphExpandedGoldenRecords list) {
+   private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(
+         final DgraphExpandedGoldenRecords list) {
       if (list == null) {
          return null;
       }
@@ -104,13 +104,19 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
+   public boolean setScore(
+         final String patientUID,
+         final String goldenRecordUid,
+         final float score) {
+      return DgraphMutations.setScore(patientUID, goldenRecordUid, score);
+   }
+
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<SimpleSearchRequestPayload.SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                                  ) {
+         final Boolean sortAsc) {
       final var list = DgraphQueries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
       return paginatedExpandedGoldenRecords(list);
    }
@@ -120,8 +126,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                                  ) {
+         final Boolean sortAsc) {
       final var list = DgraphQueries.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
       return paginatedExpandedGoldenRecords(list);
    }
@@ -131,8 +136,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                            ) {
+         final Boolean sortAsc) {
       final var list = DgraphQueries.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
       return paginatedPatientRecords(list);
    }
@@ -142,8 +146,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                            ) {
+         final Boolean sortAsc) {
       final var list = DgraphQueries.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
       return paginatedPatientRecords(list);
    }
