@@ -119,10 +119,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
             if (!result) {
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
-            } else {
-               if (!mpiPatientList.isEmpty()) {
-                  updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
-               }
+            } else if (!mpiPatientList.isEmpty()) {
+               updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
             }
          }
       }
