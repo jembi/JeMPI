@@ -46,9 +46,9 @@ class LinkerTests {
     }
 
     @Test
-    public void updateGoldenRecordField_fiedNameNull_returnsNullException() {
+    public void updateGoldenRecordField_fiedNameNull_returnsIllegalArgumentException() {
         String fieldName = null;
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             BackEnd.updateGoldenRecordField(expandedGoldenRecord, fieldName, "New York", CustomDemographicData::city);
         });
     }
@@ -62,9 +62,9 @@ class LinkerTests {
     }
 
     @Test
-    public void updateGoldenRecordField_expandedGoldenRecordNull_returnsNullPointerException() {
+    public void updateGoldenRecordField_expandedGoldenRecordNull_returnsIllegalArgumentException() {
         expandedGoldenRecord = null;
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             BackEnd.updateGoldenRecordField(expandedGoldenRecord, "city", "New York", CustomDemographicData::city);
         });
     }
