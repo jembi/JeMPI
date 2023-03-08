@@ -5,13 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CustomDemographicData(
       String auxId,
-      String givenName,
-      String familyName,
+      String fpid,
       String gender,
-      String dob,
-      String city,
-      String phoneNumber,
-      String nationalId) {
+      String dob) {
 
 }
 

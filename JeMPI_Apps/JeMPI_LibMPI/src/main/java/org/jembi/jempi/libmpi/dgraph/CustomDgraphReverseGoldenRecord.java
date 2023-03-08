@@ -13,13 +13,9 @@ record CustomDgraphReverseGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty("GoldenRecord.aux_id") String auxId,
-      @JsonProperty("GoldenRecord.given_name") String givenName,
-      @JsonProperty("GoldenRecord.family_name") String familyName,
+      @JsonProperty("GoldenRecord.fpid") String fpid,
       @JsonProperty("GoldenRecord.gender") String gender,
       @JsonProperty("GoldenRecord.dob") String dob,
-      @JsonProperty("GoldenRecord.city") String city,
-      @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
-      @JsonProperty("GoldenRecord.national_id") String nationalId,
       @JsonProperty("~GoldenRecord.patients|score") Float score) {
 
    GoldenRecord toGoldenRecord() {
@@ -28,13 +24,9 @@ record CustomDgraphReverseGoldenRecord(
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
                               new CustomDemographicData(this.auxId(),
-                                                        this.givenName(),
-                                                        this.familyName(),
+                                                        this.fpid(),
                                                         this.gender(),
-                                                        this.dob(),
-                                                        this.city(),
-                                                        this.phoneNumber(),
-                                                        this.nationalId()));
+                                                        this.dob()));
    }
 
    GoldenRecordWithScore toGoldenRecordWithScore() {

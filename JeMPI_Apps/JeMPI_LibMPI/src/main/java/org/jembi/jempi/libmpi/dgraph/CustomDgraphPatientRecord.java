@@ -11,13 +11,9 @@ record CustomDgraphPatientRecord(
       @JsonProperty("uid") String patientId,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
-      @JsonProperty("PatientRecord.given_name") String givenName,
-      @JsonProperty("PatientRecord.family_name") String familyName,
+      @JsonProperty("PatientRecord.fpid") String fpid,
       @JsonProperty("PatientRecord.gender") String gender,
       @JsonProperty("PatientRecord.dob") String dob,
-      @JsonProperty("PatientRecord.city") String city,
-      @JsonProperty("PatientRecord.phone_number") String phoneNumber,
-      @JsonProperty("PatientRecord.national_id") String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
    CustomDgraphPatientRecord(
          final PatientRecord patientRecord,
@@ -25,13 +21,9 @@ record CustomDgraphPatientRecord(
       this(patientRecord.patientId(),
            new DgraphSourceId(patientRecord.sourceId()),
            patientRecord.demographicData().auxId(),
-           patientRecord.demographicData().givenName(),
-           patientRecord.demographicData().familyName(),
+           patientRecord.demographicData().fpid(),
            patientRecord.demographicData().gender(),
            patientRecord.demographicData().dob(),
-           patientRecord.demographicData().city(),
-           patientRecord.demographicData().phoneNumber(),
-           patientRecord.demographicData().nationalId(),
            score);
    }
 
@@ -41,13 +33,9 @@ record CustomDgraphPatientRecord(
                                      ? this.sourceId().toSourceId()
                                      : null,
                                new CustomDemographicData(this.auxId(),
-                                                         this.givenName(),
-                                                         this.familyName(),
+                                                         this.fpid(),
                                                          this.gender(),
-                                                         this.dob(),
-                                                         this.city(),
-                                                         this.phoneNumber(),
-                                                         this.nationalId()));
+                                                         this.dob()));
    }
 
    PatientRecordWithScore toPatientRecordWithScore() {

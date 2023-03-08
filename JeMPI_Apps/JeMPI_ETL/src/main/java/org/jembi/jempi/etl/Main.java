@@ -1,5 +1,6 @@
 package org.jembi.jempi.etl;
 
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.Terminated;
@@ -18,10 +19,11 @@ public final class Main {
    public Behavior<Void> create() {
       return Behaviors.setup(
             context -> {
-               final var customSourceRecordStream = new CustomSourceRecordStream();
-               customSourceRecordStream.open();
+               final ActorRef<CustomETLBackEnd.Event> backEnd = context.spawn(CustomETLBackEnd.create(), "BackEnd");
+//               final var customSourceRecordStream = new CustomSourceRecordStream();
+//               customSourceRecordStream.open();
                final var customFHIRsyncReceiver = new CustomFHIRsyncReceiver();
-               customFHIRsyncReceiver.open(context.getSystem());
+               customFHIRsyncReceiver.open(context.getSystem(), backEnd);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> Behaviors.stopped())

@@ -12,25 +12,17 @@ record CustomDgraphGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty("GoldenRecord.aux_id") String auxId,
-      @JsonProperty("GoldenRecord.given_name") String givenName,
-      @JsonProperty("GoldenRecord.family_name") String familyName,
+      @JsonProperty("GoldenRecord.fpid") String fpid,
       @JsonProperty("GoldenRecord.gender") String gender,
-      @JsonProperty("GoldenRecord.dob") String dob,
-      @JsonProperty("GoldenRecord.city") String city,
-      @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
-      @JsonProperty("GoldenRecord.national_id") String nationalId) {
+      @JsonProperty("GoldenRecord.dob") String dob) {
 
    CustomDgraphGoldenRecord(final CustomDgraphPatientRecord rec) {
       this(null,
            List.of(rec.sourceId()),
            rec.auxId(),
-           rec.givenName(),
-           rec.familyName(),
+           rec.fpid(),
            rec.gender(),
-           rec.dob(),
-           rec.city(),
-           rec.phoneNumber(),
-           rec.nationalId());
+           rec.dob());
    }
 
    GoldenRecord toGoldenRecord() {
@@ -39,13 +31,9 @@ record CustomDgraphGoldenRecord(
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
                               new CustomDemographicData(this.auxId(),
-                                                        this.givenName(),
-                                                        this.familyName(),
+                                                        this.fpid(),
                                                         this.gender(),
-                                                        this.dob(),
-                                                        this.city(),
-                                                        this.phoneNumber(),
-                                                        this.nationalId()));
+                                                        this.dob()));
    }
 
 }
