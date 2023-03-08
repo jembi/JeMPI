@@ -129,11 +129,33 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    static void updateMatchingPatientRecordScoreForGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord,
          final String goldenRecordId) {
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
+      ArrayList<Notification.MatchData> candidateList = new ArrayList<>();
       mpiPatientList.forEach(mpiPatient -> {
          final var patient = mpiPatient.patientRecord();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
+         candidateList = getCandidates(patient, 0.55f);
+         /*
+         ArrayList<Notification.MatchData> candidates = new ArrayList<Notification.MatchData>();
+candidates.add(new Notification.MatchData("1", 0.8F));
+candidates.add(new Notification.MatchData("3", 1.0F));
+candidates.add(new Notification.MatchData("4", 0.9F));
+
+sendNotification(Notification.NotificationType.THRESHOLD, "2", "Jane Doe", new Notification.MatchData("1", 0.9F), candidates);
+          */
+
+         candidateList.stream().forEach(candidate -> {
+            sendNotification(
+                    Notification.NotificationType.THRESHOLD,
+                    patient.patientId(),
+                    AppUtils.getNames(patient.demographicData()),
+                    new Notification.MatchData(candidate.goldenUID(), candidate.score()),
+                    candidateList);
+         });
+
+
+
          if (!reCompute) {
             LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
          } else {
@@ -465,5 +487,34 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String stan,
          LinkInfo linkInfo) implements EventResponse {
    }
+
+   private static ArrayList<Notification.MatchData> getCandidates(PatientRecord patientRecord, final float matchThreshold) {
+      final var candidateGoldenRecords =
+              libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+      // Get a list of candidates withing the supplied for external link range
+
+      final ArrayList<WorkCandidate> allCandidateScores =
+              candidateGoldenRecords
+                      .parallelStream()
+                      .unordered()
+                      .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
+                              patientRecord.demographicData())))
+                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                      .collect(Collectors.toCollection(ArrayList::new));
+
+      //List<GoldenRecord> candidateGoldenRecords = libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+
+      final ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
+      allCandidateScores
+              .stream()
+              .peek(v -> {
+                 if (v.score() >= matchThreshold - 0.1 && v.score() <= matchThreshold + 0.1) {
+                    notificationCandidates.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                 }
+              });
+
+      return notificationCandidates;
+   }
+
 
 }
