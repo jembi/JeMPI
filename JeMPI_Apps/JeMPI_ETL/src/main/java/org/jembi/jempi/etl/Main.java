@@ -22,7 +22,7 @@ public final class Main {
                final ActorRef<CustomETLBackEnd.Event> backEnd = context.spawn(CustomETLBackEnd.create(), "BackEnd");
 //               final var customSourceRecordStream = new CustomSourceRecordStream();
 //               customSourceRecordStream.open();
-               final var customFHIRsyncReceiver = new CustomFHIRsyncReceiver();
+               final var customFHIRsyncReceiver = new CustomETLSyncFrontEnd();
                customFHIRsyncReceiver.open(context.getSystem(), backEnd);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
