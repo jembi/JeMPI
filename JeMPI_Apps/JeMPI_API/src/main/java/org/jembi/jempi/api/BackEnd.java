@@ -14,6 +14,7 @@ import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.*;
@@ -257,38 +258,87 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> findExpandedGoldenRecordHandler(final FindExpandedGoldenRecordRequest request) {
-      LOGGER.debug("findGoldenRecordByUidEventHandler");
-      libMPI.startTransaction();
-      final var rec = libMPI.findExpandedGoldenRecord(request.goldenId);
-      request.replyTo.tell(new FindExpandedGoldenRecordResponse(rec));
-      libMPI.closeTransaction();
+      ExpandedGoldenRecord expandedGoldenRecord = null;
+      EventResponse response = null;
+      LOGGER.debug("findExpandedGoldenRecordHandler");
+
+      try {
+         libMPI.startTransaction();
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
+                      request.goldenId,
+                      exception.getMessage());
+      }
+
+      request.replyTo.tell(new FindExpandedGoldenRecordResponse(expandedGoldenRecord));
       return Behaviors.same();
    }
 
    private Behavior<Event> findExpandedGoldenRecordsHandler(final FindExpandedGoldenRecordsRequest request) {
+      List<ExpandedGoldenRecord> list = null;
       LOGGER.debug("getExpandedGoldenRecords");
-      libMPI.startTransaction();
-      final var list = libMPI.findExpandedGoldenRecords(request.goldenIds);
+
+      try {
+         libMPI.startTransaction();
+         list = libMPI.findExpandedGoldenRecords(request.goldenIds);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedGoldenRecords failed for goldenIds: {} with error: {}",
+                      request.goldenIds,
+                      exception.getMessage());
+      }
+
+      if (list == null) {
+         list = new ArrayList<ExpandedGoldenRecord>();
+      }
+
       request.replyTo.tell(new FindExpandedGoldenRecordsResponse(list));
-      libMPI.closeTransaction();
       return Behaviors.same();
    }
 
    private Behavior<Event> findExpandedPatientRecordsHandler(final FindExpandedPatientRecordsRequest request) {
+      List<ExpandedPatientRecord> list = null;
       LOGGER.debug("getExpandedPatients");
-      libMPI.startTransaction();
-      final var patientIds = libMPI.findExpandedPatientRecords(request.patientIds);
-      request.replyTo.tell(new FindExpandedPatientRecordsResponse(patientIds));
-      libMPI.closeTransaction();
+
+      try {
+         libMPI.startTransaction();
+         list = libMPI.findExpandedPatientRecords(request.patientIds);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
+                      request.patientIds,
+                      exception.getMessage());
+      }
+
+      if (list == null) {
+         list = new ArrayList<ExpandedPatientRecord>();
+      }
+
+      request.replyTo.tell(new FindExpandedPatientRecordsResponse(list));
       return Behaviors.same();
    }
 
    private Behavior<Event> findPatientRecordHandler(final FindPatientRecordRequest request) {
-      LOGGER.debug("findPatientByUidEventHandler");
-      libMPI.startTransaction();
-      final var patient = libMPI.findPatientRecord(request.patientId);
-      request.replyTo.tell(new FindPatientRecordResponse(patient));
-      libMPI.closeTransaction();
+      Either<MpiGeneralError, PatientRecord> result = null;
+      LOGGER.debug("findPatientRecordHandler");
+
+      try {
+         libMPI.startTransaction();
+         result = libMPI.findPatientRecord(request.patientId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
+                      request.patientId,
+                      exception.getMessage());
+      }
+
+      if (result == null) {
+         result = Either.left(new MpiServiceError.PatientIdDoesNotExistError("Patient not found", request.patientId));
+      }
+
+      request.replyTo.tell(new FindPatientRecordResponse(result));
       return Behaviors.same();
    }
 
@@ -296,8 +346,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
       libMPI.startTransaction();
-      final var patient = libMPI.findPatientRecord(request.patientId);
-      final var recs = libMPI.getCandidates(patient.demographicData(), true);
+      final var patientRecordResult = libMPI.findPatientRecord(request.patientId);
+      final var recs = libMPI.getCandidates(patientRecordResult.get().demographicData(), true);
 
       CustomLinkerProbabilistic.updateMU(request.mu);
       CustomLinkerProbabilistic.checkUpdatedMU();
@@ -305,7 +355,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .stream()
             .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
                                                                    CustomLinkerProbabilistic.probabilisticScore(candidate.demographicData(),
-                                                                                                                patient.demographicData())))
+                                                                                                                patientRecordResult.get()
+                                                                                                                                   .demographicData())))
             .toList();
       request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
       libMPI.closeTransaction();
@@ -434,7 +485,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String patientId) implements Event {
    }
 
-   public record FindPatientRecordResponse(PatientRecord patient)
+   public record FindPatientRecordResponse(Either<MpiGeneralError, PatientRecord> patient)
          implements EventResponse {
    }
 

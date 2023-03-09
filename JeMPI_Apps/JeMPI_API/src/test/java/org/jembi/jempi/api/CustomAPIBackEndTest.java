@@ -3,7 +3,10 @@ package org.jembi.jempi.api;
 import akka.actor.testkit.typed.javadsl.ActorTestKit;
 import akka.actor.testkit.typed.javadsl.TestProbe;
 import akka.actor.typed.ActorRef;
+import io.vavr.control.Either;
 import org.jembi.jempi.libmpi.LibMPI;
+import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.*;
 
 class CustomAPIBackEndTest {
@@ -32,7 +36,7 @@ class CustomAPIBackEndTest {
    }
 
    @Test
-   void testEventGetGoldenRecordDocumentsHandler() throws Exception {
+   void testEventGetGoldenRecordDocumentsHandler() {
       GoldenRecord goldenRecord1 = new GoldenRecord(
             new PatientRecord(
                   "1234",
@@ -146,18 +150,162 @@ class CustomAPIBackEndTest {
                   "555-1234", // phoneNumber
                   "123-45-6789")); // nationalId
 
-      when(libMPI.findPatientRecord("1234")).thenReturn(patientRecord);
+      when(libMPI.findPatientRecord("1234")).thenReturn(Either.right(patientRecord));
 
       // Send the message to the actor
       backend.tell(request);
 
       // Expect to receive the expected response
       final var response = probe.receiveMessage();
-      assertEquals(patientRecord, response.patient());
+      assertEquals(patientRecord, response.patient().get());
 
       // Verify that libMPI was called with the correct arguments
       verify(libMPI).startTransaction();
       verify(libMPI).findPatientRecord("1234");
       verify(libMPI).closeTransaction();
+   }
+
+   //@Test TODO: find solution to handle exception test
+   public void findPatientRecordHandler_whenFindPatientRecordThrowsException_ReturnSuccess() {
+      final var libMPI = mock(LibMPI.class);
+      String patientId = "12344";
+
+      when(libMPI.findPatientRecord(patientId)).thenThrow(new Exception("patient record does not exist"));
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+
+      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+            "Patient not found",
+            patientId))));
+   }
+
+   @Test
+   public void findPatientRecordHandler_whenFindPatientRecordReturnNotFound_ReturnNotFound() {
+      final var libMPI = mock(LibMPI.class);
+      String patientId = "12345";
+      Either<MpiGeneralError, PatientRecord> response = Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+            "Patient not found",
+            patientId));
+      when(libMPI.findPatientRecord(patientId)).thenReturn(response);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+
+      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(response));
+   }
+
+   @Test
+   public void findPatientRecordHandler_whenFindPatientRecordReturnsNull_ReturnNotFound() {
+      final var libMPI = mock(LibMPI.class);
+      String patientId = "12345";
+      when(libMPI.findPatientRecord(patientId)).thenReturn(null);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+
+      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+            "Patient not found",
+            patientId))));
+   }
+
+   @Test
+   public void findPatientRecordHandler_whenFindPatientRecordSuccess_ReturnSuccess() {
+      final var libMPI = mock(LibMPI.class);
+      String patientId = "9012";
+      PatientRecord patientRecord = new PatientRecord(
+            patientId,
+            new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
+            new CustomDemographicData(
+                  "auxId3",
+                  "Robert",
+                  "Johnson",
+                  "Male",
+                  "1975-12-18",
+                  "Chicago",
+                  "555-9012",
+                  "456-78-9012")
+      );
+
+      when(libMPI.findPatientRecord(patientId)).thenReturn(Either.right(patientRecord));
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+
+      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(Either.right(patientRecord)));
+   }
+
+   //@Test TODO: find solution to handle exception test
+   public void findExpandedGoldenRecordHandler_whenFindExpandedGoldenRecordThrowsException_ReturnSuccess() {
+      final var libMPI = mock(LibMPI.class);
+      when(libMPI.findExpandedGoldenRecord(anyString())).thenThrow(new Exception("golden record does not exist"));
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindExpandedGoldenRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordRequest(replyTo.getRef(), anyString()));
+
+      replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordResponse(null));
+   }
+
+   @Test
+   public void findExpandedGoldenRecordHandler_whenFindExpandedGoldenRecordReturnsNull_ReturnSuccess() {
+      final var libMPI = mock(LibMPI.class);
+      when(libMPI.findExpandedGoldenRecord(anyString())).thenReturn(null);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindExpandedGoldenRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordRequest(replyTo.getRef(), anyString()));
+
+      replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordResponse(null));
+   }
+
+   @Test
+   public void findExpandedGoldenRecordHandler_whenFindExpandedGoldenRecordSuccess_ReturnSuccess() {
+      final var libMPI = mock(LibMPI.class);
+      String goldenId = "9010";
+      GoldenRecord goldenRecord = new GoldenRecord(
+            new PatientRecord(
+                  "9013",
+                  new SourceId("c44a67f6", "4e71", "11ec-8d3d-0242ac130003"),
+                  new CustomDemographicData(
+                        "auxId3",
+                        "Robert",
+                        "Johnson",
+                        "Male",
+                        "1975-12-18",
+                        "Chicago",
+                        "555-9012",
+                        "456-78-9012")
+            ));
+      List<PatientRecordWithScore> patientRecordWithScoreList = List.of(
+            new PatientRecordWithScore(null, null),
+            new PatientRecordWithScore(null, null));
+      ExpandedGoldenRecord expandedGoldenRecord = new ExpandedGoldenRecord(goldenRecord, patientRecordWithScoreList);
+
+      when(libMPI.findExpandedGoldenRecord(goldenId)).thenReturn(expandedGoldenRecord);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindExpandedGoldenRecordResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordRequest(replyTo.getRef(), goldenId));
+
+      replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordResponse(expandedGoldenRecord));
    }
 }

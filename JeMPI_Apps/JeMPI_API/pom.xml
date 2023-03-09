@@ -194,6 +194,11 @@
             <artifactId>akka-actor-testkit-typed_${scala.tools.version}</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jembi.jempi.libmpi</groupId>
+            <artifactId>LibMPI</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

@@ -31,33 +31,33 @@ final class DgraphMutations {
    private static String createSourceIdTriple(final SourceId sourceId) {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
-            _:%s  <SourceId.facility>                 %s          .
-            _:%s  <SourceId.patient>                  %s          .
-            _:%s  <dgraph.type>                      "SourceId"   .
-            """, uuid, AppUtils.quotedValue(sourceId.facility()), uuid, AppUtils.quotedValue(sourceId.patient()),
-            uuid);
+                           _:%s  <SourceId.facility>                 %s          .
+                           _:%s  <SourceId.patient>                  %s          .
+                           _:%s  <dgraph.type>                      "SourceId"   .
+                           """, uuid, AppUtils.quotedValue(sourceId.facility()), uuid, AppUtils.quotedValue(sourceId.patient()),
+                           uuid);
    }
 
    private static DgraphSourceIds getSourceId(final SourceId sourceId) {
       if (StringUtils.isBlank(sourceId.facility())
-            || StringUtils.isBlank(sourceId.patient())) {
+          || StringUtils.isBlank(sourceId.patient())) {
          return new DgraphSourceIds(List.of());
       }
       final String query = String.format(
             """
-                  query query_source_id() {
-                     var(func: eq(SourceId.facility, "%s")) {
-                        A as uid
-                     }
-                     var(func: eq(SourceId.patient, "%s")) {
-                        B as uid
-                     }
-                     all(func: uid(A,B)) @filter (uid(A) AND uid(B)) {
-                        uid
-                        expand(SourceId)
-                     }
-                  }
-                  """, sourceId.facility(), sourceId.patient());
+            query query_source_id() {
+               var(func: eq(SourceId.facility, "%s")) {
+                  A as uid
+               }
+               var(func: eq(SourceId.patient, "%s")) {
+                  B as uid
+               }
+               all(func: uid(A,B)) @filter (uid(A) AND uid(B)) {
+                  uid
+                  expand(SourceId)
+               }
+            }
+            """, sourceId.facility(), sourceId.patient());
       return DgraphQueries.runSourceIdQuery(query);
    }
 
@@ -66,12 +66,12 @@ final class DgraphMutations {
          final String predicate,
          final String value) {
       final var mutation = DgraphProto.Mutation.newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(String.format(
-                  """
-                        <%s> <%s>          "%s"^^<xs:string>    .
-                        <%s> <dgraph.type> "GoldenRecord"       .
-                        """, goldenId, predicate, value, goldenId)))
-            .build();
+                                               .setSetNquads(ByteString.copyFromUtf8(String.format(
+                                                     """
+                                                     <%s> <%s>          "%s"^^<xs:string>    .
+                                                     <%s> <dgraph.type> "GoldenRecord"       .
+                                                     """, goldenId, predicate, value, goldenId)))
+                                               .build();
       final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
       return StringUtil.isNullOrEmpty(result);
    }
@@ -81,11 +81,11 @@ final class DgraphMutations {
          final String predicate,
          final String value) {
       final var mutation = DgraphProto.Mutation.newBuilder()
-            .setDelNquads(ByteString.copyFromUtf8(String.format(
-                  """
-                        <%s>  <%s>  <%s>  .
-                        """, uid, predicate, value)))
-            .build();
+                                               .setDelNquads(ByteString.copyFromUtf8(String.format(
+                                                     """
+                                                     <%s>  <%s>  <%s>  .
+                                                     """, uid, predicate, value)))
+                                               .build();
       final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
       return result != null;
    }
@@ -95,12 +95,12 @@ final class DgraphMutations {
       for (DgraphPairWithScore patientScore : patientScoreList) {
          simWeightFacet.append(
                String.format("<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
-                     patientScore.goldenUID(), patientScore.patientUID(), patientScore.score()));
+                             patientScore.goldenUID(), patientScore.patientUID(), patientScore.score()));
       }
 
       final var s = simWeightFacet.toString();
       final DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFromUtf8(s))
-            .build();
+                                                          .build();
 
       DgraphClient.getInstance().doMutateTransaction(mu);
    }
@@ -110,24 +110,25 @@ final class DgraphMutations {
          final String sourceId) {
       var mutation = String.format("<%s> <GoldenRecord.source_id> <%s> .%n", uid, sourceId);
       final DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFromUtf8(mutation))
-            .build();
+                                                          .build();
       DgraphClient.getInstance().doMutateTransaction(mu);
    }
 
    private static InsertPatientResult insertPatientRecord(final PatientRecord patientRecord) {
       final DgraphProto.Mutation sourceIdMutation = DgraphProto.Mutation.newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(patientRecord.sourceId())))
-            .build();
+                                                                        .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
+                                                                              patientRecord.sourceId())))
+                                                                        .build();
       final var sourceId = getSourceId(patientRecord.sourceId()).all();
       final var sourceIdUid = !sourceId.isEmpty()
             ? sourceId.get(0).uid()
             : DgraphClient.getInstance().doMutateTransaction(sourceIdMutation);
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
-            .setSetNquads(
-                  ByteString.copyFromUtf8(CustomDgraphMutations.createPatientTriple(
-                        patientRecord.demographicData(),
-                        sourceIdUid)))
-            .build();
+                                                                .setSetNquads(
+                                                                      ByteString.copyFromUtf8(CustomDgraphMutations.createPatientTriple(
+                                                                            patientRecord.demographicData(),
+                                                                            sourceIdUid)))
+                                                                .build();
       return new InsertPatientResult(DgraphClient.getInstance().doMutateTransaction(mutation), sourceIdUid);
    }
 
@@ -138,19 +139,19 @@ final class DgraphMutations {
          final float score) {
       final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(patient, patientUID, sourceUID, score);
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(command))
-            .build();
+                                                                .setSetNquads(ByteString.copyFromUtf8(command))
+                                                                .build();
       return DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
    private static void deleteGoldenRecord(final String goldenId) {
       final var mutation = DgraphProto.Mutation.newBuilder()
-            .setDelNquads(ByteString.copyFromUtf8(
-                  String.format("""
-                         <%s> * *  .
-                        """,
-                        goldenId)))
-            .build();
+                                               .setDelNquads(ByteString.copyFromUtf8(
+                                                     String.format("""
+                                                                    <%s> * *  .
+                                                                   """,
+                                                                   goldenId)))
+                                               .build();
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
@@ -161,7 +162,7 @@ final class DgraphMutations {
          return null;
       }
       final var grUID = cloneGoldenRecordFromPatient(patientRecord.demographicData(), result.patientUID,
-            result.sourceUID, 1.0F);
+                                                     result.sourceUID, 1.0F);
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
@@ -190,8 +191,8 @@ final class DgraphMutations {
       if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientId)) {
          return Either.left(
                new MpiServiceError.GoldenIdPatientConflictError("Patient not linked to GoldenRecord",
-                     currentGoldenId,
-                     patientId));
+                                                                currentGoldenId,
+                                                                patientId));
       }
       final var count = goldenUidPatientUidList.size();
 
@@ -206,14 +207,14 @@ final class DgraphMutations {
       }
       if (!deletePredicate(currentGoldenId, CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PATIENTS, patientId)) {
          return Either.left(new MpiServiceError.DeletePredicateError(patientId,
-               CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PATIENTS));
+                                                                     CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PATIENTS));
       }
       if (count == 1) {
          deleteGoldenRecord(currentGoldenId);
       }
       final var newGoldenID = cloneGoldenRecordFromPatient(patient.demographicData(), patient.patientId(),
-            patient.sourceId().uid(),
-            score);
+                                                           patient.sourceId().uid(),
+                                                           score);
       return Either.right(new LinkInfo(newGoldenID, patientId, score));
    }
 
@@ -227,7 +228,7 @@ final class DgraphMutations {
       if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientId)) {
          return Either.left(
                new MpiServiceError.GoldenIdPatientConflictError("Patient not linked to GoldenRecord", goldenId,
-                     patientId));
+                                                                patientId));
       }
 
       final var count = DgraphQueries.countGoldenRecordEntities(goldenId);
@@ -240,6 +241,15 @@ final class DgraphMutations {
       scoreList.add(new DgraphPairWithScore(newGoldenId, patientId, score));
       addScoreFacets(scoreList);
       return Either.right(new LinkInfo(newGoldenId, patientId, score));
+   }
+
+   static Either<MpiGeneralError, PatientRecord> getPatientRecord(final String patientId) {
+      final var patient = DgraphQueries.getPatientRecord(patientId);
+      if (patient == null) {
+         LOGGER.warn("patient {} not found", patientId);
+         return Either.left(new MpiServiceError.PatientIdDoesNotExistError("Patient not found", patientId));
+      }
+      return Either.right(patient);
    }
 
    static LinkInfo linkDGraphPatient(
@@ -262,11 +272,11 @@ final class DgraphMutations {
 
    static Option<MpiGeneralError> createSchema() {
       final var schema = CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_TYPE
-            + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE
-            + CustomDgraphConstants.MUTATION_CREATE_PATIENT_TYPE
-            + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS
-            + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS
-            + CustomDgraphConstants.MUTATION_CREATE_PATIENT_FIELDS;
+                         + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE
+                         + CustomDgraphConstants.MUTATION_CREATE_PATIENT_TYPE
+                         + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS
+                         + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS
+                         + CustomDgraphConstants.MUTATION_CREATE_PATIENT_FIELDS;
       try {
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(schema).build();
          DgraphClient.getInstance().alter(operation);
@@ -283,9 +293,12 @@ final class DgraphMutations {
          final String goldenRecordUid,
          final float score) {
       final var mutation = DgraphProto.Mutation.newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(String.format("<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
-                  goldenRecordUid, patientUid, score)))
-            .build();
+                                               .setSetNquads(ByteString.copyFromUtf8(String.format(
+                                                     "<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
+                                                     goldenRecordUid,
+                                                     patientUid,
+                                                     score)))
+                                               .build();
       final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
       return StringUtil.isNullOrEmpty(result);
    }

@@ -68,7 +68,7 @@ public final class LibMPI {
    }
 
 
-   public PatientRecord findPatientRecord(final String patientId) {
+   public Either<MpiGeneralError, PatientRecord> findPatientRecord(final String patientId) {
       return client.findPatientRecord(patientId);
    }
 
@@ -162,9 +162,9 @@ public final class LibMPI {
     */
 
    public boolean setScore(
-           final String patientuid,
-           final String goldenRecordUid,
-           final float score) {
+         final String patientuid,
+         final String goldenRecordUid,
+         final float score) {
       return client.setScore(patientuid, goldenRecordUid, score);
    }
 

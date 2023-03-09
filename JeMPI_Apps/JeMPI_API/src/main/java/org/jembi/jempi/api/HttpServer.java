@@ -595,7 +595,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return onComplete(askFindPatientRecord(actorSystem, backEnd, patientId),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK,
-                                         ApiPatientRecord.fromPatientRecord(result.get().patient()),
+                                         ApiPatientRecord.fromPatientRecord(result.get().patient().get()),
                                          Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }

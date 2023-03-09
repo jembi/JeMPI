@@ -43,8 +43,8 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.countGoldenRecords();
    }
 
-   public PatientRecord findPatientRecord(final String patientId) {
-      return DgraphQueries.getPatientRecord(patientId);
+   public Either<MpiGeneralError, PatientRecord> findPatientRecord(final String patientId) {
+      return DgraphMutations.getPatientRecord(patientId);
    }
 
    public List<PatientRecord> findPatientRecords(final List<String> patientIds) {
