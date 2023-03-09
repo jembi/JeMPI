@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private static LibMPI libMPI = null;
-   private MyKafkaProducer<String, Notification> topicNotifications;
+   private static MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
@@ -129,32 +130,22 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    static void updateMatchingPatientRecordScoreForGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord,
          final String goldenRecordId) {
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
-      ArrayList<Notification.MatchData> candidateList = new ArrayList<>();
+      AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
       mpiPatientList.forEach(mpiPatient -> {
          final var patient = mpiPatient.patientRecord();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
-         candidateList = getCandidates(patient, 0.55f);
-         /*
-         ArrayList<Notification.MatchData> candidates = new ArrayList<Notification.MatchData>();
-candidates.add(new Notification.MatchData("1", 0.8F));
-candidates.add(new Notification.MatchData("3", 1.0F));
-candidates.add(new Notification.MatchData("4", 0.9F));
+         candidateList.set(getCandidates(patient));
 
-sendNotification(Notification.NotificationType.THRESHOLD, "2", "Jane Doe", new Notification.MatchData("1", 0.9F), candidates);
-          */
-
-         candidateList.stream().forEach(candidate -> {
+         candidateList.get().forEach(candidate -> {
             sendNotification(
-                    Notification.NotificationType.THRESHOLD,
+                    Notification.NotificationType.TEST_RECOMPUTE,
                     patient.patientId(),
                     AppUtils.getNames(patient.demographicData()),
-                    new Notification.MatchData(candidate.goldenUID(), candidate.score()),
-                    candidateList);
+                    new Notification.MatchData(candidate.gID(), candidate.score()),
+                    candidateList.get());
          });
-
-
 
          if (!reCompute) {
             LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
@@ -226,7 +217,7 @@ sendNotification(Notification.NotificationType.THRESHOLD, "2", "Jane Doe", new N
       return linkInfo;
    }
 
-   private void sendNotification(
+   private static void sendNotification(
          final Notification.NotificationType type,
          final String dID,
          final String names,
@@ -488,8 +479,8 @@ sendNotification(Notification.NotificationType.THRESHOLD, "2", "Jane Doe", new N
          LinkInfo linkInfo) implements EventResponse {
    }
 
-   private static ArrayList<Notification.MatchData> getCandidates(PatientRecord patientRecord, final float matchThreshold) {
-      final var candidateGoldenRecords =
+   private static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) {
+      var candidateGoldenRecords =
               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
       // Get a list of candidates withing the supplied for external link range
 
@@ -506,9 +497,8 @@ sendNotification(Notification.NotificationType.THRESHOLD, "2", "Jane Doe", new N
 
       final ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
       allCandidateScores
-              .stream()
-              .peek(v -> {
-                 if (v.score() >= matchThreshold - 0.1 && v.score() <= matchThreshold + 0.1) {
+              .forEach(v -> {
+                 if (v.score() >= (float) 0.55 - 0.1 && v.score() <= (float) 0.55 + 0.1) {
                     notificationCandidates.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
                  }
               });

@@ -13,7 +13,9 @@ public record Notification(
       List<MatchData> candidates) {
    public enum NotificationType {
       THRESHOLD("Threshold"),
-      MARGIN("Margin");
+      MARGIN("Margin"),
+
+      TEST_RECOMPUTE("TestingRecompute");
 
       public final String label;
 
