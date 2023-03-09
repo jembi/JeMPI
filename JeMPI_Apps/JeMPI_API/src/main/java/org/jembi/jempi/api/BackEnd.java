@@ -259,7 +259,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findExpandedGoldenRecordHandler(final FindExpandedGoldenRecordRequest request) {
       ExpandedGoldenRecord expandedGoldenRecord = null;
-      EventResponse response = null;
       LOGGER.debug("findExpandedGoldenRecordHandler");
 
       try {

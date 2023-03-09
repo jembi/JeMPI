@@ -81,7 +81,6 @@ final class DgraphQueries {
       final var vars = Map.of("$uid", patientId);
       final var patientList = runPatientRecordsQuery(CustomDgraphConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
       if (AppUtils.isNullOrEmpty(patientList)) {
-         LOGGER.info("No patientRecord for {}", patientId);
          return null;
       }
       return patientList.get(0).toPatientRecordWithScore().patientRecord();
