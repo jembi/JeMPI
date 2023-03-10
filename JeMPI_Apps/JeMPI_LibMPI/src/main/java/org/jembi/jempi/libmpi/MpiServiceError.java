@@ -21,4 +21,8 @@ public sealed interface MpiServiceError extends MpiGeneralError {
 
    record GeneralError(String error) implements MpiServiceError {}
 
+   record CandidatesNotFoundError(
+         String error,
+         String patientId) implements MpiServiceError {}
+
 }

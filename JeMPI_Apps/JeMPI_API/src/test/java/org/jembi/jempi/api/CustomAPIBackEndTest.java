@@ -367,4 +367,124 @@ class CustomAPIBackEndTest {
 
       replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.right(candidates)));
    }
+
+   @Test
+   public void findCandidatesHandler_whenFindPatientRecordNotFound_ReturnNotFound() {
+      String patientId = "9015";
+
+      MpiGeneralError notFoundError = new MpiServiceError.PatientIdDoesNotExistError(
+            "Patient not found",
+            patientId);
+
+      CustomMU customMU = new CustomMU(new double[]{0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8},
+                                       new double[]{0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002});
+
+      GoldenRecord goldenRecord = new GoldenRecord(
+            new PatientRecord(
+                  "1236",
+                  new SourceId("f1fa7b5d", "4e71", "11ec-8d3d-0242ac130004"),
+                  new CustomDemographicData(
+                        "auxId",
+                        "Jonathan",
+                        "Doe",
+                        "Male",
+                        "1990-01-01",
+                        "Cape Town",
+                        "555-1234",
+                        "123-45-6789")
+            ));
+
+      List<GoldenRecord> goldenRecords = new ArrayList<>();
+      goldenRecords.add(goldenRecord);
+
+      final var libMPI = mock(LibMPI.class);
+      when(libMPI.findPatientRecord(patientId)).thenReturn(Either.left(notFoundError));
+      when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindCandidatesResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindCandidatesRequest(replyTo.getRef(), patientId, customMU));
+
+      replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.left(notFoundError)));
+   }
+
+   @Test
+   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesReturnNull_ReturnNotFound() {
+      String patientId = "9016";
+
+      MpiGeneralError notFoundError = new MpiServiceError.CandidatesNotFoundError(
+            "Candidates(golden records) not found with demographic data for patientId",
+            patientId);
+
+      CustomMU customMU = new CustomMU(new double[]{0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8},
+                                       new double[]{0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002});
+
+      PatientRecord patientRecord = new PatientRecord(
+            patientId,
+            new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
+            new CustomDemographicData(
+                  "auxId",
+                  "John",
+                  "Doe",
+                  "Male",
+                  "1990-01-01",
+                  "Johannesburg",
+                  "555-1234",
+                  "123-45-6789")
+      );
+
+      final var libMPI = mock(LibMPI.class);
+      when(libMPI.findPatientRecord(patientId)).thenReturn(Either.right(patientRecord));
+      when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(null);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindCandidatesResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindCandidatesRequest(replyTo.getRef(), patientId, customMU));
+
+      replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.left(notFoundError)));
+   }
+
+   @Test
+   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesReturnEmpty_ReturnNotFound() {
+      String patientId = "9017";
+
+      MpiGeneralError notFoundError = new MpiServiceError.CandidatesNotFoundError(
+            "Candidates(golden records) not found with demographic data for patientId",
+            patientId);
+
+      CustomMU customMU = new CustomMU(new double[]{0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8},
+                                       new double[]{0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002});
+
+      PatientRecord patientRecord = new PatientRecord(
+            patientId,
+            new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
+            new CustomDemographicData(
+                  "auxId",
+                  "John",
+                  "Doe",
+                  "Male",
+                  "1990-01-01",
+                  "Johannesburg",
+                  "555-1234",
+                  "123-45-6789")
+      );
+
+      List<GoldenRecord> goldenRecords = new ArrayList<>();
+
+      final var libMPI = mock(LibMPI.class);
+      when(libMPI.findPatientRecord(patientId)).thenReturn(Either.right(patientRecord));
+      when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindCandidatesResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindCandidatesRequest(replyTo.getRef(), patientId, customMU));
+
+      replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.left(notFoundError)));
+   }
 }

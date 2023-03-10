@@ -344,21 +344,43 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
-      libMPI.startTransaction();
-      final var patientRecordResult = libMPI.findPatientRecord(request.patientId);
-      final var recs = libMPI.getCandidates(patientRecordResult.get().demographicData(), true);
+      Either<MpiGeneralError, PatientRecord> patientRecordResult = null;
+      List<GoldenRecord> goldenRecords = null;
+      List<FindCandidatesResponse.Candidate> candidates = null;
 
-      CustomLinkerProbabilistic.updateMU(request.mu);
-      CustomLinkerProbabilistic.checkUpdatedMU();
-      final var candidates = recs
-            .stream()
-            .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
-                                                                   CustomLinkerProbabilistic.probabilisticScore(candidate.demographicData(),
-                                                                                                                patientRecordResult.get()
-                                                                                                                                   .demographicData())))
-            .toList();
-      request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
-      libMPI.closeTransaction();
+      try {
+         libMPI.startTransaction();
+         patientRecordResult = libMPI.findPatientRecord(request.patientId);
+         goldenRecords = libMPI.getCandidates(patientRecordResult.get().demographicData(), true);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("findCandidatesHandler failed to find patientId: {}", request.patientId);
+         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+               "Patient not found",
+               request.patientId))));
+      }
+
+      if (patientRecordResult == null ) {
+         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+               "Patient not found",
+               request.patientId))));
+      } else if(goldenRecords == null || goldenRecords.size() == 0){
+         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.CandidatesNotFoundError(
+               "Candidates(golden records) not found with demographic data for patientId",
+               request.patientId))));
+      } else {
+         final var patientDemographic = patientRecordResult.get().demographicData();
+         CustomLinkerProbabilistic.updateMU(request.mu);
+         CustomLinkerProbabilistic.checkUpdatedMU();
+         candidates = goldenRecords
+               .stream()
+               .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
+                                                                      CustomLinkerProbabilistic.probabilisticScore(candidate.demographicData(),
+                                                                                                                   patientDemographic)))
+               .toList();
+         request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
+      }
+
       return Behaviors.same();
    }
 
