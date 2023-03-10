@@ -520,12 +520,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final var goldenIds = params.stream().map(PARAM_STRING).toList();
          return onComplete(askFindExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
                            result -> result.isSuccess()
-                                 ? complete(StatusCodes.OK, result.get()
-                                                                  .expandedGoldenRecords()
-                                                                  .stream()
-                                                                  .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                  .toList(),
-                                            Jackson.marshaller())
+                                 ? result.get()
+                                         .expandedGoldenRecords()
+                                         .mapLeft(this::mapError)
+                                         .fold(error -> error,
+                                               expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                                 expandedGoldenRecords,
+                                                                                 Jackson.marshaller()))
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
@@ -538,13 +539,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          return onComplete(
                askFindExpandedGoldenRecords(actorSystem, backEnd, uidList),
                result -> result.isSuccess()
-                     ? complete(StatusCodes.OK,
-                                result.get()
-                                      .expandedGoldenRecords()
-                                      .stream()
-                                      .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                      .toList(),
-                                Jackson.marshaller())
+                     ? result.get()
+                             .expandedGoldenRecords()
+                             .mapLeft(this::mapError)
+                             .fold(error -> error,
+                                   expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                     expandedGoldenRecords,
+                                                                     Jackson.marshaller()))
                      : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
@@ -556,13 +557,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
          return onComplete(askFindExpandedPatientRecords(actorSystem, backEnd, uidList),
                            result -> result.isSuccess()
-                                 ? complete(StatusCodes.OK,
-                                            result.get()
-                                                  .expandedPatientRecords()
-                                                  .stream()
-                                                  .map(ApiExpandedPatientRecord::fromExpandedPatientRecord)
-                                                  .toList(),
-                                            Jackson.marshaller())
+                                 ? result.get()
+                                         .expandedPatientRecords()
+                                         .mapLeft(this::mapError)
+                                         .fold(error -> error,
+                                               expandedPatientRecords -> complete(StatusCodes.OK,
+                                                                                  expandedPatientRecords,
+                                                                                  Jackson.marshaller()))
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
@@ -573,9 +574,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final String goldenId) {
       return onComplete(askFindExpandedGoldenRecord(actorSystem, backEnd, goldenId),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK,
-                                         ApiExpandedGoldenRecord.fromExpandedGoldenRecord(result.get().goldenRecord()),
-                                         Jackson.marshaller())
+                              ? result.get()
+                                      .goldenRecord()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            goldenRecord -> complete(StatusCodes.OK,
+                                                                     goldenRecord,
+                                                                     Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -594,9 +599,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final String patientId) {
       return onComplete(askFindPatientRecord(actorSystem, backEnd, patientId),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK,
-                                         ApiPatientRecord.fromPatientRecord(result.get().patient().get()),
-                                         Jackson.marshaller())
+                              ? result.get()
+                                      .patient()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            patientRecord -> complete(StatusCodes.OK,
+                                                                      patientRecord,
+                                                                     Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 

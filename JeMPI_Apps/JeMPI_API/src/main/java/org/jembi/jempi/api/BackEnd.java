@@ -33,6 +33,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -222,18 +223,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getGoldenRecordCountHandler(final GetGoldenRecordCountRequest request) {
       LOGGER.debug("getGoldenRecordCount");
-      libMPI.startTransaction();
-      final var count = libMPI.countGoldenRecords();
-      libMPI.closeTransaction();
+      long count = 0;
+
+      try {
+         libMPI.startTransaction();
+         count = libMPI.countGoldenRecords();
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.countGoldenRecords failed with error message: {}", exception.getMessage());
+      }
+
       request.replyTo.tell(new GetGoldenRecordCountResponse(count));
       return Behaviors.same();
    }
 
    private Behavior<Event> getPatientRecordCountHandler(final GetPatientRecordCountRequest request) {
       LOGGER.debug("getDocumentCount");
-      libMPI.startTransaction();
-      final var count = libMPI.countPatientRecords();
-      libMPI.closeTransaction();
+      long count = 0;
+
+      try {
+         libMPI.startTransaction();
+         count = libMPI.countPatientRecords();
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
+      }
+
       request.replyTo.tell(new GetPatientRecordCountResponse(count));
       return Behaviors.same();
    }
@@ -271,17 +286,24 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       exception.getMessage());
       }
 
-      request.replyTo.tell(new FindExpandedGoldenRecordResponse(expandedGoldenRecord));
+      if (expandedGoldenRecord == null) {
+         request.replyTo.tell(new FindExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+               "Golden Record does not exist",
+               request.goldenId))));
+      } else {
+         request.replyTo.tell(new FindExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
+      }
+
       return Behaviors.same();
    }
 
    private Behavior<Event> findExpandedGoldenRecordsHandler(final FindExpandedGoldenRecordsRequest request) {
-      List<ExpandedGoldenRecord> list = null;
+      List<ExpandedGoldenRecord> goldenRecords = null;
       LOGGER.debug("getExpandedGoldenRecords");
 
       try {
          libMPI.startTransaction();
-         list = libMPI.findExpandedGoldenRecords(request.goldenIds);
+         goldenRecords = libMPI.findExpandedGoldenRecords(request.goldenIds);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecords failed for goldenIds: {} with error: {}",
@@ -289,21 +311,24 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       exception.getMessage());
       }
 
-      if (list == null) {
-         list = new ArrayList<ExpandedGoldenRecord>();
+      if (goldenRecords == null) {
+         request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+               "Golden Records do not exist",
+               Arrays.asList(request.goldenIds).toString()))));
+      } else {
+         request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
 
-      request.replyTo.tell(new FindExpandedGoldenRecordsResponse(list));
       return Behaviors.same();
    }
 
    private Behavior<Event> findExpandedPatientRecordsHandler(final FindExpandedPatientRecordsRequest request) {
-      List<ExpandedPatientRecord> list = null;
+      List<ExpandedPatientRecord> expandedPatientRecords = null;
       LOGGER.debug("getExpandedPatients");
 
       try {
          libMPI.startTransaction();
-         list = libMPI.findExpandedPatientRecords(request.patientIds);
+         expandedPatientRecords = libMPI.findExpandedPatientRecords(request.patientIds);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
@@ -311,21 +336,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       exception.getMessage());
       }
 
-      if (list == null) {
-         list = new ArrayList<ExpandedPatientRecord>();
+      if (expandedPatientRecords == null) {
+         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+               "Patient Records do not exist",
+               Arrays.asList(request.patientIds).toString()))));
+      } else {
+         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.right(expandedPatientRecords)));
       }
-
-      request.replyTo.tell(new FindExpandedPatientRecordsResponse(list));
       return Behaviors.same();
    }
 
    private Behavior<Event> findPatientRecordHandler(final FindPatientRecordRequest request) {
-      Either<MpiGeneralError, PatientRecord> result = null;
+      PatientRecord patientRecord = null;
       LOGGER.debug("findPatientRecordHandler");
 
       try {
          libMPI.startTransaction();
-         result = libMPI.findPatientRecord(request.patientId);
+         patientRecord = libMPI.findPatientRecord(request.patientId);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
@@ -333,25 +360,28 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       exception.getMessage());
       }
 
-      if (result == null) {
-         result = Either.left(new MpiServiceError.PatientIdDoesNotExistError("Patient not found", request.patientId));
+      if (patientRecord == null) {
+         request.replyTo.tell(new FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+               "Patient not found",
+               request.patientId))));
+      } else {
+         request.replyTo.tell(new FindPatientRecordResponse(Either.right(patientRecord)));
       }
 
-      request.replyTo.tell(new FindPatientRecordResponse(result));
       return Behaviors.same();
    }
 
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
-      Either<MpiGeneralError, PatientRecord> patientRecordResult = null;
+      PatientRecord patientRecord = null;
       List<GoldenRecord> goldenRecords = null;
       List<FindCandidatesResponse.Candidate> candidates = null;
 
       try {
          libMPI.startTransaction();
-         patientRecordResult = libMPI.findPatientRecord(request.patientId);
-         goldenRecords = libMPI.getCandidates(patientRecordResult.get().demographicData(), true);
+         patientRecord = libMPI.findPatientRecord(request.patientId);
+         goldenRecords = libMPI.getCandidates(patientRecord.demographicData(), true);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("findCandidatesHandler failed to find patientId: {}", request.patientId);
@@ -360,16 +390,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                request.patientId))));
       }
 
-      if (patientRecordResult == null ) {
+      if (patientRecord == null) {
          request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                "Patient not found",
                request.patientId))));
-      } else if(goldenRecords == null || goldenRecords.size() == 0){
+      } else if (goldenRecords == null || goldenRecords.size() == 0) {
          request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.CandidatesNotFoundError(
                "Candidates(golden records) not found with demographic data for patientId",
                request.patientId))));
       } else {
-         final var patientDemographic = patientRecordResult.get().demographicData();
+         final var patientDemographic = patientRecord.demographicData();
          CustomLinkerProbabilistic.updateMU(request.mu);
          CustomLinkerProbabilistic.checkUpdatedMU();
          candidates = goldenRecords
@@ -480,7 +510,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements Event {
    }
 
-   public record FindExpandedGoldenRecordResponse(ExpandedGoldenRecord goldenRecord) implements EventResponse {
+   public record FindExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {
    }
 
    public record FindExpandedGoldenRecordsRequest(
@@ -488,7 +518,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> goldenIds) implements Event {
    }
 
-   public record FindExpandedGoldenRecordsResponse(List<ExpandedGoldenRecord> expandedGoldenRecords)
+   public record FindExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords)
          implements EventResponse {
    }
 
@@ -497,7 +527,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> patientIds) implements Event {
    }
 
-   public record FindExpandedPatientRecordsResponse(List<ExpandedPatientRecord> expandedPatientRecords)
+   public record FindExpandedPatientRecordsResponse(Either<MpiGeneralError, List<ExpandedPatientRecord>> expandedPatientRecords)
          implements EventResponse {
    }
 

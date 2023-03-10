@@ -243,15 +243,6 @@ final class DgraphMutations {
       return Either.right(new LinkInfo(newGoldenId, patientId, score));
    }
 
-   static Either<MpiGeneralError, PatientRecord> getPatientRecord(final String patientId) {
-      final var patient = DgraphQueries.getPatientRecord(patientId);
-      if (patient == null) {
-         LOGGER.warn("patient {} not found", patientId);
-         return Either.left(new MpiServiceError.PatientIdDoesNotExistError("Patient not found", patientId));
-      }
-      return Either.right(patient);
-   }
-
    static LinkInfo linkDGraphPatient(
          final PatientRecord patientRecord,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {

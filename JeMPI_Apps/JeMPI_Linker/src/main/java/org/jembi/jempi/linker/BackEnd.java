@@ -333,7 +333,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .unordered()
             .map(goldenRecord -> new CalculateScoresResponse.Score(
                   goldenRecord.goldenId(),
-                  calcNormalizedScore(goldenRecord.demographicData(), patientRecord.get().demographicData())))
+                  calcNormalizedScore(goldenRecord.demographicData(), patientRecord.demographicData())))
             .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
             .collect(Collectors.toCollection(ArrayList::new));
       return new CalculateScoresResponse(request.patientId(), scores);

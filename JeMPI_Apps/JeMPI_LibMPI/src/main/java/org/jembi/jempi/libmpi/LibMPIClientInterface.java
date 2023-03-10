@@ -39,8 +39,7 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-
-   Either<MpiGeneralError, PatientRecord> findPatientRecord(String patientId);
+   PatientRecord findPatientRecord(String patientId);
 
    List<PatientRecord> findPatientRecords(List<String> patientIds);
 

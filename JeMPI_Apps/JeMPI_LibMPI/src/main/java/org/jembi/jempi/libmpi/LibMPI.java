@@ -68,7 +68,7 @@ public final class LibMPI {
    }
 
 
-   public Either<MpiGeneralError, PatientRecord> findPatientRecord(final String patientId) {
+   public PatientRecord findPatientRecord(final String patientId) {
       return client.findPatientRecord(patientId);
    }
 
