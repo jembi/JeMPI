@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -263,14 +264,16 @@ class CustomAPIBackEndTest {
 
    @Test
    public void findExpandedGoldenRecordHandler_whenFindExpandedGoldenRecordReturnsNull_ReturnSuccess() {
+      String goldenId = "54321";
+
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.findExpandedGoldenRecord(anyString())).thenReturn(null);
+      when(libMPI.findExpandedGoldenRecord(goldenId)).thenReturn(null);
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
       TestProbe<BackEnd.FindExpandedGoldenRecordResponse> replyTo = testKit.createTestProbe();
 
-      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordRequest(replyTo.getRef(), anyString()));
+      myActorRef.tell(new BackEnd.FindExpandedGoldenRecordRequest(replyTo.getRef(), goldenId));
 
       replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordResponse(null));
    }
@@ -307,5 +310,61 @@ class CustomAPIBackEndTest {
       myActorRef.tell(new BackEnd.FindExpandedGoldenRecordRequest(replyTo.getRef(), goldenId));
 
       replyTo.expectMessage(new BackEnd.FindExpandedGoldenRecordResponse(expandedGoldenRecord));
+   }
+
+   @Test
+   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesSuccess_ReturnSuccess() {
+      final var libMPI = mock(LibMPI.class);
+      CustomMU customMU = new CustomMU(new double[]{0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8},
+                                       new double[]{0.002, 0.002, 0.002, 0.002, 0.002, 0.002, 0.002});
+      float score = 0.71428573F;
+      String patientId = "9014";
+      PatientRecord patientRecord = new PatientRecord(
+            "1235",
+            new SourceId("f1fa7b5c", "4e71", "11ec-8d3d-0242ac130003"),
+            new CustomDemographicData(
+                  "auxId",
+                  "John",
+                  "Doe",
+                  "Male",
+                  "1990-01-01",
+                  "Johannesburg",
+                  "555-1234",
+                  "123-45-6789")
+      );
+
+      GoldenRecord goldenRecord = new GoldenRecord(
+            new PatientRecord(
+                  "1236",
+                  new SourceId("f1fa7b5d", "4e71", "11ec-8d3d-0242ac130004"),
+                  new CustomDemographicData(
+                        "auxId",
+                        "Jonathan",
+                        "Doe",
+                        "Male",
+                        "1990-01-01",
+                        "Cape Town",
+                        "555-1234",
+                        "123-45-6789")
+            ));
+
+      List<GoldenRecord> goldenRecords = new ArrayList<>();
+      goldenRecords.add(goldenRecord);
+
+      List<BackEnd.FindCandidatesResponse.Candidate> candidates = new ArrayList<>();
+      BackEnd.FindCandidatesResponse.Candidate candidate =
+            new BackEnd.FindCandidatesResponse.Candidate(goldenRecord, score);
+      candidates.add(candidate);
+
+      when(libMPI.findPatientRecord(patientId)).thenReturn(Either.right(patientRecord));
+      when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.FindCandidatesResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.FindCandidatesRequest(replyTo.getRef(), patientId, customMU));
+
+      replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.right(candidates)));
    }
 }
