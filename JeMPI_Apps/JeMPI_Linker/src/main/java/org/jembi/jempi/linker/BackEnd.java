@@ -120,9 +120,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
             if (!result) {
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
-            } else if (!mpiPatientList.isEmpty()) {
-               updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
             }
+//            else if (!mpiPatientList.isEmpty()) {
+//               updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
+//            }
          }
       }
    }
@@ -498,7 +499,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
       allCandidateScores
               .forEach(v -> {
-                 if (v.score() >= (float) 0.55 - 0.1 && v.score() <= (float) 0.55 + 0.1) {
+                 if (v.score() >= 0.55f - 0.1 && v.score() <= 0.55f + 0.1f) {
                     notificationCandidates.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
                  }
               });

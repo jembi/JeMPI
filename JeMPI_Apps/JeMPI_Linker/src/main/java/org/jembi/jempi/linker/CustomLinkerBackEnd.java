@@ -31,6 +31,8 @@ public final class CustomLinkerBackEnd {
                                       "phoneNumber", demographicData.phoneNumber(), CustomDemographicData::phoneNumber);
       BackEnd.updateGoldenRecordField(expandedGoldenRecord,
                                       "nationalId", demographicData.nationalId(), CustomDemographicData::nationalId);
+      BackEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
+
 
    }
 
