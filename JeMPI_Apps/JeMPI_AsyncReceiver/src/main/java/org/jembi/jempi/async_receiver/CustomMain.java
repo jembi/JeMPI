@@ -42,14 +42,16 @@ public final class CustomMain {
          final String fileName) throws InterruptedException,
                                  ExecutionException {
       try {
+         final String userName = System.getProperty("user.name"); //TODO: update to receive userName parameter
+         final Boolean delayLinker = false; //TODO: retrieve from AppConfig
          final String tag = recordType == CustomSourceRecord.RecordType.BATCH_START
                ? "START"
                : "END";
          final BatchMetaData metaData = new BatchMetaData(BatchMetaData.FileType.CSV,
                                                           LocalDateTime.now().toString(),
                                                           fileName,
-                                                          "User",
-                                                          false,
+                                                          userName,
+                                                          delayLinker,
                                                           tag);
          LOGGER.debug("{}", metaData);
          metaDataProducer.produceSync(tag, metaData);
