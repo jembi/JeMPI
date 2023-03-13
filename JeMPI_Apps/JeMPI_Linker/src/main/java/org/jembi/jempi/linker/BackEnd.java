@@ -130,6 +130,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    static void updateMatchingPatientRecordScoreForGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord,
          final String goldenRecordId) {
+
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
       mpiPatientList.forEach(mpiPatient -> {
@@ -141,7 +142,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
          candidateList.get().forEach(candidate -> {
             sendNotification(
-                    Notification.NotificationType.TEST_RECOMPUTE,
+                    Notification.NotificationType.THRESHOLD,
                     patient.patientId(),
                     AppUtils.getNames(patient.demographicData()),
                     new Notification.MatchData(candidate.gID(), candidate.score()),
@@ -480,7 +481,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LinkInfo linkInfo) implements EventResponse {
    }
 
-   private static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) {
+   public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) {
       var candidateGoldenRecords =
               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
       // Get a list of candidates withing the supplied for external link range
@@ -494,12 +495,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                       .collect(Collectors.toCollection(ArrayList::new));
 
-      //List<GoldenRecord> candidateGoldenRecords = libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
-
       final ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
       allCandidateScores
               .forEach(v -> {
-                 if (v.score() >= 0.55f - 0.1 && v.score() <= 0.55f + 0.1f) {
+                 if (v.score() >= (AppConfig.BACK_END_MATCH_THRESHOLD - 0.1f) && v.score() <= (AppConfig.BACK_END_MATCH_THRESHOLD + 0.1f)) {
                     notificationCandidates.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
                  }
               });
