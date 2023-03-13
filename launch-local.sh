@@ -26,6 +26,11 @@ then
   docker swarm init --advertise-addr 127.0.0.1
 fi
 
+# Maven package
+pushd ./JeMPI_Apps || exit
+    mvn clean package
+popd || exit
+
 # Run bash scripts
 pushd ./docker/ || exit
     ./a-images-1-pull-from-hub.sh
