@@ -20,10 +20,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -150,7 +147,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          });
 
          if (!reCompute) {
-            LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
+            throw new RuntimeException("Failed to update score for entity with UID " + patient.patientId());
+
          } else {
             LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
          }
@@ -482,28 +480,29 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) {
-      var candidateGoldenRecords =
+      List<GoldenRecord> candidateGoldenRecords =
               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
-      // Get a list of candidates withing the supplied for external link range
-
-      final ArrayList<WorkCandidate> allCandidateScores =
-              candidateGoldenRecords
-                      .parallelStream()
+      List<WorkCandidate> allCandidateScores =
+              candidateGoldenRecords.parallelStream()
                       .unordered()
                       .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
                               patientRecord.demographicData())))
-                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                      .collect(Collectors.toCollection(ArrayList::new));
+                      .sorted(Comparator.comparing(WorkCandidate::score).reversed())
+                      .collect(Collectors.toList());
 
-      final ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
-      allCandidateScores
-              .forEach(v -> {
-                 if (v.score() >= (AppConfig.BACK_END_MATCH_THRESHOLD - 0.1f) && v.score() <= (AppConfig.BACK_END_MATCH_THRESHOLD + 0.1f)) {
-                    notificationCandidates.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
-                 }
-              });
+      ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
+      for (WorkCandidate candidate : allCandidateScores) {
+         if (isWithinThreshold(candidate.score())) {
+            notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord().goldenId(), candidate.score()));
+         }
+      }
 
       return notificationCandidates;
+   }
+   private static boolean isWithinThreshold(final float score) {
+      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - 0.1f;
+      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + 0.1f;
+      return score >= minThreshold && score <= maxThreshold;
    }
 
 
