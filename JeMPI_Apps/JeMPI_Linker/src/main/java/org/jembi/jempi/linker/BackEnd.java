@@ -20,7 +20,11 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -118,9 +122,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             if (!result) {
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
             }
-//            else if (!mpiPatientList.isEmpty()) {
-//               updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
-//            }
          }
       }
    }
@@ -135,7 +136,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
-         candidateList.set(getCandidates(patient));
+         try {
+            candidateList.set(getCandidates(patient));
+         } catch (Exception e) {
+            throw new RuntimeException(e);
+         }
 
          candidateList.get().forEach(candidate -> {
             sendNotification(
@@ -479,25 +484,30 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LinkInfo linkInfo) implements EventResponse {
    }
 
-   public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) {
-      List<GoldenRecord> candidateGoldenRecords =
-              libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
-      List<WorkCandidate> allCandidateScores =
-              candidateGoldenRecords.parallelStream()
-                      .unordered()
-                      .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
-                              patientRecord.demographicData())))
-                      .sorted(Comparator.comparing(WorkCandidate::score).reversed())
-                      .collect(Collectors.toList());
+   public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) throws RuntimeException{
 
-      ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
-      for (WorkCandidate candidate : allCandidateScores) {
-         if (isWithinThreshold(candidate.score())) {
-            notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord().goldenId(), candidate.score()));
+      try {
+         List<GoldenRecord> candidateGoldenRecords =
+                 libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+         List<WorkCandidate> allCandidateScores =
+                 candidateGoldenRecords.parallelStream()
+                         .unordered()
+                         .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
+                                 patientRecord.demographicData())))
+                         .sorted(Comparator.comparing(WorkCandidate::score).reversed())
+                         .toList();
+
+         ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
+         for (WorkCandidate candidate : allCandidateScores) {
+            if (isWithinThreshold(candidate.score())) {
+               notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord().goldenId(), candidate.score()));
+            }
          }
-      }
 
-      return notificationCandidates;
+         return notificationCandidates;
+      } catch (Exception e) {
+         throw new RuntimeException(e);
+      }
    }
    private static boolean isWithinThreshold(final float score) {
       float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - 0.1f;

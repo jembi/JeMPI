@@ -3,19 +3,32 @@ package org.jembi.jempi.linker;
 import akka.actor.testkit.typed.javadsl.ActorTestKit;
 import akka.actor.typed.ActorRef;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.shared.models.*;
-import org.junit.jupiter.api.*;
+import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
+import org.jembi.jempi.shared.models.GoldenRecord;
+import org.jembi.jempi.shared.models.Notification;
+import org.jembi.jempi.shared.models.PatientRecord;
+import org.jembi.jempi.shared.models.PatientRecordWithScore;
+import org.jembi.jempi.shared.models.SourceId;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -67,12 +80,10 @@ class LinkerTests {
 
         // Arrange
         when(libMPI.updateGoldenRecordField(eq("1"), eq("city"), anyString())).thenReturn(true);
-//        when(libMPI.setScore(eq("2"), eq("1"), anyFloat())).thenReturn(true);
 
         BackEnd.updateGoldenRecordField(expandedGoldenRecord, "city", "New York", CustomDemographicData::city);
         // Assert
         verify(libMPI).updateGoldenRecordField(eq("1"), eq("city"), anyString());
-//        verify(libMPI).setScore(eq("2"), eq("1"), eq( 0.14604087F));
     }
 
     @Test
@@ -101,7 +112,7 @@ class LinkerTests {
 
 
     @Test
-    public void testCandidatesForReview() {
+    public void testCandidatesForReview() throws Exception{
         when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
         ArrayList<Notification.MatchData> list = BackEnd.getCandidates(patientRecord);
 
