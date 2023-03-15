@@ -525,7 +525,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                          .mapLeft(this::mapError)
                                          .fold(error -> error,
                                                expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                 expandedGoldenRecords,
+                                                                                 expandedGoldenRecords.stream()
+                                                                                                      .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                      .toList(),
                                                                                  Jackson.marshaller()))
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
@@ -544,7 +546,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                              .mapLeft(this::mapError)
                              .fold(error -> error,
                                    expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                     expandedGoldenRecords,
+                                                                     expandedGoldenRecords.stream()
+                                                                                          .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                          .toList(),
                                                                      Jackson.marshaller()))
                      : complete(StatusCodes.IM_A_TEAPOT));
       });
@@ -562,7 +566,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                          .mapLeft(this::mapError)
                                          .fold(error -> error,
                                                expandedPatientRecords -> complete(StatusCodes.OK,
-                                                                                  expandedPatientRecords,
+                                                                                  expandedPatientRecords.stream()
+                                                                                                        .map(ApiExpandedPatientRecord::fromExpandedPatientRecord)
+                                                                                                        .toList(),
                                                                                   Jackson.marshaller()))
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
@@ -579,7 +585,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                       .mapLeft(this::mapError)
                                       .fold(error -> error,
                                             goldenRecord -> complete(StatusCodes.OK,
-                                                                     goldenRecord,
+                                                                     ApiExpandedGoldenRecord.fromExpandedGoldenRecord(goldenRecord),
                                                                      Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
@@ -604,8 +610,8 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                       .mapLeft(this::mapError)
                                       .fold(error -> error,
                                             patientRecord -> complete(StatusCodes.OK,
-                                                                      patientRecord,
-                                                                     Jackson.marshaller()))
+                                                                      ApiPatientRecord.fromPatientRecord(patientRecord),
+                                                                      Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
