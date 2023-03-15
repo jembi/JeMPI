@@ -151,7 +151,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          }
 
          if (!reCompute) {
-            throw new RuntimeException("Failed to update score for entity with UID " + patient.patientId());
+            LOGGER.error("Failed to update score for entity with UID " + patient.patientId());
          } else {
             LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
          }
