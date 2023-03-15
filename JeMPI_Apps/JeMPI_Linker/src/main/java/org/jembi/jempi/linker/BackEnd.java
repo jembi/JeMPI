@@ -138,18 +138,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
          try {
             candidateList.set(getCandidates(patient));
+            candidateList.get().forEach(candidate -> {
+               sendNotification(
+                       Notification.NotificationType.THRESHOLD,
+                       patient.patientId(),
+                       AppUtils.getNames(patient.demographicData()),
+                       new Notification.MatchData(candidate.gID(), candidate.score()),
+                       candidateList.get());
+            });
          } catch (Exception e) {
             LOGGER.error(e.getMessage());
          }
-
-         candidateList.get().forEach(candidate -> {
-            sendNotification(
-                    Notification.NotificationType.THRESHOLD,
-                    patient.patientId(),
-                    AppUtils.getNames(patient.demographicData()),
-                    new Notification.MatchData(candidate.gID(), candidate.score()),
-                    candidateList.get());
-         });
 
          if (!reCompute) {
             throw new RuntimeException("Failed to update score for entity with UID " + patient.patientId());
