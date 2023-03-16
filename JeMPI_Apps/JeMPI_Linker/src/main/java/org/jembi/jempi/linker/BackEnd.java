@@ -138,22 +138,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
          try {
             candidateList.set(getCandidates(patient));
+            candidateList.get().forEach(candidate -> {
+               sendNotification(
+                       Notification.NotificationType.THRESHOLD,
+                       patient.patientId(),
+                       AppUtils.getNames(patient.demographicData()),
+                       new Notification.MatchData(candidate.gID(), candidate.score()),
+                       candidateList.get());
+            });
          } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e.getMessage());
          }
 
-         candidateList.get().forEach(candidate -> {
-            sendNotification(
-                    Notification.NotificationType.THRESHOLD,
-                    patient.patientId(),
-                    AppUtils.getNames(patient.demographicData()),
-                    new Notification.MatchData(candidate.gID(), candidate.score()),
-                    candidateList.get());
-         });
-
          if (!reCompute) {
-            throw new RuntimeException("Failed to update score for entity with UID " + patient.patientId());
-
+            LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
          } else {
             LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
          }
@@ -495,7 +493,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                          .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
                                  patientRecord.demographicData())))
                          .sorted(Comparator.comparing(WorkCandidate::score).reversed())
-                         .toList();
+                         .collect(Collectors.toList());
 
          ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
          for (WorkCandidate candidate : allCandidateScores) {
@@ -506,7 +504,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
          return notificationCandidates;
       } catch (Exception e) {
-         throw new RuntimeException(e);
+         LOGGER.error(e.getMessage());
+         return new ArrayList<>();
       }
    }
    private static boolean isWithinThreshold(final float score) {
