@@ -23,12 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -87,29 +82,11 @@ class LinkerTests {
     }
 
     @Test
-    public void updateGoldenRecordField_fiedNameNull_returnsIllegalArgumentException() {
-        String fieldName = null;
-        assertThrows(IllegalArgumentException.class, () -> {
-            BackEnd.updateGoldenRecordField(expandedGoldenRecord, fieldName, "New York", CustomDemographicData::city);
-        });
-    }
+    public void updateGoldenRecordField_expandedGoldenRecordNull_returnSuccess() {
+        BackEnd.updateGoldenRecordField(null, "city", "New York", CustomDemographicData::city);
 
-    @Test
-    public void updateGoldenRecordField_fieldNameEmpty_returnsIllegalArgumentException() {
-        String fieldName = "";
-        assertThrows(IllegalArgumentException.class, () -> {
-            BackEnd.updateGoldenRecordField(expandedGoldenRecord, fieldName, "New York", CustomDemographicData::city);
-        });
+        verify(libMPI, never()).updateGoldenRecordField(anyString(), anyString(), anyString());
     }
-
-    @Test
-    public void updateGoldenRecordField_expandedGoldenRecordNull_returnsIllegalArgumentException() {
-        expandedGoldenRecord = null;
-        assertThrows(IllegalArgumentException.class, () -> {
-            BackEnd.updateGoldenRecordField(expandedGoldenRecord, "city", "New York", CustomDemographicData::city);
-        });
-    }
-
 
     @Test
     public void testCandidatesForReview() throws Exception{

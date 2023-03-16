@@ -43,16 +43,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          openMPI();
       }
       topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-            GlobalConstants.TOPIC_NOTIFICATIONS,
-            new StringSerializer(), new JsonPojoSerializer<>(),
-            AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+                                                 GlobalConstants.TOPIC_NOTIFICATIONS,
+                                                 new StringSerializer(), new JsonPojoSerializer<>(),
+                                                 AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private static void openMPI() {
-      final var host = new String[] {AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-            AppConfig.DGRAPH_ALPHA3_HOST };
-      final var port = new int[] {AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-            AppConfig.DGRAPH_ALPHA3_PORT };
+      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
+                                    AppConfig.DGRAPH_ALPHA3_HOST};
+      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
+                                 AppConfig.DGRAPH_ALPHA3_PORT};
       libMPI = new LibMPI(host, port);
       libMPI.startTransaction();
       if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
@@ -65,7 +65,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.setup(BackEnd::new);
    }
 
-   private BackEnd(final ActorContext<Event> context, final LibMPI lib) {
+   private BackEnd(
+         final ActorContext<Event> context,
+         final LibMPI lib) {
       super(context);
       this.libMPI = lib;
    }
@@ -92,7 +94,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String textRight,
          final long countRight) {
       return (StringUtils.isBlank(textLeft) && countRight >= 1)
-            || (countRight > countLeft && !textRight.equals(textLeft));
+             || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
    static void updateGoldenRecordField(
@@ -101,18 +103,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String goldenRecordFieldValue,
          final Function<CustomDemographicData, String> getDocumentField) {
 
-      if (fieldName == null || fieldName.isEmpty()) {
-         throw new IllegalArgumentException("fieldName cannot be null or empty");
-      }
       if (expandedGoldenRecord == null) {
-         throw new IllegalArgumentException("expandedGoldenRecord cannot be null");
+         LOGGER.error("expandedGoldenRecord cannot be null");
+         return;
       }
+
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       final var freqMapGroupedByField = mpiPatientList
             .stream()
             .map(mpiPatient -> getDocumentField.apply(mpiPatient.patientRecord().demographicData()))
             .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
       freqMapGroupedByField.remove(StringUtils.EMPTY);
+
       if (freqMapGroupedByField.size() > 0) {
          final var count = freqMapGroupedByField.getOrDefault(goldenRecordFieldValue, 0L);
          final var maxEntry = Collections.max(freqMapGroupedByField.entrySet(), Map.Entry.comparingByValue());
@@ -126,7 +128,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
    }
 
-   static void updateMatchingPatientRecordScoreForGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord,
+   static void updateMatchingPatientRecordScoreForGoldenRecord(
+         final ExpandedGoldenRecord expandedGoldenRecord,
          final String goldenRecordId) {
 
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
@@ -134,17 +137,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       mpiPatientList.forEach(mpiPatient -> {
          final var patient = mpiPatient.patientRecord();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
-               patient.demographicData());
+                                               patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
          try {
             candidateList.set(getCandidates(patient));
             candidateList.get().forEach(candidate -> {
                sendNotification(
-                       Notification.NotificationType.THRESHOLD,
-                       patient.patientId(),
-                       AppUtils.getNames(patient.demographicData()),
-                       new Notification.MatchData(candidate.gID(), candidate.score()),
-                       candidateList.get());
+                     Notification.NotificationType.THRESHOLD,
+                     patient.patientId(),
+                     AppUtils.getNames(patient.demographicData()),
+                     new Notification.MatchData(candidate.gID(), candidate.score()),
+                     candidateList.get());
             });
          } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -250,7 +253,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          CustomLinkerProbabilistic.checkUpdatedMU();
          libMPI.startTransaction();
          final var candidateGoldenRecords = libMPI.getCandidates(patientRecord.demographicData(),
-               AppConfig.BACK_END_DETERMINISTIC);
+                                                                 AppConfig.BACK_END_DETERMINISTIC);
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(patientRecord, 1.0F);
          } else {
@@ -258,7 +261,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                   .parallelStream()
                   .unordered()
                   .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
-                        patientRecord.demographicData())))
+                                                                                     patientRecord.demographicData())))
                   .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                   .collect(Collectors.toCollection(ArrayList::new));
 
@@ -296,7 +299,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                } else {
                   candidatesInExternalLinkRange.forEach(
                         candidate -> externalLinkCandidateList.add(new ExternalLinkCandidate(candidate.goldenRecord,
-                              candidate.score)));
+                                                                                             candidate.score)));
                }
             } else {
                final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
@@ -390,12 +393,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             request.link.externalLinkRange(),
             request.link.matchThreshold());
       request.replyTo.tell(new EventLinkPatientSyncRsp(request.link.stan(),
-            listLinkInfo.isLeft()
-                  ? listLinkInfo.getLeft()
-                  : null,
-            listLinkInfo.isRight()
-                  ? listLinkInfo.get()
-                  : null));
+                                                       listLinkInfo.isLeft()
+                                                             ? listLinkInfo.getLeft()
+                                                             : null,
+                                                       listLinkInfo.isRight()
+                                                             ? listLinkInfo.get()
+                                                             : null));
       return Behaviors.same();
    }
 
@@ -482,18 +485,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LinkInfo linkInfo) implements EventResponse {
    }
 
-   public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) throws RuntimeException{
+   public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) throws RuntimeException {
 
       try {
          List<GoldenRecord> candidateGoldenRecords =
-                 libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
          List<WorkCandidate> allCandidateScores =
-                 candidateGoldenRecords.parallelStream()
-                         .unordered()
-                         .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
-                                 patientRecord.demographicData())))
-                         .sorted(Comparator.comparing(WorkCandidate::score).reversed())
-                         .collect(Collectors.toList());
+               candidateGoldenRecords.parallelStream()
+                                     .unordered()
+                                     .map(candidate -> new WorkCandidate(candidate,
+                                                                         calcNormalizedScore(candidate.demographicData(),
+                                                                                             patientRecord.demographicData())))
+                                     .sorted(Comparator.comparing(WorkCandidate::score).reversed())
+                                     .collect(Collectors.toList());
 
          ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
          for (WorkCandidate candidate : allCandidateScores) {
@@ -508,6 +512,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          return new ArrayList<>();
       }
    }
+
    private static boolean isWithinThreshold(final float score) {
       float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - 0.1f;
       float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + 0.1f;
