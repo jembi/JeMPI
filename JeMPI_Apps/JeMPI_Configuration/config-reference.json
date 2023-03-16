@@ -151,6 +151,16 @@
   ],
   "systemFields": [
     {
+      "fieldName": "recordType",
+      "fieldType": "String",
+      "fieldLabel": "Record Type",
+      "groups": ["none"],
+      "scope": [
+        "/match-details"
+      ],
+      "accessLevel": []
+    },
+    {
       "fieldName": "uid",
       "fieldType": "String",
       "fieldLabel": "UID",
