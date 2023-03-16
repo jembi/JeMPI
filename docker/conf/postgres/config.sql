@@ -75,6 +75,6 @@ INSERT INTO Notification_State(State)
 VALUES ('New'), ('Seen'), ('Actioned'), ('Accepted'), ('Pending');
 
 INSERT INTO Notification_Type(Type)
-VALUES ('THRESHOLD'), ('MARGIN');
+VALUES ('THRESHOLD'), ('MARGIN'), ('UPDATE');
 
 \dt;

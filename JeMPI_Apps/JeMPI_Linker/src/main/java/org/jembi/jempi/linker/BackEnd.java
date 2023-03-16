@@ -143,7 +143,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             candidateList.set(getCandidates(patient));
             candidateList.get().forEach(candidate -> {
                sendNotification(
-                     Notification.NotificationType.THRESHOLD,
+                     Notification.NotificationType.UPDATE,
                      patient.patientId(),
                      AppUtils.getNames(patient.demographicData()),
                      new Notification.MatchData(candidate.gID(), candidate.score()),
