@@ -140,7 +140,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
          try {
-            candidateList.set(getCandidates(patient));
+            candidateList.set(getCandidatesMatchDataForPatientRecord(patient));
             candidateList.get().forEach(candidate -> {
                sendNotification(
                      Notification.NotificationType.THRESHOLD,
@@ -485,26 +485,22 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LinkInfo linkInfo) implements EventResponse {
    }
 
-   public static ArrayList<Notification.MatchData> getCandidates(final PatientRecord patientRecord) throws RuntimeException {
+   public static ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final PatientRecord patientRecord) throws RuntimeException {
 
       try {
          List<GoldenRecord> candidateGoldenRecords =
                libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
-         List<WorkCandidate> allCandidateScores =
-               candidateGoldenRecords.parallelStream()
+         ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
+         candidateGoldenRecords.parallelStream()
                                      .unordered()
                                      .map(candidate -> new WorkCandidate(candidate,
                                                                          calcNormalizedScore(candidate.demographicData(),
                                                                                              patientRecord.demographicData())))
                                      .sorted(Comparator.comparing(WorkCandidate::score).reversed())
+                                     .filter(candidate ->
+                                             isWithinThreshold(candidate.score)
+                                                     && notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord().goldenId(), candidate.score())))
                                      .collect(Collectors.toList());
-
-         ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
-         for (WorkCandidate candidate : allCandidateScores) {
-            if (isWithinThreshold(candidate.score())) {
-               notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord().goldenId(), candidate.score()));
-            }
-         }
 
          return notificationCandidates;
       } catch (Exception e) {
@@ -514,8 +510,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private static boolean isWithinThreshold(final float score) {
-      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - 0.1f;
-      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + 0.1f;
+      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
       return score >= minThreshold && score <= maxThreshold;
    }
 
