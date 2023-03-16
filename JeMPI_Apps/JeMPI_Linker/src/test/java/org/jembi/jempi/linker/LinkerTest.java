@@ -91,7 +91,7 @@ class LinkerTests {
     @Test
     public void testCandidatesForReview() throws Exception{
         when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
-        ArrayList<Notification.MatchData> list = BackEnd.getCandidates(patientRecord);
+        ArrayList<Notification.MatchData> list = BackEnd.getCandidatesMatchDataForPatientRecord(patientRecord);
 
         assertEquals(1, list.size());
     }
