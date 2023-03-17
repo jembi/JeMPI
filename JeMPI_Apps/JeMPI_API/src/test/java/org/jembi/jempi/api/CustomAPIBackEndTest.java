@@ -25,6 +25,8 @@ class CustomAPIBackEndTest {
 
    private static ActorTestKit testKit;
 
+   final String error = "test error";
+
    @BeforeAll
    public static void setUp() {
       testKit = ActorTestKit.create();
@@ -353,7 +355,7 @@ class CustomAPIBackEndTest {
    }
 
    @Test
-   public void findCandidatesHandler_whenFindPatientRecordNotFound_ReturnNotFound() {
+   public void findCandidatesHandler_whenFindPatientRecordThrowException_ReturnNotFound() {
       String patientId = "9015";
 
       MpiGeneralError notFoundError = new MpiServiceError.PatientIdDoesNotExistError(
@@ -382,7 +384,7 @@ class CustomAPIBackEndTest {
       goldenRecords.add(goldenRecord);
 
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.findPatientRecord(patientId)).thenReturn(null);
+      when(libMPI.findPatientRecord(patientId)).thenThrow(new RuntimeException());
       when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
 
       ActorTestKit testKit = ActorTestKit.create();
@@ -395,7 +397,7 @@ class CustomAPIBackEndTest {
    }
 
    @Test
-   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesReturnNull_ReturnNotFound() {
+   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesThrowsException_ReturnNotFound() {
       String patientId = "9016";
 
       MpiGeneralError notFoundError = new MpiServiceError.CandidatesNotFoundError(
@@ -421,7 +423,7 @@ class CustomAPIBackEndTest {
 
       final var libMPI = mock(LibMPI.class);
       when(libMPI.findPatientRecord(patientId)).thenReturn(patientRecord);
-      when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(null);
+      when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenThrow(new RuntimeException());
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -433,7 +435,7 @@ class CustomAPIBackEndTest {
    }
 
    @Test
-   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesReturnEmpty_ReturnNotFound() {
+   public void findCandidatesHandler_whenFindPatientRecordSuccessAndFindCandidatesReturnEmpty_ReturnEmpty() {
       String patientId = "9017";
 
       MpiGeneralError notFoundError = new MpiServiceError.CandidatesNotFoundError(
@@ -469,7 +471,7 @@ class CustomAPIBackEndTest {
 
       myActorRef.tell(new BackEnd.FindCandidatesRequest(replyTo.getRef(), patientId, customMU));
 
-      replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.left(notFoundError)));
+      replyTo.expectMessage(new BackEnd.FindCandidatesResponse(Either.right(new ArrayList<>())));
    }
 
    @Test
@@ -524,7 +526,7 @@ class CustomAPIBackEndTest {
    }
 
    @Test
-   public void getGoldenRecordCountHandler_whenGetGoldenRecordCountSuccess_ReturnSuccess(){
+   public void getGoldenRecordCountHandler_whenGetGoldenRecordCountSuccess_ReturnSuccess() {
       long count = 50;
 
       when(libMPI.countGoldenRecords()).thenReturn(count);
@@ -539,7 +541,21 @@ class CustomAPIBackEndTest {
    }
 
    @Test
-   public void getPatientRecordCountHandler_whenGetPatientRecordCountSuccess_ReturnSuccess(){
+   public void getGoldenRecordCountHandler_whenGetGoldenRecordCountThrowsException_ReturnGeneralError() {
+
+      when(libMPI.countGoldenRecords()).thenThrow(new RuntimeException(error));
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.GetGoldenRecordCountResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.GetGoldenRecordCountRequest(replyTo.getRef()));
+
+      replyTo.expectMessage(new BackEnd.GetGoldenRecordCountResponse(Either.left(new MpiServiceError.GeneralError(error))));
+   }
+
+   @Test
+   public void getPatientRecordCountHandler_whenGetPatientRecordCountSuccess_ReturnSuccess() {
       long count = 100;
 
       when(libMPI.countPatientRecords()).thenReturn(count);
@@ -551,5 +567,19 @@ class CustomAPIBackEndTest {
       myActorRef.tell(new BackEnd.GetPatientRecordCountRequest(replyTo.getRef()));
 
       replyTo.expectMessage(new BackEnd.GetPatientRecordCountResponse(Either.right(count)));
+   }
+
+   @Test
+   public void getPatientRecordCountHandler_whenGetPatientRecordCountThrowsException_ReturnGeneralError() {
+
+      when(libMPI.countPatientRecords()).thenThrow(new RuntimeException(error));
+
+      ActorTestKit testKit = ActorTestKit.create();
+      ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
+      TestProbe<BackEnd.GetPatientRecordCountResponse> replyTo = testKit.createTestProbe();
+
+      myActorRef.tell(new BackEnd.GetPatientRecordCountRequest(replyTo.getRef()));
+
+      replyTo.expectMessage(new BackEnd.GetPatientRecordCountResponse(Either.left(new MpiServiceError.GeneralError(error))));
    }
 }

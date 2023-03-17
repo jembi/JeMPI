@@ -381,24 +381,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          libMPI.startTransaction();
          patientRecord = libMPI.findPatientRecord(request.patientId);
-         goldenRecords = libMPI.getCandidates(patientRecord.demographicData(), true);
-         libMPI.closeTransaction();
-      } catch (Exception exception) {
-         LOGGER.error("findCandidatesHandler failed to find patientId: {}", request.patientId);
-         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-               "Patient not found",
-               request.patientId))));
-      }
 
-      if (patientRecord == null) {
-         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-               "Patient not found",
-               request.patientId))));
-      } else if (goldenRecords == null || goldenRecords.size() == 0) {
-         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.CandidatesNotFoundError(
-               "Candidates(golden records) not found with demographic data for patientId",
-               request.patientId))));
-      } else {
+         try {
+            goldenRecords = libMPI.getCandidates(patientRecord.demographicData(), true);
+         } catch (Exception exception) {
+            LOGGER.error("libMPI.getCandidates failed to find patientRecord.demographicData: {}",
+                         patientRecord.demographicData());
+            request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.CandidatesNotFoundError(
+                  "Candidates(golden records) not found with demographic data for patientId",
+                  request.patientId))));
+            return Behaviors.same();
+         }
+
+         libMPI.closeTransaction();
+
          final var patientDemographic = patientRecord.demographicData();
          CustomLinkerProbabilistic.updateMU(request.mu);
          CustomLinkerProbabilistic.checkUpdatedMU();
@@ -409,6 +405,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                                                                                    patientDemographic)))
                .toList();
          request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
+      } catch (Exception exception) {
+         LOGGER.error("findCandidatesHandler failed to find patientId: {}", request.patientId);
+         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+               "Patient not found",
+               request.patientId))));
       }
 
       return Behaviors.same();
