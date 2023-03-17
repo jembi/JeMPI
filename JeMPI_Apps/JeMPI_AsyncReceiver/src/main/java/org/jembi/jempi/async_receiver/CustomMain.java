@@ -42,8 +42,8 @@ public final class CustomMain {
          final String fileName) throws InterruptedException,
                                  ExecutionException {
       try {
-         final String userName = System.getProperty("user.name"); //TODO: update to receive userName parameter
-         final Boolean delayLinker = false; //TODO: retrieve from AppConfig
+         final String userName = System.getProperty("user.name");
+         final Boolean delayLinker = false;
          final String tag = recordType == CustomSourceRecord.RecordType.BATCH_START
                ? "START"
                : "END";
