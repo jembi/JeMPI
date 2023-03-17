@@ -223,33 +223,33 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getGoldenRecordCountHandler(final GetGoldenRecordCountRequest request) {
       LOGGER.debug("getGoldenRecordCount");
-      long count = 0;
-
       try {
          libMPI.startTransaction();
-         count = libMPI.countGoldenRecords();
+         final long count = libMPI.countGoldenRecords();
          libMPI.closeTransaction();
+
+         request.replyTo.tell(new GetGoldenRecordCountResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countGoldenRecords failed with error message: {}", exception.getMessage());
+         request.replyTo.tell(new GetGoldenRecordCountResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
-
-      request.replyTo.tell(new GetGoldenRecordCountResponse(count));
       return Behaviors.same();
    }
 
    private Behavior<Event> getPatientRecordCountHandler(final GetPatientRecordCountRequest request) {
       LOGGER.debug("getDocumentCount");
-      long count = 0;
 
       try {
          libMPI.startTransaction();
-         count = libMPI.countPatientRecords();
+         final long count = libMPI.countPatientRecords();
          libMPI.closeTransaction();
+
+         request.replyTo.tell(new GetPatientRecordCountResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
+         request.replyTo.tell(new GetPatientRecordCountResponse(Either.left(new MpiServiceError.GeneralError(
+               exception.getMessage()))));
       }
-
-      request.replyTo.tell(new GetPatientRecordCountResponse(count));
       return Behaviors.same();
    }
 
@@ -481,13 +481,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetGoldenRecordCountRequest(ActorRef<GetGoldenRecordCountResponse> replyTo) implements Event {
    }
 
-   public record GetGoldenRecordCountResponse(long count) implements EventResponse {
+   public record GetGoldenRecordCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
    }
 
    public record GetPatientRecordCountRequest(ActorRef<GetPatientRecordCountResponse> replyTo) implements Event {
    }
 
-   public record GetPatientRecordCountResponse(long count) implements EventResponse {
+   public record GetPatientRecordCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
    }
 
    public record GetNumberOfRecordsRequest(ActorRef<GetNumberOfRecordsResponse> replyTo) implements Event {

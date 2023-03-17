@@ -535,7 +535,7 @@ class CustomAPIBackEndTest {
 
       myActorRef.tell(new BackEnd.GetGoldenRecordCountRequest(replyTo.getRef()));
 
-      replyTo.expectMessage(new BackEnd.GetGoldenRecordCountResponse(count));
+      replyTo.expectMessage(new BackEnd.GetGoldenRecordCountResponse(Either.right(count)));
    }
 
    @Test
@@ -550,6 +550,6 @@ class CustomAPIBackEndTest {
 
       myActorRef.tell(new BackEnd.GetPatientRecordCountRequest(replyTo.getRef()));
 
-      replyTo.expectMessage(new BackEnd.GetPatientRecordCountResponse(count));
+      replyTo.expectMessage(new BackEnd.GetPatientRecordCountResponse(Either.right(count)));
    }
 }

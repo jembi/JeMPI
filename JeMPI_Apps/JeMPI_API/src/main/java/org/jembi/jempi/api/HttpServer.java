@@ -471,7 +471,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(askGetGoldenRecordCount(actorSystem, backEnd),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, new ApiGoldenRecordCount(result.get().count()), Jackson.marshaller())
+                              ? result.get()
+                                      .count()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            count -> complete(StatusCodes.OK,
+                                                              new ApiGoldenRecordCount(count),
+                                                              Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -480,7 +486,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(askGetPatientRecordCount(actorSystem, backEnd),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, new ApiPatientCount(result.get().count()), Jackson.marshaller())
+                              ? result.get()
+                                      .count()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            count -> complete(StatusCodes.OK,
+                                                              new ApiPatientCount(count),
+                                                              Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
