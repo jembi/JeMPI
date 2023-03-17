@@ -22,9 +22,11 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private static LibMPI libMPI = null;
-   private MyKafkaProducer<String, Notification> topicNotifications;
+   private static MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
@@ -101,18 +103,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String goldenRecordFieldValue,
          final Function<CustomDemographicData, String> getDocumentField) {
 
-      if (fieldName == null || fieldName.isEmpty()) {
-         throw new IllegalArgumentException("fieldName cannot be null or empty");
-      }
       if (expandedGoldenRecord == null) {
-         throw new IllegalArgumentException("expandedGoldenRecord cannot be null");
+         LOGGER.error("expandedGoldenRecord cannot be null");
+         return;
       }
+
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       final var freqMapGroupedByField = mpiPatientList
             .stream()
             .map(mpiPatient -> getDocumentField.apply(mpiPatient.patientRecord().demographicData()))
             .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
       freqMapGroupedByField.remove(StringUtils.EMPTY);
+
       if (freqMapGroupedByField.size() > 0) {
          final var count = freqMapGroupedByField.getOrDefault(goldenRecordFieldValue, 0L);
          final var maxEntry = Collections.max(freqMapGroupedByField.entrySet(), Map.Entry.comparingByValue());
@@ -121,8 +123,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
             if (!result) {
                LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
-            } else if (!mpiPatientList.isEmpty()) {
-               updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);
             }
          }
       }
@@ -131,12 +131,28 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    static void updateMatchingPatientRecordScoreForGoldenRecord(
          final ExpandedGoldenRecord expandedGoldenRecord,
          final String goldenRecordId) {
+
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
+      AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
       mpiPatientList.forEach(mpiPatient -> {
          final var patient = mpiPatient.patientRecord();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
                                                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), goldenRecordId, score);
+         try {
+            candidateList.set(getCandidatesMatchDataForPatientRecord(patient));
+            candidateList.get().forEach(candidate -> {
+               sendNotification(
+                     Notification.NotificationType.UPDATE,
+                     patient.patientId(),
+                     AppUtils.getNames(patient.demographicData()),
+                     new Notification.MatchData(candidate.gID(), candidate.score()),
+                     candidateList.get());
+            });
+         } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+         }
+
          if (!reCompute) {
             LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
          } else {
@@ -207,7 +223,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return linkInfo;
    }
 
-   private void sendNotification(
+   private static void sendNotification(
          final Notification.NotificationType type,
          final String dID,
          final String names,
@@ -468,5 +484,36 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String stan,
          LinkInfo linkInfo) implements EventResponse {
    }
+
+   public static ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final PatientRecord patientRecord) throws RuntimeException {
+
+      try {
+         List<GoldenRecord> candidateGoldenRecords =
+               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+         ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
+         candidateGoldenRecords.parallelStream()
+                                     .unordered()
+                                     .map(candidate -> new WorkCandidate(candidate,
+                                                                         calcNormalizedScore(candidate.demographicData(),
+                                                                                             patientRecord.demographicData())))
+                                     .sorted(Comparator.comparing(WorkCandidate::score).reversed())
+                                     .filter(candidate ->
+                                             isWithinThreshold(candidate.score)
+                                                     && notificationCandidates.add(new Notification.MatchData(candidate.goldenRecord().goldenId(), candidate.score())))
+                                     .collect(Collectors.toList());
+
+         return notificationCandidates;
+      } catch (Exception e) {
+         LOGGER.error(e.getMessage());
+         return new ArrayList<>();
+      }
+   }
+
+   private static boolean isWithinThreshold(final float score) {
+      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      return score >= minThreshold && score <= maxThreshold;
+   }
+
 
 }

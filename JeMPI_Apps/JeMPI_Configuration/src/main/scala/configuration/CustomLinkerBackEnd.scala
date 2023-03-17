@@ -51,6 +51,8 @@ object CustomLinkerBackEnd {
         s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord,
            |${" " * 6}                                "$fieldName", demographicData.$fieldName(), CustomDemographicData::$fieldName);""".stripMargin)
     })
+    writer.println(
+      s"""${" " * 6}BackEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);""".stripMargin)
     writer.println()
     config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {
       val field_name = field.fieldName
@@ -64,8 +66,8 @@ object CustomLinkerBackEnd {
 
     writer.println(
       s"""   }
-        |
-        |}""".stripMargin)
+         |
+         |}""".stripMargin)
     writer.flush()
     writer.close()
   }
