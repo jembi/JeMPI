@@ -16,8 +16,8 @@
     {
       "fieldName": "given_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact,trigram,fulltext)",
+      "indexEntity": "@index(exact,trigram,fulltext)",
       "m": 0.782501,
       "u": 0.02372,
       "fieldLabel": "First Name",
@@ -38,8 +38,8 @@
     {
       "fieldName": "family_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexGoldenRecord": "@index(exact,trigram,fulltext)",
+      "indexEntity": "@index(exact,trigram,fulltext)",
       "m": 0.850909,
       "u": 0.02975,
       "fieldLabel": "Last Name",
@@ -60,7 +60,7 @@
     {
       "fieldName": "gender",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact)",
+      "indexGoldenRecord": "@index(exact,trigram,fulltext)",
       "m": 0.786614,
       "u": 0.443018,
       "fieldLabel": "Gender",
@@ -96,7 +96,7 @@
     {
       "fieldName": "city",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(trigram)",
+      "indexGoldenRecord": "@index(trigram,fulltext)",
       "m": 0.872691,
       "u": 0.132717,
       "fieldLabel": "City",
