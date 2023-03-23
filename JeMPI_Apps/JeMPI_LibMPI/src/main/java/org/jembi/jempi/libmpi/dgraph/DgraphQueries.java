@@ -318,7 +318,7 @@ final class DgraphQueries {
             String fieldName = camelToSnake(param.fieldName());
             Integer distance = param.distance();
             if (distance == 0) {
-               gqlFilters.add("eq(" + recordType + "." + fieldName + ", $" + fieldName + ")");
+               gqlFilters.add("alloftext(" + recordType + "." + fieldName + ", $" + fieldName + ")");
             } else {
                gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
@@ -342,7 +342,7 @@ final class DgraphQueries {
                String fieldName = camelToSnake(param.fieldName());
                Integer distance = param.distance();
                if (distance == 0) {
-                  gqlAndCondition.add("eq(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ")");
+                  gqlAndCondition.add("alloftext(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ")");
                } else {
                   gqlAndCondition.add(
                         "match(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ", " + distance + ")");

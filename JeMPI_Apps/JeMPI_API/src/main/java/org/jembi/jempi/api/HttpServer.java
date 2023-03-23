@@ -288,7 +288,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<BackEnd.EventResponse> askCustomSearchGoldenRecords(
+   private CompletionStage<ApiPaginatedResultSet> askCustomSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
@@ -297,10 +297,10 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  replyTo -> new BackEnd.CustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<BackEnd.EventResponse> askCustomSearchPatientRecords(
+   private CompletionStage<ApiPaginatedResultSet> askCustomSearchPatientRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
@@ -309,7 +309,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  replyTo -> new BackEnd.CustomSearchPatientRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
    private CompletionStage<BackEnd.UpdateNotificationStateRespnse> askUpdateNotificationState(
