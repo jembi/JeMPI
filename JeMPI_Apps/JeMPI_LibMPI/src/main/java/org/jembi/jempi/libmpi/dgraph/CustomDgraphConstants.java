@@ -299,11 +299,11 @@ public final class CustomDgraphConstants {
          """
          GoldenRecord.source_id:                [uid]                                        .
          GoldenRecord.aux_id:                   string    @index(exact)                      .
-         GoldenRecord.given_name:               string    @index(exact,trigram,fulltext)     .
-         GoldenRecord.family_name:              string    @index(exact,trigram,fulltext)     .
-         GoldenRecord.gender:                   string    @index(exact,trigram,fulltext)     .
+         GoldenRecord.given_name:               string    @index(exact,trigram)              .
+         GoldenRecord.family_name:              string    @index(exact,trigram)              .
+         GoldenRecord.gender:                   string    @index(exact,trigram)              .
          GoldenRecord.dob:                      string                                       .
-         GoldenRecord.city:                     string    @index(trigram,fulltext)           .
+         GoldenRecord.city:                     string    @index(trigram)                    .
          GoldenRecord.phone_number:             string    @index(exact,trigram)              .
          GoldenRecord.national_id:              string    @index(exact,trigram)              .
          GoldenRecord.patients:                 [uid]     @reverse                           .
@@ -329,8 +329,8 @@ public final class CustomDgraphConstants {
          """
          PatientRecord.source_id:                    uid                                          .
          PatientRecord.aux_id:                       string                                       .
-         PatientRecord.given_name:                   string    @index(exact,trigram,fulltext)     .
-         PatientRecord.family_name:                  string    @index(exact,trigram,fulltext)     .
+         PatientRecord.given_name:                   string    @index(exact,trigram)              .
+         PatientRecord.family_name:                  string    @index(exact,trigram)              .
          PatientRecord.gender:                       string                                       .
          PatientRecord.dob:                          string                                       .
          PatientRecord.city:                         string                                       .
