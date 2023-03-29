@@ -25,7 +25,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/golden-record/:uid/audit-trail",
         "/search/simple",
@@ -47,7 +47,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/golden-record/:uid/audit-trail",
         "/search/simple",
@@ -68,7 +68,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom"
       ],
@@ -84,7 +84,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/simple",
         "/search/custom",
@@ -104,7 +104,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom"
       ],
@@ -121,7 +121,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom"
       ],
@@ -139,7 +139,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/simple",
         "/search/custom",
@@ -156,7 +156,7 @@
       "fieldLabel": "Record Type",
       "groups": ["none"],
       "scope": [
-        "/match-details"
+        "/notifications/match-details"
       ],
       "accessLevel": []
     },
@@ -168,7 +168,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search-results/golden",
         "/search-results/patient"
