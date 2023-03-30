@@ -26,7 +26,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/golden-record/:uid/audit-trail",
         "/search/simple",
@@ -49,7 +49,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/golden-record/:uid/audit-trail",
         "/search/simple",
@@ -63,7 +63,7 @@
     {
       "fieldName": "gender",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact)",
+      "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.786614,
       "u": 0.443018,
       "fieldLabel": "Gender",
@@ -71,7 +71,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom"
       ],
@@ -88,7 +88,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/simple",
         "/search/custom",
@@ -109,7 +109,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom"
       ],
@@ -128,7 +128,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom"
       ],
@@ -148,7 +148,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/simple",
         "/search/custom",
@@ -161,6 +161,16 @@
   ],
   "systemFields": [
     {
+      "fieldName": "recordType",
+      "fieldType": "String",
+      "fieldLabel": "Record Type",
+      "groups": ["none"],
+      "scope": [
+        "/notifications/match-details"
+      ],
+      "accessLevel": []
+    },
+    {
       "fieldName": "uid",
       "fieldType": "String",
       "fieldLabel": "UID",
@@ -168,7 +178,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/match-details",
+        "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search-results/golden",
         "/search-results/patient"

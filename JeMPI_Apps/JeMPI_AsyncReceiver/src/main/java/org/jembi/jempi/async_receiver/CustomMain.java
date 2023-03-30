@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.models.BatchMetaData;
 import org.jembi.jempi.shared.models.CustomSourceRecord;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -23,7 +24,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public final class CustomMain {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMain.class.getName());
-   private MyKafkaProducer<String, CustomSourceRecord> producer;
+   private MyKafkaProducer<String, CustomSourceRecord> sourceRecordProducer;
+   private MyKafkaProducer<String, BatchMetaData> metaDataProducer;
 
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
@@ -35,15 +37,24 @@ public final class CustomMain {
       return (WatchEvent<T>) event;
    }
 
-   private void sendToKafka(final CustomSourceRecord.RecordType recordType) throws InterruptedException,
-                                                                                   ExecutionException {
+   private void sendToKafka(
+         final CustomSourceRecord.RecordType recordType,
+         final String fileName) throws InterruptedException,
+                                 ExecutionException {
       try {
-         final CustomSourceRecord rec = new CustomSourceRecord(recordType);
-         LOGGER.debug("{}", rec);
-         producer.produceSync(rec.recordType() == CustomSourceRecord.RecordType.BATCH_START
-                                    ? "START"
-                                    : "END",
-                              rec);
+         final String userName = System.getProperty("user.name");
+         final Boolean delayLinker = false;
+         final String tag = recordType == CustomSourceRecord.RecordType.BATCH_START
+               ? "START"
+               : "END";
+         final BatchMetaData metaData = new BatchMetaData(BatchMetaData.FileType.CSV,
+                                                          LocalDateTime.now().toString(),
+                                                          fileName,
+                                                          userName,
+                                                          delayLinker,
+                                                          tag);
+         LOGGER.debug("{}", metaData);
+         metaDataProducer.produceSync(tag, metaData);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -54,14 +65,15 @@ public final class CustomMain {
          final String stan,
          final String[] fields) throws InterruptedException, ExecutionException {
       try {
-         final CustomSourceRecord rec =
+         final CustomSourceRecord sourceRecord =
                new CustomSourceRecord(CustomSourceRecord.RecordType.BATCH_RECORD,
                                       stan,
                                       fields[0], fields[1], fields[2], fields[3],
                                       fields[4], fields[5], fields[6], fields[7],
                                       fields[8], fields[9], fields[10]);
-         LOGGER.debug("{}", rec);
-         producer.produceSync(rec.auxId().substring(0, 13), rec);
+
+         LOGGER.debug("{}", sourceRecord);
+         sourceRecordProducer.produceSync(sourceRecord.auxId().substring(0, 13), sourceRecord);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -86,41 +98,17 @@ public final class CustomMain {
                .parse(reader);
 
          int index = 0;
-         sendToKafka(CustomSourceRecord.RecordType.BATCH_START);
+         sendToKafka(CustomSourceRecord.RecordType.BATCH_START, fileName);
          for (CSVRecord csvRecord : csvParser) {
             index += 1;
             final var stan = String.format("%s:%07d", stanDate, index);
             sendToKafka(stan, csvRecord.toList().toArray(new String[0]));
          }
-         sendToKafka(CustomSourceRecord.RecordType.BATCH_END);
+         sendToKafka(CustomSourceRecord.RecordType.BATCH_END, fileName);
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
-
-/*
-   private void openCsvReadCSV(final String filename) throws InterruptedException, ExecutionException {
-      try (CSVReader reader = new CSVReaderBuilder(new FileReader(filename))
-            .withSkipLines(1)
-            .withFieldAsNull(CSVReaderNullFieldIndicator.BOTH)
-            .build()) {
-         String[] line;
-         sendToKafka(CustomSourceRecord.RecordType.BATCH_START);
-         final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
-         final var now = LocalDateTime.now();
-         final var stanDate = dtf.format(now);
-         var index = 0;
-         while ((line = reader.readNext()) != null) {
-            index += 1;
-            final var stan = String.format("%s:%07d", stanDate, index);
-            sendToKafka(stan, line);
-         }
-         sendToKafka(CustomSourceRecord.RecordType.BATCH_END);
-      } catch (IOException | CsvValidationException e) {
-         LOGGER.error(e.toString());
-      }
-   }
-*/
 
    private void handleEvent(final WatchEvent<?> event)
          throws InterruptedException, ExecutionException {
@@ -134,7 +122,6 @@ public final class CustomMain {
          if (name.endsWith(".csv")) {
             LOGGER.info("Process CSV file: {}", filename);
             apacheReadCSV("csv/" + filename);
-//            openCsvReadCSV("csv/" + filename);
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
          LOGGER.info("EVENT:{}", kind);
@@ -156,10 +143,10 @@ public final class CustomMain {
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);
-      producer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                       GlobalConstants.TOPIC_PATIENT_ASYNC_ETL,
-                                       keySerializer(), valueSerializer(),
-                                       AppConfig.KAFKA_CLIENT_ID);
+      sourceRecordProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                   GlobalConstants.TOPIC_PATIENT_ASYNC_ETL,
+                                                   keySerializer(), valueSerializer(),
+                                                   AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");
          csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);

@@ -39,7 +39,6 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-
    PatientRecord findPatientRecord(String patientId);
 
    List<PatientRecord> findPatientRecords(List<String> patientIds);
@@ -94,9 +93,9 @@ public interface LibMPIClientInterface {
     * *
     */
    boolean setScore(
-           String patientUID,
-           String goldenRecordUid,
-           float score);
+         String patientUID,
+         String goldenRecordUid,
+         float score);
 
    boolean updateGoldenRecordField(
          String goldenId,

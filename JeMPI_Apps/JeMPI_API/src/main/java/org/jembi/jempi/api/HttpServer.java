@@ -288,7 +288,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<BackEnd.EventResponse> askCustomSearchGoldenRecords(
+   private CompletionStage<ApiPaginatedResultSet> askCustomSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
@@ -297,10 +297,10 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  replyTo -> new BackEnd.CustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<BackEnd.EventResponse> askCustomSearchPatientRecords(
+   private CompletionStage<ApiPaginatedResultSet> askCustomSearchPatientRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
@@ -309,7 +309,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  replyTo -> new BackEnd.CustomSearchPatientRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
    private CompletionStage<BackEnd.UpdateNotificationStateRespnse> askUpdateNotificationState(
@@ -471,7 +471,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(askGetGoldenRecordCount(actorSystem, backEnd),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, new ApiGoldenRecordCount(result.get().count()), Jackson.marshaller())
+                              ? result.get()
+                                      .count()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            count -> complete(StatusCodes.OK,
+                                                              new ApiGoldenRecordCount(count),
+                                                              Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -480,7 +486,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(askGetPatientRecordCount(actorSystem, backEnd),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, new ApiPatientCount(result.get().count()), Jackson.marshaller())
+                              ? result.get()
+                                      .count()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            count -> complete(StatusCodes.OK,
+                                                              new ApiPatientCount(count),
+                                                              Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -520,12 +532,15 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final var goldenIds = params.stream().map(PARAM_STRING).toList();
          return onComplete(askFindExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
                            result -> result.isSuccess()
-                                 ? complete(StatusCodes.OK, result.get()
-                                                                  .expandedGoldenRecords()
-                                                                  .stream()
-                                                                  .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                  .toList(),
-                                            Jackson.marshaller())
+                                 ? result.get()
+                                         .expandedGoldenRecords()
+                                         .mapLeft(this::mapError)
+                                         .fold(error -> error,
+                                               expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                                 expandedGoldenRecords.stream()
+                                                                                                      .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                      .toList(),
+                                                                                 Jackson.marshaller()))
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
@@ -538,13 +553,15 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          return onComplete(
                askFindExpandedGoldenRecords(actorSystem, backEnd, uidList),
                result -> result.isSuccess()
-                     ? complete(StatusCodes.OK,
-                                result.get()
-                                      .expandedGoldenRecords()
-                                      .stream()
-                                      .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                      .toList(),
-                                Jackson.marshaller())
+                     ? result.get()
+                             .expandedGoldenRecords()
+                             .mapLeft(this::mapError)
+                             .fold(error -> error,
+                                   expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                     expandedGoldenRecords.stream()
+                                                                                          .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                          .toList(),
+                                                                     Jackson.marshaller()))
                      : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
@@ -556,13 +573,15 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
          return onComplete(askFindExpandedPatientRecords(actorSystem, backEnd, uidList),
                            result -> result.isSuccess()
-                                 ? complete(StatusCodes.OK,
-                                            result.get()
-                                                  .expandedPatientRecords()
-                                                  .stream()
-                                                  .map(ApiExpandedPatientRecord::fromExpandedPatientRecord)
-                                                  .toList(),
-                                            Jackson.marshaller())
+                                 ? result.get()
+                                         .expandedPatientRecords()
+                                         .mapLeft(this::mapError)
+                                         .fold(error -> error,
+                                               expandedPatientRecords -> complete(StatusCodes.OK,
+                                                                                  expandedPatientRecords.stream()
+                                                                                                        .map(ApiExpandedPatientRecord::fromExpandedPatientRecord)
+                                                                                                        .toList(),
+                                                                                  Jackson.marshaller()))
                                  : complete(StatusCodes.IM_A_TEAPOT));
       });
    }
@@ -573,9 +592,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final String goldenId) {
       return onComplete(askFindExpandedGoldenRecord(actorSystem, backEnd, goldenId),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK,
-                                         ApiExpandedGoldenRecord.fromExpandedGoldenRecord(result.get().goldenRecord()),
-                                         Jackson.marshaller())
+                              ? result.get()
+                                      .goldenRecord()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            goldenRecord -> complete(StatusCodes.OK,
+                                                                     ApiExpandedGoldenRecord.fromExpandedGoldenRecord(goldenRecord),
+                                                                     Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -594,9 +617,13 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final String patientId) {
       return onComplete(askFindPatientRecord(actorSystem, backEnd, patientId),
                         result -> result.isSuccess()
-                              ? complete(StatusCodes.OK,
-                                         ApiPatientRecord.fromPatientRecord(result.get().patient()),
-                                         Jackson.marshaller())
+                              ? result.get()
+                                      .patient()
+                                      .mapLeft(this::mapError)
+                                      .fold(error -> error,
+                                            patientRecord -> complete(StatusCodes.OK,
+                                                                      ApiPatientRecord.fromPatientRecord(patientRecord),
+                                                                      Jackson.marshaller()))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
