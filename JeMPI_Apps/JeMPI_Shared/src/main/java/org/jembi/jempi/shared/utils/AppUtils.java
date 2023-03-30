@@ -51,7 +51,7 @@ public final class AppUtils implements Serializable {
       ArrayList<String> names = new ArrayList<>();
 
       for (Method method : CustomDemographicData.class.getMethods()) {
-         if ((method.getName().startsWith("get")) && (method.getName().toLowerCase().contains("name"))) {
+         if ((method.getName().toLowerCase().contains("name"))) {
             try {
                final var name = (String) method.invoke(demographicData);
                if (!StringUtils.isBlank(name)) {
