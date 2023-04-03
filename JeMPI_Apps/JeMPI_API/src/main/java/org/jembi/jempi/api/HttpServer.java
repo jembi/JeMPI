@@ -300,6 +300,18 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
+   private CompletionStage<PatientRecord> askJsonToFhir(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final PatientRecord patientRecord) {
+      CompletionStage<BackEnd.MapToFhirResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.MapToFhirRequest(replyTo, patientRecord),
+                      java.time.Duration.ofSeconds(11),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response.patient());
+   }
+
    private CompletionStage<ApiPaginatedResultSet> askCustomSearchPatientRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -837,6 +849,23 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       });
    }
 
+   private Route routeMapJsonToFhir(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+         // Simple search for golden records
+      return entity(Jackson.unmarshaller(PatientRecord.class), patientRecord -> onComplete(() -> {
+            return askJsonToFhir(actorSystem, backEnd, patientRecord);
+      }, response -> {
+         if (response.isSuccess()) {
+            final var eventSearchRsp = response.get();
+            return complete(StatusCodes.OK, eventSearchRsp, Jackson.marshaller());
+         } else {
+            return complete(StatusCodes.IM_A_TEAPOT);
+         }
+      }));
+
+   }
+
    private Route createJeMPIRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -866,7 +895,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               path(GlobalConstants.SEGMENT_CALCULATE_SCORES, this::routeCalculateScores),
                               path(GlobalConstants.SEGMENT_UPLOAD, () -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                     ? routeSessionUploadCsvFile(actorSystem, backEnd)
-                                    : routeUploadCsvFile(actorSystem, backEnd)))),
+                                    : routeUploadCsvFile(actorSystem, backEnd)),
+                              path("fhir", () -> routeMapJsonToFhir(actorSystem, backEnd)
+                              ))),
             patch(() -> concat(
                   path(segment(GlobalConstants.SEGMENT_UPDATE_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                        (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED

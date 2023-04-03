@@ -8,8 +8,8 @@ import org.json.JSONObject;
 import java.lang.reflect.Field;
 import static org.apache.commons.text.WordUtils.capitalizeFully;
 
-public class JsonToFhir {
-    private static String getFhirPath(String fieldName, JSONObject config) {
+public final class JsonToFhir {
+    private static String getFhirPath(final String fieldName, final JSONObject config) {
         JSONArray fields = config.getJSONArray("fields");
         for (int i = 0; i < fields.length(); i++) {
             JSONObject field = fields.getJSONObject(i);
@@ -20,7 +20,10 @@ public class JsonToFhir {
         return null;
     }
 
-    private static void processField(Patient patient, String fieldValue, String fhirPath) {
+    private JsonToFhir() {
+    }
+
+    private static void processField(final Patient patient, final String fieldValue, final String fhirPath) {
         switch (fhirPath) {
             case "Patient.identifier" -> {
                 Identifier identifier = new Identifier();
@@ -52,7 +55,7 @@ public class JsonToFhir {
         }
     }
 
-    public static Patient mapToPatientFhir(PatientRecord patientRecord, String configReference) {
+    public static Patient mapToPatientFhir(final PatientRecord patientRecord, final String configReference) {
         JSONObject config = new JSONObject(configReference);
         Patient patient = new Patient();
         CustomDemographicData demographicData = patientRecord.demographicData();
@@ -78,9 +81,7 @@ public class JsonToFhir {
                     identifier.setValue(fieldValue);
                     patient.addIdentifier(identifier);
 
-                } else if (fieldName.equals("sourceId")) {
-                    //to be implemented
-                } else {
+                }  else {
                     fieldValue = (String) field.get(patientRecord);
                     if (fieldValue != null) {
                         String fhirPath = getFhirPath(fieldName, config);

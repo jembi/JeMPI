@@ -24,6 +24,7 @@ import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
+import org.hl7.fhir.r4.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,9 +110,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(SimpleSearchPatientRecordsRequest.class, this::simpleSearchPatientRecordsHandler)
             .onMessage(CustomSearchPatientRecordsRequest.class, this::customSearchPatientRecordsHandler)
             .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
+              .onMessage(MapToFhirRequest.class, this::mapToFhir)
             .build();
    }
 
+   private Behavior<Event> mapToFhir(final MapToFhirRequest request) {
+      PatientRecord payload = request.patientRecord();
+      LOGGER.debug(payload);
+      request.replyTo.tell(new MapToFhirResponse(payload));
+      return Behaviors.same();
+   }
    private Behavior<Event> simpleSearchGoldenRecordsHandler(final SimpleSearchGoldenRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
@@ -624,6 +632,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record CustomSearchGoldenRecordsRequest(
          ActorRef<SearchGoldenRecordsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
+   }
+
+   public record MapToFhirRequest(
+           ActorRef<MapToFhirResponse> replyTo,
+           PatientRecord patientRecord) implements Event {
+   }
+
+   public record MapToFhirResponse(PatientRecord patient) implements EventResponse {
+
    }
 
    public record SearchGoldenRecordsResponse(
