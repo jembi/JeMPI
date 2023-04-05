@@ -17,6 +17,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.mapper.JsonToFhir;
 import org.jembi.jempi.shared.models.*;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -112,35 +113,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(SimpleSearchPatientRecordsRequest.class, this::simpleSearchPatientRecordsHandler)
             .onMessage(CustomSearchPatientRecordsRequest.class, this::customSearchPatientRecordsHandler)
             .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
-              .onMessage(MapToFhirRequest.class, this::mapToFhir)
+            .onMessage(MapToFhirRequest.class, this::mapToFhir)
             .build();
    }
 
    private Behavior<Event> mapToFhir(final MapToFhirRequest request) {
       PatientRecord payload = request.patientRecord();
       LOGGER.debug(payload);
+      Patient patient;
       try {
-         ClassLoader classLoader = getClass().getClassLoader();
-         InputStream config = classLoader.getResourceAsStream("/config-reference.json");
-         Reader reader = new InputStreamReader(config);
-
-         JSONObject jsonObject = new JSONObject(new JSONTokener(reader));
-
-         JSONArray fieldsArray = jsonObject.getJSONArray("fields");
-         JSONObject fieldsObject = new JSONObject();
-         fieldsObject.put("fields", fieldsArray);
-         Patient patient = JsonToFhir.mapToPatientFhir(payload, fieldsObject);
+         patient = JsonToFhir.mapToPatientFhir(payload);
          FhirContext ctx = FhirContext.forR4();
       // Serialize the patient object to FHIR JSON
          String patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
-         LOGGER.debug(patientJson);
-
       } catch (Exception e) {
          LOGGER.debug(e);
       }
-
-
-      request.replyTo.tell(new MapToFhirResponse(payload));
+      request.replyTo.tell(new MapToFhirResponse(patient));
       return Behaviors.same();
    }
    private Behavior<Event> simpleSearchGoldenRecordsHandler(final SimpleSearchGoldenRecordsRequest request) {
@@ -662,8 +651,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
            PatientRecord patientRecord) implements Event {
    }
 
-   public record MapToFhirResponse(PatientRecord patient) implements EventResponse {
-
+   public record MapToFhirResponse(Patient patient) implements EventResponse {
    }
 
    public record SearchGoldenRecordsResponse(

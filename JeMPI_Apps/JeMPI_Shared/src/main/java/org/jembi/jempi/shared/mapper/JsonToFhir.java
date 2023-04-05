@@ -1,28 +1,33 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.shared.mapper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.PatientRecord;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.jembi.jempi.shared.utils.JsonFieldsConfig;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
 
-import static org.apache.commons.text.WordUtils.capitalizeFully;
-
 public final class JsonToFhir {
 
-    private JsonToFhir() {
+    private JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig();
+    private static JSONArray fields;
+
+    private JsonToFhir() throws Exception {
+        jsonFieldsConfig.load();
+        fields = jsonFieldsConfig.customFields;
     }
+
     private static final Logger LOGGER = LogManager.getLogger(JsonToFhir.class);
-    private static String getFhirPath(final String fieldName, final JSONObject config) {
-        JSONArray fields = config.getJSONArray("fields");
-        for (int i = 0; i < fields.length(); i++) {
-            JSONObject field = fields.getJSONObject(i);
-            if (fieldName.equalsIgnoreCase(capitalizeFully(field.getString("fieldName")).replace("_", ""))) {
-                return field.getString("fhirPath");
+    private static String getFhirPath(final String fieldName) {
+
+        for (int i = 0; i < fields.size(); i++) {
+            JSONObject field = (JSONObject) fields.get(i);
+            if (fieldName.equalsIgnoreCase((String) field.get("fieldName"))) {
+                return (String) field.get("fhirPath");
             }
         }
         return null;
@@ -60,7 +65,7 @@ public final class JsonToFhir {
         }
     }
 
-    public static Patient mapToPatientFhir(final PatientRecord patientRecord, final JSONObject config) {
+    public static Patient mapToPatientFhir(final PatientRecord patientRecord) {
         Patient patient = new Patient();
         CustomDemographicData demographicData = patientRecord.demographicData();
 
@@ -75,7 +80,7 @@ public final class JsonToFhir {
                         String demoFieldName = demoField.getName();
                         fieldValue = (String) demoField.get(demographicData);
                         if (fieldValue != null) {
-                            String fhirPath = getFhirPath(demoFieldName, config);
+                            String fhirPath = getFhirPath(demoFieldName);
                             if (fhirPath != null) {
                                 processField(patient, fieldValue, fhirPath);
                             }
@@ -88,11 +93,11 @@ public final class JsonToFhir {
                     patient.addIdentifier(identifier);
 
                 } else if (fieldName.equals("sourceId")) {
-                           // to be implemented 
+                           LOGGER.debug("sourceId");
                 } else {
                     fieldValue = (String) field.get(patientRecord);
                     if (fieldValue != null) {
-                        String fhirPath = getFhirPath(fieldName, config);
+                        String fhirPath = getFhirPath(fieldName);
                         if (fhirPath != null) {
                             processField(patient, fieldValue, fhirPath);
                         }
