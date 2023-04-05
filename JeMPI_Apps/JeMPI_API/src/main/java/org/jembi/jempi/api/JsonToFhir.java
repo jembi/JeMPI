@@ -87,7 +87,9 @@ public final class JsonToFhir {
                     identifier.setValue(fieldValue);
                     patient.addIdentifier(identifier);
 
-                }  else {
+                } else if (fieldName.equals("sourceId")) {
+                           // to be implemented 
+                } else {
                     fieldValue = (String) field.get(patientRecord);
                     if (fieldValue != null) {
                         String fhirPath = getFhirPath(fieldName, config);
