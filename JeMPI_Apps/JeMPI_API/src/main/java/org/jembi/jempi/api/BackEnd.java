@@ -18,17 +18,18 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.*;
+import org.json.JSONObject;
+import org.json.JSONArray;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
-import org.hl7.fhir.r4.model.*;
+import org.json.JSONTokener;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -37,7 +38,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
+import org.hl7.fhir.r4.model.Patient;
+import ca.uhn.fhir.context.FhirContext;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
@@ -117,6 +119,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> mapToFhir(final MapToFhirRequest request) {
       PatientRecord payload = request.patientRecord();
       LOGGER.debug(payload);
+      try {
+         ClassLoader classLoader = getClass().getClassLoader();
+         InputStream config = classLoader.getResourceAsStream("/config-reference.json");
+         Reader reader = new InputStreamReader(config);
+
+         JSONObject jsonObject = new JSONObject(new JSONTokener(reader));
+
+         JSONArray fieldsArray = jsonObject.getJSONArray("fields");
+         JSONObject fieldsObject = new JSONObject();
+         fieldsObject.put("fields", fieldsArray);
+         Patient patient = JsonToFhir.mapToPatientFhir(payload, fieldsObject);
+         FhirContext ctx = FhirContext.forR4();
+      // Serialize the patient object to FHIR JSON
+         String patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
+         LOGGER.debug(patientJson);
+
+      } catch (Exception e) {
+         LOGGER.debug(e);
+      }
+
+
       request.replyTo.tell(new MapToFhirResponse(payload));
       return Behaviors.same();
    }
