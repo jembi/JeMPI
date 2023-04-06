@@ -6,26 +6,25 @@ import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
 
 public final class JsonToFhir {
 
-    private JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig();
-    private static JSONArray fields;
+    private static JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig();
 
     private JsonToFhir() throws Exception {
         jsonFieldsConfig.load();
-        fields = jsonFieldsConfig.customFields;
     }
 
     private static final Logger LOGGER = LogManager.getLogger(JsonToFhir.class);
     private static String getFhirPath(final String fieldName) {
 
-        for (int i = 0; i < fields.size(); i++) {
-            JSONObject field = (JSONObject) fields.get(i);
+        LOGGER.debug("field size: " + jsonFieldsConfig.fields.size());
+
+        for (int i = 0; i < jsonFieldsConfig.fields.size(); i++) {
+            JSONObject field = (JSONObject) jsonFieldsConfig.fields.get(i);
             if (fieldName.equalsIgnoreCase((String) field.get("fieldName"))) {
                 return (String) field.get("fhirPath");
             }

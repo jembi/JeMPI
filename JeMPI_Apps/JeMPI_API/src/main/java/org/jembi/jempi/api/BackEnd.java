@@ -19,15 +19,12 @@ import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.mapper.JsonToFhir;
 import org.jembi.jempi.shared.models.*;
-import org.json.JSONObject;
-import org.json.JSONArray;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
 import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
-import org.json.JSONTokener;
 
 
 import java.io.*;
@@ -120,7 +117,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> mapToFhir(final MapToFhirRequest request) {
       PatientRecord payload = request.patientRecord();
       LOGGER.debug(payload);
-      Patient patient;
+      Patient patient = null;
       try {
          patient = JsonToFhir.mapToPatientFhir(payload);
          FhirContext ctx = FhirContext.forR4();
