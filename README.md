@@ -4,8 +4,8 @@
 
 The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or master patient index (MPI). JeMPI facilitates the exchange of patient information between different systems and holds patient identifiers that may include patient demographic information. This is a necessary tool for public health to help manage patients, monitor outcomes, and conduct case-based surveillance. JeMPI’s primary goal is to act as a tool in order to solve the issue of multiple or duplicated patient records that are submitted from multiple point of service systems such as electronic medical records, lab systems, radiology systems and other health information systems. This is achieved by matching the various patient records from different systems under a Master Patient record with a unique ID. This allows for downstream applications, such as surveillance, to accurately display data and information on patient records without the worry that the data contains multiple records for the same patient.
 
-### Requirements
-- linux (bash)
+## Requirements
+- linux (bash >= 4.x)
   - docker (non-root)
   - maven
   - sbt
@@ -14,7 +14,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
     - wxpython
     - requests
 
-### Installation
+## Installation
 - Directory structure
   - \<base>
     - JeMPI           - ```git@github.com:jembi/JeMPI.git```
@@ -34,5 +34,34 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
      4. ```./c-registry-2-push-hub-images.sh```
      5. ```./z-stack-3-build-reboot.sh```
 
-# Development
-It's possible to run the whole stack local without having to use a local registry using the command : `./launch-local.sh`
+## Development
+It's possible to run the whole stack local without having to use a local registry using the command : 
+```
+./launch-local.sh
+```
+In order to remove the stack, you could use the following command :
+```
+docker stack remove jempi
+```
+
+## Support for Mac OS
+
+For MacOS users, the `envsubst` command will fail, so you'll need to add it  :
+```
+brew install gettext
+brew link --force gettext 
+```
+
+Other bash commands may fail (such as "declare -A"). So you may want to update bash >=v4:
+```
+brew install bash
+bash --version
+``` 
+
+Then to run the stack locally, you will need to switch to bash first :
+```
+bash ./launch-local.sh
+```
+
+Note that currently, there is no Dgraph Ratel docker image compiled for M1 CPU, so most certainly you would run into a "Unsupported platform" error. For this you could either decide not to run the Ratel service by setting `export SCALE_RATEL=0` in `docker/conf/env/create-env-linux-1.sh` and use [https://play.dgraph.io/](https://play.dgraph.io/) instead.
+

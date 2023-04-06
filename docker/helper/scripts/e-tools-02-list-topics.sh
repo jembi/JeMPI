@@ -9,6 +9,6 @@ pushd .
 
   echo Check it
 
-  ./helper/topics/topics-list.sh
+  source ./helper/topics/topics-list.sh
 
 popd

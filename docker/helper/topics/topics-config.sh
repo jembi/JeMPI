@@ -1,3 +1,4 @@
+#!/bin/bash
 
 TOPIC_PATIENT_ASYNC_ETL="JeMPI-async-etl"
 TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"
