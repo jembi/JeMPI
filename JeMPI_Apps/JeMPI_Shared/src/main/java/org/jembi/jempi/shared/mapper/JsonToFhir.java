@@ -15,19 +15,20 @@ public final class JsonToFhir {
     private static JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig();
 
     private JsonToFhir() throws Exception {
-        jsonFieldsConfig.load();
+
     }
 
     private static final Logger LOGGER = LogManager.getLogger(JsonToFhir.class);
     private static String getFhirPath(final String fieldName) {
-
-        LOGGER.debug("field size: " + jsonFieldsConfig.fields.size());
-
-        for (int i = 0; i < jsonFieldsConfig.fields.size(); i++) {
-            JSONObject field = (JSONObject) jsonFieldsConfig.fields.get(i);
-            if (fieldName.equalsIgnoreCase((String) field.get("fieldName"))) {
-                return (String) field.get("fhirPath");
+        try {
+            for (int i = 0; i < jsonFieldsConfig.fields.size(); i++) {
+                JSONObject field = (JSONObject) jsonFieldsConfig.fields.get(i);
+                if (fieldName.equalsIgnoreCase((String) field.get("fieldName"))) {
+                    return (String) field.get("fhirPath");
+                }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
@@ -106,6 +107,8 @@ public final class JsonToFhir {
                 e.printStackTrace();
                 LOGGER.debug(e);
 
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
 

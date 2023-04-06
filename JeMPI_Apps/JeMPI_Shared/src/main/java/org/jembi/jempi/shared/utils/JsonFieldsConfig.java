@@ -1,5 +1,7 @@
 package org.jembi.jempi.shared.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,9 +13,17 @@ import java.io.Reader;
 
 public final class JsonFieldsConfig {
 
-   public JSONArray fields;
-   public JSONArray customFields;
+   public JsonFieldsConfig() {
+      try {
+         load();
+      } catch (Exception e) {
+         LOGGER.debug(e);
+      }
+   }
 
+   public JSONArray fields;
+   public JSONArray demoFields;
+   private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
    private String snakeToCamelCase(final String str) {
       String[] words = str.split("_");
       String result = words[0];
@@ -54,27 +64,6 @@ public final class JsonFieldsConfig {
       return result;
    }
 
-   private JSONArray buildCustomFieldsResponsePayload(
-         final JSONArray customFields) {
-      JSONArray result = new JSONArray();
-      for (int i = 0; i < customFields.size(); i++) {
-         // Convert field names from snake case to camel case
-         JSONObject field = (JSONObject) customFields.get(i);
-         String fieldName = (String) field.get("fieldName");
-         field.put("fieldName", snakeToCamelCase(fieldName));
-         // Remove extra attributes
-         field.remove("indexGoldenRecord");
-         field.remove("indexPatient");
-         field.remove("m");
-         field.remove("u");
-         // Mark field as editable
-         field.put("readOnly", false);
-         // Merge array values
-         result.add(field);
-      }
-      return result;
-   }
-
    private InputStream getFileStreamFromResource() {
       ClassLoader classLoader = getClass().getClassLoader();
       return classLoader.getResourceAsStream("/config-reference.json");
@@ -91,7 +80,7 @@ public final class JsonFieldsConfig {
          // Custom fields depend on the needs of the implementation
          JSONArray customFields = (JSONArray) config.get("fields");
          fields = buildFieldsResponsePayload(systemFields, customFields);
-         customFields = buildCustomFieldsResponsePayload(customFields);
+
       } catch (FileNotFoundException e) {
          throw e;
       }
