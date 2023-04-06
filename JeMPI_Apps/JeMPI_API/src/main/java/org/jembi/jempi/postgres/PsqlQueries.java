@@ -113,6 +113,7 @@ public final class PsqlQueries {
 
       int[] count = stmt.executeBatch();
       conn.commit();
+      conn.close();
    }
 
    public static void insertCandidates(
@@ -130,6 +131,7 @@ public final class PsqlQueries {
 
       int[] count = stmt.executeBatch();
       conn.commit();
+      conn.close();
    }
 
    public static void updateNotificationState(
@@ -143,6 +145,7 @@ public final class PsqlQueries {
                                        + "(select id from notification_state where state = '" + state + "' )where id = '" + id
                                        + "'");
       conn.commit();
+      conn.close();
    }
 
    public static User getUserByEmail(final String email) throws SQLException {
