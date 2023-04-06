@@ -300,7 +300,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<String> askJsonToFhir(
+   private CompletionStage<BackEnd.MapToFhirResponse> askJsonToFhir(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
            final PatientRecord patientRecord) {
@@ -309,7 +309,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                       replyTo -> new BackEnd.MapToFhirRequest(replyTo, patientRecord),
                       java.time.Duration.ofSeconds(11),
                       actorSystem.scheduler());
-      return stage.thenApply(response -> response.patient());
+      return stage.thenApply(response -> response);
    }
 
    private CompletionStage<ApiPaginatedResultSet> askCustomSearchPatientRecords(
@@ -853,13 +853,11 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd) {
          // Simple search for golden records
-      return entity(Jackson.unmarshaller(PatientRecord.class), patientRecord -> onComplete(() -> {
-            return askJsonToFhir(actorSystem, backEnd, patientRecord);
-      }, response -> {
-         if (response.isSuccess()) {
-            final var eventSearchRsp = response.get();
-            return complete(StatusCodes.OK, eventSearchRsp, Jackson.marshaller());
+      return entity(Jackson.unmarshaller(PatientRecord.class), patientRecord -> onComplete(askJsonToFhir(actorSystem, backEnd, patientRecord), response -> {
+         if (response != null) {
+            return complete(StatusCodes.OK, response, Jackson.marshaller());
          } else {
+            LOGGER.debug("here");
             return complete(StatusCodes.IM_A_TEAPOT);
          }
       }));

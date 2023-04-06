@@ -118,17 +118,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       PatientRecord payload = request.patientRecord();
       LOGGER.debug(payload);
       Patient patient = null;
-      String patientJson =  null;
+      String patientJson =  "";
       try {
          patient = JsonToFhir.mapToPatientFhir(payload);
          FhirContext ctx = FhirContext.forR4();
       // Serialize the patient object to FHIR JSON
          patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
-         LOGGER.debug(patientJson);
       } catch (Exception e) {
          LOGGER.debug(e);
       }
-      request.replyTo.tell(new MapToFhirResponse(patientJson));
+         request.replyTo.tell(new MapToFhirResponse(patient));
       return Behaviors.same();
    }
    private Behavior<Event> simpleSearchGoldenRecordsHandler(final SimpleSearchGoldenRecordsRequest request) {
@@ -650,7 +649,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
            PatientRecord patientRecord) implements Event {
    }
 
-   public record MapToFhirResponse(String patient) implements EventResponse {
+   public record MapToFhirResponse(Patient patient) implements EventResponse {
    }
 
    public record SearchGoldenRecordsResponse(
