@@ -9,7 +9,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
   - docker (non-root)
   - maven
   - sbt
-  - java 17.0.4.1
+  - java 17.0.6
   - python 3.7
     - wxpython
     - requests
