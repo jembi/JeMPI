@@ -111,7 +111,7 @@ public final class PsqlQueries {
       sql = "INSERT INTO match (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
       stmt.addBatch(sql);
 
-      int[] count = stmt.executeBatch();
+      stmt.executeBatch();
       conn.commit();
       conn.close();
    }
@@ -129,7 +129,7 @@ public final class PsqlQueries {
       stmt.addBatch(sql);
 
 
-      int[] count = stmt.executeBatch();
+      stmt.executeBatch();
       conn.commit();
       conn.close();
    }
@@ -164,6 +164,7 @@ public final class PsqlQueries {
                   rs.getString("given_name")
             );
          }
+         conn.close();
       } catch (SQLException e) {
          LOGGER.error(e);
       }
@@ -177,6 +178,7 @@ public final class PsqlQueries {
       Statement statement = conn.createStatement();
       statement.executeUpdate(sql);
       LOGGER.info("Registered a new user");
+      conn.close();
       return getUserByEmail(user.getEmail());
    }
 }
