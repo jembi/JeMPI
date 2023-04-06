@@ -54,7 +54,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == $PLACEMENT_KAFKA_01
+          - node.labels.name == $PLACEMENT_KAFKA_01
   
   kafka-02:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
@@ -90,7 +90,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == $PLACEMENT_KAFKA_02
+          - node.labels.name == $PLACEMENT_KAFKA_02
   
   kafka-03:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
@@ -126,7 +126,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == $PLACEMENT_KAFKA_03
+          - node.labels.name == $PLACEMENT_KAFKA_03
 
   zero-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -155,7 +155,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ZERO_01}
+        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
     command: dgraph zero --my=zero-01:5080 --replicas 1
 
   alpha-01:
@@ -185,7 +185,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_01}
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
     command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
   alpha-02:
@@ -215,7 +215,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_02}
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
     command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
   alpha-03:
@@ -245,7 +245,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_DGRAPH_ALPHA_03}
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
     command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   ratel:
@@ -266,7 +266,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_RATEL}
+        - node.labels.name == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
   postgresql:
@@ -299,7 +299,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_POSTGRESQL}
+        - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
 
   async-receiver:
@@ -331,7 +331,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_ASYNC_RECEIVER}
+        - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
 
   sync-receiver:
     image: ${IMAGE_REGISTRY}${SYNC_RECEIVER_IMAGE}
@@ -363,7 +363,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_SYNC_RECEIVER}
+        - node.labels.name == ${PLACEMENT_SYNC_RECEIVER}
 
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
@@ -390,7 +390,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_ETL}
+        - node.labels.name == ${PLACEMENT_ETL}
 
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
@@ -422,7 +422,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_CONTROLLER}
+        - node.labels.name == ${PLACEMENT_CONTROLLER}
        
   em:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
@@ -449,7 +449,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_EM}
+        - node.labels.name == ${PLACEMENT_EM}
 
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
@@ -477,7 +477,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_LINKER}
+        - node.labels.name == ${PLACEMENT_LINKER}
 
   api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
@@ -524,5 +524,5 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.hostname == ${PLACEMENT_API}
+        - node.labels.name == ${PLACEMENT_API}
     

@@ -7,24 +7,32 @@ export USE_LOCAL_REGISTRY=false
 
 # Creating conf.env file
 pushd ./docker/conf/env || exit
-    ./create-env-linux-1.sh
+    source ./create-env-linux-1.sh
 popd || exit
 
-read -p "Do you want to reset docker swarm? " -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-  # Clean the swarm
-  docker swarm leave --force
-  docker ps -a
-  echo
-  docker network prune -f
-  docker system prune --volumes -f
-  docker network ls
-  echo
-
-  # Init the swarm
-  docker swarm init --advertise-addr 127.0.0.1
-fi
+while true; do
+    read -p "Do you want to reset docker swarm? " yn
+    case $yn in
+        [Yy]* ) 
+          if [ "$(docker info | grep Swarm | sed 's/Swarm: //g' | cut -c 2-)" == "active" ]; then  
+            # Clean the swarm
+            docker swarm leave --force
+            docker ps -a
+            echo
+            docker network prune -f
+            docker system prune --volumes -f
+            docker network ls
+            echo
+          fi
+          # Init the swarm
+          pushd ./docker || exit
+            source ./b-swarm-1-init-node1.sh
+          popd || exit
+          break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 
 # Maven package
 pushd ./JeMPI_Apps || exit
@@ -33,29 +41,29 @@ popd || exit
 
 # Run bash scripts
 pushd ./docker/ || exit
-    ./a-images-1-pull-from-hub.sh
+  source ./a-images-1-pull-from-hub.sh
 popd || exit
 pushd ./JeMPI_Apps/JeMPI_AsyncReceiver
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_SyncReceiver
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_ETL
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_Controller
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_EM
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_Linker
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
 pushd ./JeMPI_Apps/JeMPI_API
-  ./build.sh || exit 1
+  source ./build.sh || exit 1
 popd
-pushd ./docker/ || exit 
-    ./z-stack-2-reboot.sh
+pushd ./docker/ || exit
+  source ./z-stack-2-reboot.sh
 popd || exit
