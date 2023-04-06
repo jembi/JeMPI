@@ -8,10 +8,10 @@ set -u
 #./helper/scripts/d-stack-08-rm.sh
 
 echo
-echo Build Apps
+echo "Build Apps"
 pwd
 pushd ../JeMPI_Apps
-  ./build-all.sh
+  source ./build-all.sh
 popd
 #./helper/scripts/c-registry-3-build-push-app-images.sh
 
