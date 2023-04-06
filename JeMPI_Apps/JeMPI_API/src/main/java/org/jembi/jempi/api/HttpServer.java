@@ -19,7 +19,6 @@ import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
 import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.hl7.fhir.r4.model.Patient;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.models.User;
@@ -301,7 +300,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<PatientRecord> askJsonToFhir(
+   private CompletionStage<String> askJsonToFhir(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
            final PatientRecord patientRecord) {
