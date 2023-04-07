@@ -307,7 +307,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       CompletionStage<BackEnd.MapToFhirResponse> stage = AskPattern
               .ask(backEnd,
                       replyTo -> new BackEnd.MapToFhirRequest(replyTo, patientRecord),
-                      java.time.Duration.ofSeconds(11),
+                      java.time.Duration.ofSeconds(5),
                       actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
@@ -854,10 +854,11 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
            final ActorRef<BackEnd.Event> backEnd) {
          // Simple search for golden records
       return entity(Jackson.unmarshaller(PatientRecord.class), patientRecord -> onComplete(askJsonToFhir(actorSystem, backEnd, patientRecord), response -> {
-         if (response != null) {
-            return complete(StatusCodes.OK, response, Jackson.marshaller());
+         if (response.isSuccess()) {
+            final var mappingResponse = response.get().fhirResource();
+            return complete(StatusCodes.OK, mappingResponse);
          } else {
-            LOGGER.debug("here");
+            LOGGER.error("nope");
             return complete(StatusCodes.IM_A_TEAPOT);
          }
       }));

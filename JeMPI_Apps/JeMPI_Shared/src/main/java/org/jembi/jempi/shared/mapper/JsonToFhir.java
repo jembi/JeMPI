@@ -15,7 +15,6 @@ public final class JsonToFhir {
     private static JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig();
 
     private JsonToFhir() throws Exception {
-
     }
 
     private static final Logger LOGGER = LogManager.getLogger(JsonToFhir.class);

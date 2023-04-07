@@ -13,6 +13,8 @@ import java.io.Reader;
 
 public final class JsonFieldsConfig {
 
+   public JSONArray fields;
+
    public JsonFieldsConfig() {
       try {
          load();
@@ -21,8 +23,6 @@ public final class JsonFieldsConfig {
       }
    }
 
-   public JSONArray fields;
-   public JSONArray demoFields;
    private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
    private String snakeToCamelCase(final String str) {
       String[] words = str.split("_");
