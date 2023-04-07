@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.hl7.fhir.r4.model.Patient;
-import ca.uhn.fhir.context.FhirContext;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
@@ -117,13 +115,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> mapToFhir(final MapToFhirRequest request) {
       PatientRecord payload = request.patientRecord();
       LOGGER.debug(payload);
-      Patient patient;
       String patientJson =  "";
       try {
-         patient = JsonToFhir.mapToPatientFhir(payload);
-         FhirContext ctx = FhirContext.forR4();
-      // Serialize the patient object to FHIR JSON
-         patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
+         patientJson = JsonToFhir.mapToPatientFhir(payload);
       } catch (Exception e) {
          LOGGER.debug(e);
       }

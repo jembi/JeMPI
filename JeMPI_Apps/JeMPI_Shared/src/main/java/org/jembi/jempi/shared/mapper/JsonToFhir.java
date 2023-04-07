@@ -1,5 +1,6 @@
 package org.jembi.jempi.shared.mapper;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
@@ -64,7 +65,7 @@ public final class JsonToFhir {
         }
     }
 
-    public static Patient mapToPatientFhir(final PatientRecord patientRecord) {
+    public static String mapToPatientFhir(final PatientRecord patientRecord) {
         Patient patient = new Patient();
         CustomDemographicData demographicData = patientRecord.demographicData();
 
@@ -110,7 +111,9 @@ public final class JsonToFhir {
                 throw new RuntimeException(e);
             }
         }
-
-        return patient;
+        FhirContext ctx = FhirContext.forR4();
+        // Serialize the patient object to FHIR JSON
+        String patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
+        return patientJson;
     }
 }
