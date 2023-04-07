@@ -13,7 +13,6 @@
 
     <properties>
         <start-class>${project.groupId}.etl.Main</start-class>
-        <fhir_core_version>5.6.97</fhir_core_version>
     </properties>
 
     <dependencies>
