@@ -176,6 +176,19 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
+   private CompletionStage<BackEnd.GetPatientResourceResponse> askFindPatientResource(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String patientResourceId) {
+      LOGGER.debug("findPatientRecordById : " + patientResourceId);
+      final CompletionStage<BackEnd.GetPatientResourceResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.GetPatientResourceRequest(replyTo, patientResourceId),
+                      java.time.Duration.ofSeconds(5),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    private CompletionStage<BackEnd.FindCandidatesResponse> askFindCandidates(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -646,6 +659,29 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return requiredSession(refreshable, sessionTransport, session -> routeFindPatientRecord(actorSystem, backEnd, patientId));
    }
 
+   private Route routeGetPatientResource(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String patientResourceId) {
+      return onComplete(askFindPatientResource(actorSystem, backEnd, patientResourceId),
+              result -> result.isSuccess()
+                      ? result.get()
+                      .patientResource()
+                      .mapLeft(this::mapError)
+                      .fold(error -> error,
+                              patientResource -> complete(StatusCodes.OK,
+                                      patientResource
+                              ))
+                      : complete(StatusCodes.IM_A_TEAPOT));
+   }
+
+   private Route routeSessionGetPatientResource(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String patientResourceId) {
+      return requiredSession(refreshable, sessionTransport, session -> routeGetPatientResource(actorSystem, backEnd, patientResourceId));
+   }
+
    private Route routeFindCandidates(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -924,7 +960,11 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                   path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                        (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                              ? routeSessionFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)
-                             : routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)))));
+                             : routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
+                    path(segment(GlobalConstants.SEGMENT_FHIR).slash(segment("Patient")).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                            (patientResourceId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                    ? routeSessionGetPatientResource(actorSystem, backEnd, patientResourceId)
+                                    : routeGetPatientResource(actorSystem, backEnd, patientResourceId)))));
    }
 
    private Route createRoutes(

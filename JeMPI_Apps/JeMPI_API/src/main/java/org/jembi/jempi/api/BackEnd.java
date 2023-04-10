@@ -97,6 +97,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
             .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
             .onMessage(FindPatientRecordRequest.class, this::findPatientRecordHandler)
+              .onMessage(GetPatientResourceRequest.class, this::getPatientResourceHandler)
             .onMessage(FindCandidatesRequest.class, this::findCandidatesHandler)
             .onMessage(FindMatchesForReviewRequest.class, this::findMatchesForReviewHandler)
             .onMessage(UpdateGoldenRecordFieldsRequest.class, this::updateGoldenRecordFieldsHandler)
@@ -117,7 +118,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug(payload);
       String patientJson =  "";
       try {
-         patientJson = JsonToFhir.mapToPatientFhir(payload);
+         patientJson = JsonToFhir.mapToPatientFhir(payload.patientId(), payload.demographicData(), payload.patientId());
       } catch (Exception e) {
          LOGGER.debug(e);
       }
@@ -383,6 +384,47 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getPatientResourceHandler(final GetPatientResourceRequest request) {
+      PatientRecord patientRecord = null;
+      GoldenRecord goldenRecord = null;
+      String patientResource = "";
+      LOGGER.debug("getPatientResource");
+
+      try {
+         libMPI.startTransaction();
+         goldenRecord = libMPI.findGoldenRecord(request.patientResourceId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findGoldenRecord failed for ID: {} with error: {}",
+                 request.patientResourceId,
+                 exception.getMessage());
+      }
+
+      try {
+         libMPI.startTransaction();
+         patientRecord = libMPI.findPatientRecord(request.patientResourceId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findPatientRecord failed for ID: {} with error: {}",
+                 request.patientResourceId,
+                 exception.getMessage());
+      }
+
+      if (goldenRecord != null) {
+         patientResource = JsonToFhir.mapToPatientFhir(goldenRecord.goldenId(), goldenRecord.demographicData(), "");
+         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      } else if (patientRecord != null) {
+         patientResource = JsonToFhir.mapToPatientFhir(patientRecord.patientId(), patientRecord.demographicData(), patientRecord.patientId());
+         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      } else {
+         request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+                 "Record not found",
+                 request.patientResourceId))));
+      }
+
+      return Behaviors.same();
+   }
+
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
@@ -551,6 +593,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record FindPatientRecordResponse(Either<MpiGeneralError, PatientRecord> patient)
          implements EventResponse {
+   }
+
+   public record GetPatientResourceRequest(
+           ActorRef<GetPatientResourceResponse> replyTo,
+           String patientResourceId) implements Event {
+   }
+
+   public record GetPatientResourceResponse(Either<MpiGeneralError, String> patientResource)
+           implements EventResponse {
    }
 
    public record FindMatchesForReviewRequest(ActorRef<FindMatchesForReviewResponse> replyTo) implements Event {

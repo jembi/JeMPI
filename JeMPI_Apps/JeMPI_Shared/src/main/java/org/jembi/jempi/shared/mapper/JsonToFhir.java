@@ -5,7 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.PatientRecord;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 import org.json.simple.JSONObject;
 
@@ -65,52 +64,35 @@ public final class JsonToFhir {
         }
     }
 
-    public static String mapToPatientFhir(final PatientRecord patientRecord) {
+    public static String mapToPatientFhir(final String resourceId, final CustomDemographicData demographicData, final String sourceId) {
         Patient patient = new Patient();
-        CustomDemographicData demographicData = patientRecord.demographicData();
-
-        for (Field field : PatientRecord.class.getDeclaredFields()) {
-            field.setAccessible(true);
-            String fieldName = field.getName();
-            String fieldValue;
             try {
-                if (fieldName.equals("demographicData")) {
-                    for (Field demoField : CustomDemographicData.class.getDeclaredFields()) {
-                        demoField.setAccessible(true);
-                        String demoFieldName = demoField.getName();
-                        fieldValue = (String) demoField.get(demographicData);
-                        if (fieldValue != null) {
-                            String fhirPath = getFhirPath(demoFieldName);
-                            if (fhirPath != null) {
-                                processField(patient, fieldValue, fhirPath);
-                            }
-                        }
-                    }
-                } else if (fieldName.equals("patientId")) {
-                    fieldValue = (String) field.get(patientRecord);
-                    Identifier identifier = new Identifier();
-                    identifier.setValue(fieldValue);
-                    patient.addIdentifier(identifier);
-
-                } else if (fieldName.equals("sourceId")) {
-                           LOGGER.debug("sourceId");
-                } else {
-                    fieldValue = (String) field.get(patientRecord);
+                Identifier identifier = new Identifier();
+                identifier.setValue(resourceId);
+                patient.addIdentifier(identifier);
+                for (Field demoField : CustomDemographicData.class.getDeclaredFields()) {
+                    demoField.setAccessible(true);
+                    String demoFieldName = demoField.getName();
+                    String fieldValue = (String) demoField.get(demographicData);
                     if (fieldValue != null) {
-                        String fhirPath = getFhirPath(fieldName);
+                        String fhirPath = getFhirPath(demoFieldName);
                         if (fhirPath != null) {
                             processField(patient, fieldValue, fhirPath);
                         }
                     }
                 }
+                if (sourceId.length() != 0) {
+                        Organization organization = new Organization();
+                        organization.setId(sourceId);
+                        patient.getManagingOrganization().setResource(organization);
+                }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 LOGGER.debug(e);
-
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
+
         FhirContext ctx = FhirContext.forR4();
         // Serialize the patient object to FHIR JSON
         String patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
