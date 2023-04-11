@@ -12,7 +12,7 @@
         "/search/custom"
       ],
       "accessLevel": [],
-      "fhirPath": "extension.where(url = 'http://example.com/fhir/extensions#aux_id').value"
+      "fhirPath": "extension.where(url = 'http://jembi.org/fhir/extensions#aux_id').value"
     },
     {
       "fieldName": "given_name",
