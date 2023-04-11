@@ -961,7 +961,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                        (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                              ? routeSessionFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)
                              : routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
-                    path(segment(GlobalConstants.SEGMENT_FHIR).slash(segment("Patient")).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                    path(segment(GlobalConstants.SEGMENT_FHIR).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                             (patientResourceId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                     ? routeSessionGetPatientResource(actorSystem, backEnd, patientResourceId)
                                     : routeGetPatientResource(actorSystem, backEnd, patientResourceId)))));

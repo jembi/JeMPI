@@ -393,16 +393,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          libMPI.startTransaction();
          goldenRecord = libMPI.findGoldenRecord(request.patientResourceId);
-         libMPI.closeTransaction();
-      } catch (Exception exception) {
-         LOGGER.error("libMPI.findGoldenRecord failed for ID: {} with error: {}",
-                 request.patientResourceId,
-                 exception.getMessage());
-      }
-
-      try {
-         libMPI.startTransaction();
+         LOGGER.debug(goldenRecord);
          patientRecord = libMPI.findPatientRecord(request.patientResourceId);
+         LOGGER.debug(patientRecord);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for ID: {} with error: {}",
@@ -418,7 +411,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       } else {
          request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-                 "Record not found",
+                 "Record not found for {}",
                  request.patientResourceId))));
       }
 
