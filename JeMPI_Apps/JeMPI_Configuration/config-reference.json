@@ -154,7 +154,7 @@
         "/search-results/patient"
       ],
       "accessLevel": [],
-      "fhirPath": "identifier.where(system='http://hl7.org/fhir/sid/us-ssn').value"
+      "fhirPath": "identifier.where(system='http://hl7.org/fhir/nid/sa-nid').value"
     }
   ],
   "systemFields": [
