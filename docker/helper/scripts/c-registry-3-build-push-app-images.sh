@@ -10,7 +10,7 @@ pushd .
   pwd
   source ./0-conf.env
   pushd ../JeMPI_Apps/JeMPI_Build
-    ./build-all.sh
+    source ./build-all.sh
   popd
 
 popd
