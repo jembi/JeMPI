@@ -33,10 +33,10 @@ We should install the following:
 * Maven: Command: _sdk install maven_\
   Version: 3.8.6
 * Scala Build Tool: Command: _sdk install sbt_
-* Java: Command: _sdk install java 17.0.5-tem_\
-  Version: Temerin 17.0.5-tem (See list by running: _sdk list java_)
+* Java: Command: _sdk install java 17.0.6-tem_\
+  Version: Temerin 17.0.6-tem (See list by running: _sdk list java_)
 
-Check the version of java by running: _java --version_. We should get: Temurin-17.0.5+8.
+Check the version of java by running: _java --version_. We should get: Temurin-17.0.6+10.
 
 ## Starting JeMPI <a href="#_1yk2dvaqt5h9" id="_1yk2dvaqt5h9"></a>
 

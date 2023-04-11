@@ -22,10 +22,10 @@ pushd .
   docker service scale ${STACK_NAME}_postgresql=${SCALE_POSTGRESQL}
 
   pushd helper/topics
-    ./topics-create.sh
-    ./topics-list.sh
+    source ./topics-create.sh
+    source ./topics-list.sh
   popd
   pushd helper/postgres
-    ./create-schema.sh
+    source ./create-schema.sh
   popd
 popd

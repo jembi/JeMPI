@@ -8,6 +8,6 @@ pushd .
   cd ${SCRIPT_DIR}/../..
 
   echo Describe it
-  ./helper/topics/topics-describe.sh
+  source ./helper/topics/topics-describe.sh
 
 popd  
