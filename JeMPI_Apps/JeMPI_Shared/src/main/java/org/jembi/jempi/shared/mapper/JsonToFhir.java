@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 import org.json.simple.JSONObject;
 
@@ -55,8 +56,8 @@ public final class JsonToFhir {
                 patient.addAddress(address);
             }
             case "birthDate" -> {
-                DateType birthDate = new DateType(fieldValue);
-                patient.setBirthDateElement(birthDate);
+                // to be implemented
+                LOGGER.debug("don't forget about this");
             }
             default -> {
                 // to be implemented
@@ -64,7 +65,7 @@ public final class JsonToFhir {
         }
     }
 
-    public static String mapToPatientFhir(final String resourceId, final CustomDemographicData demographicData, final String sourceId) {
+    public static String mapToPatientFhir(final String resourceId, final CustomDemographicData demographicData, final SourceId sourceId) {
         Patient patient = new Patient();
             try {
                 Identifier identifier = new Identifier();
@@ -81,9 +82,9 @@ public final class JsonToFhir {
                         }
                     }
                 }
-                if (sourceId.length() != 0) {
+                if (sourceId != null) {
                         Organization organization = new Organization();
-                        organization.setId(sourceId);
+                        organization.setId(sourceId.uid());
                         patient.getManagingOrganization().setResource(organization);
                 }
             } catch (IllegalAccessException e) {

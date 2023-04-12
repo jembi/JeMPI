@@ -118,7 +118,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug(payload);
       String patientJson =  "";
       try {
-         patientJson = JsonToFhir.mapToPatientFhir(payload.patientId(), payload.demographicData(), payload.patientId());
+         patientJson = JsonToFhir.mapToPatientFhir(payload.patientId(), payload.demographicData(), null);
       } catch (Exception e) {
          LOGGER.debug(e);
       }
@@ -393,27 +393,28 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          libMPI.startTransaction();
          goldenRecord = libMPI.findGoldenRecord(request.patientResourceId);
-         LOGGER.debug(goldenRecord);
          patientRecord = libMPI.findPatientRecord(request.patientResourceId);
-         LOGGER.debug(patientRecord);
          libMPI.closeTransaction();
+
+         if (goldenRecord != null) {
+            patientResource = JsonToFhir.mapToPatientFhir(goldenRecord.goldenId(), goldenRecord.demographicData(), null);
+            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+         } else if (patientRecord != null) {
+            patientResource = JsonToFhir.mapToPatientFhir(patientRecord.patientId(), patientRecord.demographicData(), null);
+            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+         } else {
+            request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+                    "Record not found for {}",
+                    request.patientResourceId))));
+         }
+
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for ID: {} with error: {}",
                  request.patientResourceId,
                  exception.getMessage());
       }
 
-      if (goldenRecord != null) {
-         patientResource = JsonToFhir.mapToPatientFhir(goldenRecord.goldenId(), goldenRecord.demographicData(), "");
-         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-      } else if (patientRecord != null) {
-         patientResource = JsonToFhir.mapToPatientFhir(patientRecord.patientId(), patientRecord.demographicData(), patientRecord.patientId());
-         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-      } else {
-         request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-                 "Record not found for {}",
-                 request.patientResourceId))));
-      }
+
 
       return Behaviors.same();
    }

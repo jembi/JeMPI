@@ -894,12 +894,27 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
             final var mappingResponse = response.get().fhirResource();
             return complete(StatusCodes.OK, mappingResponse);
          } else {
-            LOGGER.error("nope");
+            LOGGER.error("Internal server error");
             return complete(StatusCodes.IM_A_TEAPOT);
          }
       }));
 
    }
+
+   private Route createFhirRoutes(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+              return concat(
+                      // this route will be used for submitting FHIR Patient resources
+                      post(() -> concat(path(GlobalConstants.SEGMENT_FHIR, () -> routeMapJsonToFhir(actorSystem, backEnd)
+              ))),
+                      get(() -> concat(path(segment(GlobalConstants.SEGMENT_FHIR).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                              (patientResourceId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
+                                      ? routeSessionGetPatientResource(actorSystem, backEnd, patientResourceId)
+                                      : routeGetPatientResource(actorSystem, backEnd, patientResourceId))))
+              );
+   }
+
 
    private Route createJeMPIRoutes(
          final ActorSystem<Void> actorSystem,
@@ -930,9 +945,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               path(GlobalConstants.SEGMENT_CALCULATE_SCORES, this::routeCalculateScores),
                               path(GlobalConstants.SEGMENT_UPLOAD, () -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                     ? routeSessionUploadCsvFile(actorSystem, backEnd)
-                                    : routeUploadCsvFile(actorSystem, backEnd)),
-                              path("fhir", () -> routeMapJsonToFhir(actorSystem, backEnd)
-                              ))),
+                                    : routeUploadCsvFile(actorSystem, backEnd)))),
             patch(() -> concat(
                   path(segment(GlobalConstants.SEGMENT_UPDATE_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                        (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
@@ -960,11 +973,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                   path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                        (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                              ? routeSessionFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)
-                             : routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
-                    path(segment(GlobalConstants.SEGMENT_FHIR).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                            (patientResourceId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                    ? routeSessionGetPatientResource(actorSystem, backEnd, patientResourceId)
-                                    : routeGetPatientResource(actorSystem, backEnd, patientResourceId)))));
+                             : routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId))
+                    )),
+              pathPrefix("fhir", () -> createFhirRoutes(actorSystem, backEnd)));
    }
 
    private Route createRoutes(
