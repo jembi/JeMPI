@@ -40,9 +40,12 @@ Check the version of java by running: _java --version_. We should get: Temurin-1
 
 ## Starting JeMPI <a href="#_1yk2dvaqt5h9" id="_1yk2dvaqt5h9"></a>
 
-### Running with docker hub <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+### #1 Run without local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+Run in the terminal _./launch-local.sh_
 
-You can **run** the script in [**this link**](https://github.com/jembi/JeMPI/pull/15/files) **OR** follow these steps below:
+[//]: # (You can **run** the script in [**this link**]&#40;https://github.com/jembi/JeMPI/pull/15/files&#41; **OR** follow these steps below:)
+
+### #2 Alternatively run with a local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
 
 **Initialize the environment variables**
 
