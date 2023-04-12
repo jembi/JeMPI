@@ -392,29 +392,37 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         goldenRecord = libMPI.findGoldenRecord(request.patientResourceId);
          patientRecord = libMPI.findPatientRecord(request.patientResourceId);
          libMPI.closeTransaction();
-
-         if (goldenRecord != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(goldenRecord.goldenId(), goldenRecord.demographicData(), null);
-            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-         } else if (patientRecord != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(patientRecord.patientId(), patientRecord.demographicData(), null);
-            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-         } else {
-            request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-                    "Record not found for {}",
-                    request.patientResourceId))));
-         }
-
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for ID: {} with error: {}",
+         LOGGER.error("libMPI.findPatientRecord failed for resourceID: {} with error: {}",
                  request.patientResourceId,
                  exception.getMessage());
       }
 
+      try {
+         libMPI.startTransaction();
+         goldenRecord = libMPI.findGoldenRecord(request.patientResourceId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
+                 request.patientResourceId,
+                 exception.getMessage());
+      }
 
+      if (goldenRecord == null && patientRecord == null) {
+         request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+                 "Record not found for {}",
+                 request.patientResourceId))));
+      }
+      if (goldenRecord != null) {
+            patientResource = JsonToFhir.mapToPatientFhir(goldenRecord.goldenId(), goldenRecord.demographicData(), null);
+            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      }
+      if (patientRecord != null) {
+            patientResource = JsonToFhir.mapToPatientFhir(patientRecord.patientId(), patientRecord.demographicData(), null);
+            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      }
 
       return Behaviors.same();
    }
