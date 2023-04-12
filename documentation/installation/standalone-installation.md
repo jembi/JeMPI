@@ -22,7 +22,7 @@ We need to download [sdkmanager](https://sdkman.io/), check if you already have 
 To install it, run the two following commands:
 
 ```bash
-url -s "https://get.sdkman.io" | bash
+curl -s "https://get.sdkman.io" | bash
 $ source "$HOME/.sdkman/bin/sdkman-init.sh"
 ```
 
