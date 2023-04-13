@@ -385,42 +385,42 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getPatientResourceHandler(final GetPatientResourceRequest request) {
-      PatientRecord patientRecord = null;
-      GoldenRecord goldenRecord = null;
+      List<ExpandedPatientRecord> expandedPatientRecords = null;
+      ExpandedGoldenRecord expandedGoldenRecord = null;
       String patientResource = "";
       LOGGER.debug("getPatientResource");
 
       try {
          libMPI.startTransaction();
-         patientRecord = libMPI.findPatientRecord(request.patientResourceId);
+         expandedPatientRecords = libMPI.findExpandedPatientRecords(List.of(request.patientResourceId));
          libMPI.closeTransaction();
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for resourceID: {} with error: {}",
+         LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
                  request.patientResourceId,
                  exception.getMessage());
       }
 
       try {
          libMPI.startTransaction();
-         goldenRecord = libMPI.findGoldenRecord(request.patientResourceId);
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.patientResourceId);
          libMPI.closeTransaction();
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
                  request.patientResourceId,
                  exception.getMessage());
       }
 
-      if (goldenRecord == null && patientRecord == null) {
+      if (expandedGoldenRecord == null && expandedPatientRecords == null) {
          request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                  "Record not found for {}",
                  request.patientResourceId))));
       }
-      if (goldenRecord != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(goldenRecord.goldenId(), goldenRecord.demographicData(), null);
+      if (expandedGoldenRecord != null) {
+            patientResource = JsonToFhir.mapToPatientFhir(expandedGoldenRecord.goldenRecord().goldenId(), expandedGoldenRecord.goldenRecord().demographicData(), null);
             request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       }
-      if (patientRecord != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(patientRecord.patientId(), patientRecord.demographicData(), null);
+      if (expandedPatientRecords != null) {
+            patientResource = JsonToFhir.mapToPatientFhir(expandedPatientRecords.get(0).patientRecord().patientId(), expandedPatientRecords.get(0).patientRecord().demographicData(), null);
             request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       }
 
