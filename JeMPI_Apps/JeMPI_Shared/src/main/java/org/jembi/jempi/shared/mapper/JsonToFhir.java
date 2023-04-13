@@ -73,7 +73,8 @@ public final class JsonToFhir {
         }
     }
 
-    public static String mapToPatientFhir(final String resourceId, final CustomDemographicData demographicData, final SourceId sourceId, final List<GoldenRecordWithScore> goldenRecordWithScoreList, final List<PatientRecordWithScore> patientRecordWithScoreList) {
+    private static Patient mapToPatientFhir(
+            final String resourceId, final CustomDemographicData demographicData, final List<SourceId> sourceId) {
         Patient patient = new Patient();
             try {
                 Identifier identifier = new Identifier();
@@ -90,19 +91,10 @@ public final class JsonToFhir {
                         }
                     }
                 }
-                if (sourceId != null) {
-                        Organization organization = new Organization();
-                        organization.setId(sourceId.uid());
-                        patient.getManagingOrganization().setResource(organization);
-                }
-                if (goldenRecordWithScoreList != null) {
-                    patient.addLink().setOther(new Reference(String.format("Patient/%s", goldenRecordWithScoreList.get(0).goldenRecord().goldenId()))).setType(Patient.LinkType.REFER);
-                }
-
-                if (patientRecordWithScoreList != null) {
-                    for (PatientRecordWithScore currPatient : patientRecordWithScoreList) {
-                        patient.addLink().setOther(new Reference(String.format("Patient/%s", currPatient.patientRecord().patientId()))).setType(Patient.LinkType.SEEALSO);
-                    }
+                for (SourceId source: sourceId) {
+                    Organization organization = new Organization();
+                    organization.setId(source.uid());
+                    patient.getManagingOrganization().setResource(organization);
                 }
 
             } catch (IllegalAccessException e) {
@@ -111,10 +103,33 @@ public final class JsonToFhir {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        return patient;
 
+    }
+
+    public static String mapPatientRecordToFhirFormat(
+            final PatientRecord patientRecord, final List<GoldenRecordWithScore> goldenRecordWithScoreList) {
+        Patient patient = mapToPatientFhir(
+                patientRecord.patientId(), patientRecord.demographicData(), List.of(patientRecord.sourceId()));
+        patient.addLink()
+                .setOther(new Reference(String.format("Patient/%s", goldenRecordWithScoreList.get(0)
+                        .goldenRecord()
+                        .goldenId())))
+                .setType(Patient.LinkType.REFER);
         FhirContext ctx = FhirContext.forR4();
-        // Serialize the patient object to FHIR JSON
-        String patientJson = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
-        return patientJson;
+        return ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
+    }
+
+    public static String mapGoldenRecordToFhirFormat(
+            final GoldenRecord goldenRecord, final List<PatientRecordWithScore> patientRecordWithScoreList) {
+        Patient patient = mapToPatientFhir(
+                goldenRecord.goldenId(), goldenRecord.demographicData(), goldenRecord.sourceId());
+        for (PatientRecordWithScore currPatient : patientRecordWithScoreList) {
+            patient.addLink()
+                    .setOther(new Reference(String.format("Patient/%s", currPatient.patientRecord().patientId())))
+                    .setType(Patient.LinkType.SEEALSO);
+        }
+        FhirContext ctx = FhirContext.forR4();
+        return ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(patient);
     }
 }

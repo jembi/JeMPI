@@ -313,18 +313,6 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<BackEnd.MapToFhirResponse> askJsonToFhir(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final PatientRecord patientRecord) {
-      CompletionStage<BackEnd.MapToFhirResponse> stage = AskPattern
-              .ask(backEnd,
-                      replyTo -> new BackEnd.MapToFhirRequest(replyTo, patientRecord),
-                      java.time.Duration.ofSeconds(5),
-                      actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
    private CompletionStage<ApiPaginatedResultSet> askCustomSearchPatientRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -885,30 +873,11 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       });
    }
 
-   private Route routeMapJsonToFhir(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
-         // Simple search for golden records
-      return entity(Jackson.unmarshaller(PatientRecord.class), patientRecord -> onComplete(askJsonToFhir(actorSystem, backEnd, patientRecord), response -> {
-         if (response.isSuccess()) {
-            final var mappingResponse = response.get().fhirResource();
-            return complete(StatusCodes.OK, mappingResponse);
-         } else {
-            LOGGER.error("Internal server error");
-            return complete(StatusCodes.IM_A_TEAPOT);
-         }
-      }));
-
-   }
-
    private Route createFhirRoutes(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd) {
               return concat(
-                      // this route will be used for submitting FHIR Patient resources
-                      post(() -> concat(path(GlobalConstants.SEGMENT_FHIR, () -> routeMapJsonToFhir(actorSystem, backEnd)
-              ))),
-                      get(() -> concat(path(segment(GlobalConstants.SEGMENT_FHIR).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                      get(() -> concat(path(segment(GlobalConstants.SEGMENT_FHIR_PATIENT).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                               (patientResourceId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                       ? routeSessionGetPatientResource(actorSystem, backEnd, patientResourceId)
                                       : routeGetPatientResource(actorSystem, backEnd, patientResourceId))))

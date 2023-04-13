@@ -109,22 +109,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(SimpleSearchPatientRecordsRequest.class, this::simpleSearchPatientRecordsHandler)
             .onMessage(CustomSearchPatientRecordsRequest.class, this::customSearchPatientRecordsHandler)
             .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
-            .onMessage(MapToFhirRequest.class, this::mapToFhir)
             .build();
    }
 
-   private Behavior<Event> mapToFhir(final MapToFhirRequest request) {
-      PatientRecord payload = request.patientRecord();
-      LOGGER.debug(payload);
-      String patientJson =  "";
-      try {
-         patientJson = JsonToFhir.mapToPatientFhir(payload.patientId(), payload.demographicData(), null, null, null);
-      } catch (Exception e) {
-         LOGGER.debug(e);
-      }
-         request.replyTo.tell(new MapToFhirResponse(patientJson));
-      return Behaviors.same();
-   }
    private Behavior<Event> simpleSearchGoldenRecordsHandler(final SimpleSearchGoldenRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
@@ -411,20 +398,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedGoldenRecord != null) {
-         patientResource = JsonToFhir.mapToPatientFhir(
-                 expandedGoldenRecord.goldenRecord().goldenId(),
-                 expandedGoldenRecord.goldenRecord().demographicData(),
-                 null,
-                 null,
+         patientResource = JsonToFhir.mapGoldenRecordToFhirFormat(
+                 expandedGoldenRecord.goldenRecord(),
                  expandedGoldenRecord.patientRecordsWithScore());
          request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       } else if (expandedPatientRecords != null) {
-         patientResource = JsonToFhir.mapToPatientFhir(
-                 expandedPatientRecords.get(0).patientRecord().patientId(),
-                 expandedPatientRecords.get(0).patientRecord().demographicData(),
-                 null,
-                 expandedPatientRecords.get(0).goldenRecordsWithScore(),
-                 null);
+         patientResource = JsonToFhir.mapPatientRecordToFhirFormat(
+                 expandedPatientRecords.get(0).patientRecord(),
+                 expandedPatientRecords.get(0).goldenRecordsWithScore());
          request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       } else {
          request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
@@ -697,14 +678,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record CustomSearchGoldenRecordsRequest(
          ActorRef<SearchGoldenRecordsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
-   }
-
-   public record MapToFhirRequest(
-           ActorRef<MapToFhirResponse> replyTo,
-           PatientRecord patientRecord) implements Event {
-   }
-
-   public record MapToFhirResponse(String fhirResource) implements EventResponse {
    }
 
    public record SearchGoldenRecordsResponse(

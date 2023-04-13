@@ -35,7 +35,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_EXPANDED_GOLDEN_RECORDS = "expanded-golden-records";
    public static final String SEGMENT_EXPANDED_PATIENT_RECORDS = "expanded-patient-records";
    public static final String SEGMENT_CANDIDATE_GOLDEN_RECORDS = "candidate-golden-records";
-   public static final String SEGMENT_FHIR = "Patient";
+   public static final String SEGMENT_FHIR_PATIENT = "Patient";
 
 
    private GlobalConstants() {
