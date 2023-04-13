@@ -23,7 +23,7 @@ To install it, run the two following commands:
 
 ```bash
 curl -s "https://get.sdkman.io" | bash
-$ source "$HOME/.sdkman/bin/sdkman-init.sh"
+source "$HOME/.sdkman/bin/sdkman-init.sh"
 ```
 
 To check the installation, you can check the version by running: _sdk version_
