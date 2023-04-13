@@ -410,28 +410,26 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                  exception.getMessage());
       }
 
-      if (expandedGoldenRecord == null && expandedPatientRecords == null) {
+      if (expandedGoldenRecord != null) {
+         patientResource = JsonToFhir.mapToPatientFhir(
+                 expandedGoldenRecord.goldenRecord().goldenId(),
+                 expandedGoldenRecord.goldenRecord().demographicData(),
+                 null,
+                 null,
+                 expandedGoldenRecord.patientRecordsWithScore());
+         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      } else if (expandedPatientRecords != null) {
+         patientResource = JsonToFhir.mapToPatientFhir(
+                 expandedPatientRecords.get(0).patientRecord().patientId(),
+                 expandedPatientRecords.get(0).patientRecord().demographicData(),
+                 null,
+                 expandedPatientRecords.get(0).goldenRecordsWithScore(),
+                 null);
+         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      } else {
          request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                  "Record not found for {}",
                  request.patientResourceId))));
-      }
-      if (expandedGoldenRecord != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(
-                    expandedGoldenRecord.goldenRecord().goldenId(),
-                    expandedGoldenRecord.goldenRecord().demographicData(),
-                    null,
-                    null,
-                    expandedGoldenRecord.patientRecordsWithScore());
-            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-      }
-      if (expandedPatientRecords != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(
-                    expandedPatientRecords.get(0).patientRecord().patientId(),
-                    expandedPatientRecords.get(0).patientRecord().demographicData(),
-                    null,
-                    expandedPatientRecords.get(0).goldenRecordsWithScore(),
-                    null);
-            request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       }
 
       return Behaviors.same();
