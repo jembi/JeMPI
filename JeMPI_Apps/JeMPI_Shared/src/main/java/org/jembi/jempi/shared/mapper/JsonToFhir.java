@@ -4,12 +4,12 @@ import ca.uhn.fhir.context.FhirContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hl7.fhir.r4.model.*;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.SourceId;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 public final class JsonToFhir {
 
@@ -65,7 +65,7 @@ public final class JsonToFhir {
         }
     }
 
-    public static String mapToPatientFhir(final String resourceId, final CustomDemographicData demographicData, final SourceId sourceId) {
+    public static String mapToPatientFhir(final String resourceId, final CustomDemographicData demographicData, final SourceId sourceId, final List<GoldenRecordWithScore> goldenRecordWithScoreList, final List<PatientRecordWithScore> patientRecordWithScoreList) {
         Patient patient = new Patient();
             try {
                 Identifier identifier = new Identifier();
@@ -87,6 +87,16 @@ public final class JsonToFhir {
                         organization.setId(sourceId.uid());
                         patient.getManagingOrganization().setResource(organization);
                 }
+                if (goldenRecordWithScoreList != null) {
+                    patient.addLink().setOther(new Reference(String.format("Patient/%s", goldenRecordWithScoreList.get(0).goldenRecord().goldenId()))).setType(Patient.LinkType.REFER);
+                }
+
+                if (patientRecordWithScoreList != null) {
+                    for (PatientRecordWithScore currPatient : patientRecordWithScoreList) {
+                        patient.addLink().setOther(new Reference(String.format("Patient/%s", currPatient.patientRecord().patientId()))).setType(Patient.LinkType.SEEALSO);
+                    }
+                }
+
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 LOGGER.debug(e);

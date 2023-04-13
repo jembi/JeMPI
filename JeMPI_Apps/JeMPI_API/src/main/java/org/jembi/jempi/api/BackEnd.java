@@ -118,7 +118,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug(payload);
       String patientJson =  "";
       try {
-         patientJson = JsonToFhir.mapToPatientFhir(payload.patientId(), payload.demographicData(), null);
+         patientJson = JsonToFhir.mapToPatientFhir(payload.patientId(), payload.demographicData(), null, null, null);
       } catch (Exception e) {
          LOGGER.debug(e);
       }
@@ -416,11 +416,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                  request.patientResourceId))));
       }
       if (expandedGoldenRecord != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(expandedGoldenRecord.goldenRecord().goldenId(), expandedGoldenRecord.goldenRecord().demographicData(), null);
+            patientResource = JsonToFhir.mapToPatientFhir(
+                    expandedGoldenRecord.goldenRecord().goldenId(),
+                    expandedGoldenRecord.goldenRecord().demographicData(),
+                    null,
+                    null,
+                    expandedGoldenRecord.patientRecordsWithScore());
             request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       }
       if (expandedPatientRecords != null) {
-            patientResource = JsonToFhir.mapToPatientFhir(expandedPatientRecords.get(0).patientRecord().patientId(), expandedPatientRecords.get(0).patientRecord().demographicData(), null);
+            patientResource = JsonToFhir.mapToPatientFhir(
+                    expandedPatientRecords.get(0).patientRecord().patientId(),
+                    expandedPatientRecords.get(0).patientRecord().demographicData(),
+                    null,
+                    expandedPatientRecords.get(0).goldenRecordsWithScore(),
+                    null);
             request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       }
 
