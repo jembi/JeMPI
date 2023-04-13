@@ -33,13 +33,14 @@ For each field we have a set of attributes, as defined below :
 
 | Attribute   | Description                                                                                                     | Used by            |
 |-------------|-----------------------------------------------------------------------------------------------------------------|--------------------|
-| fieldName   | A "camel-case" field name which will be used when accessing a patient record data structure                       | Backend + Frontend |
+| fieldName   | A "camel-case" field name which will be used when accessing a patient record data structure                     | Backend + Frontend |
 | fieldLabel  | A string that is a human readable name for the field                                                            | Frontend           |
 | scope       | Array of URL paths that tells the frontend UI in which pages should the field appear                            | Frontend           |
 | groups      | Array of strings which identifies in which section within a frontend UI page should the field be displayed      | Frontend           |
 | FieldType   | A string that identifies the type of field, could be String, Date, ...(useful for formatting for example)       | Frontend + Backend |
 | accessLevel | An array of string that identifies which user roles are permitted to access a given field (NOT YET IMPLEMENTED) | Frontend           |
 | readOnly    | Tells if the field can be editable.                                                                             | Frontend           |
+| fhirPath    | A string that represents the field equivalent in FHIR format. Please refere to the [documentation](http://hl7.org/fhir/R4/patient.html) to configure the fields | Backend           |
 
 The fields should be configured in the json file for each implementation and should not be updated in production : `JeMPI_Apps/JeMPI_Configuration/config-reference.json`
 
@@ -273,3 +274,72 @@ Below a sample of the request body :
 }
 ```
 The response payload is similar to the one returned by the simple search API endpoint. 
+
+## GET /fhir/Patient/:uid
+The folowing endpoint returns the Golden record or Patient record in FHIR format given a uid. This endpoint returns a Fhir resource Object. Below a sample of the response for a patient record and a golden record:
+
+`GET /fhir/Patient/0x19f`
+```json
+{
+  "resourceType": "Patient",
+  "identifier": [ {
+    "value": "0x19f"
+  } ],
+  "name": [ {
+    "given": [ "Meskerem" ]
+  }, {
+    "family": "Chebon"
+  } ],
+  "birthDate": "1967-12-07",
+  "address": [ {
+    "city": "Voi"
+  } ],
+  "managingOrganization": {
+    "reference": "Organization/0x19e"
+  },
+  "link": [ {
+    "other": {
+      "reference": "Patient/0x19b"
+    },
+    "type": "refer"
+  } ]
+}
+
+```
+`GET /fhir/Patient/0x19b`
+```json
+{
+  "resourceType": "Patient",
+  "identifier": [ {
+    "value": "0x19b"
+  } ],
+  "name": [ {
+    "given": [ "Meskerem" ]
+  }, {
+    "family": "Chebon"
+  } ],
+  "birthDate": "1967-12-07",
+  "address": [ {
+    "city": "Voi"
+  } ],
+  "managingOrganization": {
+    "reference": "Organization/0x19e"
+  },
+  "link": [ {
+    "other": {
+      "reference": "Patient/0x19a"
+    },
+    "type": "seealso"
+  }, {
+    "other": {
+      "reference": "Patient/0x19d"
+    },
+    "type": "seealso"
+  }, {
+    "other": {
+      "reference": "Patient/0x19f"
+    },
+    "type": "seealso"
+  } ]
+}
+```
