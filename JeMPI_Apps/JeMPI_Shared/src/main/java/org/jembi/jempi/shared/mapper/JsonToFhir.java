@@ -7,9 +7,11 @@ import org.hl7.fhir.r4.model.*;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 import org.json.simple.JSONObject;
-
 import java.lang.reflect.Field;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public final class JsonToFhir {
 
@@ -56,8 +58,14 @@ public final class JsonToFhir {
                 patient.addAddress(address);
             }
             case "birthDate" -> {
-                // to be implemented
-                LOGGER.debug("don't forget about this");
+                try {
+                    LocalDate date = LocalDate.parse(fieldValue, DateTimeFormatter.BASIC_ISO_DATE);
+                    String fhirDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                    DateType birthDate = new DateType(fhirDate);
+                    patient.setBirthDate(birthDate.getValue());
+                } catch (DateTimeParseException e) {
+                    LOGGER.error("Failed to parse birth date: " + fieldValue, e);
+                }
             }
             default -> {
                 // to be implemented
