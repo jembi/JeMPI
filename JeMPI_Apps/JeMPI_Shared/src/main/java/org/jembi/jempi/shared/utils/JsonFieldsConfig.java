@@ -1,5 +1,7 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.shared.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -13,6 +15,15 @@ public final class JsonFieldsConfig {
 
    public JSONArray fields;
 
+   public JsonFieldsConfig() {
+      try {
+         load();
+      } catch (Exception e) {
+         LOGGER.debug(e);
+      }
+   }
+
+   private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
    private String snakeToCamelCase(final String str) {
       String[] words = str.split("_");
       String result = words[0];
@@ -69,6 +80,7 @@ public final class JsonFieldsConfig {
          // Custom fields depend on the needs of the implementation
          JSONArray customFields = (JSONArray) config.get("fields");
          fields = buildFieldsResponsePayload(systemFields, customFields);
+
       } catch (FileNotFoundException e) {
          throw e;
       }

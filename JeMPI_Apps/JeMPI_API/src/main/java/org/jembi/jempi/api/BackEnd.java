@@ -17,6 +17,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.mapper.JsonToFhir;
 import org.jembi.jempi.shared.models.*;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
@@ -25,9 +26,8 @@ import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
@@ -98,6 +97,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
             .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
             .onMessage(FindPatientRecordRequest.class, this::findPatientRecordHandler)
+              .onMessage(GetPatientResourceRequest.class, this::getPatientResourceHandler)
             .onMessage(FindCandidatesRequest.class, this::findCandidatesHandler)
             .onMessage(FindMatchesForReviewRequest.class, this::findMatchesForReviewHandler)
             .onMessage(UpdateGoldenRecordFieldsRequest.class, this::updateGoldenRecordFieldsHandler)
@@ -371,6 +371,51 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getPatientResourceHandler(final GetPatientResourceRequest request) {
+      List<ExpandedPatientRecord> expandedPatientRecords = null;
+      ExpandedGoldenRecord expandedGoldenRecord = null;
+      String patientResource = "";
+      LOGGER.debug("getPatientResource");
+
+      try {
+         libMPI.startTransaction();
+         expandedPatientRecords = libMPI.findExpandedPatientRecords(List.of(request.patientResourceId));
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
+                 request.patientResourceId,
+                 exception.getMessage());
+      }
+
+      try {
+         libMPI.startTransaction();
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.patientResourceId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
+                 request.patientResourceId,
+                 exception.getMessage());
+      }
+
+      if (expandedGoldenRecord != null) {
+         patientResource = JsonToFhir.mapGoldenRecordToFhirFormat(
+                 expandedGoldenRecord.goldenRecord(),
+                 expandedGoldenRecord.patientRecordsWithScore());
+         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      } else if (expandedPatientRecords != null) {
+         patientResource = JsonToFhir.mapPatientRecordToFhirFormat(
+                 expandedPatientRecords.get(0).patientRecord(),
+                 expandedPatientRecords.get(0).goldenRecordsWithScore());
+         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
+      } else {
+         request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+                 "Record not found for {}",
+                 request.patientResourceId))));
+      }
+
+      return Behaviors.same();
+   }
+
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
@@ -539,6 +584,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record FindPatientRecordResponse(Either<MpiGeneralError, PatientRecord> patient)
          implements EventResponse {
+   }
+
+   public record GetPatientResourceRequest(
+           ActorRef<GetPatientResourceResponse> replyTo,
+           String patientResourceId) implements Event {
+   }
+
+   public record GetPatientResourceResponse(Either<MpiGeneralError, String> patientResource)
+           implements EventResponse {
    }
 
    public record FindMatchesForReviewRequest(ActorRef<FindMatchesForReviewResponse> replyTo) implements Event {
