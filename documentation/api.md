@@ -276,7 +276,7 @@ Below a sample of the request body :
 The response payload is similar to the one returned by the simple search API endpoint. 
 
 ## GET /fhir/Patient/:uid
-The folowing endpoint returns the Golden record or Patient record in FHIR format given a uid. This endpoint returns a Fhir resource Object. Below a sample of the response for a patient record and a golden record:
+The following endpoint returns the Golden record or Patient record in FHIR format given a uid. This endpoint returns a FHIR resource object. Below a sample of the response for a patient record and a golden record:
 
 `GET /fhir/Patient/0x19f`
 ```json
