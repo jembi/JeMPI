@@ -5,6 +5,7 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -17,6 +18,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.mapper.JsonToFhir;
 import org.jembi.jempi.shared.models.*;
 import org.keycloak.adapters.KeycloakDeployment;
@@ -39,6 +41,12 @@ import java.util.List;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
+   private MyKafkaProducer<String, String> topicManualLink = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+           GlobalConstants.TOPIC_MANUAL_LINKAGE,
+           new StringSerializer(),
+           new StringSerializer(),
+           AppConfig.KAFKA_CLIENT_ID);
+
    private static LibMPI libMPI = null;
    private AkkaAdapterConfig keycloakConfig = null;
    private KeycloakDeployment keycloak = null;
@@ -481,13 +489,98 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> updateLinkToExistingGoldenRecordHandler(final UpdateLinkToExistingGoldenRecordRequest request) {
+      List<ExpandedPatientRecord> expandedPatientRecord = libMPI.findExpandedPatientRecords(List.of(request.patientId));
       var result = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+      List<ExpandedPatientRecord> expandedPatientRecords = null;
+      ExpandedGoldenRecord expandedGoldenRecord = null;
+
+      try {
+         libMPI.startTransaction();
+         expandedPatientRecords = libMPI.findExpandedPatientRecords(List.of(request.patientId));
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
+                 request.patientId,
+                 exception.getMessage());
+      }
+
+      try {
+         libMPI.startTransaction();
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.currentGoldenId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
+                 request.currentGoldenId,
+                 exception.getMessage());
+      }
+
+      String patientResource = JsonToFhir.mapPatientRecordToFhirFormat(
+              expandedPatientRecords.get(0).patientRecord(),
+              expandedPatientRecords.get(0).goldenRecordsWithScore());
+
+      String goldenRecordResource = JsonToFhir.mapGoldenRecordToFhirFormat(
+              expandedGoldenRecord.goldenRecord(),
+              expandedGoldenRecord.patientRecordsWithScore());
+
+      String records = String.format("{ {}, {} }", patientResource, goldenRecordResource);
+
+      topicManualLink.produceAsync(String.format("link to golden record", request.currentGoldenId), records,
+              ((metadata, exception) -> {
+         if (exception != null) {
+            LOGGER.error(exception.toString());
+         }
+      }));
+
+      topicManualLink.close();
       request.replyTo.tell(new UpdateLinkToExistingGoldenRecordResponse(result));
       return Behaviors.same();
    }
 
    private Behavior<Event> updateLinkToNewGoldenRecordHandler(final UpdateLinkToNewGoldenRecordRequest request) {
       var linkInfo = libMPI.linkToNewGoldenRecord(request.currentGoldenId, request.patientId, request.score);
+
+      List<ExpandedPatientRecord> expandedPatientRecords = null;
+      ExpandedGoldenRecord expandedGoldenRecord = null;
+
+      try {
+         libMPI.startTransaction();
+         expandedPatientRecords = libMPI.findExpandedPatientRecords(List.of(request.patientId));
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
+                 request.patientId,
+                 exception.getMessage());
+      }
+
+      try {
+         libMPI.startTransaction();
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.currentGoldenId);
+         libMPI.closeTransaction();
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
+                 request.currentGoldenId,
+                 exception.getMessage());
+      }
+
+      String patientResource = JsonToFhir.mapPatientRecordToFhirFormat(
+              expandedPatientRecords.get(0).patientRecord(),
+              expandedPatientRecords.get(0).goldenRecordsWithScore());
+
+      String goldenRecordResource = JsonToFhir.mapGoldenRecordToFhirFormat(
+              expandedGoldenRecord.goldenRecord(),
+              expandedGoldenRecord.patientRecordsWithScore());
+
+      String records = String.format("{ {}, {} }", patientResource, goldenRecordResource);
+
+      topicManualLink.produceAsync(String.format("link to golden record", request.currentGoldenId), records,
+              ((metadata, exception) -> {
+                 if (exception != null) {
+                    LOGGER.error(exception.toString());
+                 }
+              }));
+
+      topicManualLink.close();
+
       request.replyTo.tell(new UpdateLinkToNewGoldenRecordResponse(linkInfo));
       return Behaviors.same();
    }
