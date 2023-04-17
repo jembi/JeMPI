@@ -506,7 +506,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.currentGoldenId);
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.newGoldenId);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
@@ -524,7 +524,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       String records = String.format("{ {}, {} }", patientResource, goldenRecordResource);
 
-      topicManualLink.produceAsync(String.format("link to golden record", request.currentGoldenId), records,
+      topicManualLink.produceAsync(String.format("link to golden record {}", request.currentGoldenId), records,
               ((metadata, exception) -> {
          if (exception != null) {
             LOGGER.error(exception.toString());
@@ -554,7 +554,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.currentGoldenId);
+         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(linkInfo.get().goldenUID());
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
