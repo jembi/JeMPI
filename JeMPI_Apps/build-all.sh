@@ -3,6 +3,9 @@
 set -e
 set -u
 
+# Copy Config for API
+cp -f ./JeMPI_Configuration/config-reference.json ./JeMPI_API/src/main/resources/config-reference.json
+
 mvn clean package
 
 pushd JeMPI_AsyncReceiver
