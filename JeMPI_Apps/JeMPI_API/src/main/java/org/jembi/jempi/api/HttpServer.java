@@ -82,9 +82,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final JSONArray fields) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                ? this.createCorsRoutes(actorSystem, backEnd, fields)
-                                : this.createRoutes(actorSystem, backEnd));
+                    .bind(this.createCorsRoutes(actorSystem, backEnd, fields));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
@@ -966,12 +964,8 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                   () -> pathPrefix("JeMPI",
                                    () -> concat(
                                          createJeMPIRoutes(actorSystem, backEnd),
-                                         post(() -> path(GlobalConstants.SEGMENT_VALIDATE_OAUTH,
-                                                         () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader))),
                                          get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                                        () -> setNewCsrfToken(checkHeader,
-                                                                              () -> complete(StatusCodes.OK,
-                                                                                             fields.toJSONString()))))))));
+                                                        () -> complete(StatusCodes.OK, fields.toJSONString())))))));
    }
 
 
