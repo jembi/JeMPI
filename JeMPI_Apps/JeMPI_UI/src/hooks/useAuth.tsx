@@ -11,6 +11,7 @@ import { useSnackbar } from 'notistack'
 import React, { useEffect, useRef } from 'react'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 
+import { config } from 'config'
 import ApiErrorMessage from '../components/error/ApiErrorMessage'
 import ApiClient from '../services/ApiClient'
 import keycloak from '../services/keycloak'
@@ -57,7 +58,8 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
       return await ApiClient.getCurrentUser()
     },
     retry: false,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    enabled: config.useSso
   })
 
   const { refetch: logout } = useQuery({
@@ -103,7 +105,12 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 
   useEffect(() => {
     const currentLocation = location.current
-    if (!oauthRef.current && isLoginPage && currentLocation.hash) {
+    if (
+      config.useSso &&
+      !oauthRef.current &&
+      isLoginPage &&
+      currentLocation.hash
+    ) {
       const params = parseQuery(currentLocation.hash) as OAuthParams
       oauthRef.current = params
       validateOAuth(params)
@@ -111,33 +118,38 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validateOAuth])
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (!user && !isLoginPage) {
-        navigate({ to: '/login' })
-      } else if (user && isLoginPage) {
-        navigate({ to: '/' })
+  useEffect(
+    () => {
+      if (config.useSso) {
+        if (!isLoading) {
+          if (!user && !isLoginPage) {
+            navigate({ to: '/login' })
+          } else if (user && isLoginPage) {
+            navigate({ to: '/' })
+          }
+        }
       }
-    }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading])
+    [isLoading]
+  )
 
-  if (isLoading) {
+  if (config.useSso && isLoading) {
     return <LoadingSpinner />
   }
 
+  const authContextValue: AuthContextValue = {
+    user,
+    isAuthenticated: !!user,
+    error,
+    setUser,
+    refetchUser: refetch,
+    logout,
+    signInWithKeyCloak
+  }
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        error,
-        setUser,
-        refetchUser: refetch,
-        logout,
-        signInWithKeyCloak
-      }}
-    >
+    <AuthContext.Provider value={authContextValue}>
       {error && <ApiErrorMessage error={error} />}
       {children}
     </AuthContext.Provider>

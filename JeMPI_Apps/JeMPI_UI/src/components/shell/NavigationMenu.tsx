@@ -2,6 +2,7 @@ import { AccountCircle as AccountCircleIcon } from '@mui/icons-material'
 import { Box, Divider, IconButton, Typography } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import { config } from 'config'
 import * as React from 'react'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -25,7 +26,7 @@ const NavigationMenu: React.FC = () => {
     return null
   }
 
-  return (
+  return config.useSso ? (
     <>
       <IconButton
         aria-controls={isOpen ? 'basic-menu' : undefined}
@@ -64,6 +65,8 @@ const NavigationMenu: React.FC = () => {
         </MenuItem>
       </Menu>
     </>
+  ) : (
+    <></>
   )
 }
 
