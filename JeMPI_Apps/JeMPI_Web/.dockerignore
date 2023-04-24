@@ -1,0 +1,19 @@
+# Dependency directories
+node_modules/
+
+# Dockerfiles
+Dockerfile
+
+# Env
+.env.*
+
+# Git
+.github/
+.gitignore
+.git
+
+# Others
+README.md
+build
+.husky
+.vscode
