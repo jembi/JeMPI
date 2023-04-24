@@ -10,7 +10,7 @@ if [ $USE_LOCAL_REGISTRY == 'true' ]; then
     # In cluster mode, we set the network ip address
     export NODE1=$(hostname)
 #   export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
-    export NODE1=$(hostname -i)
+    export NODE1_IP=$(hostname -i)
 
 else
     # For local deployments (single mode), we set localhost IP
