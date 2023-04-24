@@ -1,0 +1,71 @@
+/* Drop Zone Component */
+.dropzone {
+  color: rgba(0, 0, 0, 0.87);
+  margin: auto;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  max-width: 600px;
+  max-height: 152px;
+  text-align: center;
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+.dropzone-inner {
+  margin: 5%;
+}
+
+.dropzone.is-drag-accept {
+  border-color: #00e676;
+}
+
+.dropzone.is-drag-reject {
+  border-color: #ff1744;
+}
+
+.dropzone.is-focused {
+  border-color: #64b5f6;
+}
+
+/* Upload File List Item Component */
+.import__upload-list-item {
+  max-width: 575px;
+  margin: 5% auto;
+  width: 100%;
+}
+
+.import__upload-list-item.failed {
+  color: red !important;
+}
+
+.import__upload-icon {
+  border-radius: 100%;
+  background-color: #e3eef9;
+  width: 36px;
+  height: 36px;
+  font-size: 15px;
+  text-align: center;
+  padding: 5px;
+  margin: auto;
+  color: #1976d2;
+}
+
+.failed .import__upload-icon {
+  background-color: #f9e3e3;
+  color: red;
+}
+
+.import__close-icon {
+  color: currentColor;
+  background: none;
+  cursor: pointer;
+}
+
+.import__upload-progress-bar {
+  max-width: 100%;
+  margin-top: 10px;
+}
+
+.failed .import__upload-progress-bar span {
+  background-color: red !important;
+}
