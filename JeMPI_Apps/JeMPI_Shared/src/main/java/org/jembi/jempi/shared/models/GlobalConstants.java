@@ -20,10 +20,12 @@ public final class GlobalConstants {
    public static final String SEGMENT_LINK_RECORD = "Link";
    public static final String SEGMENT_POST_SIMPLE_SEARCH = "search";
    public static final String SEGMENT_POST_CUSTOM_SEARCH = "custom-search";
+/*
    public static final String SEGMENT_CURRENT_USER = "current-user";
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_AUDIT_TRAIL = "Audit-trail";
+*/
    public static final String SEGMENT_UPLOAD = "Upload";
    public static final String SEGMENT_UPDATE_GOLDEN_RECORD = "golden-record";
    public static final String SEGMENT_CALCULATE_SCORES = "calculate-scores";

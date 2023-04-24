@@ -8,41 +8,26 @@ import io.vavr.control.Either;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.api.keycloak.AkkaAdapterConfig;
-import org.jembi.jempi.api.keycloak.AkkaKeycloakDeploymentBuilder;
-import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
-import org.jembi.jempi.api.models.User;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
-import org.jembi.jempi.shared.mapper.JsonToFhir;
 import org.jembi.jempi.shared.models.*;
-import org.keycloak.adapters.KeycloakDeployment;
-import org.keycloak.adapters.ServerRequest;
-import org.keycloak.adapters.rotation.AdapterTokenVerifier;
-import org.keycloak.common.VerificationException;
-import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.AccessTokenResponse;
 
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static LibMPI libMPI = null;
-   private AkkaAdapterConfig keycloakConfig = null;
-   private KeycloakDeployment keycloak = null;
-
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
@@ -52,9 +37,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       // Init keycloak
       ClassLoader classLoader = getClass().getClassLoader();
       InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
-      keycloakConfig = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfigStream);
-      keycloak = AkkaKeycloakDeploymentBuilder.build(keycloakConfig);
-      LOGGER.debug("Keycloak configured, realm : {}", keycloak.getRealm());
    }
 
    private BackEnd(
@@ -88,7 +70,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public Receive<Event> actor() {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder
-            .onMessage(LoginWithKeycloakRequest.class, this::loginWithKeycloakHandler)
             .onMessage(GetGoldenRecordCountRequest.class, this::getGoldenRecordCountHandler)
             .onMessage(GetPatientRecordCountRequest.class, this::getPatientRecordCountHandler)
             .onMessage(GetNumberOfRecordsRequest.class, this::getNumberOfRecordsHandler)
@@ -97,7 +78,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
             .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
             .onMessage(FindPatientRecordRequest.class, this::findPatientRecordHandler)
-              .onMessage(GetPatientResourceRequest.class, this::getPatientResourceHandler)
             .onMessage(FindCandidatesRequest.class, this::findCandidatesHandler)
             .onMessage(FindMatchesForReviewRequest.class, this::findMatchesForReviewHandler)
             .onMessage(UpdateGoldenRecordFieldsRequest.class, this::updateGoldenRecordFieldsHandler)
@@ -165,52 +145,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       var recs = libMPI.customSearchPatientRecords(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
       request.replyTo.tell(new SearchPatientRecordsResponse(recs));
-      return Behaviors.same();
-   }
-
-   private Behavior<Event> loginWithKeycloakHandler(final LoginWithKeycloakRequest request) {
-      LOGGER.debug("loginWithKeycloak");
-      LOGGER.debug("Logging in {}", request.payload);
-      try {
-         // Exchange code for a token from Keycloak
-         AccessTokenResponse tokenResponse = ServerRequest.invokeAccessCodeToToken(keycloak, request.payload.code(),
-                                                                                   keycloakConfig.getRedirectUri(),
-                                                                                   request.payload.sessionId());
-         LOGGER.debug("Token Exchange succeeded!");
-
-         String tokenString = tokenResponse.getToken();
-         String idTokenString = tokenResponse.getIdToken();
-
-         AdapterTokenVerifier.VerifiedTokens tokens = AdapterTokenVerifier.verifyTokens(tokenString, idTokenString,
-                                                                                        keycloak);
-         LOGGER.debug("Token Verification succeeded!");
-         AccessToken token = tokens.getAccessToken();
-         LOGGER.debug("Is user already registered?");
-         String email = token.getEmail();
-         User user = PsqlQueries.getUserByEmail(email);
-         if (user == null) {
-            // Register new user
-            LOGGER.debug("User registration ... {}", email);
-            User newUser = User.buildUserFromToken(token);
-            user = PsqlQueries.registerUser(newUser);
-         }
-         LOGGER.debug("User has signed in : {}", user.getEmail());
-         request.replyTo.tell(new LoginWithKeycloakResponse(user));
-         return Behaviors.same();
-      } catch (SQLException e) {
-         LOGGER.error("failed sql query: {}", e.getMessage());
-      } catch (VerificationException e) {
-         LOGGER.error("failed verification of token: {}", e.getMessage());
-      } catch (ServerRequest.HttpFailure failure) {
-         LOGGER.error("failed to turn code into token");
-         LOGGER.error("status from server: {}", failure.getStatus());
-         if (failure.getError() != null && !failure.getError().trim().isEmpty()) {
-            LOGGER.error(failure.getLocalizedMessage(), failure);
-         }
-      } catch (IOException e) {
-         LOGGER.error("failed to turn code into token", e);
-      }
-      request.replyTo.tell(new LoginWithKeycloakResponse(null));
       return Behaviors.same();
    }
 
@@ -314,7 +248,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (goldenRecords == null) {
          request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
                "Golden Records do not exist",
-               Arrays.asList(request.goldenIds).toString()))));
+               Collections.singletonList(request.goldenIds).toString()))));
       } else {
          request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
@@ -339,7 +273,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (expandedPatientRecords == null) {
          request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                "Patient Records do not exist",
-               Arrays.asList(request.patientIds).toString()))));
+               Collections.singletonList(request.patientIds).toString()))));
       } else {
          request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.right(expandedPatientRecords)));
       }
@@ -371,6 +305,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+/*
    private Behavior<Event> getPatientResourceHandler(final GetPatientResourceRequest request) {
       List<ExpandedPatientRecord> expandedPatientRecords = null;
       ExpandedGoldenRecord expandedGoldenRecord = null;
@@ -383,8 +318,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
-                 request.patientResourceId,
-                 exception.getMessage());
+                      request.patientResourceId,
+                      exception.getMessage());
       }
 
       try {
@@ -393,28 +328,29 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
-                 request.patientResourceId,
-                 exception.getMessage());
+                      request.patientResourceId,
+                      exception.getMessage());
       }
 
       if (expandedGoldenRecord != null) {
          patientResource = JsonToFhir.mapGoldenRecordToFhirFormat(
-                 expandedGoldenRecord.goldenRecord(),
-                 expandedGoldenRecord.patientRecordsWithScore());
+               expandedGoldenRecord.goldenRecord(),
+               expandedGoldenRecord.patientRecordsWithScore());
          request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       } else if (expandedPatientRecords != null) {
          patientResource = JsonToFhir.mapPatientRecordToFhirFormat(
-                 expandedPatientRecords.get(0).patientRecord(),
-                 expandedPatientRecords.get(0).goldenRecordsWithScore());
+               expandedPatientRecords.get(0).patientRecord(),
+               expandedPatientRecords.get(0).goldenRecordsWithScore());
          request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
       } else {
          request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-                 "Record not found for {}",
-                 request.patientResourceId))));
+               "Record not found for {}",
+               request.patientResourceId))));
       }
 
       return Behaviors.same();
    }
+*/
 
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
@@ -586,14 +522,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements EventResponse {
    }
 
+/*
    public record GetPatientResourceRequest(
-           ActorRef<GetPatientResourceResponse> replyTo,
-           String patientResourceId) implements Event {
+         ActorRef<GetPatientResourceResponse> replyTo,
+         String patientResourceId) implements Event {
    }
+*/
 
+/*
    public record GetPatientResourceResponse(Either<MpiGeneralError, String> patientResource)
-           implements EventResponse {
+         implements EventResponse {
    }
+*/
 
    public record FindMatchesForReviewRequest(ActorRef<FindMatchesForReviewResponse> replyTo) implements Event {
    }
@@ -655,17 +595,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record UpdateNotificationStateRespnse() implements EventResponse {
    }
 
-   /**
-    * Authentication events
-    */
-
-   public record LoginWithKeycloakRequest(
-         ActorRef<LoginWithKeycloakResponse> replyTo,
-         OAuthCodeRequestPayload payload) implements Event {
-   }
-
-   public record LoginWithKeycloakResponse(User user) implements EventResponse {
-   }
 
    /**
     * Search events

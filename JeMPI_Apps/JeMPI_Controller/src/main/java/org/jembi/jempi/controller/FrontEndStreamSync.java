@@ -8,7 +8,6 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
-import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,10 +16,7 @@ import org.jembi.jempi.shared.models.LinkPatientSyncBody;
 import org.jembi.jempi.shared.models.LinkPatientToGidSyncBody;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
-
-import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
 public final class FrontEndStreamSync extends AllDirectives {
 
@@ -112,16 +108,12 @@ public final class FrontEndStreamSync extends AllDirectives {
    private Route createRoute(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      final var settings = CorsSettings.defaultSettings()
-                                       .withAllowedMethods(Arrays.asList(HttpMethods.GET, HttpMethods.POST))
-                                       .withAllowGenericHttpRequests(true);
-      return cors(settings,
-                  () -> pathPrefix("JeMPI",
-                                   () -> concat(
-                                         post(() -> concat(
-                                               path("link_patient", this::routeLinkPatient),
-                                               path("link_patient_to_gid", this::routeLinkPatientToGid))),
-                                         get(() -> path("mu", this::routeMU)))));
+      return pathPrefix("JeMPI",
+                        () -> concat(
+                              post(() -> concat(
+                                    path("link_patient", this::routeLinkPatient),
+                                    path("link_patient_to_gid", this::routeLinkPatientToGid))),
+                              get(() -> path("mu", this::routeMU))));
    }
 
 }

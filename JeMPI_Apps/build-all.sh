@@ -8,9 +8,6 @@ mvn clean package
 pushd JeMPI_AsyncReceiver
   ./build.sh || exit 1
 popd
-pushd JeMPI_SyncReceiver
-  ./build.sh || exit 1
-popd
 pushd JeMPI_ETL
   ./build.sh || exit 1
 popd
@@ -28,9 +25,6 @@ pushd JeMPI_API
 popd
 
 pushd JeMPI_AsyncReceiver
-  ./push.sh
-popd
-pushd JeMPI_SyncReceiver
   ./push.sh
 popd
 pushd JeMPI_ETL
