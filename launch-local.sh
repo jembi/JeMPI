@@ -34,6 +34,9 @@ while true; do
     esac
 done
 
+# Copy Config for API
+cp -f ./JeMPI_Apps/JeMPI_Configuration/config-reference.json ./JeMPI_Apps/JeMPI_API/src/main/resources/config-reference.json
+
 # Maven package
 pushd ./JeMPI_Apps || exit
     mvn clean package
