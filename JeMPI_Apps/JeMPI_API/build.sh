@@ -10,5 +10,5 @@ JAR_FILE=${API_JAR}
 APP_IMAGE=${API_IMAGE}
 APP=api
 
-cp -f ../JeMPI_Configuration/config-reference.json ./src/main/resources/config-reference.json
+cp -f ../JeMPI_Configuration/config-reference-api.json ./src/main/resources/config-api.json
 source ../build-app.sh

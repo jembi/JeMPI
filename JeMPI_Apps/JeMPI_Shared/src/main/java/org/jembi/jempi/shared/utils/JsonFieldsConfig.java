@@ -66,7 +66,7 @@ public final class JsonFieldsConfig {
 
    private InputStream getFileStreamFromResource() {
       ClassLoader classLoader = getClass().getClassLoader();
-      return classLoader.getResourceAsStream("/config-reference.json");
+      return classLoader.getResourceAsStream("/config-api.json");
    }
 
    public void load() throws Exception {

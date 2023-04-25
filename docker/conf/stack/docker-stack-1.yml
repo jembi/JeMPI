@@ -19,6 +19,38 @@ networks:
     attachable: true
 
 services:
+  
+  haproxy:
+    image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
+    volumes:
+      - type: bind
+        source: ${DATA_HAPROXY_DIR}
+        target: /etc/haproxy/
+        read_only: true
+    dns:
+      - 127.0.0.11
+    networks:
+      - frontend-api
+    ports:
+      - published: 30460
+        target: 30460
+        protocol: tcp
+        mode: host
+      - published: 50000
+        target: 50000
+        protocol: tcp
+        mode: host
+      - published: 80
+        target: 80
+        protocol: tcp
+        mode: host
+    deploy:
+      mode: global
+
+  nginx:
+    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
+    networks:
+      - frontend-api
 
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
@@ -494,11 +526,6 @@ services:
     - backend-kafka
     - frontend-api
     - backend-postgresql
-    ports:
-    - published: 50000
-      target: 50000
-      protocol: tcp
-      mode: host  
     volumes:
     - type: bind
       source: $DATA_DIR_API/conf

@@ -11,6 +11,8 @@ docker pull $JAVA_BASE_IMAGE
 docker pull $REGISTRY_IMAGE
 #docker pull $PORTAINER_AGENT_IMAGE
 #docker pull $PORTAINER_IMAGE
+docker pull $HAPROXY_IMAGE
+docker pull $NGINX_IMAGE
 docker pull $KAFKA_IMAGE
 docker pull $DGRAPH_IMAGE
 docker pull $RATEL_IMAGE

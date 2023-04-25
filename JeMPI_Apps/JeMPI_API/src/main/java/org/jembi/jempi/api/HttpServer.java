@@ -950,7 +950,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private Route createRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd));
+      return pathPrefix("JeMPI",
+                        () -> pathPrefix("api",
+                                         () -> createJeMPIRoutes(actorSystem, backEnd)));
    }
 
    private Route createCorsRoutes(
