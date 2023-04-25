@@ -37,28 +37,35 @@ object CustomLinkerBackEnd {
          |   }
          |
          |   static void updateGoldenRecordFields(
+         |         final BackEnd backEnd,
          |         final LibMPI libMPI,
          |         final String goldenId) {
          |      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).get(0);
          |      final var goldenRecord = expandedGoldenRecord.goldenRecord();
          |      final var demographicData = goldenRecord.demographicData();
+         |      var k = 0;
          |""".stripMargin)
 
     muList.zipWithIndex.foreach((mu, _) => {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}BackEnd.updateGoldenRecordField(expandedGoldenRecord,
-           |${" " * 6}                                "$fieldName", demographicData.$fieldName(), CustomDemographicData::$fieldName);""".stripMargin)
+        s"""${" " * 6}k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+           |${" " * 6}                                     "$fieldName", demographicData.$fieldName(), CustomDemographicData::$fieldName)
+           |${" " * 12}? 1
+           |${" " * 12}: 0;""".stripMargin)
     })
     writer.println(
-      s"""${" " * 6}BackEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord, goldenId);""".stripMargin)
+      s"""
+         |${" " * 6}if (k > 0) {
+         |${" " * 6}  backEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord);
+         |${" " * 6}}""".stripMargin)
     writer.println()
     config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {
       val field_name = field.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}BackEnd.updateGoldenRecordListField(expandedGoldenRecord, "GoldenRecord.$field_name",
+        s"""${" " * 6}backEnd.updateGoldenRecordListField(expandedGoldenRecord, "GoldenRecord.$field_name",
            |${" " * 42}expandedGoldenRecord.entity().$fieldName(),
            |${" " * 42}CustomDocEntity::$fieldName);""".stripMargin)
     })

@@ -3,7 +3,6 @@ package org.jembi.jempi.api;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
-import akka.dispatch.MessageDispatcher;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
@@ -21,7 +20,6 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
-import org.json.simple.JSONArray;
 
 import java.io.File;
 import java.util.List;
@@ -42,8 +40,11 @@ public final class HttpServer extends AllDirectives {
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;
 
-   public HttpServer(final MessageDispatcher dispatcher) {
-      super();
+   private HttpServer() {
+   }
+
+   static HttpServer create() {
+      return new HttpServer();
    }
 
    void close(final ActorSystem<Void> actorSystem) {
@@ -53,8 +54,7 @@ public final class HttpServer extends AllDirectives {
 
    void open(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final JSONArray fields) {
+         final ActorRef<BackEnd.Event> backEnd) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
                     .bind(this.createRoutes(actorSystem, backEnd));

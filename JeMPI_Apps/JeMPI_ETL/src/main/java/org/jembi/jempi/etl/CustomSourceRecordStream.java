@@ -42,48 +42,57 @@ public final class CustomSourceRecordStream {
 
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serializer<CustomSourceRecord> customSourceRecordSerializer = new JsonPojoSerializer<>();
-      final Deserializer<CustomSourceRecord> customSourceRecordDeserializer = new JsonPojoDeserializer<>(
-            CustomSourceRecord.class);
+      final Serializer<AsyncSourceRecord> sourceRecordSerializer = new JsonPojoSerializer<>();
+      final Deserializer<AsyncSourceRecord> sourceRecordDeserializer = new JsonPojoDeserializer<>(
+            AsyncSourceRecord.class);
       final Serializer<BatchPatientRecord> batchPatientSerializer = new JsonPojoSerializer<>();
       final Deserializer<BatchPatientRecord> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchPatientRecord.class);
-      final Serde<CustomSourceRecord> customSourceRecordSerde = Serdes.serdeFrom(customSourceRecordSerializer,
-                                                                                 customSourceRecordDeserializer);
+      final Serde<AsyncSourceRecord> sourceRecordSerde = Serdes.serdeFrom(sourceRecordSerializer, sourceRecordDeserializer);
       final Serde<BatchPatientRecord> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, CustomSourceRecord> patientKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, customSourceRecordSerde));
+      final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
+            GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
       patientKStream
             .map((key, rec) -> {
-               var k = rec.familyName();
-               if (StringUtils.isBlank(k)) {
-                  k = "anon";
-               }
-               k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
-               LOGGER.info("{} : {}", k, rec);
+               LOGGER.info("{} : {}", key, rec);
                var batchType = switch (rec.recordType().type) {
-                  case CustomSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
-                  case CustomSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
+                  case AsyncSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
+                  case AsyncSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
                   default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
                };
-               var batchPatient = new BatchPatientRecord(
-                     batchType,
-                     rec.stan(),
-                     new PatientRecord(null,
-                                       new SourceId(null,
-                                                    FACILITY.get(random.nextInt(FACILITY.size())),
-                                                    StringUtils.isNotBlank(rec.nationalID())
-                                                          ? rec.nationalID()
-                                                          : "ANON"),
-                                       new CustomDemographicData(rec.auxId(),
-                                                                 rec.givenName(),
-                                                                 rec.familyName(),
-                                                                 rec.gender(),
-                                                                 rec.dob(),
-                                                                 rec.city(),
-                                                                 rec.phoneNumber(),
-                                                                 rec.nationalID())));
-               return KeyValue.pair(k, batchPatient);
+               if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
+//               var k = rec.familyName();
+//               if (StringUtils.isBlank(k)) {
+//                  k = "anon";
+//               }
+//               k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
+//               var batchType = switch (rec.recordType().type) {
+//                  case CustomSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
+//                  case CustomSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
+//                  default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
+//               };
+                  var batchPatient = new BatchPatientRecord(
+                        batchType,
+                        rec.batchMetaData(),
+                        rec.customSourceRecord().stan(),
+                        new PatientRecord(null,
+                                          new SourceId(null,
+                                                       FACILITY.get(random.nextInt(FACILITY.size())),
+                                                       StringUtils.isNotBlank(rec.customSourceRecord().nationalID())
+                                                             ? rec.customSourceRecord().nationalID()
+                                                             : "ANON"),
+                                          new CustomDemographicData(rec.customSourceRecord().auxId(),
+                                                                    rec.customSourceRecord().givenName(),
+                                                                    rec.customSourceRecord().familyName(),
+                                                                    rec.customSourceRecord().gender(),
+                                                                    rec.customSourceRecord().dob(),
+                                                                    rec.customSourceRecord().city(),
+                                                                    rec.customSourceRecord().phoneNumber(),
+                                                                    rec.customSourceRecord().nationalID())));
+                  return KeyValue.pair(key, batchPatient);
+               } else {
+                  return KeyValue.pair("SENTINEL", new BatchPatientRecord(batchType, rec.batchMetaData(), null, null));
+               }
             })
             .filter((key, value) -> !(value.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT && StringUtils.isBlank(
                   value.patientRecord().demographicData().auxId())))
