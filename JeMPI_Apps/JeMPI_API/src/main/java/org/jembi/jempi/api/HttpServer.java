@@ -8,21 +8,15 @@ import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.*;
+import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.server.directives.FileInfo;
-import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.softwaremill.session.*;
-import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
-import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.api.models.OAuthCodeRequestPayload;
-import org.jembi.jempi.api.models.User;
-import org.jembi.jempi.api.session.UserSession;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
@@ -38,37 +32,18 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static akka.http.javadsl.server.PathMatchers.segment;
-import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
-import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
 
-public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
+public final class HttpServer extends AllDirectives {
 
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
-   private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder<>(UserSession.getSerializer());
-
    // in-memory refresh token storage
-   private static final RefreshTokenStorage<UserSession> REFRESH_TOKEN_STORAGE = new InMemoryRefreshTokenStorage<UserSession>() {
-      @Override
-      public void log(final String msg) {
-         LOGGER.info(msg);
-      }
-   };
    private static final Function<Entry<String, String>, String> PARAM_STRING = Entry::getValue;
-   private final Refreshable<UserSession> refreshable;
-   private final SetSessionTransport sessionTransport;
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;
 
    public HttpServer(final MessageDispatcher dispatcher) {
-      super(new SessionManager<>(SessionConfig.defaultConfig(AppConfig.SESSION_SECRET), BASIC_ENCODER));
-
-      // use Refreshable for sessions, which needs to be refreshed or OneOff otherwise
-      // using Refreshable, a refresh token is set in form of a cookie or a custom header
-      refreshable = new Refreshable<>(getSessionManager(), REFRESH_TOKEN_STORAGE, dispatcher);
-
-      // set the session transport - based on Cookies (or Headers)
-      sessionTransport = CookieST;
+      super();
    }
 
    void close(final ActorSystem<Void> actorSystem) {
@@ -82,9 +57,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final JSONArray fields) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                ? this.createCorsRoutes(actorSystem, backEnd, fields)
-                                : this.createRoutes(actorSystem, backEnd));
+                    .bind(this.createRoutes(actorSystem, backEnd));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
@@ -176,6 +149,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
+/*
    private CompletionStage<BackEnd.GetPatientResourceResponse> askFindPatientResource(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
@@ -188,6 +162,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                       actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
+*/
 
    private CompletionStage<BackEnd.FindCandidatesResponse> askFindCandidates(
          final ActorSystem<Void> actorSystem,
@@ -339,6 +314,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return stage.thenApply(response -> response);
    }
 
+/*
    private CompletionStage<BackEnd.LoginWithKeycloakResponse> askLoginWithKeycloak(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -350,6 +326,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
+*/
 
    private CompletionStage<BackEnd.UploadCsvFileResponse> askUploadCsvFile(
          final ActorSystem<Void> actorSystem,
@@ -414,6 +391,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                           : complete(StatusCodes.NO_CONTENT));
    }
 
+/*
    private Route routeSessionUpdateGoldenRecordFields(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -428,6 +406,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       });
 
    }
+*/
 
    private Route routeUpdateLinkToNewGoldenRecord(
          final ActorSystem<Void> actorSystem,
@@ -615,6 +594,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+/*
    private Route routeSessionFindExpandedGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -623,6 +603,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                              sessionTransport,
                              session -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId));
    }
+*/
 
    private Route routeFindPatientRecord(
          final ActorSystem<Void> actorSystem,
@@ -640,13 +621,16 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+/*
    private Route routeSessionFindPatientRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String patientId) {
       return requiredSession(refreshable, sessionTransport, session -> routeFindPatientRecord(actorSystem, backEnd, patientId));
    }
+*/
 
+/*
    private Route routeGetPatientResource(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
@@ -662,13 +646,17 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               ))
                       : complete(StatusCodes.IM_A_TEAPOT));
    }
+*/
 
+/*
    private Route routeSessionGetPatientResource(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
            final String patientResourceId) {
-      return requiredSession(refreshable, sessionTransport, session -> routeGetPatientResource(actorSystem, backEnd, patientResourceId));
+      return requiredSession(refreshable, sessionTransport, session -> routeGetPatientResource(actorSystem, backEnd,
+      patientResourceId));
    }
+*/
 
    private Route routeFindCandidates(
          final ActorSystem<Void> actorSystem,
@@ -701,6 +689,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                     }));
    }
 
+/*
    private Route routeLoginWithKeycloakRequest(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -725,7 +714,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                }
             }));
    }
+*/
 
+/*
    private Route routeCurrentUser() {
       return requiredSession(refreshable, sessionTransport, session -> {
          if (session != null) {
@@ -736,7 +727,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          return complete(StatusCodes.FORBIDDEN);
       });
    }
+*/
 
+/*
    private Route routeLogout() {
       return requiredSession(refreshable,
                              sessionTransport,
@@ -746,6 +739,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                  routeResult -> complete("success"));
                              })));
    }
+*/
 
    private Route routeUploadCsvFile(
          final ActorSystem<Void> actorSystem,
@@ -768,6 +762,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                      : complete(StatusCodes.IM_A_TEAPOT))));
    }
 
+/*
    private Route routeSessionUploadCsvFile(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -795,6 +790,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                               return complete(StatusCodes.FORBIDDEN);
                            }));
    }
+*/
 
    private Route routeSimpleSearch(
          final ActorSystem<Void> actorSystem,
@@ -820,12 +816,14 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                           }));
    }
 
+/*
    private Route routeSessionSimpleSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       return requiredSession(refreshable, sessionTransport, session -> routeSimpleSearch(actorSystem, backEnd, recordType));
    }
+*/
 
    private Route routeCustomSearch(
          final ActorSystem<Void> actorSystem,
@@ -862,6 +860,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                     });
    }
 
+/*
    private Route routeSessionCustomSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -872,18 +871,21 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          return routeCustomSearch(actorSystem, backEnd, recordType);
       });
    }
+*/
 
+/*
    private Route createFhirRoutes(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd) {
               return concat(
-                      get(() -> concat(path(segment(GlobalConstants.SEGMENT_FHIR_PATIENT).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                      get(() -> concat(path(segment(GlobalConstants.SEGMENT_FHIR_PATIENT).slash(segment(Pattern.compile
+                      ("^[A-z0-9]+$"))),
                               (patientResourceId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
                                       ? routeSessionGetPatientResource(actorSystem, backEnd, patientResourceId)
                                       : routeGetPatientResource(actorSystem, backEnd, patientResourceId))))
               );
    }
-
+*/
 
    private Route createJeMPIRoutes(
          final ActorSystem<Void> actorSystem,
@@ -897,9 +899,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                       final var t = type.equals("golden")
                                             ? RecordType.GoldenRecord
                                             : RecordType.PatientRecord;
-                                      return AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                            ? routeSessionSimpleSearch(actorSystem, backEnd, t)
-                                            : routeSimpleSearch(actorSystem, backEnd, t);
+                                      return routeSimpleSearch(actorSystem, backEnd, t);
                                    }),
                               path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH).slash(segment(Pattern.compile(
                                          "^(golden|patient)$"))),
@@ -907,44 +907,37 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                       final var t = type.equals("golden")
                                             ? RecordType.GoldenRecord
                                             : RecordType.PatientRecord;
-                                      return AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                            ? routeSessionCustomSearch(actorSystem, backEnd, t)
-                                            : routeCustomSearch(actorSystem, backEnd, t);
+                                      return routeCustomSearch(actorSystem, backEnd, t);
                                    }),
                               path(GlobalConstants.SEGMENT_CALCULATE_SCORES, this::routeCalculateScores),
-                              path(GlobalConstants.SEGMENT_UPLOAD, () -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                                    ? routeSessionUploadCsvFile(actorSystem, backEnd)
-                                    : routeUploadCsvFile(actorSystem, backEnd)))),
+                              path(GlobalConstants.SEGMENT_UPLOAD, () -> routeUploadCsvFile(actorSystem, backEnd)))),
             patch(() -> concat(
                   path(segment(GlobalConstants.SEGMENT_UPDATE_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                       (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                             ? routeSessionUpdateGoldenRecordFields(actorSystem, backEnd, goldenId)
-                             : routeUpdateGoldenRecordFields(actorSystem, backEnd, goldenId)),
+                       (goldenId) -> routeUpdateGoldenRecordFields(actorSystem, backEnd, goldenId)),
                   path(GlobalConstants.SEGMENT_CREATE_GOLDEN_RECORD,
                        () -> routeUpdateLinkToNewGoldenRecord(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_LINK_RECORD, () -> routeUpdateLinkToExistingGoldenRecord(actorSystem, backEnd)))),
             get(() -> concat(
+/*
                   path(GlobalConstants.SEGMENT_CURRENT_USER, this::routeCurrentUser),
                   path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout),
-                  path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeFindMatchesForReview(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS, () -> routeFindCandidates(actorSystem, backEnd)),
-                  path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                       (patientId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                             ? routeSessionFindPatientRecord(actorSystem, backEnd, patientId)
-                             : routeFindPatientRecord(actorSystem, backEnd, patientId)),
-                  path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                       (goldenId) -> AppConfig.AKKA_HTTP_SESSION_ENABLED
-                             ? routeSessionFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)
-                             : routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId))
-                    )),
-              pathPrefix("fhir", () -> createFhirRoutes(actorSystem, backEnd)));
+*/
+                      path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem,
+                                                                                                             backEnd)),
+                      path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem,
+                                                                                                               backEnd)),
+                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeFindMatchesForReview(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS, () -> routeFindCandidates(actorSystem, backEnd)),
+                      path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                           (patientId) -> routeFindPatientRecord(actorSystem, backEnd, patientId)),
+                      path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                           (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)))
+               ));
    }
 
    private Route createRoutes(
@@ -955,6 +948,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                          () -> createJeMPIRoutes(actorSystem, backEnd)));
    }
 
+/*
    private Route createCorsRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -975,6 +969,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                                               () -> complete(StatusCodes.OK,
                                                                                              fields.toJSONString()))))))));
    }
+*/
 
 
    private interface ApiPaginatedResultSet {

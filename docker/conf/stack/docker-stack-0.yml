@@ -365,38 +365,6 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
 
-  sync-receiver:
-    image: ${IMAGE_REGISTRY}${SYNC_RECEIVER_IMAGE}
-    networks:
-    - backend-kafka
-    ports:
-    - published: 50040
-      target: 50000
-      protocol: tcp
-      mode: host  
-    volumes:
-    - type: bind
-      source: $DATA_DIR_SYNC_RECEIVER/logs
-      target: /app/logs
-      read_only: false
-    - type: bind
-      source: $DATA_DIR_SYNC_RECEIVER/conf
-      target: /app/conf
-      read_only: true
-    deploy:
-      mode: replicated
-      replicas: 0
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_SYNC_RECEIVER}
-
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     networks:

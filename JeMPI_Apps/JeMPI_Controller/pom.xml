@@ -44,10 +44,12 @@
             <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>ch.megard</groupId>
             <artifactId>akka-http-cors_${scala.tools.version}</artifactId>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
