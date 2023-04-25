@@ -4,13 +4,13 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import { ReactLocation, Route, Router } from '@tanstack/react-location'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import Records from 'components/records/Records'
 import { SnackbarProvider } from 'notistack'
 import { lazy } from 'react'
 import AuditTrail from './components/auditTrail/AuditTrail'
 import CustomSearch from './components/customSearch/CustomSearch'
 import ErrorBoundary from './components/error/ErrorBoundary'
 import NotFound from './components/error/NotFound'
-import HomePage from './components/home/HomePage'
 import Import from './components/import/Import'
 import LinkedRecords from './components/linkedRecords/LinkedRecords'
 import PatientDetails from './components/patient/PatientDetails'
@@ -47,7 +47,7 @@ const routes: Route[] = [
     children: [
       {
         path: '/',
-        element: <HomePage />
+        element: <Records />
       },
       {
         path: 'notifications',
