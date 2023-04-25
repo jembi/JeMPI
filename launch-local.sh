@@ -56,6 +56,9 @@ while true; do
     esac
 done
 
+pushd ./JeMPI_Apps/JeMPI_UI
+  source ./build-image.sh || exit 1
+popd
 pushd ./JeMPI_Apps/JeMPI_AsyncReceiver
   source ./build.sh || exit 1
 popd

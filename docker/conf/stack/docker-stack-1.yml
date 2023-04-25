@@ -525,4 +525,30 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
-    
+
+  ui:
+    image: ${IMAGE_REGISTRY}${UI_IMAGE}
+    environment:
+      REACT_APP_JEMPI_BASE_URL: ${JEMPI_API_URL}
+      REACT_APP_MOCK_BACKEND: "${JEMPI_UI_MOCKBACKEND}"
+      REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
+    networks:
+      - frontend-api
+    ports:
+      - published: 3000
+        target: 3000
+        protocol: tcp
+        mode: host
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+          - node.labels.name == ${PLACEMENT_UI}
