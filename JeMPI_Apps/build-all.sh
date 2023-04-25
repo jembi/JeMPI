@@ -29,6 +29,9 @@ popd
 pushd JeMPI_API
   ./build.sh || exit 1
 popd
+pushd JeMPI_UI
+  ./build-image.sh || exit 1
+popd
 
 pushd JeMPI_AsyncReceiver
   ./push.sh
@@ -49,5 +52,8 @@ pushd JeMPI_Linker
   ./push.sh
 popd
 pushd JeMPI_API
+  ./push.sh
+popd
+pushd JeMPI_UI
   ./push.sh
 popd

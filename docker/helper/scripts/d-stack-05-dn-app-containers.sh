@@ -17,6 +17,7 @@ pushd .
     em
     linker
     api
+    ui
   )
 
   for APP in ${APPS[@]}; do
