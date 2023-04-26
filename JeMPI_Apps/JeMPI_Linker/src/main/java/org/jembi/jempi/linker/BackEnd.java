@@ -2,6 +2,7 @@ package org.jembi.jempi.linker;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
+import akka.actor.typed.DispatcherSelector;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
@@ -18,10 +19,13 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
+import org.jembi.jempi.stats.StatsTask;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,11 +34,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
+   private final Executor ec;
    private LibMPI libMPI = null;
    private MyKafkaProducer<String, Notification> topicNotifications;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
+      ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
          openMPI();
       }
@@ -48,6 +54,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final ActorContext<Event> context,
          final LibMPI lib) {
       super(context);
+      ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       libMPI = lib;
    }
 
@@ -57,6 +64,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public static Behavior<Event> create(final LibMPI lib) {
       return Behaviors.setup(context -> new BackEnd(context, lib));
+   }
+
+   private static boolean isWithinThreshold(final float score) {
+      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      return score >= minThreshold && score <= maxThreshold;
    }
 
    private float calcNormalizedScore(
@@ -78,12 +91,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final long countRight) {
       return (StringUtils.isBlank(textLeft) && countRight >= 1)
              || (countRight > countLeft && !textRight.equals(textLeft));
-   }
-
-   private static boolean isWithinThreshold(final float score) {
-      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
-      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
-      return score >= minThreshold && score <= maxThreshold;
    }
 
    public ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final PatientRecord patientRecord) throws RuntimeException {
@@ -232,6 +239,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> eventTeaTimeHandler(final EventTeaTime request) {
       LOGGER.info("TEA TIME");
+      var cf = CompletableFuture.supplyAsync(
+            () -> {
+               LOGGER.info("START STATS");
+               final var statsTask = new StatsTask();
+               var rc = statsTask.run();
+               LOGGER.info("END STATS: {}", rc);
+               return rc;
+            },
+            ec);
+
+      cf.whenComplete((event, exception) -> {
+         LOGGER.debug("Done: {}", event);
+         // POST TO LAB
+      });
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventWorkTime.INSTANCE, Duration.ofSeconds(5));
          return Behaviors.same();
@@ -393,7 +414,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> eventLinkPatientAsyncHandler(final EventLinkPatientAsyncReq req) {
-      LOGGER.debug("{}", req);
+      LOGGER.debug("{}", req.batchPatientRecord.stan());
       if (req.batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(5));
@@ -401,7 +422,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             return Behaviors.same();
          });
       }
-      LOGGER.debug("LINK PATIENT");
       final var listLinkInfo = linkPatient(
             req.batchPatientRecord.stan(),
             req.batchPatientRecord.patientRecord(),

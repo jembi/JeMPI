@@ -9,7 +9,6 @@ pushd .
 
   source ./0-conf.env
   docker stack rm ${STACK_NAME}
-  sleep 15
   echo
 
 popd

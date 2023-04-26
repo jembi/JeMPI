@@ -6,6 +6,7 @@ import akka.actor.typed.javadsl.AskPattern;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
+import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
@@ -20,6 +21,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
+import org.json.simple.JSONArray;
 
 import java.io.File;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static akka.http.javadsl.server.PathMatchers.segment;
+import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
 public final class HttpServer extends AllDirectives {
 
@@ -54,10 +57,11 @@ public final class HttpServer extends AllDirectives {
 
    void open(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Event> backEnd,
+         final JSONArray fields) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(this.createRoutes(actorSystem, backEnd));
+                    .bind(this.createCorsRoutes(actorSystem, backEnd, fields));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
@@ -948,24 +952,19 @@ public final class HttpServer extends AllDirectives {
                                          () -> createJeMPIRoutes(actorSystem, backEnd)));
    }
 
-/*
    private Route createCorsRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final JSONArray fields) {
       final var settings = CorsSettings.create(AppConfig.CONFIG);
-      CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
       return cors(
             settings,
-            () -> randomTokenCsrfProtection(
-                  checkHeader,
-                  () -> pathPrefix("JeMPI",
-                                   () -> concat(
-                                         createJeMPIRoutes(actorSystem, backEnd),
-                                         get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                                        () -> complete(StatusCodes.OK, fields.toJSONString())))))));
+            () -> pathPrefix("JeMPI",
+                             () -> concat(
+                                   createJeMPIRoutes(actorSystem, backEnd),
+                                   get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+                                                  () -> complete(StatusCodes.OK, fields.toJSONString()))))));
    }
-*/
 
 
    private interface ApiPaginatedResultSet {
