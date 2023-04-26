@@ -1,6 +1,9 @@
 
 # https://docs.docker.com/registry/
 # https://registry.hub.docker.com/_/registry/tags
+
+# https://hub.docker.com/r/haproxytech/haproxy-debian
+export HAPROXY_IMAGE=haproxytech/haproxy-debian:2.8
 export REGISTRY_IMAGE=registry:2
 
 # https://registry.hub.docker.com/r/bitnami/kafka/tags

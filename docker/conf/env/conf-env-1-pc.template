@@ -16,7 +16,8 @@ export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 export REGISTRY_NODE_IP=${REGISTRY_NODE_IP}
 export IMAGE_REGISTRY=${IMAGE_REGISTRY}
 
-export DATA_REGISTRY_DIR=registry
+export DATA_REGISTRY_DIR=${PROJECT_DIR}/data-registry
+export DATA_HAPROXY_DIR=${PROJECT_DIR}/data-haproxy
 
 export DATA_KAFKA_01_DIR=${PROJECT_DATA_DIR}/kafka-01
 export DATA_KAFKA_02_DIR=${PROJECT_DATA_DIR}/kafka-02
