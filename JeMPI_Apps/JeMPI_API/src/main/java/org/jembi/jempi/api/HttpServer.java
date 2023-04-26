@@ -892,7 +892,8 @@ public final class HttpServer extends AllDirectives {
 
    private Route createJeMPIRoutes(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Event> backEnd,
+         final JSONArray fields) {
       return concat(
             post(() -> concat(path(GlobalConstants.SEGMENT_UPDATE_NOTIFICATION,
                                    () -> routeUpdateNotificationState(actorSystem, backEnd)),
@@ -939,18 +940,19 @@ public final class HttpServer extends AllDirectives {
                       path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                            (patientId) -> routeFindPatientRecord(actorSystem, backEnd, patientId)),
                       path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                           (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)))
+                           (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
+                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, fields.toJSONString())))
                ));
    }
 
-   private Route createRoutes(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return pathPrefix("JeMPI",
-                        () -> pathPrefix("api",
-                                         () -> createJeMPIRoutes(actorSystem, backEnd)));
-   }
-
+   /*  private Route createRoutes(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+        return pathPrefix("JeMPI",
+                          () -> pathPrefix("api",
+                                           () -> createJeMPIRoutes(actorSystem, backEnd)));
+     }
+  */
    private Route createCorsRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -959,10 +961,9 @@ public final class HttpServer extends AllDirectives {
       return cors(
             settings,
             () -> pathPrefix("JeMPI",
-                             () -> concat(
-                                   createJeMPIRoutes(actorSystem, backEnd),
-                                   get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                                  () -> complete(StatusCodes.OK, fields.toJSONString()))))));
+                             () -> createJeMPIRoutes(actorSystem, backEnd, fields)));
+//                                   get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+//                                                  () -> complete(StatusCodes.OK, fields.toJSONString()))))));
    }
 
 
