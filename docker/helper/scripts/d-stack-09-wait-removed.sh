@@ -25,6 +25,7 @@ pushd .
     kafka-03
     kafka-02
     kafka-01
+    ui
   )
 
   for SERVICE in ${SERVICES[@]}; do
