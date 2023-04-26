@@ -1,17 +1,17 @@
 package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BatchPatientRecord(
-      @JsonProperty("batchType") BatchType batchType,
-      @JsonProperty("stan") String stan,
+      BatchType batchType,
+      BatchMetaData batchMetaData,
       // System Trace Audit Number
-      @JsonProperty("patientRecord") PatientRecord patientRecord) {
+      String stan,
+      PatientRecord patientRecord) {
 
    public BatchPatientRecord(final BatchType type) {
-      this(type, null, null);
+      this(type, null, null, null);
    }
 
    public enum BatchType {

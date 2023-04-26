@@ -75,10 +75,12 @@
             <artifactId>akka-http-jackson_${scala.tools.version}</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>ch.megard</groupId>
             <artifactId>akka-http-cors_${scala.tools.version}</artifactId>
         </dependency>
+-->
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -110,6 +112,7 @@
             <artifactId>dgraph4j</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
@@ -124,6 +127,7 @@
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -146,6 +150,7 @@
             <artifactId>log4j-jcl</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>com.softwaremill.akka-http-session</groupId>
             <artifactId>core_${scala.tools.version}</artifactId>
@@ -155,6 +160,7 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-adapter-core</artifactId>
         </dependency>
+-->
 
         <dependency>
             <groupId>org.jboss.logging</groupId>

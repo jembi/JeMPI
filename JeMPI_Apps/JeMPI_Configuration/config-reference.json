@@ -13,8 +13,7 @@
         "/golden-record/:uid",
         "/search/custom"
       ],
-      "accessLevel": [],
-      "fhirPath": "extension.where(url = 'http://example.com/fhir/extensions#aux_id').value"
+      "accessLevel": []
     },
     {
       "fieldName": "given_name",
@@ -41,8 +40,7 @@
         "/search-results/patient",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "name.given"
+      "accessLevel": []
     },
     {
       "fieldName": "family_name",
@@ -69,8 +67,7 @@
         "/search-results/patient",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "name.family"
+      "accessLevel": []
     },
     {
       "fieldName": "gender",
@@ -92,8 +89,7 @@
         "/search/custom",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "gender"
+      "accessLevel": []
     },
     {
       "fieldName": "dob",
@@ -117,8 +113,7 @@
         "/search-results/patient",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "birthDate"
+      "accessLevel": []
     },
     {
       "fieldName": "city",
@@ -139,9 +134,7 @@
         "/search/custom",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "address.city"
-
+      "accessLevel": []
     },
     {
       "fieldName": "phone_number",
@@ -162,9 +155,7 @@
         "/search/custom",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "telecom.where(system = 'phone').value"
-
+      "accessLevel": []
     },
     {
       "fieldName": "national_id",
@@ -189,8 +180,7 @@
         "/search-results/patient",
         ""
       ],
-      "accessLevel": [],
-      "fhirPath": "identifier.where(system='http://hl7.org/fhir/sid/us-ssn').value"
+      "accessLevel": []
     }
   ],
   "systemFields": [

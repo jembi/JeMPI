@@ -41,6 +41,7 @@
             <artifactId>dgraph4j</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
@@ -50,6 +51,7 @@
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
         </dependency>
+-->
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

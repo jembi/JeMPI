@@ -23,7 +23,7 @@ public final class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
       properties.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
 
       properties.put(ProducerConfig.RETRIES_CONFIG, 3);
-      properties.put(ProducerConfig.BATCH_SIZE_CONFIG, 100000);
+      properties.put(ProducerConfig.BATCH_SIZE_CONFIG, 500);
       properties.put(ProducerConfig.LINGER_MS_CONFIG, 0);
       properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "none");
       properties.put(ProducerConfig.ACKS_CONFIG, "1");

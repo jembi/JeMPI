@@ -20,8 +20,6 @@ public final class Main {
             context -> {
                final var customSourceRecordStream = new CustomSourceRecordStream();
                customSourceRecordStream.open();
-               final var customFHIRsyncReceiver = new CustomFHIRsyncReceiver();
-               customFHIRsyncReceiver.open(context.getSystem());
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> Behaviors.stopped())

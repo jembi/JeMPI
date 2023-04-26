@@ -2,7 +2,6 @@ package org.jembi.jempi.postgres;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.api.models.User;
 
 import java.sql.*;
 import java.util.Date;
@@ -148,37 +147,4 @@ public final class PsqlQueries {
       conn.close();
    }
 
-   public static User getUserByEmail(final String email) throws SQLException {
-      try {
-         Connection conn = DbConnect.connect();
-         Statement stmt = conn.createStatement();
-
-         ResultSet rs = stmt.executeQuery("select * from users where email = '" + email + "'");
-         // Check if empty then return null
-         if (rs.next()) {
-            return new User(
-                  rs.getString("id"),
-                  rs.getString("username"),
-                  rs.getString("email"),
-                  rs.getString("family_name"),
-                  rs.getString("given_name")
-            );
-         }
-         conn.close();
-      } catch (SQLException e) {
-         LOGGER.error(e);
-      }
-      return null;
-   }
-
-   public static User registerUser(final User user) throws SQLException {
-      Connection conn = DbConnect.connect();
-      String sql = "INSERT INTO users (given_name, family_name, email, username) VALUES"
-                   + "('" + user.getGivenName() + "', '" + user.getFamilyName() + "', '" + user.getEmail() + "', '" + user.getUsername() + "')";
-      Statement statement = conn.createStatement();
-      statement.executeUpdate(sql);
-      LOGGER.info("Registered a new user");
-      conn.close();
-      return getUserByEmail(user.getEmail());
-   }
 }

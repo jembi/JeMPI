@@ -30,10 +30,10 @@ final class DgraphClient {
    }
 
    void config(
-         final String[] host_,
-         final int[] port_) {
-      this.host = host_;
-      this.port = port_;
+         final String[] host,
+         final int[] port) {
+      this.host = host;
+      this.port = port;
    }
 
    /*
@@ -50,9 +50,10 @@ final class DgraphClient {
                                                 new DgraphClient.AlphaHost(host[1], port[1]),
                                                 new DgraphClient.AlphaHost(host[2], port[2])));
          var dgraphStubs = new DgraphGrpc.DgraphStub[hostList.size()];
-         for (int i = 0; i < 3; i++) {
+         for (int i = 0; i < hostList.size(); i++) {
             AlphaHost alphaHost = hostList.get(i);
             dgraphStubs[i] = DgraphGrpc.newStub(ManagedChannelBuilder.forAddress(alphaHost.host, alphaHost.port)
+                                                      .maxInboundMessageSize(100 * 1024 * 1024)
                                                                      .usePlaintext()
                                                                      .build());
          }
@@ -67,16 +68,12 @@ final class DgraphClient {
    void closeTransaction() {
    }
 
-
-
    void zapTransaction() {
       if (dgraphClient != null) {
          dgraphClient.shutdown();
          dgraphClient = null;
       }
    }
-
-
 
    private void sleep() {
       try {
@@ -130,7 +127,7 @@ final class DgraphClient {
                startTransaction();
                return null;
             } else {
-               LOGGER.warn("{}", ex.getLocalizedMessage());
+               LOGGER.warn("{}", ex.getLocalizedMessage(), ex);
                done = false;
                zapTransaction();
                sleep();
