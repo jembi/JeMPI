@@ -50,6 +50,7 @@ interface ExpandedGoldenRecord {
 
 interface ExpandedPatientRecord {
   patientRecord: PatientRecord
+  score: number
 }
 
 interface PatientRecord extends Pick<PR, 'sourceId' | 'uid'> {
@@ -238,6 +239,58 @@ class ApiClient {
         return result
       }
     })
+  }
+
+  async getGoldenIds() {
+    return await client
+      .get<{ records: string[] }>('golden-ids')
+      .then(res => res.data.records)
+  }
+
+  async getExpandedGoldenRecords() {
+    return await client
+      .get<
+        Array<{
+          uid: string
+          record: GoldenRecord | PatientRecord
+          type: string
+          score: number | null
+        }>
+      >(ROUTES.EXPANDED_GOLDEN_RECORDS, {
+        params: { uidList: (await this.getGoldenIds()).slice(0, 10).toString() }
+      })
+      .then(res => res.data)
+      .then(data =>
+        data.reduce(
+          (
+            acc: Array<{
+              uid: string
+              record: GoldenRecord | PatientRecord
+              type: string
+              score: number | null
+            }>,
+            curr: any
+          ) => {
+            const record = {
+              uid: curr.goldenRecord.uid,
+              record: curr.goldenRecord.demographicData,
+              type: 'golden',
+              score: null
+            }
+            const linkedRecords = curr.mpiPatientRecords.map(
+              (record: { patientRecord: PatientRecord; score: number }) => ({
+                uid: record.patientRecord.uid,
+                record: record.patientRecord.demographicData,
+                type: 'patient',
+                score: record.score
+              })
+            )
+            acc.push(record, ...linkedRecords)
+            return acc
+          },
+          []
+        )
+      )
   }
 
   async validateOAuth(oauthParams: OAuthParams) {
