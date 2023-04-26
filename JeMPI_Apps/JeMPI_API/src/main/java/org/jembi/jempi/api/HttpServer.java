@@ -6,6 +6,7 @@ import akka.actor.typed.javadsl.AskPattern;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
+import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static akka.http.javadsl.server.PathMatchers.segment;
+import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
 public final class HttpServer extends AllDirectives {
 
@@ -59,7 +61,7 @@ public final class HttpServer extends AllDirectives {
          final JSONArray fields) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(this.createRoutes(actorSystem, backEnd, fields));
+                    .bind(this.createCorsRoutes(actorSystem, backEnd, fields));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
@@ -891,8 +893,7 @@ public final class HttpServer extends AllDirectives {
 
    private Route createJeMPIRoutes(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final JSONArray fields) {
+         final ActorRef<BackEnd.Event> backEnd) {
       return concat(
             post(() -> concat(path(GlobalConstants.SEGMENT_UPDATE_NOTIFICATION,
                                    () -> routeUpdateNotificationState(actorSystem, backEnd)),
@@ -925,50 +926,43 @@ public final class HttpServer extends AllDirectives {
                   path(GlobalConstants.SEGMENT_CURRENT_USER, this::routeCurrentUser),
                   path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout),
 */
-                  path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem,
-                                                                                                         backEnd)),
-                  path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem,
-                                                                                                           backEnd)),
-                  path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeFindMatchesForReview(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS, () -> routeFindCandidates(actorSystem, backEnd)),
-                  path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                       (patientId) -> routeFindPatientRecord(actorSystem, backEnd, patientId)),
-                  path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                       (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
-                  path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, fields.toJSONString())))
+                      path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem,
+                                                                                                             backEnd)),
+                      path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem,
+                                                                                                               backEnd)),
+                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeFindMatchesForReview(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS, () -> routeFindCandidates(actorSystem, backEnd)),
+                      path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                           (patientId) -> routeFindPatientRecord(actorSystem, backEnd, patientId)),
+                      path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                           (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)))
                ));
    }
 
    private Route createRoutes(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final JSONArray fields) {
-      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd, fields));
+         final ActorRef<BackEnd.Event> backEnd) {
+      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd));
    }
 
-/*
    private Route createCorsRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final JSONArray fields) {
       final var settings = CorsSettings.create(AppConfig.CONFIG);
-      CheckHeader<UserSession> checkHeader = new CheckHeader<>(getSessionManager());
       return cors(
             settings,
-            () -> randomTokenCsrfProtection(
-                  checkHeader,
-                  () -> pathPrefix("JeMPI",
-                                   () -> concat(
-                                         createJeMPIRoutes(actorSystem, backEnd),
-                                         get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                                        () -> complete(StatusCodes.OK, fields.toJSONString())))))));
+            () -> pathPrefix("JeMPI",
+                             () -> concat(
+                                   createJeMPIRoutes(actorSystem, backEnd),
+                                   get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+                                                  () -> complete(StatusCodes.OK, fields.toJSONString()))))));
    }
-*/
 
 
    private interface ApiPaginatedResultSet {
