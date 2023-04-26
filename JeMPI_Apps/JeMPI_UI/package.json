@@ -35,7 +35,7 @@
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "cd ../.. husky install",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!@codemirror)/\"",
