@@ -44,6 +44,10 @@ services:
         target: 80
         protocol: tcp
         mode: host
+      - published: 3000
+        target: 3000
+        protocol: tcp
+        mode: host
     deploy:
       mode: global
 
@@ -529,11 +533,6 @@ services:
       REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
     networks:
       - frontend-api
-    ports:
-      - published: 3000
-        target: 3000
-        protocol: tcp
-        mode: host
     deploy:
       mode: replicated
       replicas: 0
