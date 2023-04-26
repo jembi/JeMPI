@@ -16,9 +16,9 @@ public final class JsonFieldsConfig {
    private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
    public JSONArray fields;
 
-   public JsonFieldsConfig() {
+   public JsonFieldsConfig(final String resourceFilename) {
       try {
-         load();
+         load(resourceFilename);
       } catch (Exception e) {
          LOGGER.debug(e);
       }
@@ -38,17 +38,17 @@ public final class JsonFieldsConfig {
          final JSONArray customFields) {
       JSONArray result = new JSONArray();
       // Process system fields
-      for (int i = 0; i < systemFields.size(); i++) {
-         JSONObject field = (JSONObject) systemFields.get(i);
+      for (Object systemField : systemFields) {
+         JSONObject field = (JSONObject) systemField;
          // Mark field as readonly
          field.put("readOnly", true);
          // Merge array values
          result.add(field);
       }
       // Process custom fields
-      for (int i = 0; i < customFields.size(); i++) {
+      for (Object customField : customFields) {
          // Convert field names from snake case to camel case
-         JSONObject field = (JSONObject) customFields.get(i);
+         JSONObject field = (JSONObject) customField;
          String fieldName = (String) field.get("fieldName");
          field.put("fieldName", snakeToCamelCase(fieldName));
          // Remove extra attributes
@@ -64,14 +64,14 @@ public final class JsonFieldsConfig {
       return result;
    }
 
-   private InputStream getFileStreamFromResource() {
+   private InputStream getFileStreamFromResource(final String resourceFilename) {
       ClassLoader classLoader = getClass().getClassLoader();
-      return classLoader.getResourceAsStream("/config-reference.json");
+      return classLoader.getResourceAsStream(resourceFilename);
    }
 
-   public void load() throws Exception {
+   public void load(final String resourceFilename) throws Exception {
       JSONParser jsonParser = new JSONParser();
-      try (Reader reader = new InputStreamReader(getFileStreamFromResource())) {
+      try (Reader reader = new InputStreamReader(getFileStreamFromResource(resourceFilename))) {
          // Read JSON file
          Object obj = jsonParser.parse(reader);
          JSONObject config = (JSONObject) obj;

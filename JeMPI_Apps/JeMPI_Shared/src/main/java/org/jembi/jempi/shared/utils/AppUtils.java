@@ -24,12 +24,6 @@ public final class AppUtils implements Serializable {
    private static final long serialVersionUID = 1L;
 
    private AppUtils() {
-      try {
-         String json = getResourceFileAsString("config.json");
-         LOGGER.debug("json:{}", json);
-      } catch (IOException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
       OBJECT_MAPPER.configOverride(String.class).setSetterInfo(JsonSetter.Value.forValueNulls((Nulls.SET)));
    }
 

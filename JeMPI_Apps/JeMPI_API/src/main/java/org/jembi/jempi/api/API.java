@@ -13,8 +13,10 @@ import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 public final class API {
 
    private static final Logger LOGGER = LogManager.getLogger(API.class);
-   private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig();
+   private static final String CONFIG_RESOURCE_FILE_NAME = "/config-reference.json";
+   private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
+
 
    private API() {
       LOGGER.info("API started.");
@@ -29,30 +31,26 @@ public final class API {
    }
 
    public Behavior<Void> create() {
-      return Behaviors.setup(
-            context -> {
-               ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
-               context.watch(backEnd);
-               final var notificationsSteam = new NotificationStreamProcessor();
-               ActorSystem<Void> system = context.getSystem();
-               notificationsSteam.open(system, backEnd);
-               httpServer = HttpServer.create();
-               httpServer.open(context.getSystem(), backEnd, jsonFieldsConfig.fields);
-               return Behaviors.receive(Void.class)
-                               .onSignal(Terminated.class,
-                                         sig -> {
-                                            httpServer.close(context.getSystem());
-                                            return Behaviors.stopped();
-                                         })
-                               .build();
-            });
+      return Behaviors.setup(context -> {
+         ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
+         context.watch(backEnd);
+         final var notificationsSteam = new NotificationStreamProcessor();
+         ActorSystem<Void> system = context.getSystem();
+         notificationsSteam.open(system, backEnd);
+         httpServer = HttpServer.create();
+         httpServer.open(context.getSystem(), backEnd, jsonFieldsConfig.fields);
+         return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
+            httpServer.close(context.getSystem());
+            return Behaviors.stopped();
+         }).build();
+      });
    }
 
    private void run() {
       LOGGER.info("interface:port {}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
-         jsonFieldsConfig.load();
+         jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);
          LOGGER.info("Fields configuration file successfully loaded");
          ActorSystem.create(this.create(), "API-App");
       } catch (Exception e) {
