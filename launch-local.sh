@@ -43,9 +43,22 @@ pushd ./JeMPI_Apps || exit
 popd || exit
 
 # Run bash scripts
-pushd ./docker/ || exit
-  source ./a-images-1-pull-from-hub.sh
-popd || exit
+while true; do
+    read -p "Do you want to get the latest docker images? " yn
+    case $yn in
+        [Yy]* )
+          pushd ./docker/ || exit
+            source ./a-images-1-pull-from-hub.sh
+          popd || exit
+          break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+pushd ./JeMPI_Apps/JeMPI_UI
+  source ./build-image.sh || exit 1
+popd
 pushd ./JeMPI_Apps/JeMPI_AsyncReceiver
   source ./build.sh || exit 1
 popd

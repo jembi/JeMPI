@@ -962,12 +962,8 @@ public final class HttpServer extends AllDirectives {
                   () -> pathPrefix("JeMPI",
                                    () -> concat(
                                          createJeMPIRoutes(actorSystem, backEnd),
-                                         post(() -> path(GlobalConstants.SEGMENT_VALIDATE_OAUTH,
-                                                         () -> routeLoginWithKeycloakRequest(actorSystem, backEnd, checkHeader))),
                                          get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                                        () -> setNewCsrfToken(checkHeader,
-                                                                              () -> complete(StatusCodes.OK,
-                                                                                             fields.toJSONString()))))))));
+                                                        () -> complete(StatusCodes.OK, fields.toJSONString())))))));
    }
 */
 
