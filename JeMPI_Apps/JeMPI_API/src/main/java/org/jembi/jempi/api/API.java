@@ -37,7 +37,7 @@ public final class API {
                ActorSystem<Void> system = context.getSystem();
                notificationsSteam.open(system, backEnd);
                httpServer = HttpServer.create();
-               httpServer.open(context.getSystem(), backEnd);
+               httpServer.open(context.getSystem(), backEnd, jsonFieldsConfig.fields);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> {
