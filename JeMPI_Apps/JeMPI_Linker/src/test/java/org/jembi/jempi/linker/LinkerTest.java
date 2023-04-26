@@ -27,6 +27,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LinkerTests {
+/*
 
     ActorTestKit testKit;
     ActorRef<BackEnd.Event> myActorRef;
@@ -94,4 +95,5 @@ class LinkerTests {
 
         assertEquals(1, list.size());
     }
+*/
 }

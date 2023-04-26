@@ -107,10 +107,7 @@ public final class LibMPI {
    public List<GoldenRecord> getCandidates(
          final CustomDemographicData demographicData,
          final boolean applyDeterministicFilter) {
-      LOGGER.debug("get candidates <- {}", demographicData);
-      final var candidates = client.findCandidates(demographicData, applyDeterministicFilter);
-      candidates.forEach(candidate -> LOGGER.debug("get candidates -> {}", candidate));
-      return candidates;
+      return client.findCandidates(demographicData, applyDeterministicFilter);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -193,21 +190,13 @@ public final class LibMPI {
    public LinkInfo createPatientAndLinkToExistingGoldenRecord(
          final PatientRecord patientRecord,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      LOGGER.debug("link existing <- {}", patientRecord);
-      LOGGER.debug("link existing <- {}", goldenIdScore);
-      final var linkInfo = client.createPatientAndLinkToExistingGoldenRecord(patientRecord, goldenIdScore);
-      LOGGER.debug("link existing -> {}", linkInfo);
-      return linkInfo;
+      return client.createPatientAndLinkToExistingGoldenRecord(patientRecord, goldenIdScore);
    }
 
    public LinkInfo createPatientAndLinkToClonedGoldenRecord(
          final PatientRecord patientRecord,
          final float score) {
-      LOGGER.debug("link new <- {}", patientRecord);
-      LOGGER.debug("link new <- {}", score);
-      final var linkInfo = client.createPatientAndLinkToClonedGoldenRecord(patientRecord, score);
-      LOGGER.debug("link new -> {}", linkInfo);
-      return linkInfo;
+      return client.createPatientAndLinkToClonedGoldenRecord(patientRecord, score);
    }
 
 }

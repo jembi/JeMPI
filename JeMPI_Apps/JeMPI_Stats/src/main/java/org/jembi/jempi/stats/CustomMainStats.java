@@ -1,6 +1,7 @@
 package org.jembi.jempi.stats;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -9,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.SourceId;
 
 import java.io.IOException;
@@ -20,7 +22,9 @@ import static java.lang.Math.min;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 
-public final class CustomMainStats {   // 01234567890123456
+public final class CustomMainStats {
+   // 01234567890123456
+   // rec-00000000-bbb-7
    // rec-0000000001-00
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMainStats.class);
@@ -29,7 +33,7 @@ public final class CustomMainStats {   // 01234567890123456
    private static final String URL_LINK = String.format("%s/JeMPI/", URL);
    // 01234567890123456
    // rec-0000000001-00
-   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 14;
+   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 12;
    private final OkHttpClient client = new OkHttpClient();
    private final Map<String, List<GoldenRecordMembers>> dataSet = new HashMap<>();
    private final int[] truePositives = {0};
@@ -55,7 +59,7 @@ public final class CustomMainStats {   // 01234567890123456
 
    private NumberOfRecords getNumberOfRecords() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "NumberOfRecords")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_RECORDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
@@ -68,7 +72,7 @@ public final class CustomMainStats {   // 01234567890123456
 
    private GoldenIdList getGoldenIdList() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenIdList")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GOLDEN_IDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
@@ -79,9 +83,9 @@ public final class CustomMainStats {   // 01234567890123456
       }
    }
 
-   private GoldenRecordDocuments getGoldenRecordDocumentsList(final List<String> ids) throws IOException {
+   private List<ApiExpandedGoldenRecord> getGoldenRecordDocumentsList(final List<String> ids) throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + "GoldenRecordDocuments")).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS)).newBuilder();
       ids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
@@ -89,7 +93,8 @@ public final class CustomMainStats {   // 01234567890123456
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, GoldenRecordDocuments.class);
+         return OBJECT_MAPPER.readValue(json, new TypeReference<List<ApiExpandedGoldenRecord>>() {
+         });
       }
    }
 
@@ -135,13 +140,13 @@ public final class CustomMainStats {   // 01234567890123456
          final List<String> ids) throws IOException {
       var subList = ids.subList(fromIdx, toIdx);
       var goldenRecordDocuments = getGoldenRecordDocumentsList(subList);
-      goldenRecordDocuments.expandedGoldenRecords.forEach(this::updateStatsDataSet);
-      goldenRecordDocuments.expandedGoldenRecords.forEach(rec -> displayGoldenRecordDocuments(writer, rec));
+      goldenRecordDocuments.forEach(this::updateStatsDataSet);
+      goldenRecordDocuments.forEach(rec -> displayGoldenRecordDocuments(writer, rec));
    }
 
    private void run() throws IOException {
-      var documentCount = getCount("DocumentCount");
-      var goldenRecordCount = getCount("GoldenRecordCount");
+      var documentCount = getCount(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS);
+      var goldenRecordCount = getCount(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS);
       var numberOfRecords = getNumberOfRecords();
       var goldenIdList = getGoldenIdList();
       LOGGER.info("Document Count:       {}", documentCount);

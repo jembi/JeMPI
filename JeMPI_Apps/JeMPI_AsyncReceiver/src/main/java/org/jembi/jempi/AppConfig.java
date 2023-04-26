@@ -26,7 +26,6 @@ public final class AppConfig {
     public static final String KAFKA_APPLICATION_ID = CONFIG.getString("kafka.application-id");
     public static final String KAFKA_CLIENT_ID = CONFIG.getString("kafka.client-id");
 
-
     private AppConfig() {
     }
 
