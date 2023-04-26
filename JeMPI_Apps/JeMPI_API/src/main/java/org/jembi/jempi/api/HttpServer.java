@@ -57,7 +57,7 @@ public final class HttpServer extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT)
-                    .bind(this.createCorsRoutes(actorSystem, backEnd, fields));
+                    .bind(this.createRoutes(actorSystem, backEnd));
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
