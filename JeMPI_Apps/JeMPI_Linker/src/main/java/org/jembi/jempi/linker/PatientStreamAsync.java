@@ -44,8 +44,6 @@ public final class PatientStreamAsync {
       if (batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
          return;
       }
-      final var stan = batchPatientRecord.stan();
-      LOGGER.info("{}", stan);
       final CompletionStage<BackEnd.EventLinkPatientAsyncRsp> result =
             AskPattern.ask(
                   backEnd,

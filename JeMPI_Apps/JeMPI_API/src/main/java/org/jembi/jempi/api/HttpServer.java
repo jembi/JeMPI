@@ -922,22 +922,311 @@ public final class HttpServer extends AllDirectives {
                   path(GlobalConstants.SEGMENT_CURRENT_USER, this::routeCurrentUser),
                   path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout),
 */
-                      path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem,
-                                                                                                             backEnd)),
-                      path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem,
-                                                                                                               backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeFindMatchesForReview(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS, () -> routeFindCandidates(actorSystem, backEnd)),
-                      path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                           (patientId) -> routeFindPatientRecord(actorSystem, backEnd, patientId)),
-                      path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                           (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)))
-               ));
+                  path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS, () -> routeExpandedGoldenRecords(actorSystem,
+                                                                                                         backEnd)),
+                  path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS, () -> routeExpandedPatientRecords(actorSystem,
+                                                                                                           backEnd)),
+                  path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> routeFindMatchesForReview(actorSystem, backEnd)),
+                  path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS, () -> routeFindCandidates(actorSystem, backEnd)),
+                  path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                       (patientId) -> routeFindPatientRecord(actorSystem, backEnd, patientId)),
+                  path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                       (goldenId) -> routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
+                  path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> StatusCodes.OK, () -> {
+                                                                                    return """
+                                                                                           {
+                                                                                             "fields": [
+                                                                                               {
+                                                                                                 "fieldName": "aux_id",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(exact)",
+                                                                                                 "fieldLabel": "AUX ID",
+                                                                                                 "groups": [
+                                                                                                   "identifiers"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/search/custom"
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "given_name",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(exact,trigram)",
+                                                                                                 "indexEntity": "@index(exact,trigram)",
+                                                                                                 "m": 0.782501,
+                                                                                                 "u": 0.02372,
+                                                                                                 "fieldLabel": "First Name",
+                                                                                                 "groups": [
+                                                                                                   "name",
+                                                                                                   "demographics",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/golden-record/:uid/audit-trail",
+                                                                                                   "/search/simple",
+                                                                                                   "/search/custom",
+                                                                                                   "/search-results/golden",
+                                                                                                   "/search-results/patient",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "family_name",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(exact,trigram)",
+                                                                                                 "indexEntity": "@index(exact,trigram)",
+                                                                                                 "m": 0.850909,
+                                                                                                 "u": 0.02975,
+                                                                                                 "fieldLabel": "Last Name",
+                                                                                                 "groups": [
+                                                                                                   "name",
+                                                                                                   "demographics",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/golden-record/:uid/audit-trail",
+                                                                                                   "/search/simple",
+                                                                                                   "/search/custom",
+                                                                                                   "/search-results/golden",
+                                                                                                   "/search-results/patient",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "gender",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(exact,trigram)",
+                                                                                                 "m": 0.786614,
+                                                                                                 "u": 0.443018,
+                                                                                                 "fieldLabel": "Gender",
+                                                                                                 "groups": [
+                                                                                                   "demographics",
+                                                                                                   "sub_heading",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/search/custom",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "dob",
+                                                                                                 "fieldType": "String",
+                                                                                                 "m": 0.894637,
+                                                                                                 "u": 0.012448,
+                                                                                                 "fieldLabel": "Date of Birth",
+                                                                                                 "groups": [
+                                                                                                   "demographics",
+                                                                                                   "sub_heading",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/search/simple",
+                                                                                                   "/search/custom",
+                                                                                                   "/search-results/golden",
+                                                                                                   "/search-results/patient",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "city",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(trigram)",
+                                                                                                 "m": 0.872691,
+                                                                                                 "u": 0.132717,
+                                                                                                 "fieldLabel": "City",
+                                                                                                 "groups": [
+                                                                                                   "demographics",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/search/custom",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "phone_number",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(exact,trigram)",
+                                                                                                 "m": 0.920281,
+                                                                                                 "u": 0.322629,
+                                                                                                 "fieldLabel": "Phone No",
+                                                                                                 "groups": [
+                                                                                                   "demographics",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/search/custom",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "national_id",
+                                                                                                 "fieldType": "String",
+                                                                                                 "indexGoldenRecord": "@index(exact,trigram)",
+                                                                                                 "indexEntity": "@index(exact,trigram)",
+                                                                                                 "m": 0.832336,
+                                                                                                 "u": 0.000133,
+                                                                                                 "fieldLabel": "National ID",
+                                                                                                 "groups": [
+                                                                                                   "identifiers",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/search/simple",
+                                                                                                   "/search/custom",
+                                                                                                   "/search-results/golden",
+                                                                                                   "/search-results/patient",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               }
+                                                                                             ],
+                                                                                             "systemFields": [
+                                                                                               {
+                                                                                                 "fieldName": "recordType",
+                                                                                                 "fieldType": "String",
+                                                                                                 "fieldLabel": "Record Type",
+                                                                                                 "groups": [
+                                                                                                   "none"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/notifications/match-details"
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "uid",
+                                                                                                 "fieldType": "String",
+                                                                                                 "fieldLabel": "UID",
+                                                                                                 "groups": [
+                                                                                                   "identifiers",
+                                                                                                   "sub_heading",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/notifications/match-details",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   "/search-results/golden",
+                                                                                                   "/search-results/patient",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "score",
+                                                                                                 "fieldType": "Number",
+                                                                                                 "fieldLabel": "Match",
+                                                                                                 "groups": [
+                                                                                                   "none"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid"
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               },
+                                                                                               {
+                                                                                                 "fieldName": "sourceId",
+                                                                                                 "fieldType": "SourceId",
+                                                                                                 "fieldLabel": "Site Code",
+                                                                                                 "groups": [
+                                                                                                   "registering_facility",
+                                                                                                   "linked_records"
+                                                                                                 ],
+                                                                                                 "scope": [
+                                                                                                   "/patient-record/:uid",
+                                                                                                   "/golden-record/:uid",
+                                                                                                   "/golden-record/:uid/linked-records",
+                                                                                                   ""
+                                                                                                 ],
+                                                                                                 "accessLevel": []
+                                                                                               }
+                                                                                             ],
+                                                                                             "rules": {
+                                                                                               "deterministic": {
+                                                                                                 "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
+                                                                                                   "vars": [
+                                                                                                     "given_name",
+                                                                                                     "family_name",
+                                                                                                     "phone_number",
+                                                                                                     "national_id"
+                                                                                                   ],
+                                                                                                   "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
+                                                                                                 }
+                                                                                               },
+                                                                                               "probabilistic": {
+                                                                                                 "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
+                                                                                                   "vars": [
+                                                                                                     "given_name",
+                                                                                                     "family_name",
+                                                                                                     "city"
+                                                                                                   ],
+                                                                                                   "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
+                                                                                                 },
+                                                                                                 "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
+                                                                                                   "vars": [
+                                                                                                     "phone_number"
+                                                                                                   ],
+                                                                                                   "text": "match(phone_number,3)"
+                                                                                                 },
+                                                                                                 "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
+                                                                                                   "vars": [
+                                                                                                     "national_id"
+                                                                                                   ],
+                                                                                                   "text": "match(national_id,3)"
+                                                                                                 }
+                                                                                               }
+                                                                                             }
+                                                                                           }
+                                                                                           """;
+                                                                                 }
+
+                                                                                ))));
    }
 
    private Route createRoutes(
