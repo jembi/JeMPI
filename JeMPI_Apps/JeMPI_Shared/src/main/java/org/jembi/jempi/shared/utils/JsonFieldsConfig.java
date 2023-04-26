@@ -13,6 +13,7 @@ import java.io.Reader;
 
 public final class JsonFieldsConfig {
 
+   private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
    public JSONArray fields;
 
    public JsonFieldsConfig() {
@@ -23,7 +24,6 @@ public final class JsonFieldsConfig {
       }
    }
 
-   private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
    private String snakeToCamelCase(final String str) {
       String[] words = str.split("_");
       String result = words[0];
@@ -80,6 +80,7 @@ public final class JsonFieldsConfig {
          // Custom fields depend on the needs of the implementation
          JSONArray customFields = (JSONArray) config.get("fields");
          fields = buildFieldsResponsePayload(systemFields, customFields);
+         LOGGER.debug("{}", fields);
 
       } catch (FileNotFoundException e) {
          throw e;

@@ -20,6 +20,11 @@ networks:
 
 services:
 
+  nginx:
+    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
+    networks:
+      - frontend-api
+
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
     volumes:
@@ -43,9 +48,13 @@ services:
         target: 50000
         protocol: tcp
         mode: host
+      - published: 3000
+        target: 3000
+        protocol: tcp
+        mode: host        
     deploy:
       mode: global
-
+      
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
@@ -334,10 +343,6 @@ services:
     - backend-kafka
     volumes:
     - type: bind
-      source: $DATA_DIR_ASYNC_RECEIVER/logs
-      target: /app/logs
-      read_only: false
-    - type: bind
       source: $DATA_DIR_ASYNC_RECEIVER/csv
       target: /app/csv
       read_only: true
@@ -368,10 +373,6 @@ services:
       source: $DATA_DIR_ETL/conf
       target: /app/conf
       read_only: true
-    - type: bind
-      source: $DATA_DIR_ETL/logs
-      target: /app/logs
-      read_only: false
     deploy:
       mode: replicated
       replicas: 0
@@ -400,10 +401,6 @@ services:
       source: $DATA_DIR_CONTROLLER/conf
       target: /app/conf
       read_only: true
-    - type: bind
-      source: $DATA_DIR_CONTROLLER/logs
-      target: /app/logs
-      read_only: false
     deploy:
       mode: replicated
       replicas: 0
@@ -427,10 +424,6 @@ services:
       source: $DATA_DIR_EM/conf
       target: /app/conf
       read_only: true
-    - type: bind
-      source: $DATA_DIR_EM/logs
-      target: /app/logs
-      read_only: false
     deploy:
       mode: replicated
       replicas: 0
@@ -455,10 +448,6 @@ services:
       source: $DATA_DIR_LINKER/conf
       target: /app/conf
       read_only: true
-    - type: bind
-      source: $DATA_DIR_LINKER/logs
-      target: /app/logs
-      read_only: false
     deploy:
       mode: replicated
       replicas: 0
@@ -494,10 +483,6 @@ services:
       target: /app/conf
       read_only: true
     - type: bind
-      source: $DATA_DIR_API/logs
-      target: /app/logs
-      read_only: false
-    - type: bind
       source: $DATA_DIR_ASYNC_RECEIVER/csv
       target: /app/csv
       read_only: false
@@ -523,11 +508,6 @@ services:
       REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
     networks:
       - frontend-api
-    ports:
-      - published: 3000
-        target: 3000
-        protocol: tcp
-        mode: host
     deploy:
       mode: replicated
       replicas: 0

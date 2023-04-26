@@ -6,11 +6,11 @@ import akka.actor.typed.javadsl.AskPattern;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
-import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.server.directives.FileInfo;
+import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -408,7 +408,6 @@ public final class HttpServer extends AllDirectives {
          LOGGER.info("No active session");
          return complete(StatusCodes.FORBIDDEN);
       });
-
    }
 */
 
@@ -947,7 +946,9 @@ public final class HttpServer extends AllDirectives {
    private Route createRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd));
+      return pathPrefix("JeMPI",
+                        () -> pathPrefix("api",
+                                         () -> createJeMPIRoutes(actorSystem, backEnd)));
    }
 
    private Route createCorsRoutes(

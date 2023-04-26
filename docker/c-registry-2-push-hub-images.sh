@@ -7,6 +7,7 @@ source ./0-conf.env
 source ./conf/images/conf-hub-images.sh
 
 declare -a IMAGES=("$HAPROXY_IMAGE"
+                   "$NGINX_IMAGE"
                    "$KAFKA_IMAGE"
                    "$DGRAPH_IMAGE"
                    "$RATEL_IMAGE"

@@ -8,23 +8,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class AppUtils implements Serializable {
 
-   private static final Logger LOGGER = LogManager.getLogger(AppUtils.class);
    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+   private static final Logger LOGGER = LogManager.getLogger(AppUtils.class);
    @Serial
    private static final long serialVersionUID = 1L;
 
    private AppUtils() {
+      try {
+         String json = getResourceFileAsString("config.json");
+         LOGGER.debug("json:{}", json);
+      } catch (IOException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       OBJECT_MAPPER.configOverride(String.class).setSetterInfo(JsonSetter.Value.forValueNulls((Nulls.SET)));
+   }
+
+   static String getResourceFileAsString(final String fileName) throws IOException {
+      ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+      try (InputStream is = classLoader.getResourceAsStream(fileName)) {
+         if (is == null) {
+            return null;
+         }
+         try (InputStreamReader isr = new InputStreamReader(is);
+              BufferedReader reader = new BufferedReader(isr)) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+         }
+      }
    }
 
    public static AppUtils getInstance() {
@@ -70,7 +89,7 @@ public final class AppUtils implements Serializable {
    }
 
    @Serial
-   protected Object readResolve() {
+   private Object readResolve() {
       return getInstance();
    }
 

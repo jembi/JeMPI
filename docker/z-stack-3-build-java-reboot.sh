@@ -11,7 +11,7 @@ echo
 echo "Build Apps"
 pwd
 pushd ../JeMPI_Apps
-  source ./build-all-ui.sh
+  source ./build-all-java.sh
 popd
 #./helper/scripts/c-registry-3-build-push-app-images.sh
 sleep 2
