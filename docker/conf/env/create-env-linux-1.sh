@@ -42,9 +42,9 @@ export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamou
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128000000
 
 #UI env vars
-export JEMPI_API_URL="http://api:50000/JeMPI"
-export JEMPI_UI_MOCKBACKEND="false"
-export JEMPI_UI_ENABLE_SSO="false"
+export REACT_APP_JEMPI_BASE_URL="http://api:50000/JeMPI"
+export REACT_APP_MOCK_BACKEND="false"
+export REACT_APP_ENABLE_SSO="false"
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
