@@ -76,7 +76,7 @@ const Records = () => {
       <DataGrid
         sx={{
           '& .super-app-theme--golden': {
-            backgroundColor: '#FFC400'
+            backgroundColor: '#FFFACD'
           }
         }}
         getRowId={({ uid }) => uid}
