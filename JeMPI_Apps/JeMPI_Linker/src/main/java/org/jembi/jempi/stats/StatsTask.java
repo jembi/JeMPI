@@ -126,7 +126,7 @@ public final class StatsTask {
          LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
          LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
          final var goldenRecords = goldenIdList.records.size();
-         final var subListSize = 100L;
+         final var subListSize = 19L;
          final var subLists = goldenRecords / min(subListSize, goldenRecords);
          final var finalSubListSize = goldenRecords % subListSize;
          LOGGER.info("Golden Records:       {}", goldenRecords);

@@ -8,6 +8,7 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import io.vavr.control.Either;
+import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +22,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.stats.StatsTask;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -29,9 +31,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import com.google.gson.Gson;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
+   private final OkHttpClient client = new OkHttpClient();
+   private final Gson gson = new Gson();
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    private final Executor ec;
@@ -252,11 +257,38 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       cf.whenComplete((event, exception) -> {
          LOGGER.debug("Done: {}", event);
          // POST TO LAB
+         try {
+            sendStats(cf.get());
+         } catch (Exception e) {
+            LOGGER.debug(e);
+         }
+
       });
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventWorkTime.INSTANCE, Duration.ofSeconds(5));
          return Behaviors.same();
       });
+   }
+
+   public void sendStats(final StatsTask.StatsResults results) throws IOException {
+      String url = "http://192.168.0.195:3001/api/myendpoint";
+      String json = gson.toJson(results);
+      MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+      RequestBody body = RequestBody.create(json, mediaType);
+      Request request = new Request.Builder()
+              .url(url)
+              .post(body)
+              .build();
+      LOGGER.debug(json);
+      LOGGER.debug(request.body());
+
+      try (Response response = client.newCall(request).execute()) {
+         if (!response.isSuccessful()) {
+            LOGGER.error("Failed to send stats to server, code: {}, message: {}", response.code(), response.message());
+         } else {
+            LOGGER.info("Stats sent successfully: {}", json);
+         }
+      }
    }
 
    private LinkInfo linkPatientToGid(
