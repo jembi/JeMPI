@@ -158,7 +158,7 @@ final class PostgresqlMutations {
                              Edge.EdgeName.EID2SID).stripIndent());
 
          stmt.executeUpdate("""
-                            create index if not exists idx_gin_gr_a on mpi_nodes_golden_record using gin (fields);
+                            create index if not exists idx_gin_gr_a on mpi_nodes_golden_record using gin (fields jsonb_ops);
                             """.stripIndent());
          stmt.executeUpdate("""
                             create index if not exists idx_gin_gr_b on mpi_nodes_golden_record using gin (fields jsonb_path_ops);
@@ -175,36 +175,36 @@ final class PostgresqlMutations {
 //         "create index idx_c on mpi_nodes_golden_record ((fields#>>'{nationalid}'));"
 //         "create index idx_d on mpi_nodes_golden_record ((fields->>'{givenname}'));"
 
-         stmt.executeUpdate("""
-                            create index if not exists idx_btree_gr_a on mpi_nodes_golden_record using btree ((fields->>'givenName'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_btree_gr_b on mpi_nodes_golden_record using btree ((fields->>'familyName'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_btree_gr_c on mpi_nodes_golden_record using btree ((fields->>'city'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_btree_gr_d on mpi_nodes_golden_record using btree ((fields->>'phoneNumber'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_btree_gr_e on mpi_nodes_golden_record using btree ((fields->>'nationalId'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_hash_gr_a on mpi_nodes_golden_record using hash ((fields->>'givenName'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_hash_gr_b on mpi_nodes_golden_record using hash ((fields->>'familyName'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_hash_gr_c on mpi_nodes_golden_record using hash ((fields->>'city'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_hash_gr_d on mpi_nodes_golden_record using hash ((fields->>'phoneNumber'));
-                            """.stripIndent());
-         stmt.executeUpdate("""
-                            create index if not exists idx_hash_gr_e on mpi_nodes_golden_record using hash ((fields->>'nationalId'));
-                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_btree_gr_a on mpi_nodes_golden_record using btree ((fields->>'givenName'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_btree_gr_b on mpi_nodes_golden_record using btree ((fields->>'familyName'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_btree_gr_c on mpi_nodes_golden_record using btree ((fields->>'city'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_btree_gr_d on mpi_nodes_golden_record using btree ((fields->>'phoneNumber'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_btree_gr_e on mpi_nodes_golden_record using btree ((fields->>'nationalId'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_hash_gr_a on mpi_nodes_golden_record using hash ((fields->>'givenName'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_hash_gr_b on mpi_nodes_golden_record using hash ((fields->>'familyName'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_hash_gr_c on mpi_nodes_golden_record using hash ((fields->>'city'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_hash_gr_d on mpi_nodes_golden_record using hash ((fields->>'phoneNumber'));
+//                            """.stripIndent());
+//         stmt.executeUpdate("""
+//                            create index if not exists idx_hash_gr_e on mpi_nodes_golden_record using hash ((fields->>'nationalId'));
+//                            """.stripIndent());
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
          return false;
