@@ -198,30 +198,32 @@ public final class PostgresqlQueries {
    }
 
    public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
-      final var sql = String.format("""
-                                    select *
-                                    from %s
-                                    where fields @> '{"nationalId": "%s"}'
-                                    or fields @> '{"givenName":"%s", "familyName":"%s", "phoneNumber":"%s"}'
-                                    or (levenshtein(fields->>'givenName', ?) <= 3)::integer +
-                                       (levenshtein(fields->>'familyName', ?) <= 3)::integer +
-                                       (levenshtein(fields->>'city', ?) <= 3)::integer >= 2
-                                    or levenshtein(fields->>'phoneNumber', ?) <= 3
-                                    or levenshtein(fields->>'nationalId', ?) <= 3;
-                                    """,
-                                    TABLE_NODES_GOLDEN_RECORD,
-                                    customDemographicData.nationalId,
-                                    customDemographicData.givenName,
-                                    customDemographicData.familyName,
-                                    customDemographicData.city).stripIndent();
-      try (var stmt = PostgresqlClient.getInstance().prepareStatement(sql)) {
-         stmt.setString(1, customDemographicData.givenName);
-         stmt.setString(2, customDemographicData.familyName);
-         stmt.setString(3, customDemographicData.city);
-         stmt.setString(4, customDemographicData.phoneNumber);
-         stmt.setString(5, customDemographicData.nationalId);
-
-         final var rs = stmt.executeQuery();
+      final var sql = String.format(
+            """
+            select * from %s where fields @> '{"nationalId": "%s"}'
+            union
+            select * from %s where fields @> '{"givenName":"%s", "familyName":"%s", "phoneNumber":"%s"}'
+            union
+            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'familyName') %% '%s')
+            union
+            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'city') %% '%s')
+            union
+            select * from %s where  ((fields->>'familyName') %% '%s' and (fields->>'city') %% '%s')
+            union
+            select * from %s where  (fields->>'phoneNumber') %% '%s'
+            union
+            select * from %s where  (fields->>'nationalId') %% '%s';
+            """,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.nationalId,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.givenName, customDemographicData.familyName,  customDemographicData.phoneNumber,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.givenName, customDemographicData.familyName,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.givenName, customDemographicData.city,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.familyName, customDemographicData.city,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.phoneNumber,
+            TABLE_NODES_GOLDEN_RECORD, customDemographicData.nationalId).stripIndent();
+//      LOGGER.debug("{}", sql);
+      try (var stmt = PostgresqlClient.getInstance().createStatement()) {
+         final var rs = stmt.executeQuery(sql);
          final var list = new ArrayList<GoldenRecord>();
          while (rs.next()) {
             final var id = rs.getString("id");
