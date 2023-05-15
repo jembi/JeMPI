@@ -201,27 +201,25 @@ public final class PostgresqlQueries {
       final var sql = String.format("""
                                     select *
                                     from %s
-                                    where fields->>'nationalId' = ?
-                                    or (fields->>'givenName' = ? and
-                                        fields->>'familyName' = ? and
-                                        fields->>'phoneNumber' = ?)
-                                    or (levenshtein(fields->>'givenName', ?) < 3)::integer +
-                                       (levenshtein(fields->>'familyName', ?) < 3)::integer +
-                                       (levenshtein(fields->>'city', ?) < 3)::integer >= 2
-                                    or levenshtein(fields->>'phoneNumber', ?) < 3
-                                    or levenshtein(fields->>'nationalId', ?) < 3;
+                                    where fields @> '{"nationalId": "%s"}'
+                                    or fields @> '{"givenName":"%s", "familyName":"%s", "phoneNumber":"%s"}'
+                                    or (levenshtein(fields->>'givenName', ?) <= 3)::integer +
+                                       (levenshtein(fields->>'familyName', ?) <= 3)::integer +
+                                       (levenshtein(fields->>'city', ?) <= 3)::integer >= 2
+                                    or levenshtein(fields->>'phoneNumber', ?) <= 3
+                                    or levenshtein(fields->>'nationalId', ?) <= 3;
                                     """,
-                                    TABLE_NODES_GOLDEN_RECORD).stripIndent();
+                                    TABLE_NODES_GOLDEN_RECORD,
+                                    customDemographicData.nationalId,
+                                    customDemographicData.givenName,
+                                    customDemographicData.familyName,
+                                    customDemographicData.city).stripIndent();
       try (var stmt = PostgresqlClient.getInstance().prepareStatement(sql)) {
-         stmt.setString(1, customDemographicData.nationalId);
-         stmt.setString(2, customDemographicData.givenName);
-         stmt.setString(3, customDemographicData.familyName);
+         stmt.setString(1, customDemographicData.givenName);
+         stmt.setString(2, customDemographicData.familyName);
+         stmt.setString(3, customDemographicData.city);
          stmt.setString(4, customDemographicData.phoneNumber);
-         stmt.setString(5, customDemographicData.givenName);
-         stmt.setString(6, customDemographicData.familyName);
-         stmt.setString(7, customDemographicData.city);
-         stmt.setString(8, customDemographicData.phoneNumber);
-         stmt.setString(9, customDemographicData.nationalId);
+         stmt.setString(5, customDemographicData.nationalId);
 
          final var rs = stmt.executeQuery();
          final var list = new ArrayList<GoldenRecord>();

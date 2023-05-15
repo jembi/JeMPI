@@ -19,20 +19,6 @@ final class PostgresqlMutations {
    static final String TYPE_NODE_TYPE = "mpi_node_type";
    static final String TYPE_EDGE_NAME = "mpi_edge_name";
 
-   static final String GIN_IDX_GOLDEN_RECORD_FIELDS = "mpi_gin_idx_golden_record_fields";
-   static final String GIN_JSONB_PATH_OPS_IDX_GOLDEN_RECORD_FIELDS = "gin_jsonb_path_ops_idx_golden_record_fields";
-   static final String GIN_IDX_ENCOUNTER_FIELDS = "mpi_gin_idx_encounter_fields";
-   static final String BTREE_IDX_GOLDEN_RECORD_GIVEN_NAME = "mpi_btree_idx_golden_record_give_name";
-   static final String BTREE_IDX_GOLDEN_RECORD_FAMILY_NAME = "mpi_btree_idx_golden_record_family_name";
-   static final String BTREE_IDX_GOLDEN_RECORD_CITY = "mpi_btree_idx_golden_record_city";
-   static final String BTREE_IDX_GOLDEN_RECORD_PHONE_NUMBER = "mpi_btree_idx_golden_record_phone_number";
-   static final String BTREE_IDX_GOLDEN_RECORD_NID = "mpi_btree_idx_golden_record_nid";
-   static final String HASH_IDX_GOLDEN_RECORD_GIVEN_NAME = "mpi_hash_idx_golden_record_given_name";
-   static final String HASH_IDX_GOLDEN_RECORD_FAMILY_NAME = "mpi_hash_idx_golden_record_family_name";
-   static final String HASH_IDX_GOLDEN_RECORD_CITY = "mpi_hash_idx_golden_record_city";
-   static final String HASH_IDX_GOLDEN_RECORD_PHONE_NUMBER = "mpi_hash_idx_golden_record_phone_number";
-   static final String HASH_IDX_GOLDEN_RECORD_NID = "mpi_hash_idx_golden_record_nid";
-
    private static final Logger LOGGER = LogManager.getLogger(PostgresqlMutations.class);
 
    private PostgresqlMutations() {
