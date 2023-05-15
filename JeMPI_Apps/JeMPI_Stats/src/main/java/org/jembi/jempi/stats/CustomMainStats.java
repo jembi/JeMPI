@@ -99,12 +99,12 @@ public final class CustomMainStats {
    }
 
    private void updateStatsDataSet(final ApiExpandedGoldenRecord goldenRecord) {
-      final String goldenRecordAuxId = goldenRecord.goldenRecord.demographicData.auxId();
+      final String goldenRecordAuxId = goldenRecord.goldenRecord.demographicData.auxId;
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.demographicData.auxId()));
+      goldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.demographicData.auxId));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -120,14 +120,14 @@ public final class CustomMainStats {
       final var rot = mpiGoldenRecord.goldenRecord();
       if (writer != null) {
          writer.printf("GoldenRecord,%s,%s,%s,%s%n",
-                       rot.uid(), rot.demographicData.auxId(),
-                       rot.demographicData.gender(), rot.demographicData.dob());
+                       rot.uid(), rot.demographicData.auxId,
+                       rot.demographicData.gender, rot.demographicData.dob);
          mpiGoldenRecord.mpiPatientRecords.forEach(mpiEntity -> {
             final var entity = mpiEntity.patientRecord();
             writer.format(Locale.ENGLISH,
                           "document,%s,%s,%s,%s,%f%n",
-                          entity.uid(), entity.demographicData.auxId(),
-                          entity.demographicData.gender(), entity.demographicData.dob(),
+                          entity.uid(), entity.demographicData.auxId,
+                          entity.demographicData.gender, entity.demographicData.dob,
                           mpiEntity.score());
          });
       }

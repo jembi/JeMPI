@@ -17,7 +17,7 @@
     />
 
     <suppress
-            checks="(ParameterName|VisibilityModifier)"
+            checks="(ParameterName|VisibilityModifier|ParameterNumber)"
             files="().java"
     />
 
@@ -32,9 +32,10 @@
     />
 
     <suppress
-            checks="(UnusedImports)"
+            checks="(DesignForExtension)"
             files="CustomDemographicData.java"
     />
+
 
 
 

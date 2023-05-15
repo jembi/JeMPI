@@ -24,14 +24,14 @@ record CustomDgraphPatientRecord(
          final Float score) {
       this(patientRecord.patientId(),
            new DgraphSourceId(patientRecord.sourceId()),
-           patientRecord.demographicData().auxId(),
-           patientRecord.demographicData().givenName(),
-           patientRecord.demographicData().familyName(),
-           patientRecord.demographicData().gender(),
-           patientRecord.demographicData().dob(),
-           patientRecord.demographicData().city(),
-           patientRecord.demographicData().phoneNumber(),
-           patientRecord.demographicData().nationalId(),
+           patientRecord.demographicData().auxId,
+           patientRecord.demographicData().givenName,
+           patientRecord.demographicData().familyName,
+           patientRecord.demographicData().gender,
+           patientRecord.demographicData().dob,
+           patientRecord.demographicData().city,
+           patientRecord.demographicData().phoneNumber,
+           patientRecord.demographicData().nationalId,
            score);
    }
 

@@ -443,6 +443,7 @@ services:
     networks:
     - backend-kafka
     - backend-dgraph
+    - backend-postgresql
     volumes:
     - type: bind
       source: $DATA_DIR_LINKER/conf

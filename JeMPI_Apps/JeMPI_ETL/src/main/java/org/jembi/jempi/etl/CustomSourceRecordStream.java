@@ -82,20 +82,20 @@ public final class CustomSourceRecordStream {
                                                              ? rec.customSourceRecord().nationalID()
                                                              : "ANON"),
                                           new CustomDemographicData(rec.customSourceRecord().auxId(),
-                                                                    rec.customSourceRecord().givenName(),
-                                                                    rec.customSourceRecord().familyName(),
-                                                                    rec.customSourceRecord().gender(),
-                                                                    rec.customSourceRecord().dob(),
-                                                                    rec.customSourceRecord().city(),
-                                                                    rec.customSourceRecord().phoneNumber(),
-                                                                    rec.customSourceRecord().nationalID())));
+                                                                    rec.customSourceRecord().givenName().replace("'", ""),
+                                                                    rec.customSourceRecord().familyName().replace("'", ""),
+                                                                    rec.customSourceRecord().gender().replace("'", ""),
+                                                                    rec.customSourceRecord().dob().replace("'", ""),
+                                                                    rec.customSourceRecord().city().replace("'", ""),
+                                                                    rec.customSourceRecord().phoneNumber().replace("'", ""),
+                                                                    rec.customSourceRecord().nationalID().replace("'", ""))));
                   return KeyValue.pair(key, batchPatient);
                } else {
                   return KeyValue.pair("SENTINEL", new BatchPatientRecord(batchType, rec.batchMetaData(), null, null));
                }
             })
             .filter((key, value) -> !(value.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT && StringUtils.isBlank(
-                  value.patientRecord().demographicData().auxId())))
+                  value.patientRecord().demographicData().auxId)))
             .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();

@@ -42,7 +42,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       super(context);
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
-         openMPI();
+         openMPI(false);
       }
       topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                  GlobalConstants.TOPIC_NOTIFICATIONS,
@@ -119,10 +119,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
    }
 
-   private void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST, AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT, AppConfig.DGRAPH_ALPHA3_PORT};
-      libMPI = new LibMPI(host, port);
+   private void openMPI(final boolean useDGraph) {
+      if (useDGraph) {
+         final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST, AppConfig.DGRAPH_ALPHA3_HOST};
+         final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT, AppConfig.DGRAPH_ALPHA3_PORT};
+         libMPI = new LibMPI(host, port);
+      } else {
+         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
+                             "postgres",
+                             null);
+      }
       libMPI.startTransaction();
       if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
          LOGGER.error("Create Schema Error");
@@ -189,9 +195,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          }
 
          if (!reCompute) {
-            LOGGER.error("Failed to update score for entity with UID {}", patient.patientId());
+            LOGGER.error("Failed to update score for entity with UID {} {}",
+                         expandedGoldenRecord.goldenRecord().goldenId(),
+                         patient.patientId());
          } else {
-            LOGGER.debug("Successfully updated score for entity with UID {}", patient.patientId());
+            LOGGER.debug("Successfully updated score for entity with UID {} {}",
+                         expandedGoldenRecord.goldenRecord().goldenId(),
+                         patient.patientId());
          }
       });
    }
@@ -269,7 +279,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          CustomLinkerProbabilistic.checkUpdatedMU();
 
          libMPI.startTransaction();
-         final var docAuxKey = patientRecord.demographicData().auxId();
+         final var docAuxKey = patientRecord.demographicData().auxId;
 
          LOGGER.info("{}: no matches found", docAuxKey);
 

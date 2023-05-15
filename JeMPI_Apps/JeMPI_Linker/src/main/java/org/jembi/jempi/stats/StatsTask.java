@@ -91,12 +91,12 @@ public final class StatsTask {
    }
 
    private void updateStatsDataSet(final ApiExpandedGoldenRecord goldenRecord) {
-      final String goldenRecordAuxId = goldenRecord.goldenRecord.demographicData.auxId();
+      final String goldenRecordAuxId = goldenRecord.goldenRecord.demographicData.auxId;
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.demographicData.auxId()));
+      goldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.demographicData.auxId));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -126,7 +126,7 @@ public final class StatsTask {
          LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
          LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
          final var goldenRecords = goldenIdList.records.size();
-         final var subListSize = 100L;
+         final var subListSize = 20L;
          final var subLists = goldenRecords / min(subListSize, goldenRecords);
          final var finalSubListSize = goldenRecords % subListSize;
          LOGGER.info("Golden Records:       {}", goldenRecords);

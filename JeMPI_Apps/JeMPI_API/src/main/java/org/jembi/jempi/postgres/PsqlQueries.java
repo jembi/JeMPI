@@ -49,6 +49,7 @@ public final class PsqlQueries {
    public static List<HashMap<String, Object>> getCandidates(final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
+
       try (Connection connection = DbConnect.connect();
            PreparedStatement preparedStatement = connection.prepareStatement(candidates)) {
          ResultSet rs = preparedStatement.executeQuery();

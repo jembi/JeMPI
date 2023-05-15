@@ -114,10 +114,10 @@ final class CustomDgraphQueries {
 
 
    static DgraphGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
-      final var givenName = demographicData.givenName();
-      final var familyName = demographicData.familyName();
-      final var phoneNumber = demographicData.phoneNumber();
-      final var nationalId = demographicData.nationalId();
+      final var givenName = demographicData.givenName;
+      final var familyName = demographicData.familyName;
+      final var phoneNumber = demographicData.phoneNumber;
+      final var nationalId = demographicData.nationalId;
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
@@ -145,9 +145,9 @@ final class CustomDgraphQueries {
    }
 
    static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByDistance(final CustomDemographicData demographicData) {
-      final var givenName = demographicData.givenName();
-      final var familyName = demographicData.familyName();
-      final var city = demographicData.city();
+      final var givenName = demographicData.givenName;
+      final var familyName = demographicData.familyName;
+      final var city = demographicData.city;
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var cityIsBlank = StringUtils.isBlank(city);
@@ -170,18 +170,18 @@ final class CustomDgraphQueries {
    }
 
    static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByPhoneNumber(final CustomDemographicData demographicData) {
-      if (StringUtils.isBlank(demographicData.phoneNumber())) {
+      if (StringUtils.isBlank(demographicData.phoneNumber)) {
          return new DgraphGoldenRecords(List.of());
       }
-      final Map<String, String> map = Map.of("$phone_number", demographicData.phoneNumber());
+      final Map<String, String> map = Map.of("$phone_number", demographicData.phoneNumber);
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER, map);
    }
 
    static DgraphGoldenRecords queryMatchGoldenRecordCandidatesByNationalId(final CustomDemographicData demographicData) {
-      if (StringUtils.isBlank(demographicData.nationalId())) {
+      if (StringUtils.isBlank(demographicData.nationalId)) {
          return new DgraphGoldenRecords(List.of());
       }
-      final Map<String, String> map = Map.of("$national_id", demographicData.nationalId());
+      final Map<String, String> map = Map.of("$national_id", demographicData.nationalId);
       return runGoldenRecordsQuery(QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID, map);
    }
 

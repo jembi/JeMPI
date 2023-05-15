@@ -5,9 +5,8 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -22,6 +21,15 @@ public final class LibMPI {
       LOGGER.info("{}", "LibMPI Constructor");
       client = new LibDgraph(host, port);
    }
+
+   public LibMPI(
+         final String URL,
+         final String USR,
+         final String PSW) {
+      LOGGER.info("{}", "LibMPI Constructor");
+      client = new LibPostgresql(URL, USR, PSW);
+   }
+
 
    /*
     * *****************************************************************************
@@ -115,8 +123,7 @@ public final class LibMPI {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                                  ) {
+         final Boolean sortAsc) {
       return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
@@ -125,8 +132,7 @@ public final class LibMPI {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                                  ) {
+         final Boolean sortAsc) {
       return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
@@ -135,8 +141,7 @@ public final class LibMPI {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                            ) {
+         final Boolean sortAsc) {
       return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
 
@@ -145,8 +150,7 @@ public final class LibMPI {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc
-                                                                            ) {
+         final Boolean sortAsc) {
       return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
    }
 

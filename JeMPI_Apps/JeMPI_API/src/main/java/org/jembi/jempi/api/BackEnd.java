@@ -17,26 +17,25 @@ import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static LibMPI libMPI = null;
+
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
-         openMPI();
+         openMPI(false);
       }
-
-      // Init keycloak
-      ClassLoader classLoader = getClass().getClassLoader();
-      InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
    }
 
    private BackEnd(
@@ -54,12 +53,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.setup(context -> new BackEnd(context, lib));
    }
 
-   private static void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-                                    AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-                                 AppConfig.DGRAPH_ALPHA3_PORT};
-      libMPI = new LibMPI(host, port);
+   private static void openMPI(final boolean useDGraph) {
+      if (useDGraph) {
+         final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
+                                       AppConfig.DGRAPH_ALPHA3_HOST};
+         final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
+                                    AppConfig.DGRAPH_ALPHA3_PORT};
+         libMPI = new LibMPI(host, port);
+      } else {
+         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
+                             "postgres",
+                             null);
+      }
    }
 
    @Override
