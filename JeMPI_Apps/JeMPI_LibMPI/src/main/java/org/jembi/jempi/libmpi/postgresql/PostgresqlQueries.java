@@ -43,17 +43,17 @@ public final class PostgresqlQueries {
       return null;
    }
 
-   private static Integer countNodeType(final Node.NodeType nodeType) {
+   private static Long countNodeType(final Node.NodeType nodeType) {
       final var sql = String.format("select count(*) from %s where type = '%s';", TABLE_NODES, nodeType.name());
       try (var stmt = PostgresqlClient.getInstance().createStatement()) {
          final var rs = stmt.executeQuery(sql);
          if (rs.next()) {
-            return rs.getInt(1);
+            return rs.getLong(1);
          }
-         return 0;
+         return 0L;
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         return -1;
+         return -1L;
       }
    }
 
@@ -70,11 +70,11 @@ public final class PostgresqlQueries {
       return result;
    }
 
-   public static Integer countEncounters() {
+   public static Long countEncounters() {
       return countNodeType(Node.NodeType.ENCOUNTER);
    }
 
-   public static Integer countGoldenRecords() {
+   public static Long countGoldenRecords() {
       return countNodeType(Node.NodeType.GOLDEN_RECORD);
    }
 
