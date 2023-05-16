@@ -197,31 +197,7 @@ public final class PostgresqlQueries {
       }
    }
 
-   public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
-      final var sql = String.format(
-            """
-            select * from %s where fields @> '{"nationalId": "%s"}'
-            union
-            select * from %s where fields @> '{"givenName":"%s", "familyName":"%s", "phoneNumber":"%s"}'
-            union
-            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'familyName') %% '%s')
-            union
-            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'city') %% '%s')
-            union
-            select * from %s where  ((fields->>'familyName') %% '%s' and (fields->>'city') %% '%s')
-            union
-            select * from %s where  (fields->>'phoneNumber') %% '%s'
-            union
-            select * from %s where  (fields->>'nationalId') %% '%s';
-            """,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.nationalId,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.givenName, customDemographicData.familyName,  customDemographicData.phoneNumber,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.givenName, customDemographicData.familyName,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.givenName, customDemographicData.city,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.familyName, customDemographicData.city,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.phoneNumber,
-            TABLE_NODES_GOLDEN_RECORD, customDemographicData.nationalId).stripIndent();
-//      LOGGER.debug("{}", sql);
+   private static List<GoldenRecord> findCandidatesWorker(final String sql) {
       try (var stmt = PostgresqlClient.getInstance().createStatement()) {
          final var rs = stmt.executeQuery(sql);
          final var list = new ArrayList<GoldenRecord>();
@@ -239,6 +215,54 @@ public final class PostgresqlQueries {
          LOGGER.error(e.getLocalizedMessage(), e);
          return Collections.emptyList();
       }
+   }
+
+
+   public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
+      final var block1 = findCandidatesWorker(
+            String.format("""
+                          select * from %s where fields @> '{"nationalId": "%s"}'
+                          union
+                          select * from %s where fields @> '{"givenName":"%s", "familyName":"%s", "phoneNumber":"%s"}';
+                          """,
+                          TABLE_NODES_GOLDEN_RECORD,
+                          customDemographicData.nationalId,
+                          TABLE_NODES_GOLDEN_RECORD,
+                          customDemographicData.givenName, customDemographicData.familyName, customDemographicData.phoneNumber)
+                  .stripIndent());
+/*
+      if (!block1.isEmpty()) {
+         return block1;
+      }
+*/
+      final var sql = String.format(
+            """
+            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'familyName') %% '%s')
+            union
+            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'city') %% '%s')
+            union
+            select * from %s where  ((fields->>'familyName') %% '%s' and (fields->>'city') %% '%s')
+            union
+            select * from %s where  (fields->>'phoneNumber') %% '%s'
+            union
+            select * from %s where  (fields->>'nationalId') %% '%s';
+            """,
+            TABLE_NODES_GOLDEN_RECORD,
+            customDemographicData.givenName,
+            customDemographicData.familyName,
+            TABLE_NODES_GOLDEN_RECORD,
+            customDemographicData.givenName,
+            customDemographicData.city,
+            TABLE_NODES_GOLDEN_RECORD,
+            customDemographicData.familyName,
+            customDemographicData.city,
+            TABLE_NODES_GOLDEN_RECORD,
+            customDemographicData.phoneNumber,
+            TABLE_NODES_GOLDEN_RECORD,
+            customDemographicData.nationalId).stripIndent();
+      final var block2 = findCandidatesWorker(sql);
+      block1.addAll(block2);
+      return block1;
    }
 
    public static NodeGoldenRecord getGoldenRecord(final UUID gid) {
