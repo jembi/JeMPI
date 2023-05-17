@@ -55,10 +55,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private static void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-                                    AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-                                 AppConfig.DGRAPH_ALPHA3_PORT};
+      String[] hosts = AppConfig.DGRAPH_ALPHA_HOSTS.split(",");
+      int[] ports = Arrays.stream(AppConfig.DGRAPH_ALPHA_HOSTS.split(",")).mapToInt(s -> {
+         try {
+            return Integer.parseInt(s);
+         } catch (NumberFormatException ex) {
+            return Integer.MIN_VALUE;
+         }
+      }).toArray();
+      final var host = hosts;
+      final var port = ports;
       libMPI = new LibMPI(host, port);
    }
 

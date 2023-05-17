@@ -29,12 +29,8 @@ public final class AppConfig {
 
    public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
-   public static final String DGRAPH_ALPHA1_HOST = CONFIG.getString("dgraph.alpha1.host");
-   public static final int DGRAPH_ALPHA1_PORT = CONFIG.getInt("dgraph.alpha1.port");
-   public static final String DGRAPH_ALPHA2_HOST = CONFIG.getString("dgraph.alpha2.host");
-   public static final int DGRAPH_ALPHA2_PORT = CONFIG.getInt("dgraph.alpha2.port");
-   public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
-   public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
+   public static final String DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts");
+   public static final String DGRAPH_ALPHA_PORTS = CONFIG.getString("dgraph.ports");
 
    public static final long JEMPI_FILE_IMPORT_MAX_SIZE_BYTE = CONFIG.getLong("import.max-size");
 

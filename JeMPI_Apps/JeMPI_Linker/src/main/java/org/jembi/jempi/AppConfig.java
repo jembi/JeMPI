@@ -35,14 +35,8 @@ public final class AppConfig {
    public static final Float FLAG_FOR_NOTIFICATION_ALLOWANCE = (float) CONFIG.getDouble("back-end.flag-for-notification-allowance");
    public static final Boolean BACK_END_DETERMINISTIC = CONFIG.getBoolean("back-end.deterministic");
 
-   public static final String DGRAPH_ALPHA1_HOST = CONFIG.getString("dgraph.alpha1.host");
-   public static final int DGRAPH_ALPHA1_PORT = CONFIG.getInt("dgraph.alpha1.port");
-
-   public static final String DGRAPH_ALPHA2_HOST = CONFIG.getString("dgraph.alpha2.host");
-   public static final int DGRAPH_ALPHA2_PORT = CONFIG.getInt("dgraph.alpha2.port");
-
-   public static final String DGRAPH_ALPHA3_HOST = CONFIG.getString("dgraph.alpha3.host");
-   public static final int DGRAPH_ALPHA3_PORT = CONFIG.getInt("dgraph.alpha3.port");
+   public static final String DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts");
+   public static final String DGRAPH_ALPHA_PORTS = CONFIG.getString("dgraph.ports");
 
    private AppConfig() {
    }
