@@ -62,9 +62,6 @@ popd
 pushd ./JeMPI_Apps/JeMPI_AsyncReceiver
   source ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_SyncReceiver
-  source ./build.sh || exit 1
-popd
 pushd ./JeMPI_Apps/JeMPI_ETL
   source ./build.sh || exit 1
 popd

@@ -13,8 +13,8 @@ pushd .
 
   rm -f ./0-docker-stack-0.yml
   rm -f ./0-docker-stack-1.yml
-  envsubst < ./conf/stack/docker-stack-0.yml > ./0-docker-stack-0.yml
-  envsubst < ./conf/stack/docker-stack-1.yml > ./0-docker-stack-1.yml
+  envsubst < ./conf/stack/docker-stack-${SPEC_SETTINGS}-0.yml > ./0-docker-stack-0.yml
+  envsubst < ./conf/stack/docker-stack-${SPEC_SETTINGS}-1.yml > ./0-docker-stack-1.yml
 
   docker stack deploy --orchestrator swarm --prune --compose-file 0-docker-stack-1.yml ${STACK_NAME}
   echo
