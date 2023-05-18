@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
@@ -29,8 +30,14 @@ public final class AppConfig {
 
    public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
-   public static final String DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts");
-   public static final String DGRAPH_ALPHA_PORTS = CONFIG.getString("dgraph.ports");
+   public static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts").split(",");
+   public static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("dgraph.ports").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
 
    public static final long JEMPI_FILE_IMPORT_MAX_SIZE_BYTE = CONFIG.getLong("import.max-size");
 
