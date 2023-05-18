@@ -90,7 +90,7 @@ services:
       placement:
         constraints:
           - node.labels.name == $PLACEMENT_KAFKA_01
-
+  
   zero-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "zero-01"
@@ -207,6 +207,8 @@ services:
 
   async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     volumes:
@@ -234,6 +236,8 @@ services:
 
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     volumes:
@@ -257,6 +261,8 @@ services:
 
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     ports:
@@ -285,6 +291,8 @@ services:
        
   em:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     volumes:
@@ -396,4 +404,3 @@ services:
       placement:
         constraints:
           - node.labels.name == ${PLACEMENT_UI}
-    

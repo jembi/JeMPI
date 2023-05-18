@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -46,14 +45,15 @@ final class DgraphClient {
 
    void startTransaction() {
       if (dgraphClient == null) {
-         var hostList = new ArrayList<>(List.of(new DgraphClient.AlphaHost(host[0], port[0]),
-                                                new DgraphClient.AlphaHost(host[1], port[1]),
-                                                new DgraphClient.AlphaHost(host[2], port[2])));
+         var hostList = new ArrayList<DgraphClient.AlphaHost>();
+         for (int i = 0; i < host.length; i++) {
+            hostList.add(new DgraphClient.AlphaHost(host[i], port[i]));
+         }
          var dgraphStubs = new DgraphGrpc.DgraphStub[hostList.size()];
          for (int i = 0; i < hostList.size(); i++) {
             AlphaHost alphaHost = hostList.get(i);
             dgraphStubs[i] = DgraphGrpc.newStub(ManagedChannelBuilder.forAddress(alphaHost.host, alphaHost.port)
-                                                      .maxInboundMessageSize(100 * 1024 * 1024)
+                                                                     .maxInboundMessageSize(100 * 1024 * 1024)
                                                                      .usePlaintext()
                                                                      .build());
          }
