@@ -70,7 +70,7 @@ public final class PostgresqlQueries {
       return result;
    }
 
-   public static Long countEncounters() {
+   public static Long countInteractions() {
       return countNodeType(Node.NodeType.ENCOUNTER);
    }
 

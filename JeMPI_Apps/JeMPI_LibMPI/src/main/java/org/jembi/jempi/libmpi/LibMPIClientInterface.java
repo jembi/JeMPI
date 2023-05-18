@@ -35,7 +35,7 @@ public interface LibMPIClientInterface {
     * *
     */
 
-   long countPatientRecords();
+   long countInteractions();
 
    long countGoldenRecords();
 

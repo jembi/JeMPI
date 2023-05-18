@@ -177,7 +177,7 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   static long countPatients() {
+   static long countInteractions() {
       final var query = """
                         query recordCount() {
                           list(func: type(PatientRecord)) {

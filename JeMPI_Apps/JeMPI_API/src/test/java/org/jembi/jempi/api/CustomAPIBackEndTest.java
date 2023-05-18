@@ -558,7 +558,7 @@ class CustomAPIBackEndTest {
    public void getPatientRecordCountHandler_whenGetPatientRecordCountSuccess_ReturnSuccess() {
       long count = 100;
 
-      when(libMPI.countPatientRecords()).thenReturn(count);
+      when(libMPI.countInteractions()).thenReturn(count);
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -572,7 +572,7 @@ class CustomAPIBackEndTest {
    @Test
    public void getPatientRecordCountHandler_whenGetPatientRecordCountThrowsException_ReturnGeneralError() {
 
-      when(libMPI.countPatientRecords()).thenThrow(new RuntimeException(error));
+      when(libMPI.countInteractions()).thenThrow(new RuntimeException(error));
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));

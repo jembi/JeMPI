@@ -31,8 +31,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
     *
     */
 
-   public long countPatientRecords() {
-      return PostgresqlQueries.countEncounters();
+   public long countInteractions() {
+      return PostgresqlQueries.countInteractions();
    }
 
    public long countGoldenRecords() {

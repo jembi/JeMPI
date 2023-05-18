@@ -34,7 +34,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
-         openMPI(false);
+         openMPI(true);
       }
    }
 
@@ -180,7 +180,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         final long count = libMPI.countPatientRecords();
+         final long count = libMPI.countInteractions();
          libMPI.closeTransaction();
 
          request.replyTo.tell(new GetPatientRecordCountResponse(Either.right(count)));
@@ -196,7 +196,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("getNumberOfRecords");
       libMPI.startTransaction();
       var recs = libMPI.countGoldenRecords();
-      var docs = libMPI.countPatientRecords();
+      var docs = libMPI.countInteractions();
       libMPI.closeTransaction();
       request.replyTo.tell(new BackEnd.GetNumberOfRecordsResponse(recs, docs));
       return Behaviors.same();

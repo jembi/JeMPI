@@ -67,8 +67,8 @@ public final class LibMPI {
     * *
     */
 
-   public long countPatientRecords() {
-      return client.countPatientRecords();
+   public long countInteractions() {
+      return client.countInteractions();
    }
 
    public long countGoldenRecords() {

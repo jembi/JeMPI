@@ -35,8 +35,8 @@ public final class LibDgraph implements LibMPIClientInterface {
     *
     */
 
-   public long countPatientRecords() {
-      return DgraphQueries.countPatients();
+   public long countInteractions() {
+      return DgraphQueries.countInteractions();
    }
 
    public long countGoldenRecords() {
