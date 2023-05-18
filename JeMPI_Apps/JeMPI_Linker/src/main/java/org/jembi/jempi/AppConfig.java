@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
@@ -32,11 +33,18 @@ public final class AppConfig {
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
 
    public static final Float BACK_END_MATCH_THRESHOLD = (float) CONFIG.getDouble("back-end.match-threshold");
-   public static final Float FLAG_FOR_NOTIFICATION_ALLOWANCE = (float) CONFIG.getDouble("back-end.flag-for-notification-allowance");
+   public static final Float FLAG_FOR_NOTIFICATION_ALLOWANCE =
+         (float) CONFIG.getDouble("back-end.flag-for-notification-allowance");
    public static final Boolean BACK_END_DETERMINISTIC = CONFIG.getBoolean("back-end.deterministic");
 
-   public static final String DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts");
-   public static final String DGRAPH_ALPHA_PORTS = CONFIG.getString("dgraph.ports");
+   public static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("dgraph.hosts").split(",");
+   public static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("dgraph.ports").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
 
    private AppConfig() {
    }
