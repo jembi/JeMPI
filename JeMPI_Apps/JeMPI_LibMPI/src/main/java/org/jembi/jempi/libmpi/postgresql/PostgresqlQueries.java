@@ -230,11 +230,10 @@ public final class PostgresqlQueries {
                           TABLE_NODES_GOLDEN_RECORD,
                           customDemographicData.givenName, customDemographicData.familyName, customDemographicData.phoneNumber)
                   .stripIndent());
-/*
       if (!block1.isEmpty()) {
          return block1;
       }
-*/
+
       final var sql = String.format(
             """
             select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'familyName') %% '%s')
