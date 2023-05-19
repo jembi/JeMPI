@@ -123,10 +123,10 @@ object CustomDgraphQueries {
       val v = vars(0)
       writer.println(
         s"""   static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {
-           |      if (StringUtils.isBlank(demographicData.${Utils.snakeCaseToCamelCase(v)}())) {
+           |      if (StringUtils.isBlank(demographicData.${Utils.snakeCaseToCamelCase(v)})) {
            |         return new DgraphGoldenRecords(List.of());
            |      }
-           |      final Map<String, String> map = Map.of("$$$v", demographicData.${Utils.snakeCaseToCamelCase(v)}());
+           |      final Map<String, String> map = Map.of("$$$v", demographicData.${Utils.snakeCaseToCamelCase(v)});
            |      return runGoldenRecordsQuery($name, map);
            |   }
            |""".stripMargin)
@@ -135,7 +135,7 @@ object CustomDgraphQueries {
       writer.println(s"   static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {")
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
-        writer.println(s"      final var $camelCaseVarName = demographicData.$camelCaseVarName();")
+        writer.println(s"      final var $camelCaseVarName = demographicData.$camelCaseVarName;")
       })
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)

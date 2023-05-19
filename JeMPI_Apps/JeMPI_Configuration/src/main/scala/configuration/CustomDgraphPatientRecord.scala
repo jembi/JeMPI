@@ -44,7 +44,7 @@ private object CustomDgraphPatientRecord {
          |           new DgraphSourceId(patientRecord.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        writer.println(s"${" " * 11}patientRecord.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)}(),")
+        writer.println(s"${" " * 11}patientRecord.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)},")
     }
     writer.println(
       s"""${" " * 11}score);
@@ -62,7 +62,7 @@ private object CustomDgraphPatientRecord {
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
-          s"${" " * (if (idx == 0) 0 else 57)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
+          s"${" " * (if (idx == 0) 0 else 57)}this.${Utils.snakeCaseToCamelCase(field.fieldName)}" +
             (if (idx + 1 < fields.length) "," else "));"))
     }
     writer.println("   }")

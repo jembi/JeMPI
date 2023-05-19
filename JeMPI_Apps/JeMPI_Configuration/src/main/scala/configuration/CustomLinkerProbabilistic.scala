@@ -190,7 +190,7 @@ object CustomLinkerProbabilistic {
       muList.zipWithIndex.foreach((field, _) => {
         writer.println(" " * 6 + "updateMetricsForStringField(metrics,")
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(" " * 34 + s"goldenRecord.$fieldName(), patient.$fieldName(), currentFields" +
+        writer.println(" " * 34 + s"goldenRecord.$fieldName, patient.$fieldName, currentFields" +
           s".$fieldName);")
       })
       writer.println(" " * 6 + "return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];")

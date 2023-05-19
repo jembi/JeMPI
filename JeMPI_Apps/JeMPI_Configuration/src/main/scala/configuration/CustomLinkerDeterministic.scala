@@ -82,8 +82,8 @@ object CustomLinkerDeterministic {
         val field = Utils.snakeCaseToCamelCase(v)
         val left = field + "L"
         val right = field + "R"
-        writer.println(" " * 6 + s"final var $left = goldenRecord.$field();")
-        writer.println(" " * 6 + s"final var $right = patient.$field();")
+        writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
+        writer.println(" " * 6 + s"final var $right = patient.$field;")
       })
       writer.println(s"      return $expr_1;")
     })

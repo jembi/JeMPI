@@ -51,7 +51,7 @@ object CustomLinkerBackEnd {
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
         s"""${" " * 6}k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
-           |${" " * 6}                                     "$fieldName", demographicData.$fieldName(), CustomDemographicData::$fieldName)
+           |${" " * 6}                                     "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName.charAt(0).toUpper}${fieldName.substring(1)})
            |${" " * 12}? 1
            |${" " * 12}: 0;""".stripMargin)
     })

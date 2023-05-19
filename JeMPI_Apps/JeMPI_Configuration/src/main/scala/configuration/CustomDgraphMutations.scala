@@ -47,7 +47,7 @@ private object CustomDgraphMutations {
       case (field, _) =>
         val name = "demographicData." + field.fieldName
         writer.println(
-          s"""${" " * 27}uuid, AppUtils.quotedValue(${Utils.snakeCaseToCamelCase(name)}()),""".stripMargin)
+          s"""${" " * 27}uuid, AppUtils.quotedValue(${Utils.snakeCaseToCamelCase(name)}),""".stripMargin)
     }
     writer.println(
       s"""${" " * 27}uuid);
@@ -78,7 +78,7 @@ private object CustomDgraphMutations {
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val name = "demographicData." + Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(s"""${" " * 27}uuid, AppUtils.quotedValue($name()),""".stripMargin)
+        writer.println(s"""${" " * 27}uuid, AppUtils.quotedValue($name),""".stripMargin)
     }
     writer.println(
       s"""${" " * 27}uuid, patientUID, score,

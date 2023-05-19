@@ -85,7 +85,7 @@ object CustomLinkerMU {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
-            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName(), goldenRecord.$fieldName()" +
+            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName" +
               s");")
         })
         writer.println(
@@ -101,9 +101,7 @@ object CustomLinkerMU {
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName(), goldenRecord.$fieldName" +
-            s"()" +
-            s");")
+          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName);")
       })
       writer.println(
         """      LOGGER.debug("{}", fields);

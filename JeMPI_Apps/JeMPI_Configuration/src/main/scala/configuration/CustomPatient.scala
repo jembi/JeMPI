@@ -7,9 +7,11 @@ private object CustomPatient {
   private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/shared/models"
   private val packageText = "org.jembi.jempi.shared.models"
   private val customClassNameDemographicData = "CustomDemographicData"
+  private val classFile: String = classLocation + File.separator + customClassNameDemographicData + ".java"
+  private val indent = 3
 
   def generateDemographicData(fields: Array[Field]): Unit =
-    val classFile: String = classLocation + File.separator + customClassNameDemographicData + ".java"
+
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
@@ -23,94 +25,50 @@ private object CustomPatient {
          |""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
-        writer.print(s"""${" " * 3}public final """)
         val typeString = field.fieldType
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.print(typeString + " " + fieldName)
-        writer.println(";")
-//        writer.println(if (idx + 1 < fields.length) ";" else ") {")
+        writer.println(s"""${" " * (indent * 1)}public final ${typeString} ${fieldName};""")
+    }
+    writer.println();
+    for (field <- fields) {
+      val typeString = field.fieldType
+      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+      writer.println(
+        s"""${" " * (indent * 1)}public final ${typeString} get${fieldName.charAt(0).toUpper}${fieldName.substring(1)}() {
+           |${" " * (indent * 2)}return ${fieldName};
+           |${" " * (indent * 1)}}
+           |""".stripMargin)
     }
 
+    writer.println(s"""${" " * indent * 1}public $customClassNameDemographicData() {""".stripMargin)
     writer.println(
-      s"""
-         |}
+      s"""${" " * indent * 2}this(${"null, " * (fields.length - 1)}null);
+         |${" " * indent * 1}}
          |""".stripMargin)
 
+    writer.println(
+      s"""${" " * indent * 1}public $customClassNameDemographicData(""".stripMargin)
+    fields.zipWithIndex.foreach {
+      case (field, idx) =>
+        val typeString = field.fieldType
+        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+        writer.println(
+          s"""${" " * indent * 2}final $typeString $fieldName${if (idx < fields.length - 1) ',' else ") {"}""".stripMargin)
+    }
+    fields.zipWithIndex.foreach {
+      case (field, idx) =>
+        val typeString = field.fieldType
+        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+        writer.println(
+          s"""${" " * indent * 3}this.$fieldName = $fieldName;""".stripMargin)
+    }
+    writer.println(
+      s"""${" " * indent * 1}}
+         |
+         |}""".stripMargin)
     writer.flush()
     writer.close()
+
   end generateDemographicData
-}
-
-/*
-package org.jembi.jempi.shared.models;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class CustomDemographicData {
-   public final String auxId;
-   public final String givenName;
-   public final String familyName;
-   public final String gender;
-   public final String dob;
-   public final String city;
-   public final String phoneNumber;
-   public final String nationalId;
-
-   public String getAuxId() {
-      return auxId;
-   }
-
-   public String getGivenName() {
-      return givenName;
-   }
-
-   public String getFamilyName() {
-      return familyName;
-   }
-
-   public String getGender() {
-      return gender;
-   }
-
-   public String getDob() {
-      return dob;
-   }
-
-   public String getCity() {
-      return city;
-   }
-
-   public String getPhoneNumber() {
-      return phoneNumber;
-   }
-
-   public String getNationalId() {
-      return nationalId;
-   }
-
-   public CustomDemographicData() {
-      this(null, null, null, null, null, null, null, null);
-   }
-
-   public CustomDemographicData(
-         final String auxId,
-         final String givenName,
-         final String familyName,
-         final String gender,
-         final String dob,
-         final String city,
-         final String phoneNumber,
-         final String nationalId) {
-      this.auxId = auxId;
-      this.givenName = givenName;
-      this.familyName = familyName;
-      this.gender = gender;
-      this.dob = dob;
-      this.city = city;
-      this.phoneNumber = phoneNumber;
-      this.nationalId = nationalId;
-   }
 
 }
-*/

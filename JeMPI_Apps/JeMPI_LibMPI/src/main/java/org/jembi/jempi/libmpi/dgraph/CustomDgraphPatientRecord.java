@@ -40,14 +40,14 @@ record CustomDgraphPatientRecord(
                                this.sourceId() != null
                                      ? this.sourceId().toSourceId()
                                      : null,
-                               new CustomDemographicData(this.auxId(),
-                                                         this.givenName(),
-                                                         this.familyName(),
-                                                         this.gender(),
-                                                         this.dob(),
-                                                         this.city(),
-                                                         this.phoneNumber(),
-                                                         this.nationalId()));
+                               new CustomDemographicData(this.auxId,
+                                                         this.givenName,
+                                                         this.familyName,
+                                                         this.gender,
+                                                         this.dob,
+                                                         this.city,
+                                                         this.phoneNumber,
+                                                         this.nationalId));
    }
 
    PatientRecordWithScore toPatientRecordWithScore() {
