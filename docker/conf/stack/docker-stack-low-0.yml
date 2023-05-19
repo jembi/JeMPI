@@ -1,0 +1,409 @@
+version: '3.8'
+
+networks:
+  backend-kafka:
+    name: backend-kafka
+    driver: overlay
+    attachable: true
+  backend-dgraph:
+    name: backend-dgraph
+    driver: overlay
+    attachable: true
+  backend-postgresql:
+    name: backend-postgresql
+    driver: overlay
+    attachable: true
+  frontend-api:
+    name: frontend-api
+    driver: overlay
+    attachable: true
+
+services:
+
+  nginx:
+    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
+    networks:
+      - frontend-api
+
+  haproxy:
+    image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
+    volumes:
+      - type: bind
+        source: ${DATA_HAPROXY_DIR}
+        target: /etc/haproxy/
+        read_only: true
+    dns:
+      - 127.0.0.11
+    networks:
+      - backend-kafka
+      - backend-dgraph
+      - backend-postgresql
+      - frontend-api
+    ports:
+      - published: 30460
+        target: 30460
+        protocol: tcp
+        mode: host
+      - published: 50000
+        target: 50000
+        protocol: tcp
+        mode: host
+      - published: 3000
+        target: 3000
+        protocol: tcp
+        mode: host        
+    deploy:
+      mode: global
+      
+  kafka-01:
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
+    user: root
+    networks:
+      - backend-kafka
+    environment:
+      BITNAMI_DEBUG: 'true'
+      KAFKA_ENABLE_KRAFT: 'yes'
+      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    volumes:
+      - type: bind
+        source: ${DATA_KAFKA_01_DIR}
+        target: /bitnami/kafka
+        read_only: false
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KAFKA_01
+  
+  zero-01:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "zero-01"
+    networks:
+    - backend-dgraph
+    ports:
+    - published: 5080
+      target: 5080
+      protocol: tcp
+      mode: host
+    - published: 6080
+      target: 6080
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ZERO_01_DIR}
+      target: /dgraph
+    deploy:
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
+    command: dgraph zero --my=zero-01:5080 --replicas 1
+
+  alpha-01:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "alpha-01"
+    networks:
+    - backend-dgraph
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ALPHA_01_DIR}
+      target: /dgraph
+    ports:
+    - published: 8080
+      target: 8080
+      protocol: tcp
+      mode: host
+    - published: 9080
+      target: 9080
+      protocol: tcp
+      mode: host
+    deploy:
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+
+  ratel:
+    image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
+    ports:
+    - published: 8010
+      target: 8000
+      protocol: tcp
+      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    networks:
+    - backend-dgraph
+    deploy:
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_RATEL}
+    command: dgraph-ratel
+
+  postgresql:
+    image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
+    environment:
+      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+    - backend-postgresql
+    ports:
+    - published: 5432
+      target: 5432
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_POSTGRESQL_DIR}
+      target: /conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_POSTGRESQL}
+
+
+  async-receiver:
+    image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+    networks:
+    - backend-kafka
+    volumes:
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
+
+  etl:
+    image: ${IMAGE_REGISTRY}${ETL_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+    networks:
+    - backend-kafka
+    volumes:
+    - type: bind
+      source: $DATA_DIR_ETL/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_ETL}
+
+  controller:
+    image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+    networks:
+    - backend-kafka
+    ports:
+    - published: 50020
+      target: 50000
+      protocol: tcp
+      mode: host      
+    volumes:
+    - type: bind
+      source: $DATA_DIR_CONTROLLER/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_CONTROLLER}
+       
+  em:
+    image: ${IMAGE_REGISTRY}${EM_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+    networks:
+    - backend-kafka
+    volumes:
+    - type: bind
+      source: $DATA_DIR_EM/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_EM}
+
+  linker:
+    image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+    networks:
+    - backend-kafka
+    - backend-dgraph
+    volumes:
+    - type: bind
+      source: $DATA_DIR_LINKER/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          memory: ${LINKER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_LINKER}
+
+  api:
+    image: ${IMAGE_REGISTRY}${API_IMAGE}
+    environment:
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_API_URL: ${KC_API_URL}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+    networks:
+    - backend-dgraph
+    - backend-kafka
+    - frontend-api
+    - backend-postgresql
+    volumes:
+    - type: bind
+      source: $DATA_DIR_API/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_API}
+
+  ui:
+    image: ${IMAGE_REGISTRY}${UI_IMAGE}
+    environment:
+      REACT_APP_JEMPI_BASE_URL: api:50000/JeMPI
+      REACT_APP_MOCK_BACKEND: "${JEMPI_UI_MOCKBACKEND}"
+      REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
+    networks:
+      - frontend-api
+    deploy:
+      mode: replicated
+      replicas: 0
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+          - node.labels.name == ${PLACEMENT_UI}

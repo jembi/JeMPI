@@ -22,12 +22,16 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static LibMPI libMPI = null;
+
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
@@ -55,10 +59,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private static void openMPI() {
-      final var host = new String[]{AppConfig.DGRAPH_ALPHA1_HOST, AppConfig.DGRAPH_ALPHA2_HOST,
-                                    AppConfig.DGRAPH_ALPHA3_HOST};
-      final var port = new int[]{AppConfig.DGRAPH_ALPHA1_PORT, AppConfig.DGRAPH_ALPHA2_PORT,
-                                 AppConfig.DGRAPH_ALPHA3_PORT};
+      final var host = AppConfig.DGRAPH_ALPHA_HOSTS;
+      final var port = AppConfig.DGRAPH_ALPHA_PORTS;
       libMPI = new LibMPI(host, port);
    }
 

@@ -71,7 +71,7 @@ services:
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
@@ -81,7 +81,7 @@ services:
         read_only: false
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: ${SCALE_KAFKA_01}
       update_config:
         parallelism: 1
         delay: 10s
@@ -91,78 +91,6 @@ services:
         constraints:
           - node.labels.name == $PLACEMENT_KAFKA_01
   
-  kafka-02:
-    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
-    user: root
-    networks:
-      - backend-kafka
-    environment:
-      BITNAMI_DEBUG: 'true'
-      KAFKA_ENABLE_KRAFT: 'yes'
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
-      KAFKA_CFG_NODE_ID: 2
-      KAFKA_CFG_BROKER_ID: 2
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-02:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
-      ALLOW_PLAINTEXT_LISTENER: 'yes'
-    volumes:
-      - type: bind
-        source: ${DATA_KAFKA_02_DIR}
-        target: /bitnami/kafka
-        read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.labels.name == $PLACEMENT_KAFKA_02
-  
-  kafka-03:
-    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
-    user: root
-    networks:
-      - backend-kafka
-    environment:
-      BITNAMI_DEBUG: 'true'
-      KAFKA_ENABLE_KRAFT: 'yes'
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
-      KAFKA_CFG_NODE_ID: 3
-      KAFKA_CFG_BROKER_ID: 3
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-03:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
-      ALLOW_PLAINTEXT_LISTENER: 'yes'
-    volumes:
-      - type: bind
-        source: ${DATA_KAFKA_03_DIR}
-        target: /bitnami/kafka
-        read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.labels.name == $PLACEMENT_KAFKA_03
-
   zero-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "zero-01"
@@ -182,7 +110,7 @@ services:
       source: ${DATA_DGRAPH_ZERO_01_DIR}
       target: /dgraph
     deploy:
-      replicas: 0
+      replicas: ${SCALE_ZERO_01}
       update_config:
         parallelism: 1
         delay: 10s
@@ -212,7 +140,7 @@ services:
       protocol: tcp
       mode: host
     deploy:
-      replicas: 0
+      replicas: ${SCALE_ALPHA_01}
       update_config:
         parallelism: 1
         delay: 10s
@@ -222,66 +150,6 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
     command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
-
-  alpha-02:
-    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "alpha-02"
-    networks:
-    - backend-dgraph
-    volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ALPHA_02_DIR}
-      target: /dgraph
-    ports:
-    - published: 8081
-      target: 8081
-      protocol: tcp
-      mode: host
-    - published: 9081
-      target: 9081
-      protocol: tcp
-      mode: host
-    deploy:
-      replicas: 0
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
-
-  alpha-03:
-    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "alpha-03"
-    networks:
-    - backend-dgraph
-    volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ALPHA_03_DIR}
-      target: /dgraph
-    ports:
-    - published: 8082
-      target: 8082
-      protocol: tcp
-      mode: host
-    - published: 9082
-      target: 9082
-      protocol: tcp
-      mode: host
-    deploy:
-      replicas: 0
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
-    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
@@ -293,7 +161,7 @@ services:
     networks:
     - backend-dgraph
     deploy:
-      replicas: 0
+      replicas: ${SCALE_RATEL}
       update_config:
         parallelism: 1
         delay: 10s
@@ -324,7 +192,7 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
@@ -339,6 +207,8 @@ services:
 
   async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     volumes:
@@ -352,7 +222,7 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
@@ -366,6 +236,8 @@ services:
 
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     volumes:
@@ -375,7 +247,7 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
@@ -389,6 +261,8 @@ services:
 
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     ports:
@@ -403,7 +277,7 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
@@ -417,6 +291,8 @@ services:
        
   em:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend-kafka
     volumes:
@@ -440,6 +316,10 @@ services:
 
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
     - backend-kafka
     - backend-dgraph
@@ -450,7 +330,10 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
+      resources:
+        limits:
+          memory: ${LINKER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -472,6 +355,9 @@ services:
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
     - backend-dgraph
     - backend-kafka
@@ -488,7 +374,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
@@ -510,7 +396,7 @@ services:
       - frontend-api
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
@@ -521,4 +407,3 @@ services:
       placement:
         constraints:
           - node.labels.name == ${PLACEMENT_UI}
-    

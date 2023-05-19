@@ -9,8 +9,6 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -24,6 +22,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String[] host,
          final int[] port) {
       LOGGER.info("{}", "LibDgraph Constructor");
+      LOGGER.info("{} {}", host, port);
 
       DgraphClient.getInstance().config(host, port);
    }
