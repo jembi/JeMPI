@@ -455,6 +455,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${LINKER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s

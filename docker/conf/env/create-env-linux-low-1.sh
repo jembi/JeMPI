@@ -41,6 +41,9 @@ export KC_JEMPI_ROOT_URL="http://localhost:3000"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128000000
 
+# ram limit for linker
+export LINKER_RAM_LIMIT="8G"
+
 #UI env vars
 export REACT_APP_JEMPI_BASE_URL="http://api:50000/JeMPI"
 export REACT_APP_MOCK_BACKEND="false"
