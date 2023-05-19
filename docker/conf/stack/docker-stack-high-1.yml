@@ -440,6 +440,10 @@ services:
 
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
+    environment:
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
     - backend-kafka
     - backend-dgraph
@@ -452,6 +456,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          memory: ${LINKER_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -473,6 +480,9 @@ services:
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
     - backend-dgraph
     - backend-kafka

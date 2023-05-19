@@ -23,7 +23,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
   - ```ping `hostname` ``` must ping a LAN IP address (not 127.x.x.x) 
 - Run
   1. **_\<base>/JeMPI/docker/conf/env_**
-     1. ```./create-env-linux-1-64.sh```
+     1. if you have less than 32Gb of ram, run ```./create-env-linux-low-1-.sh```. If you have 32Gb of ram or more, run ```./create-env-linux-high-1-.sh``` 
   2. **_\<base>/JeMPI/docker/helper/scripts_**
      1. ```bash ./x-swarm-a-set-insecure-registries.sh```
         - this clobbers **_/etc/docker/daemon.json_**   

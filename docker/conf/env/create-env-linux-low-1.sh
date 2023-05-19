@@ -19,18 +19,18 @@ else
 fi
 
 export SCALE_KAFKA_01=1
-export SCALE_KAFKA_02=1
-export SCALE_KAFKA_03=1
 export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
-export SCALE_ALPHA_02=1
-export SCALE_ALPHA_03=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
 export POSTGRESQL_DATABASE="notifications"
+
+export KAFKA_SERVERS="kafka-01:9092"
+export DGRAPH_HOSTS="alpha-01"
+export DGRAPH_PORTS="9080"
 
 # API related env vars
 export KC_REALM_NAME="platform-realm"
@@ -40,6 +40,9 @@ export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128000000
+
+# ram limit for linker
+export LINKER_RAM_LIMIT="8G"
 
 #UI env vars
 export REACT_APP_JEMPI_BASE_URL="http://api:50000/JeMPI"
@@ -55,4 +58,4 @@ else
     export IMAGE_REGISTRY=""
 fi
 
-envsubst < conf-env-1-pc.template > conf.env
+envsubst < conf-env-low-1-pc.template > conf.env
