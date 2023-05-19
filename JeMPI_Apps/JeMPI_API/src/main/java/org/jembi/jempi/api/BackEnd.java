@@ -310,53 +310,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-/*
-   private Behavior<Event> getPatientResourceHandler(final GetPatientResourceRequest request) {
-      List<ExpandedPatientRecord> expandedPatientRecords = null;
-      ExpandedGoldenRecord expandedGoldenRecord = null;
-      String patientResource = "";
-      LOGGER.debug("getPatientResource");
-
-      try {
-         libMPI.startTransaction();
-         expandedPatientRecords = libMPI.findExpandedPatientRecords(List.of(request.patientResourceId));
-         libMPI.closeTransaction();
-      } catch (Exception exception) {
-         LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
-                      request.patientResourceId,
-                      exception.getMessage());
-      }
-
-      try {
-         libMPI.startTransaction();
-         expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.patientResourceId);
-         libMPI.closeTransaction();
-      } catch (Exception exception) {
-         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
-                      request.patientResourceId,
-                      exception.getMessage());
-      }
-
-      if (expandedGoldenRecord != null) {
-         patientResource = JsonToFhir.mapGoldenRecordToFhirFormat(
-               expandedGoldenRecord.goldenRecord(),
-               expandedGoldenRecord.patientRecordsWithScore());
-         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-      } else if (expandedPatientRecords != null) {
-         patientResource = JsonToFhir.mapPatientRecordToFhirFormat(
-               expandedPatientRecords.get(0).patientRecord(),
-               expandedPatientRecords.get(0).goldenRecordsWithScore());
-         request.replyTo.tell(new GetPatientResourceResponse(Either.right(patientResource)));
-      } else {
-         request.replyTo.tell(new GetPatientResourceResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
-               "Record not found for {}",
-               request.patientResourceId))));
-      }
-
-      return Behaviors.same();
-   }
-*/
-
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
