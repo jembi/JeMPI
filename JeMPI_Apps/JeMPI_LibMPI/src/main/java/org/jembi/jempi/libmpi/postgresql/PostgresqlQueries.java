@@ -1,6 +1,7 @@
 package org.jembi.jempi.libmpi.postgresql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
@@ -217,51 +218,49 @@ public final class PostgresqlQueries {
       }
    }
 
-
    public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
-      final var block1 = findCandidatesWorker(
-            String.format("""
-                          select * from %s where fields @> '{"nationalId": "%s"}'
-                          union
-                          select * from %s where fields @> '{"givenName":"%s", "familyName":"%s", "phoneNumber":"%s"}';
-                          """,
-                          TABLE_NODES_GOLDEN_RECORD,
-                          customDemographicData.nationalId,
-                          TABLE_NODES_GOLDEN_RECORD,
-                          customDemographicData.givenName, customDemographicData.familyName, customDemographicData.phoneNumber)
-                  .stripIndent());
-      if (!block1.isEmpty()) {
-         return block1;
+      if (!(StringUtils.isBlank(customDemographicData.nationalId)
+            && (StringUtils.isBlank(customDemographicData.givenName)
+                || StringUtils.isBlank(customDemographicData.familyName)
+                || StringUtils.isBlank(customDemographicData.phoneNumber)))) {
+         final var sql = String.format(
+               """
+               SELECT * FROM %s
+               WHERE (fields->>'nationalId' = '') IS FALSE AND fields @> '{"nationalId": "%s"}'
+                  OR ((fields->>'givenName' = '') IS FALSE AND fields @> '{"givenName":"%s"}' AND
+                      (fields->>'familyName' = '') IS FALSE AND fields @> '{"familyName":"%s"}' AND
+                      (fields->>'phoneNumber' = '') IS FALSE AND fields @> '{"phoneNumber":"%s"}');
+               """,
+               TABLE_NODES_GOLDEN_RECORD,
+               customDemographicData.nationalId,
+               customDemographicData.givenName,
+               customDemographicData.familyName,
+               customDemographicData.phoneNumber).stripIndent();
+         final var block = findCandidatesWorker(sql);
+         if (!block.isEmpty()) {
+            return block;
+         }
       }
 
       final var sql = String.format(
             """
-            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'familyName') %% '%s')
-            union
-            select * from %s where  ((fields->>'givenName') %% '%s' and (fields->>'city') %% '%s')
-            union
-            select * from %s where  ((fields->>'familyName') %% '%s' and (fields->>'city') %% '%s')
-            union
-            select * from %s where  (fields->>'phoneNumber') %% '%s'
-            union
-            select * from %s where  (fields->>'nationalId') %% '%s';
+            SELECT * FROM %s
+            WHERE ((fields->>'givenName')   %% '%s' AND (fields->>'familyName') %% '%s')
+               OR ((fields->>'givenName')   %% '%s' AND (fields->>'city')       %% '%s')
+               OR ((fields->>'familyName')  %% '%s' AND (fields->>'city')       %% '%s')
+               OR ((fields->>'phoneNumber') %% '%s')
+               OR ((fields->>'nationalId')  %% '%s');
             """,
             TABLE_NODES_GOLDEN_RECORD,
             customDemographicData.givenName,
             customDemographicData.familyName,
-            TABLE_NODES_GOLDEN_RECORD,
             customDemographicData.givenName,
             customDemographicData.city,
-            TABLE_NODES_GOLDEN_RECORD,
             customDemographicData.familyName,
             customDemographicData.city,
-            TABLE_NODES_GOLDEN_RECORD,
             customDemographicData.phoneNumber,
-            TABLE_NODES_GOLDEN_RECORD,
             customDemographicData.nationalId).stripIndent();
-      final var block2 = findCandidatesWorker(sql);
-      block1.addAll(block2);
-      return block1;
+      return findCandidatesWorker(sql);
    }
 
    public static NodeGoldenRecord getGoldenRecord(final UUID gid) {

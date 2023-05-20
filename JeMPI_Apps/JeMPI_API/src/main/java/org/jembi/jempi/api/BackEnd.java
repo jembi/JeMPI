@@ -34,7 +34,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
-         openMPI(true);
+         openMPI(false);
       }
    }
 

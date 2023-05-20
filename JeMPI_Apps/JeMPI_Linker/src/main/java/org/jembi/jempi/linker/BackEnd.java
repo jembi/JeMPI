@@ -42,7 +42,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       super(context);
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
-         openMPI(true);
+         openMPI(false);
       }
       topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                  GlobalConstants.TOPIC_NOTIFICATIONS,
