@@ -43,6 +43,6 @@ interface Node {
       }
    }
 
-   enum NodeType {GOLDEN_RECORD, ENCOUNTER, SOURCE_ID}
+   enum NodeType {GOLDEN_RECORD, INTERACTION, SOURCE_ID}
 
 }

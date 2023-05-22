@@ -7,10 +7,10 @@ import java.util.UUID;
 record NodeGoldenRecord(
       NodeType type,
       UUID uid,
-      GoldenRecordData data) implements Node {
+      CustomGoldenRecordData data) implements Node {
 
    NodeGoldenRecord(final CustomDemographicData demographicData) {
-      this(NodeType.GOLDEN_RECORD, null, new GoldenRecordData(demographicData));
+      this(NodeType.GOLDEN_RECORD, null, new CustomGoldenRecordData(demographicData));
    }
 
    public NodeType getType() {
@@ -21,6 +21,7 @@ record NodeGoldenRecord(
       return data;
    }
 
+   /*
    public static class GoldenRecordData extends CustomDemographicData implements NodeData {
 
       GoldenRecordData(
@@ -47,5 +48,6 @@ record NodeGoldenRecord(
       }
 
    }
+   */
 
 }

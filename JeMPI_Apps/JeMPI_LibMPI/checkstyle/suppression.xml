@@ -33,12 +33,12 @@
 
     <suppress
             checks="(ParameterNumber)"
-            files="NodeEncounter.java"
+            files="CustomInteractionData.java"
     />
 
     <suppress
             checks="(ParameterNumber)"
-            files="NodeGoldenRecord.java"
+            files="CustomGoldenRecordData.java"
     />
 
 </suppressions>

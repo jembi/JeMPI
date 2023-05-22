@@ -4,13 +4,13 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 
 import java.util.UUID;
 
-record NodeEncounter(
+record NodeInteraction(
       NodeType type,
       UUID uid,
       CustomInteractionData data) implements Node {
 
-   NodeEncounter(final CustomDemographicData demographicData) {
-      this(NodeType.ENCOUNTER, null, new CustomInteractionData(demographicData));
+   NodeInteraction(final CustomDemographicData demographicData) {
+      this(NodeType.INTERACTION, null, new CustomInteractionData(demographicData));
    }
 
    public NodeType getType() {

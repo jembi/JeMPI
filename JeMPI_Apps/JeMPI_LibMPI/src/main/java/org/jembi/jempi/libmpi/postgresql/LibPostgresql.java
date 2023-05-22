@@ -206,7 +206,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
             ? new NodeSourceId(patientRecord.sourceId().facility(),
                                patientRecord.sourceId().patient()).createNode()
             : nodeSourceIds.get(0).id();
-      final var eid = new NodeEncounter(patientRecord.demographicData()).createNode();
+      final var eid = new NodeInteraction(patientRecord.demographicData()).createNode();
       Edge.createEdge(eid, sid, Edge.EdgeName.EID2SID);
       if (nodeSourceIds.isEmpty() || goldenRecordSourceIds.stream().noneMatch(p -> p.id().equals(nodeSourceIds.get(0).id()))) {
          Edge.createEdge(UUID.fromString(goldenIdScore.goldenId()), sid, Edge.EdgeName.GID2SID);
@@ -223,7 +223,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
          final float score) {
       final var sid = new NodeSourceId(patientRecord.sourceId().facility(),
                                        patientRecord.sourceId().patient()).createNode();
-      final var eid = new NodeEncounter(patientRecord.demographicData()).createNode();
+      final var eid = new NodeInteraction(patientRecord.demographicData()).createNode();
       final var gid = new NodeGoldenRecord(patientRecord.demographicData()).createNode();
       Edge.createEdge(eid, sid, Edge.EdgeName.EID2SID);
       Edge.createEdge(gid, sid, Edge.EdgeName.GID2SID);
