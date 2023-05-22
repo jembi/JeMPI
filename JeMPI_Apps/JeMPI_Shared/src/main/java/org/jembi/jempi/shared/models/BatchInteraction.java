@@ -3,14 +3,14 @@ package org.jembi.jempi.shared.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record BatchPatientRecord(
+public record BatchInteraction(
       BatchType batchType,
       BatchMetaData batchMetaData,
       // System Trace Audit Number
       String stan,
-      PatientRecord patientRecord) {
+      Interaction interaction) {
 
-   public BatchPatientRecord(final BatchType type) {
+   public BatchInteraction(final BatchType type) {
       this(type, null, null, null);
    }
 

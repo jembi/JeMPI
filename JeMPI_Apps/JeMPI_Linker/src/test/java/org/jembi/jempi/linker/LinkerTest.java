@@ -1,28 +1,10 @@
 package org.jembi.jempi.linker;
 
-import akka.actor.testkit.typed.javadsl.ActorTestKit;
-import akka.actor.typed.ActorRef;
-import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
-import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.models.Notification;
-import org.jembi.jempi.shared.models.PatientRecord;
-import org.jembi.jempi.shared.models.PatientRecordWithScore;
-import org.jembi.jempi.shared.models.SourceId;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

@@ -2,12 +2,12 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jembi.jempi.shared.models.PatientRecordWithScore;
+import org.jembi.jempi.shared.models.InteractionWithScore;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.PatientRecord;
+import org.jembi.jempi.shared.models.Interaction;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record CustomDgraphPatientRecord(
+record CustomDgraphInteraction(
       @JsonProperty("uid") String patientId,
       @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
       @JsonProperty("PatientRecord.aux_id") String auxId,
@@ -19,28 +19,28 @@ record CustomDgraphPatientRecord(
       @JsonProperty("PatientRecord.phone_number") String phoneNumber,
       @JsonProperty("PatientRecord.national_id") String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
-   CustomDgraphPatientRecord(
-         final PatientRecord patientRecord,
+   CustomDgraphInteraction(
+         final Interaction interaction,
          final Float score) {
-      this(patientRecord.patientId(),
-           new DgraphSourceId(patientRecord.sourceId()),
-           patientRecord.demographicData().auxId,
-           patientRecord.demographicData().givenName,
-           patientRecord.demographicData().familyName,
-           patientRecord.demographicData().gender,
-           patientRecord.demographicData().dob,
-           patientRecord.demographicData().city,
-           patientRecord.demographicData().phoneNumber,
-           patientRecord.demographicData().nationalId,
+      this(interaction.patientId(),
+           new DgraphSourceId(interaction.sourceId()),
+           interaction.demographicData().auxId,
+           interaction.demographicData().givenName,
+           interaction.demographicData().familyName,
+           interaction.demographicData().gender,
+           interaction.demographicData().dob,
+           interaction.demographicData().city,
+           interaction.demographicData().phoneNumber,
+           interaction.demographicData().nationalId,
            score);
    }
 
-   PatientRecord toPatientRecord() {
-      return new PatientRecord(this.patientId(),
-                               this.sourceId() != null
-                                     ? this.sourceId().toSourceId()
-                                     : null,
-                               new CustomDemographicData(this.auxId,
+   Interaction toInteraction() {
+      return new Interaction(this.patientId(),
+                             this.sourceId() != null
+                                   ? this.sourceId().toSourceId()
+                                   : null,
+                             new CustomDemographicData(this.auxId,
                                                          this.givenName,
                                                          this.familyName,
                                                          this.gender,
@@ -50,8 +50,8 @@ record CustomDgraphPatientRecord(
                                                          this.nationalId));
    }
 
-   PatientRecordWithScore toPatientRecordWithScore() {
-      return new PatientRecordWithScore(toPatientRecord(), this.score());
+   InteractionWithScore toPatientRecordWithScore() {
+      return new InteractionWithScore(toInteraction(), this.score());
    }
 
 }

@@ -20,7 +20,7 @@ record CustomDgraphGoldenRecord(
       @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
       @JsonProperty("GoldenRecord.national_id") String nationalId) {
 
-   CustomDgraphGoldenRecord(final CustomDgraphPatientRecord rec) {
+   CustomDgraphGoldenRecord(final CustomDgraphInteraction rec) {
       this(null,
            List.of(rec.sourceId()),
            rec.auxId(),

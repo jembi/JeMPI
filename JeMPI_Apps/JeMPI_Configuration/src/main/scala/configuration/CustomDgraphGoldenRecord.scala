@@ -44,7 +44,7 @@ private object CustomDgraphGoldenRecord {
     }
     writer.println(
       s"""
-         |${" " * 3}$customClassName(final CustomDgraphPatientRecord rec) {
+         |${" " * 3}$customClassName(final CustomDgraphInteraction rec) {
          |${" " * 6}this(null,
          |${" " * 11}List.of(rec.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {

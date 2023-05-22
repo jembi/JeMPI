@@ -34,7 +34,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       if (libMPI == null) {
-         openMPI(false);
+         openMPI(true);
       }
    }
 
@@ -260,12 +260,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> findExpandedPatientRecordsHandler(final FindExpandedPatientRecordsRequest request) {
-      List<ExpandedPatientRecord> expandedPatientRecords = null;
+      List<ExpandedInteraction> expandedInteractions = null;
       LOGGER.debug("getExpandedPatients");
 
       try {
          libMPI.startTransaction();
-         expandedPatientRecords = libMPI.findExpandedPatientRecords(request.patientIds);
+         expandedInteractions = libMPI.findExpandedPatientRecords(request.patientIds);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
@@ -273,23 +273,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       exception.getMessage());
       }
 
-      if (expandedPatientRecords == null) {
+      if (expandedInteractions == null) {
          request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                "Patient Records do not exist",
                Collections.singletonList(request.patientIds).toString()))));
       } else {
-         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.right(expandedPatientRecords)));
+         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.right(expandedInteractions)));
       }
       return Behaviors.same();
    }
 
    private Behavior<Event> findPatientRecordHandler(final FindPatientRecordRequest request) {
-      PatientRecord patientRecord = null;
+      Interaction interaction = null;
       LOGGER.debug("findPatientRecordHandler");
 
       try {
          libMPI.startTransaction();
-         patientRecord = libMPI.findPatientRecord(request.patientId);
+         interaction = libMPI.findPatientRecord(request.patientId);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
@@ -297,12 +297,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                       exception.getMessage());
       }
 
-      if (patientRecord == null) {
+      if (interaction == null) {
          request.replyTo.tell(new FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
                "Patient not found",
                request.patientId))));
       } else {
-         request.replyTo.tell(new FindPatientRecordResponse(Either.right(patientRecord)));
+         request.replyTo.tell(new FindPatientRecordResponse(Either.right(interaction)));
       }
 
       return Behaviors.same();
@@ -311,19 +311,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
       LOGGER.debug("{} {}", request.patientId, request.mu);
-      PatientRecord patientRecord = null;
+      Interaction interaction = null;
       List<GoldenRecord> goldenRecords = null;
       List<FindCandidatesResponse.Candidate> candidates = null;
 
       try {
          libMPI.startTransaction();
-         patientRecord = libMPI.findPatientRecord(request.patientId);
+         interaction = libMPI.findPatientRecord(request.patientId);
 
          try {
-            goldenRecords = libMPI.getCandidates(patientRecord.demographicData(), true);
+            goldenRecords = libMPI.getCandidates(interaction.demographicData(), true);
          } catch (Exception exception) {
             LOGGER.error("libMPI.getCandidates failed to find patientRecord.demographicData: {}",
-                         patientRecord.demographicData());
+                         interaction.demographicData());
             request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.CandidatesNotFoundError(
                   "Candidates(golden records) not found with demographic data for patientId",
                   request.patientId))));
@@ -332,7 +332,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
          libMPI.closeTransaction();
 
-         final var patientDemographic = patientRecord.demographicData();
+         final var patientDemographic = interaction.demographicData();
          CustomLinkerProbabilistic.updateMU(request.mu);
          CustomLinkerProbabilistic.checkUpdatedMU();
          candidates = goldenRecords
@@ -465,7 +465,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> patientIds) implements Event {
    }
 
-   public record FindExpandedPatientRecordsResponse(Either<MpiGeneralError, List<ExpandedPatientRecord>> expandedPatientRecords)
+   public record FindExpandedPatientRecordsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords)
          implements EventResponse {
    }
 
@@ -474,7 +474,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String patientId) implements Event {
    }
 
-   public record FindPatientRecordResponse(Either<MpiGeneralError, PatientRecord> patient)
+   public record FindPatientRecordResponse(Either<MpiGeneralError, Interaction> patient)
          implements EventResponse {
    }
 
@@ -580,7 +580,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record SearchPatientRecordsResponse(
-         LibMPIPaginatedResultSet<PatientRecord> records) implements EventResponse {
+         LibMPIPaginatedResultSet<Interaction> records) implements EventResponse {
    }
 
    public record UploadCsvFileRequest(

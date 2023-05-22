@@ -45,10 +45,10 @@ public final class CustomSourceRecordStream {
       final Serializer<AsyncSourceRecord> sourceRecordSerializer = new JsonPojoSerializer<>();
       final Deserializer<AsyncSourceRecord> sourceRecordDeserializer = new JsonPojoDeserializer<>(
             AsyncSourceRecord.class);
-      final Serializer<BatchPatientRecord> batchPatientSerializer = new JsonPojoSerializer<>();
-      final Deserializer<BatchPatientRecord> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchPatientRecord.class);
+      final Serializer<BatchInteraction> batchPatientSerializer = new JsonPojoSerializer<>();
+      final Deserializer<BatchInteraction> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchInteraction.class);
       final Serde<AsyncSourceRecord> sourceRecordSerde = Serdes.serdeFrom(sourceRecordSerializer, sourceRecordDeserializer);
-      final Serde<BatchPatientRecord> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
+      final Serde<BatchInteraction> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
@@ -56,11 +56,11 @@ public final class CustomSourceRecordStream {
             .map((key, rec) -> {
                LOGGER.info("{} : {}", key, rec);
                var batchType = switch (rec.recordType().type) {
-                  case AsyncSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
-                  case AsyncSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
-                  default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
+                  case AsyncSourceRecord.RecordType.BATCH_START_VALUE -> BatchInteraction.BatchType.BATCH_START;
+                  case AsyncSourceRecord.RecordType.BATCH_END_VALUE -> BatchInteraction.BatchType.BATCH_END;
+                  default -> BatchInteraction.BatchType.BATCH_PATIENT;
                };
-               if (batchType == BatchPatientRecord.BatchType.BATCH_PATIENT) {
+               if (batchType == BatchInteraction.BatchType.BATCH_PATIENT) {
 //               var k = rec.familyName();
 //               if (StringUtils.isBlank(k)) {
 //                  k = "anon";
@@ -71,17 +71,17 @@ public final class CustomSourceRecordStream {
 //                  case CustomSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
 //                  default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
 //               };
-                  var batchPatient = new BatchPatientRecord(
+                  var batchPatient = new BatchInteraction(
                         batchType,
                         rec.batchMetaData(),
                         rec.customSourceRecord().stan(),
-                        new PatientRecord(null,
-                                          new SourceId(null,
+                        new Interaction(null,
+                                        new SourceId(null,
                                                        FACILITY.get(random.nextInt(FACILITY.size())),
                                                        StringUtils.isNotBlank(rec.customSourceRecord().nationalID())
                                                              ? rec.customSourceRecord().nationalID()
                                                              : "ANON"),
-                                          new CustomDemographicData(rec.customSourceRecord().auxId(),
+                                        new CustomDemographicData(rec.customSourceRecord().auxId(),
                                                                     rec.customSourceRecord().givenName().replace("'", ""),
                                                                     rec.customSourceRecord().familyName().replace("'", ""),
                                                                     rec.customSourceRecord().gender().replace("'", ""),
@@ -91,11 +91,11 @@ public final class CustomSourceRecordStream {
                                                                     rec.customSourceRecord().nationalID().replace("'", ""))));
                   return KeyValue.pair(key, batchPatient);
                } else {
-                  return KeyValue.pair("SENTINEL", new BatchPatientRecord(batchType, rec.batchMetaData(), null, null));
+                  return KeyValue.pair("SENTINEL", new BatchInteraction(batchType, rec.batchMetaData(), null, null));
                }
             })
-            .filter((key, value) -> !(value.batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT && StringUtils.isBlank(
-                  value.patientRecord().demographicData().auxId)))
+            .filter((key, value) -> !(value.batchType() == BatchInteraction.BatchType.BATCH_PATIENT && StringUtils.isBlank(
+                  value.interaction().demographicData().auxId)))
             .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();

@@ -42,7 +42,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       super(context);
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
-         openMPI(false);
+         openMPI(true);
       }
       topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                  GlobalConstants.TOPIC_NOTIFICATIONS,
@@ -93,17 +93,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
              || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
-   public ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final PatientRecord patientRecord) throws RuntimeException {
+   public ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final Interaction interaction) throws RuntimeException {
 
       try {
          List<GoldenRecord> candidateGoldenRecords =
-               libMPI.getCandidates(patientRecord.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+               libMPI.getCandidates(interaction.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
          ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
          candidateGoldenRecords.parallelStream()
                                .unordered()
                                .map(candidate -> new WorkCandidate(candidate,
                                                                    calcNormalizedScore(candidate.demographicData(),
-                                                                                       patientRecord.demographicData())))
+                                                                                       interaction.demographicData())))
                                .sorted(Comparator.comparing(WorkCandidate::score).reversed())
                                .filter(candidate ->
                                              isWithinThreshold(candidate.score)
@@ -150,7 +150,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
          final var freqMapGroupedByField = mpiPatientList
                .stream()
-               .map(mpiPatient -> getDocumentField.apply(mpiPatient.patientRecord().demographicData()))
+               .map(mpiPatient -> getDocumentField.apply(mpiPatient.interaction().demographicData()))
                .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
          freqMapGroupedByField.remove(StringUtils.EMPTY);
          if (freqMapGroupedByField.size() > 0) {
@@ -176,7 +176,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
       AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
       mpiPatientList.forEach(mpiPatient -> {
-         final var patient = mpiPatient.patientRecord();
+         final var patient = mpiPatient.interaction();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
                                                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), expandedGoldenRecord.goldenRecord().goldenId(), score);
@@ -270,7 +270,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private LinkInfo linkPatientToGid(
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final String gid,
          final float score) {
       final LinkInfo linkInfo;
@@ -279,15 +279,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          CustomLinkerProbabilistic.checkUpdatedMU();
 
          libMPI.startTransaction();
-         final var docAuxKey = patientRecord.demographicData().auxId;
+         final var docAuxKey = interaction.demographicData().auxId;
 
          LOGGER.info("{}: no matches found", docAuxKey);
 
          if (StringUtils.isBlank(gid)) {
-            linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(patientRecord, 1.0F);
+            linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {
             linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(
-                  patientRecord,
+                  interaction,
                   new LibMPIClientInterface.GoldenIdScore(gid, score));
             CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
          }
@@ -299,7 +299,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Either<LinkInfo, List<ExternalLinkCandidate>> linkPatient(
          final String stan,
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_) {
       LinkInfo linkInfo = null;
@@ -310,16 +310,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          CustomLinkerProbabilistic.checkUpdatedMU();
          libMPI.startTransaction();
-         final var candidateGoldenRecords = libMPI.getCandidates(patientRecord.demographicData(),
+         final var candidateGoldenRecords = libMPI.getCandidates(interaction.demographicData(),
                                                                  AppConfig.BACK_END_DETERMINISTIC);
          if (candidateGoldenRecords.isEmpty()) {
-            linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(patientRecord, 1.0F);
+            linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {
             final var allCandidateScores = candidateGoldenRecords
                   .parallelStream()
                   .unordered()
                   .map(candidate -> new WorkCandidate(candidate, calcNormalizedScore(candidate.demographicData(),
-                                                                                     patientRecord.demographicData())))
+                                                                                     interaction.demographicData())))
                   .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                   .collect(Collectors.toCollection(ArrayList::new));
 
@@ -345,12 +345,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
-                  linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(patientRecord, 1.0F);
+                  linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(interaction, 1.0F);
                   if (!notificationCandidates.isEmpty()) {
                      sendNotification(
                            Notification.NotificationType.THRESHOLD,
                            linkInfo.patientUID(),
-                           AppUtils.getNames(patientRecord.demographicData()),
+                           AppUtils.getNames(interaction.demographicData()),
                            new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                            notificationCandidates);
                   }
@@ -363,7 +363,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
                      candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
                      candidatesAboveMatchThreshold.get(0).score);
-               linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(patientRecord, linkToGoldenId);
+               linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
                CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
@@ -382,7 +382,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      sendNotification(
                            Notification.NotificationType.MARGIN,
                            linkInfo.patientUID(),
-                           AppUtils.getNames(patientRecord.demographicData()),
+                           AppUtils.getNames(interaction.demographicData()),
                            new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                            marginalCandidates);
                   }
@@ -424,8 +424,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> eventLinkPatientAsyncHandler(final EventLinkPatientAsyncReq req) {
-      LOGGER.debug("{}", req.batchPatientRecord.stan());
-      if (req.batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
+      LOGGER.debug("{}", req.batchInteraction.stan());
+      if (req.batchInteraction.batchType() != BatchInteraction.BatchType.BATCH_PATIENT) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(5));
             req.replyTo.tell(new EventLinkPatientAsyncRsp(null));
@@ -433,8 +433,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          });
       }
       final var listLinkInfo = linkPatient(
-            req.batchPatientRecord.stan(),
-            req.batchPatientRecord.patientRecord(),
+            req.batchInteraction.stan(),
+            req.batchInteraction.interaction(),
             null,
             AppConfig.BACK_END_MATCH_THRESHOLD);
       req.replyTo.tell(new EventLinkPatientAsyncRsp(listLinkInfo.getLeft()));
@@ -447,7 +447,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventLinkPatientSyncHandler(final EventLinkPatientSyncReq request) {
       final var listLinkInfo = linkPatient(
             request.link.stan(),
-            request.link.patientRecord(),
+            request.link.interaction(),
             request.link.externalLinkRange(),
             request.link.matchThreshold());
       request.replyTo.tell(new EventLinkPatientSyncRsp(request.link.stan(),
@@ -462,7 +462,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> eventLinkPatientToGidSyncHandler(final EventLinkPatientToGidSyncReq request) {
       final var linkInfo = linkPatientToGid(
-            request.link.patientRecord(),
+            request.link.interaction(),
             request.link.gid(),
             3.0F);
       request.replyTo.tell(new EventLinkPatientToGidSyncRsp(request.link.stan(), linkInfo));
@@ -490,7 +490,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record EventLinkPatientAsyncReq(
          String key,
-         BatchPatientRecord batchPatientRecord,
+         BatchInteraction batchInteraction,
          ActorRef<EventLinkPatientAsyncRsp> replyTo) implements Event {
    }
 
@@ -523,7 +523,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record EventLinkPatientSyncReq(
-         LinkPatientSyncBody link,
+         LinkInteractionSyncBody link,
          ActorRef<EventLinkPatientSyncRsp> replyTo) implements Event {
    }
 
@@ -534,7 +534,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record EventLinkPatientToGidSyncReq(
-         LinkPatientToGidSyncBody link,
+         LinkInteractionToGidSyncBody link,
          ActorRef<EventLinkPatientToGidSyncRsp> replyTo) implements Event {
    }
 

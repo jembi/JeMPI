@@ -13,7 +13,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.LinkInfo;
-import org.jembi.jempi.shared.models.PatientRecord;
+import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -114,19 +114,19 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mu);
    }
 
-   private static InsertPatientResult insertPatientRecord(final PatientRecord patientRecord) {
+   private static InsertPatientResult insertPatientRecord(final Interaction interaction) {
       final DgraphProto.Mutation sourceIdMutation = DgraphProto.Mutation.newBuilder()
                                                                         .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
-                                                                              patientRecord.sourceId())))
+                                                                              interaction.sourceId())))
                                                                         .build();
-      final var sourceId = getSourceId(patientRecord.sourceId()).all();
+      final var sourceId = getSourceId(interaction.sourceId()).all();
       final var sourceIdUid = !sourceId.isEmpty()
             ? sourceId.get(0).uid()
             : DgraphClient.getInstance().doMutateTransaction(sourceIdMutation);
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
                                                                 .setSetNquads(
                                                                       ByteString.copyFromUtf8(CustomDgraphMutations.createPatientTriple(
-                                                                            patientRecord.demographicData(),
+                                                                            interaction.demographicData(),
                                                                             sourceIdUid)))
                                                                 .build();
       return new InsertPatientResult(DgraphClient.getInstance().doMutateTransaction(mutation), sourceIdUid);
@@ -155,13 +155,13 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
-   static LinkInfo addNewDGraphPatient(final PatientRecord patientRecord) {
-      final var result = insertPatientRecord(patientRecord);
+   static LinkInfo addNewDGraphPatient(final Interaction interaction) {
+      final var result = insertPatientRecord(interaction);
       if (result.patientUID == null) {
          LOGGER.error("Failed to insert patient");
          return null;
       }
-      final var grUID = cloneGoldenRecordFromPatient(patientRecord.demographicData(), result.patientUID,
+      final var grUID = cloneGoldenRecordFromPatient(interaction.demographicData(), result.patientUID,
                                                      result.sourceUID, 1.0F);
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
@@ -244,9 +244,9 @@ final class DgraphMutations {
    }
 
    static LinkInfo linkDGraphPatient(
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      final var result = insertPatientRecord(patientRecord);
+      final var result = insertPatientRecord(interaction);
 
       if (result.patientUID == null) {
          LOGGER.error("Failed to insert dgraphPatient");

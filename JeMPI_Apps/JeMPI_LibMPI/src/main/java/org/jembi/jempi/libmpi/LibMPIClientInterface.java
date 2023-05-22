@@ -39,11 +39,11 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   PatientRecord findPatientRecord(String patientId);
+   Interaction findInteraction(String patientId);
 
-   List<PatientRecord> findPatientRecords(List<String> patientIds);
+   List<Interaction> findInteractions(List<String> patientIds);
 
-   List<ExpandedPatientRecord> findExpandedPatientRecords(List<String> patientIds);
+   List<ExpandedInteraction> findExpandedInteractions(List<String> patientIds);
 
    GoldenRecord findGoldenRecord(String goldenId);
 
@@ -71,14 +71,14 @@ public interface LibMPIClientInterface {
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
+   LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
          List<SimpleSearchRequestPayload.SearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
+   LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
          List<SimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
@@ -93,7 +93,7 @@ public interface LibMPIClientInterface {
     * *
     */
    boolean setScore(
-         String patientUID,
+         String interactionUID,
          String goldenRecordUid,
          float score);
 
@@ -104,21 +104,21 @@ public interface LibMPIClientInterface {
 
    Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          String currentGoldenId,
-         String patientId,
+         String interactionId,
          float score);
 
    Either<MpiGeneralError, LinkInfo> updateLink(
          String goldenId,
          String newGoldenId,
-         String patientId,
+         String interactionId,
          float score);
 
    LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         PatientRecord patientRecord,
+         Interaction interaction,
          GoldenIdScore goldenIdScore);
 
    LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         PatientRecord patientRecord,
+         Interaction interaction,
          float score);
 
    record GoldenIdScore(

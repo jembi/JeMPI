@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record LinkPatientToGidSyncBody(
+public record LinkInteractionToGidSyncBody(
       @JsonProperty("stan") String stan,
-      @JsonProperty("patientRecord") PatientRecord patientRecord,
+      @JsonProperty("patientRecord") Interaction interaction,
       @JsonProperty("gid") String gid) {
 }

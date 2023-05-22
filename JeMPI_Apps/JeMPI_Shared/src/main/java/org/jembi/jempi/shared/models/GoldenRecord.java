@@ -10,7 +10,7 @@ public record GoldenRecord(
       List<SourceId> sourceId,
       CustomDemographicData demographicData) {
 
-   public GoldenRecord(final PatientRecord patient) {
+   public GoldenRecord(final Interaction patient) {
       this(null, List.of(patient.sourceId()), patient.demographicData());
    }
 

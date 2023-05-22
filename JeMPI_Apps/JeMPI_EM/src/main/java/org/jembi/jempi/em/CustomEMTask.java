@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaConsumerByPartition;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.BatchPatientRecord;
+import org.jembi.jempi.shared.models.BatchInteraction;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
@@ -60,8 +60,8 @@ class CustomEMTask {
       return new StringDeserializer();
    }
 
-   private static Deserializer<BatchPatientRecord> patientJsonValueDeserializer() {
-      return new JsonPojoDeserializer<>(BatchPatientRecord.class);
+   private static Deserializer<BatchInteraction> patientJsonValueDeserializer() {
+      return new JsonPojoDeserializer<>(BatchInteraction.class);
    }
 
    static String getPhonetic(final String s) {
@@ -111,7 +111,7 @@ class CustomEMTask {
 
    // Assumption:  consumer offset already set to postion to read from.
    private ArrayList<int[]> getGammaMatrix(
-         final MyKafkaConsumerByPartition<String, BatchPatientRecord> consumer,
+         final MyKafkaConsumerByPartition<String, BatchInteraction> consumer,
          final long nRecords) {
       final var jaroWinklerSimilarity = new JaroWinklerSimilarity();
       final var gamma = new ArrayList<int[]>();
@@ -128,10 +128,10 @@ class CustomEMTask {
             busy = false;
          } else {
             records.forEach(r -> {
-               if (r.value().batchType() == BatchPatientRecord.BatchType.BATCH_PATIENT && count[0] < nRecords) {
+               if (r.value().batchType() == BatchInteraction.BatchType.BATCH_PATIENT && count[0] < nRecords) {
                   count[0] += 1;
                   final var v = r.value();
-                  final var patient = new CustomEMPatient(v.patientRecord().demographicData());
+                  final var patient = new CustomEMPatient(v.interaction().demographicData());
                   patients.forEach(p -> {
                      var k = 0;
                      k += (patient.col1Phonetic() == null || !patient.col1Phonetic().equals(p.col1Phonetic()))

@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.CalculateScoresRequest;
 import org.jembi.jempi.shared.models.ExtendedLinkInfo;
-import org.jembi.jempi.shared.models.LinkPatientSyncBody;
-import org.jembi.jempi.shared.models.LinkPatientToGidSyncBody;
+import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
+import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 
 import java.util.concurrent.CompletionStage;
 
@@ -47,7 +47,7 @@ final class PatientStreamSync extends AllDirectives {
    private CompletionStage<BackEnd.EventLinkPatientSyncRsp> postLinkPatient(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final LinkPatientSyncBody body) {
+         final LinkInteractionSyncBody body) {
       CompletionStage<BackEnd.EventLinkPatientSyncRsp> stage = AskPattern.ask(backEnd,
                                                                               replyTo -> new BackEnd.EventLinkPatientSyncReq(body,
                                                                                                                              replyTo),
@@ -59,7 +59,7 @@ final class PatientStreamSync extends AllDirectives {
    private Route routeLinkPatient(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(LinkPatientSyncBody.class),
+      return entity(Jackson.unmarshaller(LinkInteractionSyncBody.class),
                     obj -> onComplete(postLinkPatient(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
                           final var eventLinkPatientSyncRsp = response.get();
@@ -77,7 +77,7 @@ final class PatientStreamSync extends AllDirectives {
    private CompletionStage<BackEnd.EventLinkPatientToGidSyncRsp> postLinkPatientToGid(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final LinkPatientToGidSyncBody body) {
+         final LinkInteractionToGidSyncBody body) {
       CompletionStage<BackEnd.EventLinkPatientToGidSyncRsp> stage = AskPattern.ask(backEnd,
                                                                                    replyTo -> new BackEnd.EventLinkPatientToGidSyncReq(
                                                                                          body,
@@ -90,7 +90,7 @@ final class PatientStreamSync extends AllDirectives {
    private Route routeLinkPatientToGid(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(LinkPatientToGidSyncBody.class),
+      return entity(Jackson.unmarshaller(LinkInteractionToGidSyncBody.class),
                     obj -> onComplete(postLinkPatientToGid(actorSystem, backEnd, obj),
                                       response -> response.isSuccess()
                                             ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())

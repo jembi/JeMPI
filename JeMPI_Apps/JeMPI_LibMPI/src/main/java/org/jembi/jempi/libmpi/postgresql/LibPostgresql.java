@@ -39,24 +39,24 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return PostgresqlQueries.countGoldenRecords();
    }
 
-   public PatientRecord findPatientRecord(final String patientId) {
-      final var encounter = PostgresqlQueries.getEncounter(UUID.fromString(patientId));
-      final var sourceId = PostgresqlQueries.getEncounterSourceIds(encounter.uid());
-      return new PatientRecord(encounter.uid().toString(),
-                               new SourceId(sourceId.get(0).id().toString(),
+   public Interaction findInteraction(final String patientId) {
+      final var encounter = PostgresqlQueries.getInteraction(UUID.fromString(patientId));
+      final var sourceId = PostgresqlQueries.getInteractionSourceIds(encounter.uid());
+      return new Interaction(encounter.uid().toString(),
+                             new SourceId(sourceId.get(0).id().toString(),
                                             sourceId.get(0).data().facility(),
                                             sourceId.get(0).data().patient()),
-                               encounter.data());
+                             encounter.data());
    }
 
-   public List<PatientRecord> findPatientRecords(final List<String> patientIds) {
-      return patientIds.stream().map(this::findPatientRecord).toList();
+   public List<Interaction> findInteractions(final List<String> patientIds) {
+      return patientIds.stream().map(this::findInteraction).toList();
    }
 
-   private ExpandedPatientRecord findExpandedPatientRecord(final String eid) {
-      final var encounter = findPatientRecord(eid);
+   private ExpandedInteraction findExpandedInteraction(final String eid) {
+      final var encounter = findInteraction(eid);
       final var goldenRecord = PostgresqlQueries.getGoldenRecordsOfEncounter(UUID.fromString(eid)).get(0);
-      return new ExpandedPatientRecord(
+      return new ExpandedInteraction(
             encounter,
             List.of(new GoldenRecordWithScore(new GoldenRecord(goldenRecord.uid().toString(),
                                                                PostgresqlQueries.getGoldenRecordSourceIds(goldenRecord.uid())
@@ -69,8 +69,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
                                               PostgresqlQueries.getScore(goldenRecord.uid(), UUID.fromString(eid)))));
    }
 
-   public List<ExpandedPatientRecord> findExpandedPatientRecords(final List<String> patientIds) {
-      return patientIds.stream().map(this::findExpandedPatientRecord).toList();
+   public List<ExpandedInteraction> findExpandedInteractions(final List<String> patientIds) {
+      return patientIds.stream().map(this::findExpandedInteraction).toList();
    }
 
    public GoldenRecord findGoldenRecord(final String goldenId) {
@@ -96,14 +96,14 @@ public final class LibPostgresql implements LibMPIClientInterface {
                goldenRecord,
                encounters.stream()
                          .map(e -> {
-                            final var sid = PostgresqlQueries.getEncounterSourceIds(e.uid()).get(0);
+                            final var sid = PostgresqlQueries.getInteractionSourceIds(e.uid()).get(0);
                             final var score = PostgresqlQueries.getScore(gidUUID, e.uid());
-                            return new PatientRecordWithScore(new PatientRecord(e.uid().toString(),
-                                                                                new SourceId(sid.id().toString(),
+                            return new InteractionWithScore(new Interaction(e.uid().toString(),
+                                                                            new SourceId(sid.id().toString(),
                                                                                              sid.data().facility(),
                                                                                              sid.data().patient()),
-                                                                                e.data()),
-                                                              score);
+                                                                            e.data()),
+                                                            score);
                          })
                          .toList());
       }).toList();
@@ -146,7 +146,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return null;
    }
 
-   public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
+   public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
          final List<SimpleSearchRequestPayload.SearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -156,7 +156,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return null;
    }
 
-   public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
+   public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
          final List<SimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
@@ -197,37 +197,37 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      final var nodeSourceIds = PostgresqlQueries.findSourceId(patientRecord.sourceId().facility(),
-                                                               patientRecord.sourceId().patient());
+      final var nodeSourceIds = PostgresqlQueries.findSourceId(interaction.sourceId().facility(),
+                                                               interaction.sourceId().patient());
       final var goldenRecordSourceIds = PostgresqlQueries.getGoldenRecordSourceIds(UUID.fromString(goldenIdScore.goldenId()));
       final var sid = nodeSourceIds.isEmpty()
-            ? new NodeSourceId(patientRecord.sourceId().facility(),
-                               patientRecord.sourceId().patient()).createNode()
+            ? new NodeSourceId(interaction.sourceId().facility(),
+                               interaction.sourceId().patient()).createNode()
             : nodeSourceIds.get(0).id();
-      final var eid = new NodeInteraction(patientRecord.demographicData()).createNode();
-      Edge.createEdge(eid, sid, Edge.EdgeName.EID2SID);
+      final var eid = new NodeInteraction(interaction.demographicData()).createNode();
+      Edge.createEdge(eid, sid, Edge.EdgeName.IID2SID);
       if (nodeSourceIds.isEmpty() || goldenRecordSourceIds.stream().noneMatch(p -> p.id().equals(nodeSourceIds.get(0).id()))) {
          Edge.createEdge(UUID.fromString(goldenIdScore.goldenId()), sid, Edge.EdgeName.GID2SID);
       }
       Edge.createEdge(UUID.fromString(goldenIdScore.goldenId()),
                       eid,
-                      Edge.EdgeName.GID2EID,
+                      Edge.EdgeName.GID2IID,
                       new FacetScore(goldenIdScore.score()));
       return new LinkInfo(goldenIdScore.goldenId(), eid.toString(), goldenIdScore.score());
    }
 
    public LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final float score) {
-      final var sid = new NodeSourceId(patientRecord.sourceId().facility(),
-                                       patientRecord.sourceId().patient()).createNode();
-      final var eid = new NodeInteraction(patientRecord.demographicData()).createNode();
-      final var gid = new NodeGoldenRecord(patientRecord.demographicData()).createNode();
-      Edge.createEdge(eid, sid, Edge.EdgeName.EID2SID);
+      final var sid = new NodeSourceId(interaction.sourceId().facility(),
+                                       interaction.sourceId().patient()).createNode();
+      final var eid = new NodeInteraction(interaction.demographicData()).createNode();
+      final var gid = new NodeGoldenRecord(interaction.demographicData()).createNode();
+      Edge.createEdge(eid, sid, Edge.EdgeName.IID2SID);
       Edge.createEdge(gid, sid, Edge.EdgeName.GID2SID);
-      Edge.createEdge(gid, eid, Edge.EdgeName.GID2EID, new FacetScore(score));
+      Edge.createEdge(gid, eid, Edge.EdgeName.GID2IID, new FacetScore(score));
 
       return new LinkInfo(gid.toString(), eid.toString(), score);
    }

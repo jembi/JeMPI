@@ -37,7 +37,7 @@ private object CustomDgraphExpandedGoldenRecord {
         writer.println(s"""${" " * 6}@JsonProperty("GoldenRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * 6}@JsonProperty("GoldenRecord.patients") List<CustomDgraphPatientRecord> patients) {
+      s"""${" " * 6}@JsonProperty("GoldenRecord.patients") List<CustomDgraphInteraction> interactions) {
          |""".stripMargin)
 
     writer.print(
@@ -61,7 +61,7 @@ private object CustomDgraphExpandedGoldenRecord {
       """
         |   ExpandedGoldenRecord toExpandedGoldenRecord() {
         |      return new ExpandedGoldenRecord(this.toGoldenRecord(),
-        |                                      this.patients().stream().map(CustomDgraphPatientRecord::toPatientRecordWithScore).toList());
+        |                                      this.interactions().stream().map(CustomDgraphInteraction::toPatientRecordWithScore).toList());
         |   }
         |""".stripMargin)
 

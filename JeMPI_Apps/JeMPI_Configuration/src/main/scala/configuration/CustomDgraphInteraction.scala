@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomDgraphPatientRecord {
+private object CustomDgraphInteraction {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val customClassName = "CustomDgraphPatientRecord"
+  private val customClassName = "CustomDgraphInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(fields: Array[Field]): Unit =
@@ -21,7 +21,7 @@ private object CustomDgraphPatientRecord {
          |import com.fasterxml.jackson.annotation.JsonProperty;
          |import org.jembi.jempi.shared.models.PatientRecordWithScore;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.PatientRecord;
+         |import org.jembi.jempi.shared.models.Interaction;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
@@ -38,13 +38,13 @@ private object CustomDgraphPatientRecord {
     writer.println(
       s"""${" " * 6}@JsonProperty("GoldenRecord.patients|score") Float score) {
          |   $customClassName(
-         |         final PatientRecord patientRecord,
+         |         final Interaction interaction,
          |         final Float score) {
-         |      this(patientRecord.patientId(),
-         |           new DgraphSourceId(patientRecord.sourceId()),""".stripMargin)
+         |      this(interaction.patientId(),
+         |           new DgraphSourceId(interaction.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        writer.println(s"${" " * 11}patientRecord.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)},")
+        writer.println(s"${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(field.fieldName)},")
     }
     writer.println(
       s"""${" " * 11}score);
@@ -53,12 +53,12 @@ private object CustomDgraphPatientRecord {
 
     writer.print(
       """
-        |   PatientRecord toPatientRecord() {
-        |      return new PatientRecord(this.patientId(),
-        |                               this.sourceId() != null
-        |                                     ? this.sourceId().toSourceId()
-        |                                     : null,
-        |                               new CustomDemographicData(""".stripMargin)
+        |   Interaction toInteraction() {
+        |      return new Interaction(this.patientId(),
+        |                             this.sourceId() != null
+        |                                   ? this.sourceId().toSourceId()
+        |                                   : null,
+        |                             new CustomDemographicData(""".stripMargin)
     fields.zipWithIndex.foreach {
       (field, idx) =>
         writer.println(
@@ -69,7 +69,7 @@ private object CustomDgraphPatientRecord {
     writer.println(
       """
         |   PatientRecordWithScore toPatientRecordWithScore() {
-        |      return new PatientRecordWithScore(toPatientRecord(), this.score());
+        |      return new PatientRecordWithScore(toInteraction(), this.score());
         |   }""".stripMargin)
     writer.println(
       """

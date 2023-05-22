@@ -2,10 +2,10 @@ package configuration
 
 import java.io.{File, PrintWriter}
 
-private object CustomDgraphExpandedPatientRecord {
+private object CustomDgraphExpandedInteraction {
 
   private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
-  private val customClassName = "CustomDgraphExpandedPatientRecord"
+  private val customClassName = "CustomDgraphExpandedInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   private def addFields(writer: PrintWriter, fields: Array[Field]): Unit = {
@@ -23,12 +23,12 @@ private object CustomDgraphExpandedPatientRecord {
          |""".stripMargin)
   }
 
-  private def toPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toInteraction(writer: PrintWriter, fields: Array[Field]): Unit = {
         writer.println(
-          """   PatientRecord toPatientRecord() {
-            |      return new PatientRecord(this.patientId(),
-            |                               this.sourceId().toSourceId(),
-            |                               new CustomDemographicData(""".stripMargin)
+          """   Interaction toInteraction() {
+            |      return new Interaction(this.patientId(),
+            |                             this.sourceId().toSourceId(),
+            |                             new CustomDemographicData(""".stripMargin)
 
         fields.zipWithIndex.foreach {
           (field, idx) =>
@@ -41,14 +41,14 @@ private object CustomDgraphExpandedPatientRecord {
              |""".stripMargin)
   }
 
-  private def toExpandedPatientRecord(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toExpandedInteraction(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
-      """   ExpandedPatientRecord toExpandedPatientRecord() {
-        |      return new ExpandedPatientRecord(this.toPatientRecord(),
-        |                                       this.dgraphGoldenRecordList()
-        |                                           .stream()
-        |                                           .map(CustomDgraphReverseGoldenRecord::toGoldenRecordWithScore)
-        |                                           .toList());
+      """   ExpandedInteraction toExpandedInteraction() {
+        |      return new ExpandedInteraction(this.toInteraction(),
+        |                                     this.dgraphGoldenRecordList()
+        |                                         .stream()
+        |                                         .map(CustomDgraphReverseGoldenRecord::toGoldenRecordWithScore)
+        |                                         .toList());
         |   }
         |""".stripMargin)
   }
@@ -65,8 +65,8 @@ private object CustomDgraphExpandedPatientRecord {
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.ExpandedPatientRecord;
-         |import org.jembi.jempi.shared.models.PatientRecord;
+         |import org.jembi.jempi.shared.models.ExpandedInteraction;
+         |import org.jembi.jempi.shared.models.Interaction;
          |
          |import java.util.List;
          |
@@ -75,8 +75,8 @@ private object CustomDgraphExpandedPatientRecord {
          |${" " * 6}@JsonProperty("uid") String patientId,
          |${" " * 6}@JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
     addFields(writer, fields)
-    toPatientRecord(writer, fields)
-    toExpandedPatientRecord(writer, fields)
+    toInteraction(writer, fields)
+    toExpandedInteraction(writer, fields)
     writer.println("}")
     writer.flush()
     writer.close()

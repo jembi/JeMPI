@@ -76,16 +76,16 @@ public final class LibMPI {
    }
 
 
-   public PatientRecord findPatientRecord(final String patientId) {
-      return client.findPatientRecord(patientId);
+   public Interaction findPatientRecord(final String interactionID) {
+      return client.findInteraction(interactionID);
    }
 
-   public List<PatientRecord> findPatientRecords(final List<String> patientIds) {
-      return client.findPatientRecords(patientIds);
+   public List<Interaction> findPatientRecords(final List<String> interactionIDs) {
+      return client.findInteractions(interactionIDs);
    }
 
-   public List<ExpandedPatientRecord> findExpandedPatientRecords(final List<String> patientIds) {
-      return client.findExpandedPatientRecords(patientIds);
+   public List<ExpandedInteraction> findExpandedPatientRecords(final List<String> interactionIDs) {
+      return client.findExpandedInteractions(interactionIDs);
    }
 
    public GoldenRecord findGoldenRecord(final String goldenId) {
@@ -136,22 +136,22 @@ public final class LibMPI {
       return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<PatientRecord> simpleSearchPatientRecords(
+   public LibMPIPaginatedResultSet<Interaction> simpleSearchPatientRecords(
          final List<SimpleSearchRequestPayload.SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      return client.simpleSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+      return client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<PatientRecord> customSearchPatientRecords(
+   public LibMPIPaginatedResultSet<Interaction> customSearchPatientRecords(
          final List<SimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      return client.customSearchPatientRecords(params, offset, limit, sortBy, sortAsc);
+      return client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
    }
 
    /*
@@ -163,10 +163,10 @@ public final class LibMPI {
     */
 
    public boolean setScore(
-         final String patientuid,
-         final String goldenRecordUid,
+         final String interactionID,
+         final String goldenID,
          final float score) {
-      return client.setScore(patientuid, goldenRecordUid, score);
+      return client.setScore(interactionID, goldenID, score);
    }
 
    public boolean updateGoldenRecordField(
@@ -178,29 +178,29 @@ public final class LibMPI {
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String currentGoldenId,
-         final String patientId,
+         final String interactionId,
          final float score) {
-      return client.linkToNewGoldenRecord(currentGoldenId, patientId, score);
+      return client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(
-         final String goldenId,
-         final String newGoldenId,
-         final String patientId,
+         final String goldenID,
+         final String newGoldenID,
+         final String interactionID,
          final float score) {
-      return client.updateLink(goldenId, newGoldenId, patientId, score);
+      return client.updateLink(goldenID, newGoldenID, interactionID, score);
    }
 
    public LinkInfo createPatientAndLinkToExistingGoldenRecord(
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      return client.createPatientAndLinkToExistingGoldenRecord(patientRecord, goldenIdScore);
+      return client.createPatientAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
    }
 
    public LinkInfo createPatientAndLinkToClonedGoldenRecord(
-         final PatientRecord patientRecord,
+         final Interaction interaction,
          final float score) {
-      return client.createPatientAndLinkToClonedGoldenRecord(patientRecord, score);
+      return client.createPatientAndLinkToClonedGoldenRecord(interaction, score);
    }
 
 }

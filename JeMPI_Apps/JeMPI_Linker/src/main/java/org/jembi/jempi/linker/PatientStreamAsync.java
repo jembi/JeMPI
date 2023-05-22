@@ -12,7 +12,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchPatientRecord;
+import org.jembi.jempi.shared.models.BatchInteraction;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -40,14 +40,14 @@ public final class PatientStreamAsync {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd,
          final String key,
-         final BatchPatientRecord batchPatientRecord) {
-      if (batchPatientRecord.batchType() != BatchPatientRecord.BatchType.BATCH_PATIENT) {
+         final BatchInteraction batchInteraction) {
+      if (batchInteraction.batchType() != BatchInteraction.BatchType.BATCH_PATIENT) {
          return;
       }
       final CompletionStage<BackEnd.EventLinkPatientAsyncRsp> result =
             AskPattern.ask(
                   backEnd,
-                  replyTo -> new BackEnd.EventLinkPatientAsyncReq(key, batchPatientRecord, replyTo),
+                  replyTo -> new BackEnd.EventLinkPatientAsyncReq(key, batchInteraction, replyTo),
                   java.time.Duration.ofSeconds(60),
                   system.scheduler());
       final var completableFuture = result.toCompletableFuture();
@@ -70,9 +70,9 @@ public final class PatientStreamAsync {
       final var stringSerde = Serdes.String();
       final var batchPatientRecordSerde = Serdes.serdeFrom(
             new JsonPojoSerializer<>(),
-            new JsonPojoDeserializer<>(BatchPatientRecord.class));
+            new JsonPojoDeserializer<>(BatchInteraction.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchPatientRecord> patientsStream = streamsBuilder.stream(
+      final KStream<String, BatchInteraction> patientsStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_PATIENT_LINKER,
             Consumed.with(stringSerde, batchPatientRecordSerde));
       patientsStream.foreach((key, patient) -> linkPatient(system, backEnd, key, patient));

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record LinkPatientSyncBody(
+public record LinkInteractionSyncBody(
       @JsonProperty("stan") String stan,
       @JsonProperty("externalLinkRange") ExternalLinkRange externalLinkRange,
       @JsonProperty("matchThreshold") Float matchThreshold,
-      @JsonProperty("patientRecord") PatientRecord patientRecord) {
+      @JsonProperty("patientRecord") Interaction interaction) {
 }

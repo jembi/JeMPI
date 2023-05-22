@@ -27,7 +27,7 @@ final class Edge {
       try (var stmt = PostgresqlClient.getInstance().prepareStatement(
             String.format(Locale.ROOT,
                           """
-                          insert into %s (source, dest, name) values ('%s', '%s', '%s');
+                          INSERT INTO %s (source, dest, name) VALUES ('%s', '%s', '%s');
                           """,
                           TABLE_EDGES,
                           uid1.toString(), uid2.toString(), edgeName.name()).stripIndent()
@@ -51,7 +51,7 @@ final class Edge {
       try (var stmt = PostgresqlClient.getInstance().prepareStatement(
             String.format(Locale.ROOT,
                           """
-                          insert into %s (source, dest, name, facet) values ('%s', '%s', '%s', '%s');
+                          INSERT INTO %s (source, dest, name, facet) VALUES ('%s', '%s', '%s', '%s');
                           """,
                           TABLE_EDGES,
                           uid1.toString(),
@@ -70,6 +70,6 @@ final class Edge {
       }
    }
 
-   enum EdgeName {EID2SID, GID2SID, GID2EID}
+   enum EdgeName {IID2SID, GID2SID, GID2IID}
 
 }

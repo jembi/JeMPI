@@ -12,8 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.LinkPatientSyncBody;
-import org.jembi.jempi.shared.models.LinkPatientToGidSyncBody;
+import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
+import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.concurrent.CompletionStage;
@@ -40,7 +40,7 @@ public final class FrontEndStreamSync extends AllDirectives {
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
-   private CompletionStage<HttpResponse> postLinkPatient(final LinkPatientSyncBody body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> postLinkPatient(final LinkInteractionSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
             .create("http://linker:50000/JeMPI/link_patient")
@@ -50,7 +50,7 @@ public final class FrontEndStreamSync extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<HttpResponse> postLinkPatientToGid(final LinkPatientToGidSyncBody body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> postLinkPatientToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/link_patient_to_gid")
             .withMethod(HttpMethods.POST)
@@ -68,7 +68,7 @@ public final class FrontEndStreamSync extends AllDirectives {
    }
 
    private Route routeLinkPatient() {
-      return entity(Jackson.unmarshaller(LinkPatientSyncBody.class),
+      return entity(Jackson.unmarshaller(LinkInteractionSyncBody.class),
                     obj -> {
                        try {
                           LOGGER.debug("{}", obj);
@@ -84,7 +84,7 @@ public final class FrontEndStreamSync extends AllDirectives {
    }
 
    private Route routeLinkPatientToGid() {
-      return entity(Jackson.unmarshaller(LinkPatientToGidSyncBody.class),
+      return entity(Jackson.unmarshaller(LinkInteractionToGidSyncBody.class),
                     obj -> {
                        try {
                           return onComplete(postLinkPatientToGid(obj),

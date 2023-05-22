@@ -20,7 +20,7 @@ record CustomDgraphExpandedGoldenRecord(
       @JsonProperty("GoldenRecord.city") String city,
       @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
       @JsonProperty("GoldenRecord.national_id") String nationalId,
-      @JsonProperty("GoldenRecord.patients") List<CustomDgraphPatientRecord> patients) {
+      @JsonProperty("GoldenRecord.patients") List<CustomDgraphInteraction> interactions) {
 
 
    GoldenRecord toGoldenRecord() {
@@ -40,7 +40,7 @@ record CustomDgraphExpandedGoldenRecord(
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {
       return new ExpandedGoldenRecord(this.toGoldenRecord(),
-                                      this.patients().stream().map(CustomDgraphPatientRecord::toPatientRecordWithScore).toList());
+                                      this.interactions().stream().map(CustomDgraphInteraction::toPatientRecordWithScore).toList());
    }
 
 }

@@ -889,7 +889,7 @@ public final class HttpServer extends AllDirectives {
                                    (type) -> {
                                       final var t = type.equals("golden")
                                             ? RecordType.GoldenRecord
-                                            : RecordType.PatientRecord;
+                                            : RecordType.Interaction;
                                       return routeSimpleSearch(actorSystem, backEnd, t);
                                    }),
                               path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH).slash(segment(Pattern.compile(
@@ -897,7 +897,7 @@ public final class HttpServer extends AllDirectives {
                                    (type) -> {
                                       final var t = type.equals("golden")
                                             ? RecordType.GoldenRecord
-                                            : RecordType.PatientRecord;
+                                            : RecordType.Interaction;
                                       return routeCustomSearch(actorSystem, backEnd, t);
                                    }),
                               path(GlobalConstants.SEGMENT_CALCULATE_SCORES, this::routeCalculateScores),
@@ -1008,7 +1008,7 @@ public final class HttpServer extends AllDirectives {
          ApiPagination pagination) implements ApiPaginatedResultSet {
 
       static ApiPatientRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(
-            final LibMPIPaginatedResultSet<PatientRecord> resultSet) {
+            final LibMPIPaginatedResultSet<Interaction> resultSet) {
          final var data = resultSet.data()
                                    .stream()
                                    .map(ApiPatientRecord::fromPatientRecord)
@@ -1042,12 +1042,12 @@ public final class HttpServer extends AllDirectives {
          ApiPatientRecord patientRecord,
          List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
 
-      static ApiExpandedPatientRecord fromExpandedPatientRecord(final ExpandedPatientRecord expandedPatientRecord) {
-         return new ApiExpandedPatientRecord(ApiPatientRecord.fromPatientRecord(expandedPatientRecord.patientRecord()),
-                                             expandedPatientRecord.goldenRecordsWithScore()
-                                                                  .stream()
-                                                                  .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                                                                  .toList());
+      static ApiExpandedPatientRecord fromExpandedPatientRecord(final ExpandedInteraction expandedInteraction) {
+         return new ApiExpandedPatientRecord(ApiPatientRecord.fromPatientRecord(expandedInteraction.interaction()),
+                                             expandedInteraction.goldenRecordsWithScore()
+                                                                .stream()
+                                                                .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                                .toList());
       }
 
    }
@@ -1058,8 +1058,8 @@ public final class HttpServer extends AllDirectives {
          SourceId sourceId,
          CustomDemographicData demographicData) {
 
-      static ApiPatientRecord fromPatientRecord(final PatientRecord patientRecord) {
-         return new ApiPatientRecord(patientRecord.patientId(), patientRecord.sourceId(), patientRecord.demographicData());
+      static ApiPatientRecord fromPatientRecord(final Interaction interaction) {
+         return new ApiPatientRecord(interaction.patientId(), interaction.sourceId(), interaction.demographicData());
       }
 
    }
@@ -1069,9 +1069,9 @@ public final class HttpServer extends AllDirectives {
          ApiPatientRecord patientRecord,
          Float score) {
 
-      static ApiPatientRecordWithScore fromPatientRecordWithScore(final PatientRecordWithScore patientRecordWithScore) {
-         return new ApiPatientRecordWithScore(ApiPatientRecord.fromPatientRecord(patientRecordWithScore.patientRecord()),
-                                              patientRecordWithScore.score());
+      static ApiPatientRecordWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
+         return new ApiPatientRecordWithScore(ApiPatientRecord.fromPatientRecord(interactionWithScore.interaction()),
+                                              interactionWithScore.score());
       }
    }
 

@@ -74,9 +74,9 @@ final class PostgresqlMutations {
                CREATE TYPE %s AS ENUM ('%s','%s','%s');
                """,
                TYPE_EDGE_NAME,
-               Edge.EdgeName.EID2SID.name(),
+               Edge.EdgeName.IID2SID.name(),
                Edge.EdgeName.GID2SID.name(),
-               Edge.EdgeName.GID2EID.name()).stripIndent());
+               Edge.EdgeName.GID2IID.name()).stripIndent());
          stmt.executeUpdate(String.format(
                """
                CREATE TABLE IF NOT EXISTS %s (
@@ -137,7 +137,7 @@ final class PostgresqlMutations {
                """,
                TABLE_EDGES_GID2EID,
                TABLE_EDGES,
-               Edge.EdgeName.GID2EID).stripIndent());
+               Edge.EdgeName.GID2IID).stripIndent());
          stmt.executeUpdate(String.format(
                """
                CREATE TABLE IF NOT EXISTS %s
@@ -155,7 +155,7 @@ final class PostgresqlMutations {
                """,
                TABLE_EDGES_EID2SID,
                TABLE_EDGES,
-               Edge.EdgeName.EID2SID).stripIndent());
+               Edge.EdgeName.IID2SID).stripIndent());
 
          stmt.executeUpdate(String.format(
                """

@@ -7,12 +7,10 @@ import org.jembi.jempi.shared.models.LibMPIPagination;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record DgraphExpandedPatientRecords(
-      @JsonProperty("all") List<CustomDgraphExpandedPatientRecord> all,
+record DgraphInteractions(
+      @JsonProperty("all") List<CustomDgraphInteraction> all,
       @JsonProperty("pagination") List<LibMPIPagination> pagination) {
-
-   DgraphExpandedPatientRecords(@JsonProperty("all") final List<CustomDgraphExpandedPatientRecord> all) {
-      this(all, List.of(new LibMPIPagination(all.size())));
+   DgraphInteractions(@JsonProperty("all") final List<CustomDgraphInteraction> all_) {
+      this(all_, List.of(new LibMPIPagination(all_.size())));
    }
-
 }

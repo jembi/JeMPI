@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.PatientRecord;
+import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.RecordType;
 import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -32,18 +32,18 @@ final class DgraphQueries {
       return new DgraphSourceIds(List.of());
    }
 
-   static DgraphPatientRecords runPatientRecordsQuery(
+   static DgraphInteractions runPatientRecordsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-            return AppUtils.OBJECT_MAPPER.readValue(json, DgraphPatientRecords.class);
+            return AppUtils.OBJECT_MAPPER.readValue(json, DgraphInteractions.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return new DgraphPatientRecords(List.of());
+      return new DgraphInteractions(List.of());
    }
 
    static DgraphGoldenRecords runGoldenRecordsQuery(
@@ -74,7 +74,7 @@ final class DgraphQueries {
       return new DgraphExpandedGoldenRecords(List.of());
    }
 
-   static PatientRecord getPatientRecord(final String patientId) {
+   static Interaction getPatientRecord(final String patientId) {
       if (StringUtils.isBlank(patientId)) {
          return null;
       }
@@ -83,7 +83,7 @@ final class DgraphQueries {
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return patientList.get(0).toPatientRecordWithScore().patientRecord();
+      return patientList.get(0).toPatientRecordWithScore().interaction();
    }
 
    static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {
@@ -199,12 +199,12 @@ final class DgraphQueries {
       return candidateGoldenRecords;
    }
 
-   static List<CustomDgraphExpandedPatientRecord> findExpandedPatientRecords(final List<String> ids) {
+   static List<CustomDgraphExpandedInteraction> findExpandedInteractions(final List<String> ids) {
       final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_PATIENTS,
                                          String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedPatientRecords.class);
+         final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphExpandedInteractions.class);
          return records.all();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
@@ -439,7 +439,7 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   private static DgraphPatientRecords searchPatientRecords(
+   private static DgraphInteractions searchPatientRecords(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -447,9 +447,9 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                           ) {
-      String gqlFunc = getSearchQueryFunc(RecordType.PatientRecord, offset, limit, sortBy, sortAsc);
-      String gqlPagination = getSearchQueryPagination(RecordType.PatientRecord, gqlFilters);
+                                                         ) {
+      String gqlFunc = getSearchQueryFunc(RecordType.Interaction, offset, limit, sortBy, sortAsc);
+      String gqlPagination = getSearchQueryPagination(RecordType.Interaction, gqlFilters);
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
@@ -463,30 +463,30 @@ final class DgraphQueries {
       return runPatientRecordsQuery(gql, gqlVars);
    }
 
-   static DgraphPatientRecords simpleSearchPatientRecords(
+   static DgraphInteractions simpleSearchInteractions(
          final List<SimpleSearchRequestPayload.SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                         ) {
+                                                     ) {
       LOGGER.debug("Simple Search Patient Records Params {}", params);
-      String gqlFilters = getSimpleSearchQueryFilters(RecordType.PatientRecord, params);
+      String gqlFilters = getSimpleSearchQueryFilters(RecordType.Interaction, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
 
       return searchPatientRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   static DgraphPatientRecords customSearchPatientRecords(
+   static DgraphInteractions customSearchInteractions(
          final List<SimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                         ) {
+                                                     ) {
       LOGGER.debug("Simple Search Patient Records Params {}", payloads);
-      String gqlFilters = getCustomSearchQueryFilters(RecordType.PatientRecord, payloads);
+      String gqlFilters = getCustomSearchQueryFilters(RecordType.Interaction, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
 

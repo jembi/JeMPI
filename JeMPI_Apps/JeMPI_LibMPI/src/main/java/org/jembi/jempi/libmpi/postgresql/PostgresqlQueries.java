@@ -115,10 +115,10 @@ public final class PostgresqlQueries {
       return list;
    }
 
-   public static List<NodeSourceId> getEncounterSourceIds(final UUID eid) {
+   public static List<NodeSourceId> getInteractionSourceIds(final UUID eid) {
       final var sql = String.format("""
-                                    select * from %s
-                                    where id in (select dest from %s where source = ?);
+                                    SELECT * FROM %s
+                                    WHERE id IN (SELECT dest FROM %s WHERE source = ?);
                                     """,
                                     TABLE_NODE_SOURCE_IDS,
                                     TABLE_EDGES_EID2SID).stripIndent();
@@ -252,14 +252,14 @@ public final class PostgresqlQueries {
       }
    }
 
-   public static NodeInteraction getEncounter(final UUID eid) {
+   static NodeInteraction getInteraction(final UUID iid) {
       try (var stmt = PostgresqlClient.getInstance().prepareStatement(
             String.format("""
                           select * from %s
                           where id = ?;
                           """,
                           TABLE_NODE_INTERACTIONS))) {
-         stmt.setObject(1, eid, Types.OTHER);
+         stmt.setObject(1, iid, Types.OTHER);
          final var rs = stmt.executeQuery();
          if (rs.next()) {
             final var id = rs.getString("id");

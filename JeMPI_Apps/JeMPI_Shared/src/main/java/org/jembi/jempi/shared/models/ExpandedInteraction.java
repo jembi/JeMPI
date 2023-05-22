@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ExpandedPatientRecord(
-      PatientRecord patientRecord,
+public record ExpandedInteraction(
+      Interaction interaction,
       List<GoldenRecordWithScore> goldenRecordsWithScore) {
 }
