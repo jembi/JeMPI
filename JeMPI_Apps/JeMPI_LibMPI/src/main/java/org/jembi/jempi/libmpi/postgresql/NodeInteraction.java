@@ -7,10 +7,10 @@ import java.util.UUID;
 record NodeEncounter(
       NodeType type,
       UUID uid,
-      EncounterData data) implements Node {
+      CustomInteractionData data) implements Node {
 
    NodeEncounter(final CustomDemographicData demographicData) {
-      this(NodeType.ENCOUNTER, null, new EncounterData(demographicData));
+      this(NodeType.ENCOUNTER, null, new CustomInteractionData(demographicData));
    }
 
    public NodeType getType() {
@@ -21,6 +21,7 @@ record NodeEncounter(
       return data;
    }
 
+/*
    public static class EncounterData extends CustomDemographicData implements NodeData {
       EncounterData(
             final String auxId,
@@ -46,5 +47,6 @@ record NodeEncounter(
       }
 
    }
+*/
 
 }
