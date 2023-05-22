@@ -165,10 +165,6 @@ final class PostgresqlMutations {
                """
                CREATE INDEX IF NOT EXISTS idx_gin_gr_b ON %s USING gin (fields jsonb_path_ops);
                """, TABLE_NODE_GOLDEN_RECORDS).stripIndent());
-//       stmt.executeUpdate("""
-//                          create index if not exists idx_gin_gr_c on mpi_nodes_golden_record using gin (
-//                          (fields->>'givenName') gin_trgm_ops);
-//                          """.stripIndent());
          CustomMutations.createSchema(stmt);
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
