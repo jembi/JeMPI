@@ -271,7 +271,7 @@ class CustomEMTask {
          final long nRecords) {
       LOGGER.debug("doIt: {} {}", startOffset, nRecords);
 
-      var topic = GlobalConstants.TOPIC_PATIENT_EM;
+      var topic = GlobalConstants.TOPIC_INTERACTION_EM;
       var consumer = new MyKafkaConsumerByPartition<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                       topic, stringDeserializer(), patientJsonValueDeserializer(),
                                                       AppConfig.KAFKA_CLIENT_ID + topic,

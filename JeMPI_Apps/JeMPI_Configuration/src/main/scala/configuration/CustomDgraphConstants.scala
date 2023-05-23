@@ -25,7 +25,7 @@ private object CustomDgraphConstants {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
-          s"""   public static final String PREDICATE_PATIENT_RECORD${fieldName.toUpperCase} = "PatientRecord.$fieldName";""".stripMargin)
+          s"""   public static final String PREDICATE_PATIENT_RECORD${fieldName.toUpperCase} = "Interaction.$fieldName";""".stripMargin)
     }
   }
 
@@ -74,14 +74,14 @@ private object CustomDgraphConstants {
     writer.println(
       s"""         GoldenRecord.patients @facets(score) {
          |            uid
-         |            PatientRecord.source_id {
+         |            Interaction.source_id {
          |               uid
          |               SourceId.facility
          |               SourceId.patient
          |            }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"            PatientRecord.$name")
+      writer.println(s"            Interaction.$name")
     })
     writer.println(
       s"""         }
@@ -93,7 +93,7 @@ private object CustomDgraphConstants {
       s"""   static final String PATIENT_RECORD_FIELD_NAMES =
          |         \"\"\"
          |         uid
-         |         PatientRecord.source_id {
+         |         Interaction.source_id {
          |            uid
          |            SourceId.facility
          |            SourceId.patient
@@ -102,7 +102,7 @@ private object CustomDgraphConstants {
 
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"         PatientRecord.$name")
+      writer.println(s"         Interaction.$name")
     })
 
     writer.println(
@@ -116,7 +116,7 @@ private object CustomDgraphConstants {
       s"""   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
          |         \"\"\"
          |         uid
-         |         PatientRecord.source_id {
+         |         Interaction.source_id {
          |            uid
          |            SourceId.facility
          |            SourceId.patient
@@ -125,7 +125,7 @@ private object CustomDgraphConstants {
 
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"         PatientRecord.$name")
+      writer.println(s"         Interaction.$name")
     })
 
     writer.println(
@@ -212,14 +212,14 @@ private object CustomDgraphConstants {
     writer.println(
       s"""               GoldenRecord.patients @facets(score) {
          |                  uid
-         |                  PatientRecord.source_id {
+         |                  Interaction.source_id {
          |                    uid
          |                    SourceId.facility
          |                    SourceId.patient
          |                  }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"                  PatientRecord.$name")
+      writer.println(s"                  Interaction.$name")
     })
     writer.println(
       s"""               }
@@ -236,14 +236,14 @@ private object CustomDgraphConstants {
          |         query expandedPatient() {
          |            all(func: uid(%s)) {
          |               uid
-         |               PatientRecord.source_id {
+         |               Interaction.source_id {
          |                  uid
          |                  SourceId.facility
          |                  SourceId.patient
          |               }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"               PatientRecord.$name")
+      writer.println(s"               Interaction.$name")
     })
     writer.println(
       s"""               ~GoldenRecord.patients @facets(score) {
@@ -272,14 +272,14 @@ private object CustomDgraphConstants {
          |         query patientByUid($$uid: string) {
          |            all(func: uid($$uid)) {
          |               uid
-         |               PatientRecord.source_id {
+         |               Interaction.source_id {
          |                 uid
          |                 SourceId.facility
          |                 SourceId.patient
          |               }""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"               PatientRecord.$name")
+      writer.println(s"               Interaction.$name")
     })
     writer.println(
       s"""            }
@@ -322,7 +322,7 @@ private object CustomDgraphConstants {
       writer.println(s"            GoldenRecord.$name")
     })
     writer.println(
-      s"""            GoldenRecord.patients:                  [PatientRecord]
+      s"""            GoldenRecord.patients:                  [Interaction]
          |         }
          |         \"\"\";
          """.stripMargin)
@@ -356,11 +356,11 @@ private object CustomDgraphConstants {
       s"""   static final String MUTATION_CREATE_PATIENT_TYPE =
          |         \"\"\"
          |
-         |         type PatientRecord {
-         |            PatientRecord.source_id:                     SourceId""".stripMargin)
+         |         type Interaction {
+         |            Interaction.source_id:                     SourceId""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
-      writer.println(s"            PatientRecord.$name")
+      writer.println(s"            Interaction.$name")
     })
     writer.println(
       s"""         }
@@ -372,13 +372,13 @@ private object CustomDgraphConstants {
     writer.println(
       s"""   static final String MUTATION_CREATE_PATIENT_FIELDS =
          |         \"\"\"
-         |         PatientRecord.source_id:                    uid                                          .""".stripMargin)
+         |         Interaction.source_id:                    uid                                          .""".stripMargin)
     fields.foreach(field => {
       val name = field.fieldName
       val index = field.indexEntity.getOrElse("")
       val fieldType = field.fieldType.toLowerCase
       writer.println(
-        s"""${" " * 9}PatientRecord.$name:${
+        s"""${" " * 9}Interaction.$name:${
           " " * (29 - name.length)
         }$fieldType${
           " " * (10 - fieldType.length)

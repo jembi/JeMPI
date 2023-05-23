@@ -71,7 +71,7 @@ public final class FrontEndStream {
                                                                                new JsonPojoDeserializer<>(BatchInteraction.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, BatchInteraction> patientRecordKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_EM,
+            GlobalConstants.TOPIC_INTERACTION_EM,
             Consumed.with(stringSerde, batchPatientRecordSerde));
       patientRecordKStream.foreach((key, patient) -> addPatient(system, backEnd, key, patient));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);

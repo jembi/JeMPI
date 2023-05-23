@@ -9,15 +9,15 @@ import org.jembi.jempi.shared.models.Interaction;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphInteraction(
       @JsonProperty("uid") String patientId,
-      @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,
-      @JsonProperty("PatientRecord.aux_id") String auxId,
-      @JsonProperty("PatientRecord.given_name") String givenName,
-      @JsonProperty("PatientRecord.family_name") String familyName,
-      @JsonProperty("PatientRecord.gender") String gender,
-      @JsonProperty("PatientRecord.dob") String dob,
-      @JsonProperty("PatientRecord.city") String city,
-      @JsonProperty("PatientRecord.phone_number") String phoneNumber,
-      @JsonProperty("PatientRecord.national_id") String nationalId,
+      @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
+      @JsonProperty("Interaction.aux_id") String auxId,
+      @JsonProperty("Interaction.given_name") String givenName,
+      @JsonProperty("Interaction.family_name") String familyName,
+      @JsonProperty("Interaction.gender") String gender,
+      @JsonProperty("Interaction.dob") String dob,
+      @JsonProperty("Interaction.city") String city,
+      @JsonProperty("Interaction.phone_number") String phoneNumber,
+      @JsonProperty("Interaction.national_id") String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
    CustomDgraphInteraction(
          final Interaction interaction,
@@ -50,7 +50,7 @@ record CustomDgraphInteraction(
                                                          this.nationalId));
    }
 
-   InteractionWithScore toPatientRecordWithScore() {
+   InteractionWithScore toInteractionWithScore() {
       return new InteractionWithScore(toInteraction(), this.score());
    }
 

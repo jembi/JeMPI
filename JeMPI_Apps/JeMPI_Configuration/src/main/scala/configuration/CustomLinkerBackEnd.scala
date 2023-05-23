@@ -58,7 +58,7 @@ object CustomLinkerBackEnd {
     writer.println(
       s"""
          |${" " * 6}if (k > 0) {
-         |${" " * 6}  backEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord);
+         |${" " * 6}  backEnd.updateMatchingInteractionScoreForGoldenRecord(expandedGoldenRecord);
          |${" " * 6}}""".stripMargin)
     writer.println()
     config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {

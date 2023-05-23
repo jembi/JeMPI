@@ -49,7 +49,7 @@ public final class CustomLinkerBackEnd {
             : 0;
 
       if (k > 0) {
-        backEnd.updateMatchingPatientRecordScoreForGoldenRecord(expandedGoldenRecord);
+        backEnd.updateMatchingInteractionScoreForGoldenRecord(expandedGoldenRecord);
       }
 
    }

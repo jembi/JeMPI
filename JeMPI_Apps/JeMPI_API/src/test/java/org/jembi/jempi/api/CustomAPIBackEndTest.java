@@ -153,7 +153,7 @@ class CustomAPIBackEndTest {
                   "555-1234", // phoneNumber
                   "123-45-6789")); // nationalId
 
-      when(libMPI.findPatientRecord("1234")).thenReturn(patientRecord);
+      when(libMPI.findInteraction("1234")).thenReturn(patientRecord);
 
       // Send the message to the actor
       backend.tell(request);
@@ -164,7 +164,7 @@ class CustomAPIBackEndTest {
 
       // Verify that libMPI was called with the correct arguments
       verify(libMPI).startTransaction();
-      verify(libMPI).findPatientRecord("1234");
+      verify(libMPI).findInteraction("1234");
       verify(libMPI).closeTransaction();
    }
 
@@ -173,7 +173,7 @@ class CustomAPIBackEndTest {
       final var libMPI = mock(LibMPI.class);
       String patientId = "12344";
 
-      when(libMPI.findPatientRecord(patientId)).thenThrow(new Exception("patient record does not exist"));
+      when(libMPI.findInteraction(patientId)).thenThrow(new Exception("patient record does not exist"));
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -190,7 +190,7 @@ class CustomAPIBackEndTest {
    public void findPatientRecordHandler_whenFindPatientRecordReturnsNull_ReturnNotFound() {
       final var libMPI = mock(LibMPI.class);
       String patientId = "12345";
-      when(libMPI.findPatientRecord(patientId)).thenReturn(null);
+      when(libMPI.findInteraction(patientId)).thenReturn(null);
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -221,7 +221,7 @@ class CustomAPIBackEndTest {
                   "456-78-9012")
       );
 
-      when(libMPI.findPatientRecord(patientId)).thenReturn(interaction);
+      when(libMPI.findInteraction(patientId)).thenReturn(interaction);
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -342,7 +342,7 @@ class CustomAPIBackEndTest {
             new BackEnd.FindCandidatesResponse.Candidate(goldenRecord, score);
       candidates.add(candidate);
 
-      when(libMPI.findPatientRecord(patientId)).thenReturn(interaction);
+      when(libMPI.findInteraction(patientId)).thenReturn(interaction);
       when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
 
       ActorTestKit testKit = ActorTestKit.create();
@@ -384,7 +384,7 @@ class CustomAPIBackEndTest {
       goldenRecords.add(goldenRecord);
 
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.findPatientRecord(patientId)).thenThrow(new RuntimeException());
+      when(libMPI.findInteraction(patientId)).thenThrow(new RuntimeException());
       when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
 
       ActorTestKit testKit = ActorTestKit.create();
@@ -422,7 +422,7 @@ class CustomAPIBackEndTest {
       );
 
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.findPatientRecord(patientId)).thenReturn(interaction);
+      when(libMPI.findInteraction(patientId)).thenReturn(interaction);
       when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenThrow(new RuntimeException());
 
       ActorTestKit testKit = ActorTestKit.create();
@@ -462,7 +462,7 @@ class CustomAPIBackEndTest {
       List<GoldenRecord> goldenRecords = new ArrayList<>();
 
       final var libMPI = mock(LibMPI.class);
-      when(libMPI.findPatientRecord(patientId)).thenReturn(interaction);
+      when(libMPI.findInteraction(patientId)).thenReturn(interaction);
       when(libMPI.getCandidates(any(CustomDemographicData.class), anyBoolean())).thenReturn(goldenRecords);
 
       ActorTestKit testKit = ActorTestKit.create();

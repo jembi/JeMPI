@@ -93,7 +93,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
              || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
-   public ArrayList<Notification.MatchData> getCandidatesMatchDataForPatientRecord(final Interaction interaction) throws RuntimeException {
+   public ArrayList<Notification.MatchData> getCandidatesMatchDataForInteraction(final Interaction interaction) throws RuntimeException {
 
       try {
          List<GoldenRecord> candidateGoldenRecords =
@@ -170,7 +170,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return changed;
    }
 
-   void updateMatchingPatientRecordScoreForGoldenRecord(
+   void updateMatchingInteractionScoreForGoldenRecord(
          final ExpandedGoldenRecord expandedGoldenRecord) {
 
       final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
@@ -181,7 +181,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                patient.demographicData());
          final var reCompute = libMPI.setScore(patient.patientId(), expandedGoldenRecord.goldenRecord().goldenId(), score);
          try {
-            candidateList.set(getCandidatesMatchDataForPatientRecord(patient));
+            candidateList.set(getCandidatesMatchDataForInteraction(patient));
             candidateList.get().forEach(candidate -> {
                sendNotification(
                      Notification.NotificationType.UPDATE,
@@ -398,7 +398,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private CalculateScoresResponse calculateScores(final CalculateScoresRequest request) {
-      final var patientRecord = libMPI.findPatientRecord(request.patientId());
+      final var patientRecord = libMPI.findInteraction(request.patientId());
       final var goldenRecords = libMPI.findGoldenRecords(request.goldenIds());
       LOGGER.debug("{}", patientRecord);
       LOGGER.debug("{}", goldenRecords);

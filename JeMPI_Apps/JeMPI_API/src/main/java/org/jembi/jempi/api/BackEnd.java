@@ -289,7 +289,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         interaction = libMPI.findPatientRecord(request.patientId);
+         interaction = libMPI.findInteraction(request.patientId);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
@@ -317,7 +317,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         interaction = libMPI.findPatientRecord(request.patientId);
+         interaction = libMPI.findInteraction(request.patientId);
 
          try {
             goldenRecords = libMPI.getCandidates(interaction.demographicData(), true);

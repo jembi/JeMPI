@@ -61,7 +61,7 @@ private object CustomDgraphExpandedGoldenRecord {
       """
         |   ExpandedGoldenRecord toExpandedGoldenRecord() {
         |      return new ExpandedGoldenRecord(this.toGoldenRecord(),
-        |                                      this.interactions().stream().map(CustomDgraphInteraction::toPatientRecordWithScore).toList());
+        |                                      this.interactions().stream().map(CustomDgraphInteraction::toInteractionWithScore).toList());
         |   }
         |""".stripMargin)
 

@@ -83,7 +83,7 @@ final class DgraphQueries {
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
-      return patientList.get(0).toPatientRecordWithScore().interaction();
+      return patientList.get(0).toInteractionWithScore().interaction();
    }
 
    static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {

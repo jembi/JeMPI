@@ -3,17 +3,7 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact)",
-      "fieldLabel": "AUX ID",
-      "groups": [
-        "identifiers"
-      ],
-      "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
-        "/search/custom"
-      ],
-      "accessLevel": []
+      "indexGoldenRecord": "@index(exact)"
     },
     {
       "fieldName": "given_name",
@@ -182,6 +172,7 @@
       ],
       "accessLevel": []
     }
+
   ],
   "systemFields": [
     {

@@ -19,17 +19,17 @@ private object CustomDgraphInteraction {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.shared.models.PatientRecordWithScore;
+         |import org.jembi.jempi.shared.models.InteractionWithScore;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.Interaction;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |      @JsonProperty("uid") String patientId,
-         |      @JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
+         |      @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val propertyName = s"PatientRecord.${field.fieldName}"
+        val propertyName = s"Interaction.${field.fieldName}"
         val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
         val parameterType = field.fieldType
         writer.println(
@@ -68,8 +68,8 @@ private object CustomDgraphInteraction {
     writer.println("   }")
     writer.println(
       """
-        |   PatientRecordWithScore toPatientRecordWithScore() {
-        |      return new PatientRecordWithScore(toInteraction(), this.score());
+        |   InteractionWithScore toInteractionWithScore() {
+        |      return new InteractionWithScore(toInteraction(), this.score());
         |   }""".stripMargin)
     writer.println(
       """

@@ -11,14 +11,14 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
    public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
-   public static final String PREDICATE_PATIENT_RECORDAUX_ID = "PatientRecord.aux_id";
-   public static final String PREDICATE_PATIENT_RECORDGIVEN_NAME = "PatientRecord.given_name";
-   public static final String PREDICATE_PATIENT_RECORDFAMILY_NAME = "PatientRecord.family_name";
-   public static final String PREDICATE_PATIENT_RECORDGENDER = "PatientRecord.gender";
-   public static final String PREDICATE_PATIENT_RECORDDOB = "PatientRecord.dob";
-   public static final String PREDICATE_PATIENT_RECORDCITY = "PatientRecord.city";
-   public static final String PREDICATE_PATIENT_RECORDPHONE_NUMBER = "PatientRecord.phone_number";
-   public static final String PREDICATE_PATIENT_RECORDNATIONAL_ID = "PatientRecord.national_id";
+   public static final String PREDICATE_PATIENT_RECORDAUX_ID = "Interaction.aux_id";
+   public static final String PREDICATE_PATIENT_RECORDGIVEN_NAME = "Interaction.given_name";
+   public static final String PREDICATE_PATIENT_RECORDFAMILY_NAME = "Interaction.family_name";
+   public static final String PREDICATE_PATIENT_RECORDGENDER = "Interaction.gender";
+   public static final String PREDICATE_PATIENT_RECORDDOB = "Interaction.dob";
+   public static final String PREDICATE_PATIENT_RECORDCITY = "Interaction.city";
+   public static final String PREDICATE_PATIENT_RECORDPHONE_NUMBER = "Interaction.phone_number";
+   public static final String PREDICATE_PATIENT_RECORDNATIONAL_ID = "Interaction.national_id";
 
    static final String GOLDEN_RECORD_FIELD_NAMES =
          """
@@ -56,54 +56,54 @@ public final class CustomDgraphConstants {
          GoldenRecord.national_id
          GoldenRecord.patients @facets(score) {
             uid
-            PatientRecord.source_id {
+            Interaction.source_id {
                uid
                SourceId.facility
                SourceId.patient
             }
-            PatientRecord.aux_id
-            PatientRecord.given_name
-            PatientRecord.family_name
-            PatientRecord.gender
-            PatientRecord.dob
-            PatientRecord.city
-            PatientRecord.phone_number
-            PatientRecord.national_id
+            Interaction.aux_id
+            Interaction.given_name
+            Interaction.family_name
+            Interaction.gender
+            Interaction.dob
+            Interaction.city
+            Interaction.phone_number
+            Interaction.national_id
          }
          """;
    static final String PATIENT_RECORD_FIELD_NAMES =
          """
          uid
-         PatientRecord.source_id {
+         Interaction.source_id {
             uid
             SourceId.facility
             SourceId.patient
          }
-         PatientRecord.aux_id
-         PatientRecord.given_name
-         PatientRecord.family_name
-         PatientRecord.gender
-         PatientRecord.dob
-         PatientRecord.city
-         PatientRecord.phone_number
-         PatientRecord.national_id
+         Interaction.aux_id
+         Interaction.given_name
+         Interaction.family_name
+         Interaction.gender
+         Interaction.dob
+         Interaction.city
+         Interaction.phone_number
+         Interaction.national_id
          """;
    static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
          """
          uid
-         PatientRecord.source_id {
+         Interaction.source_id {
             uid
             SourceId.facility
             SourceId.patient
          }
-         PatientRecord.aux_id
-         PatientRecord.given_name
-         PatientRecord.family_name
-         PatientRecord.gender
-         PatientRecord.dob
-         PatientRecord.city
-         PatientRecord.phone_number
-         PatientRecord.national_id
+         Interaction.aux_id
+         Interaction.given_name
+         Interaction.family_name
+         Interaction.gender
+         Interaction.dob
+         Interaction.city
+         Interaction.phone_number
+         Interaction.national_id
          ~GoldenRecord.patients @facets(score) {
             uid
             GoldenRecord.source_id {
@@ -127,19 +127,19 @@ public final class CustomDgraphConstants {
          query patientByUid($uid: string) {
             all(func: uid($uid)) {
                uid
-               PatientRecord.source_id {
+               Interaction.source_id {
                  uid
                  SourceId.facility
                  SourceId.patient
                }
-               PatientRecord.aux_id
-               PatientRecord.given_name
-               PatientRecord.family_name
-               PatientRecord.gender
-               PatientRecord.dob
-               PatientRecord.city
-               PatientRecord.phone_number
-               PatientRecord.national_id
+               Interaction.aux_id
+               Interaction.given_name
+               Interaction.family_name
+               Interaction.gender
+               Interaction.dob
+               Interaction.city
+               Interaction.phone_number
+               Interaction.national_id
             }
          }
          """;
@@ -171,19 +171,19 @@ public final class CustomDgraphConstants {
          query expandedPatient() {
             all(func: uid(%s)) {
                uid
-               PatientRecord.source_id {
+               Interaction.source_id {
                   uid
                   SourceId.facility
                   SourceId.patient
                }
-               PatientRecord.aux_id
-               PatientRecord.given_name
-               PatientRecord.family_name
-               PatientRecord.gender
-               PatientRecord.dob
-               PatientRecord.city
-               PatientRecord.phone_number
-               PatientRecord.national_id
+               Interaction.aux_id
+               Interaction.given_name
+               Interaction.family_name
+               Interaction.gender
+               Interaction.dob
+               Interaction.city
+               Interaction.phone_number
+               Interaction.national_id
                ~GoldenRecord.patients @facets(score) {
                   uid
                   GoldenRecord.source_id {
@@ -246,19 +246,19 @@ public final class CustomDgraphConstants {
                GoldenRecord.national_id
                GoldenRecord.patients @facets(score) {
                   uid
-                  PatientRecord.source_id {
+                  Interaction.source_id {
                     uid
                     SourceId.facility
                     SourceId.patient
                   }
-                  PatientRecord.aux_id
-                  PatientRecord.given_name
-                  PatientRecord.family_name
-                  PatientRecord.gender
-                  PatientRecord.dob
-                  PatientRecord.city
-                  PatientRecord.phone_number
-                  PatientRecord.national_id
+                  Interaction.aux_id
+                  Interaction.given_name
+                  Interaction.family_name
+                  Interaction.gender
+                  Interaction.dob
+                  Interaction.city
+                  Interaction.phone_number
+                  Interaction.national_id
                }
             }
          }
@@ -291,7 +291,7 @@ public final class CustomDgraphConstants {
             GoldenRecord.city
             GoldenRecord.phone_number
             GoldenRecord.national_id
-            GoldenRecord.patients:                  [PatientRecord]
+            GoldenRecord.patients:                  [Interaction]
          }
          """;
          
@@ -312,30 +312,30 @@ public final class CustomDgraphConstants {
    static final String MUTATION_CREATE_PATIENT_TYPE =
          """
 
-         type PatientRecord {
-            PatientRecord.source_id:                     SourceId
-            PatientRecord.aux_id
-            PatientRecord.given_name
-            PatientRecord.family_name
-            PatientRecord.gender
-            PatientRecord.dob
-            PatientRecord.city
-            PatientRecord.phone_number
-            PatientRecord.national_id
+         type Interaction {
+            Interaction.source_id:                     SourceId
+            Interaction.aux_id
+            Interaction.given_name
+            Interaction.family_name
+            Interaction.gender
+            Interaction.dob
+            Interaction.city
+            Interaction.phone_number
+            Interaction.national_id
          }
          """;
 
    static final String MUTATION_CREATE_PATIENT_FIELDS =
          """
-         PatientRecord.source_id:                    uid                                          .
-         PatientRecord.aux_id:                       string                                       .
-         PatientRecord.given_name:                   string    @index(exact,trigram)              .
-         PatientRecord.family_name:                  string    @index(exact,trigram)              .
-         PatientRecord.gender:                       string                                       .
-         PatientRecord.dob:                          string                                       .
-         PatientRecord.city:                         string                                       .
-         PatientRecord.phone_number:                 string                                       .
-         PatientRecord.national_id:                  string    @index(exact,trigram)              .
+         Interaction.source_id:                    uid                                          .
+         Interaction.aux_id:                       string                                       .
+         Interaction.given_name:                   string    @index(exact,trigram)              .
+         Interaction.family_name:                  string    @index(exact,trigram)              .
+         Interaction.gender:                       string                                       .
+         Interaction.dob:                          string                                       .
+         Interaction.city:                         string                                       .
+         Interaction.phone_number:                 string                                       .
+         Interaction.national_id:                  string    @index(exact,trigram)              .
          """;
 
    private CustomDgraphConstants() {}

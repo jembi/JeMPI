@@ -33,14 +33,14 @@ private object CustomDgraphMutations {
          |${" " * 6}return String.format(\"\"\"""".stripMargin)
 
     // createDocumentTriple
-    writer.println(s"""${" " * 27}_:%s  <PatientRecord.source_id>${" " * 16}<%s>${" " * 8}.""".stripMargin)
+    writer.println(s"""${" " * 27}_:%s  <Interaction.source_id>${" " * 16}<%s>${" " * 8}.""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val name = field.fieldName
-        writer.println(s"""${" " * 27}_:%s  <PatientRecord.$name>${" " * (25 - name.length)}%s${" " * 10}.""".stripMargin)
+        writer.println(s"""${" " * 27}_:%s  <Interaction.$name>${" " * (25 - name.length)}%s${" " * 10}.""".stripMargin)
     }
     writer.println(
-      s"""${" " * 27}_:%s  <dgraph.type>                     \"PatientRecord\"    .
+      s"""${" " * 27}_:%s  <dgraph.type>                     \"Interaction\"    .
          |${" " * 27}\"\"\",""".stripMargin)
     writer.println(s"""${" " * 27}uuid, sourceUID,""".stripMargin)
     fields.zipWithIndex.foreach {

@@ -193,7 +193,7 @@ public final class CustomMain {
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);
       sourceRecordProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                   GlobalConstants.TOPIC_PATIENT_ASYNC_ETL,
+                                                   GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
                                                    keySerializer(), valueSerializer(),
                                                    AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watcher = FileSystems.getDefault().newWatchService()) {

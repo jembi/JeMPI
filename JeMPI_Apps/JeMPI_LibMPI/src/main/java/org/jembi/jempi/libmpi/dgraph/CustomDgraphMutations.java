@@ -15,16 +15,16 @@ final class CustomDgraphMutations {
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
-                           _:%s  <PatientRecord.source_id>                <%s>        .
-                           _:%s  <PatientRecord.aux_id>                   %s          .
-                           _:%s  <PatientRecord.given_name>               %s          .
-                           _:%s  <PatientRecord.family_name>              %s          .
-                           _:%s  <PatientRecord.gender>                   %s          .
-                           _:%s  <PatientRecord.dob>                      %s          .
-                           _:%s  <PatientRecord.city>                     %s          .
-                           _:%s  <PatientRecord.phone_number>             %s          .
-                           _:%s  <PatientRecord.national_id>              %s          .
-                           _:%s  <dgraph.type>                     "PatientRecord"    .
+                           _:%s  <Interaction.source_id>                <%s>        .
+                           _:%s  <Interaction.aux_id>                   %s          .
+                           _:%s  <Interaction.given_name>               %s          .
+                           _:%s  <Interaction.family_name>              %s          .
+                           _:%s  <Interaction.gender>                   %s          .
+                           _:%s  <Interaction.dob>                      %s          .
+                           _:%s  <Interaction.city>                     %s          .
+                           _:%s  <Interaction.phone_number>             %s          .
+                           _:%s  <Interaction.national_id>              %s          .
+                           _:%s  <dgraph.type>                     "Interaction"    .
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(demographicData.auxId),

@@ -51,7 +51,7 @@ public final class CustomSourceRecordStream {
       final Serde<BatchInteraction> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
+            GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
       patientKStream
             .map((key, rec) -> {
                LOGGER.info("{} : {}", key, rec);
@@ -96,7 +96,7 @@ public final class CustomSourceRecordStream {
             })
             .filter((key, value) -> !(value.batchType() == BatchInteraction.BatchType.BATCH_PATIENT && StringUtils.isBlank(
                   value.interaction().demographicData().auxId)))
-            .to(GlobalConstants.TOPIC_PATIENT_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
+            .to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
       patientKafkaStreams.start();

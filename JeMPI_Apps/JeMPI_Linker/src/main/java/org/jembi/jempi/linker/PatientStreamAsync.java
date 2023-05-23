@@ -73,7 +73,7 @@ public final class PatientStreamAsync {
             new JsonPojoDeserializer<>(BatchInteraction.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, BatchInteraction> patientsStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_LINKER,
+            GlobalConstants.TOPIC_INTERACTION_LINKER,
             Consumed.with(stringSerde, batchPatientRecordSerde));
       patientsStream.foreach((key, patient) -> linkPatient(system, backEnd, key, patient));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);

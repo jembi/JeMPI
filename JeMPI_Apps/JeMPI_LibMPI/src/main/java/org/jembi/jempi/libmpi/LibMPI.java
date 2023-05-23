@@ -76,7 +76,7 @@ public final class LibMPI {
    }
 
 
-   public Interaction findPatientRecord(final String interactionID) {
+   public Interaction findInteraction(final String interactionID) {
       return client.findInteraction(interactionID);
    }
 

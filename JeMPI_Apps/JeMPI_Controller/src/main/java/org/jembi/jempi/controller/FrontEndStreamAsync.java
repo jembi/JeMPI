@@ -41,10 +41,10 @@ public final class FrontEndStreamAsync {
             Serdes.serdeFrom(batchPatientRecordSerializer, batchPatientRecordDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, BatchInteraction> batchPatientRecordKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_PATIENT_CONTROLLER,
+            GlobalConstants.TOPIC_INTERACTION_CONTROLLER,
             Consumed.with(stringSerde, batchPatientRecordSerde));
       topicEM = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                      GlobalConstants.TOPIC_PATIENT_EM,
+                                      GlobalConstants.TOPIC_INTERACTION_EM,
                                       new StringSerializer(), new JsonPojoSerializer<>(),
                                       AppConfig.KAFKA_CLIENT_ID);
       batchPatientRecordKStream
@@ -56,7 +56,7 @@ public final class FrontEndStreamAsync {
                   }
                }));
             })
-            .to(GlobalConstants.TOPIC_PATIENT_LINKER, Produced.with(stringSerde, batchPatientRecordSerde));
+            .to(GlobalConstants.TOPIC_INTERACTION_LINKER, Produced.with(stringSerde, batchPatientRecordSerde));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
       patientKafkaStreams.start();

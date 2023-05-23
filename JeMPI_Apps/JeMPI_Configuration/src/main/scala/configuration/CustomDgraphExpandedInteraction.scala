@@ -16,7 +16,7 @@ private object CustomDgraphExpandedInteraction {
         val parameterType = (if field.isList.isDefined && field.isList.get then "List<" else "") +
           field.fieldType + (if field.isList.isDefined && field.isList.get then ">" else "")
         writer.println(
-          s"""${" " * margin}@JsonProperty("PatientRecord.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
+          s"""${" " * margin}@JsonProperty("Interaction.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
       s"""${" " * margin}@JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
@@ -73,7 +73,7 @@ private object CustomDgraphExpandedInteraction {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |${" " * 6}@JsonProperty("uid") String patientId,
-         |${" " * 6}@JsonProperty("PatientRecord.source_id") DgraphSourceId sourceId,""".stripMargin)
+         |${" " * 6}@JsonProperty("Interaction.source_id") DgraphSourceId sourceId,""".stripMargin)
     addFields(writer, fields)
     toInteraction(writer, fields)
     toExpandedInteraction(writer, fields)
