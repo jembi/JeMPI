@@ -20,7 +20,7 @@ record CustomDgraphReverseGoldenRecord(
       @JsonProperty("GoldenRecord.city") String city,
       @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
       @JsonProperty("GoldenRecord.national_id") String nationalId,
-      @JsonProperty("~GoldenRecord.patients|score") Float score) {
+      @JsonProperty("~GoldenRecord.interactions|score") Float score) {
 
    GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.goldenId(),

@@ -37,7 +37,7 @@ private object CustomDgraphExpandedGoldenRecord {
         writer.println(s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${field.fieldName.toUpperCase}) ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * 6}@JsonProperty("GoldenRecord.patients") List<CustomDgraphInteraction> interactions) {
+      s"""${" " * 6}@JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
          |""".stripMargin)
 
     writer.print(

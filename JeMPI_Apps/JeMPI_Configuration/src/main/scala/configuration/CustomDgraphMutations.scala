@@ -71,7 +71,7 @@ private object CustomDgraphMutations {
           s"""${" " * 27}_:%s  <GoldenRecord.$name>${" " * (30 - name.length)}%s${" " * 15}.""".stripMargin)
     }
     writer.println(
-      s"""${" " * 27}_:%s  <GoldenRecord.patients>                      <%s> (score=%f)  .
+      s"""${" " * 27}_:%s  <GoldenRecord.interactions>                  <%s> (score=%f)  .
          |${" " * 27}_:%s  <dgraph.type>                                "GoldenRecord"   .
          |${" " * 27}\"\"\",
          |${" " * 27}uuid, sourceUID,""".stripMargin)

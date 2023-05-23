@@ -107,7 +107,7 @@ final class DgraphQueries {
                     query recordGoldenUidPatientUidList() {
                         list(func: uid(%s)) {
                             uid
-                            list: GoldenRecord.patients {
+                            list: GoldenRecord.interactions {
                                 uid
                             }
                         }
@@ -171,7 +171,7 @@ final class DgraphQueries {
             """
             query recordCount() {
               list(func: uid(%s)) {
-                count: count(GoldenRecord.patients)
+                count: count(GoldenRecord.interactions)
               }
             }""", goldenId);
       return getCount(query);

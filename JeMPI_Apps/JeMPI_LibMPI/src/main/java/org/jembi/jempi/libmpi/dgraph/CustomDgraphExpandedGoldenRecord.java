@@ -20,7 +20,7 @@ record CustomDgraphExpandedGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CITY) String city,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId,
-      @JsonProperty("GoldenRecord.patients") List<CustomDgraphInteraction> interactions) {
+      @JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
 
 
    GoldenRecord toGoldenRecord() {

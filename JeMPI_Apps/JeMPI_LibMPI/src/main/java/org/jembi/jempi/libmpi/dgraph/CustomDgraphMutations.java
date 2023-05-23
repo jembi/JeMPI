@@ -54,7 +54,7 @@ final class CustomDgraphMutations {
                            _:%s  <GoldenRecord.city>                          %s               .
                            _:%s  <GoldenRecord.phone_number>                  %s               .
                            _:%s  <GoldenRecord.national_id>                   %s               .
-                           _:%s  <GoldenRecord.patients>                      <%s> (score=%f)  .
+                           _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)  .
                            _:%s  <dgraph.type>                                "GoldenRecord"   .
                            """,
                            uuid, sourceUID,

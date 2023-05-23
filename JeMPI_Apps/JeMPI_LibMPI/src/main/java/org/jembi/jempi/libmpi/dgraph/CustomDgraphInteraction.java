@@ -18,7 +18,7 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CITY) String city,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
-      @JsonProperty("GoldenRecord.patients|score") Float score) {
+      @JsonProperty("GoldenRecord.interactions|score") Float score) {
    CustomDgraphInteraction(
          final Interaction interaction,
          final Float score) {

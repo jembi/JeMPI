@@ -20,7 +20,7 @@ record CustomDgraphExpandedInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CITY) String city,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
-      @JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
+      @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
    Interaction toInteraction() {
       return new Interaction(this.patientId(),

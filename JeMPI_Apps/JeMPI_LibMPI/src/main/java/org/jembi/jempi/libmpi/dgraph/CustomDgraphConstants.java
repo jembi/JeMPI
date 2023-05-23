@@ -10,7 +10,7 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_CITY = "GoldenRecord.city";
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
-   public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
+   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
    public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
    public static final String PREDICATE_INTERACTION_FAMILY_NAME = "Interaction.family_name";
@@ -54,7 +54,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.city
          GoldenRecord.phone_number
          GoldenRecord.national_id
-         GoldenRecord.patients @facets(score) {
+         GoldenRecord.interactions @facets(score) {
             uid
             Interaction.source_id {
                uid
@@ -104,7 +104,7 @@ public final class CustomDgraphConstants {
          Interaction.city
          Interaction.phone_number
          Interaction.national_id
-         ~GoldenRecord.patients @facets(score) {
+         ~GoldenRecord.interactions @facets(score) {
             uid
             GoldenRecord.source_id {
               uid
@@ -184,7 +184,7 @@ public final class CustomDgraphConstants {
                Interaction.city
                Interaction.phone_number
                Interaction.national_id
-               ~GoldenRecord.patients @facets(score) {
+               ~GoldenRecord.interactions @facets(score) {
                   uid
                   GoldenRecord.source_id {
                     uid
@@ -244,7 +244,7 @@ public final class CustomDgraphConstants {
                GoldenRecord.city
                GoldenRecord.phone_number
                GoldenRecord.national_id
-               GoldenRecord.patients @facets(score) {
+               GoldenRecord.interactions @facets(score) {
                   uid
                   Interaction.source_id {
                     uid
@@ -291,7 +291,7 @@ public final class CustomDgraphConstants {
             GoldenRecord.city
             GoldenRecord.phone_number
             GoldenRecord.national_id
-            GoldenRecord.patients:                  [Interaction]
+            GoldenRecord.interactions:              [Interaction]
          }
          """;
          
@@ -306,7 +306,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.city:                     string    @index(trigram)                    .
          GoldenRecord.phone_number:             string    @index(exact,trigram)              .
          GoldenRecord.national_id:              string    @index(exact,trigram)              .
-         GoldenRecord.patients:                 [uid]     @reverse                           .
+         GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
    static final String MUTATION_CREATE_PATIENT_TYPE =

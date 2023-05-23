@@ -94,7 +94,7 @@ final class DgraphMutations {
       StringBuilder simWeightFacet = new StringBuilder();
       for (DgraphPairWithScore patientScore : patientScoreList) {
          simWeightFacet.append(
-               String.format("<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
+               String.format("<%s> <GoldenRecord.interactions> <%s> (score=%f) .%n",
                              patientScore.goldenUID(), patientScore.patientUID(), patientScore.score()));
       }
 
@@ -184,30 +184,30 @@ final class DgraphMutations {
 
    static Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String currentGoldenId,
-         final String patientId,
+         final String interactionId,
          final float score) {
 
       final var goldenUidPatientUidList = DgraphQueries.findExpandedGoldenIds(currentGoldenId);
-      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientId)) {
+      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(interactionId)) {
          return Either.left(
                new MpiServiceError.GoldenIdInteractionConflictError("Patient not linked to GoldenRecord",
                                                                     currentGoldenId,
-                                                                    patientId));
+                                                                    interactionId));
       }
       final var count = goldenUidPatientUidList.size();
 
-      final var interaction = DgraphQueries.findInteraction(patientId);
+      final var interaction = DgraphQueries.findInteraction(interactionId);
       if (interaction == null) {
-         LOGGER.warn("patient {} not found", patientId);
-         return Either.left(new MpiServiceError.InteractionIdDoesNotExistError("Patient not found", patientId));
+         LOGGER.warn("patient {} not found", interactionId);
+         return Either.left(new MpiServiceError.InteractionIdDoesNotExistError("Patient not found", interactionId));
       }
       final var grec = DgraphQueries.findDgraphGoldenRecord(currentGoldenId);
       if (grec == null) {
          return Either.left(new MpiServiceError.GoldenIdDoesNotExistError("Golden Record not found", currentGoldenId));
       }
-      if (!deletePredicate(currentGoldenId, CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PATIENTS, patientId)) {
-         return Either.left(new MpiServiceError.DeletePredicateError(patientId,
-                                                                     CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PATIENTS));
+      if (!deletePredicate(currentGoldenId, CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_INTERACTIONS, interactionId)) {
+         return Either.left(new MpiServiceError.DeletePredicateError(interactionId,
+                                                                     CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_INTERACTIONS));
       }
       if (count == 1) {
          deleteGoldenRecord(currentGoldenId);
@@ -215,32 +215,32 @@ final class DgraphMutations {
       final var newGoldenID = cloneGoldenRecordFromPatient(interaction.demographicData(), interaction.interactionId(),
                                                            interaction.sourceId().uid(),
                                                            score);
-      return Either.right(new LinkInfo(newGoldenID, patientId, score));
+      return Either.right(new LinkInfo(newGoldenID, interactionId, score));
    }
 
    static Either<MpiGeneralError, LinkInfo> updateLink(
          final String goldenId,
          final String newGoldenId,
-         final String patientId,
+         final String interactionId,
          final float score) {
 
       final var goldenUidPatientUidList = DgraphQueries.findExpandedGoldenIds(goldenId);
-      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientId)) {
+      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(interactionId)) {
          return Either.left(
                new MpiServiceError.GoldenIdInteractionConflictError("Patient not linked to GoldenRecord", goldenId,
-                                                                    patientId));
+                                                                    interactionId));
       }
 
       final var count = DgraphQueries.countGoldenRecordEntities(goldenId);
-      deletePredicate(goldenId, "GoldenRecord.patients", patientId);
+      deletePredicate(goldenId, "GoldenRecord.interactions", interactionId);
       if (count == 1) {
          deleteGoldenRecord(goldenId);
       }
 
       final var scoreList = new ArrayList<DgraphPairWithScore>();
-      scoreList.add(new DgraphPairWithScore(newGoldenId, patientId, score));
+      scoreList.add(new DgraphPairWithScore(newGoldenId, interactionId, score));
       addScoreFacets(scoreList);
-      return Either.right(new LinkInfo(newGoldenId, patientId, score));
+      return Either.right(new LinkInfo(newGoldenId, interactionId, score));
    }
 
    static LinkInfo linkDGraphPatient(
@@ -285,7 +285,7 @@ final class DgraphMutations {
          final float score) {
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
-                                                     "<%s> <GoldenRecord.patients> <%s> (score=%f) .%n",
+                                                     "<%s> <GoldenRecord.interactions> <%s> (score=%f) .%n",
                                                      goldenRecordUid,
                                                      patientUid,
                                                      score)))

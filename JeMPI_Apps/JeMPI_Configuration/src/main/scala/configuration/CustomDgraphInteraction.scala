@@ -36,7 +36,7 @@ private object CustomDgraphInteraction {
           s"""${" " * 6}@JsonProperty($propertyName) $parameterType $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * 6}@JsonProperty("GoldenRecord.patients|score") Float score) {
+      s"""${" " * 6}@JsonProperty("GoldenRecord.interactions|score") Float score) {
          |   $customClassName(
          |         final Interaction interaction,
          |         final Float score) {

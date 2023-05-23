@@ -18,7 +18,7 @@ private object CustomDgraphReverseGoldenRecord {
         writer.println(
           s"""${" " * margin}@JsonProperty("$propertyName") $parameterType $parameterName,""".stripMargin)
     }
-    writer.println(s"""${" " * margin}@JsonProperty("~GoldenRecord.patients|score") Float score) {""")
+    writer.println(s"""${" " * margin}@JsonProperty("~GoldenRecord.interactions|score") Float score) {""")
   }
 
   def generate(fields: Array[Field]): Unit =

@@ -19,7 +19,7 @@ private object CustomDgraphExpandedInteraction {
           s"""${" " * margin}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${field.fieldName.toUpperCase}) ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
-      s"""${" " * margin}@JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
+      s"""${" " * margin}@JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
          |""".stripMargin)
   }
 

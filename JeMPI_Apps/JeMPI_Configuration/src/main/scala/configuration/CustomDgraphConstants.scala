@@ -17,7 +17,7 @@ private object CustomDgraphConstants {
             .stripMargin)
     }
     writer.println(
-      s"""   public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";""".stripMargin)
+      s"""   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";""".stripMargin)
   }
 
   private def patient_record_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
@@ -72,7 +72,7 @@ private object CustomDgraphConstants {
     })
 
     writer.println(
-      s"""         GoldenRecord.patients @facets(score) {
+      s"""         GoldenRecord.interactions @facets(score) {
          |            uid
          |            Interaction.source_id {
          |               uid
@@ -129,7 +129,7 @@ private object CustomDgraphConstants {
     })
 
     writer.println(
-      s"""         ~GoldenRecord.patients @facets(score) {
+      s"""         ~GoldenRecord.interactions @facets(score) {
          |            uid
          |            GoldenRecord.source_id {
          |              uid
@@ -210,7 +210,7 @@ private object CustomDgraphConstants {
       writer.println(s"               GoldenRecord.$name")
     })
     writer.println(
-      s"""               GoldenRecord.patients @facets(score) {
+      s"""               GoldenRecord.interactions @facets(score) {
          |                  uid
          |                  Interaction.source_id {
          |                    uid
@@ -229,7 +229,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_patients(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_expanded_interactions(writer: PrintWriter, fields: Array[Field]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_EXPANDED_PATIENTS =
          |         \"\"\"
@@ -246,7 +246,7 @@ private object CustomDgraphConstants {
       writer.println(s"               Interaction.$name")
     })
     writer.println(
-      s"""               ~GoldenRecord.patients @facets(score) {
+      s"""               ~GoldenRecord.interactions @facets(score) {
          |                  uid
          |                  GoldenRecord.source_id {
          |                    uid
@@ -322,7 +322,7 @@ private object CustomDgraphConstants {
       writer.println(s"            GoldenRecord.$name")
     })
     writer.println(
-      s"""            GoldenRecord.patients:                  [Interaction]
+      s"""            GoldenRecord.interactions:              [Interaction]
          |         }
          |         \"\"\";
          """.stripMargin)
@@ -346,7 +346,7 @@ private object CustomDgraphConstants {
         }$index${" " * (35 - index.length)}.""".stripMargin)
     })
     writer.println(
-      s"""         GoldenRecord.patients:                 [uid]     @reverse                           .
+      s"""         GoldenRecord.interactions:             [uid]     @reverse                           .
          |         \"\"\";
          |""".stripMargin)
   }
@@ -410,7 +410,7 @@ private object CustomDgraphConstants {
     expanded_patient_record_field_names(writer, fields)
     query_get_patient_by_uid(writer, fields)
     query_get_golden_record_by_uid(writer, fields)
-    query_get_expanded_patients(writer, fields)
+    query_get_expanded_interactions(writer, fields)
     query_get_golden_records(writer, fields)
     query_get_expanded_golden_records(writer, fields)
     mutation_create_source_id_type(writer)
