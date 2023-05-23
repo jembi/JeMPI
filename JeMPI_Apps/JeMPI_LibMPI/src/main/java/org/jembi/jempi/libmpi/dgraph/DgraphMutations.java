@@ -190,16 +190,16 @@ final class DgraphMutations {
       final var goldenUidPatientUidList = DgraphQueries.findExpandedGoldenIds(currentGoldenId);
       if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientId)) {
          return Either.left(
-               new MpiServiceError.GoldenIdPatientConflictError("Patient not linked to GoldenRecord",
-                                                                currentGoldenId,
-                                                                patientId));
+               new MpiServiceError.GoldenIdInteractionConflictError("Patient not linked to GoldenRecord",
+                                                                    currentGoldenId,
+                                                                    patientId));
       }
       final var count = goldenUidPatientUidList.size();
 
-      final var patient = DgraphQueries.getPatientRecord(patientId);
-      if (patient == null) {
+      final var interaction = DgraphQueries.findInteraction(patientId);
+      if (interaction == null) {
          LOGGER.warn("patient {} not found", patientId);
-         return Either.left(new MpiServiceError.PatientIdDoesNotExistError("Patient not found", patientId));
+         return Either.left(new MpiServiceError.InteractionIdDoesNotExistError("Patient not found", patientId));
       }
       final var grec = DgraphQueries.findDgraphGoldenRecord(currentGoldenId);
       if (grec == null) {
@@ -212,8 +212,8 @@ final class DgraphMutations {
       if (count == 1) {
          deleteGoldenRecord(currentGoldenId);
       }
-      final var newGoldenID = cloneGoldenRecordFromPatient(patient.demographicData(), patient.patientId(),
-                                                           patient.sourceId().uid(),
+      final var newGoldenID = cloneGoldenRecordFromPatient(interaction.demographicData(), interaction.interactionId(),
+                                                           interaction.sourceId().uid(),
                                                            score);
       return Either.right(new LinkInfo(newGoldenID, patientId, score));
    }
@@ -227,8 +227,8 @@ final class DgraphMutations {
       final var goldenUidPatientUidList = DgraphQueries.findExpandedGoldenIds(goldenId);
       if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(patientId)) {
          return Either.left(
-               new MpiServiceError.GoldenIdPatientConflictError("Patient not linked to GoldenRecord", goldenId,
-                                                                patientId));
+               new MpiServiceError.GoldenIdInteractionConflictError("Patient not linked to GoldenRecord", goldenId,
+                                                                    patientId));
       }
 
       final var count = DgraphQueries.countGoldenRecordEntities(goldenId);

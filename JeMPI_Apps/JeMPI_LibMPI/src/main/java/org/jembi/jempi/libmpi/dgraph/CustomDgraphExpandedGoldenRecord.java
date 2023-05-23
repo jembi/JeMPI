@@ -12,14 +12,14 @@ import java.util.List;
 record CustomDgraphExpandedGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
-      @JsonProperty("GoldenRecord.aux_id") String auxId,
-      @JsonProperty("GoldenRecord.given_name") String givenName,
-      @JsonProperty("GoldenRecord.family_name") String familyName,
-      @JsonProperty("GoldenRecord.gender") String gender,
-      @JsonProperty("GoldenRecord.dob") String dob,
-      @JsonProperty("GoldenRecord.city") String city,
-      @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
-      @JsonProperty("GoldenRecord.national_id") String nationalId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_FAMILY_NAME) String familyName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CITY) String city,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.patients") List<CustomDgraphInteraction> interactions) {
 
 

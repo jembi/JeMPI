@@ -134,10 +134,10 @@ class CustomAPIBackEndTest {
       final var backend = testKit.spawn(BackEnd.create(libMPI));
 
       // Create a TestProbe to receive responses
-      final var probe = testKit.createTestProbe(BackEnd.FindPatientRecordResponse.class);
+      final var probe = testKit.createTestProbe(BackEnd.FindInteractionResponse.class);
 
       // Create an EventFindPatientByUidRequest message with a specific UID value
-      final var request = new BackEnd.FindPatientRecordRequest(probe.getRef(), "1234");
+      final var request = new BackEnd.FindInteractionRequest(probe.getRef(), "1234");
 
       // Stub the mock libMPI instance to return a CustomEntity object when `getDocument()` is called
       final var patientRecord = new Interaction(
@@ -177,11 +177,11 @@ class CustomAPIBackEndTest {
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
-      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.FindInteractionResponse> replyTo = testKit.createTestProbe();
 
-      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+      myActorRef.tell(new BackEnd.FindInteractionRequest(replyTo.getRef(), patientId));
 
-      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+      replyTo.expectMessage(new BackEnd.FindInteractionResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
             "Patient not found",
             patientId))));
    }
@@ -194,11 +194,11 @@ class CustomAPIBackEndTest {
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
-      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.FindInteractionResponse> replyTo = testKit.createTestProbe();
 
-      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+      myActorRef.tell(new BackEnd.FindInteractionRequest(replyTo.getRef(), patientId));
 
-      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+      replyTo.expectMessage(new BackEnd.FindInteractionResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
             "Patient not found",
             patientId))));
    }
@@ -225,11 +225,11 @@ class CustomAPIBackEndTest {
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
-      TestProbe<BackEnd.FindPatientRecordResponse> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.FindInteractionResponse> replyTo = testKit.createTestProbe();
 
-      myActorRef.tell(new BackEnd.FindPatientRecordRequest(replyTo.getRef(), patientId));
+      myActorRef.tell(new BackEnd.FindInteractionRequest(replyTo.getRef(), patientId));
 
-      replyTo.expectMessage(new BackEnd.FindPatientRecordResponse(Either.right(interaction)));
+      replyTo.expectMessage(new BackEnd.FindInteractionResponse(Either.right(interaction)));
    }
 
    //@Test TODO: find solution to handle exception test
@@ -358,7 +358,7 @@ class CustomAPIBackEndTest {
    public void findCandidatesHandler_whenFindPatientRecordThrowException_ReturnNotFound() {
       String patientId = "9015";
 
-      MpiGeneralError notFoundError = new MpiServiceError.PatientIdDoesNotExistError(
+      MpiGeneralError notFoundError = new MpiServiceError.InteractionIdDoesNotExistError(
             "Patient not found",
             patientId);
 
@@ -495,7 +495,7 @@ class CustomAPIBackEndTest {
       List<ExpandedInteraction> expandedInteractions = new ArrayList<>() {{add(expandedInteraction);}};
       List<String> patientIds = new ArrayList<>() {{add(patientId);}};
 
-      when(libMPI.findExpandedPatientRecords(patientIds)).thenReturn(expandedInteractions);
+      when(libMPI.findExpandedInteractions(patientIds)).thenReturn(expandedInteractions);
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -512,7 +512,7 @@ class CustomAPIBackEndTest {
       String patientId = "9019";
       List<String> patientIds = new ArrayList<>() {{add(patientId);}};
 
-      when(libMPI.findExpandedPatientRecords(patientIds)).thenReturn(null);
+      when(libMPI.findExpandedInteractions(patientIds)).thenReturn(null);
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
@@ -520,7 +520,7 @@ class CustomAPIBackEndTest {
 
       myActorRef.tell(new BackEnd.FindExpandedPatientRecordsRequest(replyTo.getRef(), patientIds));
 
-      replyTo.expectMessage(new BackEnd.FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+      replyTo.expectMessage(new BackEnd.FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
             "Patient Records do not exist",
             List.of(patientIds).toString()))));
    }
@@ -562,11 +562,11 @@ class CustomAPIBackEndTest {
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
-      TestProbe<BackEnd.GetPatientRecordCountResponse> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.GetInteractionCountResponse> replyTo = testKit.createTestProbe();
 
-      myActorRef.tell(new BackEnd.GetPatientRecordCountRequest(replyTo.getRef()));
+      myActorRef.tell(new BackEnd.GetInteractionCountRequest(replyTo.getRef()));
 
-      replyTo.expectMessage(new BackEnd.GetPatientRecordCountResponse(Either.right(count)));
+      replyTo.expectMessage(new BackEnd.GetInteractionCountResponse(Either.right(count)));
    }
 
    @Test
@@ -576,10 +576,10 @@ class CustomAPIBackEndTest {
 
       ActorTestKit testKit = ActorTestKit.create();
       ActorRef<BackEnd.Event> myActorRef = testKit.spawn(BackEnd.create(libMPI));
-      TestProbe<BackEnd.GetPatientRecordCountResponse> replyTo = testKit.createTestProbe();
+      TestProbe<BackEnd.GetInteractionCountResponse> replyTo = testKit.createTestProbe();
 
-      myActorRef.tell(new BackEnd.GetPatientRecordCountRequest(replyTo.getRef()));
+      myActorRef.tell(new BackEnd.GetInteractionCountRequest(replyTo.getRef()));
 
-      replyTo.expectMessage(new BackEnd.GetPatientRecordCountResponse(Either.left(new MpiServiceError.GeneralError(error))));
+      replyTo.expectMessage(new BackEnd.GetInteractionCountResponse(Either.left(new MpiServiceError.GeneralError(error))));
    }
 }

@@ -32,7 +32,7 @@ final class DgraphQueries {
       return new DgraphSourceIds(List.of());
    }
 
-   static DgraphInteractions runPatientRecordsQuery(
+   static DgraphInteractions runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -74,12 +74,12 @@ final class DgraphQueries {
       return new DgraphExpandedGoldenRecords(List.of());
    }
 
-   static Interaction getPatientRecord(final String patientId) {
+   static Interaction findInteraction(final String patientId) {
       if (StringUtils.isBlank(patientId)) {
          return null;
       }
       final var vars = Map.of("$uid", patientId);
-      final var patientList = runPatientRecordsQuery(CustomDgraphConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
+      final var patientList = runInteractionsQuery(CustomDgraphConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
       if (AppUtils.isNullOrEmpty(patientList)) {
          return null;
       }
@@ -460,7 +460,7 @@ final class DgraphQueries {
 
       LOGGER.debug("Simple Search Patient Records Query {}", gql);
       LOGGER.debug("Simple Search Patient Records Variables {}", gqlVars);
-      return runPatientRecordsQuery(gql, gqlVars);
+      return runInteractionsQuery(gql, gqlVars);
    }
 
    static DgraphInteractions simpleSearchInteractions(

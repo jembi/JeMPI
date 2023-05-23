@@ -39,11 +39,11 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   Interaction findInteraction(String patientId);
+   Interaction findInteraction(String interactionID);
 
-   List<Interaction> findInteractions(List<String> patientIds);
+   List<Interaction> findInteractions(List<String> interactionIDs);
 
-   List<ExpandedInteraction> findExpandedInteractions(List<String> patientIds);
+   List<ExpandedInteraction> findExpandedInteractions(List<String> interactionIDs);
 
    GoldenRecord findGoldenRecord(String goldenId);
 
@@ -113,11 +113,11 @@ public interface LibMPIClientInterface {
          String interactionId,
          float score);
 
-   LinkInfo createPatientAndLinkToExistingGoldenRecord(
+   LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          Interaction interaction,
          GoldenIdScore goldenIdScore);
 
-   LinkInfo createPatientAndLinkToClonedGoldenRecord(
+   LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          Interaction interaction,
          float score);
 

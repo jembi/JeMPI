@@ -40,13 +40,13 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public Interaction findInteraction(final String patientId) {
-      final var encounter = PostgresqlQueries.getInteraction(UUID.fromString(patientId));
-      final var sourceId = PostgresqlQueries.getInteractionSourceIds(encounter.uid());
-      return new Interaction(encounter.uid().toString(),
+      final var interaction = PostgresqlQueries.getInteraction(UUID.fromString(patientId));
+      final var sourceId = PostgresqlQueries.getInteractionSourceIds(interaction.uid());
+      return new Interaction(interaction.uid().toString(),
                              new SourceId(sourceId.get(0).id().toString(),
-                                            sourceId.get(0).data().facility(),
-                                            sourceId.get(0).data().patient()),
-                             encounter.data());
+                                          sourceId.get(0).data().facility(),
+                                          sourceId.get(0).data().patient()),
+                             interaction.data());
    }
 
    public List<Interaction> findInteractions(final List<String> patientIds) {
@@ -54,10 +54,10 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    private ExpandedInteraction findExpandedInteraction(final String eid) {
-      final var encounter = findInteraction(eid);
-      final var goldenRecord = PostgresqlQueries.getGoldenRecordsOfEncounter(UUID.fromString(eid)).get(0);
+      final var interaction = findInteraction(eid);
+      final var goldenRecord = PostgresqlQueries.getGoldenRecordsOfInteraction(UUID.fromString(eid)).get(0);
       return new ExpandedInteraction(
-            encounter,
+            interaction,
             List.of(new GoldenRecordWithScore(new GoldenRecord(goldenRecord.uid().toString(),
                                                                PostgresqlQueries.getGoldenRecordSourceIds(goldenRecord.uid())
                                                                                 .stream()
@@ -91,21 +91,21 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return goldenIds.stream().map(gid -> {
          final var gidUUID = UUID.fromString(gid);
          final var goldenRecord = findGoldenRecord(gid);
-         final var encounters = PostgresqlQueries.getGoldenRecordEncounters(gidUUID);
+         final var interactions = PostgresqlQueries.getGoldenRecordInteractions(gidUUID);
          return new ExpandedGoldenRecord(
                goldenRecord,
-               encounters.stream()
-                         .map(e -> {
-                            final var sid = PostgresqlQueries.getInteractionSourceIds(e.uid()).get(0);
-                            final var score = PostgresqlQueries.getScore(gidUUID, e.uid());
-                            return new InteractionWithScore(new Interaction(e.uid().toString(),
-                                                                            new SourceId(sid.id().toString(),
-                                                                                             sid.data().facility(),
-                                                                                             sid.data().patient()),
-                                                                            e.data()),
-                                                            score);
-                         })
-                         .toList());
+               interactions.stream()
+                           .map(e -> {
+                              final var sid = PostgresqlQueries.getInteractionSourceIds(e.uid()).get(0);
+                              final var score = PostgresqlQueries.getScore(gidUUID, e.uid());
+                              return new InteractionWithScore(new Interaction(e.uid().toString(),
+                                                                              new SourceId(sid.id().toString(),
+                                                                                           sid.data().facility(),
+                                                                                           sid.data().patient()),
+                                                                              e.data()),
+                                                              score);
+                           })
+                           .toList());
       }).toList();
    }
 
@@ -196,7 +196,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return null;
    }
 
-   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
+   public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
       final var nodeSourceIds = PostgresqlQueries.findSourceId(interaction.sourceId().facility(),
@@ -218,7 +218,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return new LinkInfo(goldenIdScore.goldenId(), eid.toString(), goldenIdScore.score());
    }
 
-   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
+   public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
       final var sid = new NodeSourceId(interaction.sourceId().facility(),

@@ -21,32 +21,4 @@ record NodeInteraction(
       return data;
    }
 
-/*
-   public static class EncounterData extends CustomDemographicData implements NodeData {
-      EncounterData(
-            final String auxId,
-            final String givenName,
-            final String familyName,
-            final String gender,
-            final String dob,
-            final String city,
-            final String phoneNumber,
-            final String nationalId) {
-         super(auxId, givenName, familyName, gender, dob, city, phoneNumber, nationalId);
-      }
-
-      EncounterData(final CustomDemographicData customDemographicData) {
-         super(customDemographicData.auxId,
-               customDemographicData.givenName,
-               customDemographicData.familyName,
-               customDemographicData.gender,
-               customDemographicData.dob,
-               customDemographicData.city,
-               customDemographicData.phoneNumber,
-               customDemographicData.nationalId);
-      }
-
-   }
-*/
-
 }

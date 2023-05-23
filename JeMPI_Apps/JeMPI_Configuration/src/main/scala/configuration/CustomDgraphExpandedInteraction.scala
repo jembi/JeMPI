@@ -16,7 +16,7 @@ private object CustomDgraphExpandedInteraction {
         val parameterType = (if field.isList.isDefined && field.isList.get then "List<" else "") +
           field.fieldType + (if field.isList.isDefined && field.isList.get then ">" else "")
         writer.println(
-          s"""${" " * margin}@JsonProperty("Interaction.${field.fieldName}") ${parameterType} $parameterName,""".stripMargin)
+          s"""${" " * margin}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${field.fieldName.toUpperCase}) ${parameterType} $parameterName,""".stripMargin)
     }
     writer.println(
       s"""${" " * margin}@JsonProperty("~GoldenRecord.patients") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {

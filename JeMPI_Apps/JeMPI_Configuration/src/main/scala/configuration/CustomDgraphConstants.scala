@@ -25,7 +25,7 @@ private object CustomDgraphConstants {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
-          s"""   public static final String PREDICATE_PATIENT_RECORD${fieldName.toUpperCase} = "Interaction.$fieldName";""".stripMargin)
+          s"""   public static final String PREDICATE_INTERACTION_${fieldName.toUpperCase} = "Interaction.$fieldName";""".stripMargin)
     }
   }
 

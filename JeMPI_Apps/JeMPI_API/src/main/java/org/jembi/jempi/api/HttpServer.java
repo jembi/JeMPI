@@ -80,13 +80,13 @@ public final class HttpServer extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.GetPatientRecordCountResponse> askGetPatientRecordCount(
+   private CompletionStage<BackEnd.GetInteractionCountResponse> askGetInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getPatientRecordCount");
-      CompletionStage<BackEnd.GetPatientRecordCountResponse> stage = AskPattern
+      LOGGER.debug("getInteractionCount");
+      CompletionStage<BackEnd.GetInteractionCountResponse> stage = AskPattern
             .ask(backEnd,
-                 BackEnd.GetPatientRecordCountRequest::new,
+                 BackEnd.GetInteractionCountRequest::new,
                  java.time.Duration.ofSeconds(10),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -140,14 +140,14 @@ public final class HttpServer extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<BackEnd.FindPatientRecordResponse> askFindPatientRecord(
+   private CompletionStage<BackEnd.FindInteractionResponse> askFindPatientRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String patientId) {
       LOGGER.debug("findPatientRecordById : " + patientId);
-      final CompletionStage<BackEnd.FindPatientRecordResponse> stage = AskPattern
+      final CompletionStage<BackEnd.FindInteractionResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.FindPatientRecordRequest(replyTo, patientId),
+                 replyTo -> new BackEnd.FindInteractionRequest(replyTo, patientId),
                  java.time.Duration.ofSeconds(5),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -268,13 +268,13 @@ public final class HttpServer extends AllDirectives {
       return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<ApiPaginatedResultSet> askSimpleSearchPatientRecords(
+   private CompletionStage<ApiPaginatedResultSet> askSimpleSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final SimpleSearchRequestPayload simpleSearchRequestPayload) {
-      CompletionStage<BackEnd.SearchPatientRecordsResponse> stage = AskPattern
+      CompletionStage<BackEnd.SearchInteractionsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.SimpleSearchPatientRecordsRequest(replyTo, simpleSearchRequestPayload),
+                 replyTo -> new BackEnd.SimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
@@ -292,13 +292,13 @@ public final class HttpServer extends AllDirectives {
       return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   private CompletionStage<ApiPaginatedResultSet> askCustomSearchPatientRecords(
+   private CompletionStage<ApiPaginatedResultSet> askCustomSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.SearchPatientRecordsResponse> stage = AskPattern
+      CompletionStage<BackEnd.SearchInteractionsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.CustomSearchPatientRecordsRequest(replyTo, customSearchRequestPayload),
+                 replyTo -> new BackEnd.CustomSearchInteractionsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
@@ -365,9 +365,9 @@ public final class HttpServer extends AllDirectives {
    private Route mapError(final MpiGeneralError obj) {
       LOGGER.debug("{}", obj);
       return switch (obj) {
-         case MpiServiceError.PatientIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.InteractionIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.GoldenIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
-         case MpiServiceError.GoldenIdPatientConflictError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
@@ -476,10 +476,10 @@ public final class HttpServer extends AllDirectives {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
-   private Route routePatientRecordCount(
+   private Route routeInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(askGetPatientRecordCount(actorSystem, backEnd),
+      return onComplete(askGetInteractionCount(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? result.get()
                                       .count()
@@ -806,7 +806,7 @@ public final class HttpServer extends AllDirectives {
                              if (recordType == RecordType.GoldenRecord) {
                                 return askSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
                              } else {
-                                return askSimpleSearchPatientRecords(actorSystem, backEnd, searchParameters);
+                                return askSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
                              }
                           },
                           response -> {
@@ -836,7 +836,7 @@ public final class HttpServer extends AllDirectives {
          if (recordType == RecordType.GoldenRecord) {
             return askCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
          } else {
-            return askCustomSearchPatientRecords(actorSystem, backEnd, searchParameters);
+            return askCustomSearchInteractions(actorSystem, backEnd, searchParameters);
          }
       }, response -> {
          if (response.isSuccess()) {
@@ -914,7 +914,7 @@ public final class HttpServer extends AllDirectives {
                   path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout),
 */
                       path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS, () -> routeGoldenRecordCount(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routePatientRecordCount(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS, () -> routeInteractionCount(actorSystem, backEnd)),
                       path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> routeNumberOfRecords(actorSystem, backEnd)),
                       path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> routeGoldenIds(actorSystem, backEnd)),
                       path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS, () -> routeGoldenRecord(actorSystem, backEnd)),
@@ -1059,7 +1059,7 @@ public final class HttpServer extends AllDirectives {
          CustomDemographicData demographicData) {
 
       static ApiPatientRecord fromPatientRecord(final Interaction interaction) {
-         return new ApiPatientRecord(interaction.patientId(), interaction.sourceId(), interaction.demographicData());
+         return new ApiPatientRecord(interaction.interactionId(), interaction.sourceId(), interaction.demographicData());
       }
 
    }

@@ -8,21 +8,21 @@ import org.jembi.jempi.shared.models.Interaction;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphInteraction(
-      @JsonProperty("uid") String patientId,
+      @JsonProperty("uid") String interactionId,
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
-      @JsonProperty("Interaction.aux_id") String auxId,
-      @JsonProperty("Interaction.given_name") String givenName,
-      @JsonProperty("Interaction.family_name") String familyName,
-      @JsonProperty("Interaction.gender") String gender,
-      @JsonProperty("Interaction.dob") String dob,
-      @JsonProperty("Interaction.city") String city,
-      @JsonProperty("Interaction.phone_number") String phoneNumber,
-      @JsonProperty("Interaction.national_id") String nationalId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_FAMILY_NAME) String familyName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOB) String dob,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CITY) String city,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.patients|score") Float score) {
    CustomDgraphInteraction(
          final Interaction interaction,
          final Float score) {
-      this(interaction.patientId(),
+      this(interaction.interactionId(),
            new DgraphSourceId(interaction.sourceId()),
            interaction.demographicData().auxId,
            interaction.demographicData().givenName,
@@ -36,7 +36,7 @@ record CustomDgraphInteraction(
    }
 
    Interaction toInteraction() {
-      return new Interaction(this.patientId(),
+      return new Interaction(this.interactionId(),
                              this.sourceId() != null
                                    ? this.sourceId().toSourceId()
                                    : null,

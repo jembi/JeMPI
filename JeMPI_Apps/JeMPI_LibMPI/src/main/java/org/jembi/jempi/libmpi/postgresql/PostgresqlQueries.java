@@ -147,7 +147,7 @@ public final class PostgresqlQueries {
       }
    }
 
-   public static List<NodeGoldenRecord> getGoldenRecordsOfEncounter(final UUID eid) {
+   public static List<NodeGoldenRecord> getGoldenRecordsOfInteraction(final UUID eid) {
       final var sql = String.format("""
                                     select * from %s
                                     where id in (select source from %s where dest = ?);
@@ -174,7 +174,7 @@ public final class PostgresqlQueries {
       }
    }
 
-   public static List<NodeInteraction> getGoldenRecordEncounters(final UUID gid) {
+   public static List<NodeInteraction> getGoldenRecordInteractions(final UUID gid) {
       final var sql = String.format("""
                                     select * from %s
                                     where id in (select dest from %s where source = ?);
@@ -188,8 +188,8 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var encounterData = new CustomInteractionData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
-            list.add(new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), encounterData));
+            final var interactionData = new CustomInteractionData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            list.add(new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), interactionData));
          }
          return list;
       } catch (SQLException | JsonProcessingException e) {
@@ -263,9 +263,9 @@ public final class PostgresqlQueries {
          final var rs = stmt.executeQuery();
          if (rs.next()) {
             final var id = rs.getString("id");
-            final var encounterData = new CustomInteractionData(OBJECT_MAPPER.readValue(rs.getString("fields"),
-                                                                                        CustomDemographicData.class));
-            return new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), encounterData);
+            final var interactionData = new CustomInteractionData(OBJECT_MAPPER.readValue(rs.getString("fields"),
+                                                                                          CustomDemographicData.class));
+            return new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), interactionData);
          }
          return null;
       } catch (SQLException | JsonProcessingException e) {

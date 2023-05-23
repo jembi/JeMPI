@@ -40,7 +40,7 @@ public final class FrontEndStreamSync extends AllDirectives {
       LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
    }
 
-   private CompletionStage<HttpResponse> postLinkPatient(final LinkInteractionSyncBody body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
             .create("http://linker:50000/JeMPI/link_patient")
@@ -50,7 +50,7 @@ public final class FrontEndStreamSync extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<HttpResponse> postLinkPatientToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> postLinkInteractionToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/link_patient_to_gid")
             .withMethod(HttpMethods.POST)
@@ -72,7 +72,7 @@ public final class FrontEndStreamSync extends AllDirectives {
                     obj -> {
                        try {
                           LOGGER.debug("{}", obj);
-                          return onComplete(postLinkPatient(obj),
+                          return onComplete(postLinkInteraction(obj),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -87,7 +87,7 @@ public final class FrontEndStreamSync extends AllDirectives {
       return entity(Jackson.unmarshaller(LinkInteractionToGidSyncBody.class),
                     obj -> {
                        try {
-                          return onComplete(postLinkPatientToGid(obj),
+                          return onComplete(postLinkInteractionToGid(obj),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));

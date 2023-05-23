@@ -36,7 +36,7 @@ public final class CustomSourceRecordStream {
    private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
    private final Random random = new Random(1234);
    ExecutorService executorService = Executors.newFixedThreadPool(1);
-   private KafkaStreams patientKafkaStreams = null;
+   private KafkaStreams interactionKafkaStreams = null;
 
    public void open() {
 
@@ -45,10 +45,10 @@ public final class CustomSourceRecordStream {
       final Serializer<AsyncSourceRecord> sourceRecordSerializer = new JsonPojoSerializer<>();
       final Deserializer<AsyncSourceRecord> sourceRecordDeserializer = new JsonPojoDeserializer<>(
             AsyncSourceRecord.class);
-      final Serializer<BatchInteraction> batchPatientSerializer = new JsonPojoSerializer<>();
-      final Deserializer<BatchInteraction> batchPatientDeserializer = new JsonPojoDeserializer<>(BatchInteraction.class);
+      final Serializer<BatchInteraction> batchInteractiontSerializer = new JsonPojoSerializer<>();
+      final Deserializer<BatchInteraction> batchInteractionDeserializer = new JsonPojoDeserializer<>(BatchInteraction.class);
       final Serde<AsyncSourceRecord> sourceRecordSerde = Serdes.serdeFrom(sourceRecordSerializer, sourceRecordDeserializer);
-      final Serde<BatchInteraction> batchPatientSerde = Serdes.serdeFrom(batchPatientSerializer, batchPatientDeserializer);
+      final Serde<BatchInteraction> batchInteractionSerde = Serdes.serdeFrom(batchInteractiontSerializer, batchInteractionDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
@@ -96,10 +96,10 @@ public final class CustomSourceRecordStream {
             })
             .filter((key, value) -> !(value.batchType() == BatchInteraction.BatchType.BATCH_PATIENT && StringUtils.isBlank(
                   value.interaction().demographicData().auxId)))
-            .to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, batchPatientSerde));
-      patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
-      patientKafkaStreams.cleanUp();
-      patientKafkaStreams.start();
+            .to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, batchInteractionSerde));
+      interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
+      interactionKafkaStreams.cleanUp();
+      interactionKafkaStreams.start();
    }
 
    private String getEncodedMF(
@@ -114,7 +114,7 @@ public final class CustomSourceRecordStream {
    }
 
    public void close() {
-      patientKafkaStreams.close();
+      interactionKafkaStreams.close();
    }
 
    private Properties loadConfig() {

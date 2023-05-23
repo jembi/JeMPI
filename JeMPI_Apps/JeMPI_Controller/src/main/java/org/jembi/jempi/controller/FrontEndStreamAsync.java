@@ -24,7 +24,7 @@ public final class FrontEndStreamAsync {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamAsync.class);
    private MyKafkaProducer<String, BatchInteraction> topicEM;
-   private KafkaStreams patientKafkaStreams = null;
+   private KafkaStreams interactionKafkaStreams = null;
 
    void open(
          final ActorSystem<Void> system,
@@ -57,15 +57,15 @@ public final class FrontEndStreamAsync {
                }));
             })
             .to(GlobalConstants.TOPIC_INTERACTION_LINKER, Produced.with(stringSerde, batchPatientRecordSerde));
-      patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
-      patientKafkaStreams.cleanUp();
-      patientKafkaStreams.start();
-      Runtime.getRuntime().addShutdownHook(new Thread(patientKafkaStreams::close));
+      interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
+      interactionKafkaStreams.cleanUp();
+      interactionKafkaStreams.start();
+      Runtime.getRuntime().addShutdownHook(new Thread(interactionKafkaStreams::close));
       LOGGER.info("KafkaStreams started");
    }
 
    public void close() {
-      patientKafkaStreams.close();
+      interactionKafkaStreams.close();
       topicEM.close();
    }
 

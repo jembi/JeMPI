@@ -80,11 +80,11 @@ public final class LibMPI {
       return client.findInteraction(interactionID);
    }
 
-   public List<Interaction> findPatientRecords(final List<String> interactionIDs) {
+   public List<Interaction> findInteractionRecords(final List<String> interactionIDs) {
       return client.findInteractions(interactionIDs);
    }
 
-   public List<ExpandedInteraction> findExpandedPatientRecords(final List<String> interactionIDs) {
+   public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIDs) {
       return client.findExpandedInteractions(interactionIDs);
    }
 
@@ -136,7 +136,7 @@ public final class LibMPI {
       return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<Interaction> simpleSearchPatientRecords(
+   public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
          final List<SimpleSearchRequestPayload.SearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -145,7 +145,7 @@ public final class LibMPI {
       return client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
    }
 
-   public LibMPIPaginatedResultSet<Interaction> customSearchPatientRecords(
+   public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
          final List<SimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
@@ -191,16 +191,16 @@ public final class LibMPI {
       return client.updateLink(goldenID, newGoldenID, interactionID, score);
    }
 
-   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
+   public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      return client.createPatientAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
+      return client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
    }
 
-   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
+   public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
-      return client.createPatientAndLinkToClonedGoldenRecord(interaction, score);
+      return client.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
    }
 
 }

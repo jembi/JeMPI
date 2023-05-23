@@ -11,14 +11,14 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
    public static final String PREDICATE_GOLDEN_RECORD_PATIENTS = "GoldenRecord.patients";
-   public static final String PREDICATE_PATIENT_RECORDAUX_ID = "Interaction.aux_id";
-   public static final String PREDICATE_PATIENT_RECORDGIVEN_NAME = "Interaction.given_name";
-   public static final String PREDICATE_PATIENT_RECORDFAMILY_NAME = "Interaction.family_name";
-   public static final String PREDICATE_PATIENT_RECORDGENDER = "Interaction.gender";
-   public static final String PREDICATE_PATIENT_RECORDDOB = "Interaction.dob";
-   public static final String PREDICATE_PATIENT_RECORDCITY = "Interaction.city";
-   public static final String PREDICATE_PATIENT_RECORDPHONE_NUMBER = "Interaction.phone_number";
-   public static final String PREDICATE_PATIENT_RECORDNATIONAL_ID = "Interaction.national_id";
+   public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
+   public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
+   public static final String PREDICATE_INTERACTION_FAMILY_NAME = "Interaction.family_name";
+   public static final String PREDICATE_INTERACTION_GENDER = "Interaction.gender";
+   public static final String PREDICATE_INTERACTION_DOB = "Interaction.dob";
+   public static final String PREDICATE_INTERACTION_CITY = "Interaction.city";
+   public static final String PREDICATE_INTERACTION_PHONE_NUMBER = "Interaction.phone_number";
+   public static final String PREDICATE_INTERACTION_NATIONAL_ID = "Interaction.national_id";
 
    static final String GOLDEN_RECORD_FIELD_NAMES =
          """

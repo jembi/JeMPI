@@ -30,14 +30,14 @@ private object CustomDgraphGoldenRecord {
          |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, idx) =>
-        val propertyName = "GoldenRecord." + field.fieldName
+        val propertyName = "CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_" + field.fieldName.toUpperCase
         val parameterType =
           (if (field.isList.isDefined && field.isList.get) "List<" else "") +
             field.fieldType +
             (if (field.isList.isDefined && field.isList.get) ">" else "")
         val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(
-          s"""${" " * 6}@JsonProperty("$propertyName") $parameterType $parameterName${
+          s"""${" " * 6}@JsonProperty($propertyName) $parameterType $parameterName${
             if (idx + 1 < fields.length) ","
             else ") {"
           }""".stripMargin)

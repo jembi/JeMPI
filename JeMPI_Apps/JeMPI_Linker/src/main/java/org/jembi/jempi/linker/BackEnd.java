@@ -173,20 +173,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    void updateMatchingInteractionScoreForGoldenRecord(
          final ExpandedGoldenRecord expandedGoldenRecord) {
 
-      final var mpiPatientList = expandedGoldenRecord.patientRecordsWithScore();
+      final var mpiInteractionList = expandedGoldenRecord.patientRecordsWithScore();
       AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
-      mpiPatientList.forEach(mpiPatient -> {
-         final var patient = mpiPatient.interaction();
+      mpiInteractionList.forEach(mpiInteraction -> {
+         final var interaction = mpiInteraction.interaction();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
-                                               patient.demographicData());
-         final var reCompute = libMPI.setScore(patient.patientId(), expandedGoldenRecord.goldenRecord().goldenId(), score);
+                                               interaction.demographicData());
+         final var reCompute =
+               libMPI.setScore(interaction.interactionId(), expandedGoldenRecord.goldenRecord().goldenId(), score);
          try {
-            candidateList.set(getCandidatesMatchDataForInteraction(patient));
+            candidateList.set(getCandidatesMatchDataForInteraction(interaction));
             candidateList.get().forEach(candidate -> {
                sendNotification(
                      Notification.NotificationType.UPDATE,
-                     patient.patientId(),
-                     AppUtils.getNames(patient.demographicData()),
+                     interaction.interactionId(),
+                     AppUtils.getNames(interaction.demographicData()),
                      new Notification.MatchData(candidate.gID(), candidate.score()),
                      candidateList.get());
             });
@@ -197,11 +198,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          if (!reCompute) {
             LOGGER.error("Failed to update score for entity with UID {} {}",
                          expandedGoldenRecord.goldenRecord().goldenId(),
-                         patient.patientId());
+                         interaction.interactionId());
          } else {
             LOGGER.debug("Successfully updated score for entity with UID {} {}",
                          expandedGoldenRecord.goldenRecord().goldenId(),
-                         patient.patientId());
+                         interaction.interactionId());
          }
       });
    }
@@ -284,9 +285,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LOGGER.info("{}: no matches found", docAuxKey);
 
          if (StringUtils.isBlank(gid)) {
-            linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(interaction, 1.0F);
+            linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {
-            linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(
+            linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                   interaction,
                   new LibMPIClientInterface.GoldenIdScore(gid, score));
             CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
@@ -313,7 +314,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var candidateGoldenRecords = libMPI.getCandidates(interaction.demographicData(),
                                                                  AppConfig.BACK_END_DETERMINISTIC);
          if (candidateGoldenRecords.isEmpty()) {
-            linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(interaction, 1.0F);
+            linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {
             final var allCandidateScores = candidateGoldenRecords
                   .parallelStream()
@@ -345,7 +346,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
-                  linkInfo = libMPI.createPatientAndLinkToClonedGoldenRecord(interaction, 1.0F);
+                  linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                   if (!notificationCandidates.isEmpty()) {
                      sendNotification(
                            Notification.NotificationType.THRESHOLD,
@@ -363,7 +364,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
                      candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
                      candidatesAboveMatchThreshold.get(0).score);
-               linkInfo = libMPI.createPatientAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
+               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
                CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();

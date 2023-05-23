@@ -43,7 +43,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public Interaction findInteraction(final String patientId) {
-      return DgraphQueries.getPatientRecord(patientId);
+      return DgraphQueries.findInteraction(patientId);
    }
 
    public List<Interaction> findInteractions(final List<String> patientIds) {
@@ -178,13 +178,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphMutations.updateLink(goldenUID, newGoldenUID, patientUID, score);
    }
 
-   public LinkInfo createPatientAndLinkToExistingGoldenRecord(
+   public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
       return DgraphMutations.linkDGraphPatient(interaction, goldenIdScore);
    }
 
-   public LinkInfo createPatientAndLinkToClonedGoldenRecord(
+   public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
       return DgraphMutations.addNewDGraphPatient(interaction);

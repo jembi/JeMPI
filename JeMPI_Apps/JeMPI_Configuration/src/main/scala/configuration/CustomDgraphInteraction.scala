@@ -25,22 +25,22 @@ private object CustomDgraphInteraction {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |      @JsonProperty("uid") String patientId,
+         |      @JsonProperty("uid") String interactionId,
          |      @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
-        val propertyName = s"Interaction.${field.fieldName}"
+        val propertyName = s"CustomDgraphConstants.PREDICATE_INTERACTION_${field.fieldName.toUpperCase}"
         val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
         val parameterType = field.fieldType
         writer.println(
-          s"""${" " * 6}@JsonProperty("$propertyName") $parameterType $parameterName,""".stripMargin)
+          s"""${" " * 6}@JsonProperty($propertyName) $parameterType $parameterName,""".stripMargin)
     }
     writer.println(
       s"""${" " * 6}@JsonProperty("GoldenRecord.patients|score") Float score) {
          |   $customClassName(
          |         final Interaction interaction,
          |         final Float score) {
-         |      this(interaction.patientId(),
+         |      this(interaction.interactionId(),
          |           new DgraphSourceId(interaction.sourceId()),""".stripMargin)
     fields.zipWithIndex.foreach {
       case (field, _) =>
@@ -54,7 +54,7 @@ private object CustomDgraphInteraction {
     writer.print(
       """
         |   Interaction toInteraction() {
-        |      return new Interaction(this.patientId(),
+        |      return new Interaction(this.interactionId(),
         |                             this.sourceId() != null
         |                                   ? this.sourceId().toSourceId()
         |                                   : null,

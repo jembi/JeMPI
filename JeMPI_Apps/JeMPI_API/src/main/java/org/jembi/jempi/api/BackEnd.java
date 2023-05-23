@@ -74,13 +74,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder
             .onMessage(GetGoldenRecordCountRequest.class, this::getGoldenRecordCountHandler)
-            .onMessage(GetPatientRecordCountRequest.class, this::getPatientRecordCountHandler)
+            .onMessage(GetInteractionCountRequest.class, this::getInteractionCountHandler)
             .onMessage(GetNumberOfRecordsRequest.class, this::getNumberOfRecordsHandler)
             .onMessage(GetGoldenIdsRequest.class, this::getGoldenIdsHandler)
             .onMessage(FindExpandedGoldenRecordRequest.class, this::findExpandedGoldenRecordHandler)
             .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
             .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
-            .onMessage(FindPatientRecordRequest.class, this::findPatientRecordHandler)
+            .onMessage(FindInteractionRequest.class, this::findInteractionHandler)
             .onMessage(FindCandidatesRequest.class, this::findCandidatesHandler)
             .onMessage(FindMatchesForReviewRequest.class, this::findMatchesForReviewHandler)
             .onMessage(UpdateGoldenRecordFieldsRequest.class, this::updateGoldenRecordFieldsHandler)
@@ -89,8 +89,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(UpdateNotificationStateRequest.class, this::updateNotificationStateHandler)
             .onMessage(SimpleSearchGoldenRecordsRequest.class, this::simpleSearchGoldenRecordsHandler)
             .onMessage(CustomSearchGoldenRecordsRequest.class, this::customSearchGoldenRecordsHandler)
-            .onMessage(SimpleSearchPatientRecordsRequest.class, this::simpleSearchPatientRecordsHandler)
-            .onMessage(CustomSearchPatientRecordsRequest.class, this::customSearchPatientRecordsHandler)
+            .onMessage(SimpleSearchInteractionsRequest.class, this::simpleSearchInteractionsHandler)
+            .onMessage(CustomSearchInteractionsRequest.class, this::customSearchInteractionsHandler)
             .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
             .build();
    }
@@ -123,7 +123,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> simpleSearchPatientRecordsHandler(final SimpleSearchPatientRecordsRequest request) {
+   private Behavior<Event> simpleSearchInteractionsHandler(final SimpleSearchInteractionsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -131,13 +131,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       libMPI.startTransaction();
-      var recs = libMPI.simpleSearchPatientRecords(parameters, offset, limit, sortBy, sortAsc);
+      var recs = libMPI.simpleSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
-      request.replyTo.tell(new SearchPatientRecordsResponse(recs));
+      request.replyTo.tell(new SearchInteractionsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> customSearchPatientRecordsHandler(final CustomSearchPatientRecordsRequest request) {
+   private Behavior<Event> customSearchInteractionsHandler(final CustomSearchInteractionsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -145,9 +145,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       libMPI.startTransaction();
-      var recs = libMPI.customSearchPatientRecords(parameters, offset, limit, sortBy, sortAsc);
+      var recs = libMPI.customSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
-      request.replyTo.tell(new SearchPatientRecordsResponse(recs));
+      request.replyTo.tell(new SearchInteractionsResponse(recs));
       return Behaviors.same();
    }
 
@@ -173,7 +173,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> getPatientRecordCountHandler(final GetPatientRecordCountRequest request) {
+   private Behavior<Event> getInteractionCountHandler(final GetInteractionCountRequest request) {
       LOGGER.debug("getDocumentCount");
 
       try {
@@ -181,10 +181,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final long count = libMPI.countInteractions();
          libMPI.closeTransaction();
 
-         request.replyTo.tell(new GetPatientRecordCountResponse(Either.right(count)));
+         request.replyTo.tell(new GetInteractionCountResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(new GetPatientRecordCountResponse(Either.left(new MpiServiceError.GeneralError(
+         request.replyTo.tell(new GetInteractionCountResponse(Either.left(new MpiServiceError.GeneralError(
                exception.getMessage()))));
       }
       return Behaviors.same();
@@ -265,7 +265,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          libMPI.startTransaction();
-         expandedInteractions = libMPI.findExpandedPatientRecords(request.patientIds);
+         expandedInteractions = libMPI.findExpandedInteractions(request.patientIds);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
@@ -274,7 +274,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedInteractions == null) {
-         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
                "Patient Records do not exist",
                Collections.singletonList(request.patientIds).toString()))));
       } else {
@@ -283,7 +283,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> findPatientRecordHandler(final FindPatientRecordRequest request) {
+   private Behavior<Event> findInteractionHandler(final FindInteractionRequest request) {
       Interaction interaction = null;
       LOGGER.debug("findPatientRecordHandler");
 
@@ -298,11 +298,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (interaction == null) {
-         request.replyTo.tell(new FindPatientRecordResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+         request.replyTo.tell(new FindInteractionResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
                "Patient not found",
                request.patientId))));
       } else {
-         request.replyTo.tell(new FindPatientRecordResponse(Either.right(interaction)));
+         request.replyTo.tell(new FindInteractionResponse(Either.right(interaction)));
       }
 
       return Behaviors.same();
@@ -344,7 +344,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
       } catch (Exception exception) {
          LOGGER.error("findCandidatesHandler failed to find patientId: {}", request.patientId);
-         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.PatientIdDoesNotExistError(
+         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
                "Patient not found",
                request.patientId))));
       }
@@ -422,10 +422,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetGoldenRecordCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
    }
 
-   public record GetPatientRecordCountRequest(ActorRef<GetPatientRecordCountResponse> replyTo) implements Event {
+   public record GetInteractionCountRequest(ActorRef<GetInteractionCountResponse> replyTo) implements Event {
    }
 
-   public record GetPatientRecordCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
+   public record GetInteractionCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
    }
 
    public record GetNumberOfRecordsRequest(ActorRef<GetNumberOfRecordsResponse> replyTo) implements Event {
@@ -469,27 +469,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements EventResponse {
    }
 
-   public record FindPatientRecordRequest(
-         ActorRef<FindPatientRecordResponse> replyTo,
+   public record FindInteractionRequest(
+         ActorRef<FindInteractionResponse> replyTo,
          String patientId) implements Event {
    }
 
-   public record FindPatientRecordResponse(Either<MpiGeneralError, Interaction> patient)
+   public record FindInteractionResponse(Either<MpiGeneralError, Interaction> patient)
          implements EventResponse {
    }
-
-/*
-   public record GetPatientResourceRequest(
-         ActorRef<GetPatientResourceResponse> replyTo,
-         String patientResourceId) implements Event {
-   }
-*/
-
-/*
-   public record GetPatientResourceResponse(Either<MpiGeneralError, String> patientResource)
-         implements EventResponse {
-   }
-*/
 
    public record FindMatchesForReviewRequest(ActorRef<FindMatchesForReviewResponse> replyTo) implements Event {
    }
@@ -569,17 +556,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {
    }
 
-   public record SimpleSearchPatientRecordsRequest(
-         ActorRef<SearchPatientRecordsResponse> replyTo,
+   public record SimpleSearchInteractionsRequest(
+         ActorRef<SearchInteractionsResponse> replyTo,
          SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record CustomSearchPatientRecordsRequest(
-         ActorRef<SearchPatientRecordsResponse> replyTo,
+   public record CustomSearchInteractionsRequest(
+         ActorRef<SearchInteractionsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
-   public record SearchPatientRecordsResponse(
+   public record SearchInteractionsResponse(
          LibMPIPaginatedResultSet<Interaction> records) implements EventResponse {
    }
 

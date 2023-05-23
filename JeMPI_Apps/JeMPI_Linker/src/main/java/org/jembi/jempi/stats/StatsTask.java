@@ -234,7 +234,7 @@ public final class StatsTask {
    }
 
    public record StatsResults(
-         Long encounters,
+         Long interactions,
          Integer goldenRecords,
          Integer truePositives,
          Integer falsePositives,
