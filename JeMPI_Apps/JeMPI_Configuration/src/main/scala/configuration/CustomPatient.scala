@@ -10,7 +10,7 @@ private object CustomPatient {
   private val classFile: String = classLocation + File.separator + customClassNameDemographicData + ".java"
   private val indent = 3
 
-  def generateDemographicData(fields: Array[Field]): Unit =
+  def generateDemographicData(fields: Array[CommonField]): Unit =
 
     println("Creating " + classFile)
     val file: File = new File(classFile)

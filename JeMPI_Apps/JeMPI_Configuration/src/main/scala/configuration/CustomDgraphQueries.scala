@@ -29,9 +29,9 @@ object CustomDgraphQueries {
          |
          |final class $custom_className {
          |""".stripMargin)
-    config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
+    config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config.commonFields, writer, name, rule))
     if (config.rules.probabilistic != null)
-      config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config.fields, writer, name, rule))
+      config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config.commonFields, writer, name, rule))
     writer.println()
     config.rules.deterministic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     if (config.rules.probabilistic != null)
@@ -163,7 +163,7 @@ object CustomDgraphQueries {
     end if
   }
 
-  private def emitRuleTemplate(fields: Array[Field], writer: PrintWriter, name: String, rule: Rule): Unit = {
+  private def emitRuleTemplate(fields: Array[CommonField], writer: PrintWriter, name: String, rule: Rule): Unit = {
 
     val vars = for (v <- rule.vars) yield v
     val text = rule.text
@@ -192,7 +192,7 @@ object CustomDgraphQueries {
       }
     }
 
-    def createScalerFunc(fields: Array[Field]): Unit = {
+    def createScalerFunc(fields: Array[CommonField]): Unit = {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
@@ -211,7 +211,7 @@ object CustomDgraphQueries {
       })
     }
 
-    def createFilterFunc(fields: Array[Field], all_func_str: String): Unit = {
+    def createFilterFunc(fields: Array[CommonField], all_func_str: String): Unit = {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(

@@ -8,7 +8,7 @@ private object CustomDgraphMutations {
   private val custom_className = "CustomDgraphMutations"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(fields: Array[CommonField]): Unit =
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)

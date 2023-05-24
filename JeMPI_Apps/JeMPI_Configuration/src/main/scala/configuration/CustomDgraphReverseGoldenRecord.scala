@@ -8,7 +8,7 @@ private object CustomDgraphReverseGoldenRecord {
   private val customClassName = "CustomDgraphReverseGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def addFields(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def addFields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     val margin = 6
     fields.zipWithIndex.foreach {
       case (field, idx) =>
@@ -21,7 +21,7 @@ private object CustomDgraphReverseGoldenRecord {
     writer.println(s"""${" " * margin}@JsonProperty("~GoldenRecord.interactions|score") Float score) {""")
   }
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(fields: Array[CommonField]): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)

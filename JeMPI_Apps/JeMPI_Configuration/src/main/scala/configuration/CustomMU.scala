@@ -10,7 +10,7 @@ private object CustomMU {
   private val customClassName = "CustomMU"
   private val packageSharedModels = "org.jembi.jempi.shared.models"
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(fields: Array[CommonField]): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)

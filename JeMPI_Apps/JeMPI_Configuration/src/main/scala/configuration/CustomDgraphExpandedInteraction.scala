@@ -8,7 +8,7 @@ private object CustomDgraphExpandedInteraction {
   private val customClassName = "CustomDgraphExpandedInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def addFields(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def addFields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     val margin = 6
     fields.foreach {
       case field =>
@@ -23,7 +23,7 @@ private object CustomDgraphExpandedInteraction {
          |""".stripMargin)
   }
 
-  private def toInteraction(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toInteraction(writer: PrintWriter, fields: Array[CommonField]): Unit = {
         writer.println(
           """   Interaction toInteraction() {
             |      return new Interaction(this.patientId(),
@@ -41,7 +41,7 @@ private object CustomDgraphExpandedInteraction {
              |""".stripMargin)
   }
 
-  private def toExpandedInteraction(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def toExpandedInteraction(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       """   ExpandedInteraction toExpandedInteraction() {
         |      return new ExpandedInteraction(this.toInteraction(),
@@ -53,7 +53,7 @@ private object CustomDgraphExpandedInteraction {
         |""".stripMargin)
   }
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(fields: Array[CommonField]): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)

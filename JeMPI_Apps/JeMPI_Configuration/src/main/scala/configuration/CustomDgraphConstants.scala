@@ -8,7 +8,7 @@ private object CustomDgraphConstants {
   private val customClassName = "CustomDgraphConstants"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def golden_record_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def golden_record_predicates(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val name = Utils.camelCaseToSnakeCase(field.fieldName)
@@ -20,7 +20,7 @@ private object CustomDgraphConstants {
       s"""   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";""".stripMargin)
   }
 
-  private def patient_record_predicates(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def patient_record_predicates(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
@@ -29,7 +29,7 @@ private object CustomDgraphConstants {
     }
   }
 
-  private def golden_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def golden_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""
          |   static final String GOLDEN_RECORD_FIELD_NAMES =
@@ -53,7 +53,7 @@ private object CustomDgraphConstants {
 
   }
 
-  private def expanded_golden_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def expanded_golden_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""
          |   static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
@@ -88,7 +88,7 @@ private object CustomDgraphConstants {
          |         \"\"\";""".stripMargin)
   }
 
-  private def patient_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def patient_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String PATIENT_RECORD_FIELD_NAMES =
          |         \"\"\"
@@ -111,7 +111,7 @@ private object CustomDgraphConstants {
 
   }
 
-  private def expanded_patient_record_field_names(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def expanded_patient_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
          |         \"\"\"
@@ -147,7 +147,7 @@ private object CustomDgraphConstants {
 
   }
 
-  private def query_get_golden_record_by_uid(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_golden_record_by_uid(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_GOLDEN_RECORD_BY_UID =
          |         \"\"\"
@@ -170,7 +170,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_golden_records(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_golden_records(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_GOLDEN_RECORDS =
          |         \"\"\"
@@ -193,7 +193,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_golden_records(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_expanded_golden_records(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          |         \"\"\"
@@ -229,7 +229,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_interactions(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_expanded_interactions(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_EXPANDED_PATIENTS =
          |         \"\"\"
@@ -265,7 +265,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_patient_by_uid(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def query_get_patient_by_uid(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_PATIENT_BY_UID =
          |         \"\"\"
@@ -300,7 +300,7 @@ private object CustomDgraphConstants {
      """.stripMargin)
   }
 
-  private def mutation_create_source_id_fields(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_source_id_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
          |         \"\"\"
@@ -310,7 +310,7 @@ private object CustomDgraphConstants {
        """.stripMargin)
   }
 
-  private def mutation_create_golden_record_type(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_golden_record_type(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE =
          |         \"\"\"
@@ -328,7 +328,7 @@ private object CustomDgraphConstants {
          """.stripMargin)
   }
 
-  private def mutation_create_golden_record_fields(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_golden_record_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          |         \"\"\"
@@ -351,7 +351,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def mutation_create_patient_type(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_patient_type(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_PATIENT_TYPE =
          |         \"\"\"
@@ -368,7 +368,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def mutation_create_patient_fields(writer: PrintWriter, fields: Array[Field]): Unit = {
+  private def mutation_create_patient_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_PATIENT_FIELDS =
          |         \"\"\"
@@ -391,7 +391,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(fields: Array[CommonField]): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)

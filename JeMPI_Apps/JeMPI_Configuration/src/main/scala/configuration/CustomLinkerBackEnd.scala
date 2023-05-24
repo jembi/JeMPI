@@ -16,11 +16,11 @@ object CustomLinkerBackEnd {
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
-    config.fields.filter(f => f.m.isDefined && f.u.isDefined).foreach(f => {
+    config.commonFields.filter(f => f.m.isDefined && f.u.isDefined).foreach(f => {
       var t = (f.fieldName, f.m.get, f.u.get)
     })
     val muList = for (
-      t <- config.fields.filter(f => f.m.isDefined && f.u.isDefined)
+      t <- config.commonFields.filter(f => f.m.isDefined && f.u.isDefined)
     ) yield t
 
     writer.println(s"package $packageText;")
@@ -61,7 +61,7 @@ object CustomLinkerBackEnd {
          |${" " * 6}  backEnd.updateMatchingInteractionScoreForGoldenRecord(expandedGoldenRecord);
          |${" " * 6}}""".stripMargin)
     writer.println()
-    config.fields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {
+    config.commonFields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {
       val field_name = field.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(

@@ -8,7 +8,7 @@ private object CustomDgraphInteraction {
   private val customClassName = "CustomDgraphInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  def generate(fields: Array[Field]): Unit =
+  def generate(fields: Array[CommonField]): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
