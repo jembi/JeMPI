@@ -223,13 +223,13 @@ public final class LibPostgresql implements LibMPIClientInterface {
          final float score) {
       final var sid = new NodeSourceId(interaction.sourceId().facility(),
                                        interaction.sourceId().patient()).createNode();
-      final var eid = new NodeInteraction(interaction.demographicData()).createNode();
+      final var iid = new NodeInteraction(interaction.demographicData()).createNode();
       final var gid = new NodeGoldenRecord(interaction.demographicData()).createNode();
-      Edge.createEdge(eid, sid, Edge.EdgeName.IID2SID);
+      Edge.createEdge(iid, sid, Edge.EdgeName.IID2SID);
       Edge.createEdge(gid, sid, Edge.EdgeName.GID2SID);
-      Edge.createEdge(gid, eid, Edge.EdgeName.GID2IID, new FacetScore(score));
+      Edge.createEdge(gid, iid, Edge.EdgeName.GID2IID, new FacetScore(score));
 
-      return new LinkInfo(gid.toString(), eid.toString(), score);
+      return new LinkInfo(gid.toString(), iid.toString(), score);
    }
 
    public void startTransaction() {
