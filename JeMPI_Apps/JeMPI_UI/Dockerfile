@@ -1,13 +1,7 @@
 FROM node:16-alpine
-
 WORKDIR /app
-
+COPY package.json .
+COPY yarn.lock .
 COPY . .
-
 RUN yarn install
-
-RUN yarn build
-
-RUN yarn global add serve
-
-CMD serve -s build
+CMD ["yarn", "run", "start"]

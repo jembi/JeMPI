@@ -24,6 +24,18 @@ services:
     image: ${IMAGE_REGISTRY}$NGINX_IMAGE
     networks:
       - frontend-api
+    depends_on:
+      - ui
+    volumes:
+      - type: bind
+        source: ${DATA_NGINX_DIR}
+        target: /etc/nginx/conf.d/
+        read_only: true
+    ports:
+      - published: 3050
+        target: 80
+        protocol: tcp
+        mode: host
 
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
@@ -390,11 +402,13 @@ services:
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
     environment:
-      REACT_APP_JEMPI_BASE_URL: api:50000/JeMPI
+      REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
       REACT_APP_MOCK_BACKEND: "${JEMPI_UI_MOCKBACKEND}"
       REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
     networks:
       - frontend-api
+    volumes:
+      - /app/node_modules
     deploy:
       mode: replicated
       replicas: 0
