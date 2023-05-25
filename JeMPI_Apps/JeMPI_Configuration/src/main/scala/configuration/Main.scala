@@ -36,5 +36,7 @@ object Main {
     CustomLinkerProbabilistic.parseRules(config)
     CustomLinkerBackEnd.parseRules(config)
     CustomLinkerMU.parseRules(config)
+    CustomPostgresqlInteraction.generate(config.commonFields)
+    CustomPostgresqlGoldenRecord.generate(config.commonFields)
 
 }

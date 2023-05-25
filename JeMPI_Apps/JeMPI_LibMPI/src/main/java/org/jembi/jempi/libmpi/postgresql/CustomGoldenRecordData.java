@@ -2,7 +2,7 @@ package org.jembi.jempi.libmpi.postgresql;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-public class CustomGoldenRecordData extends CustomDemographicData implements NodeData {
+final class CustomGoldenRecordData extends CustomDemographicData implements NodeData {
 
    CustomGoldenRecordData(final CustomDemographicData customDemographicData) {
       super(customDemographicData.auxId,
@@ -16,5 +16,4 @@ public class CustomGoldenRecordData extends CustomDemographicData implements Nod
    }
 
 }
-
 
