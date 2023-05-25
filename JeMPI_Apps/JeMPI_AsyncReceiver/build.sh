@@ -10,4 +10,4 @@ JAR_FILE=${ASYNC_RECEIVER_JAR}
 APP_IMAGE=${ASYNC_RECEIVER_IMAGE}
 APP=async-receiver
  
-source ../build-app.sh
+source ../build-app-image.sh

@@ -10,4 +10,4 @@ JAR_FILE=${ETL_JAR}
 APP_IMAGE=${ETL_IMAGE}
 APP=etl
  
-source ../build-app.sh
+source ../build-app-image.sh

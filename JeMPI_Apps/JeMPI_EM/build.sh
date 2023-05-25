@@ -10,4 +10,4 @@ JAR_FILE=${EM_JAR}
 APP_IMAGE=${EM_IMAGE}
 APP=em
  
-source ../build-app.sh
+source ../build-app-image.sh

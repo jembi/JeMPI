@@ -10,4 +10,4 @@ JAR_FILE=${CONTROLLER_JAR}
 APP_IMAGE=${CONTROLLER_IMAGE}
 APP=controller
  
-source ../build-app.sh
+source ../build-app-image.sh
