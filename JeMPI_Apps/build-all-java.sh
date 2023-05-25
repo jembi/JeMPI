@@ -4,7 +4,7 @@ set -e
 set -u
 
 # Copy Config for API
-cp -f ./JeMPI_Configuration/config-reference.json ./JeMPI_API/src/main/resources/config-reference.json
+cp -f ./JeMPI_Configuration/config-reference-api.json ./JeMPI_API/src/main/resources/config-reference-api.json
 
 mvn clean package
 

@@ -3,7 +3,6 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
       "groups": [
         "identifiers"
@@ -18,10 +17,6 @@
     {
       "fieldName": "given_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
-      "m": 0.782501,
-      "u": 0.02372,
       "fieldLabel": "First Name",
       "groups": [
         "name",
@@ -37,17 +32,14 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
     {
       "fieldName": "family_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
-      "m": 0.850909,
-      "u": 0.02975,
       "fieldLabel": "Last Name",
       "groups": [
         "name",
@@ -63,16 +55,14 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
     {
       "fieldName": "gender",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.786614,
-      "u": 0.443018,
       "fieldLabel": "Gender",
       "groups": [
         "demographics",
@@ -84,15 +74,14 @@
         "/golden-record/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
-        "/search/custom"
+        "/search/custom",
+        ""
       ],
       "accessLevel": []
     },
     {
       "fieldName": "dob",
       "fieldType": "String",
-      "m": 0.894637,
-      "u": 0.012448,
       "fieldLabel": "Date of Birth",
       "groups": [
         "demographics",
@@ -107,16 +96,14 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
     {
       "fieldName": "city",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(trigram)",
-      "m": 0.872691,
-      "u": 0.132717,
       "fieldLabel": "City",
       "groups": [
         "demographics",
@@ -127,16 +114,14 @@
         "/golden-record/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
-        "/search/custom"
+        "/search/custom",
+        ""
       ],
       "accessLevel": []
     },
     {
       "fieldName": "phone_number",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.920281,
-      "u": 0.322629,
       "fieldLabel": "Phone No",
       "groups": [
         "demographics",
@@ -147,17 +132,14 @@
         "/golden-record/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
-        "/search/custom"
+        "/search/custom",
+        ""
       ],
       "accessLevel": []
     },
     {
       "fieldName": "national_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
-      "m": 0.832336,
-      "u": 0.000133,
       "fieldLabel": "National ID",
       "groups": [
         "identifiers",
@@ -171,7 +153,8 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     }
@@ -204,7 +187,8 @@
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
@@ -232,44 +216,10 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        ""
       ],
       "accessLevel": []
     }
-  ],
-  "rules": {
-    "deterministic": {
-      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
-        "vars": [
-          "given_name",
-          "family_name",
-          "phone_number",
-          "national_id"
-        ],
-        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
-      }
-    },
-    "probabilistic": {
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
-        "vars": [
-          "given_name",
-          "family_name",
-          "city"
-        ],
-        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
-        "vars": [
-          "phone_number"
-        ],
-        "text": "match(phone_number,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
-        "vars": [
-          "national_id"
-        ],
-        "text": "match(national_id,3)"
-      }
-    }
-  }
+  ]
 }
