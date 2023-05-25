@@ -1,16 +1,14 @@
-import { Link, SxProps, Theme, Typography } from '@mui/material'
+import { SxProps, Theme, Typography } from '@mui/material'
 import {
-  DataGrid as MuiDataGrid,
   GridCellParams,
   GridColumns,
   GridRenderCellParams,
   GridValueFormatterParams,
-  GridValueGetterParams
+  DataGrid as MuiDataGrid
 } from '@mui/x-data-grid'
 import { DisplayField } from 'types/Fields'
 import { AnyRecord } from 'types/PatientRecord'
 import { useAppConfig } from '../../hooks/useAppConfig'
-import MoreIcon from './MoreIcon'
 interface DataGridProps {
   data: AnyRecord[]
   onLinkedRecordDialogOpen?: (uid: string) => void
@@ -33,13 +31,7 @@ const getCellClassName = (
   } else return ''
 }
 
-const DataGrid: React.FC<DataGridProps> = ({
-  data,
-  onLinkedRecordDialogOpen,
-  hideAction = false,
-  isLoading = false,
-  sx
-}) => {
+const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
   const { availableFields } = useAppConfig()
 
   const columns: GridColumns = [
@@ -77,27 +69,6 @@ const DataGrid: React.FC<DataGridProps> = ({
               }
             }
           }
-
-        case 'uid':
-          return {
-            field: fieldName,
-            headerName: fieldLabel,
-            flex: 1,
-            renderCell: (params: GridRenderCellParams) => {
-              if (params.row.type === 'Current') {
-                return (
-                  <Link href={`/patient-record/${params.row.uid}`}>
-                    {params.row.uid}
-                  </Link>
-                )
-              }
-              return (
-                <Link href={`/golden-record/${params.row.uid}`}>
-                  {params.row.uid}
-                </Link>
-              )
-            }
-          }
         default:
           return {
             field: fieldName,
@@ -110,46 +81,7 @@ const DataGrid: React.FC<DataGridProps> = ({
               getCellClassName(params, field, data[0])
           }
       }
-    }),
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      maxWidth: 180,
-      minWidth: 120,
-      flex: 1,
-      hide: hideAction,
-      align: 'center',
-      headerAlign: 'center',
-      sortable: false,
-      filterable: false,
-      valueGetter: (params: GridValueGetterParams) => ({
-        id: params.row.id,
-        patient: params.row.patient,
-        type: params.row.type
-      }),
-      renderCell: (params: GridRenderCellParams) => {
-        switch (params.row.type) {
-          case 'Current':
-          case 'Golden':
-            return <MoreIcon params={params} />
-          case 'Candidate':
-            return (
-              <Link
-                sx={{ ':hover': { cursor: 'pointer' } }}
-                onClick={() =>
-                  onLinkedRecordDialogOpen
-                    ? onLinkedRecordDialogOpen(params.row.uid)
-                    : null
-                }
-              >
-                Link this record
-              </Link>
-            )
-          default:
-            return <></>
-        }
-      }
-    }
+    })
   ]
 
   return (

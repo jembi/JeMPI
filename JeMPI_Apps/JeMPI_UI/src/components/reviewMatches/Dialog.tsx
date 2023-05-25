@@ -1,14 +1,14 @@
 import {
-  Dialog as MuiDialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Dialog as MuiDialog,
   Typography
 } from '@mui/material'
 
 interface DialogProps {
   buttons: JSX.Element[]
-  title: string
+  title: string | JSX.Element
   subTitle?: string
   content: JSX.Element | string
   onOpen: boolean

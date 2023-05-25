@@ -59,10 +59,10 @@ const SearchModal: FC<{
         )}
 
         <DialogActions
-          sx={{ display: 'flex', justifyContent: 'space-between', p: '20px' }}
+          sx={{ display: 'flex', justifyContent: 'flex-end', p: '20px' }}
         >
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={onConfirmSearch}>Refine Search</Button>
+          <Button onClick={onConfirmSearch}>Search</Button>
         </DialogActions>
       </DialogContent>
     </Dialog>
