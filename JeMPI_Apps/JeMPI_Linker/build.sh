@@ -10,4 +10,4 @@ JAR_FILE=${LINKER_JAR}
 APP_IMAGE=${LINKER_IMAGE}
 APP=linker
  
-source ../build-app.sh
+source ../build-app-image.sh

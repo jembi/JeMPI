@@ -3,6 +3,8 @@
 set -e
 set -u
 
+cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API/src/main/resources/config-api.json
+
 mvn clean package
 
 pushd JeMPI_AsyncReceiver
@@ -23,7 +25,6 @@ popd
 pushd JeMPI_API
   ./build.sh || exit 1
 popd
-
 pushd JeMPI_AsyncReceiver
   ./push.sh
 popd

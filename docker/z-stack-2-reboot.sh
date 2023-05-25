@@ -6,6 +6,7 @@ set -u
 echo
 echo "Down stack"
 source ./helper/scripts/d-stack-08-rm.sh
+source ./helper/scripts/d-stack-09-wait-removed.sh
 
 echo
 echo "Up app containers"
