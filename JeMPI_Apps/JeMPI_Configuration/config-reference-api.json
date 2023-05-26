@@ -37,7 +37,8 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
@@ -63,7 +64,8 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
@@ -84,7 +86,8 @@
         "/golden-record/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
-        "/search/custom"
+        "/search/custom",
+        ""
       ],
       "accessLevel": []
     },
@@ -107,7 +110,8 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
@@ -127,7 +131,8 @@
         "/golden-record/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
-        "/search/custom"
+        "/search/custom",
+        ""
       ],
       "accessLevel": []
     },
@@ -147,7 +152,8 @@
         "/golden-record/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
-        "/search/custom"
+        "/search/custom",
+        ""
       ],
       "accessLevel": []
     },
@@ -171,10 +177,12 @@
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     }
+
   ],
   "systemFields": [
     {
@@ -204,7 +212,8 @@
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search-results/golden",
-        "/search-results/patient"
+        "/search-results/patient",
+        ""
       ],
       "accessLevel": []
     },
@@ -232,7 +241,8 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/golden-record/:uid/linked-records"
+        "/golden-record/:uid/linked-records",
+        ""
       ],
       "accessLevel": []
     }

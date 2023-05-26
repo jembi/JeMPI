@@ -26,7 +26,7 @@ const LinkedRecords = () => {
         headerName: fieldName === 'sourceId' ? 'Source' : fieldLabel,
         flex: 1,
         valueFormatter: ({ value }) => formatValue(value),
-        sortable: false,
+        // sortable: false,
         disableColumnMenu: true,
         align: 'center',
         headerAlign: 'center',

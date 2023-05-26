@@ -41,6 +41,7 @@ const ReviewLink = () => {
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false)
   const [isNewGoldenRecordDialogOpen, setIsNewGoldenRecordDialogOpen] =
     useState(false)
+  const [isAcceptLinkDialogOpen, setIsAcceptLinkDialogOpen] = useState(false)
   const [tableData, setTableData] = useState<AnyRecord[]>([])
   const [canditateUID, setCandidateUID] = useState('')
   const [refineSearchQuery, setRefineSearchQuery] = useState<
@@ -160,6 +161,7 @@ const ReviewLink = () => {
   const handleCancel = () => {
     setIsNewGoldenRecordDialogOpen(false)
     setOpenLinkRecordDialog(false)
+    setIsAcceptLinkDialogOpen(false)
   }
 
   if (isLoading) {
@@ -248,16 +250,14 @@ const ReviewLink = () => {
       />
       <Stack direction="row" sx={{ mt: 3 }} justifyContent={'space-between'}>
         <Stack direction="row" spacing={1}>
+          <Button variant="outlined" onClick={() => leavePending()}>
+            Cancel
+          </Button>
           <Button
             variant="contained"
-            onClick={() =>
-              linkRecords(goldenRecord?.uid || '', NotificationState.Accepted)
-            }
+            onClick={() => setIsAcceptLinkDialogOpen(true)}
           >
-            Accept
-          </Button>
-          <Button variant="outlined" onClick={() => leavePending()}>
-            Leave pending
+            Close
           </Button>
         </Stack>
         <Button
@@ -290,14 +290,46 @@ const ReviewLink = () => {
       />
       <Dialog
         buttons={[
-          <Button onClick={() => handleCancel()}>Don&apos;t link</Button>,
-          <Button onClick={() => linkRecords(canditateUID)}>
-            Link records
+          <Button onClick={() => handleCancel()}>Cancel</Button>,
+          <Button
+            onClick={() =>
+              linkRecords(goldenRecord?.uid || '', NotificationState.Accepted)
+            }
+            isLoading={newGoldenRecord.isLoading}
+            autoFocus
+          >
+            Confirm
           </Button>
         ]}
+        content={
+          <>
+            <Typography>
+              This will accept the currently linked Golden Record and close the
+              notification
+            </Typography>
+            <Typography>
+              No changes will be made to the golden record link
+            </Typography>
+          </>
+        }
+        title="Close and continue?"
+        onClose={handleCancel}
+        onOpen={isAcceptLinkDialogOpen}
+      />
+      <Dialog
+        buttons={[
+          <Button variant="outlined" onClick={() => handleCancel()}>
+            Cancel
+          </Button>,
+          <Button onClick={() => linkRecords(canditateUID)}>Confirm</Button>
+        ]}
         content={<DataGrid data={tableData} hideAction={true} />}
-        title="Linke these records?"
-        subTitle="This will link the following records"
+        title={
+          <Typography color={'#0000CD'} fontSize={20} fontWeight={500}>
+            Link these records?
+          </Typography>
+        }
+        subTitle="This will link the following records: "
         onClose={handleCancel}
         onOpen={openLinkRecordDialog}
         maxWidth="lg"

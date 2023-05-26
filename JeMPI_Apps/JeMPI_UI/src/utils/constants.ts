@@ -36,8 +36,7 @@ export const INITIAL_VALUES: CustomSearchQuery = {
 }
 
 export const REVIEW_LINK_STEPS = [
-  'Read Instructions',
-  'Review Linked Records',
+  'Review Linked Record',
   'Refine Search (Optional)',
-  'Accept'
+  'Close'
 ]
