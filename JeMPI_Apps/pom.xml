@@ -9,6 +9,10 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+<!--    [WARNING]  * org.apache.maven.plugins:maven-compiler-plugin:3.10.1-->
+<!--    [WARNING]  * org.apache.maven.plugins:maven-resources-plugin:3.3.0-->
+<!--    [WARNING]  * org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M9-->
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
@@ -24,12 +28,12 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-enforcer-plugin -->
         <version.org.apache.maven.plugins.maven-enforcer-plugin>
-            3.2.1
+            3.3.0
         </version.org.apache.maven.plugins.maven-enforcer-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
         <version.org.apache.maven.plugins.maven-compiler-plugin>
-            3.10.1
+            3.11.0
         </version.org.apache.maven.plugins.maven-compiler-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
@@ -44,57 +48,58 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
         <version.org.apache.maven.plugins.maven-resources-plugin>
-            3.3.0
+            3.3.1
         </version.org.apache.maven.plugins.maven-resources-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-checkstyle-plugin -->
         <version.org.apache.maven.plugins.maven-checkstyle-plugin>
-            3.2.1
+            3.3.0
         </version.org.apache.maven.plugins.maven-checkstyle-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
         <version.org.apache.maven.plugins.maven-deploy-plugin>
-            3.1.0
+            3.1.1
         </version.org.apache.maven.plugins.maven-deploy-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-install-plugin -->
         <version.org.apache.maven.plugins.maven-install-plugin>
-            3.1.0
+            3.1.1
         </version.org.apache.maven.plugins.maven-install-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-site-plugin -->
         <version.org.apache.maven.plugins.maven-site-plugin>
-            4.0.0-M5
+            4.0.0-M8
         </version.org.apache.maven.plugins.maven-site-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
         <version.org.apache.maven.plugins.maven-surefire-plugin>
-            3.0.0-M9
+            3.1.0
         </version.org.apache.maven.plugins.maven-surefire-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
         <version.org.apache.maven.plugins.maven-failsafe-plugin>
-            3.0.0-M9
+            3.1.0
         </version.org.apache.maven.plugins.maven-failsafe-plugin>
 
         <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
         <version.net.alchim31.maven.scala-maven-plugin>
-            4.8.0
+            4.8.1
         </version.net.alchim31.maven.scala-maven-plugin>
 
+        <!-- CHECK THIS  3.4.2-->
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->
         <version.org.apache.maven.plugins.maven-assembly-plugin>
-            3.4.2
+            3.6.0
         </version.org.apache.maven.plugins.maven-assembly-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
         <version.org.apache.maven.plugins.maven-shade-plugin>
-            3.5.0
+            3.4.1
         </version.org.apache.maven.plugins.maven-shade-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            3.0.3
+            3.1.0
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
