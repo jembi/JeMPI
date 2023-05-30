@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -59,49 +61,27 @@ public final class CustomMain {
       }
    }
 
-   /*
-   private void sendToKafka(
-         final CustomSourceRecord.RecordType recordType,
-         final String fileName) throws InterruptedException,
-                                 ExecutionException {
-      try {
-         final String userName = System.getProperty("user.name");
-         final Boolean delayLinker = false;
-         final String tag = recordType == CustomSourceRecord.RecordType.BATCH_START
-               ? "START"
-               : "END";
-         final BatchMetaData metaData = new BatchMetaData(BatchMetaData.FileType.CSV,
-                                                          LocalDateTime.now().toString(),
-                                                          fileName,
-                                                          userName,
-                                                          delayLinker,
-                                                          tag);
-         LOGGER.debug("{}", metaData);
-         metaDataProducer.produceSync(tag, metaData);
-      } catch (NullPointerException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
+   private String parseRecordNumber(final String in) {
+//    rec-00000000-bbb-8
+//    rec-00003495-org-0
+      final var regex = "^rec-(?<rnum>\\d+)-(?<class>org|aaa|dup|bbb)-?(?<dnum>\\d+)?$";
+      final Pattern pattern = Pattern.compile(regex);
+      final Matcher matcher = pattern.matcher(in);
+      if (matcher.find()) {
+         final var rNumber = matcher.group("rnum");
+         final var klass = matcher.group("class");
+         final var dNumber = matcher.group("dnum");
+         final var recNumber = String.format("rec-%08d-%s-%d",
+                                             Integer.parseInt(rNumber),
+                                             klass,
+                                             (("org".equals(klass) || "aaa".equals(klass))
+                                                    ? 0
+                                                    : Integer.parseInt(dNumber)));
+         LOGGER.debug("{}", recNumber);
+         return recNumber;
       }
+      return null;
    }
-*/
-
-
-//   private void sendToKafka(
-//         final String stan,
-//         final String[] fields) throws InterruptedException, ExecutionException {
-//      try {
-//         final CustomSourceRecord sourceRecord =
-//               new CustomSourceRecord(CustomSourceRecord.RecordType.BATCH_RECORD,
-//                                      stan,
-//                                      fields[0], fields[1], fields[2], fields[3],
-//                                      fields[4], fields[5], fields[6], fields[7],
-//                                      fields[8], fields[9], fields[10]);
-//
-//         LOGGER.debug("{}", sourceRecord);
-//         sourceRecordProducer.produceSync(sourceRecord.auxId().substring(0, 13), sourceRecord);
-//      } catch (NullPointerException ex) {
-//         LOGGER.error(ex.getLocalizedMessage(), ex);
-//      }
-//   }
 
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
@@ -135,7 +115,7 @@ public final class CustomMain {
          for (CSVRecord csvRecord : csvParser) {
             final var customSourceRecord = new CustomSourceRecord(
                   String.format("%s:%07d", stanDate, ++index),
-                  csvRecord.get(REC_NUM_IDX),
+                  parseRecordNumber(csvRecord.get(REC_NUM_IDX)),
                   csvRecord.get(GIVEN_NAME_IDX),
                   csvRecord.get(FAMILY_NAME_IDX),
                   csvRecord.get(GENDER_IDX),
