@@ -1,6 +1,7 @@
 package org.jembi.jempi.linker;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,16 +20,17 @@ public final class CustomLinkerMU {
    }
 
    private static boolean fieldMismatch(
+         final Field field,
          final String left,
          final String right) {
-      return JARO_WINKLER_SIMILARITY.apply(left, right) <= 0.92;
+      return field.similarityScore.apply(left, right) <= field.threshold;
    }
 
    private void updateMatchedPair(
          final Field field,
          final String left,
          final String right) {
-      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(left, right)) {
+      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(field, left, right)) {
          field.matchedPairFieldUnmatched += 1;
       } else {
          field.matchedPairFieldMatched += 1;
@@ -39,7 +41,7 @@ public final class CustomLinkerMU {
          final Field field,
          final String left,
          final String right) {
-      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(left, right)) {
+      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(field, left, right)) {
          field.unMatchedPairFieldUnmatched += 1;
       } else {
          field.unMatchedPairFieldMatched += 1;
@@ -73,20 +75,28 @@ public final class CustomLinkerMU {
    }
 
    static class Field {
+      final SimilarityScore<Double> similarityScore;
+      final double threshold;
       long matchedPairFieldMatched = 0L;
       long matchedPairFieldUnmatched = 0L;
       long unMatchedPairFieldMatched = 0L;
       long unMatchedPairFieldUnmatched = 0L;
+
+      Field(final SimilarityScore<Double> score,
+            final double mismatchThreshold) {
+         this.similarityScore = score;
+         this.threshold = mismatchThreshold;
+      }
    }
 
    static class Fields {
-      final Field givenName = new Field();
-      final Field familyName = new Field();
-      final Field gender = new Field();
-      final Field dob = new Field();
-      final Field city = new Field();
-      final Field phoneNumber = new Field();
-      final Field nationalId = new Field();
+      final Field givenName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field familyName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field gender = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field dob = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field city = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field phoneNumber = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field nationalId = new Field(JARO_WINKLER_SIMILARITY, 0.92);
 
       private float computeM(final Field field) {
          return (float) (field.matchedPairFieldMatched)

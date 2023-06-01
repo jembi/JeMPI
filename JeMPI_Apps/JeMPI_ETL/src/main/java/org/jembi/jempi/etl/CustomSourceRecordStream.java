@@ -48,7 +48,8 @@ public final class CustomSourceRecordStream {
       final Serializer<BatchInteraction> batchInteractiontSerializer = new JsonPojoSerializer<>();
       final Deserializer<BatchInteraction> batchInteractionDeserializer = new JsonPojoDeserializer<>(BatchInteraction.class);
       final Serde<AsyncSourceRecord> sourceRecordSerde = Serdes.serdeFrom(sourceRecordSerializer, sourceRecordDeserializer);
-      final Serde<BatchInteraction> batchInteractionSerde = Serdes.serdeFrom(batchInteractiontSerializer, batchInteractionDeserializer);
+      final Serde<BatchInteraction> batchInteractionSerde =
+            Serdes.serdeFrom(batchInteractiontSerializer, batchInteractionDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
@@ -61,34 +62,24 @@ public final class CustomSourceRecordStream {
                   default -> BatchInteraction.BatchType.BATCH_PATIENT;
                };
                if (batchType == BatchInteraction.BatchType.BATCH_PATIENT) {
-//               var k = rec.familyName();
-//               if (StringUtils.isBlank(k)) {
-//                  k = "anon";
-//               }
-//               k = getEncodedMF(k, OperationType.OPERATION_TYPE_DOUBLE_METAPHONE);
-//               var batchType = switch (rec.recordType().type) {
-//                  case CustomSourceRecord.RecordType.BATCH_START_VALUE -> BatchPatientRecord.BatchType.BATCH_START;
-//                  case CustomSourceRecord.RecordType.BATCH_END_VALUE -> BatchPatientRecord.BatchType.BATCH_END;
-//                  default -> BatchPatientRecord.BatchType.BATCH_PATIENT;
-//               };
                   var batchPatient = new BatchInteraction(
                         batchType,
                         rec.batchMetaData(),
                         rec.customSourceRecord().stan(),
                         new Interaction(null,
                                         new SourceId(null,
-                                                       FACILITY.get(random.nextInt(FACILITY.size())),
-                                                       StringUtils.isNotBlank(rec.customSourceRecord().nationalID())
-                                                             ? rec.customSourceRecord().nationalID()
-                                                             : "ANON"),
+                                                     FACILITY.get(random.nextInt(FACILITY.size())),
+                                                     StringUtils.isNotBlank(rec.customSourceRecord().nationalID())
+                                                           ? rec.customSourceRecord().nationalID()
+                                                           : "ANON"),
                                         new CustomDemographicData(rec.customSourceRecord().auxId(),
-                                                                    rec.customSourceRecord().givenName().replace("'", ""),
-                                                                    rec.customSourceRecord().familyName().replace("'", ""),
-                                                                    rec.customSourceRecord().gender().replace("'", ""),
-                                                                    rec.customSourceRecord().dob().replace("'", ""),
-                                                                    rec.customSourceRecord().city().replace("'", ""),
-                                                                    rec.customSourceRecord().phoneNumber().replace("'", ""),
-                                                                    rec.customSourceRecord().nationalID().replace("'", ""))));
+                                                                  rec.customSourceRecord().givenName().replace("'", ""),
+                                                                  rec.customSourceRecord().familyName().replace("'", ""),
+                                                                  rec.customSourceRecord().gender().replace("'", ""),
+                                                                  rec.customSourceRecord().dob().replace("'", ""),
+                                                                  rec.customSourceRecord().city().replace("'", ""),
+                                                                  rec.customSourceRecord().phoneNumber().replace("'", ""),
+                                                                  rec.customSourceRecord().nationalID().replace("'", ""))));
                   return KeyValue.pair(key, batchPatient);
                } else {
                   return KeyValue.pair("SENTINEL", new BatchInteraction(batchType, rec.batchMetaData(), null, null));
