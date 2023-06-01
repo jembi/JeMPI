@@ -23,16 +23,11 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 
 public final class CustomMainStats {
-   // 01234567890123456
-   // rec-00000000-bbb-7
-   // rec-0000000001-00
 
    private static final Logger LOGGER = LogManager.getLogger(CustomMainStats.class);
    private static final String URL = String.format("http://%s:%d", AppConfig.API_SERVER_HOST,
                                                    AppConfig.API_SERVER_PORT);
    private static final String URL_LINK = String.format("%s/JeMPI/", URL);
-   // 01234567890123456
-   // rec-0000000001-00
    private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 12;
    private final OkHttpClient client = new OkHttpClient();
    private final Map<String, List<GoldenRecordMembers>> dataSet = new HashMap<>();
@@ -239,9 +234,6 @@ public final class CustomMainStats {
    private record ApiExpandedGoldenRecord(
          ApiGoldenRecord goldenRecord,
          List<ApiPatientRecordWithScore> mpiPatientRecords) {
-   }
-
-   private record GoldenRecordDocuments(List<ApiExpandedGoldenRecord> expandedGoldenRecords) {
    }
 
    private record GoldenRecordMembers(
