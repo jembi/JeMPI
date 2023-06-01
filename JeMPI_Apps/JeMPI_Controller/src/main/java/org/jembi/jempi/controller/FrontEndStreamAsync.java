@@ -13,8 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.BatchInteraction;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -23,7 +23,7 @@ import java.util.Properties;
 public final class FrontEndStreamAsync {
 
    private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamAsync.class);
-   private MyKafkaProducer<String, BatchInteraction> topicEM;
+   private MyKafkaProducer<String, InteractionEnvelop> topicEM;
    private KafkaStreams interactionKafkaStreams = null;
 
    void open(
@@ -34,13 +34,13 @@ public final class FrontEndStreamAsync {
       final Properties props = loadConfig();
 
       final Serde<String> stringSerde = Serdes.String();
-      final Serializer<BatchInteraction> batchPatientRecordSerializer = new JsonPojoSerializer<>();
-      final Deserializer<BatchInteraction> batchPatientRecordDeserializer =
-            new JsonPojoDeserializer<>(BatchInteraction.class);
-      final Serde<BatchInteraction> batchPatientRecordSerde =
+      final Serializer<InteractionEnvelop> batchPatientRecordSerializer = new JsonPojoSerializer<>();
+      final Deserializer<InteractionEnvelop> batchPatientRecordDeserializer =
+            new JsonPojoDeserializer<>(InteractionEnvelop.class);
+      final Serde<InteractionEnvelop> batchPatientRecordSerde =
             Serdes.serdeFrom(batchPatientRecordSerializer, batchPatientRecordDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchInteraction> batchPatientRecordKStream = streamsBuilder.stream(
+      final KStream<String, InteractionEnvelop> batchPatientRecordKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_INTERACTION_CONTROLLER,
             Consumed.with(stringSerde, batchPatientRecordSerde));
       topicEM = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,

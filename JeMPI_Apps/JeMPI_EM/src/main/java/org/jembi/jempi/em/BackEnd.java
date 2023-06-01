@@ -7,7 +7,7 @@ import akka.actor.typed.javadsl.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchInteraction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -98,7 +98,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record EventPatientReq(
          String key,
-         BatchInteraction batchInteraction,
+         InteractionEnvelop batchInteraction,
          ActorRef<EventPatientRsp> replyTo) implements Event {
    }
 

@@ -71,7 +71,7 @@ public final class CustomDgraphConstants {
             Interaction.national_id
          }
          """;
-   static final String PATIENT_RECORD_FIELD_NAMES =
+   static final String INTERACTION_FIELD_NAMES =
          """
          uid
          Interaction.source_id {
@@ -88,7 +88,7 @@ public final class CustomDgraphConstants {
          Interaction.phone_number
          Interaction.national_id
          """;
-   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
+   static final String EXPANDED_INTERACTION_FIELD_NAMES =
          """
          uid
          Interaction.source_id {
@@ -122,9 +122,9 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_PATIENT_BY_UID =
+   static final String QUERY_GET_INTERACTION_BY_UID =
          """
-         query patientByUid($uid: string) {
+         query interactionByUid($uid: string) {
             all(func: uid($uid)) {
                uid
                Interaction.source_id {
@@ -166,9 +166,9 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_EXPANDED_PATIENTS =
+   static final String QUERY_GET_EXPANDED_INTERACTIONS =
          """
-         query expandedPatient() {
+         query expandedInteraction() {
             all(func: uid(%s)) {
                uid
                Interaction.source_id {
@@ -309,7 +309,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
-   static final String MUTATION_CREATE_PATIENT_TYPE =
+   static final String MUTATION_CREATE_INTERACTION_TYPE =
          """
 
          type Interaction {
@@ -325,7 +325,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String MUTATION_CREATE_PATIENT_FIELDS =
+   static final String MUTATION_CREATE_INTERACTION_FIELDS =
          """
          Interaction.source_id:                    uid                                          .
          Interaction.aux_id:                       string                                       .

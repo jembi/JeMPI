@@ -152,14 +152,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
-      LOGGER.debug("getMatchesForReview");
+      LOGGER.debug("findMatchesForReviewHandler");
       var recs = PsqlQueries.getMatchesForReview();
       request.replyTo.tell(new FindMatchesForReviewResponse(recs));
       return Behaviors.same();
    }
 
    private Behavior<Event> getGoldenRecordCountHandler(final GetGoldenRecordCountRequest request) {
-      LOGGER.debug("getGoldenRecordCount");
+      LOGGER.debug("getGoldenRecordCountHandler");
       try {
          libMPI.startTransaction();
          final long count = libMPI.countGoldenRecords();
@@ -174,7 +174,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getInteractionCountHandler(final GetInteractionCountRequest request) {
-      LOGGER.debug("getDocumentCount");
+      LOGGER.debug("etInteractionCountHandler");
 
       try {
          libMPI.startTransaction();
@@ -191,7 +191,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getNumberOfRecordsHandler(final GetNumberOfRecordsRequest request) {
-      LOGGER.debug("getNumberOfRecords");
+      LOGGER.debug("getNumberOfRecordsHandler");
       libMPI.startTransaction();
       var recs = libMPI.countGoldenRecords();
       var docs = libMPI.countInteractions();
@@ -320,7 +320,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          interaction = libMPI.findInteraction(request.patientId);
 
          try {
-            goldenRecords = libMPI.getCandidates(interaction.demographicData(), true);
+            goldenRecords = libMPI.findCandidates(interaction.demographicData(), true);
          } catch (Exception exception) {
             LOGGER.error("libMPI.getCandidates failed to find patientRecord.demographicData: {}",
                          interaction.demographicData());

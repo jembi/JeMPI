@@ -42,16 +42,16 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.countGoldenRecords();
    }
 
-   public Interaction findInteraction(final String patientId) {
-      return DgraphQueries.findInteraction(patientId);
+   public Interaction findInteraction(final String interactionId) {
+      return DgraphQueries.findInteraction(interactionId);
    }
 
-   public List<Interaction> findInteractions(final List<String> patientIds) {
+   public List<Interaction> findInteractions(final List<String> interactionIds) {
       return List.of();
    }
 
-   public List<ExpandedInteraction> findExpandedInteractions(final List<String> patientIds) {
-      final var list = DgraphQueries.findExpandedInteractions(patientIds);
+   public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIds) {
+      final var list = DgraphQueries.findExpandedInteractions(interactionIds);
       return list.stream().map(CustomDgraphExpandedInteraction::toExpandedInteraction).toList();
    }
 
@@ -94,7 +94,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
-   private LibMPIPaginatedResultSet<Interaction> paginatedPatientRecords(final DgraphInteractions list) {
+   private LibMPIPaginatedResultSet<Interaction> paginatedInteractions(final DgraphInteractions list) {
       if (list == null) {
          return null;
       }
@@ -104,10 +104,10 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public boolean setScore(
-         final String patientUID,
+         final String interactionUID,
          final String goldenRecordUid,
          final float score) {
-      return DgraphMutations.setScore(patientUID, goldenRecordUid, score);
+      return DgraphMutations.setScore(interactionUID, goldenRecordUid, score);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -137,7 +137,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String sortBy,
          final Boolean sortAsc) {
       final var list = DgraphQueries.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
-      return paginatedPatientRecords(list);
+      return paginatedInteractions(list);
    }
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
@@ -147,7 +147,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String sortBy,
          final Boolean sortAsc) {
       final var list = DgraphQueries.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
-      return paginatedPatientRecords(list);
+      return paginatedInteractions(list);
    }
 
    /*
@@ -165,29 +165,29 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String goldenUID,
-         final String patientUID,
+         final String interactionUID,
          final float score) {
-      return DgraphMutations.linkToNewGoldenRecord(goldenUID, patientUID, score);
+      return DgraphMutations.linkToNewGoldenRecord(goldenUID, interactionUID, score);
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(
          final String goldenUID,
          final String newGoldenUID,
-         final String patientUID,
+         final String interactionUID,
          final float score) {
-      return DgraphMutations.updateLink(goldenUID, newGoldenUID, patientUID, score);
+      return DgraphMutations.updateLink(goldenUID, newGoldenUID, interactionUID, score);
    }
 
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      return DgraphMutations.linkDGraphPatient(interaction, goldenIdScore);
+      return DgraphMutations.linkDGraphInteraction(interaction, goldenIdScore);
    }
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
-      return DgraphMutations.addNewDGraphPatient(interaction);
+      return DgraphMutations.addNewDGraphInteraction(interaction);
    }
 
    public void startTransaction() {

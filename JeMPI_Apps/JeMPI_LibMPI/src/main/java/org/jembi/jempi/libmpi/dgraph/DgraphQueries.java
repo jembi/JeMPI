@@ -74,16 +74,16 @@ final class DgraphQueries {
       return new DgraphExpandedGoldenRecords(List.of());
    }
 
-   static Interaction findInteraction(final String patientId) {
-      if (StringUtils.isBlank(patientId)) {
+   static Interaction findInteraction(final String interactionId) {
+      if (StringUtils.isBlank(interactionId)) {
          return null;
       }
-      final var vars = Map.of("$uid", patientId);
-      final var patientList = runInteractionsQuery(CustomDgraphConstants.QUERY_GET_PATIENT_BY_UID, vars).all();
-      if (AppUtils.isNullOrEmpty(patientList)) {
+      final var vars = Map.of("$uid", interactionId);
+      final var interactionList = runInteractionsQuery(CustomDgraphConstants.QUERY_GET_INTERACTION_BY_UID, vars).all();
+      if (AppUtils.isNullOrEmpty(interactionList)) {
          return null;
       }
-      return patientList.get(0).toInteractionWithScore().interaction();
+      return interactionList.get(0).toInteractionWithScore().interaction();
    }
 
    static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {
@@ -104,7 +104,7 @@ final class DgraphQueries {
    static List<String> findExpandedGoldenIds(final String goldenId) {
       final String query = String
             .format("""
-                    query recordGoldenUidPatientUidList() {
+                    query recordGoldenUidInteractionUidList() {
                         list(func: uid(%s)) {
                             uid
                             list: GoldenRecord.interactions {
@@ -180,16 +180,16 @@ final class DgraphQueries {
    static long countInteractions() {
       final var query = """
                         query recordCount() {
-                          list(func: type(PatientRecord)) {
+                          list(func: type(Interaction)) {
                             count(uid)
                           }
                         }""";
       return getCount(query);
    }
 
-   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData patient) {
+   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      var block = CustomDgraphQueries.queryDeterministicGoldenRecordCandidates(patient);
+      var block = CustomDgraphQueries.queryDeterministicGoldenRecordCandidates(interaction);
       if (!block.all().isEmpty()) {
          final List<CustomDgraphGoldenRecord> list = block.all();
          if (!AppUtils.isNullOrEmpty(list)) {
@@ -200,7 +200,7 @@ final class DgraphQueries {
    }
 
    static List<CustomDgraphExpandedInteraction> findExpandedInteractions(final List<String> ids) {
-      final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_PATIENTS,
+      final String query = String.format(CustomDgraphConstants.QUERY_GET_EXPANDED_INTERACTIONS,
                                          String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
@@ -439,7 +439,7 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   private static DgraphInteractions searchPatientRecords(
+   private static DgraphInteractions searchInteractions(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -453,13 +453,13 @@ final class DgraphQueries {
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += CustomDgraphConstants.PATIENT_RECORD_FIELD_NAMES;
+      gql += CustomDgraphConstants.INTERACTION_FIELD_NAMES;
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
 
-      LOGGER.debug("Simple Search Patient Records Query {}", gql);
-      LOGGER.debug("Simple Search Patient Records Variables {}", gqlVars);
+      LOGGER.debug("Simple Search Interactions Query {}", gql);
+      LOGGER.debug("Simple Search Interactions Variables {}", gqlVars);
       return runInteractionsQuery(gql, gqlVars);
    }
 
@@ -470,12 +470,12 @@ final class DgraphQueries {
          final String sortBy,
          final Boolean sortAsc
                                                      ) {
-      LOGGER.debug("Simple Search Patient Records Params {}", params);
+      LOGGER.debug("Simple Search Interactions Params {}", params);
       String gqlFilters = getSimpleSearchQueryFilters(RecordType.Interaction, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
 
-      return searchPatientRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
+      return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
    static DgraphInteractions customSearchInteractions(
@@ -485,12 +485,12 @@ final class DgraphQueries {
          final String sortBy,
          final Boolean sortAsc
                                                      ) {
-      LOGGER.debug("Simple Search Patient Records Params {}", payloads);
+      LOGGER.debug("Simple Search Interactions Params {}", payloads);
       String gqlFilters = getCustomSearchQueryFilters(RecordType.Interaction, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
 
-      return searchPatientRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
+      return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
 }

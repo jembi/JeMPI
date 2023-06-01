@@ -206,19 +206,19 @@ final class CustomDgraphQueries {
    }
 
    static List<CustomDgraphGoldenRecord> getCandidates(
-         final CustomDemographicData patient,
+         final CustomDemographicData interaction,
          final boolean applyDeterministicFilter) {
 
       if (applyDeterministicFilter) {
-         final var result = DgraphQueries.deterministicFilter(patient);
+         final var result = DgraphQueries.deterministicFilter(interaction);
          if (!result.isEmpty()) {
             return result;
          }
       }
       var result = new LinkedList<CustomDgraphGoldenRecord>();
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(patient));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(patient));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(interaction));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(interaction));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(interaction));
       return result;
    }
 

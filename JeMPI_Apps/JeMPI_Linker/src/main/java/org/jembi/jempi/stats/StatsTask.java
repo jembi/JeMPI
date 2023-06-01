@@ -25,8 +25,8 @@ public final class StatsTask {
    private static final String URL = "http://api:50000";
    private static final String URL_LINK = String.format("%s/JeMPI/", URL);
    // 01234567890123456
-   // rec-0000000001-00
-   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 12;
+   // rec-0000000001-....
+   private static final int AUX_ID_SIGNIFICANT_CHARACTERS = 14;
    private final OkHttpClient client = new OkHttpClient();
    private final Map<String, List<GoldenRecordMembers>> dataSet = new HashMap<>();
    private final int[] truePositives = {0};

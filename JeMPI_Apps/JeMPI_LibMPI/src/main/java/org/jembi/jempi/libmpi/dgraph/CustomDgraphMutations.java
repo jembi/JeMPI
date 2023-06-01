@@ -10,7 +10,7 @@ final class CustomDgraphMutations {
    private CustomDgraphMutations() {
    }
 
-   static String createPatientTriple(
+   static String createInteractionTriple(
          final CustomDemographicData demographicData,
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
@@ -40,7 +40,7 @@ final class CustomDgraphMutations {
 
    static String createLinkedGoldenRecordTriple(
          final CustomDemographicData demographicData,
-         final String patientUID,
+         final String interactionUID,
          final String sourceUID,
          final float score) {
       final String uuid = UUID.randomUUID().toString();
@@ -66,7 +66,7 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.city),
                            uuid, AppUtils.quotedValue(demographicData.phoneNumber),
                            uuid, AppUtils.quotedValue(demographicData.nationalId),
-                           uuid, patientUID, score,
+                           uuid, interactionUID, score,
                            uuid);
    }
 }

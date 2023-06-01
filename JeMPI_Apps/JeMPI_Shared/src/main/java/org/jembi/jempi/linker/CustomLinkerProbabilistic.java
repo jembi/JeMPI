@@ -118,23 +118,23 @@ public final class CustomLinkerProbabilistic {
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,
-         final CustomDemographicData patient) {
+         final CustomDemographicData interaction) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       updateMetricsForStringField(metrics,
-                                  goldenRecord.givenName, patient.givenName, currentFields.givenName);
+                                  goldenRecord.givenName, interaction.givenName, currentFields.givenName);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.familyName, patient.familyName, currentFields.familyName);
+                                  goldenRecord.familyName, interaction.familyName, currentFields.familyName);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.gender, patient.gender, currentFields.gender);
+                                  goldenRecord.gender, interaction.gender, currentFields.gender);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.dob, patient.dob, currentFields.dob);
+                                  goldenRecord.dob, interaction.dob, currentFields.dob);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.city, patient.city, currentFields.city);
+                                  goldenRecord.city, interaction.city, currentFields.city);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.phoneNumber, patient.phoneNumber, currentFields.phoneNumber);
+                                  goldenRecord.phoneNumber, interaction.phoneNumber, currentFields.phoneNumber);
       updateMetricsForStringField(metrics,
-                                  goldenRecord.nationalId, patient.nationalId, currentFields.nationalId);
+                                  goldenRecord.nationalId, interaction.nationalId, currentFields.nationalId);
       return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
    }
 

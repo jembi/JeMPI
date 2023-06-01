@@ -10,7 +10,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphExpandedInteraction(
-      @JsonProperty("uid") String patientId,
+      @JsonProperty("uid") String interactionId,
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
@@ -23,7 +23,7 @@ record CustomDgraphExpandedInteraction(
       @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
    Interaction toInteraction() {
-      return new Interaction(this.patientId(),
+      return new Interaction(this.interactionId(),
                              this.sourceId().toSourceId(),
                              new CustomDemographicData(
                                      this.auxId(),

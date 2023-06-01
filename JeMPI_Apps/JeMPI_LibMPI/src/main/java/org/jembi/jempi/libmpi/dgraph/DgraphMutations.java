@@ -12,8 +12,8 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.LinkInfo;
 import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.LinkInfo;
 import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -90,12 +90,12 @@ final class DgraphMutations {
       return result != null;
    }
 
-   private static void addScoreFacets(final List<DgraphPairWithScore> patientScoreList) {
+   private static void addScoreFacets(final List<DgraphPairWithScore> interactionScoreList) {
       StringBuilder simWeightFacet = new StringBuilder();
-      for (DgraphPairWithScore patientScore : patientScoreList) {
+      for (DgraphPairWithScore interactionScore : interactionScoreList) {
          simWeightFacet.append(
                String.format("<%s> <GoldenRecord.interactions> <%s> (score=%f) .%n",
-                             patientScore.goldenUID(), patientScore.patientUID(), patientScore.score()));
+                             interactionScore.goldenUID(), interactionScore.interactionUID(), interactionScore.score()));
       }
 
       final var s = simWeightFacet.toString();
@@ -114,7 +114,7 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mu);
    }
 
-   private static InsertPatientResult insertPatientRecord(final Interaction interaction) {
+   private static InsertInteractionResult insertInteraction(final Interaction interaction) {
       final DgraphProto.Mutation sourceIdMutation = DgraphProto.Mutation.newBuilder()
                                                                         .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
                                                                               interaction.sourceId())))
@@ -123,21 +123,22 @@ final class DgraphMutations {
       final var sourceIdUid = !sourceId.isEmpty()
             ? sourceId.get(0).uid()
             : DgraphClient.getInstance().doMutateTransaction(sourceIdMutation);
-      final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
-                                                                .setSetNquads(
-                                                                      ByteString.copyFromUtf8(CustomDgraphMutations.createPatientTriple(
-                                                                            interaction.demographicData(),
-                                                                            sourceIdUid)))
-                                                                .build();
-      return new InsertPatientResult(DgraphClient.getInstance().doMutateTransaction(mutation), sourceIdUid);
+      final DgraphProto.Mutation mutation = DgraphProto
+            .Mutation
+            .newBuilder()
+            .setSetNquads(ByteString.copyFromUtf8(CustomDgraphMutations
+                                                        .createInteractionTriple(interaction.demographicData(),
+                                                                                 sourceIdUid)))
+            .build();
+      return new InsertInteractionResult(DgraphClient.getInstance().doMutateTransaction(mutation), sourceIdUid);
    }
 
-   private static String cloneGoldenRecordFromPatient(
-         final CustomDemographicData patient,
-         final String patientUID,
+   private static String cloneGoldenRecordFromInteraction(
+         final CustomDemographicData interaction,
+         final String interactionUID,
          final String sourceUID,
          final float score) {
-      final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(patient, patientUID, sourceUID, score);
+      final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(interaction, interactionUID, sourceUID, score);
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
                                                                 .setSetNquads(ByteString.copyFromUtf8(command))
                                                                 .build();
@@ -155,19 +156,19 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
-   static LinkInfo addNewDGraphPatient(final Interaction interaction) {
-      final var result = insertPatientRecord(interaction);
-      if (result.patientUID == null) {
-         LOGGER.error("Failed to insert patient");
+   static LinkInfo addNewDGraphInteraction(final Interaction interaction) {
+      final var result = insertInteraction(interaction);
+      if (result.interactionUID == null) {
+         LOGGER.error("Failed to insert interaction");
          return null;
       }
-      final var grUID = cloneGoldenRecordFromPatient(interaction.demographicData(), result.patientUID,
-                                                     result.sourceUID, 1.0F);
+      final var grUID = cloneGoldenRecordFromInteraction(interaction.demographicData(), result.interactionUID,
+                                                         result.sourceUID, 1.0F);
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
       }
-      return new LinkInfo(grUID, result.patientUID, 1.0F);
+      return new LinkInfo(grUID, result.interactionUID, 1.0F);
    }
 
    static String camelToSnake(final String str) {
@@ -187,19 +188,19 @@ final class DgraphMutations {
          final String interactionId,
          final float score) {
 
-      final var goldenUidPatientUidList = DgraphQueries.findExpandedGoldenIds(currentGoldenId);
-      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(interactionId)) {
+      final var goldenUidInteractionUidList = DgraphQueries.findExpandedGoldenIds(currentGoldenId);
+      if (goldenUidInteractionUidList.isEmpty() || !goldenUidInteractionUidList.contains(interactionId)) {
          return Either.left(
-               new MpiServiceError.GoldenIdInteractionConflictError("Patient not linked to GoldenRecord",
+               new MpiServiceError.GoldenIdInteractionConflictError("Interaction not linked to GoldenRecord",
                                                                     currentGoldenId,
                                                                     interactionId));
       }
-      final var count = goldenUidPatientUidList.size();
+      final var count = goldenUidInteractionUidList.size();
 
       final var interaction = DgraphQueries.findInteraction(interactionId);
       if (interaction == null) {
-         LOGGER.warn("patient {} not found", interactionId);
-         return Either.left(new MpiServiceError.InteractionIdDoesNotExistError("Patient not found", interactionId));
+         LOGGER.warn("interaction {} not found", interactionId);
+         return Either.left(new MpiServiceError.InteractionIdDoesNotExistError("Interaction not found", interactionId));
       }
       final var grec = DgraphQueries.findDgraphGoldenRecord(currentGoldenId);
       if (grec == null) {
@@ -212,9 +213,10 @@ final class DgraphMutations {
       if (count == 1) {
          deleteGoldenRecord(currentGoldenId);
       }
-      final var newGoldenID = cloneGoldenRecordFromPatient(interaction.demographicData(), interaction.interactionId(),
-                                                           interaction.sourceId().uid(),
-                                                           score);
+      final var newGoldenID = cloneGoldenRecordFromInteraction(
+            interaction.demographicData(), interaction.interactionId(),
+            interaction.sourceId().uid(),
+            score);
       return Either.right(new LinkInfo(newGoldenID, interactionId, score));
    }
 
@@ -224,10 +226,10 @@ final class DgraphMutations {
          final String interactionId,
          final float score) {
 
-      final var goldenUidPatientUidList = DgraphQueries.findExpandedGoldenIds(goldenId);
-      if (goldenUidPatientUidList.isEmpty() || !goldenUidPatientUidList.contains(interactionId)) {
+      final var goldenUidInteractionUidList = DgraphQueries.findExpandedGoldenIds(goldenId);
+      if (goldenUidInteractionUidList.isEmpty() || !goldenUidInteractionUidList.contains(interactionId)) {
          return Either.left(
-               new MpiServiceError.GoldenIdInteractionConflictError("Patient not linked to GoldenRecord", goldenId,
+               new MpiServiceError.GoldenIdInteractionConflictError("Interaction not linked to GoldenRecord", goldenId,
                                                                     interactionId));
       }
 
@@ -243,31 +245,31 @@ final class DgraphMutations {
       return Either.right(new LinkInfo(newGoldenId, interactionId, score));
    }
 
-   static LinkInfo linkDGraphPatient(
+   static LinkInfo linkDGraphInteraction(
          final Interaction interaction,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      final var result = insertPatientRecord(interaction);
+      final var result = insertInteraction(interaction);
 
-      if (result.patientUID == null) {
-         LOGGER.error("Failed to insert dgraphPatient");
+      if (result.interactionUID == null) {
+         LOGGER.error("Failed to insert dgraphInteraction");
          return null;
       }
-      final List<DgraphPairWithScore> patientScoreList = new ArrayList<>();
-      patientScoreList.add(new DgraphPairWithScore(goldenIdScore.goldenId(), result.patientUID, goldenIdScore.score()));
-      addScoreFacets(patientScoreList);
-      addSourceId(patientScoreList.get(0).goldenUID(), result.sourceUID);
-      final var grUID = patientScoreList.get(0).goldenUID();
-      final var theScore = patientScoreList.get(0).score();
-      return new LinkInfo(grUID, result.patientUID, theScore);
+      final List<DgraphPairWithScore> interactionScoreList = new ArrayList<>();
+      interactionScoreList.add(new DgraphPairWithScore(goldenIdScore.goldenId(), result.interactionUID, goldenIdScore.score()));
+      addScoreFacets(interactionScoreList);
+      addSourceId(interactionScoreList.get(0).goldenUID(), result.sourceUID);
+      final var grUID = interactionScoreList.get(0).goldenUID();
+      final var theScore = interactionScoreList.get(0).score();
+      return new LinkInfo(grUID, result.interactionUID, theScore);
    }
 
    static Option<MpiGeneralError> createSchema() {
       final var schema = CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_TYPE
                          + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE
-                         + CustomDgraphConstants.MUTATION_CREATE_PATIENT_TYPE
+                         + CustomDgraphConstants.MUTATION_CREATE_INTERACTION_TYPE
                          + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS
                          + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS
-                         + CustomDgraphConstants.MUTATION_CREATE_PATIENT_FIELDS;
+                         + CustomDgraphConstants.MUTATION_CREATE_INTERACTION_FIELDS;
       try {
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(schema).build();
          DgraphClient.getInstance().alter(operation);
@@ -280,22 +282,22 @@ final class DgraphMutations {
    }
 
    public static boolean setScore(
-         final String patientUid,
+         final String interactionUid,
          final String goldenRecordUid,
          final float score) {
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      "<%s> <GoldenRecord.interactions> <%s> (score=%f) .%n",
                                                      goldenRecordUid,
-                                                     patientUid,
+                                                     interactionUid,
                                                      score)))
                                                .build();
       final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
       return StringUtil.isNullOrEmpty(result);
    }
 
-   private record InsertPatientResult(
-         String patientUID,
+   private record InsertInteractionResult(
+         String interactionUID,
          String sourceUID) {
    }
 

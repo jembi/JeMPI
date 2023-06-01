@@ -26,7 +26,7 @@ private object CustomDgraphExpandedInteraction {
   private def toInteraction(writer: PrintWriter, fields: Array[CommonField]): Unit = {
         writer.println(
           """   Interaction toInteraction() {
-            |      return new Interaction(this.patientId(),
+            |      return new Interaction(this.interactionId(),
             |                             this.sourceId().toSourceId(),
             |                             new CustomDemographicData(""".stripMargin)
 
@@ -72,7 +72,7 @@ private object CustomDgraphExpandedInteraction {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |${" " * 6}@JsonProperty("uid") String patientId,
+         |${" " * 6}@JsonProperty("uid") String interactionId,
          |${" " * 6}@JsonProperty("Interaction.source_id") DgraphSourceId sourceId,""".stripMargin)
     addFields(writer, fields)
     toInteraction(writer, fields)

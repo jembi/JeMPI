@@ -42,52 +42,46 @@ public final class CustomSourceRecordStream {
 
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serializer<AsyncSourceRecord> sourceRecordSerializer = new JsonPojoSerializer<>();
-      final Deserializer<AsyncSourceRecord> sourceRecordDeserializer = new JsonPojoDeserializer<>(
-            AsyncSourceRecord.class);
-      final Serializer<BatchInteraction> batchInteractiontSerializer = new JsonPojoSerializer<>();
-      final Deserializer<BatchInteraction> batchInteractionDeserializer = new JsonPojoDeserializer<>(BatchInteraction.class);
-      final Serde<AsyncSourceRecord> sourceRecordSerde = Serdes.serdeFrom(sourceRecordSerializer, sourceRecordDeserializer);
-      final Serde<BatchInteraction> batchInteractionSerde =
-            Serdes.serdeFrom(batchInteractiontSerializer, batchInteractionDeserializer);
+      final Serializer<InteractionEnvelop> interactionEnvelopSerializer = new JsonPojoSerializer<>();
+      final Deserializer<InteractionEnvelop> interactionEnvelopDeserializer =
+            new JsonPojoDeserializer<>(InteractionEnvelop.class);
+      final Serde<InteractionEnvelop> interactionEnvelopSerde =
+            Serdes.serdeFrom(interactionEnvelopSerializer, interactionEnvelopDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, AsyncSourceRecord> patientKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL, Consumed.with(stringSerde, sourceRecordSerde));
-      patientKStream
+      final KStream<String, InteractionEnvelop> sourceKStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+                                  Consumed.with(stringSerde,
+                                                interactionEnvelopSerde));
+      sourceKStream
             .map((key, rec) -> {
                LOGGER.info("{} : {}", key, rec);
-               var batchType = switch (rec.recordType().type) {
-                  case AsyncSourceRecord.RecordType.BATCH_START_VALUE -> BatchInteraction.BatchType.BATCH_START;
-                  case AsyncSourceRecord.RecordType.BATCH_END_VALUE -> BatchInteraction.BatchType.BATCH_END;
-                  default -> BatchInteraction.BatchType.BATCH_PATIENT;
-               };
-               if (batchType == BatchInteraction.BatchType.BATCH_PATIENT) {
-                  var batchPatient = new BatchInteraction(
-                        batchType,
-                        rec.batchMetaData(),
-                        rec.customSourceRecord().stan(),
+               if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+                  final var iteraction = rec.interaction();
+                  final var demographicData = iteraction.demographicData();
+                  final var newEnvelop = new InteractionEnvelop(
+                        rec.contentType(),
+                        rec.tag(),
+                        rec.stan(),
                         new Interaction(null,
                                         new SourceId(null,
                                                      FACILITY.get(random.nextInt(FACILITY.size())),
-                                                     StringUtils.isNotBlank(rec.customSourceRecord().nationalID())
-                                                           ? rec.customSourceRecord().nationalID()
+                                                     StringUtils.isNotBlank(demographicData.nationalId)
+                                                           ? demographicData.nationalId
                                                            : "ANON"),
-                                        new CustomDemographicData(rec.customSourceRecord().auxId(),
-                                                                  rec.customSourceRecord().givenName().replace("'", ""),
-                                                                  rec.customSourceRecord().familyName().replace("'", ""),
-                                                                  rec.customSourceRecord().gender().replace("'", ""),
-                                                                  rec.customSourceRecord().dob().replace("'", ""),
-                                                                  rec.customSourceRecord().city().replace("'", ""),
-                                                                  rec.customSourceRecord().phoneNumber().replace("'", ""),
-                                                                  rec.customSourceRecord().nationalID().replace("'", ""))));
-                  return KeyValue.pair(key, batchPatient);
+                                        new CustomDemographicData(demographicData.auxId,
+                                                                  demographicData.givenName.replace("'", ""),
+                                                                  demographicData.familyName.replace("'", ""),
+                                                                  demographicData.gender.replace("'", ""),
+                                                                  demographicData.dob.replace("'", ""),
+                                                                  demographicData.city.replace("'", ""),
+                                                                  demographicData.phoneNumber.replace("'", ""),
+                                                                  demographicData.nationalId.replace("'", ""))));
+                  return KeyValue.pair(key, newEnvelop);
                } else {
-                  return KeyValue.pair("SENTINEL", new BatchInteraction(batchType, rec.batchMetaData(), null, null));
+                  return KeyValue.pair(key, rec);
                }
             })
-            .filter((key, value) -> !(value.batchType() == BatchInteraction.BatchType.BATCH_PATIENT && StringUtils.isBlank(
-                  value.interaction().demographicData().auxId)))
-            .to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, batchInteractionSerde));
+            .to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, interactionEnvelopSerde));
       interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionKafkaStreams.cleanUp();
       interactionKafkaStreams.start();

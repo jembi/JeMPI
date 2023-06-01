@@ -1030,7 +1030,7 @@ public final class HttpServer extends AllDirectives {
 
       static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
          return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
-                                            expandedGoldenRecord.patientRecordsWithScore()
+                                            expandedGoldenRecord.interactionsWithScore()
                                                                 .stream()
                                                                 .map(ApiPatientRecordWithScore::fromPatientRecordWithScore)
                                                                 .toList());

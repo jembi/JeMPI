@@ -17,15 +17,15 @@ final class CustomLinkerDeterministic {
 
    static boolean deterministicMatch(
          final CustomDemographicData goldenRecord,
-         final CustomDemographicData patient) {
+         final CustomDemographicData interaction) {
       final var givenNameL = goldenRecord.givenName;
-      final var givenNameR = patient.givenName;
+      final var givenNameR = interaction.givenName;
       final var familyNameL = goldenRecord.familyName;
-      final var familyNameR = patient.familyName;
+      final var familyNameR = interaction.familyName;
       final var phoneNumberL = goldenRecord.phoneNumber;
-      final var phoneNumberR = patient.phoneNumber;
+      final var phoneNumberR = interaction.phoneNumber;
       final var nationalIdL = goldenRecord.nationalId;
-      final var nationalIdR = patient.nationalId;
+      final var nationalIdR = interaction.nationalId;
       return (isMatch(nationalIdL, nationalIdR) || (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(phoneNumberL, phoneNumberR)));
    }
 
