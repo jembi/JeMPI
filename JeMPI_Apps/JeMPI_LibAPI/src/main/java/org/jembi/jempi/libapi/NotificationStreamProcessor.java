@@ -1,4 +1,4 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.libapi;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
@@ -13,7 +13,6 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Notification;
@@ -29,12 +28,20 @@ public final class NotificationStreamProcessor {
    private static final Logger LOGGER = LogManager.getLogger(NotificationStreamProcessor.class);
    private KafkaStreams notificationKafkaStreams = null;
 
-   void open(
+   public void open(
          final ActorSystem<Void> system,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Event> backEnd,
+         final String kafkaApplicationId,
+         final String kafkaClientId,
+         final String kafkaBootstrapServers) {
       LOGGER.info("Stream Processor");
 
-      final Properties props = loadConfig();
+      final Properties props = new Properties();
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafkaApplicationId);
+      props.put(StreamsConfig.CLIENT_ID_CONFIG, kafkaClientId);
+      props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
+      props.put(StreamsConfig.POLL_MS_CONFIG, 50);
+
       final Serde<String> stringSerde = Serdes.String();
       final Serializer<Notification> notificationSerializer = new JsonPojoSerializer<>();
       final Deserializer<Notification> notificationDeserializer = new JsonPojoDeserializer<>(Notification.class);
@@ -63,8 +70,8 @@ public final class NotificationStreamProcessor {
                } catch (SQLException e) {
                   LOGGER.debug(e.toString());
                }
-               LOGGER.debug("Linked To data : " + value.linkedTo());
-               LOGGER.debug("Candidates data : " + value.candidates().get(0).gID());
+               LOGGER.debug("Linked To data : {}", value.linkedTo());
+               LOGGER.debug("Candidates data : {}", value.candidates().get(0).gID());
             });
 
       notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
@@ -74,6 +81,7 @@ public final class NotificationStreamProcessor {
       LOGGER.info("Notifications started");
    }
 
+/*
    private Properties loadConfig() {
       final Properties props = new Properties();
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
@@ -83,6 +91,7 @@ public final class NotificationStreamProcessor {
       props.put(StreamsConfig.POLL_MS_CONFIG, 50);
       return props;
    }
+*/
 
 
 }

@@ -3,10 +3,7 @@ package org.jembi.jempi.libmpi.postgresql;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 final class PostgresqlClient {
 
@@ -36,9 +33,11 @@ final class PostgresqlClient {
 
    void startTransaction() {
       if (connection == null) {
-         connection = DbConnect.connect(url, usr, psw);
-         if (connection == null) {
-            LOGGER.error("Cannot create client");
+         try {
+            connection = DriverManager.getConnection(url, usr, psw);
+         } catch (SQLException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            connection = null;
          }
       }
    }

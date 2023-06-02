@@ -387,6 +387,47 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
 
+  api-kc:
+    image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
+    environment:
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_API_URL: ${KC_API_URL}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+    networks:
+    - backend-dgraph
+    - backend-kafka
+    - frontend-api
+    - backend-postgresql
+    volumes:
+    - type: bind
+      source: $DATA_DIR_API_KC/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_API_KC}
+
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
     environment:

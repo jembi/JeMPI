@@ -40,6 +40,8 @@ pushd .
   mkdir -p ${DATA_DIR_LINKER}/conf
   
   mkdir -p ${DATA_DIR_API}/conf
+
+  mkdir -p ${DATA_DIR_API_KC}/conf
   
   echo
 

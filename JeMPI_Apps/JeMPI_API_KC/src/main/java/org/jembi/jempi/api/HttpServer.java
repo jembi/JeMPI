@@ -1043,7 +1043,7 @@ public final class HttpServer extends ApiBase {
 
       static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
          return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
-                                            expandedGoldenRecord.interactionsWithScore()
+                                            expandedGoldenRecord.patientRecordsWithScore()
                                                                 .stream()
                                                                 .map(ApiPatientRecordWithScore::fromPatientRecordWithScore)
                                                                 .toList());

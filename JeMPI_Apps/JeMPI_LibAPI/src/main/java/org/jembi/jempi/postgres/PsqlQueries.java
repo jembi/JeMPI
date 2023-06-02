@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
-
 public final class PsqlQueries {
    private static final String QUERY = """
                                        select N.patient_id, N.id, N.names, N.created, NS.state,
@@ -17,13 +16,18 @@ public final class PsqlQueries {
                                        JOIN match M ON M.notification_id = N.id
                                        """;
    private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
+   private static final String URL = "jdbc:postgresql://postgresql:5432/notifications";
+   private static final String USER = "postgres";
 
-   private PsqlQueries() {
+   private final String sqlServer;
+
+   PsqlQueries(final String server) {
+      this.sqlServer = server;
    }
 
    public static List<HashMap<String, Object>> getMatchesForReview() {
       final var list = new ArrayList<HashMap<String, Object>>();
-      try (Connection connection = DbConnect.connect();
+      try (Connection connection = DriverManager.getConnection(URL, USER, null);
            PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -33,7 +37,7 @@ public final class PsqlQueries {
             final var row = new HashMap<String, Object>(columns);
             for (int i = 1; i <= columns; i++) {
                if (md.getColumnName(i).equals("id")) {
-                  notificationID = rs.getObject(i, java.util.UUID.class);
+                  notificationID = rs.getObject(i, UUID.class);
                }
                row.put(md.getColumnName(i), (rs.getObject(i)));
             }
@@ -50,7 +54,7 @@ public final class PsqlQueries {
       final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
 
-      try (Connection connection = DbConnect.connect();
+      try (Connection connection = DriverManager.getConnection(URL, USER, null);
            PreparedStatement preparedStatement = connection.prepareStatement(candidates)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -82,7 +86,7 @@ public final class PsqlQueries {
          final String gID,
          final String dID) throws SQLException {
 
-      Connection conn = DbConnect.connect();
+      Connection conn = DriverManager.getConnection(URL, USER, null);
       Statement stmt = conn.createStatement();
 
       // Set auto-commit to false
@@ -101,7 +105,7 @@ public final class PsqlQueries {
       rs = stmt.executeQuery("select * from notification_type");
       while (rs.next()) {
          if (rs.getString("type").equals(type)) {
-            someType = rs.getObject("id", java.util.UUID.class);
+            someType = rs.getObject("id", UUID.class);
          }
       }
       String sql = "INSERT INTO notification (id, type_id, state_id, names, created, patient_id) "
@@ -120,7 +124,7 @@ public final class PsqlQueries {
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      Connection conn = DbConnect.connect();
+      Connection conn = DriverManager.getConnection(URL, USER, null);
       Statement stmt = conn.createStatement();
       conn.setAutoCommit(false);
       String sql =
@@ -138,7 +142,7 @@ public final class PsqlQueries {
          final String id,
          final String state) throws SQLException {
 
-      Connection conn = DbConnect.connect();
+      Connection conn = DriverManager.getConnection(URL, USER, null);
       Statement stmt = conn.createStatement();
 
       ResultSet rs = stmt.executeQuery("update notification set state_id = "

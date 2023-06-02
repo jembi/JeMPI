@@ -17,6 +17,7 @@ pushd .
     em
     linker
     api
+    api_kc
     ui
   )
 

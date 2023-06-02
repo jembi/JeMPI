@@ -9,10 +9,6 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-<!--    [WARNING]  * org.apache.maven.plugins:maven-compiler-plugin:3.10.1-->
-<!--    [WARNING]  * org.apache.maven.plugins:maven-resources-plugin:3.3.0-->
-<!--    [WARNING]  * org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M9-->
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
@@ -452,9 +448,11 @@
     </build>
 
     <modules>
-        <module>JeMPI_Shared</module>
+        <module>JeMPI_LibShared</module>
         <module>JeMPI_LibMPI</module>
+        <module>JeMPI_LibAPI</module>
         <module>JeMPI_API</module>
+        <module>JeMPI_API_KC</module>
         <module>JeMPI_AsyncReceiver</module>
         <module>JeMPI_ETL</module>
         <module>JeMPI_Controller</module>
