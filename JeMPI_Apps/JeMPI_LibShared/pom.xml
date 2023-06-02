@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>JeMPI_Shared</artifactId>
+    <artifactId>JeMPI_LibShared</artifactId>
     <packaging>jar</packaging>
 
     <properties>

@@ -1,4 +1,5 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.libapi;
+
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -7,13 +8,13 @@ import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.postgres.PsqlQueries;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,47 +22,42 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
-   private static LibMPI libMPI = null;
+   private LibMPI libMPI = null;
+   private String[] dgraphHosts = null;
+   private int[] dgraphPorts = null;
+   private String sqlServer = null;
 
-   private BackEnd(final ActorContext<Event> context) {
-      super(context);
-      if (libMPI == null) {
-         openMPI(true);
-      }
-   }
 
    private BackEnd(
          final ActorContext<Event> context,
-         final LibMPI libMPI) {
+         final String[] dgraphHosts,
+         final int[] dgraphPorts,
+         final String sqlServer) {
       super(context);
-      BackEnd.libMPI = libMPI;
+      this.libMPI = null;
+      this.dgraphHosts = dgraphHosts;
+      this.dgraphPorts = dgraphPorts;
+      this.sqlServer = sqlServer;
+      openMPI();
    }
 
-   public static Behavior<BackEnd.Event> create() {
-      return Behaviors.setup(BackEnd::new);
+   public static Behavior<Event> create(
+         final String[] dgraphHosts,
+         final int[] dgraphPorts,
+         final String sqlServer) {
+      return Behaviors.setup(context -> new BackEnd(context, dgraphHosts, dgraphPorts, sqlServer));
    }
 
-   public static Behavior<Event> create(final LibMPI lib) {
-      return Behaviors.setup(context -> new BackEnd(context, lib));
-   }
-
-   private static void openMPI(final boolean useDGraph) {
-      if (useDGraph) {
-         final var host = AppConfig.DGRAPH_ALPHA_HOSTS;
-         final var port = AppConfig.DGRAPH_ALPHA_PORTS;
-         libMPI = new LibMPI(host, port);
+   private void openMPI() {
+      if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
+         libMPI = new LibMPI(dgraphHosts, dgraphPorts);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
-                             "postgres",
-                             null);
+         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", sqlServer), "postgres", null);
       }
    }
 
@@ -196,7 +192,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       var recs = libMPI.countGoldenRecords();
       var docs = libMPI.countInteractions();
       libMPI.closeTransaction();
-      request.replyTo.tell(new BackEnd.GetNumberOfRecordsResponse(recs, docs));
+      request.replyTo.tell(new GetNumberOfRecordsResponse(recs, docs));
       return Behaviors.same();
    }
 
@@ -399,7 +395,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
 //       final var result = file.delete()
-         java.nio.file.Files.delete(file.toPath());
+         Files.delete(file.toPath());
          LOGGER.debug("File moved successfully");
       } catch (NoSuchFileException e) {
          LOGGER.debug("No such file");
@@ -410,10 +406,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   interface Event {
+   public interface Event {
    }
 
-   interface EventResponse {
+   public interface EventResponse {
    }
 
    public record GetGoldenRecordCountRequest(ActorRef<GetGoldenRecordCountResponse> replyTo) implements Event {
@@ -523,7 +519,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record FindCandidatesResponse(Either<MpiGeneralError, List<Candidate>> candidates) implements EventResponse {
-      record Candidate(
+      public record Candidate(
             GoldenRecord goldenRecord,
             float score) {
       }

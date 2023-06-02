@@ -12,21 +12,21 @@ import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.NotificationStreamProcessor;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 
-public final class API {
+public final class APIKC {
 
-   private static final Logger LOGGER = LogManager.getLogger(API.class);
+   private static final Logger LOGGER = LogManager.getLogger(APIKC.class);
    private static final String CONFIG_RESOURCE_FILE_NAME = "/config-api.json";
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
 
-   private API() {
+   private APIKC() {
       LOGGER.info("API started.");
    }
 
    public static void main(final String[] args) {
       try {
-         new API().run();
+         new APIKC().run();
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

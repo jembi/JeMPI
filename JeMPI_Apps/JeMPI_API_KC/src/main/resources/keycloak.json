@@ -1,0 +1,25 @@
+{
+  "realm" : "${env.KC_REALM_NAME}",
+  "resource" : "${env.KC_JEMPI_CLIENT_ID}",
+  "auth-server-url" : "${env.KC_API_URL}",
+  "redirect-uri": "${env.KC_JEMPI_ROOT_URL}/login",
+  "ssl-required" : "none",
+  "use-resource-role-mappings" : false,
+  "enable-cors" : false,
+  "cors-max-age" : 1000,
+  "cors-allowed-methods" : "POST, PUT, DELETE, GET",
+  "cors-exposed-headers" : "WWW-Authenticate, My-custom-exposed-Header",
+  "bearer-only" : false,
+  "enable-basic-auth" : false,
+  "expose-token" : false,
+  "verify-token-audience" : true,
+  "credentials" : {
+    "secret" : "${env.KC_JEMPI_CLIENT_SECRET}"
+  },
+  "connection-pool-size" : 20,
+  "socket-timeout-millis" : 5000,
+  "connection-timeout-millis" : 6000,
+  "connection-ttl-millis" : 500,
+  "disable-trust-manager" : false,
+  "allow-any-hostname" : false
+}

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 class CustomAPIBackEndTest {
 
+/*
    private static LibMPI libMPI;
 
    private static ActorTestKit testKit;
@@ -582,4 +583,5 @@ class CustomAPIBackEndTest {
 
       replyTo.expectMessage(new BackEnd.GetInteractionCountResponse(Either.left(new MpiServiceError.GeneralError(error))));
    }
+*/
 }

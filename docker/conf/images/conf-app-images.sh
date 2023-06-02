@@ -25,4 +25,8 @@ export LINKER_JAR=Linker-1.0-SNAPSHOT-spring-boot.jar
 export API_IMAGE=api:1.0-SNAPSHOT
 export API_JAR=API-1.0-SNAPSHOT-spring-boot.jar
 
+
+export API_KC_IMAGE=apikc:1.0-SNAPSHOT
+export API_KC_JAR=API_KC-1.0-SNAPSHOT-spring-boot.jar
+
 export UI_IMAGE=ui:1.0-SNAPSHOT
