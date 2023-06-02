@@ -116,7 +116,7 @@ public final class CustomMain {
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
                                                   String.format("%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
-            sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
+            sendToKafka(UUID.randomUUID().toString(), new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
                                                      String.format("%s:%07d", stanDate, ++index),
                                                      new Interaction(null, null, getCustomDemographicData(csvRecord))));
          }
