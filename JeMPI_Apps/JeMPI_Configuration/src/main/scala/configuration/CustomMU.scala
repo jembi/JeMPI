@@ -6,7 +6,7 @@ import java.io.{File, PrintWriter}
 
 private object CustomMU {
 
-  private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/shared/models"
+  private val classLocation = "../JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/models"
   private val customClassName = "CustomMU"
   private val packageSharedModels = "org.jembi.jempi.shared.models"
 

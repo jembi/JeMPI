@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerDeterministic {
 
-  private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/linker"
+  private val classLocation = "../JeMPI_LibShared/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerDeterministic"
   private val packageText = "org.jembi.jempi.linker"
 
