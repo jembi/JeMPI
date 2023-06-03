@@ -27,6 +27,7 @@ public final class AppConfig {
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
+   public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("KAFKA_CLIENT_ID_NOTIFICATIONS");
    private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
    private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
       try {
@@ -36,17 +37,12 @@ public final class AppConfig {
       }
    }).toArray();
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
-
-   public static final String KAFKA_APPLICATION_ID_ENTITIES = CONFIG.getString("kafka.application-id-entities");
-   public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("kafka.application-id-mu");
-   public static final String KAFKA_CLIENT_ID_ENTITIES = CONFIG.getString("kafka.client-id-entities");
-   public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("kafka.client-id-mu");
-   public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("kafka.client-id-notifications");
-   public static final Float BACK_END_MATCH_THRESHOLD = (float) CONFIG.getDouble("back-end.match-threshold");
-   public static final Float FLAG_FOR_NOTIFICATION_ALLOWANCE =
-         (float) CONFIG.getDouble("back-end.flag-for-notification-allowance");
-   public static final Boolean BACK_END_DETERMINISTIC = CONFIG.getBoolean("back-end.deterministic");
-
+   public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
+   public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
+   public static final String KAFKA_APP_ID_INTERACTIONS = CONFIG.getString("KAFKA_APP_ID_INTERACTIONS");
+   public static final String KAFKA_CLIENT_ID_INTERACTIONS = CONFIG.getString("KAFKA_CLIENT_ID_INTERACTIONS");
+   public static final String KAFKA_APP_ID_MU = CONFIG.getString("KAFKA_APP_ID_MU");
+   public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("KAFKA_CLIENT_ID_MU");
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;

@@ -67,19 +67,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private static boolean isWithinThreshold(final float score) {
-      float minThreshold = AppConfig.BACK_END_MATCH_THRESHOLD - AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
-      float maxThreshold = AppConfig.BACK_END_MATCH_THRESHOLD + AppConfig.FLAG_FOR_NOTIFICATION_ALLOWANCE;
+      float minThreshold = AppConfig.LINKER_MATCH_THRESHOLD - AppConfig.LINKER_MATCH_THRESHOLD_MARGIN;
+      float maxThreshold = AppConfig.LINKER_MATCH_THRESHOLD + AppConfig.LINKER_MATCH_THRESHOLD_MARGIN;
       return score >= minThreshold && score <= maxThreshold;
    }
 
    private float calcNormalizedScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      if (Boolean.TRUE.equals(AppConfig.BACK_END_DETERMINISTIC)) {
-         final var match = CustomLinkerDeterministic.deterministicMatch(goldenRecord, interaction);
-         if (match) {
-            return 1.0F;
-         }
+      if (CustomLinkerDeterministic.deterministicMatch(goldenRecord, interaction)) {
+         return 1.0F;
       }
       return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
    }
@@ -93,11 +90,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
              || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
-   public ArrayList<Notification.MatchData> getCandidatesMatchDataForInteraction(final Interaction interaction) throws RuntimeException {
-
+   public ArrayList<Notification.MatchData> getCandidatesMatchDataForInteraction(final Interaction interaction) {
       try {
-         List<GoldenRecord> candidateGoldenRecords =
-               libMPI.findCandidates(interaction.demographicData(), AppConfig.BACK_END_DETERMINISTIC);
+         List<GoldenRecord> candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData());
          ArrayList<Notification.MatchData> notificationCandidates = new ArrayList<>();
          candidateGoldenRecords.parallelStream()
                                .unordered()
@@ -311,8 +306,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          CustomLinkerProbabilistic.checkUpdatedMU();
          libMPI.startTransaction();
-         final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData(),
-                                                                  AppConfig.BACK_END_DETERMINISTIC);
+         final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData());
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {
@@ -437,7 +431,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             req.batchInteraction.stan(),
             req.batchInteraction.interaction(),
             null,
-            AppConfig.BACK_END_MATCH_THRESHOLD);
+            AppConfig.LINKER_MATCH_THRESHOLD);
       req.replyTo.tell(new EventLinkInteractionAsyncRsp(listLinkInfo.getLeft()));
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventTeaTime.INSTANCE, Duration.ofSeconds(30));

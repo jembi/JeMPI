@@ -77,10 +77,8 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getGoldenIds();
    }
 
-   public List<GoldenRecord> findCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
-      final var candidates = CustomDgraphQueries.getCandidates(demographicData, applyDeterministicFilter);
+   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
+      final var candidates = CustomDgraphQueries.getCandidates(demographicData);
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 

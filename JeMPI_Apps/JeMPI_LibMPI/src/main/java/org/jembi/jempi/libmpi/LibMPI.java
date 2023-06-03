@@ -112,10 +112,8 @@ public final class LibMPI {
       return client.findGoldenIds();
    }
 
-   public List<GoldenRecord> findCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
-      return client.findCandidates(demographicData, applyDeterministicFilter);
+   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
+      return client.findCandidates(demographicData);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

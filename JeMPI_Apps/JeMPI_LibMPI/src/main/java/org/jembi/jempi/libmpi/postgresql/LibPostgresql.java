@@ -113,17 +113,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return PostgresqlQueries.getGoldenIds().stream().map(UUID::toString).toList();
    }
 
-   public List<GoldenRecord> findCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
+   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
       return PostgresqlQueries.findCandidates(demographicData);
-   }
-
-   public boolean setScore(
-         final String interactionUID,
-         final String goldenRecordUid,
-         final float score) {
-      return PostgresqlMutations.setScore(interactionUID, goldenRecordUid, score);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -171,6 +162,13 @@ public final class LibPostgresql implements LibMPIClientInterface {
     * MUTATIONS
     * *******************************************************
     */
+
+   public boolean setScore(
+         final String interactionUID,
+         final String goldenRecordUid,
+         final float score) {
+      return PostgresqlMutations.setScore(interactionUID, goldenRecordUid, score);
+   }
 
    public boolean updateGoldenRecordField(
          final String goldenId,

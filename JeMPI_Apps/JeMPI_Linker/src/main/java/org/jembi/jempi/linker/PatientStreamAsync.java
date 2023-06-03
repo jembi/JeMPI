@@ -89,9 +89,9 @@ public final class PatientStreamAsync {
 
    private Properties loadConfig() {
       final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_ENTITIES);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_ENTITIES);
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APP_ID_INTERACTIONS);
+      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_INTERACTIONS);
       return props;
    }
 

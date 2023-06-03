@@ -3,8 +3,6 @@ package org.jembi.jempi.libmpi;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.models.LibMPIPaginatedResultSet;
-import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 
 import java.util.List;
 
@@ -53,9 +51,7 @@ public interface LibMPIClientInterface {
 
    List<String> findGoldenIds();
 
-   List<GoldenRecord> findCandidates(
-         CustomDemographicData demographicData,
-         boolean applyDeterministicFilter);
+   List<GoldenRecord> findCandidates(CustomDemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<SimpleSearchRequestPayload.SearchParameter> params,
