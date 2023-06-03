@@ -36,6 +36,7 @@ public final class AppConfig {
          return Integer.MIN_VALUE;
       }
    }).toArray();
+   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
@@ -43,16 +44,6 @@ public final class AppConfig {
    public static int[] getDGraphPorts() {
       return DGRAPH_ALPHA_PORTS;
    }
-
-   public static final String HTTP_SERVER_HOST = CONFIG.getString("http-server.host");
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("http-server.port");
-
-//   public static final String KAFKA_GROUP_ID = CONFIG.getString("kafka.group-id");
-//   public static final Boolean AKKA_HTTP_SESSION_ENABLED = CONFIG.getBoolean("akka.http.session.enabled");
-//   public static final Boolean AKKA_HTTP_SESSION_ENABLED = CONFIG.getBoolean("akka.http.session.enabled");
-//   public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
-//   public static final long JEMPI_FILE_IMPORT_MAX_SIZE_BYTE = CONFIG.getLong("import.max-size");
-//   public static final String SESSION_SECRET = CONFIG.getString("akka.http.session.server-secret");
 
    private AppConfig() {
    }

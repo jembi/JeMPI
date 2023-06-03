@@ -42,13 +42,12 @@ public final class APIKC {
                                             AppConfig.POSTGRESQL_DATABASE), "BackEnd");
          context.watch(backEnd);
          final var notificationsSteam = new NotificationStreamProcessor();
-         ActorSystem<Void> system = context.getSystem();
          notificationsSteam.open(AppConfig.POSTGRESQL_PASSWORD,
                                  AppConfig.KAFKA_APPLICATION_ID,
                                  AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          httpServer = HttpServer.create();
-         httpServer.open(AppConfig.HTTP_SERVER_HOST,
+         httpServer.open("0.0.0.0",
                          AppConfig.HTTP_SERVER_PORT,
                          context.getSystem(),
                          backEnd,
@@ -61,7 +60,7 @@ public final class APIKC {
    }
 
    private void run() {
-      LOGGER.info("interface:port {}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);

@@ -237,7 +237,11 @@ services:
   async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     environment:
-      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APP_ID: app-id-syncrx
+      KAFKA_CLIENT_ID: client-id-syncrx
+      KAFKA_GROUP_ID: group-id-syncrx
+      KAFKA_APPLICATION_ID: app-id-syncrx
     networks:
     - backend
     volumes:
@@ -266,7 +270,11 @@ services:
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     environment:
-      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APP_ID: app-id-etl
+      KAFKA_CLIENT_ID: client-id-etl
+      KAFKA_GROUP_ID: group-id-etl
+      KAFKA_APPLICATION_ID: app-id-etl
     networks:
     - backend
     volumes:
@@ -291,7 +299,12 @@ services:
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     environment:
-      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APP_ID: app-id-ctrl
+      KAFKA_CLIENT_ID: client-id-ctrl
+      KAFKA_GROUP_ID: group-id-ctrl
+      KAFKA_APPLICATION_ID: app-id-ctrl
+      HTTP_SERVER_PORT: 50000
     networks:
     - backend
     ports:
@@ -346,9 +359,13 @@ services:
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     environment:
-      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
+      HTTP_SERVER_PORT: 50000
     networks:
     - backend
     volumes:
@@ -386,6 +403,7 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
+      HTTP_SERVER_PORT: 50000
     networks:
     - backend
     volumes:
@@ -414,6 +432,12 @@ services:
   api-kc:
     image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
     environment:
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_API_URL: ${KC_API_URL}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -424,13 +448,7 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      KC_REALM_NAME: ${KC_REALM_NAME}
-      KC_API_URL: ${KC_API_URL}
-      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
-      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
-      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
-      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
-      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      HTTP_SERVER_PORT: 50000
     networks:
     - frontend
     - backend

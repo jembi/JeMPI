@@ -121,13 +121,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private void openMPI(final boolean useDGraph) {
       if (useDGraph) {
-         final var host = AppConfig.DGRAPH_ALPHA_HOSTS;
-         final var port = AppConfig.DGRAPH_ALPHA_PORTS;
+         final var host = AppConfig.getDGraphHosts();
+         final var port = AppConfig.getDGraphPorts();
          libMPI = new LibMPI(host, port);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
-                             "postgres",
-                             null);
+         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE),
+                             AppConfig.POSTGRESQL_USER,
+                             AppConfig.POSTGRESQL_PASSWORD);
       }
       libMPI.startTransaction();
       if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
@@ -312,7 +312,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          CustomLinkerProbabilistic.checkUpdatedMU();
          libMPI.startTransaction();
          final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData(),
-                                                                 AppConfig.BACK_END_DETERMINISTIC);
+                                                                  AppConfig.BACK_END_DETERMINISTIC);
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {

@@ -47,7 +47,7 @@ public final class API {
                                  AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          httpServer = HttpServer.create();
-         httpServer.open(AppConfig.HTTP_SERVER_HOST,
+         httpServer.open("0.0.0.0",
                          AppConfig.HTTP_SERVER_PORT,
                          context.getSystem(),
                          backEnd,
@@ -60,7 +60,7 @@ public final class API {
    }
 
    private void run() {
-      LOGGER.info("interface:port {}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);

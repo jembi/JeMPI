@@ -34,10 +34,10 @@ public final class FrontEndStreamSync extends AllDirectives {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd) {
       http = Http.get(system);
-      binding = http.newServerAt(AppConfig.HTTP_SERVER_HOST,
+      binding = http.newServerAt("0.0.0.0",
                                  AppConfig.HTTP_SERVER_PORT)
                     .bind(this.createRoute(system, backEnd));
-      LOGGER.info("Server online at http://{}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
    }
 
    private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
