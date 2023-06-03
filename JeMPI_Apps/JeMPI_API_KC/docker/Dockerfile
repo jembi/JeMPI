@@ -2,7 +2,7 @@ ARG JAVA_VERSION
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre
 
-ADD API-1.0-SNAPSHOT-spring-boot.jar /app/app.jar
+ADD API_KC-1.0-SNAPSHOT-spring-boot.jar /app/app.jar
 
 RUN printf "#!/bin/bash\n\
 cd /app\n\
