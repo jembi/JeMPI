@@ -823,16 +823,18 @@ public final class HttpServer extends ApiBase {
    }
 
 */
+
 /*
-   private Route routeSessionSimpleSearch(
+   @Override
+   public Route routeSimpleSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
-      return requiredSession(refreshable, sessionTransport, session -> routeSimpleSearch(actorSystem, backEnd, recordType));
+      return requiredSession(refreshable, sessionTransport, session -> super.routeSimpleSearch(actorSystem, backEnd, recordType));
    }
-*//*
+*/
 
-
+/*
    private Route routeCustomSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -958,148 +960,5 @@ public final class HttpServer extends ApiBase {
 //                                   get(() -> path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
 //                                                  () -> complete(StatusCodes.OK, fields.toJSONString()))))));
    }
-
-
-/*
-   private interface ApiPaginatedResultSet {
-   }
-
-   @JsonInclude(JsonInclude.Include.NON_NULL)
-   private record ApiPagination(@JsonProperty("total") Integer total) {
-      static ApiPagination fromLibMPIPagination(final LibMPIPagination pagination) {
-         return new ApiPagination(pagination.total());
-      }
-   }
-*/
-
-/*   @JsonInclude(JsonInclude.Include.NON_NULL)
-   private record ApiGoldenRecordWithScore(
-         ApiGoldenRecord goldenRecord,
-         Float score) {
-
-      static ApiGoldenRecordWithScore fromGoldenRecordWithScore(final GoldenRecordWithScore goldenRecordWithScore) {
-         return new ApiGoldenRecordWithScore(ApiGoldenRecord.fromGoldenRecord(goldenRecordWithScore.goldenRecord()),
-                                             goldenRecordWithScore.score());
-      }
-
-   }*/
-
-/*   @JsonInclude(JsonInclude.Include.NON_NULL)
-   private record ApiGoldenRecord(
-         String uid,
-         List<SourceId> sourceId,
-         CustomDemographicData demographicData) {
-
-      static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
-         return new ApiGoldenRecord(goldenRecord.goldenId(), goldenRecord.sourceId(), goldenRecord.demographicData());
-      }
-
-   }*/
-
-/*
-   private record ApiExpandedGoldenRecordsPaginatedResultSet(
-         List<ApiExpandedGoldenRecord> data,
-         ApiPagination pagination) implements ApiPaginatedResultSet {
-
-      static ApiExpandedGoldenRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(
-            final LibMPIPaginatedResultSet<ExpandedGoldenRecord> resultSet) {
-         final var data = resultSet.data()
-                                   .stream()
-                                   .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                   .toList();
-         return new ApiExpandedGoldenRecordsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
-      }
-
-   }
-
-   private record ApiPatientRecordsPaginatedResultSet(
-         List<ApiPatientRecord> data,
-         ApiPagination pagination) implements ApiPaginatedResultSet {
-
-      static ApiPatientRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(
-            final LibMPIPaginatedResultSet<Interaction> resultSet) {
-         final var data = resultSet.data()
-                                   .stream()
-                                   .map(ApiPatientRecord::fromPatientRecord)
-                                   .toList();
-         return new ApiPatientRecordsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
-      }
-
-   }
-*/
-
-/*
-   private record ApiGoldenRecordCount(Long count) {
-   }
-
-   private record ApiPatientCount(Long count) {
-   }
-*/
-
-/*
-   private record ApiExpandedGoldenRecord(
-         ApiGoldenRecord goldenRecord,
-         List<ApiPatientRecordWithScore> mpiPatientRecords) {
-
-      static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
-         return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
-                                            expandedGoldenRecord.patientRecordsWithScore()
-                                                                .stream()
-                                                                .map(ApiPatientRecordWithScore::fromPatientRecordWithScore)
-                                                                .toList());
-      }
-
-   }
-*/
-
-/*
-   private record ApiExpandedPatientRecord(
-         ApiPatientRecord patientRecord,
-         List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
-
-      static ApiExpandedPatientRecord fromExpandedPatientRecord(final ExpandedInteraction expandedInteraction) {
-         return new ApiExpandedPatientRecord(ApiPatientRecord.fromPatientRecord(expandedInteraction.interaction()),
-                                             expandedInteraction.goldenRecordsWithScore()
-                                                                .stream()
-                                                                .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                                                                .toList());
-      }
-
-   }
-*/
-
-/*
-   @JsonInclude(JsonInclude.Include.NON_NULL)
-   private record ApiPatientRecord(
-         String uid,
-         SourceId sourceId,
-         CustomDemographicData demographicData) {
-
-      static ApiPatientRecord fromPatientRecord(final Interaction interaction) {
-         return new ApiPatientRecord(interaction.interactionId(), interaction.sourceId(), interaction.demographicData());
-      }
-
-   }
-*/
-
-/*
-   @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiPatientRecordWithScore(
-         ApiPatientRecord patientRecord,
-         Float score) {
-
-      static ApiPatientRecordWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
-         return new ApiPatientRecordWithScore(ApiPatientRecord.fromPatientRecord(interactionWithScore.interaction()),
-                                              interactionWithScore.score());
-      }
-   }
-*/
-
-/*
-   private record ApiNumberOfRecords(
-         Long goldenRecords,
-         Long patientRecords) {
-   }
-*/
 
 }

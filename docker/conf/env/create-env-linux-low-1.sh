@@ -18,6 +18,8 @@ else
     export NODE1_IP="127.0.0.1"
 fi
 
+export SCALE_NGINX=1
+export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
 export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1

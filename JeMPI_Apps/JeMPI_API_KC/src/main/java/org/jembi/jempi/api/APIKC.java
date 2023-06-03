@@ -35,11 +35,16 @@ public final class APIKC {
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
          ActorRef<BackEnd.Event> backEnd =
-               context.spawn(BackEnd.create(AppConfig.DGRAPH_ALPHA_HOSTS, AppConfig.DGRAPH_ALPHA_PORTS, null), "BackEnd");
+               context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
+                                            AppConfig.getDGraphPorts(),
+                                            AppConfig.POSTGRESQL_USER,
+                                            AppConfig.POSTGRESQL_PASSWORD,
+                                            AppConfig.POSTGRESQL_DATABASE), "BackEnd");
          context.watch(backEnd);
          final var notificationsSteam = new NotificationStreamProcessor();
          ActorSystem<Void> system = context.getSystem();
-         notificationsSteam.open(system, backEnd, AppConfig.KAFKA_APPLICATION_ID,
+         notificationsSteam.open(AppConfig.POSTGRESQL_PASSWORD,
+                                 AppConfig.KAFKA_APPLICATION_ID,
                                  AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          httpServer = HttpServer.create();

@@ -1,44 +1,101 @@
 version: '3.8'
 
 networks:
-  backend-kafka:
-    name: backend-kafka
+  backend:
+    name: backend
     driver: overlay
     attachable: true
-  backend-dgraph:
-    name: backend-dgraph
-    driver: overlay
-    attachable: true
-  backend-postgresql:
-    name: backend-postgresql
-    driver: overlay
-    attachable: true
-  frontend-api:
-    name: frontend-api
+  frontend:
+    name: frontend
     driver: overlay
     attachable: true
 
 services:
 
+  postgresql:
+    image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
+    networks:
+    - backend
+    ports:
+    - published: 5432
+      target: 5432
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_POSTGRESQL_DIR}
+      target: /conf
+      read_only: true
+    environment:
+      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      ALLOW_EMPTY_PASSWORD: "no"
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_POSTGRESQL}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_POSTGRESQL}
+
+  keycloak-test-server:
+    image: ${IMAGE_REGSITRY}$KEYCLOAK_IMAGE
+    networks:
+      - frontend
+      - backend
+    ports:
+      - published: 80
+        target: 8080
+        protocol: tcp
+        mode: host
+    environment:
+      DB_ADDR: postgresql
+      DB_PORT: 5432
+      DB_DATABASE: ${POSTGRESQL_DATABASE}
+      DB_USER: ${POSTGRESQL_USERNAME}
+      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_KEYCLOAK_TEST_SERVER}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
+
   nginx:
     image: ${IMAGE_REGISTRY}$NGINX_IMAGE
     networks:
-      - frontend-api
+      - frontend
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_NGINX}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_NGINX
 
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
-    volumes:
-      - type: bind
-        source: ${DATA_HAPROXY_DIR}
-        target: /etc/haproxy/
-        read_only: true
     dns:
       - 127.0.0.11
     networks:
-      - backend-kafka
-      - backend-dgraph
-      - backend-postgresql
-      - frontend-api
+      - frontend
+      - backend
     ports:
       - published: 30460
         target: 30460
@@ -51,7 +108,12 @@ services:
       - published: 3000
         target: 3000
         protocol: tcp
-        mode: host        
+        mode: host
+    volumes:
+      - type: bind
+        source: ${DATA_HAPROXY_DIR}
+        target: /etc/haproxy/
+        read_only: true
     deploy:
       mode: global
       
@@ -59,7 +121,7 @@ services:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
     networks:
-      - backend-kafka
+      - backend
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -95,7 +157,7 @@ services:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
     user: root
     networks:
-      - backend-kafka
+      - backend
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -131,7 +193,7 @@ services:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
     user: root
     networks:
-      - backend-kafka
+      - backend
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -167,7 +229,7 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "zero-01"
     networks:
-    - backend-dgraph
+    - backend
     ports:
     - published: 5080
       target: 5080
@@ -197,7 +259,7 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "alpha-01"
     networks:
-    - backend-dgraph
+    - backend
     volumes:
     - type: bind
       source: ${DATA_DGRAPH_ALPHA_01_DIR}
@@ -227,7 +289,7 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "alpha-02"
     networks:
-    - backend-dgraph
+    - backend
     volumes:
     - type: bind
       source: ${DATA_DGRAPH_ALPHA_02_DIR}
@@ -257,7 +319,7 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "alpha-03"
     networks:
-    - backend-dgraph
+    - backend
     volumes:
     - type: bind
       source: ${DATA_DGRAPH_ALPHA_03_DIR}
@@ -291,7 +353,7 @@ services:
       protocol: tcp
       mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
     networks:
-    - backend-dgraph
+    - backend
     deploy:
       replicas: ${SCALE_RATEL}
       update_config:
@@ -304,45 +366,12 @@ services:
         - node.labels.name == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
-  postgresql:
-    image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
-    environment:
-      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      ALLOW_EMPTY_PASSWORD: "yes"
-    networks:
-    - backend-postgresql
-    ports:
-    - published: 5432
-      target: 5432
-      protocol: tcp
-      mode: host
-    volumes:
-    - type: bind
-      source: ${DATA_POSTGRESQL_DIR}
-      target: /conf
-      read_only: true
-    deploy:
-      mode: replicated
-      replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_POSTGRESQL}
-
-
   async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     environment:
       KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
-    - backend-kafka
+    - backend
     volumes:
     - type: bind
       source: $DATA_DIR_ASYNC_RECEIVER/csv
@@ -371,7 +400,7 @@ services:
     environment:
       KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
-    - backend-kafka
+    - backend
     volumes:
     - type: bind
       source: $DATA_DIR_ETL/conf
@@ -396,7 +425,7 @@ services:
     environment:
       KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
-    - backend-kafka
+    - backend
     ports:
     - published: 50020
       target: 50000
@@ -426,7 +455,7 @@ services:
     environment:
       KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
-    - backend-kafka
+    - backend
     volumes:
     - type: bind
       source: $DATA_DIR_EM/conf
@@ -453,9 +482,7 @@ services:
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
-    - backend-kafka
-    - backend-dgraph
-    - backend-postgresql
+    - backend
     volumes:
     - type: bind
       source: $DATA_DIR_LINKER/conf
@@ -481,21 +508,18 @@ services:
   api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
     environment:
-      KC_REALM_NAME: ${KC_REALM_NAME}
-      KC_API_URL: ${KC_API_URL}
-      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
-      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
-      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
-      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
-      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
-      KAFKA_SERVERS: ${KAFKA_SERVERS}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APP_ID: app-id-api
+      KAFKA_CLIENT_ID: client-id-api
+      KAFKA_GROUP_ID: group-id-api
+      KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
-    - backend-dgraph
-    - backend-kafka
-    - frontend-api
-    - backend-postgresql
+    - backend
     volumes:
     - type: bind
       source: $DATA_DIR_API/conf
@@ -522,6 +546,16 @@ services:
   api-kc:
     image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
     environment:
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APP_ID: app-id-api
+      KAFKA_CLIENT_ID: client-id-api
+      KAFKA_GROUP_ID: group-id-api
+      KAFKA_APPLICATION_ID: app-id-api
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
       KC_REALM_NAME: ${KC_REALM_NAME}
       KC_API_URL: ${KC_API_URL}
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
@@ -529,14 +563,9 @@ services:
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
-      KAFKA_SERVERS: ${KAFKA_SERVERS}
-      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
-      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
-    - backend-dgraph
-    - backend-kafka
-    - frontend-api
-    - backend-postgresql
+    - frontend
+    - backend
     volumes:
     - type: bind
       source: $DATA_DIR_API_KC/conf
@@ -563,11 +592,12 @@ services:
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
     environment:
-      REACT_APP_JEMPI_BASE_URL: api:50000/JeMPI
+      REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
       REACT_APP_MOCK_BACKEND: "${JEMPI_UI_MOCKBACKEND}"
       REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
+    command: sh -c "yarn build && serve -s build"
     networks:
-      - frontend-api
+      - frontend
     deploy:
       mode: replicated
       replicas: 1

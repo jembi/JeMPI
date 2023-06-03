@@ -80,8 +80,6 @@ public final class JsonFieldsConfig {
          // Custom fields depend on the needs of the implementation
          JSONArray customFields = (JSONArray) config.get("fields");
          fields = buildFieldsResponsePayload(systemFields, customFields);
-         LOGGER.debug("{}", fields);
-
       } catch (FileNotFoundException e) {
          throw e;
       }

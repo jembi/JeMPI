@@ -21,6 +21,8 @@ import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
 public final class HttpServer extends ApiBase {
 
+//   private final SetSessionTransport sessionTransport;
+
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
    private HttpServer() {

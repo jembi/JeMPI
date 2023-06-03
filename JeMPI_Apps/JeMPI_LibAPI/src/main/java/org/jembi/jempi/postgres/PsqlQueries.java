@@ -19,15 +19,12 @@ public final class PsqlQueries {
    private static final String URL = "jdbc:postgresql://postgresql:5432/notifications";
    private static final String USER = "postgres";
 
-   private final String sqlServer;
-
-   PsqlQueries(final String server) {
-      this.sqlServer = server;
+   private PsqlQueries() {
    }
 
-   public static List<HashMap<String, Object>> getMatchesForReview() {
+   public static List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
       final var list = new ArrayList<HashMap<String, Object>>();
-      try (Connection connection = DriverManager.getConnection(URL, USER, null);
+      try (Connection connection = DriverManager.getConnection(URL, USER, pgPassword);
            PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -42,7 +39,7 @@ public final class PsqlQueries {
                row.put(md.getColumnName(i), (rs.getObject(i)));
             }
             list.add(row);
-            row.put("candidates", getCandidates(notificationID));
+            row.put("candidates", getCandidates(pgPassword, notificationID));
          }
       } catch (Exception e) {
          LOGGER.error(e);
@@ -50,11 +47,13 @@ public final class PsqlQueries {
       return list;
    }
 
-   public static List<HashMap<String, Object>> getCandidates(final UUID nID) {
+   public static List<HashMap<String, Object>> getCandidates(
+         final String pgPassword,
+         final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
 
-      try (Connection connection = DriverManager.getConnection(URL, USER, null);
+      try (Connection connection = DriverManager.getConnection(URL, USER, pgPassword);
            PreparedStatement preparedStatement = connection.prepareStatement(candidates)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -78,6 +77,7 @@ public final class PsqlQueries {
    }
 
    public static void insert(
+         final String pgPassword,
          final UUID id,
          final String type,
          final String patientNames,
@@ -86,70 +86,73 @@ public final class PsqlQueries {
          final String gID,
          final String dID) throws SQLException {
 
-      Connection conn = DriverManager.getConnection(URL, USER, null);
-      Statement stmt = conn.createStatement();
+      try (Connection conn = DriverManager.getConnection(URL, USER, pgPassword);
+           Statement stmt = conn.createStatement()) {
 
-      // Set auto-commit to false
-      conn.setAutoCommit(false);
-      UUID stateId = null;
-      UUID someType = null;
-      Date res = new Date(created);
+         // Set auto-commit to false
+         conn.setAutoCommit(false);
+         UUID stateId = null;
+         UUID someType = null;
+         Date res = new Date(created);
 
-      ResultSet rs = stmt.executeQuery("select * from notification_state");
-      while (rs.next()) {
-         if (rs.getString("state").equals("New")) {
-            stateId = UUID.fromString(rs.getString("id"));
+         ResultSet rs = stmt.executeQuery("select * from notification_state");
+         while (rs.next()) {
+            if (rs.getString("state").equals("New")) {
+               stateId = UUID.fromString(rs.getString("id"));
+            }
          }
-      }
 
-      rs = stmt.executeQuery("select * from notification_type");
-      while (rs.next()) {
-         if (rs.getString("type").equals(type)) {
-            someType = rs.getObject("id", UUID.class);
+         rs = stmt.executeQuery("select * from notification_type");
+         while (rs.next()) {
+            if (rs.getString("type").equals(type)) {
+               someType = rs.getObject("id", UUID.class);
+            }
          }
+         String sql = "INSERT INTO notification (id, type_id, state_id, names, created, patient_id) "
+                      + "VALUES ('" + id + "','" + someType + "','" + stateId + "','" + patientNames + "', '" + res + "', '" + dID + "')";
+         stmt.addBatch(sql);
+
+         sql = "INSERT INTO match (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
+         stmt.addBatch(sql);
+
+         stmt.executeBatch();
+         conn.commit();
       }
-      String sql = "INSERT INTO notification (id, type_id, state_id, names, created, patient_id) "
-                   + "VALUES ('" + id + "','" + someType + "','" + stateId + "','" + patientNames + "', '" + res + "', '" + dID + "')";
-      stmt.addBatch(sql);
-
-      sql = "INSERT INTO match (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
-      stmt.addBatch(sql);
-
-      stmt.executeBatch();
-      conn.commit();
-      conn.close();
    }
 
    public static void insertCandidates(
+         final String pgPassword,
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      Connection conn = DriverManager.getConnection(URL, USER, null);
-      Statement stmt = conn.createStatement();
-      conn.setAutoCommit(false);
-      String sql =
-            "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
-            + "')";
-      stmt.addBatch(sql);
+      try (Connection conn = DriverManager.getConnection(URL, USER, pgPassword);
+           Statement stmt = conn.createStatement()) {
+         conn.setAutoCommit(false);
+         String sql =
+               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
+               + "')";
+         stmt.addBatch(sql);
 
 
-      stmt.executeBatch();
-      conn.commit();
-      conn.close();
+         stmt.executeBatch();
+         conn.commit();
+      }
    }
 
    public static void updateNotificationState(
+         final String pgPassword,
          final String id,
          final String state) throws SQLException {
 
-      Connection conn = DriverManager.getConnection(URL, USER, null);
-      Statement stmt = conn.createStatement();
+      try (
+            Connection conn = DriverManager.getConnection(URL, USER, pgPassword);
+            Statement stmt = conn.createStatement()) {
 
-      ResultSet rs = stmt.executeQuery("update notification set state_id = "
-                                       + "(select id from notification_state where state = '" + state + "' )where id = '" + id
-                                       + "'");
-      conn.commit();
-      conn.close();
+         ResultSet rs = stmt.executeQuery("update notification set state_id = "
+                                          + "(select id from notification_state where state = '" + state + "' )where id = '" + id
+                                          + "'");
+         conn.commit();
+      }
    }
 
 }

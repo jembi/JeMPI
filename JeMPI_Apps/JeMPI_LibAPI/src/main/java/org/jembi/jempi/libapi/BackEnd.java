@@ -27,37 +27,50 @@ import java.util.*;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
+   private final String pgUser;
+   private final String pgPassword;
+   private final String pgDatabase;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
-   private String sqlServer = null;
 
 
    private BackEnd(
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
-         final String sqlServer) {
+         final String sqlUser,
+         final String sqlPassword,
+         final String sqlDatabase) {
       super(context);
       this.libMPI = null;
       this.dgraphHosts = dgraphHosts;
       this.dgraphPorts = dgraphPorts;
-      this.sqlServer = sqlServer;
+      this.pgUser = sqlUser;
+      this.pgPassword = sqlPassword;
+      this.pgDatabase = sqlDatabase;
       openMPI();
    }
 
    public static Behavior<Event> create(
          final String[] dgraphHosts,
          final int[] dgraphPorts,
-         final String sqlServer) {
-      return Behaviors.setup(context -> new BackEnd(context, dgraphHosts, dgraphPorts, sqlServer));
+         final String sqlUser,
+         final String sqlPassword,
+         final String sqlDatabase) {
+      return Behaviors.setup(context -> new BackEnd(context,
+                                                    dgraphHosts,
+                                                    dgraphPorts,
+                                                    sqlUser,
+                                                    sqlPassword,
+                                                    sqlDatabase));
    }
 
    private void openMPI() {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
          libMPI = new LibMPI(dgraphHosts, dgraphPorts);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", sqlServer), "postgres", null);
+         libMPI = new LibMPI("jdbc:postgresql://postgresql:5432/notifications", "postgres", pgPassword);
       }
    }
 
@@ -149,7 +162,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
       LOGGER.debug("findMatchesForReviewHandler");
-      var recs = PsqlQueries.getMatchesForReview();
+      var recs = PsqlQueries.getMatchesForReview(pgPassword);
       request.replyTo.tell(new FindMatchesForReviewResponse(recs));
       return Behaviors.same();
    }
@@ -382,7 +395,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
       try {
-         PsqlQueries.updateNotificationState(request.notificationId, request.state);
+         PsqlQueries.updateNotificationState(pgPassword, request.notificationId, request.state);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }

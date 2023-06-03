@@ -1,7 +1,5 @@
 package org.jembi.jempi.libapi;
 
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -29,8 +27,7 @@ public final class NotificationStreamProcessor {
    private KafkaStreams notificationKafkaStreams = null;
 
    public void open(
-         final ActorSystem<Void> system,
-         final ActorRef<BackEnd.Event> backEnd,
+         final String pgPassword,
          final String kafkaApplicationId,
          final String kafkaClientId,
          final String kafkaBootstrapServers) {
@@ -56,7 +53,8 @@ public final class NotificationStreamProcessor {
 
                   LOGGER.debug("key:{}, value:{}", key, value);
                   UUID id = UUID.randomUUID();
-                  PsqlQueries.insert(id,
+                  PsqlQueries.insert(pgPassword,
+                                     id,
                                      value.notificationType().toString(),
                                      value.patientNames(),
                                      value.linkedTo().score(),
@@ -65,7 +63,10 @@ public final class NotificationStreamProcessor {
                                      value.dID());
 
                   for (int i = 0; i < value.candidates().size(); i++) {
-                     PsqlQueries.insertCandidates(id, value.candidates().get(i).score(), value.candidates().get(i).gID());
+                     PsqlQueries.insertCandidates(pgPassword,
+                                                  id,
+                                                  value.candidates().get(i).score(),
+                                                  value.candidates().get(i).gID());
                   }
                } catch (SQLException e) {
                   LOGGER.debug(e.toString());
@@ -80,18 +81,5 @@ public final class NotificationStreamProcessor {
       Runtime.getRuntime().addShutdownHook(new Thread(notificationKafkaStreams::close));
       LOGGER.info("Notifications started");
    }
-
-/*
-   private Properties loadConfig() {
-      final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID);
-//        props.put(StreamsConfig.GROUP_ID, AppConfig.KAFKA_GROUP_ID);  TODO check howto set group id
-      props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      props.put(StreamsConfig.POLL_MS_CONFIG, 50);
-      return props;
-   }
-*/
-
 
 }
