@@ -50,6 +50,10 @@ public final class GlobalConstants {
    public static final String SEGMENT_EXPANDED_PATIENT_RECORDS = "expanded-patient-records";
    public static final String SEGMENT_CANDIDATE_GOLDEN_RECORDS = "candidate-golden-records";
 
+   public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
+   public static final String SEGMENT_LOGOUT = "logout";
+   public static final String SEGMENT_CURRENT_USER = "current-user";
+
 
    private GlobalConstants() {
    }

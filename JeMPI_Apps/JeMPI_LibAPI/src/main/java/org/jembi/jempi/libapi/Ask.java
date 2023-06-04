@@ -191,7 +191,7 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<ApiBase.ApiPaginatedResultSet> simpleSearchGoldenRecords(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> simpleSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final SimpleSearchRequestPayload searchRequestPayload) {
@@ -200,10 +200,10 @@ public final class Ask {
                  replyTo -> new BackEnd.SimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> ApiBase.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   static CompletionStage<ApiBase.ApiPaginatedResultSet> simpleSearchInteractions(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> simpleSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final SimpleSearchRequestPayload simpleSearchRequestPayload) {
@@ -212,10 +212,10 @@ public final class Ask {
                  replyTo -> new BackEnd.SimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> ApiBase.ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      return stage.thenApply(response -> ApiModels.ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   static CompletionStage<ApiBase.ApiPaginatedResultSet> customSearchGoldenRecords(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> customSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
@@ -224,10 +224,10 @@ public final class Ask {
                  replyTo -> new BackEnd.CustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> ApiBase.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   static CompletionStage<ApiBase.ApiPaginatedResultSet> customSearchInteractions(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> customSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
@@ -236,7 +236,7 @@ public final class Ask {
                  replyTo -> new BackEnd.CustomSearchInteractionsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> ApiBase.ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      return stage.thenApply(response -> ApiModels.ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
    static CompletionStage<BackEnd.UpdateNotificationStateRespnse> updateNotificationState(
@@ -253,21 +253,7 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-/*
-   static CompletionStage<BackEnd.LoginWithKeycloakResponse> loginWithKeycloak(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final OAuthCodeRequestPayload body) {
-      CompletionStage<BackEnd.LoginWithKeycloakResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.LoginWithKeycloakRequest(replyTo, body),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-*/
-
-   static CompletionStage<BackEnd.UploadCsvFileResponse> uploadCsvFile(
+   public static CompletionStage<BackEnd.UploadCsvFileResponse> uploadCsvFile(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final FileInfo info,

@@ -1,4 +1,4 @@
-package org.jembi.jempi.api.keycloak;
+package org.jembi.jempi.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -18,22 +18,26 @@ import java.util.TreeMap;
                     "register-node-period", "token-store", "adapter-state-cookie-path", "principal-attribute", "proxy-url",
                     "turn-off-change-session-id-on-login", "token-minimum-time-to-live", "min-time-between-jwks-requests",
                     "public-key-cache-ttl", "policy-enforcer", "ignore-oauth-query-parameter", "verify-token-audience"})
-public final class AkkaAdapterConfig extends AdapterConfig {
+final class AkkaAdapterConfig extends AdapterConfig {
    @JsonProperty("redirect-uri")
    private String redirectUri;
 
+   @Override
    public String getRealm() {
       return EnvUtil.replace(this.realm);
    }
 
+   @Override
    public String getResource() {
       return EnvUtil.replace(this.resource);
    }
 
+   @Override
    public String getAuthServerUrl() {
       return EnvUtil.replace(this.authServerUrl);
    }
 
+   @Override
    public Map<String, Object> getCredentials() {
       Map<String, Object> credentials = new TreeMap(String.CASE_INSENSITIVE_ORDER);
       for (Map.Entry<String, Object> entry : this.credentials.entrySet()) {
@@ -46,11 +50,11 @@ public final class AkkaAdapterConfig extends AdapterConfig {
       return credentials;
    }
 
-   public String getRedirectUri() {
+   String getRedirectUri() {
       return EnvUtil.replace(this.redirectUri);
    }
 
-   public void setRedirectUri(final String redirectUri) {
+   void setRedirectUri(final String redirectUri) {
       this.redirectUri = redirectUri;
    }
 }

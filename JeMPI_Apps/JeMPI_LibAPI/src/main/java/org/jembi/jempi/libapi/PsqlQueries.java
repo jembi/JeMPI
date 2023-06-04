@@ -1,4 +1,4 @@
-package org.jembi.jempi.postgres;
+package org.jembi.jempi.libapi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
-public final class PsqlQueries {
+final class PsqlQueries {
    private static final String QUERY = """
                                        select N.patient_id, N.id, N.names, N.created, NS.state,
                                               NT.type, M.score, M.golden_id from notification N
@@ -22,7 +22,7 @@ public final class PsqlQueries {
    private PsqlQueries() {
    }
 
-   public static List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
+   static List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
       final var list = new ArrayList<HashMap<String, Object>>();
       try (Connection connection = DriverManager.getConnection(URL, USER, pgPassword);
            PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
@@ -47,7 +47,7 @@ public final class PsqlQueries {
       return list;
    }
 
-   public static List<HashMap<String, Object>> getCandidates(
+   static List<HashMap<String, Object>> getCandidates(
          final String pgPassword,
          final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
@@ -76,7 +76,7 @@ public final class PsqlQueries {
       return list;
    }
 
-   public static void insert(
+   static void insert(
          final String pgPassword,
          final UUID id,
          final String type,
@@ -120,7 +120,7 @@ public final class PsqlQueries {
       }
    }
 
-   public static void insertCandidates(
+   static void insertCandidates(
          final String pgPassword,
          final UUID id,
          final Float score,
@@ -139,7 +139,7 @@ public final class PsqlQueries {
       }
    }
 
-   public static void updateNotificationState(
+   static void updateNotificationState(
          final String pgPassword,
          final String id,
          final String state) throws SQLException {

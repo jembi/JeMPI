@@ -1,10 +1,8 @@
 package org.jembi.jempi.api;
 
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.Terminated;
+import akka.actor.typed.*;
 import akka.actor.typed.javadsl.Behaviors;
+import akka.dispatch.MessageDispatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -34,6 +32,7 @@ public final class APIKC {
 
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
+         ActorSystem system = context.getSystem();
          ActorRef<BackEnd.Event> backEnd =
                context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
                                             AppConfig.getDGraphPorts(),
@@ -46,7 +45,9 @@ public final class APIKC {
                                  AppConfig.KAFKA_APPLICATION_ID,
                                  AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-         httpServer = HttpServer.create();
+         DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
+         MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
+         httpServer = new HttpServer(dispatcher);
          httpServer.open("0.0.0.0",
                          AppConfig.HTTP_SERVER_PORT,
                          context.getSystem(),
