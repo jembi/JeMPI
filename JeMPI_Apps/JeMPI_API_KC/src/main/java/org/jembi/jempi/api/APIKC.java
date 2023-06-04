@@ -32,21 +32,21 @@ public final class APIKC {
 
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
-         ActorSystem system = context.getSystem();
-         ActorRef<BackEnd.Event> backEnd =
-               context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
-                                            AppConfig.getDGraphPorts(),
-                                            AppConfig.POSTGRESQL_USER,
-                                            AppConfig.POSTGRESQL_PASSWORD,
-                                            AppConfig.POSTGRESQL_DATABASE), "BackEnd");
+         final ActorSystem<Void> system = context.getSystem();
+         final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
+                                                                              AppConfig.getDGraphPorts(),
+                                                                              AppConfig.POSTGRESQL_USER,
+                                                                              AppConfig.POSTGRESQL_PASSWORD,
+                                                                              AppConfig.POSTGRESQL_DATABASE),
+                                                               "BackEnd");
          context.watch(backEnd);
          final var notificationsSteam = new NotificationStreamProcessor();
          notificationsSteam.open(AppConfig.POSTGRESQL_PASSWORD,
                                  AppConfig.KAFKA_APPLICATION_ID,
                                  AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-         DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
-         MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
+         final DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
+         final MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
          httpServer = new HttpServer(dispatcher);
          httpServer.open("0.0.0.0",
                          AppConfig.HTTP_SERVER_PORT,

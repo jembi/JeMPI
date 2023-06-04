@@ -41,7 +41,10 @@ export KC_JEMPI_CLIENT_ID="jempi-oauth"
 export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
-export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128000000
+export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
+# Deployment related env vars
+export JEMPI_SESSION_SECURE="false"
+export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
 # ram limit for linker
 export LINKER_RAM_LIMIT="8G"

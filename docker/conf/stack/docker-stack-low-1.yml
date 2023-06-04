@@ -101,6 +101,10 @@ services:
         target: 30460
         protocol: tcp
         mode: host
+      - published: 40000
+        target: 40000
+        protocol: tcp
+        mode: host
       - published: 50000
         target: 50000
         protocol: tcp
@@ -445,6 +449,8 @@ services:
       KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
+      JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}

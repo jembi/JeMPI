@@ -60,7 +60,7 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private Http http = null;
 
    HttpServer(final MessageDispatcher dispatcher) {
-      super(new SessionManager<>(SessionConfig.defaultConfig("SECRET"), BASIC_ENCODER));
+      super(new SessionManager<>(SessionConfig.defaultConfig(AppConfig.SESSION_SECRET), BASIC_ENCODER));
 
       // use Refreshable for sessions, which needs to be refreshed or OneOff otherwise
       // using Refreshable, a refresh token is set in form of a cookie or a custom header

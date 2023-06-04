@@ -37,6 +37,7 @@ public final class AppConfig {
       }
    }).toArray();
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
+   public static final String SESSION_SECRET = CONFIG.getString("JEMPI_SESSION_SECRET");
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
