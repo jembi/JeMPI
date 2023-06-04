@@ -51,7 +51,7 @@ public final class APIKC {
                          AppConfig.HTTP_SERVER_PORT,
                          context.getSystem(),
                          backEnd,
-                         jsonFieldsConfig.fields);
+                         jsonFieldsConfig.jsonFields);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
             httpServer.close(context.getSystem());
             return Behaviors.stopped();

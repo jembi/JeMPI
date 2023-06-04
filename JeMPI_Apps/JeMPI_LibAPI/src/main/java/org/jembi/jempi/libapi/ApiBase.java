@@ -2,14 +2,12 @@ package org.jembi.jempi.libapi;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.AskPattern;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
-import akka.http.javadsl.server.directives.FileInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,7 +17,6 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
-import org.json.simple.JSONArray;
 
 import java.io.File;
 import java.util.List;
@@ -36,7 +33,7 @@ public abstract class ApiBase extends AllDirectives {
    private Http http = null;
 
    /**
-    * @param actorSystem
+    * @param actorSystem actor system
     */
    public void close(final ActorSystem<Void> actorSystem) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
@@ -46,290 +43,25 @@ public abstract class ApiBase extends AllDirectives {
    protected abstract Route createCorsRoutes(
          ActorSystem<Void> actorSystem,
          ActorRef<BackEnd.Event> backEnd,
-         JSONArray fields);
+         String jsonFields);
 
    /**
-    * @param httpServerHost
-    * @param httpPort
-    * @param actorSystem
-    * @param backEnd
-    * @param fields
+    * @param httpServerHost http server ip
+    * @param httpPort       http server port
+    * @param actorSystem    actor system
+    * @param backEnd        backend
+    * @param jsonFields     fields
     */
    public void open(
          final String httpServerHost,
          final int httpPort,
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final JSONArray fields) {
+         final String jsonFields) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(httpServerHost, httpPort)
-                    .bind(this.createCorsRoutes(actorSystem, backEnd, fields));
+                    .bind(this.createCorsRoutes(actorSystem, backEnd, jsonFields));
       LOGGER.info("Server online at http://{}:{}", httpServerHost, httpPort);
-   }
-
-   /*
-    *************************** ASK BACKEND ***************************
-    */
-
-   public final CompletionStage<BackEnd.GetGoldenRecordCountResponse> askGetGoldenRecordCount(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.GetGoldenRecordCountResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.GetGoldenRecordCountRequest::new,
-                 java.time.Duration.ofSeconds(10),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   public final CompletionStage<BackEnd.GetInteractionCountResponse> askGetInteractionCount(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getInteractionCount");
-      CompletionStage<BackEnd.GetInteractionCountResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.GetInteractionCountRequest::new,
-                 java.time.Duration.ofSeconds(10),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   public final CompletionStage<BackEnd.GetNumberOfRecordsResponse> askGetNumberOfRecords(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getNumberOfRecords");
-      CompletionStage<BackEnd.GetNumberOfRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.GetNumberOfRecordsRequest::new,
-                 java.time.Duration.ofSeconds(10),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   public final CompletionStage<BackEnd.GetGoldenIdsResponse> askGetGoldenIds(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      LOGGER.debug("getGoldenIds");
-      CompletionStage<BackEnd.GetGoldenIdsResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.GetGoldenIdsRequest::new,
-                 java.time.Duration.ofSeconds(30),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   public final CompletionStage<BackEnd.FindMatchesForReviewResponse> askFindMatchesForReview(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.FindMatchesForReviewResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.FindMatchesForReviewRequest::new,
-                 java.time.Duration.ofSeconds(30),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   public final CompletionStage<BackEnd.FindExpandedGoldenRecordResponse> askFindExpandedGoldenRecord(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String goldenId) {
-      LOGGER.debug("findGoldenRecordById");
-      final CompletionStage<BackEnd.FindExpandedGoldenRecordResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.FindExpandedGoldenRecordRequest(replyTo, goldenId),
-                 java.time.Duration.ofSeconds(5),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   public final CompletionStage<BackEnd.FindInteractionResponse> askFindPatientRecord(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String patientId) {
-      LOGGER.debug("findPatientRecordById : " + patientId);
-      final CompletionStage<BackEnd.FindInteractionResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.FindInteractionRequest(replyTo, patientId),
-                 java.time.Duration.ofSeconds(5),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.FindCandidatesResponse> askFindCandidates(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String patientId,
-         final CustomMU mu) {
-      LOGGER.debug("getCandidates");
-      CompletionStage<BackEnd.FindCandidatesResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.FindCandidatesRequest(replyTo, patientId, mu),
-                 java.time.Duration.ofSeconds(5),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.FindExpandedGoldenRecordsResponse> askFindExpandedGoldenRecords(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final List<String> goldenIds) {
-      LOGGER.debug("getExpandedGoldenRecords");
-      CompletionStage<BackEnd.FindExpandedGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.FindExpandedGoldenRecordsRequest(replyTo, goldenIds),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.FindExpandedPatientRecordsResponse> askFindExpandedPatientRecords(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final List<String> uidList) {
-      LOGGER.debug("getExpandedPatients");
-      CompletionStage<BackEnd.FindExpandedPatientRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.FindExpandedPatientRecordsRequest(replyTo, uidList),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.UpdateGoldenRecordFieldsResponse> askUpdateGoldenRecordFields(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String goldenId,
-         final GoldenRecordUpdateRequestPayload payload) {
-      LOGGER.debug("updateGoldenRecord");
-      CompletionStage<BackEnd.UpdateGoldenRecordFieldsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.UpdateGoldenRecordFieldsRequest(replyTo, goldenId, payload.fields()),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.UpdateLinkToExistingGoldenRecordResponse> askUpdateLinkToExistingGoldenRecord(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String currentGoldenId,
-         final String newGoldenId,
-         final String patientId,
-         final Float score) {
-      LOGGER.debug("patchLink");
-      final CompletionStage<BackEnd.UpdateLinkToExistingGoldenRecordResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.UpdateLinkToExistingGoldenRecordRequest(replyTo,
-                                                                                currentGoldenId,
-                                                                                newGoldenId,
-                                                                                patientId,
-                                                                                score),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<BackEnd.UpdateLinkToNewGoldenRecordResponse> askUpdateLinkToNewGoldenRecord(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String currentGoldenId,
-         final String patientId) {
-      LOGGER.debug("patchUnLink");
-      final CompletionStage<BackEnd.UpdateLinkToNewGoldenRecordResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.UpdateLinkToNewGoldenRecordRequest(replyTo, currentGoldenId, patientId, 2.0F),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-   private CompletionStage<ApiPaginatedResultSet> askSimpleSearchGoldenRecords(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final SimpleSearchRequestPayload searchRequestPayload) {
-      CompletionStage<BackEnd.SearchGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.SimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
-   }
-
-   private CompletionStage<ApiPaginatedResultSet> askSimpleSearchInteractions(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final SimpleSearchRequestPayload simpleSearchRequestPayload) {
-      CompletionStage<BackEnd.SearchInteractionsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.SimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
-   }
-
-   private CompletionStage<ApiPaginatedResultSet> askCustomSearchGoldenRecords(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.SearchGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.CustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
-   }
-
-   private CompletionStage<ApiPaginatedResultSet> askCustomSearchInteractions(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.SearchInteractionsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.CustomSearchInteractionsRequest(replyTo, customSearchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> ApiPatientRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
-   }
-
-   private CompletionStage<BackEnd.UpdateNotificationStateRespnse> askUpdateNotificationState(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final NotificationRequest notificationRequest) {
-      CompletionStage<BackEnd.UpdateNotificationStateRespnse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.UpdateNotificationStateRequest(replyTo,
-                                                                       notificationRequest.notificationId(),
-                                                                       notificationRequest.state()),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-
-/*
-   private CompletionStage<BackEnd.LoginWithKeycloakResponse> askLoginWithKeycloak(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final OAuthCodeRequestPayload body) {
-      CompletionStage<BackEnd.LoginWithKeycloakResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.LoginWithKeycloakRequest(replyTo, body),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-*/
-
-   private CompletionStage<BackEnd.UploadCsvFileResponse> askUploadCsvFile(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final FileInfo info,
-         final File file) {
-      CompletionStage<BackEnd.UploadCsvFileResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.UploadCsvFileRequest(replyTo, info, file),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
    }
 
    /*
@@ -337,9 +69,9 @@ public abstract class ApiBase extends AllDirectives {
     */
 
    /**
-    * @param body
-    * @return
-    * @throws JsonProcessingException
+    * @param body body
+    * @return stage
+    * @throws JsonProcessingException Json exception
     */
    public CompletionStage<HttpResponse> proxyPostCalculateScores(final CalculateScoresRequest body) throws JsonProcessingException {
       final var request = HttpRequest
@@ -366,10 +98,10 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    * @param actorSystem
-    * @param backEnd
-    * @param goldenId
-    * @return
+    * @param actorSystem actor
+    * @param backEnd     backend
+    * @param goldenId    golden id
+    * @return Route
     */
    public Route routeUpdateGoldenRecordFields(
          final ActorSystem<Void> actorSystem,
@@ -377,7 +109,7 @@ public abstract class ApiBase extends AllDirectives {
          final String goldenId) {
       return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
                     payload -> payload != null
-                          ? onComplete(askUpdateGoldenRecordFields(actorSystem, backEnd, goldenId, payload),
+                          ? onComplete(Ask.updateGoldenRecordFields(actorSystem, backEnd, goldenId, payload),
                                        result -> {
                                           if (result.isSuccess()) {
                                              final var updatedFields = result.get().fields();
@@ -419,10 +151,10 @@ public abstract class ApiBase extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("goldenID",
                        currentGoldenId -> parameter("patientID",
-                                                    patientId -> onComplete(askUpdateLinkToNewGoldenRecord(actorSystem,
-                                                                                                           backEnd,
-                                                                                                           currentGoldenId,
-                                                                                                           patientId),
+                                                    patientId -> onComplete(Ask.updateLinkToNewGoldenRecord(actorSystem,
+                                                                                                            backEnd,
+                                                                                                            currentGoldenId,
+                                                                                                            patientId),
                                                                             result -> result.isSuccess()
                                                                                   ? result.get()
                                                                                           .linkInfo()
@@ -450,13 +182,14 @@ public abstract class ApiBase extends AllDirectives {
                                                        patientId ->
                                                              parameter("score",
                                                                        score -> onComplete(
-                                                                             askUpdateLinkToExistingGoldenRecord(actorSystem,
-                                                                                                                 backEnd,
-                                                                                                                 currentGoldenId,
-                                                                                                                 newGoldenId,
-                                                                                                                 patientId,
-                                                                                                                 Float.parseFloat(
-                                                                                                                       score)),
+                                                                             Ask.updateLinkToExistingGoldenRecord(
+                                                                                   actorSystem,
+                                                                                   backEnd,
+                                                                                   currentGoldenId,
+                                                                                   newGoldenId,
+                                                                                   patientId,
+                                                                                   Float.parseFloat(
+                                                                                         score)),
                                                                              result -> result.isSuccess()
                                                                                    ? result.get()
                                                                                            .linkInfo()
@@ -477,7 +210,7 @@ public abstract class ApiBase extends AllDirectives {
    public Route routeGoldenRecordCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(askGetGoldenRecordCount(actorSystem, backEnd),
+      return onComplete(Ask.getGoldenRecordCount(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? result.get()
                                       .count()
@@ -490,7 +223,6 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -498,7 +230,7 @@ public abstract class ApiBase extends AllDirectives {
    public Route routeInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(askGetInteractionCount(actorSystem, backEnd),
+      return onComplete(Ask.getInteractionCount(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? result.get()
                                       .count()
@@ -511,7 +243,6 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -519,7 +250,7 @@ public abstract class ApiBase extends AllDirectives {
    public Route routeNumberOfRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(askGetNumberOfRecords(actorSystem, backEnd),
+      return onComplete(Ask.getNumberOfRecords(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK,
                                          new ApiNumberOfRecords(result.get().goldenRecords(), result.get().patientRecords()),
@@ -528,7 +259,6 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -536,14 +266,13 @@ public abstract class ApiBase extends AllDirectives {
    public Route routeGoldenIds(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(askGetGoldenIds(actorSystem, backEnd),
+      return onComplete(Ask.getGoldenIds(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -551,14 +280,13 @@ public abstract class ApiBase extends AllDirectives {
    public Route routeFindMatchesForReview(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(askFindMatchesForReview(actorSystem, backEnd),
+      return onComplete(Ask.findMatchesForReview(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -568,7 +296,7 @@ public abstract class ApiBase extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameterList(params -> {
          final var goldenIds = params.stream().map(PARAM_STRING).toList();
-         return onComplete(askFindExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
+         return onComplete(Ask.findExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
                            result -> result.isSuccess()
                                  ? result.get()
                                          .expandedGoldenRecords()
@@ -584,7 +312,6 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -595,7 +322,7 @@ public abstract class ApiBase extends AllDirectives {
       return parameter("uidList", items -> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
          return onComplete(
-               askFindExpandedGoldenRecords(actorSystem, backEnd, uidList),
+               Ask.findExpandedGoldenRecords(actorSystem, backEnd, uidList),
                result -> result.isSuccess()
                      ? result.get()
                              .expandedGoldenRecords()
@@ -611,7 +338,6 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -621,7 +347,7 @@ public abstract class ApiBase extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uidList", items -> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
-         return onComplete(askFindExpandedPatientRecords(actorSystem, backEnd, uidList),
+         return onComplete(Ask.findExpandedPatientRecords(actorSystem, backEnd, uidList),
                            result -> result.isSuccess()
                                  ? result.get()
                                          .expandedPatientRecords()
@@ -637,7 +363,6 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @param goldenId
@@ -647,7 +372,7 @@ public abstract class ApiBase extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenId) {
-      return onComplete(askFindExpandedGoldenRecord(actorSystem, backEnd, goldenId),
+      return onComplete(Ask.findExpandedGoldenRecord(actorSystem, backEnd, goldenId),
                         result -> result.isSuccess()
                               ? result.get()
                                       .goldenRecord()
@@ -671,7 +396,6 @@ public abstract class ApiBase extends AllDirectives {
 */
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @param patientId
@@ -681,7 +405,7 @@ public abstract class ApiBase extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String patientId) {
-      return onComplete(askFindPatientRecord(actorSystem, backEnd, patientId),
+      return onComplete(Ask.findPatientRecord(actorSystem, backEnd, patientId),
                         result -> result.isSuccess()
                               ? result.get()
                                       .patient()
@@ -731,7 +455,6 @@ public abstract class ApiBase extends AllDirectives {
 */
 
    /**
-    *
     * @param actorSystem
     * @param backEnd
     * @return
@@ -741,7 +464,7 @@ public abstract class ApiBase extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uid",
                        patientId -> entity(Jackson.unmarshaller(CustomMU.class),
-                                           mu -> onComplete(askFindCandidates(actorSystem, backEnd, patientId, mu),
+                                           mu -> onComplete(Ask.findCandidates(actorSystem, backEnd, patientId, mu),
                                                             result -> result.isSuccess()
                                                                   ? result.get()
                                                                           .candidates()
@@ -762,7 +485,7 @@ public abstract class ApiBase extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(NotificationRequest.class),
-                    obj -> onComplete(askUpdateNotificationState(actorSystem, backEnd, obj), response -> {
+                    obj -> onComplete(Ask.updateNotificationState(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
                           final var updateResponse = response.get();
                           return complete(StatusCodes.OK, updateResponse, Jackson.marshaller());
@@ -844,7 +567,7 @@ public abstract class ApiBase extends AllDirectives {
                                           return null;
                                        }
                                     },
-                                    (info, file) -> onComplete(askUploadCsvFile(actorSystem, backEnd, info, file),
+                                    (info, file) -> onComplete(Ask.uploadCsvFile(actorSystem, backEnd, info, file),
                                                                response -> response.isSuccess()
                                                                      ? complete(StatusCodes.OK)
                                                                      : complete(StatusCodes.IM_A_TEAPOT))));
@@ -895,9 +618,9 @@ public abstract class ApiBase extends AllDirectives {
                     searchParameters -> onComplete(
                           () -> {
                              if (recordType == RecordType.GoldenRecord) {
-                                return askSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+                                return Ask.simpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
                              } else {
-                                return askSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
+                                return Ask.simpleSearchInteractions(actorSystem, backEnd, searchParameters);
                              }
                           },
                           response -> {
@@ -931,9 +654,9 @@ public abstract class ApiBase extends AllDirectives {
          final RecordType recordType) {
       return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class), searchParameters -> onComplete(() -> {
          if (recordType == RecordType.GoldenRecord) {
-            return askCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+            return Ask.customSearchGoldenRecords(actorSystem, backEnd, searchParameters);
          } else {
-            return askCustomSearchInteractions(actorSystem, backEnd, searchParameters);
+            return Ask.customSearchInteractions(actorSystem, backEnd, searchParameters);
          }
       }, response -> {
          if (response.isSuccess()) {
@@ -946,7 +669,7 @@ public abstract class ApiBase extends AllDirectives {
    }
 
    /**
-    * @return
+    * @return Route
     */
    public Route routeCalculateScores() {
       return entity(Jackson.unmarshaller(CalculateScoresRequest.class),
@@ -975,9 +698,6 @@ public abstract class ApiBase extends AllDirectives {
       });
    }
 */
-
-
-
 
 
 /*

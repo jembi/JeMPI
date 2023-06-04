@@ -5,8 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -14,7 +15,8 @@ import java.io.Reader;
 public final class JsonFieldsConfig {
 
    private static final Logger LOGGER = LogManager.getLogger(JsonFieldsConfig.class);
-   public JSONArray fields;
+   public String jsonFields;
+   private JSONArray fields;
 
    public JsonFieldsConfig(final String resourceFilename) {
       try {
@@ -69,7 +71,7 @@ public final class JsonFieldsConfig {
       return classLoader.getResourceAsStream(resourceFilename);
    }
 
-   public void load(final String resourceFilename) throws Exception {
+   public void load(final String resourceFilename) {
       JSONParser jsonParser = new JSONParser();
       try (Reader reader = new InputStreamReader(getFileStreamFromResource(resourceFilename))) {
          // Read JSON file
@@ -79,9 +81,10 @@ public final class JsonFieldsConfig {
          JSONArray systemFields = (JSONArray) config.get("systemFields");
          // Custom fields depend on the needs of the implementation
          JSONArray customFields = (JSONArray) config.get("fields");
-         fields = buildFieldsResponsePayload(systemFields, customFields);
-      } catch (FileNotFoundException e) {
-         throw e;
+         jsonFields = buildFieldsResponsePayload(systemFields, customFields).toJSONString();
+      } catch (ParseException | IOException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         fields = new JSONArray();
       }
    }
 }

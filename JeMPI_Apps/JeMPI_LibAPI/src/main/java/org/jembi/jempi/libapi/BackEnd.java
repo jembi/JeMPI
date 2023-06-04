@@ -70,7 +70,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
          libMPI = new LibMPI(dgraphHosts, dgraphPorts);
       } else {
-         libMPI = new LibMPI("jdbc:postgresql://postgresql:5432/notifications", "postgres", pgPassword);
+         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase), pgUser, pgPassword);
       }
    }
 
@@ -546,7 +546,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record UpdateNotificationStateRespnse() implements EventResponse {
    }
-
 
    /**
     * Search events
