@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.utils;
+package org.jembi.jempi.libapi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

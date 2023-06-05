@@ -1,9 +1,6 @@
 
 # https://docs.docker.com/registry/
 # https://registry.hub.docker.com/_/registry/tags
-
-# https://hub.docker.com/r/haproxytech/haproxy-debian
-export HAPROXY_IMAGE=haproxytech/haproxy-debian:2.8
 export REGISTRY_IMAGE=registry:2
 
 # https://hub.docker.com/r/bitnami/keycloak/tags
@@ -24,6 +21,6 @@ export POSTGRESQL_IMAGE=bitnami/postgresql:15.3.0
 # https://hub.docker.com/r/haproxytech/haproxy-debian
 export HAPROXY_IMAGE=haproxytech/haproxy-debian:2.8
 
-# https://hub.docker.com/_/nginx
+# https://hub.docker.com/_/nginx/tags
 export NGINX_IMAGE=nginx:1.24.0
 #export NGINX_IMAGE=bitnami/nginx:latest

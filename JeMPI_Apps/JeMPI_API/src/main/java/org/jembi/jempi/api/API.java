@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.NotificationStreamProcessor;
-import org.jembi.jempi.shared.utils.JsonFieldsConfig;
+import org.jembi.jempi.libapi.JsonFieldsConfig;
 
 public final class API {
 
