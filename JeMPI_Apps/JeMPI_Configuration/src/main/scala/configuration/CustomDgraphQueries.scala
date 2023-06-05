@@ -68,11 +68,11 @@ object CustomDgraphQueries {
         |   }
         |
         |   static List<CustomDgraphGoldenRecord> getCandidates(
-        |         final CustomDemographicData patient,
+        |         final CustomDemographicData interaction,
         |         final boolean applyDeterministicFilter) {
         |
         |      if (applyDeterministicFilter) {
-        |         final var result = DgraphQueries.deterministicFilter(patient);
+        |         final var result = DgraphQueries.deterministicFilter(interaction);
         |         if (!result.isEmpty()) {
         |            return result;
         |         }
@@ -81,7 +81,7 @@ object CustomDgraphQueries {
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
-        val vars = "patient"
+        val vars = "interaction"
         writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
       })
     }

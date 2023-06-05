@@ -197,7 +197,7 @@ final class PostgresqlMutations {
    }
 
    static boolean setScore(
-         final String patientUID,
+         final String interactionUID,
          final String goldenRecordUid,
          final float score) {
       final var sql = String.format(
@@ -209,7 +209,7 @@ final class PostgresqlMutations {
             TABLE_EDGES_GID2EID,
             score,
             goldenRecordUid,
-            patientUID).stripIndent();
+            interactionUID).stripIndent();
       try (var stmt = PostgresqlClient.getInstance().createStatement()) {
          final var rs = stmt.executeUpdate(sql);
          return rs == 1;

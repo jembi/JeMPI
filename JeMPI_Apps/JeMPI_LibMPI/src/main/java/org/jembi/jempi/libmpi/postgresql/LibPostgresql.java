@@ -39,8 +39,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return PostgresqlQueries.countGoldenRecords();
    }
 
-   public Interaction findInteraction(final String patientId) {
-      final var interaction = PostgresqlQueries.getInteraction(UUID.fromString(patientId));
+   public Interaction findInteraction(final String interactionId) {
+      final var interaction = PostgresqlQueries.getInteraction(UUID.fromString(interactionId));
       final var sourceId = PostgresqlQueries.getInteractionSourceIds(interaction.uid());
       return new Interaction(interaction.uid().toString(),
                              new SourceId(sourceId.get(0).id().toString(),
@@ -49,8 +49,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
                              interaction.data());
    }
 
-   public List<Interaction> findInteractions(final List<String> patientIds) {
-      return patientIds.stream().map(this::findInteraction).toList();
+   public List<Interaction> findInteractions(final List<String> interactionIds) {
+      return interactionIds.stream().map(this::findInteraction).toList();
    }
 
    private ExpandedInteraction findExpandedInteraction(final String eid) {
@@ -69,8 +69,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
                                               PostgresqlQueries.getScore(goldenRecord.uid(), UUID.fromString(eid)))));
    }
 
-   public List<ExpandedInteraction> findExpandedInteractions(final List<String> patientIds) {
-      return patientIds.stream().map(this::findExpandedInteraction).toList();
+   public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIds) {
+      return interactionIds.stream().map(this::findExpandedInteraction).toList();
    }
 
    public GoldenRecord findGoldenRecord(final String goldenId) {
@@ -113,17 +113,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return PostgresqlQueries.getGoldenIds().stream().map(UUID::toString).toList();
    }
 
-   public List<GoldenRecord> findCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
+   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
       return PostgresqlQueries.findCandidates(demographicData);
-   }
-
-   public boolean setScore(
-         final String patientUID,
-         final String goldenRecordUid,
-         final float score) {
-      return PostgresqlMutations.setScore(patientUID, goldenRecordUid, score);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -172,6 +163,13 @@ public final class LibPostgresql implements LibMPIClientInterface {
     * *******************************************************
     */
 
+   public boolean setScore(
+         final String interactionUID,
+         final String goldenRecordUid,
+         final float score) {
+      return PostgresqlMutations.setScore(interactionUID, goldenRecordUid, score);
+   }
+
    public boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
@@ -181,7 +179,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String goldenUID,
-         final String patientUID,
+         final String interactionUID,
          final float score) {
       LOGGER.error("Not implemented");
       return null;
@@ -190,7 +188,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    public Either<MpiGeneralError, LinkInfo> updateLink(
          final String goldenUID,
          final String newGoldenUID,
-         final String patientUID,
+         final String interactionUID,
          final float score) {
       LOGGER.error("Not implemented");
       return null;

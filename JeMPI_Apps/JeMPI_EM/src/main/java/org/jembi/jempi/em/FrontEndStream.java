@@ -13,8 +13,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchInteraction;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -37,8 +37,8 @@ public final class FrontEndStream {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd,
          final String key,
-         final BatchInteraction batchInteraction) {
-      if (batchInteraction.batchType() == BatchInteraction.BatchType.BATCH_PATIENT) {
+         final InteractionEnvelop batchInteraction) {
+      if (batchInteraction.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          final CompletionStage<BackEnd.EventPatientRsp> result =
                AskPattern.ask(
                      backEnd,
@@ -67,10 +67,10 @@ public final class FrontEndStream {
       LOGGER.info("EM Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serde<BatchInteraction> batchPatientRecordSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
-                                                                               new JsonPojoDeserializer<>(BatchInteraction.class));
+      final Serde<InteractionEnvelop> batchPatientRecordSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+                                                                                 new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchInteraction> patientRecordKStream = streamsBuilder.stream(
+      final KStream<String, InteractionEnvelop> patientRecordKStream = streamsBuilder.stream(
             GlobalConstants.TOPIC_INTERACTION_EM,
             Consumed.with(stringSerde, batchPatientRecordSerde));
       patientRecordKStream.foreach((key, patient) -> addPatient(system, backEnd, key, patient));

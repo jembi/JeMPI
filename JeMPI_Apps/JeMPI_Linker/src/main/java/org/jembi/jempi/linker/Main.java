@@ -44,13 +44,7 @@ public final class Main {
    }
 
    private void run() {
-      LOGGER.info("KAFKA: {} {} {} {} {}",
-                  AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_APPLICATION_ID_ENTITIES,
-                  AppConfig.KAFKA_CLIENT_ID_ENTITIES,
-                  AppConfig.KAFKA_APPLICATION_ID_MU,
-                  AppConfig.KAFKA_CLIENT_ID_MU);
-
+      LOGGER.info("KAFKA: {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       ActorSystem.create(this.create(), "LinkerApp");
    }
 

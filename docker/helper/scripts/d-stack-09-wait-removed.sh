@@ -17,6 +17,7 @@ pushd .
     em
     linker
     api
+    api-kc
     ratel
     alpha-03
     alpha-02

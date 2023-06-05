@@ -113,6 +113,9 @@ final class CustomDgraphQueries {
          """;
 
 
+   private CustomDgraphQueries() {
+   }
+
    static DgraphGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName;
       final var familyName = demographicData.familyName;
@@ -205,23 +208,16 @@ final class CustomDgraphQueries {
       }
    }
 
-   static List<CustomDgraphGoldenRecord> getCandidates(
-         final CustomDemographicData patient,
-         final boolean applyDeterministicFilter) {
-
-      if (applyDeterministicFilter) {
-         final var result = DgraphQueries.deterministicFilter(patient);
-         if (!result.isEmpty()) {
-            return result;
-         }
+   static List<CustomDgraphGoldenRecord> getCandidates(final CustomDemographicData interaction) {
+      final var result1 = DgraphQueries.deterministicFilter(interaction);
+      if (!result1.isEmpty()) {
+         return result1;
       }
-      var result = new LinkedList<CustomDgraphGoldenRecord>();
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(patient));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(patient));
-      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(patient));
-      return result;
+      var result2 = new LinkedList<CustomDgraphGoldenRecord>();
+      updateCandidates(result2, queryMatchGoldenRecordCandidatesByDistance(interaction));
+      updateCandidates(result2, queryMatchGoldenRecordCandidatesByPhoneNumber(interaction));
+      updateCandidates(result2, queryMatchGoldenRecordCandidatesByNationalId(interaction));
+      return result2;
    }
 
-   private CustomDgraphQueries() {
-   }
 }

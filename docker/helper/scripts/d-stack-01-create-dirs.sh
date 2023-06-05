@@ -15,6 +15,8 @@ pushd .
 
   sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
+  mkdir -p ${DATA_KEYCLOAK_TEST_SERVER_DIR}
+
   mkdir -p ${DATA_KAFKA_01_DIR}
   if [ ! -z ${DATA_KAFKA_02_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_02_DIR}; fi
   if [ ! -z ${DATA_KAFKA_03_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_03_DIR}; fi
@@ -40,6 +42,8 @@ pushd .
   mkdir -p ${DATA_DIR_LINKER}/conf
   
   mkdir -p ${DATA_DIR_API}/conf
+
+  mkdir -p ${DATA_DIR_API_KC}/conf
   
   echo
 

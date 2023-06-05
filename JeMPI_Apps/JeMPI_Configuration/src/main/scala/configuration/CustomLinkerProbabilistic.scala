@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerProbabilistic {
 
-  private val classLocation = "../JeMPI_Shared/src/main/java/org/jembi/jempi/linker"
+  private val classLocation = "../JeMPI_LibShared/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerProbabilistic"
   private val packageText = "org.jembi.jempi.linker"
 
@@ -34,7 +34,7 @@ object CustomLinkerProbabilistic {
            |  }
            |
            |  public static float probabilisticScore(final CustomDemographicData goldenRecord,
-           |                                         final CustomDemographicData patientRecord) {
+           |                                         final CustomDemographicData interaction) {
            |    return 0.0F;
            |  }
            |
@@ -184,13 +184,13 @@ object CustomLinkerProbabilistic {
       writer.println(
         """   public static float probabilisticScore(
           |         final CustomDemographicData goldenRecord,
-          |         final CustomDemographicData patient) {
+          |         final CustomDemographicData interaction) {
           |      // min, max, score, missingPenalty
           |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
       muList.zipWithIndex.foreach((field, _) => {
         writer.println(" " * 6 + "updateMetricsForStringField(metrics,")
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(" " * 34 + s"goldenRecord.$fieldName, patient.$fieldName, currentFields" +
+        writer.println(" " * 34 + s"goldenRecord.$fieldName, interaction.$fieldName, currentFields" +
           s".$fieldName);")
       })
       writer.println(" " * 6 + "return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];")

@@ -20,7 +20,7 @@ private object CustomDgraphConstants {
       s"""   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";""".stripMargin)
   }
 
-  private def patient_record_predicates(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def interaction_predicates(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     fields.zipWithIndex.foreach {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
@@ -88,9 +88,9 @@ private object CustomDgraphConstants {
          |         \"\"\";""".stripMargin)
   }
 
-  private def patient_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def interaction_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
-      s"""   static final String PATIENT_RECORD_FIELD_NAMES =
+      s"""   static final String INTERACTION_FIELD_NAMES =
          |         \"\"\"
          |         uid
          |         Interaction.source_id {
@@ -111,9 +111,9 @@ private object CustomDgraphConstants {
 
   }
 
-  private def expanded_patient_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def expanded_interaction_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
-      s"""   static final String EXPANDED_PATIENT_RECORD_FIELD_NAMES =
+      s"""   static final String EXPANDED_INTERACTION_FIELD_NAMES =
          |         \"\"\"
          |         uid
          |         Interaction.source_id {
@@ -231,9 +231,9 @@ private object CustomDgraphConstants {
 
   private def query_get_expanded_interactions(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
-      s"""   static final String QUERY_GET_EXPANDED_PATIENTS =
+      s"""   static final String QUERY_GET_EXPANDED_INTERACTIONS =
          |         \"\"\"
-         |         query expandedPatient() {
+         |         query expandedInteraction() {
          |            all(func: uid(%s)) {
          |               uid
          |               Interaction.source_id {
@@ -265,11 +265,11 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_patient_by_uid(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def query_get_interaction_by_uid(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
-      s"""   static final String QUERY_GET_PATIENT_BY_UID =
+      s"""   static final String QUERY_GET_INTERACTION_BY_UID =
          |         \"\"\"
-         |         query patientByUid($$uid: string) {
+         |         query interactionByUid($$uid: string) {
          |            all(func: uid($$uid)) {
          |               uid
          |               Interaction.source_id {
@@ -351,9 +351,9 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def mutation_create_patient_type(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_interaction_type(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
-      s"""   static final String MUTATION_CREATE_PATIENT_TYPE =
+      s"""   static final String MUTATION_CREATE_INTERACTION_TYPE =
          |         \"\"\"
          |
          |         type Interaction {
@@ -368,9 +368,9 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def mutation_create_patient_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_interaction_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
     writer.println(
-      s"""   static final String MUTATION_CREATE_PATIENT_FIELDS =
+      s"""   static final String MUTATION_CREATE_INTERACTION_FIELDS =
          |         \"\"\"
          |         Interaction.source_id:                    uid                                          .""".stripMargin)
     fields.foreach(field => {
@@ -403,12 +403,12 @@ private object CustomDgraphConstants {
          |""".stripMargin)
 
     golden_record_predicates(writer, fields)
-    patient_record_predicates(writer, fields)
+    interaction_predicates(writer, fields)
     golden_record_field_names(writer, fields)
     expanded_golden_record_field_names(writer, fields)
-    patient_record_field_names(writer, fields)
-    expanded_patient_record_field_names(writer, fields)
-    query_get_patient_by_uid(writer, fields)
+    interaction_field_names(writer, fields)
+    expanded_interaction_field_names(writer, fields)
+    query_get_interaction_by_uid(writer, fields)
     query_get_golden_record_by_uid(writer, fields)
     query_get_expanded_interactions(writer, fields)
     query_get_golden_records(writer, fields)
@@ -417,8 +417,8 @@ private object CustomDgraphConstants {
     mutation_create_source_id_fields(writer, fields)
     mutation_create_golden_record_type(writer, fields)
     mutation_create_golden_record_fields(writer, fields)
-    mutation_create_patient_type(writer, fields)
-    mutation_create_patient_fields(writer, fields)
+    mutation_create_interaction_type(writer, fields)
+    mutation_create_interaction_fields(writer, fields)
     writer.println(
       s"""   private $customClassName() {}
          |

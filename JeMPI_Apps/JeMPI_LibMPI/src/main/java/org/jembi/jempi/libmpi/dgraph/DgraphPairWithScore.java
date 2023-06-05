@@ -5,6 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record DgraphPairWithScore(
       String goldenUID,
-      String patientUID,
+      String interactionUID,
       float score) {}
 

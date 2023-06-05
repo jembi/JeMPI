@@ -8,6 +8,8 @@ import akka.actor.typed.javadsl.Behaviors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.libapi.BackEnd;
+import org.jembi.jempi.libapi.NotificationStreamProcessor;
 import org.jembi.jempi.shared.utils.JsonFieldsConfig;
 
 public final class API {
@@ -32,13 +34,24 @@ public final class API {
 
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
-         ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
+         ActorRef<BackEnd.Event> backEnd =
+               context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
+                                            AppConfig.getDGraphPorts(),
+                                            AppConfig.POSTGRESQL_USER,
+                                            AppConfig.POSTGRESQL_PASSWORD,
+                                            AppConfig.POSTGRESQL_DATABASE), "BackEnd");
          context.watch(backEnd);
          final var notificationsSteam = new NotificationStreamProcessor();
-         ActorSystem<Void> system = context.getSystem();
-         notificationsSteam.open(system, backEnd);
+         notificationsSteam.open(AppConfig.POSTGRESQL_PASSWORD,
+                                 AppConfig.KAFKA_APPLICATION_ID,
+                                 AppConfig.KAFKA_CLIENT_ID,
+                                 AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          httpServer = HttpServer.create();
-         httpServer.open(context.getSystem(), backEnd, jsonFieldsConfig.fields);
+         httpServer.open("0.0.0.0",
+                         AppConfig.HTTP_SERVER_PORT,
+                         context.getSystem(),
+                         backEnd,
+                         jsonFieldsConfig.jsonFields);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
             httpServer.close(context.getSystem());
             return Behaviors.stopped();
@@ -47,7 +60,7 @@ public final class API {
    }
 
    private void run() {
-      LOGGER.info("interface:port {}:{}", AppConfig.HTTP_SERVER_HOST, AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);

@@ -12,8 +12,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.BatchInteraction;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -40,16 +40,18 @@ public final class PatientStreamAsync {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Event> backEnd,
          final String key,
-         final BatchInteraction batchInteraction) {
-      if (batchInteraction.batchType() != BatchInteraction.BatchType.BATCH_PATIENT) {
+         final InteractionEnvelop batchInteraction) {
+      if (batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return;
       }
-      final CompletionStage<BackEnd.EventLinkPatientAsyncRsp> result =
-            AskPattern.ask(
-                  backEnd,
-                  replyTo -> new BackEnd.EventLinkPatientAsyncReq(key, batchInteraction, replyTo),
-                  java.time.Duration.ofSeconds(60),
-                  system.scheduler());
+      final CompletionStage<BackEnd.EventLinkInteractionAsyncRsp> result = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.EventLinkInteractionAsyncReq(
+                       key,
+                       batchInteraction,
+                       replyTo),
+                 java.time.Duration.ofSeconds(60),
+                 system.scheduler());
       final var completableFuture = result.toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
@@ -68,13 +70,11 @@ public final class PatientStreamAsync {
       LOGGER.info("EM Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
-      final var batchPatientRecordSerde = Serdes.serdeFrom(
-            new JsonPojoSerializer<>(),
-            new JsonPojoDeserializer<>(BatchInteraction.class));
+      final var batchPatientRecordSerde =
+            Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, BatchInteraction> patientsStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_INTERACTION_LINKER,
-            Consumed.with(stringSerde, batchPatientRecordSerde));
+      final KStream<String, InteractionEnvelop> patientsStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_LINKER, Consumed.with(stringSerde, batchPatientRecordSerde));
       patientsStream.foreach((key, patient) -> linkPatient(system, backEnd, key, patient));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();
@@ -89,9 +89,9 @@ public final class PatientStreamAsync {
 
    private Properties loadConfig() {
       final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_ENTITIES);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_ENTITIES);
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APP_ID_INTERACTIONS);
+      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_INTERACTIONS);
       return props;
    }
 

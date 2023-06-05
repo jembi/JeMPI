@@ -80,7 +80,7 @@ public final class LibMPI {
       return client.findInteraction(interactionID);
    }
 
-   public List<Interaction> findInteractionRecords(final List<String> interactionIDs) {
+   public List<Interaction> findInteraction(final List<String> interactionIDs) {
       return client.findInteractions(interactionIDs);
    }
 
@@ -112,10 +112,8 @@ public final class LibMPI {
       return client.findGoldenIds();
    }
 
-   public List<GoldenRecord> getCandidates(
-         final CustomDemographicData demographicData,
-         final boolean applyDeterministicFilter) {
-      return client.findCandidates(demographicData, applyDeterministicFilter);
+   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
+      return client.findCandidates(demographicData);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

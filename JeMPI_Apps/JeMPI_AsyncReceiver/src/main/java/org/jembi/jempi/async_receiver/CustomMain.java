@@ -8,10 +8,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.AsyncSourceRecord;
-import org.jembi.jempi.shared.models.BatchMetaData;
-import org.jembi.jempi.shared.models.CustomSourceRecord;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public final class CustomMain {
    private static final int PHONE_NUMBER_IDX = 6;
    private static final int NATIONAL_ID_IDX = 7;
 
-   private MyKafkaProducer<String, AsyncSourceRecord> sourceRecordProducer;
+   private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
@@ -49,21 +49,7 @@ public final class CustomMain {
       return (WatchEvent<T>) event;
    }
 
-   private void sendToKafka(
-         final String key,
-         final AsyncSourceRecord asyncSourceRecord)
-         throws InterruptedException, ExecutionException {
-      try {
-         LOGGER.debug("{}", asyncSourceRecord);
-         sourceRecordProducer.produceSync(key, asyncSourceRecord);
-      } catch (NullPointerException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-      }
-   }
-
-   private String parseRecordNumber(final String in) {
-//    rec-00000000-bbb-8
-//    rec-00003495-org-0
+   private static String parseRecordNumber(final String in) {
       final var regex = "^rec-(?<rnum>\\d+)-(?<class>org|aaa|dup|bbb)-?(?<dnum>\\d+)?$";
       final Pattern pattern = Pattern.compile(regex);
       final Matcher matcher = pattern.matcher(in);
@@ -71,7 +57,7 @@ public final class CustomMain {
          final var rNumber = matcher.group("rnum");
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
-         final var recNumber = String.format("rec-%08d-%s-%d",
+         final var recNumber = String.format("rec-%010d-%s-%d",
                                              Integer.parseInt(rNumber),
                                              klass,
                                              (("org".equals(klass) || "aaa".equals(klass))
@@ -83,6 +69,30 @@ public final class CustomMain {
       return null;
    }
 
+   private static CustomDemographicData getCustomDemographicData(final CSVRecord csvRecord) {
+      return new CustomDemographicData(
+            parseRecordNumber(csvRecord.get(REC_NUM_IDX)),
+            csvRecord.get(GIVEN_NAME_IDX),
+            csvRecord.get(FAMILY_NAME_IDX),
+            csvRecord.get(GENDER_IDX),
+            csvRecord.get(DOB_IDX),
+            csvRecord.get(CITY_IDX),
+            csvRecord.get(PHONE_NUMBER_IDX),
+            csvRecord.get(NATIONAL_ID_IDX));
+   }
+
+   private void sendToKafka(
+         final String key,
+         final InteractionEnvelop interactionEnvelop)
+         throws InterruptedException, ExecutionException {
+      try {
+         LOGGER.debug("{}", interactionEnvelop);
+         interactionEnvelopProducer.produceSync(key, interactionEnvelop);
+      } catch (NullPointerException ex) {
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+      }
+   }
+
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
@@ -91,12 +101,6 @@ public final class CustomMain {
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
          final var uuid = UUID.randomUUID().toString();
-         final var batchMetaData = new BatchMetaData(BatchMetaData.FileType.CSV,
-                                                     LocalDateTime.now().toString(),
-                                                     fileName,
-                                                     null,
-                                                     null,
-                                                     null);
 
          final var csvParser = CSVFormat
                .DEFAULT
@@ -109,31 +113,15 @@ public final class CustomMain {
                .parse(reader);
 
          int index = 0;
-         sendToKafka(uuid,
-                     new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_START,
-                                           batchMetaData, null));
+         sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
+                                                  String.format("%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
-            final var customSourceRecord = new CustomSourceRecord(
-                  String.format("%s:%07d", stanDate, ++index),
-                  parseRecordNumber(csvRecord.get(REC_NUM_IDX)),
-                  csvRecord.get(GIVEN_NAME_IDX),
-                  csvRecord.get(FAMILY_NAME_IDX),
-                  csvRecord.get(GENDER_IDX),
-                  csvRecord.get(DOB_IDX),
-                  csvRecord.get(CITY_IDX),
-                  csvRecord.get(PHONE_NUMBER_IDX),
-                  csvRecord.get(NATIONAL_ID_IDX));
-
-            final var asyncSourceRecord = new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_RECORD,
-                                                                batchMetaData,
-                                                                customSourceRecord);
-            sendToKafka(uuid, asyncSourceRecord);
-
+            sendToKafka(UUID.randomUUID().toString(), new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
+                                                     String.format("%s:%07d", stanDate, ++index),
+                                                     new Interaction(null, null, getCustomDemographicData(csvRecord))));
          }
-         sendToKafka(uuid,
-                     new AsyncSourceRecord(AsyncSourceRecord.RecordType.BATCH_END,
-                                           batchMetaData,
-                                           null));
+         sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, fileName,
+                                                  String.format("%s:%07d", stanDate, ++index), null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -163,7 +151,7 @@ public final class CustomMain {
       return new StringSerializer();
    }
 
-   private Serializer<AsyncSourceRecord> valueSerializer() {
+   private Serializer<InteractionEnvelop> valueSerializer() {
       return new JsonPojoSerializer<>();
    }
 
@@ -172,10 +160,10 @@ public final class CustomMain {
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);
-      sourceRecordProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                   GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
-                                                   keySerializer(), valueSerializer(),
-                                                   AppConfig.KAFKA_CLIENT_ID);
+      interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                         GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+                                                         keySerializer(), valueSerializer(),
+                                                         AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
          Path csvDir = Paths.get("/app/csv");
          csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);

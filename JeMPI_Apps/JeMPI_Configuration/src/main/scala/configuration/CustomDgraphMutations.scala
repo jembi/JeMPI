@@ -26,7 +26,7 @@ private object CustomDgraphMutations {
          |${" " * 3}private $custom_className() {
          |${" " * 3}}
          |
-         |${" " * 3}static String createPatientTriple(
+         |${" " * 3}static String createInteractionTriple(
          |${" " * 9}final CustomDemographicData demographicData,
          |${" " * 9}final String sourceUID) {
          |${" " * 6}final String uuid = UUID.randomUUID().toString();
@@ -58,7 +58,7 @@ private object CustomDgraphMutations {
     writer.println(
       s"""   static String createLinkedGoldenRecordTriple(
          |         final CustomDemographicData demographicData,
-         |         final String patientUID,
+         |         final String interactionUID,
          |         final String sourceUID,
          |         final float score) {
          |      final String uuid = UUID.randomUUID().toString();
@@ -81,7 +81,7 @@ private object CustomDgraphMutations {
         writer.println(s"""${" " * 27}uuid, AppUtils.quotedValue($name),""".stripMargin)
     }
     writer.println(
-      s"""${" " * 27}uuid, patientUID, score,
+      s"""${" " * 27}uuid, interactionUID, score,
          |${" " * 27}uuid);
          |${" " * 3}}
          |}""".stripMargin)
