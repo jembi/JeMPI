@@ -16,15 +16,16 @@ final class PsqlQueries {
                                        JOIN match M ON M.notification_id = N.id
                                        """;
    private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
-   private static final String URL = "jdbc:postgresql://postgresql:5432/notifications";
+   private final String url;
    private static final String USER = "postgres";
 
-   private PsqlQueries() {
+    PsqlQueries(final String db) {
+      url = String.format("jdbc:postgresql://postgresql:5432/%s", db);
    }
 
-   static List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
+    List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
       final var list = new ArrayList<HashMap<String, Object>>();
-      try (Connection connection = DriverManager.getConnection(URL, USER, pgPassword);
+      try (Connection connection = DriverManager.getConnection(url, USER, pgPassword);
            PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -47,13 +48,13 @@ final class PsqlQueries {
       return list;
    }
 
-   static List<HashMap<String, Object>> getCandidates(
+    List<HashMap<String, Object>> getCandidates(
          final String pgPassword,
          final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
 
-      try (Connection connection = DriverManager.getConnection(URL, USER, pgPassword);
+      try (Connection connection = DriverManager.getConnection(url, USER, pgPassword);
            PreparedStatement preparedStatement = connection.prepareStatement(candidates)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -76,7 +77,7 @@ final class PsqlQueries {
       return list;
    }
 
-   static void insert(
+    void insert(
          final String pgPassword,
          final UUID id,
          final String type,
@@ -86,7 +87,7 @@ final class PsqlQueries {
          final String gID,
          final String dID) throws SQLException {
 
-      try (Connection conn = DriverManager.getConnection(URL, USER, pgPassword);
+      try (Connection conn = DriverManager.getConnection(url, USER, pgPassword);
            Statement stmt = conn.createStatement()) {
 
          // Set auto-commit to false
@@ -120,12 +121,12 @@ final class PsqlQueries {
       }
    }
 
-   static void insertCandidates(
+    void insertCandidates(
          final String pgPassword,
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      try (Connection conn = DriverManager.getConnection(URL, USER, pgPassword);
+      try (Connection conn = DriverManager.getConnection(url, USER, pgPassword);
            Statement stmt = conn.createStatement()) {
          conn.setAutoCommit(false);
          String sql =
@@ -139,13 +140,13 @@ final class PsqlQueries {
       }
    }
 
-   static void updateNotificationState(
+    void updateNotificationState(
          final String pgPassword,
          final String id,
          final String state) throws SQLException {
 
       try (
-            Connection conn = DriverManager.getConnection(URL, USER, pgPassword);
+            Connection conn = DriverManager.getConnection(url, USER, pgPassword);
             Statement stmt = conn.createStatement()) {
 
          ResultSet rs = stmt.executeQuery("update notification set state_id = "

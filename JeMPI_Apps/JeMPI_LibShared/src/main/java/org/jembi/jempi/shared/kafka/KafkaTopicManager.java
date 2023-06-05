@@ -1,35 +1,26 @@
-package org.jembi.jempi.em.util;
+package org.jembi.jempi.shared.kafka;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DeleteTopicsOptions;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.streams.StreamsConfig;
-import org.jembi.jempi.AppConfig;
 
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 public final class KafkaTopicManager {
-    private static KafkaTopicManager instance;
 
-    private AdminClient adminClient;
+    private final AdminClient adminClient;
 
-    private KafkaTopicManager() {
+    public KafkaTopicManager(final String bootStrapServers) {
         Properties properties = new Properties();
-        properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-        adminClient = KafkaAdminClient.create(properties);
+        properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);
+        adminClient = AdminClient.create(properties);
     }
 
-    public static synchronized KafkaTopicManager getInstance() {
-        if (instance == null) {
-            instance = new KafkaTopicManager();
-        }
-        return instance;
-    }
 
     public void createTopic(final String topicName, final int partitions, final short replicationFactor) throws ExecutionException, InterruptedException {
         NewTopic newTopic = new NewTopic(topicName, partitions, replicationFactor);
