@@ -5,11 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.models.Interaction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GammaMatrixGenerator {
     private static LibMPI libMPI = null;
@@ -34,34 +29,34 @@ public class GammaMatrixGenerator {
         }
     }
 
-    public final List<Interaction> getRandomPatients(final int scale) {
-
-        try {
-            LOGGER.debug("I just got Patients from libMPI ");
-            return libMPI.getRandomPatients();
-
-        } catch (Exception e) {
-            LOGGER.debug(e.getMessage());
-            return null;
-        }
-    }
-    public final List<List<Boolean>> generateGammaMatrix() {
-        List<Interaction> randomPatients = libMPI.getRandomPatients();
-
-        List<List<Boolean>> gammaMatrix = new ArrayList<>();
-
-        for (Interaction patient : randomPatients) {
-            List<Boolean> agreementVector = new ArrayList<>();
-            List<GoldenRecord> candidateGoldenRecords =   libMPI.getCandidates(patient.demographicData(), true);
-            for (GoldenRecord candidate : candidateGoldenRecords) {
-                boolean agreement = fieldComparator.compareFields(patient, candidate);
-                agreementVector.add(agreement);
-            }
-
-            gammaMatrix.add(agreementVector);
-        }
-
-        return gammaMatrix;
-    }
+//    public final List<Interaction> getRandomPatients(final int scale) {
+//
+//        try {
+//            LOGGER.debug("I just got Patients from libMPI ");
+//            return libMPI.getRandomPatients();
+//
+//        } catch (Exception e) {
+//            LOGGER.debug(e.getMessage());
+//            return null;
+//        }
+//    }
+//    public final List<List<Boolean>> generateGammaMatrix() {
+//        List<Interaction> randomPatients = libMPI.getRandomPatients();
+//
+//        List<List<Boolean>> gammaMatrix = new ArrayList<>();
+//
+//        for (Interaction patient : randomPatients) {
+//            List<Boolean> agreementVector = new ArrayList<>();
+//            List<GoldenRecord> candidateGoldenRecords =   libMPI.getCandidates(patient.demographicData(), true);
+//            for (GoldenRecord candidate : candidateGoldenRecords) {
+//                boolean agreement = fieldComparator.compareFields(patient, candidate);
+//                agreementVector.add(agreement);
+//            }
+//
+//            gammaMatrix.add(agreementVector);
+//        }
+//
+//        return gammaMatrix;
+//    }
 
 }
