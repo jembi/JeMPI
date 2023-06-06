@@ -471,6 +471,8 @@ services:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
     environment:
       KAFKA_SERVERS: ${KAFKA_SERVERS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
     - backend
     volumes:
@@ -480,7 +482,7 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s

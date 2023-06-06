@@ -24,14 +24,16 @@ public final class NotificationStreamProcessor {
 
    private static final Logger LOGGER = LogManager.getLogger(NotificationStreamProcessor.class);
    private KafkaStreams notificationKafkaStreams = null;
+   private PsqlQueries psqlQueries;
 
    public void open(
+         final String pgDatabase,
          final String pgPassword,
          final String kafkaApplicationId,
          final String kafkaClientId,
          final String kafkaBootstrapServers) {
       LOGGER.info("Stream Processor");
-
+      psqlQueries = new PsqlQueries(pgDatabase);
       final Properties props = new Properties();
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafkaApplicationId);
       props.put(StreamsConfig.CLIENT_ID_CONFIG, kafkaClientId);
@@ -52,7 +54,7 @@ public final class NotificationStreamProcessor {
 
                   LOGGER.debug("key:{}, value:{}", key, value);
                   UUID id = UUID.randomUUID();
-                  PsqlQueries.insert(pgPassword,
+                  psqlQueries.insert(pgPassword,
                                      id,
                                      value.notificationType().toString(),
                                      value.patientNames(),
@@ -62,7 +64,7 @@ public final class NotificationStreamProcessor {
                                      value.dID());
 
                   for (int i = 0; i < value.candidates().size(); i++) {
-                     PsqlQueries.insertCandidates(pgPassword,
+                     psqlQueries.insertCandidates(pgPassword,
                                                   id,
                                                   value.candidates().get(i).score(),
                                                   value.candidates().get(i).gID());
