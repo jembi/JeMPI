@@ -46,16 +46,20 @@ services:
         - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
   keycloak-test-server:
-    image: ${IMAGE_REGSITRY}$KEYCLOAK_IMAGE
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    user: root
     networks:
       - frontend
       - backend
-    ports:
-      - published: 80
-        target: 8080
-        protocol: tcp
-        mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
+      target: /docker-entrypoint-initdb.d
+      read_only: true
     environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
       DB_ADDR: postgresql
       DB_PORT: 5432
       DB_DATABASE: ${POSTGRESQL_DATABASE}
@@ -111,6 +115,10 @@ services:
         mode: host
       - published: 3000
         target: 3000
+        protocol: tcp
+        mode: host
+      - published: 80
+        target: 8080
         protocol: tcp
         mode: host
     volumes:

@@ -18,9 +18,9 @@ export REGISTRY_NODE_IP=${REGISTRY_NODE_IP}
 export IMAGE_REGISTRY=${IMAGE_REGISTRY}
 
 export DATA_REGISTRY_DIR=${PROJECT_DIR}/data-registry
-export DATA_HAPROXY_DIR=${PROJECT_DIR}/data-haproxy
-export DATA_NGINX_DIR=${PROJECT_DIR}/data-nginx
-export DATA_KEYCLOAK_TEST_SERVER_DIR=${PROJECT_DIR}/data-keycloak-test-server
+export DATA_HAPROXY_DIR=${PROJECT_DATA_DIR}/data-haproxy
+export DATA_NGINX_DIR=${PROJECT_DATA_DIR}/data-nginx
+export DATA_KEYCLOAK_TEST_SERVER_DIR=${PROJECT_DATA_DIR}/data-keycloak-test-server
 export DATA_KAFKA_01_DIR=${PROJECT_DATA_DIR}/kafka-01
 export DATA_DGRAPH_ZERO_01_DIR=${PROJECT_DATA_DIR}/dgraph/zero-01
 export DATA_DGRAPH_ALPHA_01_DIR=${PROJECT_DATA_DIR}/dgraph/alpha-01
