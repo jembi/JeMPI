@@ -31,6 +31,7 @@ import org.keycloak.representations.AccessTokenResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
@@ -323,7 +324,16 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                           path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS,
                                () -> Routes.routeExpandedPatientRecords(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
-                               () -> Routes.routeFindMatchesForReview(actorSystem, backEnd)),
+                               () -> parameter("limit", limit ->
+                                     parameter("offset", offset ->
+                                           parameter("date", date ->
+                                                           Routes.routeFindMatchesForReview(actorSystem,
+                                                                                            backEnd,
+                                                                                            Integer.parseInt(limit),
+                                                                                            Integer.parseInt(offset),
+                                                                                            LocalDate.parse(date))
+                                                    )))
+                              ),
                           path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS,
                                () -> Routes.routeFindCandidates(actorSystem, backEnd)),
                           path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(
