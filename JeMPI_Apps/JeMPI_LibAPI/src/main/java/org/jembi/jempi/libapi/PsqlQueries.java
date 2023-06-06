@@ -4,29 +4,76 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.*;
 
 final class PsqlQueries {
-   private static final String QUERY = """
-                                       select N.patient_id, N.id, N.names, N.created, NS.state,
-                                              NT.type, M.score, M.golden_id from notification N
-                                       JOIN notification_state NS ON NS.id = N.state_id
-                                       JOIN notification_type NT ON N.type_id = NT.id
-                                       JOIN match M ON M.notification_id = N.id
-                                       """;
+   private static final String QUERY = "SELECT N.patient_id, N.id, N.names, N.created, NS.state, "
+                                       + "NT.type, M.score, M.golden_id \n"
+                                       + "FROM notification N \n"
+                                       + "JOIN notification_state NS ON NS.id = N.state_id \n"
+                                       + "JOIN notification_type NT ON N.type_id = NT.id \n"
+                                       + "JOIN match M ON M.notification_id = N.id \n"
+                                       + "WHERE N.created >= ? \n"
+                                       + "ORDER BY N.id \n"
+                                       + "LIMIT ? OFFSET ?";
    private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
-   private final String url;
    private static final String USER = "postgres";
+   private final String queryTwo = """
+                                   SELECT N.patient_id, N.id, N.names, N.created, NS.state, NT.type, M.score, M.golden_id
+                                   FROM notification N
+                                   JOIN notification_state NS ON NS.id = N.state_id
+                                   JOIN notification_type NT ON N.type_id = NT.id
+                                   JOIN match M ON M.notification_id = N.id
+                                   WHERE N.created >= ?
+                                   ORDER BY N.id
+                                   LIMIT ?, ?""";
+   private final String url;
 
-    PsqlQueries(final String db) {
+   PsqlQueries(final String db) {
       url = String.format("jdbc:postgresql://postgresql:5432/%s", db);
    }
 
-    List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
+//   List<HashMap<String, Object>> getMatchesForReview(final String pgPassword) {
+//      final var list = new ArrayList<HashMap<String, Object>>();
+//      LocalDate date = LocalDate.of(2023, 6, 4);
+//      int offset = 0;
+//      int limit = 3;
+//      try (Connection connection = DriverManager.getConnection(url, USER, pgPassword);
+//           PreparedStatement preparedStatement = connection.prepareStatement(queryTwo)) {
+//         preparedStatement.setDate(1, java.sql.Date.valueOf(date));
+//         preparedStatement.setInt(2, offset);
+//         preparedStatement.setInt(3, limit);
+//
+//         ResultSet rs = preparedStatement.executeQuery();
+//         ResultSetMetaData md = rs.getMetaData();
+//         int columns = md.getColumnCount();
+//         UUID notificationID = null;
+//         while (rs.next()) {
+//            final var row = new HashMap<String, Object>(columns);
+//            for (int i = 1; i <= columns; i++) {
+//               if (md.getColumnName(i).equals("id")) {
+//                  notificationID = rs.getObject(i, UUID.class);
+//               }
+//               row.put(md.getColumnName(i), rs.getObject(i));
+//            }
+//            list.add(row);
+//            row.put("candidates", getCandidates(pgPassword, notificationID));
+//         }
+//      } catch (Exception e) {
+//         LOGGER.error(e);
+//      }
+//      return list;
+//   }
+
+   List<HashMap<String, Object>> getMatchesForReview(final String pgPassword, final int limit, final int offset, final LocalDate date) {
       final var list = new ArrayList<HashMap<String, Object>>();
       try (Connection connection = DriverManager.getConnection(url, USER, pgPassword);
            PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
+         preparedStatement.setDate(1, java.sql.Date.valueOf(date));
+         preparedStatement.setInt(2, limit);
+         preparedStatement.setInt(3, offset);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
@@ -48,7 +95,7 @@ final class PsqlQueries {
       return list;
    }
 
-    List<HashMap<String, Object>> getCandidates(
+   List<HashMap<String, Object>> getCandidates(
          final String pgPassword,
          final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
@@ -77,7 +124,7 @@ final class PsqlQueries {
       return list;
    }
 
-    void insert(
+   void insert(
          final String pgPassword,
          final UUID id,
          final String type,
@@ -121,7 +168,7 @@ final class PsqlQueries {
       }
    }
 
-    void insertCandidates(
+   void insertCandidates(
          final String pgPassword,
          final UUID id,
          final Float score,
@@ -140,7 +187,7 @@ final class PsqlQueries {
       }
    }
 
-    void updateNotificationState(
+   void updateNotificationState(
          final String pgPassword,
          final String id,
          final String state) throws SQLException {
