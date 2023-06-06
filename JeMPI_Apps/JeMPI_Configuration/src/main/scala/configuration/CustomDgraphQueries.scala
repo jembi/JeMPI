@@ -68,16 +68,12 @@ object CustomDgraphQueries {
         |   }
         |
         |   static List<CustomDgraphGoldenRecord> getCandidates(
-        |         final CustomDemographicData interaction,
-        |         final boolean applyDeterministicFilter) {
-        |
-        |      if (applyDeterministicFilter) {
-        |         final var result = DgraphQueries.deterministicFilter(interaction);
-        |         if (!result.isEmpty()) {
-        |            return result;
-        |         }
+        |      final CustomDemographicData interaction) {
+        |      var result = DgraphQueries.deterministicFilter(interaction);
+        |      if (!result.isEmpty()) {
+        |         return result;
         |      }
-        |      var result = new LinkedList<CustomDgraphGoldenRecord>();""".stripMargin)
+        |      result = new LinkedList<>();""".stripMargin)
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
