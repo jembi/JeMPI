@@ -45,7 +45,6 @@ public final class API {
          notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
                                  AppConfig.POSTGRESQL_PASSWORD,
                                  AppConfig.KAFKA_APPLICATION_ID,
-                                 AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          httpServer = HttpServer.create();
          httpServer.open("0.0.0.0",

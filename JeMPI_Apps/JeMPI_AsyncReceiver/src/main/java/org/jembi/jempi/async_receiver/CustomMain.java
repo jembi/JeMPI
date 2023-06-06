@@ -156,9 +156,8 @@ public final class CustomMain {
    }
 
    private void run() throws InterruptedException, ExecutionException, IOException {
-      LOGGER.info("KAFKA: {} {} {}",
+      LOGGER.info("KAFKA: {} {}",
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,

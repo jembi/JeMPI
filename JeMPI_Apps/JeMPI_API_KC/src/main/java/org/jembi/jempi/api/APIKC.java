@@ -44,7 +44,6 @@ public final class APIKC {
          notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
                                  AppConfig.POSTGRESQL_PASSWORD,
                                  AppConfig.KAFKA_APPLICATION_ID,
-                                 AppConfig.KAFKA_CLIENT_ID,
                                  AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          final DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
          final MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);

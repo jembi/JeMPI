@@ -30,14 +30,12 @@ public final class NotificationStreamProcessor {
          final String pgDatabase,
          final String pgPassword,
          final String kafkaApplicationId,
-         final String kafkaClientId,
          final String kafkaBootstrapServers) {
       LOGGER.info("Stream Processor");
       psqlQueries = new PsqlQueries(pgDatabase);
       final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafkaApplicationId);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, kafkaClientId);
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafkaApplicationId);
       props.put(StreamsConfig.POLL_MS_CONFIG, 50);
 
       final Serde<String> stringSerde = Serdes.String();

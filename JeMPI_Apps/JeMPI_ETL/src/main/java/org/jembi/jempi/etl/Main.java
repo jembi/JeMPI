@@ -29,10 +29,9 @@ public final class Main {
 
    private void run() {
       LOGGER.info("ETL");
-      LOGGER.info("KAFKA: {} {} {}",
+      LOGGER.info("KAFKA: {} {}",
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_APPLICATION_ID,
-                  AppConfig.KAFKA_CLIENT_ID);
-      ActorSystem.create(this.create(), "ETL");
+                  AppConfig.KAFKA_APPLICATION_ID);
+     ActorSystem.create(this.create(), "ETL");
    }
 }

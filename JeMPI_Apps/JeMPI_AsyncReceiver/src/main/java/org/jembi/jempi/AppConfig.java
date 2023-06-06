@@ -23,7 +23,6 @@ public final class AppConfig {
             .build();
 
     public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
-    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
     public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
 
     private AppConfig() {

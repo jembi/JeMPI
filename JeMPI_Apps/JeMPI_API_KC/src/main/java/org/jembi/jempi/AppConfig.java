@@ -27,7 +27,6 @@ public final class AppConfig {
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
-   public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
    private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
    private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
       try {

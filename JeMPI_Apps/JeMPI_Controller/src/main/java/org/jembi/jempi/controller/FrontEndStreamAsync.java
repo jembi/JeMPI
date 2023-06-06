@@ -71,9 +71,8 @@ public final class FrontEndStreamAsync {
 
    private Properties loadConfig() {
       final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID);
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
    }
