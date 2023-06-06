@@ -98,9 +98,11 @@ object CustomLinkerProbabilistic {
       writer.print("      new Fields(")
       var margin = 0
       muList.zipWithIndex.foreach((field, idx) => {
+        val comparison = field.comparison.get
+        val comparisonLevel = field.comparisonLevel.get
         val m: Double = field.m.get
         val u: Double = field.u.get
-        writer.print(" " * margin + s"new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, ${m}F, ${u}F)")
+        writer.print(" " * margin + s"new LinkerProbabilistic.Field(${comparison}, ${comparisonLevel}F, ${m}F, ${u}F)")
         if (idx + 1 < muList.length)
           writer.println(",")
           margin = 17
@@ -140,7 +142,9 @@ object CustomLinkerProbabilistic {
       writer.println(" " * 9 + "updatedFields = new Fields(")
       muList.zipWithIndex.foreach((field, idx) => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.print(" " * 12 + s"new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, mu.$fieldName().m(), mu.$fieldName().u())")
+        val comparison = field.comparison.get
+        val comparisonLevel = field.comparisonLevel.get
+        writer.print(" " * 12 + s"new LinkerProbabilistic.Field(${comparison}, ${comparisonLevel}F, mu.$fieldName().m(), mu.$fieldName().u())")
         if (idx + 1 < muList.length)
           writer.println(",")
         else

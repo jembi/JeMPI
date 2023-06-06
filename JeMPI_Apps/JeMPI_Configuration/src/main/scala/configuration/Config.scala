@@ -5,6 +5,8 @@ case class CommonField(fieldName: String,
                        isList: Option[Boolean],
                        indexGoldenRecord: Option[String],
                        indexEntity: Option[String],
+                       comparison: Option[String],
+                       comparisonLevel: Option[Double],
                        m: Option[Double],
                        u: Option[Double])
 

@@ -40,7 +40,7 @@ public final class LinkerProbabilistic {
          final String left,
          final String right,
          final Field field) {
-      return fieldScore(field.similarityScore.apply(left, right) > 0.92, field.m, field.u);
+      return fieldScore(field.similarityScore.apply(left, right) > field.comparisonLevel, field.m, field.u);
    }
 
    static CustomMU.Probability getProbability(final Field field) {
@@ -71,6 +71,7 @@ public final class LinkerProbabilistic {
 
    record Field(
          SimilarityScore<Double> similarityScore,
+         float comparisonLevel,
          float m,
          float u,
          float min,
@@ -84,9 +85,10 @@ public final class LinkerProbabilistic {
 
       Field(
             final SimilarityScore<Double> fn,
+            final float comparisonLevel,
             final float m_,
             final float u_) {
-         this(fn, m_, u_, 0.0F, 0.0F);
+         this(fn, comparisonLevel, m_, u_, 0.0F, 0.0F);
       }
 
    }
