@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -29,10 +30,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgUser;
    private final String pgPassword;
    private final String pgDatabase;
+   private final PsqlQueries psqlQueries;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
-   private final PsqlQueries psqlQueries;
 
 
    private BackEnd(
@@ -163,7 +164,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
       LOGGER.debug("findMatchesForReviewHandler");
-      var recs = psqlQueries.getMatchesForReview(pgPassword);
+      var recs = psqlQueries.getMatchesForReview(pgPassword, request.limit(), request.offset(), request.date());
       request.replyTo.tell(new FindMatchesForReviewResponse(recs));
       return Behaviors.same();
    }
@@ -488,7 +489,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements EventResponse {
    }
 
-   public record FindMatchesForReviewRequest(ActorRef<FindMatchesForReviewResponse> replyTo) implements Event {
+   public record FindMatchesForReviewRequest(
+         ActorRef<FindMatchesForReviewResponse> replyTo,
+         int limit,
+         int offset,
+         LocalDate date) implements Event {
    }
 
    public record FindMatchesForReviewResponse(List<HashMap<String, Object>> records) implements EventResponse {
