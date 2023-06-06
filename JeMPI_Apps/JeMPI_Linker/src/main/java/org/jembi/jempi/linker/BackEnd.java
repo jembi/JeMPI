@@ -272,7 +272,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final LinkInfo linkInfo;
       try {
          // Check if we have new M&U values
-         CustomLinkerProbabilistic.checkUpdatedMU();
+         LinkerProbabilistic.checkUpdatedMU();
 
          libMPI.startTransaction();
          final var docAuxKey = interaction.demographicData().auxId;
@@ -304,7 +304,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             ? externalLinkRange.high()
             : matchThreshold_;
       try {
-         CustomLinkerProbabilistic.checkUpdatedMU();
+         LinkerProbabilistic.checkUpdatedMU();
          libMPI.startTransaction();
          final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData());
          if (candidateGoldenRecords.isEmpty()) {

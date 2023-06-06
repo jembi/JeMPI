@@ -12,6 +12,7 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
+import org.jembi.jempi.linker.LinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -345,7 +346,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
          final var patientDemographic = interaction.demographicData();
          CustomLinkerProbabilistic.updateMU(request.mu);
-         CustomLinkerProbabilistic.checkUpdatedMU();
+         LinkerProbabilistic.checkUpdatedMU();
          candidates = goldenRecords
                .stream()
                .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
