@@ -32,6 +32,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
+   private final PsqlQueries psqlQueries;
 
 
    private BackEnd(
@@ -48,6 +49,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgUser = sqlUser;
       this.pgPassword = sqlPassword;
       this.pgDatabase = sqlDatabase;
+      psqlQueries = new PsqlQueries(sqlDatabase);
       openMPI();
    }
 
@@ -161,7 +163,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
       LOGGER.debug("findMatchesForReviewHandler");
-      var recs = PsqlQueries.getMatchesForReview(pgPassword);
+      var recs = psqlQueries.getMatchesForReview(pgPassword);
       request.replyTo.tell(new FindMatchesForReviewResponse(recs));
       return Behaviors.same();
    }
@@ -394,7 +396,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
       try {
-         PsqlQueries.updateNotificationState(pgPassword, request.notificationId, request.state);
+         psqlQueries.updateNotificationState(pgPassword, request.notificationId, request.state);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }

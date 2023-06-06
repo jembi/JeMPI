@@ -20,16 +20,15 @@ public final class EM {
    }
 
    public static Behavior<Void> create() {
-      return Behaviors.setup(
-            context -> {
-               ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
-               context.watch(backEnd);
-               final FrontEndStream frontEndStream = new FrontEndStream();
-               frontEndStream.open(context.getSystem(), backEnd);
-               return Behaviors.receive(Void.class)
-                               .onSignal(akka.actor.typed.Terminated.class, sig -> Behaviors.stopped())
-                               .build();
-            });
+      return Behaviors.setup(context -> {
+         ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
+         context.watch(backEnd);
+         final FrontEndStream frontEndStream = new FrontEndStream();
+         frontEndStream.open(context.getSystem(), backEnd);
+         return Behaviors.receive(Void.class)
+                         .onSignal(akka.actor.typed.Terminated.class, sig -> Behaviors.stopped())
+                         .build();
+      });
    }
 
    private void run() {
