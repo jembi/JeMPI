@@ -21,6 +21,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.stats.StatsTask;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -311,7 +312,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String goldenID,
          final String event) {
       topicAuditEvents.produceAsync(stan,
-                                    new AuditEvent(System.currentTimeMillis(), null, interactionID, goldenID, event),
+                                    new AuditEvent(new Timestamp(System.currentTimeMillis()), null, interactionID, goldenID, event),
                                     ((metadata, exception) -> {
                                        if (exception != null) {
                                           LOGGER.error(exception.getLocalizedMessage(), exception);

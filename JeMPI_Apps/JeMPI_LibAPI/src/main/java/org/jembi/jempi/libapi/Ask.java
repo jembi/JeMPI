@@ -195,6 +195,32 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.GoldenRecordAuditTrailResponse> goldenRecordAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String uid) {
+      LOGGER.debug("{}", uid);
+      final CompletionStage<BackEnd.GoldenRecordAuditTrailResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.GoldenRecordAuditTrailRequest(replyTo, uid),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.InteractionAuditTrailResponse> interactionAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String uid) {
+      LOGGER.debug("{}", uid);
+      final CompletionStage<BackEnd.InteractionAuditTrailResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.InteractionAuditTrailRequest(replyTo, uid),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<ApiModels.ApiPaginatedResultSet> simpleSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,

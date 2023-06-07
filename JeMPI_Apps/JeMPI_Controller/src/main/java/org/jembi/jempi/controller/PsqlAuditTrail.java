@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.AuditEvent;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
 
@@ -24,9 +23,9 @@ final class PsqlAuditTrail {
          stmt.executeUpdate(String.format(
                """
                CREATE TABLE IF NOT EXISTS %s (
-                   id             UUID           NOT NULL DEFAULT gen_random_uuid(),
-                   insertedAt     TIMESTAMPTZ    NOT NULL DEFAULT now(),
-                   createdAt      TIMESTAMPTZ    NOT NULL,
+                   id             UUID         NOT NULL DEFAULT gen_random_uuid(),
+                   insertedAt     TIMESTAMP    NOT NULL DEFAULT now(),
+                   createdAt      TIMESTAMP    NOT NULL,
                    interactionID  VARCHAR(64),
                    goldenID       VARCHAR(64),
                    event          VARCHAR(256),
@@ -34,6 +33,14 @@ final class PsqlAuditTrail {
                );
                """,
                PSQL_TABLE_AUDIT_TRAIL).stripIndent());
+         stmt.executeUpdate(String.format(
+               """
+               CREATE INDEX IF NOT EXISTS idx_gid ON %s(goldenID);
+               """, PSQL_TABLE_AUDIT_TRAIL).stripIndent());
+         stmt.executeUpdate(String.format(
+               """
+               CREATE INDEX IF NOT EXISTS idx_iid ON %s(interactionID);
+               """, PSQL_TABLE_AUDIT_TRAIL).stripIndent());
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
@@ -47,7 +54,7 @@ final class PsqlAuditTrail {
                   INSERT INTO %s (createdAt, interactionID, goldenID, event)
                   VALUES (?, ?, ?, ?);
                   """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
-         preparedStatement.setTimestamp(1, new Timestamp(event.createdAt()));
+         preparedStatement.setTimestamp(1, event.createdAt());
          preparedStatement.setString(2, event.interactionID());
          preparedStatement.setString(3, event.goldenID());
          preparedStatement.setString(4, event.event());

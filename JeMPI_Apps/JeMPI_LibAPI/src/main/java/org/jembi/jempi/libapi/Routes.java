@@ -77,6 +77,30 @@ public final class Routes {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+   public static Route routeGoldenRecordAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("uid",
+                       uid -> onComplete(Ask.goldenRecordAuditTrail(actorSystem, backEnd, uid),
+                                         result -> result.isSuccess()
+                                               ? complete(StatusCodes.OK,
+                                                          ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
+                                                          Jackson.marshaller())
+                                               : complete(StatusCodes.IM_A_TEAPOT)));
+   }
+
+   public static Route routeInteractionAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("uid",
+                       uid -> onComplete(Ask.interactionAuditTrail(actorSystem, backEnd, uid),
+                                         result -> result.isSuccess()
+                                               ? complete(StatusCodes.OK,
+                                                          ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
+                                                          Jackson.marshaller())
+                                               : complete(StatusCodes.IM_A_TEAPOT)));
+   }
+
    public static Route routeUpdateLinkToNewGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {

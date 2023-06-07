@@ -27,8 +27,7 @@ final class NotificationStreamProcessor {
 
    void open() {
       LOGGER.info("Stream Processor");
-      final var psqlNotifications =
-            new PsqlNotifications();
+      final var psqlNotifications = new PsqlNotifications();
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID + "-NOTIFICATIONS");

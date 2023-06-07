@@ -48,6 +48,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_COUNT_PATIENT_RECORDS = "count-patient-records";
    public static final String SEGMENT_COUNT_RECORDS = "count-records";
    public static final String SEGMENT_GOLDEN_IDS = "golden-ids";
+   public static final String SEGMENT_GOLDEN_RECORD_AUDIT_TRAIL = "golden-record-audit-trail";
+   public static final String SEGMENT_INTERACTION_AUDIT_TRAIL = "interaction-audit-trail";
    public static final String SEGMENT_EXPANDED_PATIENT_RECORDS = "expanded-patient-records";
    public static final String SEGMENT_CANDIDATE_GOLDEN_RECORDS = "candidate-golden-records";
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
