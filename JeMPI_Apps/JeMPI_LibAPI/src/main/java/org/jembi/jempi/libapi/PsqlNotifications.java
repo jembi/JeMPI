@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-final class PsqlQueries {
+final class PsqlNotifications {
    private static final String QUERY = """
                                        SELECT patient_id, id, names, created, state,type, score, golden_id
                                        FROM notification
@@ -18,11 +18,11 @@ final class PsqlQueries {
                                        ORDER BY created
                                        LIMIT ? OFFSET ?
                                        """;
-   private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
+   private static final Logger LOGGER = LogManager.getLogger(PsqlNotifications.class);
    private static final String USER = "postgres";
    private final String url;
 
-   PsqlQueries(final String db) {
+   PsqlNotifications(final String db) {
       url = String.format("jdbc:postgresql://postgresql:5432/%s", db);
    }
 
