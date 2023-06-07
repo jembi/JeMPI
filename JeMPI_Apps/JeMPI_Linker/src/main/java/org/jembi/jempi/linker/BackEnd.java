@@ -290,13 +290,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                   interaction,
                   new LibMPIClientInterface.GoldenIdScore(gid, score));
-            final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
-                  gid, score
-            );
-            //get the golden record for the GID //check if not null --Log Error out that the Golden record does not exist and return null
-            ////if(goldenRecord.CustomUniqueGoldenRecordData.isAutoUpdateEnabled)
-            //    then call the below method
-            CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
+            final var goldenRecord = libMPI.findGoldenRecord(gid);
+            if (goldenRecord == null) {
+               LOGGER.error("Golden Record for GID {} is null", gid);
+            } else if (goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled()) {
+               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
+            }
          }
       } finally {
          libMPI.closeTransaction();
