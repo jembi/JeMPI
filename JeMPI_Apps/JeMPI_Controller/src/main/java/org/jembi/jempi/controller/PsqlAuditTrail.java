@@ -24,11 +24,12 @@ final class PsqlAuditTrail {
          stmt.executeUpdate(String.format(
                """
                CREATE TABLE IF NOT EXISTS %s (
-                   id          UUID           NOT NULL DEFAULT gen_random_uuid(),
-                   inserted_at TIMESTAMPTZ    NOT NULL DEFAULT now(),
-                   created_at  TIMESTAMPTZ    NOT NULL,
-                   uid         VARCHAR(256),
-                   event       VARCHAR(256),
+                   id             UUID           NOT NULL DEFAULT gen_random_uuid(),
+                   insertedAt     TIMESTAMPTZ    NOT NULL DEFAULT now(),
+                   createdAt      TIMESTAMPTZ    NOT NULL,
+                   interactionID  VARCHAR(64),
+                   goldenID       VARCHAR(64),
+                   event          VARCHAR(256),
                    CONSTRAINT PKEY_AUDIT_TRAIL PRIMARY KEY (id)
                );
                """,
@@ -39,17 +40,17 @@ final class PsqlAuditTrail {
    }
 
    void addAuditEvent(final AuditEvent event) {
-      LOGGER.debug("{}", event);
       psqlClient.connect();
       try (var preparedStatement = psqlClient.prepareStatement(
             String.format(
                   """
-                  insert into %s (created_at, uid, event)
-                  values (?, ?, ?);
+                  INSERT INTO %s (createdAt, interactionID, goldenID, event)
+                  VALUES (?, ?, ?, ?);
                   """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
-         preparedStatement.setTimestamp(1, new Timestamp(event.timestamp()));
-         preparedStatement.setString(2, event.UID());
-         preparedStatement.setString(3, event.event());
+         preparedStatement.setTimestamp(1, new Timestamp(event.createdAt()));
+         preparedStatement.setString(2, event.interactionID());
+         preparedStatement.setString(3, event.goldenID());
+         preparedStatement.setString(4, event.event());
          preparedStatement.executeUpdate();
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);

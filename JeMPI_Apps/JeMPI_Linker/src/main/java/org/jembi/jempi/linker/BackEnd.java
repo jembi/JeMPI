@@ -137,6 +137,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    boolean updateGoldenRecordField(
+         final String stan,
+         final String interactionId,
          final ExpandedGoldenRecord expandedGoldenRecord,
          final String fieldName,
          final String goldenRecordFieldValue,
@@ -164,6 +166,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                if (!result) {
                   LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
                }
+               sendAuditEvent(stan,
+                              interactionId,
+                              goldenId,
+                              String.format("%s: '%s' -> '%s'", fieldName, goldenRecordFieldValue, maxEntry.getKey()));
             }
          }
       }
@@ -272,6 +278,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private LinkInfo linkInteractionToGID(
          final Interaction interaction,
+         final String stan,
          final String gid,
          final float score) {
       final LinkInfo linkInfo;
@@ -290,7 +297,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                   interaction,
                   new LibMPIClientInterface.GoldenIdScore(gid, score));
-            CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
+            CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), gid);
          }
       } finally {
          libMPI.closeTransaction();
@@ -298,12 +305,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return linkInfo;
    }
 
-   private void sendAuditEvent(
+   void sendAuditEvent(
          final String stan,
-         final String uid,
+         final String interactionID,
+         final String goldenID,
          final String event) {
       topicAuditEvents.produceAsync(stan,
-                                    new AuditEvent(uid, System.currentTimeMillis(), event),
+                                    new AuditEvent(System.currentTimeMillis(), null, interactionID, goldenID, event),
                                     ((metadata, exception) -> {
                                        if (exception != null) {
                                           LOGGER.error(exception.getLocalizedMessage(), exception);
@@ -330,9 +338,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData());
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
-            sendAuditEvent(stan, linkInfo.goldenUID(), "Created golden record");
-            sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to new %s",
-                                                                          linkInfo.goldenUID()));
+            sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> New GoldenRecord");
          } else {
             final var allCandidateScores = candidateGoldenRecords
                   .parallelStream()
@@ -365,9 +371,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
                   linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
-                  sendAuditEvent(stan, linkInfo.goldenUID(), "Created golden record");
-                  sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to new %s",
-                                                                                linkInfo.goldenUID()));
+                  sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> New GoldenRecord");
                   if (!notificationCandidates.isEmpty()) {
                      sendNotification(
                            Notification.NotificationType.THRESHOLD,
@@ -386,10 +390,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
                      candidatesAboveMatchThreshold.get(0).score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
-
-               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
-               sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to existing %s",
-                                                                             linkInfo.goldenUID()));
+               sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
+               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), linkInfo.goldenUID());
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
@@ -488,6 +490,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventLinkPatientToGidSyncHandler(final EventLinkPatientToGidSyncReq request) {
       final var linkInfo = linkInteractionToGID(
             request.link.interaction(),
+            request.link.stan(),
             request.link.gid(),
             3.0F);
       request.replyTo.tell(new EventLinkPatientToGidSyncRsp(request.link.stan(), linkInfo));

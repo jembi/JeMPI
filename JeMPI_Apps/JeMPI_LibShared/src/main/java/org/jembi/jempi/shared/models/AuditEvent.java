@@ -1,6 +1,12 @@
 package org.jembi.jempi.shared.models;
 
-public record AuditEvent(String UID,
-                         Long timestamp,
-                         String event) {
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record AuditEvent(
+      Long createdAt,
+      Long insertedAt,
+      String interactionID,
+      String goldenID,
+      String event) {
 }

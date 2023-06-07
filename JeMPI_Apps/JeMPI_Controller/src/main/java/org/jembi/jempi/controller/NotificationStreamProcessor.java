@@ -28,7 +28,7 @@ final class NotificationStreamProcessor {
    void open() {
       LOGGER.info("Stream Processor");
       final var psqlNotifications =
-            new PsqlNotifications(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+            new PsqlNotifications();
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID + "-NOTIFICATIONS");
@@ -45,7 +45,6 @@ final class NotificationStreamProcessor {
       notificationStream
             .foreach((key, value) -> {
                try {
-                  LOGGER.debug("key:{}, value:{}", key, value);
                   UUID id = UUID.randomUUID();
                   psqlNotifications.insert(id,
                                            value.notificationType().toString(),
@@ -63,8 +62,6 @@ final class NotificationStreamProcessor {
                } catch (SQLException e) {
                   LOGGER.debug(e.toString());
                }
-               LOGGER.debug("Linked To data : {}", value.linkedTo());
-               LOGGER.debug("Candidates data : {}", value.candidates().get(0).gID());
             });
 
       final var notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);

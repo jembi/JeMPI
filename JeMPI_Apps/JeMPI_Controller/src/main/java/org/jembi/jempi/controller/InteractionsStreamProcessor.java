@@ -49,7 +49,6 @@ public final class InteractionsStreamProcessor {
                                       AppConfig.KAFKA_CLIENT_ID);
       batchPatientRecordKStream
             .peek((key, batchPatient) -> {
-               LOGGER.info("{}/{}", key, batchPatient);
                topicEM.produceAsync(key, batchPatient, ((metadata, exception) -> {
                   if (exception != null) {
                      LOGGER.error(exception.toString());
