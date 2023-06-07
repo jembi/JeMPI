@@ -54,7 +54,6 @@ public final class CustomSourceRecordStream {
                                                 interactionEnvelopSerde));
       sourceKStream
             .map((key, rec) -> {
-               LOGGER.info("{} : {}", key, rec);
                if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
                   final var iteraction = rec.interaction();
                   final var demographicData = iteraction.demographicData();

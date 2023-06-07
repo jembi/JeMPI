@@ -57,14 +57,12 @@ public final class CustomMain {
          final var rNumber = matcher.group("rnum");
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
-         final var recNumber = String.format("rec-%010d-%s-%d",
-                                             Integer.parseInt(rNumber),
-                                             klass,
-                                             (("org".equals(klass) || "aaa".equals(klass))
+         return String.format("rec-%010d-%s-%d",
+                              Integer.parseInt(rNumber),
+                              klass,
+                              (("org".equals(klass) || "aaa".equals(klass))
                                                     ? 0
                                                     : Integer.parseInt(dNumber)));
-         LOGGER.debug("{}", recNumber);
-         return recNumber;
       }
       return null;
    }
@@ -86,7 +84,6 @@ public final class CustomMain {
          final InteractionEnvelop interactionEnvelop)
          throws InterruptedException, ExecutionException {
       try {
-         LOGGER.debug("{}", interactionEnvelop);
          interactionEnvelopProducer.produceSync(key, interactionEnvelop);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);

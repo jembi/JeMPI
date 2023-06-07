@@ -316,8 +316,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                     ((metadata, exception) -> {
                                        if (exception != null) {
                                           LOGGER.error(exception.getLocalizedMessage(), exception);
-                                       } else {
-                                          LOGGER.debug("{}", metadata);
                                        }
                                     }));
 
