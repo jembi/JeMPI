@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
@@ -13,6 +14,7 @@ record CustomDgraphExpandedGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE) Boolean auxAutoUpdateEnabled,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_FAMILY_NAME) String familyName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
@@ -35,7 +37,7 @@ record CustomDgraphExpandedGoldenRecord(
                                                         this.dob(),
                                                         this.city(),
                                                         this.phoneNumber(),
-                                                        this.nationalId()));
+                                                        this.nationalId()), new CustomUniqueGoldenRecordData(true));
    }
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {

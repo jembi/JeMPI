@@ -290,6 +290,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                   interaction,
                   new LibMPIClientInterface.GoldenIdScore(gid, score));
+            final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
+                  gid, score
+            );
+            //get the golden record for the GID //check if not null --Log Error out that the Golden record does not exist and return null
+            ////if(goldenRecord.CustomUniqueGoldenRecordData.isAutoUpdateEnabled)
+            //    then call the below method
             CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, gid);
          }
       } finally {
@@ -382,10 +388,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                                                              candidate.score)));
                }
             } else {
+               final var firstCandidate = candidatesAboveMatchThreshold.get(0);
                final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
-                     candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
-                     candidatesAboveMatchThreshold.get(0).score);
+                     firstCandidate.goldenRecord.goldenId(),
+                     firstCandidate.score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
+               if (firstCandidate.goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled().equals("true")) {
+                  CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
+               }
 
                CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
                sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to existing %s",
@@ -393,7 +403,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
-                  var firstCandidate = candidatesAboveMatchThreshold.get(0);
                   for (var i = 1; i < candidatesAboveMatchThreshold.size(); i++) {
                      final var candidate = candidatesAboveMatchThreshold.get(i);
                      if (firstCandidate.score - candidate.score <= 0.1) {
