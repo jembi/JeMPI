@@ -32,6 +32,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgPassword;
    private final String pgDatabase;
    private final PsqlNotifications psqlNotifications;
+   private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
@@ -52,6 +53,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgPassword = sqlPassword;
       this.pgDatabase = sqlDatabase;
       psqlNotifications = new PsqlNotifications(sqlDatabase);
+      psqlAuditTrail = new PsqlAuditTrail(pgDatabase, pgUser, pgPassword);
       openMPI();
    }
 
@@ -104,6 +106,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(SimpleSearchInteractionsRequest.class, this::simpleSearchInteractionsHandler)
             .onMessage(CustomSearchInteractionsRequest.class, this::customSearchInteractionsHandler)
             .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
+            .onMessage(GoldenRecordAuditTrailRequest.class, this::goldenRecordAuditTrailHandler)
+            .onMessage(InteractionAuditTrailRequest.class, this::interactionAuditTrailHandler)
             .build();
    }
 
@@ -396,6 +400,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> goldenRecordAuditTrailHandler(final GoldenRecordAuditTrailRequest request) {
+      LOGGER.debug("{}", request.uid);
+      final var auditTrail = psqlAuditTrail.goldenRecordAuditTrail(request.uid);
+      request.replyTo.tell(new GoldenRecordAuditTrailResponse(auditTrail));
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> interactionAuditTrailHandler(final InteractionAuditTrailRequest request) {
+      LOGGER.debug("{}", request.uid);
+      final var auditTrail = psqlAuditTrail.interactionRecordAuditTrail(request.uid);
+      request.replyTo.tell(new InteractionAuditTrailResponse(auditTrail));
+      return Behaviors.same();
+   }
+
    private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
       try {
          psqlNotifications.updateNotificationState(pgPassword, request.notificationId, request.state);
@@ -447,6 +465,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          long goldenRecords,
          long patientRecords) implements EventResponse {
    }
+
+   public record GoldenRecordAuditTrailRequest(
+         ActorRef<GoldenRecordAuditTrailResponse> replyTo,
+         String uid) implements Event {
+   }
+
+   public record GoldenRecordAuditTrailResponse(List<AuditEvent> auditTrail) {
+   }
+
+   public record InteractionAuditTrailRequest(
+         ActorRef<InteractionAuditTrailResponse> replyTo,
+         String uid) implements Event {
+   }
+
+   public record InteractionAuditTrailResponse(List<AuditEvent> auditTrail) {
+   }
+
 
    public record GetGoldenIdsRequest(ActorRef<GetGoldenIdsResponse> replyTo) implements Event {
    }
