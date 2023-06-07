@@ -33,12 +33,12 @@ final class PsqlAuditTrail {
          preparedStatement.setString(1, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
-            final var insertedAt = rs.getTime(2);
-            final var createdAt = rs.getTime(3);
+            final var insertedAt = rs.getTimestamp(2);
+            final var createdAt = rs.getTimestamp(3);
             final var interactionID = rs.getString(4);
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
-            list.add(new AuditEvent(createdAt.getTime(), insertedAt.getTime(), interactionID, goldenID, event));
+            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event));
          }
       } catch (Exception e) {
          LOGGER.error(e);
@@ -57,12 +57,12 @@ final class PsqlAuditTrail {
          preparedStatement.setString(1, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
-            final var insertedAt = rs.getTime(2);
-            final var createdAt = rs.getTime(3);
+            final var insertedAt = rs.getTimestamp(2);
+            final var createdAt = rs.getTimestamp(3);
             final var interactionID = rs.getString(4);
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
-            list.add(new AuditEvent(createdAt.getTime(), insertedAt.getTime(), interactionID, goldenID, event));
+            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event));
          }
       } catch (Exception e) {
          LOGGER.error(e);
