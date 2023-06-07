@@ -2,6 +2,7 @@ package org.jembi.jempi.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 
 import java.sql.*;
 
@@ -14,14 +15,11 @@ final class PsqlClient {
       connection = null;
    }
 
-   boolean connect(
-         final String database,
-         final String usr,
-         final String psw) {
+   boolean connect() {
       if (connection == null) {
          try {
-            final var url = String.format("jdbc:postgresql://postgresql:5432/%s", database);
-            connection = DriverManager.getConnection(url, usr, psw);
+            final var url = String.format("jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE);
+            connection = DriverManager.getConnection(url, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
             return connection.isValid(5);
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
@@ -32,8 +30,8 @@ final class PsqlClient {
          try {
             if (!connection.isValid(5)) {
                connection.close();
-               final var url = String.format("jdbc:postgresql://postgresql:5432/%s", database);
-               connection = DriverManager.getConnection(url, usr, psw);
+               final var url = String.format("jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE);
+               connection = DriverManager.getConnection(url, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
             }
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);

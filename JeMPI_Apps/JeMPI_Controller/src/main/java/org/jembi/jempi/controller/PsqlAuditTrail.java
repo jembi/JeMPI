@@ -5,29 +5,21 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.AuditEvent;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
 
 final class PsqlAuditTrail {
    private static final Logger LOGGER = LogManager.getLogger(PsqlAuditTrail.class);
-   private final String pgDatabase;
-   private final String pgUser;
-   private final String pgPassword;
    private final PsqlClient psqlClient;
 
-   PsqlAuditTrail(
-         final String database,
-         final String user,
-         final String password) {
-      pgDatabase = database;
-      pgUser = user;
-      pgPassword = password;
+   PsqlAuditTrail() {
       psqlClient = new PsqlClient();
    }
 
    void createSchemas() {
       LOGGER.debug("Create Schemas");
-      psqlClient.connect(pgDatabase, pgUser, pgPassword);
+      psqlClient.connect();
       try (var stmt = psqlClient.createStatement()) {
          stmt.executeUpdate(String.format(
                """
@@ -48,6 +40,20 @@ final class PsqlAuditTrail {
 
    void addAuditEvent(final AuditEvent event) {
       LOGGER.debug("{}", event);
+      psqlClient.connect();
+      try (var preparedStatement = psqlClient.prepareStatement(
+            String.format(
+                  """
+                  insert into %s (created_at, uid, event)
+                  values (?, ?, ?);
+                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
+         preparedStatement.setTimestamp(1, new Timestamp(event.timestamp()));
+         preparedStatement.setString(2, event.UID());
+         preparedStatement.setString(3, event.event());
+         preparedStatement.executeUpdate();
+      } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
    }
 
 }

@@ -25,7 +25,7 @@ public final class AuditTrailStreamProcessor {
 
    public void open() {
       LOGGER.info("Stream Processor");
-      final var psqlAuditTrail = new PsqlAuditTrail(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+      final var psqlAuditTrail = new PsqlAuditTrail();
       psqlAuditTrail.createSchemas();
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);

@@ -2,7 +2,6 @@ package org.jembi.jempi.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.AppConfig;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -80,7 +79,7 @@ final class PsqlNotifications {
          final int limit,
          final int offset,
          final LocalDate date) {
-      psqlClient.connect(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+      psqlClient.connect();
       final var list = new ArrayList<HashMap<String, Object>>();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY)) {
          preparedStatement.setDate(1, java.sql.Date.valueOf(date));
@@ -110,7 +109,7 @@ final class PsqlNotifications {
    List<HashMap<String, Object>> getCandidates(final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
-      psqlClient.connect(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+      psqlClient.connect();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(candidates)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -142,7 +141,7 @@ final class PsqlNotifications {
          final String gID,
          final String dID) throws SQLException {
 
-      psqlClient.connect(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+      psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
 
          // Set auto-commit to false
@@ -180,7 +179,7 @@ final class PsqlNotifications {
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      psqlClient.connect(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+      psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =
@@ -196,7 +195,7 @@ final class PsqlNotifications {
          final String id,
          final String state) throws SQLException {
 
-      psqlClient.connect(AppConfig.POSTGRESQL_DATABASE, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
+      psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
          ResultSet rs = stmt.executeQuery("update notification set state_id = "
                                           + "(select id from notification_state where state = '" + state + "' )where id = '" + id
