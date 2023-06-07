@@ -37,6 +37,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final Executor ec;
    private LibMPI libMPI = null;
    private MyKafkaProducer<String, Notification> topicNotifications;
+   private MyKafkaProducer<String, AuditEvent> topicAuditEvents;
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
@@ -48,6 +49,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                  GlobalConstants.TOPIC_NOTIFICATIONS,
                                                  new StringSerializer(), new JsonPojoSerializer<>(),
                                                  AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+      topicAuditEvents = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                               GlobalConstants.TOPIC_AUDIT_TRAIL,
+                                               new StringSerializer(), new JsonPojoSerializer<>(),
+                                               AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private BackEnd(
@@ -293,6 +298,22 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return linkInfo;
    }
 
+   private void sendAuditEvent(
+         final String stan,
+         final String uid,
+         final String event) {
+      topicAuditEvents.produceAsync(stan,
+                                    new AuditEvent(uid, System.currentTimeMillis(), event),
+                                    ((metadata, exception) -> {
+                                       if (exception != null) {
+                                          LOGGER.error(exception.getLocalizedMessage(), exception);
+                                       } else {
+                                          LOGGER.debug("{}", metadata);
+                                       }
+                                    }));
+
+   }
+
    private Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final String stan,
          final Interaction interaction,
@@ -309,6 +330,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData());
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+            sendAuditEvent(stan, linkInfo.goldenUID(), "Created golden record");
+            sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to new %s",
+                                                                          linkInfo.goldenUID()));
          } else {
             final var allCandidateScores = candidateGoldenRecords
                   .parallelStream()
@@ -341,6 +365,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
                   linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+                  sendAuditEvent(stan, linkInfo.goldenUID(), "Created golden record");
+                  sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to new %s",
+                                                                                linkInfo.goldenUID()));
                   if (!notificationCandidates.isEmpty()) {
                      sendNotification(
                            Notification.NotificationType.THRESHOLD,
@@ -359,7 +386,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      candidatesAboveMatchThreshold.get(0).goldenRecord.goldenId(),
                      candidatesAboveMatchThreshold.get(0).score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
+
                CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
+               sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to existing %s",
+                                                                             linkInfo.goldenUID()));
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {

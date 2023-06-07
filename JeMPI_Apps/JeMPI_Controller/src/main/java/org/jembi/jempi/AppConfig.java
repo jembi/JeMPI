@@ -21,10 +21,13 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
+   public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
+   public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
+   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
 
    private AppConfig() {
    }

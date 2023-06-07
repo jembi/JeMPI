@@ -18,12 +18,16 @@
 
     <dependencies>
 
+
         <dependency>
             <groupId>org.jembi.jempi</groupId>
             <artifactId>JeMPI_LibShared</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+<!--
+        com.typesafe.akk
+-->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
@@ -45,12 +49,8 @@
         </dependency>
 
 <!--
-        <dependency>
-            <groupId>ch.megard</groupId>
-            <artifactId>akka-http-cors_${scala.tools.version}</artifactId>
-        </dependency>
+        org.apache.commons
 -->
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -61,6 +61,9 @@
             <artifactId>commons-text</artifactId>
         </dependency>
 
+<!--
+        org.apache.kafka
+-->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -71,6 +74,9 @@
             <artifactId>kafka-streams</artifactId>
         </dependency>
 
+<!--
+        com.fasterxml.jackson.core
+-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -79,6 +85,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
 
         <dependency>

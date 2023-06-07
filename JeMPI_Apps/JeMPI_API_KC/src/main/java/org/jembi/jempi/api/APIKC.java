@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
-import org.jembi.jempi.libapi.NotificationStreamProcessor;
 import org.jembi.jempi.libapi.JsonFieldsConfig;
 
 public final class APIKC {
@@ -40,11 +39,11 @@ public final class APIKC {
                                                                               AppConfig.POSTGRESQL_DATABASE),
                                                                "BackEnd");
          context.watch(backEnd);
-         final var notificationsSteam = new NotificationStreamProcessor();
-         notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
-                                 AppConfig.POSTGRESQL_PASSWORD,
-                                 AppConfig.KAFKA_APPLICATION_ID,
-                                 AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+//         final var notificationsSteam = new NotificationStreamProcessor();
+//         notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
+//                                 AppConfig.POSTGRESQL_PASSWORD,
+//                                 AppConfig.KAFKA_APPLICATION_ID,
+//                                 AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          final DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
          final MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
          httpServer = new HttpServer(dispatcher);

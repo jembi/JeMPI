@@ -20,9 +20,9 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
 
-public final class FrontEndStreamAsync {
+public final class InteractionsStreamProcessor {
 
-   private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamAsync.class);
+   private static final Logger LOGGER = LogManager.getLogger(InteractionsStreamProcessor.class);
    private MyKafkaProducer<String, InteractionEnvelop> topicEM;
    private KafkaStreams interactionKafkaStreams = null;
 
@@ -72,7 +72,7 @@ public final class FrontEndStreamAsync {
    private Properties loadConfig() {
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID + "-INTERACTIONS");
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
    }
