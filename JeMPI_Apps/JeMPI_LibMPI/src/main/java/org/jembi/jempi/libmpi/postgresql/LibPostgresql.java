@@ -65,7 +65,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                                                                                                        x.data().facility(),
                                                                                                        x.data().patient()))
                                                                                 .toList(),
-                                                               goldenRecord.data()),
+                                                               goldenRecord.data(), new CustomUniqueGoldenRecordData(true)),
                                               PostgresqlQueries.getScore(goldenRecord.uid(), UUID.fromString(eid)))));
    }
 
@@ -80,7 +80,8 @@ public final class LibPostgresql implements LibMPIClientInterface {
                               sourceIds.stream()
                                        .map(x -> new SourceId(x.id().toString(), x.data().facility(), x.data().patient()))
                                        .toList(),
-                              goldenRecord.data());
+                              goldenRecord.data(),
+                              new CustomUniqueGoldenRecordData(true));
    }
 
    public List<GoldenRecord> findGoldenRecords(final List<String> ids) {
@@ -175,6 +176,30 @@ public final class LibPostgresql implements LibMPIClientInterface {
          final String fieldName,
          final String val) {
       return PostgresqlMutations.updateGoldenRecordField(goldenId, fieldName, val);
+   }
+
+   @Override
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Boolean value) {
+      return false;
+   }
+
+   @Override
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Double value) {
+      return false;
+   }
+
+   @Override
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Long value) {
+      return false;
    }
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(

@@ -1,6 +1,7 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.UUID;
@@ -42,11 +43,13 @@ final class CustomDgraphMutations {
          final CustomDemographicData demographicData,
          final String interactionUID,
          final String sourceUID,
-         final float score) {
+         final float score,
+         final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
                            _:%s  <GoldenRecord.source_id>                     <%s>             .
                            _:%s  <GoldenRecord.aux_id>                        %s               .
+                           _:%s  <GoldenRecord.aux_auto_update_enabled>       %s               .
                            _:%s  <GoldenRecord.given_name>                    %s               .
                            _:%s  <GoldenRecord.family_name>                   %s               .
                            _:%s  <GoldenRecord.gender>                        %s               .
@@ -59,6 +62,7 @@ final class CustomDgraphMutations {
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(demographicData.auxId),
+                           uuid, AppUtils.quotedValue(customUniqueGoldenRecordData.isAutoUpdateEnabled().toString()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),
                            uuid, AppUtils.quotedValue(demographicData.familyName),
                            uuid, AppUtils.quotedValue(demographicData.gender),
