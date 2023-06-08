@@ -395,15 +395,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      firstCandidate.goldenRecord.goldenId(),
                      firstCandidate.score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
-               sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
-               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), linkInfo.goldenUID());
-               if (firstCandidate.goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled().equals("true")) {
-                  CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
-               }
 
-               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, linkToGoldenId.goldenId());
-               sendAuditEvent(stan, linkInfo.interactionUID(), String.format("Created interaction and linked to existing %s",
-                                                                             linkInfo.goldenUID()));
+               if (firstCandidate.goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled().equals("true")) {
+                  sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
+                  CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), linkInfo.goldenUID());
+               }
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
