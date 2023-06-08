@@ -31,7 +31,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgUser;
    private final String pgPassword;
    private final String pgDatabase;
-   private final PsqlQueries psqlQueries;
+   private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
@@ -52,7 +52,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgUser = sqlUser;
       this.pgPassword = sqlPassword;
       this.pgDatabase = sqlDatabase;
-      psqlQueries = new PsqlQueries(sqlDatabase);
+      psqlNotifications = new PsqlNotifications(sqlDatabase);
       psqlAuditTrail = new PsqlAuditTrail(pgDatabase, pgUser, pgPassword);
       openMPI();
    }
@@ -169,7 +169,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
       LOGGER.debug("findMatchesForReviewHandler");
-      var recs = psqlQueries.getMatchesForReview(pgPassword, request.limit(), request.offset(), request.date());
+      var recs = psqlNotifications.getMatchesForReview(pgPassword, request.limit(), request.offset(), request.date());
       request.replyTo.tell(new FindMatchesForReviewResponse(recs));
       return Behaviors.same();
    }
@@ -416,7 +416,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
       try {
-         psqlQueries.updateNotificationState(pgPassword, request.notificationId, request.state);
+         psqlNotifications.updateNotificationState(pgPassword, request.notificationId, request.state);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
