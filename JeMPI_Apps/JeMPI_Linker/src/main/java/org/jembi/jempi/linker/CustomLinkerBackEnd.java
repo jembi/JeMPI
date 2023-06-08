@@ -13,37 +13,39 @@ public final class CustomLinkerBackEnd {
    static void updateGoldenRecordFields(
          final BackEnd backEnd,
          final LibMPI libMPI,
+         final String stan,
+         final String interactionId,
          final String goldenId) {
       final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).get(0);
       final var goldenRecord = expandedGoldenRecord.goldenRecord();
       final var demographicData = goldenRecord.demographicData();
       var k = 0;
 
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "givenName", demographicData.givenName, CustomDemographicData::getGivenName)
             ? 1
             : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "familyName", demographicData.familyName, CustomDemographicData::getFamilyName)
             ? 1
             : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "gender", demographicData.gender, CustomDemographicData::getGender)
             ? 1
             : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "dob", demographicData.dob, CustomDemographicData::getDob)
             ? 1
             : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "city", demographicData.city, CustomDemographicData::getCity)
             ? 1
             : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "phoneNumber", demographicData.phoneNumber, CustomDemographicData::getPhoneNumber)
             ? 1
             : 0;
-      k += backEnd.updateGoldenRecordField(expandedGoldenRecord,
+      k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
                                            "nationalId", demographicData.nationalId, CustomDemographicData::getNationalId)
             ? 1
             : 0;
