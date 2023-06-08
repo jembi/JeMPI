@@ -19,22 +19,22 @@ final class PsqlNotifications {
                                        LIMIT ? OFFSET ?
                                        """;
    private static final Logger LOGGER = LogManager.getLogger(PsqlNotifications.class);
-   private static final String USER = "postgres";
-   private final String url;
+   private final PsqlClient psqlClient;
 
-   PsqlNotifications(final String db) {
-      url = String.format("jdbc:postgresql://postgresql:5432/%s", db);
+   PsqlNotifications(
+         final String pgDatabase,
+         final String pgUser,
+         final String pgPassword) {
+      psqlClient = new PsqlClient(pgDatabase, pgUser, pgPassword);
    }
 
-
    List<HashMap<String, Object>> getMatchesForReview(
-         final String pgPassword,
          final int limit,
          final int offset,
          final LocalDate date) {
       final var list = new ArrayList<HashMap<String, Object>>();
-      try (Connection connection = DriverManager.getConnection(url, USER, pgPassword);
-           PreparedStatement preparedStatement = connection.prepareStatement(QUERY)) {
+      psqlClient.connect();
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY)) {
          preparedStatement.setDate(1, java.sql.Date.valueOf(date));
          preparedStatement.setInt(2, limit);
          preparedStatement.setInt(3, offset);
@@ -51,22 +51,20 @@ final class PsqlNotifications {
                row.put(md.getColumnName(i), (rs.getObject(i)));
             }
             list.add(row);
-            row.put("candidates", getCandidates(pgPassword, notificationID));
+            row.put("candidates", getCandidates(notificationID));
          }
-      } catch (Exception e) {
+      } catch (SQLException e) {
          LOGGER.error(e);
       }
       return list;
    }
 
-   List<HashMap<String, Object>> getCandidates(
-         final String pgPassword,
-         final UUID nID) {
+   List<HashMap<String, Object>> getCandidates(final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
       String candidates = "select notification_id, score, golden_id from candidates where notification_id IN ('" + nID + "')";
 
-      try (Connection connection = DriverManager.getConnection(url, USER, pgPassword);
-           PreparedStatement preparedStatement = connection.prepareStatement(candidates)) {
+      psqlClient.connect();
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(candidates)) {
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
@@ -82,20 +80,19 @@ final class PsqlNotifications {
                list.add(row);
             }
          }
-      } catch (Exception e) {
+      } catch (SQLException e) {
          LOGGER.error(e);
       }
       return list;
    }
 
    void insertCandidates(
-         final String pgPassword,
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      try (Connection conn = DriverManager.getConnection(url, USER, pgPassword);
-           Statement stmt = conn.createStatement()) {
-         conn.setAutoCommit(false);
+      psqlClient.connect();
+      try (Statement stmt = psqlClient.createStatement()) {
+         psqlClient.setAutoCommit(false);
          String sql =
                "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
                + "')";
@@ -103,23 +100,19 @@ final class PsqlNotifications {
 
 
          stmt.executeBatch();
-         conn.commit();
+         psqlClient.commit();
       }
    }
 
    void updateNotificationState(
-         final String pgPassword,
          final String id,
          final String state) throws SQLException {
-
-      try (
-            Connection conn = DriverManager.getConnection(url, USER, pgPassword);
-            Statement stmt = conn.createStatement()) {
-
+      psqlClient.connect();
+      try (Statement stmt = psqlClient.createStatement()) {
          ResultSet rs = stmt.executeQuery("update notification set state_id = "
                                           + "(select id from notification_state where state = '" + state + "' )where id = '" + id
                                           + "'");
-         conn.commit();
+         psqlClient.commit();
       }
    }
 
