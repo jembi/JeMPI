@@ -295,14 +295,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          if (StringUtils.isBlank(gid)) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
          } else {
-            linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
-                  interaction,
-                  new LibMPIClientInterface.GoldenIdScore(gid, score));
             final var goldenRecord = libMPI.findGoldenRecord(gid);
             if (goldenRecord == null) {
                LOGGER.error("Golden Record for GID {} is null", gid);
+               linkInfo = null;
             } else if (goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled()) {
+               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
+                     interaction,
+                     new LibMPIClientInterface.GoldenIdScore(gid, score));
                CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), gid);
+            } else {
+               linkInfo = null;
             }
          }
       } finally {
@@ -394,11 +397,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
                      firstCandidate.goldenRecord.goldenId(),
                      firstCandidate.score);
-               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
 
                if (firstCandidate.goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled()) {
                   sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
                   CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), linkInfo.goldenUID());
+                  linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
                }
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
