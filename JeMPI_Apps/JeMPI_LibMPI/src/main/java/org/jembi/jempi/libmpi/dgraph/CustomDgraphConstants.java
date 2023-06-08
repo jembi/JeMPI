@@ -2,8 +2,8 @@ package org.jembi.jempi.libmpi.dgraph;
 
 public final class CustomDgraphConstants {
 
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED = "GoldenRecord.aux_auto_update_enabled";
    public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
-   public static final String PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE = "GoldenRecord.aux_auto_update_enabled";
    public static final String PREDICATE_GOLDEN_RECORD_GIVEN_NAME = "GoldenRecord.given_name";
    public static final String PREDICATE_GOLDEN_RECORD_FAMILY_NAME = "GoldenRecord.family_name";
    public static final String PREDICATE_GOLDEN_RECORD_GENDER = "GoldenRecord.gender";
@@ -29,8 +29,8 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
-         GoldenRecord.aux_id
          GoldenRecord.aux_auto_update_enabled
+         GoldenRecord.aux_id
          GoldenRecord.given_name
          GoldenRecord.family_name
          GoldenRecord.gender
@@ -48,8 +48,8 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
-         GoldenRecord.aux_id
          GoldenRecord.aux_auto_update_enabled
+         GoldenRecord.aux_id
          GoldenRecord.given_name
          GoldenRecord.family_name
          GoldenRecord.gender
@@ -91,6 +91,7 @@ public final class CustomDgraphConstants {
          Interaction.phone_number
          Interaction.national_id
          """;
+
    static final String EXPANDED_INTERACTION_FIELD_NAMES =
          """
          uid
@@ -114,8 +115,8 @@ public final class CustomDgraphConstants {
               SourceId.facility
               SourceId.patient
             }
-            GoldenRecord.aux_id
             GoldenRecord.aux_auto_update_enabled
+            GoldenRecord.aux_id
             GoldenRecord.given_name
             GoldenRecord.family_name
             GoldenRecord.gender
@@ -158,8 +159,8 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
-               GoldenRecord.aux_id
                GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -196,8 +197,8 @@ public final class CustomDgraphConstants {
                     SourceId.facility
                     SourceId.patient
                   }
-                  GoldenRecord.aux_id
                   GoldenRecord.aux_auto_update_enabled
+                  GoldenRecord.aux_id
                   GoldenRecord.given_name
                   GoldenRecord.family_name
                   GoldenRecord.gender
@@ -220,8 +221,8 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
-               GoldenRecord.aux_id
                GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -243,8 +244,8 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
-               GoldenRecord.aux_id
                GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -291,8 +292,8 @@ public final class CustomDgraphConstants {
 
          type GoldenRecord {
             GoldenRecord.source_id:                 [SourceId]
-            GoldenRecord.aux_id
             GoldenRecord.aux_auto_update_enabled
+            GoldenRecord.aux_id
             GoldenRecord.given_name
             GoldenRecord.family_name
             GoldenRecord.gender
@@ -307,8 +308,8 @@ public final class CustomDgraphConstants {
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
          GoldenRecord.source_id:                [uid]                                        .
-         GoldenRecord.aux_id:                   string    @index(exact)                      .
          GoldenRecord.aux_auto_update_enabled:  bool                                         .
+         GoldenRecord.aux_id:                   string                                       .
          GoldenRecord.given_name:               string    @index(exact,trigram)              .
          GoldenRecord.family_name:              string    @index(exact,trigram)              .
          GoldenRecord.gender:                   string    @index(exact,trigram)              .

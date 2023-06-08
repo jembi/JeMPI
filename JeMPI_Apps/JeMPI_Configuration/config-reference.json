@@ -1,10 +1,22 @@
 {
-  "commonFields": [
+  "uniqueInteractionFields": [
     {
       "fieldName": "aux_id",
-      "fieldType": "String",
-      "indexGoldenRecord": "@index(exact)"
+      "fieldType": "String"
+    }
+  ],
+  "uniqueGoldenRecordFields": [
+    {
+      "fieldName": "aux_auto_update_enabled",
+      "fieldType": "Bool",
+      "default": "true"
     },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String"
+    }
+  ],
+  "commonFields": [
     {
       "fieldName": "given_name",
       "fieldType": "String",

@@ -13,8 +13,8 @@ import java.util.List;
 record CustomDgraphExpandedGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED) Boolean auxAutoUpdateEnabled,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE) Boolean auxAutoUpdateEnabled,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_FAMILY_NAME) String familyName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
@@ -24,20 +24,20 @@ record CustomDgraphExpandedGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
 
-
    GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
                               this.sourceId() != null
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
-                              new CustomDemographicData(this.auxId(),
-                                                        this.givenName(),
+                              new CustomUniqueGoldenRecordData(this.auxAutoUpdateEnabled(),
+                                                               this.auxId()),
+                              new CustomDemographicData(this.givenName(),
                                                         this.familyName(),
                                                         this.gender(),
                                                         this.dob(),
                                                         this.city(),
                                                         this.phoneNumber(),
-                                                        this.nationalId()), new CustomUniqueGoldenRecordData(true));
+                                                        this.nationalId()));
    }
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {

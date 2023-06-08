@@ -60,9 +60,13 @@ public abstract class ApiModels {
    public record ApiGoldenRecord(
          String uid,
          List<SourceId> sourceId,
+         CustomUniqueGoldenRecordData uniqueGoldenRecordData,
          CustomDemographicData demographicData) {
       static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
-         return new ApiGoldenRecord(goldenRecord.goldenId(), goldenRecord.sourceId(), goldenRecord.demographicData());
+         return new ApiGoldenRecord(goldenRecord.goldenId(),
+                                    goldenRecord.sourceId(),
+                                    goldenRecord.customUniqueGoldenRecordData(),
+                                    goldenRecord.demographicData());
       }
    }
 
@@ -104,9 +108,13 @@ public abstract class ApiModels {
    public record ApiPatientRecord(
          String uid,
          SourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
          CustomDemographicData demographicData) {
       public static ApiPatientRecord fromPatientRecord(final Interaction interaction) {
-         return new ApiPatientRecord(interaction.interactionId(), interaction.sourceId(), interaction.demographicData());
+         return new ApiPatientRecord(interaction.interactionId(),
+                                     interaction.sourceId(),
+                                     interaction.uniqueInteractionData(),
+                                     interaction.demographicData());
       }
    }
 

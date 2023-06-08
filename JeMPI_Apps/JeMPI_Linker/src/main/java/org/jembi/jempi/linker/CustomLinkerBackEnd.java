@@ -51,7 +51,7 @@ public final class CustomLinkerBackEnd {
             : 0;
 
       if (k > 0) {
-        backEnd.updateMatchingInteractionScoreForGoldenRecord(expandedGoldenRecord);
+        backEnd.updateInteractionScores(expandedGoldenRecord);
       }
 
    }

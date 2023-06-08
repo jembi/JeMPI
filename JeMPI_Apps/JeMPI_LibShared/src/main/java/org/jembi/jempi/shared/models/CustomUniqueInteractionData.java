@@ -1,4 +1,4 @@
 package org.jembi.jempi.shared.models;
 
-public record CustomUniqueInteractionData() {
+public record CustomUniqueInteractionData(String auxId) {
 }

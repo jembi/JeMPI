@@ -2,8 +2,8 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.GoldenRecordWithScore;
+import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
@@ -13,15 +13,15 @@ import java.util.List;
 record CustomDgraphReverseGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
-      @JsonProperty("GoldenRecord.aux_id") String auxId,
-      @JsonProperty("GoldenRecord.aux_auto_update_enabled") String auxAutoUpdateEnabled,
-      @JsonProperty("GoldenRecord.given_name") String givenName,
-      @JsonProperty("GoldenRecord.family_name") String familyName,
-      @JsonProperty("GoldenRecord.gender") String gender,
-      @JsonProperty("GoldenRecord.dob") String dob,
-      @JsonProperty("GoldenRecord.city") String city,
-      @JsonProperty("GoldenRecord.phone_number") String phoneNumber,
-      @JsonProperty("GoldenRecord.national_id") String nationalId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED) Boolean auxAutoUpdateEnabled,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_FAMILY_NAME) String familyName,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CITY) String city,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId,
       @JsonProperty("~GoldenRecord.interactions|score") Float score) {
 
    GoldenRecord toGoldenRecord() {
@@ -29,14 +29,15 @@ record CustomDgraphReverseGoldenRecord(
                               this.sourceId() != null
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
-                              new CustomDemographicData(this.auxId(),
-                                                        this.givenName(),
+                              new CustomUniqueGoldenRecordData(this.auxAutoUpdateEnabled(),
+                                                               this.auxId()),
+                              new CustomDemographicData(this.givenName(),
                                                         this.familyName(),
                                                         this.gender(),
                                                         this.dob(),
                                                         this.city(),
                                                         this.phoneNumber(),
-                                                        this.nationalId()), new CustomUniqueGoldenRecordData(true));
+                                                        this.nationalId()));
    }
 
    GoldenRecordWithScore toGoldenRecordWithScore() {
@@ -44,3 +45,4 @@ record CustomDgraphReverseGoldenRecord(
    }
 
 }
+

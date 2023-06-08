@@ -177,17 +177,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return changed;
    }
 
-   void updateMatchingInteractionScoreForGoldenRecord(
-         final ExpandedGoldenRecord expandedGoldenRecord) {
-
+   void updateInteractionScores(final ExpandedGoldenRecord expandedGoldenRecord) {
       final var mpiInteractionList = expandedGoldenRecord.interactionsWithScore();
       AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
       mpiInteractionList.forEach(mpiInteraction -> {
          final var interaction = mpiInteraction.interaction();
          final var score = calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
                                                interaction.demographicData());
-         final var reCompute =
-               libMPI.setScore(interaction.interactionId(), expandedGoldenRecord.goldenRecord().goldenId(), score);
+         final var reCompute = libMPI.setScore(interaction.interactionId(),
+                                               expandedGoldenRecord.goldenRecord().goldenId(),
+                                               score);
          try {
             candidateList.set(getCandidatesMatchDataForInteraction(interaction));
             candidateList.get().forEach(candidate -> {
@@ -201,13 +200,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          } catch (Exception e) {
             LOGGER.error(e.getMessage());
          }
-
          if (!reCompute) {
-            LOGGER.error("Failed to update score for entity with UID {} {}",
+            LOGGER.error("Failed to update score for interaction with UID {} {}",
                          expandedGoldenRecord.goldenRecord().goldenId(),
                          interaction.interactionId());
          } else {
-            LOGGER.debug("Successfully updated score for entity with UID {} {}",
+            LOGGER.debug("Successfully updated score for interaction with UID {} {}",
                          expandedGoldenRecord.goldenRecord().goldenId(),
                          interaction.interactionId());
          }
@@ -288,9 +286,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LinkerProbabilistic.checkUpdatedMU();
 
          libMPI.startTransaction();
-         final var docAuxKey = interaction.demographicData().auxId;
+         final var interactionAuxKey = interaction.uniqueInteractionData().auxId();
 
-         LOGGER.info("{}: no matches found", docAuxKey);
+         LOGGER.info("{}: no matches found", interactionAuxKey);
 
          if (StringUtils.isBlank(gid)) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
@@ -299,13 +297,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             if (goldenRecord == null) {
                LOGGER.error("Golden Record for GID {} is null", gid);
                linkInfo = null;
-            } else if (goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled()) {
+            } else {
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                      interaction,
                      new LibMPIClientInterface.GoldenIdScore(gid, score));
-               CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), gid);
-            } else {
-               linkInfo = null;
+               if (Boolean.TRUE.equals(goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
+                  CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), gid);
+               }
             }
          }
       } finally {
@@ -320,7 +318,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String goldenID,
          final String event) {
       topicAuditEvents.produceAsync(stan,
-                                    new AuditEvent(new Timestamp(System.currentTimeMillis()), null, interactionID, goldenID, event),
+                                    new AuditEvent(new Timestamp(System.currentTimeMillis()),
+                                                   null,
+                                                   interactionID,
+                                                   goldenID,
+                                                   event),
                                     ((metadata, exception) -> {
                                        if (exception != null) {
                                           LOGGER.error(exception.getLocalizedMessage(), exception);
@@ -397,12 +399,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                final var linkToGoldenId = new LibMPIClientInterface.GoldenIdScore(
                      firstCandidate.goldenRecord.goldenId(),
                      firstCandidate.score);
-
-               if (firstCandidate.goldenRecord.customUniqueGoldenRecordData().isAutoUpdateEnabled()) {
-                  sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
-                  CustomLinkerBackEnd.updateGoldenRecordFields(this, libMPI, stan, linkInfo.interactionUID(), linkInfo.goldenUID());
-                  linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
-               }
+               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
+               sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
+//               if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
+                  CustomLinkerBackEnd.updateGoldenRecordFields(this,
+                                                               libMPI,
+                                                               stan,
+                                                               linkInfo.interactionUID(),
+                                                               linkInfo.goldenUID());
+//               }
 
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {

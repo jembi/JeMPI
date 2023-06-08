@@ -1,7 +1,8 @@
 package org.jembi.jempi.libmpi.dgraph;
 
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ final class CustomDgraphMutations {
    }
 
    static String createInteractionTriple(
+         final CustomUniqueInteractionData uniqueInteractionData,
          final CustomDemographicData demographicData,
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
@@ -28,7 +30,7 @@ final class CustomDgraphMutations {
                            _:%s  <dgraph.type>                     "Interaction"    .
                            """,
                            uuid, sourceUID,
-                           uuid, AppUtils.quotedValue(demographicData.auxId),
+                           uuid, AppUtils.quotedValue(uniqueInteractionData.auxId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),
                            uuid, AppUtils.quotedValue(demographicData.familyName),
                            uuid, AppUtils.quotedValue(demographicData.gender),
@@ -40,29 +42,29 @@ final class CustomDgraphMutations {
    }
 
    static String createLinkedGoldenRecordTriple(
+         final CustomUniqueGoldenRecordData uniqueGoldenRecordData,
          final CustomDemographicData demographicData,
          final String interactionUID,
          final String sourceUID,
-         final float score,
-         final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
+         final float score) {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
-                           _:%s  <GoldenRecord.source_id>                     <%s>             .
-                           _:%s  <GoldenRecord.aux_id>                        %s               .
-                           _:%s  <GoldenRecord.aux_auto_update_enabled>       %s               .
-                           _:%s  <GoldenRecord.given_name>                    %s               .
-                           _:%s  <GoldenRecord.family_name>                   %s               .
-                           _:%s  <GoldenRecord.gender>                        %s               .
-                           _:%s  <GoldenRecord.dob>                           %s               .
-                           _:%s  <GoldenRecord.city>                          %s               .
-                           _:%s  <GoldenRecord.phone_number>                  %s               .
-                           _:%s  <GoldenRecord.national_id>                   %s               .
-                           _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)  .
-                           _:%s  <dgraph.type>                                "GoldenRecord"   .
+                           _:%s  <GoldenRecord.source_id>                     <%s>                  .
+                           _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
+                           _:%s  <GoldenRecord.aux_id>                        %s                    .
+                           _:%s  <GoldenRecord.given_name>                    %s                    .
+                           _:%s  <GoldenRecord.family_name>                   %s                    .
+                           _:%s  <GoldenRecord.gender>                        %s                    .
+                           _:%s  <GoldenRecord.dob>                           %s                    .
+                           _:%s  <GoldenRecord.city>                          %s                    .
+                           _:%s  <GoldenRecord.phone_number>                  %s                    .
+                           _:%s  <GoldenRecord.national_id>                   %s                    .
+                           _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
+                           _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
                            uuid, sourceUID,
-                           uuid, AppUtils.quotedValue(demographicData.auxId),
-                           uuid, AppUtils.quotedValue(customUniqueGoldenRecordData.isAutoUpdateEnabled().toString()),
+                           uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString()),
+                           uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),
                            uuid, AppUtils.quotedValue(demographicData.familyName),
                            uuid, AppUtils.quotedValue(demographicData.gender),

@@ -3,6 +3,7 @@ package org.jembi.jempi.libmpi.dgraph;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jembi.jempi.shared.models.InteractionWithScore;
+import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.Interaction;
 
@@ -19,12 +20,13 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
+
    CustomDgraphInteraction(
          final Interaction interaction,
          final Float score) {
       this(interaction.interactionId(),
            new DgraphSourceId(interaction.sourceId()),
-           interaction.demographicData().auxId,
+           interaction.uniqueInteractionData().auxId(),
            interaction.demographicData().givenName,
            interaction.demographicData().familyName,
            interaction.demographicData().gender,
@@ -40,14 +42,14 @@ record CustomDgraphInteraction(
                              this.sourceId() != null
                                    ? this.sourceId().toSourceId()
                                    : null,
-                             new CustomDemographicData(this.auxId,
-                                                         this.givenName,
-                                                         this.familyName,
-                                                         this.gender,
-                                                         this.dob,
-                                                         this.city,
-                                                         this.phoneNumber,
-                                                         this.nationalId));
+                             new CustomUniqueInteractionData(this.auxId),
+                             new CustomDemographicData(this.givenName,
+                                                       this.familyName,
+                                                       this.gender,
+                                                       this.dob,
+                                                       this.city,
+                                                       this.phoneNumber,
+                                                       this.nationalId));
    }
 
    InteractionWithScore toInteractionWithScore() {
@@ -55,3 +57,4 @@ record CustomDgraphInteraction(
    }
 
 }
+

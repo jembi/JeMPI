@@ -210,7 +210,9 @@ public final class PostgresqlQueries {
                                                                                             CustomDemographicData.class));
             list.add(new GoldenRecord(id,
                                       null,
-                                      goldenRecordData, new CustomUniqueGoldenRecordData(true)));
+                                      new CustomUniqueGoldenRecordData(true,
+                                                                       "AUX_ID"),
+                                      goldenRecordData));
          }
          return list;
       } catch (SQLException | JsonProcessingException e) {

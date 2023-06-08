@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record Interaction(
       String interactionId,
       SourceId sourceId,
+      CustomUniqueInteractionData uniqueInteractionData,
       CustomDemographicData demographicData) {
 }
 

@@ -5,8 +5,7 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 final class CustomInteractionData extends CustomDemographicData implements NodeData {
 
    CustomInteractionData(final CustomDemographicData customDemographicData) {
-      super(customDemographicData.auxId,
-            customDemographicData.givenName,
+      super(customDemographicData.givenName,
             customDemographicData.familyName,
             customDemographicData.gender,
             customDemographicData.dob,
