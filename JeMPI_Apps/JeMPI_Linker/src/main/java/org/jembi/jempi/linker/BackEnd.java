@@ -189,14 +189,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                score);
          try {
             candidateList.set(getCandidatesMatchDataForInteraction(interaction));
-            candidateList.get().forEach(candidate -> {
-               sendNotification(
-                     Notification.NotificationType.UPDATE,
-                     interaction.interactionId(),
-                     AppUtils.getNames(interaction.demographicData()),
-                     new Notification.MatchData(candidate.gID(), candidate.score()),
-                     candidateList.get());
-            });
+            candidateList.get().forEach(candidate -> sendNotification(
+                  Notification.NotificationType.UPDATE,
+                  interaction.interactionId(),
+                  AppUtils.getNames(interaction.demographicData()),
+                  new Notification.MatchData(candidate.gID(), candidate.score()),
+                  candidateList.get()));
          } catch (Exception e) {
             LOGGER.error(e.getMessage());
          }
