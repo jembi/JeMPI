@@ -52,7 +52,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
             flex: 2,
             align: 'center',
             headerAlign: 'center',
-            renderCell: (params: GridRenderCellParams<string>) => {
+            renderCell: (params: GridRenderCellParams) => {
               return isGoldenRecord ? (
                 <Link
                   href={`/golden-record/${params.row.uid}`}
@@ -110,21 +110,12 @@ const SearchResult: React.FC<SearchResultProps> = ({
     [payload, setPayLoad]
   )
 
-  const handlePaginate = useCallback(
-    (page: number) => {
+  const handlePaginateModel = useCallback(
+    ({ page, pageSize }: { page: number; pageSize: number }) => {
       setPayLoad({
         ...payload,
-        offset: page * payload.limit
-      })
-    },
-    [setPayLoad, payload]
-  )
-
-  const handlePageSizeChange = useCallback(
-    (size: number) => {
-      setPayLoad({
-        ...payload,
-        limit: size
+        offset: page * payload.limit,
+        limit: pageSize
       })
     },
     [setPayLoad, payload]
@@ -155,14 +146,8 @@ const SearchResult: React.FC<SearchResultProps> = ({
         getRowId={row => row.uid}
         onSortModelChange={handleRequestToSort}
         pagination
-        rowsPerPageOptions={[
-          payload.limit / 2,
-          payload.limit,
-          payload.limit * 2
-        ]}
-        pageSize={payload.limit}
-        onPageChange={handlePaginate}
-        onPageSizeChange={handlePageSizeChange}
+        pageSizeOptions={[payload.limit / 2, payload.limit, payload.limit * 2]}
+        onPaginationModelChange={handlePaginateModel}
         rowCount={searchResults?.records.pagination.total || 0}
         paginationMode="server"
         loading={isLoading}

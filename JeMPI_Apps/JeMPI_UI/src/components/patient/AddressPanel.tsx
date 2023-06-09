@@ -1,5 +1,5 @@
 import { Paper, Typography } from '@mui/material'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { FC } from 'react'
 import { useAppConfig } from '../../hooks/useAppConfig'
 import { GoldenRecord, PatientRecord } from '../../types/PatientRecord'
@@ -11,7 +11,7 @@ const AddressPanel: FC<{
   onChange: (newRow: PatientRecord | GoldenRecord) => void
 }> = ({ data, isEditable, onChange }) => {
   const { getFieldsByGroup } = useAppConfig()
-  const columns: GridColumns = getFieldsByGroup('address').map(
+  const columns: GridColDef[] = getFieldsByGroup('address').map(
     ({ fieldName, fieldLabel, readOnly, isValid, formatValue }) => {
       return {
         field: fieldName,
@@ -42,7 +42,6 @@ const AddressPanel: FC<{
         autoHeight={true}
         hideFooter={true}
         processRowUpdate={newRow => onChange(newRow)}
-        disableSelectionOnClick
       />
     </Paper>
   )

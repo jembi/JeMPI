@@ -1,9 +1,9 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { FieldType } from '../types/Fields'
 import { AnyRecord, ValueOf } from '../types/PatientRecord'
 
 export const formatDate = (value: Date) => {
-  return moment(value).format('DD/MM/YYYY')
+  return dayjs(value).format('DD/MM/YYYY')
 }
 
 export const getFieldValueFormatter = (type: FieldType) => {

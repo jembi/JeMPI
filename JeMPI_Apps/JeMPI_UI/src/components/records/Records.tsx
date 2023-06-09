@@ -1,5 +1,5 @@
-import { Link } from '@mui/material'
-import { DataGrid, GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
+import { Box, Link } from '@mui/material'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
@@ -7,23 +7,25 @@ import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
 import { useAppConfig } from 'hooks/useAppConfig'
 import ApiClient from 'services/ApiClient'
-import { AnyRecord } from 'types/PatientRecord'
+import { AnyRecord, ValueOf } from 'types/PatientRecord'
+import FilterTable from './FilterTable'
 
 const Records = () => {
   const { getFieldsByGroup } = useAppConfig()
-  const columns: GridColumns = getFieldsByGroup('linked_records').map(
+  const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue }) => {
       return {
         field: fieldName,
         headerName: fieldLabel,
         flex: 1,
-        valueFormatter: ({ value }) => formatValue(value),
+        valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
+          formatValue(value),
         sortable: false,
         disableColumnMenu: true,
         align: 'center',
         headerAlign: 'center',
         filterable: false,
-        renderCell: (params: GridRenderCellParams<string>) => {
+        renderCell: (params: GridRenderCellParams) => {
           if (fieldName === 'uid') {
             return (
               <Link
@@ -73,6 +75,9 @@ const Records = () => {
 
   return (
     <>
+      <Box sx={{ position: 'relative' }}>
+        <FilterTable />
+      </Box>
       <DataGrid
         sx={{
           '& .super-app-theme--golden': {

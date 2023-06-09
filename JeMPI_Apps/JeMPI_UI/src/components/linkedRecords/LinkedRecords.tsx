@@ -1,7 +1,7 @@
 import { People } from '@mui/icons-material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Divider, Link } from '@mui/material'
-import { DataGrid, GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useMatch } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -19,7 +19,7 @@ const LinkedRecords = () => {
     data: { uid }
   } = useMatch()
   const { getFieldsByGroup, getPatientName } = useAppConfig()
-  const columns: GridColumns = getFieldsByGroup('linked_records').map(
+  const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue }) => {
       return {
         field: fieldName,
@@ -31,7 +31,7 @@ const LinkedRecords = () => {
         align: 'center',
         headerAlign: 'center',
         filterable: false,
-        renderCell: (params: GridRenderCellParams<string>) => {
+        renderCell: (params: GridRenderCellParams) => {
           if (fieldName === 'uid') {
             return (
               <Link

@@ -1,7 +1,7 @@
 import { SxProps, Theme, Typography } from '@mui/material'
 import {
   GridCellParams,
-  GridColumns,
+  GridColDef,
   GridRenderCellParams,
   GridValueFormatterParams,
   DataGrid as MuiDataGrid
@@ -17,12 +17,12 @@ interface DataGridProps {
   isLoading?: boolean
   sx?: SxProps<Theme>
 }
-const getRecordTypeClassName = (params: GridCellParams<string>) => {
-  return params.row.type === 'Golden' ? 'record-type' : ''
+const getRecordTypeClassName = (params: GridCellParams) => {
+  return params.row === 'Golden' ? 'record-type' : ''
 }
 
 const getCellClassName = (
-  params: GridCellParams<string>,
+  params: GridCellParams,
   field: DisplayField,
   data: AnyRecord
 ) => {
@@ -34,7 +34,7 @@ const getCellClassName = (
 const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
   const { availableFields } = useAppConfig()
 
-  const columns: GridColumns = [
+  const columns: GridColDef[] = [
     ...availableFields.map(field => {
       const { fieldName, fieldLabel, formatValue } = field
       switch (fieldName) {
@@ -46,7 +46,7 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
             valueFormatter: (
               params: GridValueFormatterParams<number | string | Date>
             ) => formatValue(params.value),
-            cellClassName: (params: GridCellParams<string>) =>
+            cellClassName: (params: GridCellParams) =>
               getRecordTypeClassName(params),
             renderCell: (params: GridRenderCellParams) => {
               switch (params.row.type) {
@@ -77,7 +77,7 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
             valueFormatter: (
               params: GridValueFormatterParams<number | string | Date>
             ) => formatValue(params.value),
-            cellClassName: (params: GridCellParams<string>) =>
+            cellClassName: (params: GridCellParams) =>
               getCellClassName(params, field, data[0])
           }
       }
@@ -88,8 +88,8 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
     <MuiDataGrid
       columns={columns}
       rows={data}
-      pageSize={10}
-      rowsPerPageOptions={[10]}
+      paginationModel={{ page: 1, pageSize: 10 }}
+      pageSizeOptions={[10]}
       getRowId={row => row.uid}
       hideFooter
       loading={isLoading}

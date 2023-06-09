@@ -28,7 +28,7 @@ const columns: GridColDef[] = [
     minWidth: 80,
     align: 'center',
     headerAlign: 'center',
-    renderCell: (params: GridRenderCellParams<string>) => {
+    renderCell: (params: GridRenderCellParams) => {
       return <NotificationState value={params.value || ''} />
     }
   },
@@ -85,7 +85,7 @@ const columns: GridColDef[] = [
       id: params.row.id,
       patient: params.row.patient
     }),
-    renderCell: (params: GridRenderCellParams<string, Notification>) => {
+    renderCell: (params: GridRenderCellParams<Notification>) => {
       const { patient_id, candidates, score, id, golden_id, status } =
         params.row
       return (
@@ -151,8 +151,7 @@ const NotificationWorklist = () => {
           Toolbar: () => <DataGridToolbar />
         }}
         rows={data as Notification[]}
-        pageSize={10}
-        rowsPerPageOptions={[5, 10, 20]}
+        pageSizeOptions={[5, 10, 20]}
         sx={{ mt: 4 }}
         autoHeight={true}
       />

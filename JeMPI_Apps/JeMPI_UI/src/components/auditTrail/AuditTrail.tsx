@@ -2,7 +2,7 @@ import { Person, Warning } from '@mui/icons-material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Card, Divider, Grid, Link, Typography } from '@mui/material'
 import { Container } from '@mui/system'
-import { GridColumns } from '@mui/x-data-grid'
+import { GridColDef } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid/DataGrid'
 import { useMatch } from '@tanstack/react-location'
 import { useAppConfig } from '../../hooks/useAppConfig'
@@ -15,7 +15,7 @@ import NotFound from '../error/NotFound'
 import Button from '../shared/Button'
 import PageHeader from '../shell/PageHeader'
 
-const AUDIT_TRAIL_COLUMNS: GridColumns = [
+const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
   {
     field: 'process',
     headerName: 'Process',

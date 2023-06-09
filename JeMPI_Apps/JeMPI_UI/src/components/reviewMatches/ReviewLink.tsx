@@ -280,11 +280,11 @@ const ReviewLink = () => {
             isLoading={newGoldenRecord.isLoading}
             autoFocus
           >
-            Unlink and create new record
+            Confirm
           </Button>
         ]}
-        content={`Are you sure you want to unlink the patient record ${patientRecord?.uid} and golden record ${goldenRecord?.uid} and create a new record?`}
-        title="Confirm Records Unlinking"
+        content="This action will unlink the Patient record and Golden record and create a new Golden record."
+        title="Confirm unlinking"
         onClose={handleCancel}
         onOpen={isNewGoldenRecordDialogOpen}
       />
@@ -304,11 +304,11 @@ const ReviewLink = () => {
         content={
           <>
             <Typography>
-              This will accept the currently linked Golden Record and close the
-              notification
+              This action will accept the currently linked Golden Record and
+              close the notification.
             </Typography>
             <Typography>
-              No changes will be made to the golden record link
+              No changes will be made to the golden record link.
             </Typography>
           </>
         }
@@ -329,7 +329,7 @@ const ReviewLink = () => {
             Link these records?
           </Typography>
         }
-        subTitle="This will link the following records: "
+        subTitle="This action will link the following records: "
         onClose={handleCancel}
         onOpen={openLinkRecordDialog}
         maxWidth="lg"
