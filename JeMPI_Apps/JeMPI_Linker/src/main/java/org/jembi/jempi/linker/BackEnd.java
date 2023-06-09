@@ -177,7 +177,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return changed;
    }
 
-   void updateInteractionScores(final ExpandedGoldenRecord expandedGoldenRecord) {
+   void updateInteractionsScore(final ExpandedGoldenRecord expandedGoldenRecord) {
       final var mpiInteractionList = expandedGoldenRecord.interactionsWithScore();
       AtomicReference<ArrayList<Notification.MatchData>> candidateList = new AtomicReference<>(new ArrayList<>());
       mpiInteractionList.forEach(mpiInteraction -> {
@@ -401,14 +401,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      firstCandidate.score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
                sendAuditEvent(stan, linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> Existing GoldenRecord");
-//               if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
+               if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                   CustomLinkerBackEnd.updateGoldenRecordFields(this,
                                                                libMPI,
                                                                stan,
                                                                linkInfo.interactionUID(),
                                                                linkInfo.goldenUID());
-//               }
-
+               }
                final var marginalCandidates = new ArrayList<Notification.MatchData>();
                if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {
                   for (var i = 1; i < candidatesAboveMatchThreshold.size(); i++) {

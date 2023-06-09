@@ -31,6 +31,8 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -59,6 +61,8 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -78,6 +82,8 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
@@ -97,6 +103,8 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
                GoldenRecord.gender
