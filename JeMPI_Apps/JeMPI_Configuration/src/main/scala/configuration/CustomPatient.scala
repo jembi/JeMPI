@@ -18,6 +18,16 @@ private object CustomPatient {
 
   private def generateDemographicData(config: Config): Unit =
 
+    def cleanedFields(config: Config): String =
+        config
+          .commonFields
+          .map(f =>
+            s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
+          .mkString("\n")
+          .trim
+          .dropRight(1)
+    end cleanedFields
+
     println("Creating " + classCustomDemographicDataFile)
     val file: File = new File(classCustomDemographicDataFile)
     val writer: PrintWriter = new PrintWriter(file)
@@ -70,6 +80,10 @@ private object CustomPatient {
     }
     writer.println(
       s"""${" " * indent * 1}}
+         |
+         |   public ${customClassNameCustomDemographicData} clean() {
+         |      return new ${customClassNameCustomDemographicData}(${cleanedFields(config)});
+         |   }
          |
          |}""".stripMargin)
     writer.flush()

@@ -19,7 +19,10 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -68,13 +71,7 @@ public final class CustomSourceRecordStream {
                                                            ? demographicData.nationalId
                                                            : "ANON"),
                                         interaction.uniqueInteractionData(),
-                                        new CustomDemographicData(demographicData.givenName.replace("'", ""),
-                                                                  demographicData.familyName.replace("'", ""),
-                                                                  demographicData.gender.replace("'", ""),
-                                                                  demographicData.dob.replace("'", ""),
-                                                                  demographicData.city.replace("'", ""),
-                                                                  demographicData.phoneNumber.replace("'", ""),
-                                                                  demographicData.nationalId.replace("'", ""))));
+                                        demographicData.clean()));
                   return KeyValue.pair(key, newEnvelop);
                } else {
                   return KeyValue.pair(key, rec);
