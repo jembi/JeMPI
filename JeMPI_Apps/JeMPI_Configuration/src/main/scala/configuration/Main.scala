@@ -22,7 +22,7 @@ object Main {
     val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
 
-    CustomPatient.generateDemographicData(config.commonFields)
+    CustomPatient.generate(config)
     CustomMU.generate(config.commonFields)
     CustomDgraphConstants.generate(config)
     CustomDgraphInteraction.generate(config)
