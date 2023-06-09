@@ -16,6 +16,7 @@ import org.jembi.jempi.libapi.Routes;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.RecordType;
 
+import java.time.LocalDate;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
 
@@ -92,6 +93,10 @@ public final class HttpServer extends AllDirectives {
                                           () -> Routes.routeInteractionCount(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_COUNT_RECORDS,
                                           () -> Routes.routeNumberOfRecords(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GOLDEN_RECORD_AUDIT_TRAIL,
+                                          () -> Routes.routeGoldenRecordAuditTrail(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_INTERACTION_AUDIT_TRAIL,
+                                          () -> Routes.routeInteractionAuditTrail(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> Routes.routeGoldenIds(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS,
                                           () -> Routes.routeGoldenRecord(actorSystem, backEnd)),
@@ -100,7 +105,16 @@ public final class HttpServer extends AllDirectives {
                                      path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS,
                                           () -> Routes.routeExpandedPatientRecords(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
-                                          () -> Routes.routeFindMatchesForReview(actorSystem, backEnd)),
+                                          () -> parameter("limit", limit ->
+                                                parameter("offset", offset ->
+                                                      parameter("date", date ->
+                                                                      Routes.routeFindMatchesForReview(actorSystem,
+                                                                                                       backEnd,
+                                                                                                       Integer.parseInt(limit),
+                                                                                                       Integer.parseInt(offset),
+                                                                                                       LocalDate.parse(date))
+                                                               )))
+                                         ),
                                      path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS,
                                           () -> Routes.routeFindCandidates(actorSystem, backEnd)),
                                      path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile(

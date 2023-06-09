@@ -31,6 +31,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
@@ -60,6 +61,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
@@ -80,6 +82,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
@@ -100,6 +103,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
                GoldenRecord.family_name
@@ -112,9 +116,6 @@ final class CustomDgraphQueries {
          }
          """;
 
-
-   private CustomDgraphQueries() {
-   }
 
    static DgraphGoldenRecords queryDeterministicGoldenRecordCandidates(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName;
@@ -208,16 +209,19 @@ final class CustomDgraphQueries {
       }
    }
 
-   static List<CustomDgraphGoldenRecord> getCandidates(final CustomDemographicData interaction) {
-      final var result1 = DgraphQueries.deterministicFilter(interaction);
-      if (!result1.isEmpty()) {
-         return result1;
+   static List<CustomDgraphGoldenRecord> getCandidates(
+      final CustomDemographicData interaction) {
+      var result = DgraphQueries.deterministicFilter(interaction);
+      if (!result.isEmpty()) {
+         return result;
       }
-      var result2 = new LinkedList<CustomDgraphGoldenRecord>();
-      updateCandidates(result2, queryMatchGoldenRecordCandidatesByDistance(interaction));
-      updateCandidates(result2, queryMatchGoldenRecordCandidatesByPhoneNumber(interaction));
-      updateCandidates(result2, queryMatchGoldenRecordCandidatesByNationalId(interaction));
-      return result2;
+      result = new LinkedList<>();
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByDistance(interaction));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByPhoneNumber(interaction));
+      updateCandidates(result, queryMatchGoldenRecordCandidatesByNationalId(interaction));
+      return result;
    }
 
+   private CustomDgraphQueries() {
+   }
 }

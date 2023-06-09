@@ -8,10 +8,15 @@ import java.util.List;
 public record GoldenRecord(
       String goldenId,
       List<SourceId> sourceId,
+      CustomUniqueGoldenRecordData customUniqueGoldenRecordData,
       CustomDemographicData demographicData) {
 
-   public GoldenRecord(final Interaction patient) {
-      this(null, List.of(patient.sourceId()), patient.demographicData());
+   public GoldenRecord(final Interaction interaction) {
+      this(null,
+           List.of(interaction.sourceId()),
+           new CustomUniqueGoldenRecordData(true,
+                                            interaction.uniqueInteractionData().auxId()),
+           interaction.demographicData());
    }
 
 }

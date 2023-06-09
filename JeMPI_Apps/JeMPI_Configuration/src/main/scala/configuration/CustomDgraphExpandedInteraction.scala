@@ -8,52 +8,43 @@ private object CustomDgraphExpandedInteraction {
   private val customClassName = "CustomDgraphExpandedInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def addFields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
-    val margin = 6
-    fields.foreach {
-      case field =>
-        val parameterName = Utils.snakeCaseToCamelCase(field.fieldName)
-        val parameterType = (if field.isList.isDefined && field.isList.get then "List<" else "") +
-          field.fieldType + (if field.isList.isDefined && field.isList.get then ">" else "")
-        writer.println(
-          s"""${" " * margin}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${field.fieldName.toUpperCase}) ${parameterType} $parameterName,""".stripMargin)
-    }
-    writer.println(
-      s"""${" " * margin}@JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
-         |""".stripMargin)
-  }
+  private def interactionFields(config: Config): String =
+    (if (config.uniqueInteractionFields.isEmpty) "" else
+      config
+        .uniqueInteractionFields
+        .get
+        .map(f =>
+          s"""      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+        .mkString("\n") + "\n")
+      +
+      config
+        .commonFields
+        .map(f =>
+          s"""      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+        .mkString("\n")
+  end interactionFields
 
-  private def toInteraction(writer: PrintWriter, fields: Array[CommonField]): Unit = {
-        writer.println(
-          """   Interaction toInteraction() {
-            |      return new Interaction(this.interactionId(),
-            |                             this.sourceId().toSourceId(),
-            |                             new CustomDemographicData(""".stripMargin)
+  private def uniqueArguments(config: Config): String =
+    if (config.uniqueInteractionFields.isEmpty)
+      ""
+    else
+      config
+        .uniqueInteractionFields
+        .get
+        .map(f =>
+          s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+        .mkString("\n").trim.dropRight(1)
+  end uniqueArguments
 
-        fields.zipWithIndex.foreach {
-          (field, idx) =>
-            writer.println(
-              s"${" " * 37}this.${Utils.snakeCaseToCamelCase(field.fieldName)}()" +
-                (if (idx + 1 < fields.length) "," else "));"))
-        }
-        writer.println(
-          s"""   }
-             |""".stripMargin)
-  }
+  private def demographicArguments(config: Config): String =
+    config
+      .commonFields
+      .map(f =>
+        s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+      .mkString("\n").trim.dropRight(1)
+  end demographicArguments
 
-  private def toExpandedInteraction(writer: PrintWriter, fields: Array[CommonField]): Unit = {
-    writer.println(
-      """   ExpandedInteraction toExpandedInteraction() {
-        |      return new ExpandedInteraction(this.toInteraction(),
-        |                                     this.dgraphGoldenRecordList()
-        |                                         .stream()
-        |                                         .map(CustomDgraphReverseGoldenRecord::toGoldenRecordWithScore)
-        |                                         .toList());
-        |   }
-        |""".stripMargin)
-  }
-
-  def generate(fields: Array[CommonField]): Unit =
+  def generate(config: Config): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
@@ -64,6 +55,7 @@ private object CustomDgraphExpandedInteraction {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
+         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.ExpandedInteraction;
          |import org.jembi.jempi.shared.models.Interaction;
@@ -72,12 +64,28 @@ private object CustomDgraphExpandedInteraction {
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
-         |${" " * 6}@JsonProperty("uid") String interactionId,
-         |${" " * 6}@JsonProperty("Interaction.source_id") DgraphSourceId sourceId,""".stripMargin)
-    addFields(writer, fields)
-    toInteraction(writer, fields)
-    toExpandedInteraction(writer, fields)
-    writer.println("}")
+         |      @JsonProperty("uid") String interactionId,
+         |      @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
+         |${interactionFields(config)}
+         |      @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
+         |
+         |   Interaction toInteraction() {
+         |      return new Interaction(this.interactionId(),
+         |                             this.sourceId().toSourceId(),
+         |                             new CustomUniqueInteractionData(${uniqueArguments(config)}),
+         |                             new CustomDemographicData(${demographicArguments(config)}));
+         |   }
+         |
+         |   ExpandedInteraction toExpandedInteraction() {
+         |      return new ExpandedInteraction(this.toInteraction(),
+         |                                     this.dgraphGoldenRecordList()
+         |                                         .stream()
+         |                                         .map(CustomDgraphReverseGoldenRecord::toGoldenRecordWithScore)
+         |                                         .toList());
+         |   }
+         |
+         |}
+         |""".stripMargin)
     writer.flush()
     writer.close()
   end generate

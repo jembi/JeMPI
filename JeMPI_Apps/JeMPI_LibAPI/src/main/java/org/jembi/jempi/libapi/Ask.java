@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -68,10 +69,13 @@ public final class Ask {
 
    static CompletionStage<BackEnd.FindMatchesForReviewResponse> findMatchesForReview(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Event> backEnd,
+         final int limit,
+         final int offset,
+         final LocalDate date) {
       CompletionStage<BackEnd.FindMatchesForReviewResponse> stage = AskPattern
             .ask(backEnd,
-                 BackEnd.FindMatchesForReviewRequest::new,
+                 replyTo -> new BackEnd.FindMatchesForReviewRequest(replyTo, limit, offset, date),
                  java.time.Duration.ofSeconds(30),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -191,6 +195,32 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.GoldenRecordAuditTrailResponse> goldenRecordAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String uid) {
+      LOGGER.debug("{}", uid);
+      final CompletionStage<BackEnd.GoldenRecordAuditTrailResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.GoldenRecordAuditTrailRequest(replyTo, uid),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.InteractionAuditTrailResponse> interactionAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String uid) {
+      LOGGER.debug("{}", uid);
+      final CompletionStage<BackEnd.InteractionAuditTrailResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.InteractionAuditTrailRequest(replyTo, uid),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<ApiModels.ApiPaginatedResultSet> simpleSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -200,7 +230,8 @@ public final class Ask {
                  replyTo -> new BackEnd.SimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(
+            response.records()));
    }
 
    static CompletionStage<ApiModels.ApiPaginatedResultSet> simpleSearchInteractions(
@@ -224,7 +255,8 @@ public final class Ask {
                  replyTo -> new BackEnd.CustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
-      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(
+            response.records()));
    }
 
    static CompletionStage<ApiModels.ApiPaginatedResultSet> customSearchInteractions(

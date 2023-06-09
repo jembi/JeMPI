@@ -29,9 +29,9 @@ object CustomDgraphQueries {
          |
          |final class $custom_className {
          |""".stripMargin)
-    config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config.commonFields, writer, name, rule))
+    config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     if (config.rules.probabilistic != null)
-      config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config.commonFields, writer, name, rule))
+      config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     writer.println()
     config.rules.deterministic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     if (config.rules.probabilistic != null)
@@ -68,16 +68,12 @@ object CustomDgraphQueries {
         |   }
         |
         |   static List<CustomDgraphGoldenRecord> getCandidates(
-        |         final CustomDemographicData interaction,
-        |         final boolean applyDeterministicFilter) {
-        |
-        |      if (applyDeterministicFilter) {
-        |         final var result = DgraphQueries.deterministicFilter(interaction);
-        |         if (!result.isEmpty()) {
-        |            return result;
-        |         }
+        |      final CustomDemographicData interaction) {
+        |      var result = DgraphQueries.deterministicFilter(interaction);
+        |      if (!result.isEmpty()) {
+        |         return result;
         |      }
-        |      var result = new LinkedList<CustomDgraphGoldenRecord>();""".stripMargin)
+        |      result = new LinkedList<>();""".stripMargin)
     if (rules.probabilistic != null) {
       rules.probabilistic.foreach((name, rule) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
@@ -163,7 +159,7 @@ object CustomDgraphQueries {
     end if
   }
 
-  private def emitRuleTemplate(fields: Array[CommonField], writer: PrintWriter, name: String, rule: Rule): Unit = {
+  private def emitRuleTemplate(config: Config, writer: PrintWriter, name: String, rule: Rule): Unit = {
 
     val vars = for (v <- rule.vars) yield v
     val text = rule.text
@@ -192,7 +188,7 @@ object CustomDgraphQueries {
       }
     }
 
-    def createScalerFunc(fields: Array[CommonField]): Unit = {
+    def createScalerFunc(config: Config): Unit = {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
@@ -204,14 +200,19 @@ object CustomDgraphQueries {
              |${" " * 15}GoldenRecord.source_id {
              |${" " * 18}uid
              |${" " * 15}}""".stripMargin)
-        fields.foreach(field => {
+        if (config.uniqueGoldenRecordFields.isDefined) {
+          config.uniqueGoldenRecordFields.get.foreach(field => {
+            writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
+          })
+        }
+        config.commonFields.foreach(field => {
           writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
         })
         writer.println(s"${" " * 12}}")
       })
     }
 
-    def createFilterFunc(fields: Array[CommonField], all_func_str: String): Unit = {
+    def createFilterFunc(config: Config, all_func_str: String): Unit = {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
@@ -229,7 +230,12 @@ object CustomDgraphQueries {
            |${" " * 15}GoldenRecord.source_id {
            |${" " * 18}uid
            |${" " * 15}}""".stripMargin)
-      fields.foreach(field => {
+      if (config.uniqueGoldenRecordFields.isDefined) {
+        config.uniqueGoldenRecordFields.get.foreach(field => {
+          writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
+        })
+      }
+      config.commonFields.foreach(field => {
         writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
       })
       writer.println(s"${" " * 12}}")
@@ -254,9 +260,9 @@ object CustomDgraphQueries {
     writer.println(") {")
 
     if (vars.length == 1)
-      createScalerFunc(fields)
+      createScalerFunc(config)
     else
-      createFilterFunc(fields, all_func_str)
+      createFilterFunc(config, all_func_str)
     end if
     writer.println(
       s"""${" " * 9}}

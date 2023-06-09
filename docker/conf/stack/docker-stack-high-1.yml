@@ -46,16 +46,20 @@ services:
         - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
   keycloak-test-server:
-    image: ${IMAGE_REGSITRY}$KEYCLOAK_IMAGE
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    user: root
     networks:
       - frontend
       - backend
-    ports:
-      - published: 80
-        target: 8080
-        protocol: tcp
-        mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
+      target: /docker-entrypoint-initdb.d
+      read_only: true
     environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
       DB_ADDR: postgresql
       DB_PORT: 5432
       DB_DATABASE: ${POSTGRESQL_DATABASE}
@@ -111,6 +115,10 @@ services:
         mode: host
       - published: 3000
         target: 3000
+        protocol: tcp
+        mode: host
+      - published: 80
+        target: 8080
         protocol: tcp
         mode: host
     volumes:
@@ -374,10 +382,7 @@ services:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APP_ID: app-id-syncrx
       KAFKA_CLIENT_ID: client-id-syncrx
-      KAFKA_GROUP_ID: group-id-syncrx
-      KAFKA_APPLICATION_ID: app-id-syncrx
     networks:
     - backend
     volumes:
@@ -407,9 +412,6 @@ services:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APP_ID: app-id-etl
-      KAFKA_CLIENT_ID: client-id-etl
-      KAFKA_GROUP_ID: group-id-etl
       KAFKA_APPLICATION_ID: app-id-etl
     networks:
     - backend
@@ -435,11 +437,12 @@ services:
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     environment:
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APP_ID: app-id-ctrl
-      KAFKA_CLIENT_ID: client-id-ctrl
-      KAFKA_GROUP_ID: group-id-ctrl
       KAFKA_APPLICATION_ID: app-id-ctrl
+      KAFKA_CLIENT_ID: client-id-ctrl
       HTTP_SERVER_PORT: 50000
     networks:
     - backend
@@ -471,8 +474,6 @@ services:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
     environment:
       KAFKA_SERVERS: ${KAFKA_SERVERS}
-      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
-      DGRAPH_PORTS: ${DGRAPH_PORTS}
     networks:
     - backend
     volumes:
@@ -482,7 +483,7 @@ services:
       read_only: true
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
       update_config:
         parallelism: 1
         delay: 10s
@@ -501,10 +502,8 @@ services:
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APP_ID_INTERACTIONS: app-id-lnk1
-      KAFKA_CLIENT_ID_INTERACTIONS: client-id-lnk1
-      KAFKA_APP_ID_MU: app-id-lnk2
-      KAFKA_CLIENT_ID_MU: client-id-lnk2
+      KAFKA_APPLICATION_ID_INTERACTIONS: app-id-lnk1
+      KAFKA_APPLICATION_ID_MU: app-id-lnk2
       KAFKA_CLIENT_ID_NOTIFICATIONS: client-id-lnk3
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
@@ -542,9 +541,6 @@ services:
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APP_ID: app-id-api
-      KAFKA_CLIENT_ID: client-id-api
-      KAFKA_GROUP_ID: group-id-api
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
@@ -589,9 +585,6 @@ services:
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APP_ID: app-id-api
-      KAFKA_CLIENT_ID: client-id-api
-      KAFKA_GROUP_ID: group-id-api
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}

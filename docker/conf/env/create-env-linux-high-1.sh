@@ -39,8 +39,8 @@ export DGRAPH_HOSTS="alpha-01,alpha-02,alpha-03"
 export DGRAPH_PORTS="9080,9081,9082"
 
 # API related env vars
-export KC_REALM_NAME="platform-realm"
-export KC_API_URL="http://identity-access-manager-keycloak:8080"
+export KC_REALM_NAME="jempi-dev"
+export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
 export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"

@@ -15,6 +15,7 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -74,6 +75,30 @@ public final class Routes {
                                                                           result.get().patientRecords()),
                                          Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
+   }
+
+   public static Route routeGoldenRecordAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("uid",
+                       uid -> onComplete(Ask.goldenRecordAuditTrail(actorSystem, backEnd, uid),
+                                         result -> result.isSuccess()
+                                               ? complete(StatusCodes.OK,
+                                                          ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
+                                                          Jackson.marshaller())
+                                               : complete(StatusCodes.IM_A_TEAPOT)));
+   }
+
+   public static Route routeInteractionAuditTrail(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("uid",
+                       uid -> onComplete(Ask.interactionAuditTrail(actorSystem, backEnd, uid),
+                                         result -> result.isSuccess()
+                                               ? complete(StatusCodes.OK,
+                                                          ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
+                                                          Jackson.marshaller())
+                                               : complete(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route routeUpdateLinkToNewGoldenRecord(
@@ -168,8 +193,11 @@ public final class Routes {
 
    public static Route routeFindMatchesForReview(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return onComplete(Ask.findMatchesForReview(actorSystem, backEnd),
+         final ActorRef<BackEnd.Event> backEnd,
+         final int limit,
+         final int offset,
+         final LocalDate date) {
+      return onComplete(Ask.findMatchesForReview(actorSystem, backEnd, limit, offset, date),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));

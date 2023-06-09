@@ -98,6 +98,21 @@ public interface LibMPIClientInterface {
          String fieldName,
          String value);
 
+   boolean updateGoldenRecordField(
+         String goldenId,
+         String fieldName,
+         Boolean value);
+
+   boolean updateGoldenRecordField(
+         String goldenId,
+         String fieldName,
+         Double value);
+
+   boolean updateGoldenRecordField(
+         String goldenId,
+         String fieldName,
+         Long value);
+
    Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          String currentGoldenId,
          String interactionId,

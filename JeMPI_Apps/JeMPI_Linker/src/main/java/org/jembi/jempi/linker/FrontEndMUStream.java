@@ -84,8 +84,7 @@ public final class FrontEndMUStream {
    private Properties loadConfig() {
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APP_ID_MU);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID_MU);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_MU);
       return props;
    }
 

@@ -27,6 +27,8 @@ public final class AppConfig {
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
+   public static final String KAFKA_APPLICATION_ID_INTERACTIONS = CONFIG.getString("KAFKA_APPLICATION_ID_INTERACTIONS");
+   public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("KAFKA_APPLICATION_ID_MU");
    public static final String KAFKA_CLIENT_ID_NOTIFICATIONS = CONFIG.getString("KAFKA_CLIENT_ID_NOTIFICATIONS");
    private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
    private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
@@ -39,10 +41,6 @@ public final class AppConfig {
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
    public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
    public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
-   public static final String KAFKA_APP_ID_INTERACTIONS = CONFIG.getString("KAFKA_APP_ID_INTERACTIONS");
-   public static final String KAFKA_CLIENT_ID_INTERACTIONS = CONFIG.getString("KAFKA_CLIENT_ID_INTERACTIONS");
-   public static final String KAFKA_APP_ID_MU = CONFIG.getString("KAFKA_APP_ID_MU");
-   public static final String KAFKA_CLIENT_ID_MU = CONFIG.getString("KAFKA_CLIENT_ID_MU");
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;

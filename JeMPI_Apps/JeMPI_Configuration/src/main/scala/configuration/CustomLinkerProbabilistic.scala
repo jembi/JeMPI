@@ -52,97 +52,24 @@ object CustomLinkerProbabilistic {
     } else {
       writer.println(
         s"""
-           |import org.apache.commons.lang3.StringUtils;
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-           |import org.apache.logging.log4j.LogManager;
-           |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |import org.jembi.jempi.shared.models.CustomMU;
            |
-           |import static java.lang.Math.log;
-           |
            |public final class $custom_className {
            |
-           |   private static final Logger LOGGER = LogManager.getLogger(CustomLinkerProbabilistic.class);
            |   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
-           |   private static final double LOG2 = java.lang.Math.log(2.0);
-           |   private static final float MISSING_PENALTY = 0.925F;
-           |   private static Fields updatedFields = null;
+           |
+           |   static Fields updatedFields = null;
            |
            |   private $custom_className() {
-           |   }
-           |
-           |   private static float limitProbability(final float p) {
-           |      if (p > 1.0F - 1E-5F) {
-           |         return 1.0F - 1E-5F;
-           |      } else if (p < 1E-5F) {
-           |         return 1E-5F;
-           |      }
-           |      return p;
-           |   }
-           |
-           |   private static float fieldScore(
-           |         final boolean match,
-           |         final float m,
-           |         final float u) {
-           |      if (match) {
-           |         return (float) (log(m / u) / LOG2);
-           |      }
-           |      return (float) (log((1.0 - m) / (1.0 - u)) / LOG2);
-           |   }
-           |
-           |   private static float fieldScore(
-           |         final String left,
-           |         final String right,
-           |         final Field field) {
-           |      return fieldScore(JARO_WINKLER_SIMILARITY.apply(left, right) > 0.92, field.m, field.u);
-           |   }
-           |
-           |   private static CustomMU.Probability getProbability(final Field field) {
-           |      return new CustomMU.Probability(field.m(), field.u());
-           |   }
-           |
-           |   public static void checkUpdatedMU() {
-           |      if (updatedFields != null) {
-           |         LOGGER.info("Using updated MU values: {}", updatedFields);
-           |         currentFields = updatedFields;
-           |         updatedFields = null;
-           |      }
-           |   }
-           |
-           |   private record Field(float m, float u, float min, float max) {
-           |      Field {
-           |         m = limitProbability(m);
-           |         u = limitProbability(u);
-           |         min = fieldScore(false, m, u);
-           |         max = fieldScore(true, m, u);
-           |      }
-           |
-           |      Field(final float m_, final float u_) {
-           |         this(m_, u_, 0.0F, 0.0F);
-           |      }
-           |
-           |   }
-           |
-           |   private static void updateMetricsForStringField(
-           |         final float[] metrics,
-           |         final String left,
-           |         final String right,
-           |         final Field field) {
-           |      if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
-           |         metrics[0] += field.min;
-           |         metrics[1] += field.max;
-           |         metrics[2] += fieldScore(left, right, field);
-           |      } else {
-           |         metrics[3] *= MISSING_PENALTY;
-           |      }
            |   }
            |""".stripMargin)
 
       writer.println("   static CustomMU getMU() {")
       writer.println("      return new CustomMU(")
       muList.zipWithIndex.foreach((mu, idx) => {
-        writer.print(" " * 9 + s"getProbability(currentFields.${Utils.snakeCaseToCamelCase(mu.fieldName)})")
+        writer.print(" " * 9 + s"LinkerProbabilistic.getProbability(currentFields.${Utils.snakeCaseToCamelCase(mu.fieldName)})")
         if (idx + 1 < muList.length)
           writer.println(",")
         else
@@ -155,7 +82,7 @@ object CustomLinkerProbabilistic {
 
       writer.println("   private record Fields(")
       muList.zipWithIndex.foreach((mu, idx) => {
-        writer.print(s"""${" " * 9}Field """)
+        writer.print(s"""${" " * 9}LinkerProbabilistic.Field """)
         writer.print(Utils.snakeCaseToCamelCase(mu.fieldName))
         if (idx + 1 < muList.length)
           writer.println(",")
@@ -167,13 +94,15 @@ object CustomLinkerProbabilistic {
         end if
       })
 
-      writer.println("   private static Fields currentFields =")
+      writer.println("   static Fields currentFields =")
       writer.print("      new Fields(")
       var margin = 0
       muList.zipWithIndex.foreach((field, idx) => {
+        val comparison = field.comparison.get
+        val comparisonLevel = field.comparisonLevel.get
         val m: Double = field.m.get
         val u: Double = field.u.get
-        writer.print(" " * margin + s"new Field(${m}F, ${u}F)")
+        writer.print(" " * margin + s"new LinkerProbabilistic.Field(${comparison}, ${comparisonLevel}F, ${m}F, ${u}F)")
         if (idx + 1 < muList.length)
           writer.println(",")
           margin = 17
@@ -188,9 +117,9 @@ object CustomLinkerProbabilistic {
           |      // min, max, score, missingPenalty
           |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
       muList.zipWithIndex.foreach((field, _) => {
-        writer.println(" " * 6 + "updateMetricsForStringField(metrics,")
+        writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(" " * 34 + s"goldenRecord.$fieldName, interaction.$fieldName, currentFields" +
+        writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentFields" +
           s".$fieldName);")
       })
       writer.println(" " * 6 + "return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];")
@@ -213,7 +142,9 @@ object CustomLinkerProbabilistic {
       writer.println(" " * 9 + "updatedFields = new Fields(")
       muList.zipWithIndex.foreach((field, idx) => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.print(" " * 12 + s"new Field(mu.$fieldName().m(), mu.$fieldName().u())")
+        val comparison = field.comparison.get
+        val comparisonLevel = field.comparisonLevel.get
+        writer.print(" " * 12 + s"new LinkerProbabilistic.Field(${comparison}, ${comparisonLevel}F, mu.$fieldName().m(), mu.$fieldName().u())")
         if (idx + 1 < muList.length)
           writer.println(",")
         else

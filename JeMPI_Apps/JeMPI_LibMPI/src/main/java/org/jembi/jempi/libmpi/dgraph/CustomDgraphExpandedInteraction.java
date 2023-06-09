@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.ExpandedInteraction;
 import org.jembi.jempi.shared.models.Interaction;
@@ -25,15 +26,14 @@ record CustomDgraphExpandedInteraction(
    Interaction toInteraction() {
       return new Interaction(this.interactionId(),
                              this.sourceId().toSourceId(),
-                             new CustomDemographicData(
-                                     this.auxId(),
-                                     this.givenName(),
-                                     this.familyName(),
-                                     this.gender(),
-                                     this.dob(),
-                                     this.city(),
-                                     this.phoneNumber(),
-                                     this.nationalId()));
+                             new CustomUniqueInteractionData(this.auxId()),
+                             new CustomDemographicData(this.givenName(),
+                                                       this.familyName(),
+                                                       this.gender(),
+                                                       this.dob(),
+                                                       this.city(),
+                                                       this.phoneNumber(),
+                                                       this.nationalId()));
    }
 
    ExpandedInteraction toExpandedInteraction() {
@@ -45,3 +45,4 @@ record CustomDgraphExpandedInteraction(
    }
 
 }
+

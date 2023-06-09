@@ -8,8 +8,17 @@ private object CustomDgraphConstants {
   private val customClassName = "CustomDgraphConstants"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def golden_record_predicates(writer: PrintWriter, fields: Array[CommonField]): Unit = {
-    fields.zipWithIndex.foreach {
+  private def golden_record_predicates(writer: PrintWriter, config: Config): Unit = {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.zipWithIndex.foreach {
+        case (field, _) =>
+          val name = Utils.camelCaseToSnakeCase(field.fieldName)
+          writer.println(
+            s"""   public static final String PREDICATE_GOLDEN_RECORD_${name.toUpperCase} = "GoldenRecord.$name";"""
+              .stripMargin)
+      }
+    }
+    config.commonFields.zipWithIndex.foreach {
       case (field, _) =>
         val name = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
@@ -20,8 +29,17 @@ private object CustomDgraphConstants {
       s"""   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";""".stripMargin)
   }
 
-  private def interaction_predicates(writer: PrintWriter, fields: Array[CommonField]): Unit = {
-    fields.zipWithIndex.foreach {
+  private def interaction_predicates(writer: PrintWriter, config: Config): Unit = {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.zipWithIndex.foreach {
+        case (field, _) =>
+          val name = Utils.camelCaseToSnakeCase(field.fieldName)
+          writer.println(
+            s"""   public static final String PREDICATE_INTERACTION_${name.toUpperCase} = "Interaction.$name";"""
+              .stripMargin)
+      }
+    }
+    config.commonFields.zipWithIndex.foreach {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
@@ -29,7 +47,7 @@ private object CustomDgraphConstants {
     }
   }
 
-  private def golden_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def golden_record_field_names(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""
          |   static final String GOLDEN_RECORD_FIELD_NAMES =
@@ -41,19 +59,23 @@ private object CustomDgraphConstants {
          |            SourceId.patient
          |         }""".stripMargin
     )
-
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"         GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         GoldenRecord.$name")
     })
-
     writer.println(
       s"""         \"\"\";""".stripMargin
     )
 
   }
 
-  private def expanded_golden_record_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def expanded_golden_record_field_names(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""
          |   static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
@@ -66,11 +88,16 @@ private object CustomDgraphConstants {
          |         }""".stripMargin
     )
 
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"         GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         GoldenRecord.$name")
     })
-
     writer.println(
       s"""         GoldenRecord.interactions @facets(score) {
          |            uid
@@ -79,7 +106,13 @@ private object CustomDgraphConstants {
          |               SourceId.facility
          |               SourceId.patient
          |            }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"            Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            Interaction.$name")
     })
@@ -88,7 +121,7 @@ private object CustomDgraphConstants {
          |         \"\"\";""".stripMargin)
   }
 
-  private def interaction_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def interaction_field_names(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String INTERACTION_FIELD_NAMES =
          |         \"\"\"
@@ -100,18 +133,25 @@ private object CustomDgraphConstants {
          |         }""".stripMargin
     )
 
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"         Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         Interaction.$name")
     })
 
     writer.println(
-      s"""         \"\"\";""".stripMargin
+      s"""         \"\"\";
+         |""".stripMargin
     )
 
   }
 
-  private def expanded_interaction_field_names(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def expanded_interaction_field_names(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String EXPANDED_INTERACTION_FIELD_NAMES =
          |         \"\"\"
@@ -123,7 +163,13 @@ private object CustomDgraphConstants {
          |         }""".stripMargin
     )
 
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"         Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         Interaction.$name")
     })
@@ -136,7 +182,14 @@ private object CustomDgraphConstants {
          |              SourceId.facility
          |              SourceId.patient
          |            }""".stripMargin)
-    fields.foreach(field => {
+
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"            GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            GoldenRecord.$name")
     })
@@ -147,7 +200,7 @@ private object CustomDgraphConstants {
 
   }
 
-  private def query_get_golden_record_by_uid(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def query_get_golden_record_by_uid(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_GOLDEN_RECORD_BY_UID =
          |         \"\"\"
@@ -159,7 +212,13 @@ private object CustomDgraphConstants {
          |                  SourceId.facility
          |                  SourceId.patient
          |               }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"               GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               GoldenRecord.$name")
     })
@@ -170,7 +229,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_golden_records(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def query_get_golden_records(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_GOLDEN_RECORDS =
          |         \"\"\"
@@ -182,7 +241,13 @@ private object CustomDgraphConstants {
          |                  SourceId.facility
          |                  SourceId.patient
          |               }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"               GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               GoldenRecord.$name")
     })
@@ -193,7 +258,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_golden_records(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def query_get_expanded_golden_records(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          |         \"\"\"
@@ -205,7 +270,13 @@ private object CustomDgraphConstants {
          |                  SourceId.facility
          |                  SourceId.patient
          |               }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"               GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               GoldenRecord.$name")
     })
@@ -217,7 +288,13 @@ private object CustomDgraphConstants {
          |                    SourceId.facility
          |                    SourceId.patient
          |                  }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"                  Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"                  Interaction.$name")
     })
@@ -229,7 +306,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_expanded_interactions(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def query_get_expanded_interactions(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_EXPANDED_INTERACTIONS =
          |         \"\"\"
@@ -241,7 +318,13 @@ private object CustomDgraphConstants {
          |                  SourceId.facility
          |                  SourceId.patient
          |               }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"               Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               Interaction.$name")
     })
@@ -253,7 +336,13 @@ private object CustomDgraphConstants {
          |                    SourceId.facility
          |                    SourceId.patient
          |                  }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"                  GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"                  GoldenRecord.$name")
     })
@@ -265,7 +354,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def query_get_interaction_by_uid(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def query_get_interaction_by_uid(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String QUERY_GET_INTERACTION_BY_UID =
          |         \"\"\"
@@ -277,7 +366,13 @@ private object CustomDgraphConstants {
          |                 SourceId.facility
          |                 SourceId.patient
          |               }""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"               Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               Interaction.$name")
     })
@@ -300,7 +395,7 @@ private object CustomDgraphConstants {
      """.stripMargin)
   }
 
-  private def mutation_create_source_id_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_source_id_fields(writer: PrintWriter): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
          |         \"\"\"
@@ -310,14 +405,20 @@ private object CustomDgraphConstants {
        """.stripMargin)
   }
 
-  private def mutation_create_golden_record_type(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_golden_record_type(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE =
          |         \"\"\"
          |
          |         type GoldenRecord {
          |            GoldenRecord.source_id:                 [SourceId]""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"            GoldenRecord.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            GoldenRecord.$name")
     })
@@ -328,18 +429,30 @@ private object CustomDgraphConstants {
          """.stripMargin)
   }
 
-  private def mutation_create_golden_record_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_golden_record_fields(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          |         \"\"\"
          |         GoldenRecord.source_id:                [uid]                                        .""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueGoldenRecordFields.isDefined) {
+      config.uniqueGoldenRecordFields.get.foreach(field => {
+        val name = field.fieldName
+        val index = field.index.getOrElse("")
+        val fieldType = (if field.isList.isDefined && field.isList.get then "[" else "") +
+          field.fieldType.toLowerCase +
+          (if field.isList.isDefined && field.isList.get then "]" else "")
+        writer.println(
+          s"""${" " * 9}GoldenRecord.$name:${" " * (25 - name.length)}$fieldType${
+            " " * (10 - fieldType.length)
+          }$index${" " * (35 - index.length)}.""".stripMargin)
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       val index = field.indexGoldenRecord.getOrElse("")
       val fieldType = (if field.isList.isDefined && field.isList.get then "[" else "") +
         field.fieldType.toLowerCase +
         (if field.isList.isDefined && field.isList.get then "]" else "")
-
       writer.println(
         s"""${" " * 9}GoldenRecord.$name:${" " * (25 - name.length)}$fieldType${
           " " * (10 - fieldType.length)
@@ -351,14 +464,20 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def mutation_create_interaction_type(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_interaction_type(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_INTERACTION_TYPE =
          |         \"\"\"
          |
          |         type Interaction {
          |            Interaction.source_id:                     SourceId""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        writer.println(s"            Interaction.$name")
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            Interaction.$name")
     })
@@ -368,12 +487,25 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  private def mutation_create_interaction_fields(writer: PrintWriter, fields: Array[CommonField]): Unit = {
+  private def mutation_create_interaction_fields(writer: PrintWriter, config: Config): Unit = {
     writer.println(
       s"""   static final String MUTATION_CREATE_INTERACTION_FIELDS =
          |         \"\"\"
          |         Interaction.source_id:                    uid                                          .""".stripMargin)
-    fields.foreach(field => {
+    if (config.uniqueInteractionFields.isDefined) {
+      config.uniqueInteractionFields.get.foreach(field => {
+        val name = field.fieldName
+        val index = field.index.getOrElse("")
+        val fieldType = (if field.isList.isDefined && field.isList.get then "[" else "") +
+          field.fieldType.toLowerCase +
+          (if field.isList.isDefined && field.isList.get then "]" else "")
+        writer.println(
+          s"""${" " * 9}Interaction.$name:${" " * (29 - name.length)}$fieldType${
+            " " * (10 - fieldType.length)
+          }$index${" " * (35 - index.length)}.""".stripMargin)
+      })
+    }
+    config.commonFields.foreach(field => {
       val name = field.fieldName
       val index = field.indexEntity.getOrElse("")
       val fieldType = field.fieldType.toLowerCase
@@ -391,7 +523,7 @@ private object CustomDgraphConstants {
          |""".stripMargin)
   }
 
-  def generate(fields: Array[CommonField]): Unit =
+  def generate(config: Config): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
@@ -402,23 +534,23 @@ private object CustomDgraphConstants {
          |public final class $customClassName {
          |""".stripMargin)
 
-    golden_record_predicates(writer, fields)
-    interaction_predicates(writer, fields)
-    golden_record_field_names(writer, fields)
-    expanded_golden_record_field_names(writer, fields)
-    interaction_field_names(writer, fields)
-    expanded_interaction_field_names(writer, fields)
-    query_get_interaction_by_uid(writer, fields)
-    query_get_golden_record_by_uid(writer, fields)
-    query_get_expanded_interactions(writer, fields)
-    query_get_golden_records(writer, fields)
-    query_get_expanded_golden_records(writer, fields)
+    golden_record_predicates(writer, config)
+    interaction_predicates(writer, config)
+    golden_record_field_names(writer, config)
+    expanded_golden_record_field_names(writer, config)
+    interaction_field_names(writer, config)
+    expanded_interaction_field_names(writer, config)
+    query_get_interaction_by_uid(writer, config)
+    query_get_golden_record_by_uid(writer, config)
+    query_get_expanded_interactions(writer, config)
+    query_get_golden_records(writer, config)
+    query_get_expanded_golden_records(writer, config)
     mutation_create_source_id_type(writer)
-    mutation_create_source_id_fields(writer, fields)
-    mutation_create_golden_record_type(writer, fields)
-    mutation_create_golden_record_fields(writer, fields)
-    mutation_create_interaction_type(writer, fields)
-    mutation_create_interaction_fields(writer, fields)
+    mutation_create_source_id_fields(writer)
+    mutation_create_golden_record_type(writer, config)
+    mutation_create_golden_record_fields(writer, config)
+    mutation_create_interaction_type(writer, config)
+    mutation_create_interaction_fields(writer, config)
     writer.println(
       s"""   private $customClassName() {}
          |

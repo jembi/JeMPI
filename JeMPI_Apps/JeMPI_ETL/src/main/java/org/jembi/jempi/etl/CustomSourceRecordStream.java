@@ -54,10 +54,9 @@ public final class CustomSourceRecordStream {
                                                 interactionEnvelopSerde));
       sourceKStream
             .map((key, rec) -> {
-               LOGGER.info("{} : {}", key, rec);
                if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
-                  final var iteraction = rec.interaction();
-                  final var demographicData = iteraction.demographicData();
+                  final var interaction = rec.interaction();
+                  final var demographicData = interaction.demographicData();
                   final var newEnvelop = new InteractionEnvelop(
                         rec.contentType(),
                         rec.tag(),
@@ -68,8 +67,8 @@ public final class CustomSourceRecordStream {
                                                      StringUtils.isNotBlank(demographicData.nationalId)
                                                            ? demographicData.nationalId
                                                            : "ANON"),
-                                        new CustomDemographicData(demographicData.auxId,
-                                                                  demographicData.givenName.replace("'", ""),
+                                        interaction.uniqueInteractionData(),
+                                        new CustomDemographicData(demographicData.givenName.replace("'", ""),
                                                                   demographicData.familyName.replace("'", ""),
                                                                   demographicData.gender.replace("'", ""),
                                                                   demographicData.dob.replace("'", ""),
@@ -104,9 +103,8 @@ public final class CustomSourceRecordStream {
 
    private Properties loadConfig() {
       final Properties props = new Properties();
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
-      props.put(StreamsConfig.CLIENT_ID_CONFIG, AppConfig.KAFKA_CLIENT_ID);
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
    }

@@ -18,9 +18,9 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.concurrent.CompletionStage;
 
-public final class FrontEndStreamSync extends AllDirectives {
+public final class InteractionsHTTP extends AllDirectives {
 
-   private static final Logger LOGGER = LogManager.getLogger(FrontEndStreamSync.class);
+   private static final Logger LOGGER = LogManager.getLogger(InteractionsHTTP.class);
 
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;

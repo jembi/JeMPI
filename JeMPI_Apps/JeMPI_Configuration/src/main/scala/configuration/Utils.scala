@@ -2,6 +2,9 @@ package configuration
 
 object Utils {
 
+  val javaType: Map[String, String] = Map.apply("String" -> "String", "Bool" -> "Boolean")
+
+
   def camelCaseToSnakeCase(name: String) = "[A-Z\\d]".r.replaceAllIn(name, {
     m => "_" + m.group(0).toLowerCase()
   })

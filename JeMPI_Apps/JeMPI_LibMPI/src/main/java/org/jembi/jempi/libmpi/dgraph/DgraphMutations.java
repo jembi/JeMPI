@@ -11,10 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.Interaction;
-import org.jembi.jempi.shared.models.LinkInfo;
-import org.jembi.jempi.shared.models.SourceId;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.ArrayList;
@@ -76,6 +73,58 @@ final class DgraphMutations {
       return StringUtil.isNullOrEmpty(result);
    }
 
+   //Use this when checking auto-update
+   private static boolean updateGoldenRecordPredicate(
+         final String goldenId,
+         final String predicate,
+         final Boolean value) {
+      final var mutation = DgraphProto.Mutation.newBuilder()
+                                               .setSetNquads(ByteString.copyFromUtf8(String.format(
+                                                     """
+                                                     <%s> <%s>          "%s"^^<xs:boolean>   .
+                                                     <%s> <dgraph.type> "GoldenRecord"       .
+                                                     """,
+                                                     goldenId,
+                                                     predicate,
+                                                     Boolean.TRUE.equals(value)
+                                                           ? "true"
+                                                           : "false",
+                                                     goldenId)))
+                                               .build();
+      final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
+      return StringUtil.isNullOrEmpty(result);
+   }
+
+   private static boolean updateGoldenRecordPredicate(
+         final String goldenId,
+         final String predicate,
+         final Double value) {
+      final var mutation = DgraphProto.Mutation.newBuilder()
+                                               .setSetNquads(ByteString.copyFromUtf8(String.format(
+                                                     """
+                                                     <%s> <%s>          "%f"^^<xs:double>    .
+                                                     <%s> <dgraph.type> "GoldenRecord"       .
+                                                     """, goldenId, predicate, value, goldenId)))
+                                               .build();
+      final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
+      return StringUtil.isNullOrEmpty(result);
+   }
+
+   private static boolean updateGoldenRecordPredicate(
+         final String goldenId,
+         final String predicate,
+         final Long value) {
+      final var mutation = DgraphProto.Mutation.newBuilder()
+                                               .setSetNquads(ByteString.copyFromUtf8(String.format(
+                                                     """
+                                                     <%s> <%s>          "%d"^^<xs:integer>    .
+                                                     <%s> <dgraph.type> "GoldenRecord"       .
+                                                     """, goldenId, predicate, value, goldenId)))
+                                               .build();
+      final var result = DgraphClient.getInstance().doMutateTransaction(mutation);
+      return StringUtil.isNullOrEmpty(result);
+   }
+
    private static boolean deletePredicate(
          final String uid,
          final String predicate,
@@ -127,7 +176,8 @@ final class DgraphMutations {
             .Mutation
             .newBuilder()
             .setSetNquads(ByteString.copyFromUtf8(CustomDgraphMutations
-                                                        .createInteractionTriple(interaction.demographicData(),
+                                                        .createInteractionTriple(interaction.uniqueInteractionData(),
+                                                                                 interaction.demographicData(),
                                                                                  sourceIdUid)))
             .build();
       return new InsertInteractionResult(DgraphClient.getInstance().doMutateTransaction(mutation), sourceIdUid);
@@ -137,8 +187,13 @@ final class DgraphMutations {
          final CustomDemographicData interaction,
          final String interactionUID,
          final String sourceUID,
-         final float score) {
-      final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(interaction, interactionUID, sourceUID, score);
+         final float score,
+         final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
+      final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
+                                                                               interaction,
+                                                                               interactionUID,
+                                                                               sourceUID,
+                                                                               score);
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
                                                                 .setSetNquads(ByteString.copyFromUtf8(command))
                                                                 .build();
@@ -162,8 +217,13 @@ final class DgraphMutations {
          LOGGER.error("Failed to insert interaction");
          return null;
       }
-      final var grUID = cloneGoldenRecordFromInteraction(interaction.demographicData(), result.interactionUID,
-                                                         result.sourceUID, 1.0F);
+      final var grUID = cloneGoldenRecordFromInteraction(interaction.demographicData(),
+                                                         result.interactionUID,
+                                                         result.sourceUID,
+                                                         1.0F,
+                                                         new CustomUniqueGoldenRecordData(true,
+                                                                                          interaction.uniqueInteractionData()
+                                                                                                     .auxId()));
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
@@ -179,6 +239,30 @@ final class DgraphMutations {
          final String goldenId,
          final String fieldName,
          final String val) {
+      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      return updateGoldenRecordPredicate(goldenId, predicate, val);
+   }
+
+   static boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Boolean val) {
+      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      return updateGoldenRecordPredicate(goldenId, predicate, val);
+   }
+
+   static boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Double val) {
+      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      return updateGoldenRecordPredicate(goldenId, predicate, val);
+   }
+
+   static boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Long val) {
       String predicate = "GoldenRecord." + camelToSnake(fieldName);
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
@@ -216,7 +300,7 @@ final class DgraphMutations {
       final var newGoldenID = cloneGoldenRecordFromInteraction(
             interaction.demographicData(), interaction.interactionId(),
             interaction.sourceId().uid(),
-            score);
+            score, new CustomUniqueGoldenRecordData(true, interaction.uniqueInteractionData().auxId()));
       return Either.right(new LinkInfo(newGoldenID, interactionId, score));
    }
 

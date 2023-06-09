@@ -470,7 +470,6 @@
         <module>JeMPI_Controller</module>
         <module>JeMPI_EM</module>
         <module>JeMPI_Linker</module>
-        <module>JeMPI_Stats</module>
     </modules>
 
 </project>

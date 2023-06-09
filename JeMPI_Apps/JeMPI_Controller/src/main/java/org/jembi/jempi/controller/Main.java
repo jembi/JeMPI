@@ -11,7 +11,6 @@ import org.jembi.jempi.AppConfig;
 public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
-   private FrontEndStreamSync frontEndStreamSync;
 
    private Main() {
    }
@@ -25,14 +24,18 @@ public final class Main {
             context -> {
                final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEndActor);
-               final var patientStreamAsync = new FrontEndStreamAsync();
-               patientStreamAsync.open(context.getSystem(), backEndActor);
-               frontEndStreamSync = new FrontEndStreamSync();
-               frontEndStreamSync.open(context.getSystem(), backEndActor);
+               final var auditTrailStreamProcessor = new AuditTrailStreamProcessor();
+               auditTrailStreamProcessor.open();
+               final var notificationStreamProcessor = new NotificationStreamProcessor();
+               notificationStreamProcessor.open();
+               final var interactionsStreamProcessor = new InteractionsStreamProcessor();
+               interactionsStreamProcessor.open(context.getSystem(), backEndActor);
+               final var interactionsHTTP = new InteractionsHTTP();
+               interactionsHTTP.open(context.getSystem(), backEndActor);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> {
-                                            frontEndStreamSync.close(context.getSystem());
+                                            interactionsHTTP.close(context.getSystem());
                                             return Behaviors.stopped();
                                          })
                                .build();

@@ -8,10 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.Interaction;
-import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.io.IOException;
@@ -57,21 +54,22 @@ public final class CustomMain {
          final var rNumber = matcher.group("rnum");
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
-         final var recNumber = String.format("rec-%010d-%s-%d",
-                                             Integer.parseInt(rNumber),
-                                             klass,
-                                             (("org".equals(klass) || "aaa".equals(klass))
-                                                    ? 0
-                                                    : Integer.parseInt(dNumber)));
-         LOGGER.debug("{}", recNumber);
-         return recNumber;
+         return String.format("rec-%010d-%s-%d",
+                              Integer.parseInt(rNumber),
+                              klass,
+                              (("org".equals(klass) || "aaa".equals(klass))
+                                     ? 0
+                                     : Integer.parseInt(dNumber)));
       }
       return null;
    }
 
-   private static CustomDemographicData getCustomDemographicData(final CSVRecord csvRecord) {
+   private static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
+      return new CustomUniqueInteractionData(parseRecordNumber(csvRecord.get(REC_NUM_IDX)));
+   }
+
+   private static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
       return new CustomDemographicData(
-            parseRecordNumber(csvRecord.get(REC_NUM_IDX)),
             csvRecord.get(GIVEN_NAME_IDX),
             csvRecord.get(FAMILY_NAME_IDX),
             csvRecord.get(GENDER_IDX),
@@ -86,7 +84,6 @@ public final class CustomMain {
          final InteractionEnvelop interactionEnvelop)
          throws InterruptedException, ExecutionException {
       try {
-         LOGGER.debug("{}", interactionEnvelop);
          interactionEnvelopProducer.produceSync(key, interactionEnvelop);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
@@ -116,9 +113,13 @@ public final class CustomMain {
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
                                                   String.format("%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
-            sendToKafka(UUID.randomUUID().toString(), new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
-                                                     String.format("%s:%07d", stanDate, ++index),
-                                                     new Interaction(null, null, getCustomDemographicData(csvRecord))));
+            sendToKafka(UUID.randomUUID().toString(),
+                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
+                                               String.format("%s:%07d", stanDate, ++index),
+                                               new Interaction(null,
+                                                               null,
+                                                               customUniqueInteractionData(csvRecord),
+                                                               customDemographicData(csvRecord))));
          }
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, fileName,
                                                   String.format("%s:%07d", stanDate, ++index), null));
@@ -156,9 +157,8 @@ public final class CustomMain {
    }
 
    private void run() throws InterruptedException, ExecutionException, IOException {
-      LOGGER.info("KAFKA: {} {} {}",
+      LOGGER.info("KAFKA: {} {}",
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,

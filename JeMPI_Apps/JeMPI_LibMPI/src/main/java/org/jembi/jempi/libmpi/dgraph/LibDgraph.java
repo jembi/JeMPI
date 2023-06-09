@@ -161,6 +161,27 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
    }
 
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Boolean val) {
+      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+   }
+
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Double val) {
+      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+   }
+
+   public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final Long val) {
+      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+   }
+
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String goldenUID,
          final String interactionUID,

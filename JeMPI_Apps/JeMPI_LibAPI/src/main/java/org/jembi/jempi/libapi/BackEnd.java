@@ -12,6 +12,7 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.CustomLinkerProbabilistic;
+import org.jembi.jempi.linker.LinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -21,18 +22,20 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
+   private final String pgDatabase;
    private final String pgUser;
    private final String pgPassword;
-   private final String pgDatabase;
+   private final PsqlNotifications psqlNotifications;
+   private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
-   private final PsqlQueries psqlQueries;
 
 
    private BackEnd(
@@ -46,10 +49,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.libMPI = null;
       this.dgraphHosts = dgraphHosts;
       this.dgraphPorts = dgraphPorts;
+      this.pgDatabase = sqlDatabase;
       this.pgUser = sqlUser;
       this.pgPassword = sqlPassword;
-      this.pgDatabase = sqlDatabase;
-      psqlQueries = new PsqlQueries(sqlDatabase);
+      psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
+      psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
       openMPI();
    }
 
@@ -102,6 +106,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(SimpleSearchInteractionsRequest.class, this::simpleSearchInteractionsHandler)
             .onMessage(CustomSearchInteractionsRequest.class, this::customSearchInteractionsHandler)
             .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
+            .onMessage(GoldenRecordAuditTrailRequest.class, this::goldenRecordAuditTrailHandler)
+            .onMessage(InteractionAuditTrailRequest.class, this::interactionAuditTrailHandler)
             .build();
    }
 
@@ -163,7 +169,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
       LOGGER.debug("findMatchesForReviewHandler");
-      var recs = psqlQueries.getMatchesForReview(pgPassword);
+      var recs = psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date());
       request.replyTo.tell(new FindMatchesForReviewResponse(recs));
       return Behaviors.same();
    }
@@ -344,7 +350,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
          final var patientDemographic = interaction.demographicData();
          CustomLinkerProbabilistic.updateMU(request.mu);
-         CustomLinkerProbabilistic.checkUpdatedMU();
+         LinkerProbabilistic.checkUpdatedMU();
          candidates = goldenRecords
                .stream()
                .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
@@ -394,9 +400,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> goldenRecordAuditTrailHandler(final GoldenRecordAuditTrailRequest request) {
+      LOGGER.debug("{}", request.uid);
+      final var auditTrail = psqlAuditTrail.goldenRecordAuditTrail(request.uid);
+      request.replyTo.tell(new GoldenRecordAuditTrailResponse(auditTrail));
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> interactionAuditTrailHandler(final InteractionAuditTrailRequest request) {
+      LOGGER.debug("{}", request.uid);
+      final var auditTrail = psqlAuditTrail.interactionRecordAuditTrail(request.uid);
+      request.replyTo.tell(new InteractionAuditTrailResponse(auditTrail));
+      return Behaviors.same();
+   }
+
    private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
       try {
-         psqlQueries.updateNotificationState(pgPassword, request.notificationId, request.state);
+         psqlNotifications.updateNotificationState(request.notificationId, request.state);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
@@ -446,6 +466,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          long patientRecords) implements EventResponse {
    }
 
+   public record GoldenRecordAuditTrailRequest(
+         ActorRef<GoldenRecordAuditTrailResponse> replyTo,
+         String uid) implements Event {
+   }
+
+   public record GoldenRecordAuditTrailResponse(List<AuditEvent> auditTrail) {
+   }
+
+   public record InteractionAuditTrailRequest(
+         ActorRef<InteractionAuditTrailResponse> replyTo,
+         String uid) implements Event {
+   }
+
+   public record InteractionAuditTrailResponse(List<AuditEvent> auditTrail) {
+   }
+
+
    public record GetGoldenIdsRequest(ActorRef<GetGoldenIdsResponse> replyTo) implements Event {
    }
 
@@ -488,7 +525,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          implements EventResponse {
    }
 
-   public record FindMatchesForReviewRequest(ActorRef<FindMatchesForReviewResponse> replyTo) implements Event {
+   public record FindMatchesForReviewRequest(
+         ActorRef<FindMatchesForReviewResponse> replyTo,
+         int limit,
+         int offset,
+         LocalDate date) implements Event {
    }
 
    public record FindMatchesForReviewResponse(List<HashMap<String, Object>> records) implements EventResponse {

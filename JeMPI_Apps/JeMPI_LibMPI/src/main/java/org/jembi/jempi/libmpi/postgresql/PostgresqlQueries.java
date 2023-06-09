@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
 import java.sql.PreparedStatement;
@@ -209,6 +210,8 @@ public final class PostgresqlQueries {
                                                                                             CustomDemographicData.class));
             list.add(new GoldenRecord(id,
                                       null,
+                                      new CustomUniqueGoldenRecordData(true,
+                                                                       "AUX_ID"),
                                       goldenRecordData));
          }
          return list;

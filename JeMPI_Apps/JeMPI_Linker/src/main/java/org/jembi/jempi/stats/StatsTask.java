@@ -8,9 +8,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.SourceId;
+import org.jembi.jempi.shared.models.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -87,13 +85,13 @@ public final class StatsTask {
       }
    }
 
-   private void updateStatsDataSet(final ApiExpandedGoldenRecord goldenRecord) {
-      final String goldenRecordAuxId = goldenRecord.goldenRecord.demographicData.auxId;
+   private void updateStatsDataSet(final ApiExpandedGoldenRecord expandedGoldenRecord) {
+      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord.uniqueGoldenRecordData.auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      goldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.demographicData.auxId));
+      expandedGoldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.uniqueInteractionData.auxId()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -201,6 +199,7 @@ public final class StatsTask {
    private record ApiGoldenRecord(
          String uid,
          List<SourceId> sourceId,
+         CustomUniqueGoldenRecordData uniqueGoldenRecordData,
          CustomDemographicData demographicData) {
    }
 
@@ -208,6 +207,7 @@ public final class StatsTask {
    public record ApiPatientRecord(
          String uid,
          SourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
          CustomDemographicData demographicData) {
    }
 
