@@ -38,5 +38,6 @@ object Main {
     CustomLinkerMU.parseRules(config)
     CustomPostgresqlInteraction.generate(config.commonFields)
     CustomPostgresqlGoldenRecord.generate(config.commonFields)
+    CustomAsyncHelper.generate(config)
 
 }

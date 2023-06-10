@@ -2,7 +2,8 @@
   "uniqueInteractionFields": [
     {
       "fieldName": "aux_id",
-      "fieldType": "String"
+      "fieldType": "String",
+      "csvCol": 0
     }
   ],
   "uniqueGoldenRecordFields": [
@@ -20,6 +21,7 @@
     {
       "fieldName": "given_name",
       "fieldType": "String",
+      "csvCol": 1,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
@@ -30,6 +32,7 @@
     {
       "fieldName": "family_name",
       "fieldType": "String",
+      "csvCol": 2,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
@@ -40,6 +43,7 @@
     {
       "fieldName": "gender",
       "fieldType": "String",
+      "csvCol": 3,
       "indexGoldenRecord": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevel": 0.92,
@@ -49,6 +53,7 @@
     {
       "fieldName": "dob",
       "fieldType": "String",
+      "csvCol": 4,
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevel": 0.92,
       "m": 0.894637,
@@ -57,6 +62,7 @@
     {
       "fieldName": "city",
       "fieldType": "String",
+      "csvCol": 5,
       "indexGoldenRecord": "@index(trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevel": 0.92,
@@ -66,6 +72,7 @@
     {
       "fieldName": "phone_number",
       "fieldType": "String",
+      "csvCol": 6,
       "indexGoldenRecord": "@index(exact,trigram)",
       "comparison": "EXACT_SIMILARITY",
       "comparisonLevel": 0.92,
@@ -75,6 +82,7 @@
     {
       "fieldName": "national_id",
       "fieldType": "String",
+      "csvCol": 7,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",

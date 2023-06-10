@@ -19,7 +19,7 @@ final class CustomQueries {
                    (fields->>'phoneNumber' = '') IS FALSE AND fields @> '{"phoneNumber":"%s"}');
             """,
             TABLE_NODE_GOLDEN_RECORDS,
-            customDemographicData.nationalId,
+            customDemographicData.phoneNumber,
             customDemographicData.givenName,
             customDemographicData.familyName,
             customDemographicData.phoneNumber).stripIndent();
@@ -43,7 +43,7 @@ final class CustomQueries {
             customDemographicData.familyName,
             customDemographicData.city,
             customDemographicData.phoneNumber,
-            customDemographicData.nationalId).stripIndent();
+            customDemographicData.phoneNumber).stripIndent();
    }
 
 }

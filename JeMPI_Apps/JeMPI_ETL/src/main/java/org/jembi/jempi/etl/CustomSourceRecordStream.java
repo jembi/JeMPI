@@ -72,8 +72,8 @@ public final class CustomSourceRecordStream {
                         new Interaction(null,
                                         new SourceId(null,
                                                      FACILITY.get(random.nextInt(FACILITY.size())),
-                                                     StringUtils.isNotBlank(demographicData.nationalId)
-                                                           ? demographicData.nationalId
+                                                     StringUtils.isNotBlank(demographicData.givenName)
+                                                           ? demographicData.givenName
                                                            : "ANON"),
                                         interaction.uniqueInteractionData(),
                                         demographicData.clean()));

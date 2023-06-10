@@ -116,12 +116,12 @@
       "accessLevel": []
     },
     {
-      "fieldName": "city",
+      "fieldName": "art",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(trigram)",
+      "indexGoldenRecord": "@index(exact,trigram)",
       "m": 0.872691,
       "u": 0.132717,
-      "fieldLabel": "City",
+      "fieldLabel": "ART Number",
       "groups": [
         "demographics",
         "linked_records"

@@ -222,7 +222,7 @@ public final class PostgresqlQueries {
    }
 
    public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
-      if (!(StringUtils.isBlank(customDemographicData.nationalId)
+      if (!(StringUtils.isBlank(customDemographicData.phoneNumber)
             && (StringUtils.isBlank(customDemographicData.givenName)
                 || StringUtils.isBlank(customDemographicData.familyName)
                 || StringUtils.isBlank(customDemographicData.phoneNumber)))) {

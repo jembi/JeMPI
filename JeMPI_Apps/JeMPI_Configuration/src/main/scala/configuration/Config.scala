@@ -2,12 +2,14 @@ package configuration
 
 case class UniqueField(fieldName: String,
                        fieldType: String,
+                       csvCol: Option[Int],
                        index: Option[String],
                        isList: Option[Boolean],
                        default: Option[String])
 
 case class CommonField(fieldName: String,
                        fieldType: String,
+                       csvCol: Option[Int],
                        isList: Option[Boolean],
                        indexGoldenRecord: Option[String],
                        indexEntity: Option[String],
