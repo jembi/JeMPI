@@ -11,7 +11,7 @@ private object CustomPostgresqlInteraction {
   private val indent = 3
 
 
-  def generate(fields: Array[CommonField]): Unit = {
+  def generate(fields: Array[DemographicField]): Unit = {
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)

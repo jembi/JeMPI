@@ -3,6 +3,9 @@ package org.jembi.jempi.linker;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
 import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
@@ -35,13 +38,13 @@ public final class CustomLinkerProbabilistic {
    }
 
    static Fields currentFields =
-      new Fields(new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, 0.782501F, 0.02372F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, 0.850909F, 0.02975F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, 0.786614F, 0.443018F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, 0.894637F, 0.012448F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, 0.872691F, 0.132717F),
-                 new LinkerProbabilistic.Field(EXACT_SIMILARITY, 0.92F, 0.920281F, 0.322629F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, 0.832336F, 1.33E-4F));
+      new Fields(new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, Arrays.asList(0.92F, 0.93F, 0.94F), 0.782501F, 0.02372F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.850909F, 0.02975F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.786614F, 0.443018F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.894637F, 0.012448F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.872691F, 0.132717F),
+                 new LinkerProbabilistic.Field(EXACT_SIMILARITY, List.of(0.92F), 0.920281F, 0.322629F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.832336F, 1.33E-4F));
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,
@@ -74,13 +77,13 @@ public final class CustomLinkerProbabilistic {
           && mu.phoneNumber().m() > mu.phoneNumber().u()
           && mu.nationalId().m() > mu.nationalId().u()) {
          updatedFields = new Fields(
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, mu.givenName().m(), mu.givenName().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, mu.familyName().m(), mu.familyName().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, mu.gender().m(), mu.gender().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, mu.dob().m(), mu.dob().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, mu.city().m(), mu.city().u()),
-            new LinkerProbabilistic.Field(EXACT_SIMILARITY, 0.92F, mu.phoneNumber().m(), mu.phoneNumber().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, 0.92F, mu.nationalId().m(), mu.nationalId().u()));
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, Arrays.asList(0.92F, 0.93F, 0.94F), mu.givenName().m(), mu.givenName().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.familyName().m(), mu.familyName().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.gender().m(), mu.gender().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.dob().m(), mu.dob().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.city().m(), mu.city().u()),
+            new LinkerProbabilistic.Field(EXACT_SIMILARITY, List.of(0.92F), mu.phoneNumber().m(), mu.phoneNumber().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.nationalId().m(), mu.nationalId().u()));
       }
    }
 

@@ -17,7 +17,7 @@ object CustomLinkerProbabilistic {
     val writer: PrintWriter = new PrintWriter(file)
 
     val muList = for (
-      t <- config.commonFields.filter(f => f.m.isDefined && f.u.isDefined)
+      t <- config.demographicFields.filter(f => f.m.isDefined && f.u.isDefined)
     ) yield t
 
     writer.println(s"""package $packageText;""")
@@ -57,6 +57,9 @@ object CustomLinkerProbabilistic {
         s"""
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |import org.jembi.jempi.shared.models.CustomMU;
+           |
+           |import java.util.Arrays;
+           |import java.util.List;
            |
            |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
            |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
@@ -102,10 +105,15 @@ object CustomLinkerProbabilistic {
       var margin = 0
       muList.zipWithIndex.foreach((field, idx) => {
         val comparison = field.comparison.get
-        val comparisonLevel = field.comparisonLevel.get
+        val comparisonLevels = field.comparisonLevels.get
         val m: Double = field.m.get
         val u: Double = field.u.get
-        writer.print(" " * margin + s"new LinkerProbabilistic.Field(${comparison}, ${comparisonLevel}F, ${m}F, ${u}F)")
+
+        def extractComparisonList(levels: List[Double]): String =
+          levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
+        end extractComparisonList
+
+        writer.print(" " * margin + s"new LinkerProbabilistic.Field(${comparison}, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F)")
         if (idx + 1 < muList.length)
           writer.println(",")
           margin = 17
@@ -146,8 +154,13 @@ object CustomLinkerProbabilistic {
       muList.zipWithIndex.foreach((field, idx) => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         val comparison = field.comparison.get
-        val comparisonLevel = field.comparisonLevel.get
-        writer.print(" " * 12 + s"new LinkerProbabilistic.Field(${comparison}, ${comparisonLevel}F, mu.$fieldName().m(), mu.$fieldName().u())")
+        val comparisonLevels = field.comparisonLevels.get
+
+        def extractComparisonList(levels: List[Double]): String =
+          levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
+        end extractComparisonList
+
+        writer.print(" " * 12 + s"new LinkerProbabilistic.Field(${comparison}, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), mu.$fieldName().m(), mu.$fieldName().u())")
         if (idx + 1 < muList.length)
           writer.println(",")
         else

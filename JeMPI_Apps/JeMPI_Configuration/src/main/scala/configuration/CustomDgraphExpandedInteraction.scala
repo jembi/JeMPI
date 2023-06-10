@@ -18,7 +18,7 @@ private object CustomDgraphExpandedInteraction {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           s"""      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
         .mkString("\n")
@@ -38,7 +38,7 @@ private object CustomDgraphExpandedInteraction {
 
   private def demographicArguments(config: Config): String =
     config
-      .commonFields
+      .demographicFields
       .map(f =>
         s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
       .mkString("\n").trim.dropRight(1)

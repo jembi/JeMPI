@@ -10,7 +10,7 @@ private object CustomPostgresqlGoldenRecord {
   private val classFile: String = classLocation + File.separator + customClassName + ".java"
   private val indent = 3
 
-  def generate(fields: Array[CommonField]): Unit = {
+  def generate(fields: Array[DemographicField]): Unit = {
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)

@@ -20,7 +20,7 @@ private object CustomPatient {
 
     def cleanedFields(config: Config): String =
         config
-          .commonFields
+          .demographicFields
           .map(f =>
             s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
           .mkString("\n")
@@ -39,14 +39,14 @@ private object CustomPatient {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public class $customClassNameCustomDemographicData {
          |""".stripMargin)
-    config.commonFields.zipWithIndex.foreach {
+    config.demographicFields.zipWithIndex.foreach {
       case (field, idx) =>
         val typeString = field.fieldType
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(s"""${" " * (indent * 1)}public final ${typeString} ${fieldName};""")
     }
     writer.println();
-    for (field <- config.commonFields) {
+    for (field <- config.demographicFields) {
       val typeString = field.fieldType
       val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
       writer.println(
@@ -58,20 +58,20 @@ private object CustomPatient {
 
     writer.println(s"""${" " * indent * 1}public $customClassNameCustomDemographicData() {""".stripMargin)
     writer.println(
-      s"""${" " * indent * 2}this(${"null, " * (config.commonFields.length - 1)}null);
+      s"""${" " * indent * 2}this(${"null, " * (config.demographicFields.length - 1)}null);
          |${" " * indent * 1}}
          |""".stripMargin)
 
     writer.println(
       s"""${" " * indent * 1}public $customClassNameCustomDemographicData(""".stripMargin)
-    config.commonFields.zipWithIndex.foreach {
+    config.demographicFields.zipWithIndex.foreach {
       case (field, idx) =>
         val typeString = field.fieldType
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(
-          s"""${" " * indent * 2}final $typeString $fieldName${if (idx < config.commonFields.length - 1) ',' else ") {"}""".stripMargin)
+          s"""${" " * indent * 2}final $typeString $fieldName${if (idx < config.demographicFields.length - 1) ',' else ") {"}""".stripMargin)
     }
-    config.commonFields.zipWithIndex.foreach {
+    config.demographicFields.zipWithIndex.foreach {
       case (field, idx) =>
         val typeString = field.fieldType
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)

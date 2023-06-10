@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomMU;
 
+import java.util.List;
+
 import static java.lang.Math.log;
 
 public final class LinkerProbabilistic {
@@ -43,7 +45,7 @@ public final class LinkerProbabilistic {
          final String left,
          final String right,
          final Field field) {
-      return fieldScore(field.similarityScore.apply(left, right) > field.comparisonLevel, field.m, field.u);
+      return fieldScore(field.similarityScore.apply(left, right) > field.comparisonLevels.get(0), field.m, field.u);
    }
 
    static CustomMU.Probability getProbability(final Field field) {
@@ -90,7 +92,7 @@ public final class LinkerProbabilistic {
 
    record Field(
          SimilarityScore<Double> similarityScore,
-         float comparisonLevel,
+         List<Float> comparisonLevels,
          float m,
          float u,
          float min,
@@ -104,10 +106,10 @@ public final class LinkerProbabilistic {
 
       Field(
             final SimilarityScore<Double> fn,
-            final float comparisonLevel,
+            final List<Float> comparisonLevels,
             final float m_,
             final float u_) {
-         this(fn, comparisonLevel, m_, u_, 0.0F, 0.0F);
+         this(fn, comparisonLevels, m_, u_, 0.0F, 0.0F);
       }
 
    }

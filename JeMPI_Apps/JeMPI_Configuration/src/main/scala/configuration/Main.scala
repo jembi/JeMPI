@@ -23,7 +23,7 @@ object Main {
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
 
     CustomPatient.generate(config)
-    CustomMU.generate(config.commonFields)
+    CustomMU.generate(config.demographicFields)
     CustomDgraphConstants.generate(config)
     CustomDgraphInteraction.generate(config)
     CustomDgraphReverseGoldenRecord.generate(config)
@@ -36,8 +36,8 @@ object Main {
     CustomLinkerProbabilistic.parseRules(config)
     CustomLinkerBackEnd.parseRules(config)
     CustomLinkerMU.parseRules(config)
-    CustomPostgresqlInteraction.generate(config.commonFields)
-    CustomPostgresqlGoldenRecord.generate(config.commonFields)
+    CustomPostgresqlInteraction.generate(config.demographicFields)
+    CustomPostgresqlGoldenRecord.generate(config.demographicFields)
     CustomAsyncHelper.generate(config)
 
 }

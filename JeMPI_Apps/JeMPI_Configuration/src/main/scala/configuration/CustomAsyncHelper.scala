@@ -18,7 +18,7 @@ private object CustomAsyncHelper {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get};""")
         .mkString("\n")
@@ -27,7 +27,7 @@ private object CustomAsyncHelper {
 
   private def demographicFields(config: Config): String =
     config
-      .commonFields
+      .demographicFields
       .map(f =>
         s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),""")
       .mkString("\n")
