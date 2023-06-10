@@ -21,7 +21,7 @@ public class GammaMatrixGenerator {
         if (useDGraph) {
             final var host = AppConfig.DGRAPH_ALPHA_HOSTS;
             final var port = AppConfig.DGRAPH_ALPHA_PORTS;
-            libMPI = new LibMPI(host, port);
+            libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL, host, port);
         } else {
             libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
                     "postgres",

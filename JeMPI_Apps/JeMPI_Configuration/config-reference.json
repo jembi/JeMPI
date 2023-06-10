@@ -67,7 +67,7 @@
       "fieldName": "phone_number",
       "fieldType": "String",
       "indexGoldenRecord": "@index(exact,trigram)",
-      "comparison": "JARO_WINKLER_SIMILARITY",
+      "comparison": "EXACT_SIMILARITY",
       "comparisonLevel": 0.92,
       "m": 0.920281,
       "u": 0.322629

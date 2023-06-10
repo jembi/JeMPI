@@ -7,6 +7,8 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.jembi.jempi.AppConfig;
 
 import java.time.Duration;
 
@@ -17,6 +19,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private BackEnd(final ActorContext<Event> context) {
       super(context);
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
    public static Behavior<Event> create() {

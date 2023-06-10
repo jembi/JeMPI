@@ -6,6 +6,7 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
@@ -39,6 +40,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
 
    private BackEnd(
+         final Level level,
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
@@ -54,16 +56,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgPassword = sqlPassword;
       psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
       psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
-      openMPI();
+      openMPI(level);
    }
 
    public static Behavior<Event> create(
+         final Level level,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
          final String sqlUser,
          final String sqlPassword,
          final String sqlDatabase) {
-      return Behaviors.setup(context -> new BackEnd(context,
+      return Behaviors.setup(context -> new BackEnd(level,
+                                                    context,
                                                     dgraphHosts,
                                                     dgraphPorts,
                                                     sqlUser,
@@ -71,9 +75,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlDatabase));
    }
 
-   private void openMPI() {
+   private void openMPI(final Level level) {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
-         libMPI = new LibMPI(dgraphHosts, dgraphPorts);
+         libMPI = new LibMPI(level, dgraphHosts, dgraphPorts);
       } else {
          libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase), pgUser, pgPassword);
       }

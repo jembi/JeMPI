@@ -1,6 +1,7 @@
 package org.jembi.jempi.linker;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +11,8 @@ import static java.lang.Math.log;
 
 public final class LinkerProbabilistic {
 
+   static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
+   static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
    private static final Logger LOGGER = LogManager.getLogger(LinkerProbabilistic.class);
    private static final double LOG2 = java.lang.Math.log(2.0);
    private static final float MISSING_PENALTY = 0.925F;
@@ -67,6 +70,22 @@ public final class LinkerProbabilistic {
       } else {
          metrics[3] *= MISSING_PENALTY;
       }
+   }
+
+   static class ExactSimilarity implements SimilarityScore<Double> {
+
+      @Override
+      public Double apply(
+            final CharSequence left,
+            final CharSequence right) {
+         if (left == null || right == null) {
+            return 0.5;
+         }
+         return left.equals(right)
+               ? 1.0
+               : 0.0;
+      }
+
    }
 
    record Field(

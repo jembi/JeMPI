@@ -25,8 +25,11 @@ object CustomLinkerProbabilistic {
       writer.println()
       writer.println(
         s"""
-           |import org.jembi.jempi.shared.models.CustomMU;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
+           import org.jembi.jempi.shared.models.CustomMU;
+           |
+           |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
+           |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
            |public final class $custom_className {
            |
@@ -52,13 +55,13 @@ object CustomLinkerProbabilistic {
     } else {
       writer.println(
         s"""
-           |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |import org.jembi.jempi.shared.models.CustomMU;
            |
-           |public final class $custom_className {
+           |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
+           |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
-           |   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
+           |public final class $custom_className {
            |
            |   static Fields updatedFields = null;
            |

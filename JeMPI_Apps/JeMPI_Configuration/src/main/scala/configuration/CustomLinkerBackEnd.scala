@@ -39,7 +39,7 @@ object CustomLinkerBackEnd {
          |   static void updateGoldenRecordFields(
          |         final BackEnd backEnd,
          |         final LibMPI libMPI,
-         |         final String stan,
+         |         final float threshold,
          |         final String interactionId,
          |         final String goldenId) {
          |      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).get(0);
@@ -52,7 +52,7 @@ object CustomLinkerBackEnd {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}k += backEnd.updateGoldenRecordField(stan, interactionId, expandedGoldenRecord,
+        s"""${" " * 6}k += backEnd.updateGoldenRecordField(interactionId, expandedGoldenRecord,
            |${" " * 6}                                     "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName.charAt(0).toUpper}${fieldName.substring(1)})
            |${" " * 12}? 1
            |${" " * 12}: 0;""".stripMargin)
@@ -60,7 +60,7 @@ object CustomLinkerBackEnd {
     writer.println(
       s"""
          |${" " * 6}if (k > 0) {
-         |${" " * 6}  backEnd.updateInteractionsScore(expandedGoldenRecord);
+         |${" " * 6}  backEnd.updateInteractionsScore(threshold, expandedGoldenRecord);
          |${" " * 6}}""".stripMargin)
     writer.println()
     config.commonFields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {

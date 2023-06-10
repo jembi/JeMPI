@@ -18,6 +18,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Interaction;
@@ -40,6 +41,10 @@ public final class CustomSourceRecordStream {
    private final Random random = new Random(1234);
    ExecutorService executorService = Executors.newFixedThreadPool(1);
    private KafkaStreams interactionKafkaStreams = null;
+
+   public CustomSourceRecordStream() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+   }
 
    public void open() {
 

@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
@@ -16,10 +17,11 @@ public final class LibMPI {
    private final LibMPIClientInterface client;
 
    public LibMPI(
+         final Level level,
          final String[] host,
          final int[] port) {
       LOGGER.info("{}", "LibMPI Constructor");
-      client = new LibDgraph(host, port);
+      client = new LibDgraph(level, host, port);
    }
 
    public LibMPI(

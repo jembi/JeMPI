@@ -3,6 +3,7 @@ package org.jembi.jempi.libmpi.dgraph;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
@@ -18,12 +19,15 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    private static final Logger LOGGER = LogManager.getLogger(LibDgraph.class);
 
+   private final DgraphMutations dgraphMutations;
+
    public LibDgraph(
+         final Level level,
          final String[] host,
          final int[] port) {
       LOGGER.info("{}", "LibDgraph Constructor");
       LOGGER.info("{} {}", host, port);
-
+      dgraphMutations = new DgraphMutations(level);
       DgraphClient.getInstance().config(host, port);
    }
 
@@ -105,7 +109,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String interactionUID,
          final String goldenRecordUid,
          final float score) {
-      return DgraphMutations.setScore(interactionUID, goldenRecordUid, score);
+      return dgraphMutations.setScore(interactionUID, goldenRecordUid, score);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -158,35 +162,35 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String goldenId,
          final String fieldName,
          final String val) {
-      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+      return dgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
    }
 
    public boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
          final Boolean val) {
-      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+      return dgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
    }
 
    public boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
          final Double val) {
-      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+      return dgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
    }
 
    public boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
          final Long val) {
-      return DgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
+      return dgraphMutations.updateGoldenRecordField(goldenId, fieldName, val);
    }
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String goldenUID,
          final String interactionUID,
          final float score) {
-      return DgraphMutations.linkToNewGoldenRecord(goldenUID, interactionUID, score);
+      return dgraphMutations.linkToNewGoldenRecord(goldenUID, interactionUID, score);
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(
@@ -194,19 +198,19 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String newGoldenUID,
          final String interactionUID,
          final float score) {
-      return DgraphMutations.updateLink(goldenUID, newGoldenUID, interactionUID, score);
+      return dgraphMutations.updateLink(goldenUID, newGoldenUID, interactionUID, score);
    }
 
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      return DgraphMutations.linkDGraphInteraction(interaction, goldenIdScore);
+      return dgraphMutations.linkDGraphInteraction(interaction, goldenIdScore);
    }
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
-      return DgraphMutations.addNewDGraphInteraction(interaction);
+      return dgraphMutations.addNewDGraphInteraction(interaction);
    }
 
    public void startTransaction() {
@@ -244,7 +248,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public Option<MpiGeneralError> createSchema() {
-      return DgraphMutations.createSchema();
+      return dgraphMutations.createSchema();
    }
 
 }

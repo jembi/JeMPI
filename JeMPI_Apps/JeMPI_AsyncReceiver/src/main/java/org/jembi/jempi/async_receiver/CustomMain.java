@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
@@ -39,6 +40,10 @@ public final class CustomMain {
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
       new CustomMain().run();
+   }
+
+   public CustomMain() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
    @SuppressWarnings("unchecked")
