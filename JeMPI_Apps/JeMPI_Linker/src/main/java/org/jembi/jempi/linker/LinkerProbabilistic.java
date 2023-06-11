@@ -1,17 +1,21 @@
 package org.jembi.jempi.linker;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.log;
 
-public final class LinkerProbabilistic {
+final class LinkerProbabilistic {
 
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
@@ -45,14 +49,20 @@ public final class LinkerProbabilistic {
          final String left,
          final String right,
          final Field field) {
-      return fieldScore(field.similarityScore.apply(left, right) > field.comparisonLevels.get(0), field.m, field.u);
+      final var score = field.similarityScore.apply(left, right);
+      for (int i = 0; i < field.weights.size(); i++) {
+         if (score >= field.comparisonLevels.get(i)) {
+            return fieldScore(i <= field.comparisonLevels.size() / 2, field.m, field.u) * field.weights.get(i);
+         }
+      }
+      return fieldScore(false, field.m, field.u);
    }
 
    static CustomMU.Probability getProbability(final Field field) {
       return new CustomMU.Probability(field.m(), field.u());
    }
 
-   public static void checkUpdatedMU() {
+   static void checkUpdatedMU() {
       if (CustomLinkerProbabilistic.updatedFields != null) {
          LOGGER.info("Using updated MU values: {}", CustomLinkerProbabilistic.updatedFields);
          CustomLinkerProbabilistic.currentFields = CustomLinkerProbabilistic.updatedFields;
@@ -93,6 +103,7 @@ public final class LinkerProbabilistic {
    record Field(
          SimilarityScore<Double> similarityScore,
          List<Float> comparisonLevels,
+         List<Float> weights,
          float m,
          float u,
          float min,
@@ -105,11 +116,50 @@ public final class LinkerProbabilistic {
       }
 
       Field(
-            final SimilarityScore<Double> fn,
-            final List<Float> comparisonLevels,
+            final SimilarityScore<Double> func_,
+            final List<Float> comparisonLevels_,
             final float m_,
             final float u_) {
-         this(fn, comparisonLevels, m_, u_, 0.0F, 0.0F);
+
+         this(func_, comparisonLevels_, computeWeights(comparisonLevels_.size()), m_, u_, 0.0F, 0.0F);
+      }
+
+      private static List<Float> computeWeights(final int n) {
+         if (n % 2 == 0) {
+            final var k = n / 2;
+            final var z = 1.0F / k;
+            final var w = IntStream.range(0, n)
+                                   .mapToDouble(i -> abs(1.0 - (z * i)))
+                                   .boxed()
+                                   .map(Double::floatValue)
+                                   .toList();
+            if (LOGGER.isDebugEnabled()) {
+               try {
+                  LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));
+               } catch (JsonProcessingException e) {
+                  LOGGER.error(e.getLocalizedMessage(), e);
+               }
+            }
+            return w;
+         } else {
+            final var k = (n + 1) / 2;
+            final var z = 1.0F / k;
+            final var w = IntStream.range(0, n)
+                                   .mapToDouble(i -> abs(1.0 - (z * (i < k
+                                                                           ? i
+                                                                           : i + 1))))
+                                   .boxed()
+                                   .map(Double::floatValue)
+                                   .toList();
+            if (LOGGER.isDebugEnabled()) {
+               try {
+                  LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));
+               } catch (JsonProcessingException e) {
+                  LOGGER.error(e.getLocalizedMessage(), e);
+               }
+            }
+            return w;
+         }
       }
 
    }

@@ -36,10 +36,5 @@
             files="CustomDemographicData.java"
     />
 
-    <suppress
-            checks="(UnusedImports)"
-            files="CustomLinkerProbabilistic.java"
-    />
-
 
 </suppressions>

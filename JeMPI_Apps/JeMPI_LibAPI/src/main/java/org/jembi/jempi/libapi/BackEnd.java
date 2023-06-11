@@ -12,8 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.linker.CustomLinkerProbabilistic;
-import org.jembi.jempi.linker.LinkerProbabilistic;
+//import org.jembi.jempi.linker.LinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -330,6 +329,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
+/*
       LOGGER.debug("{} {}", request.patientId, request.mu);
       Interaction interaction = null;
       List<GoldenRecord> goldenRecords = null;
@@ -368,7 +368,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                "Patient not found",
                request.patientId))));
       }
-
+*/
+      request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
+            "Patient not found",
+            request.patientId))));
       return Behaviors.same();
    }
 

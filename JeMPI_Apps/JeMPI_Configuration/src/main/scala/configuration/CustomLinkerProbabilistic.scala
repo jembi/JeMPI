@@ -6,7 +6,7 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerProbabilistic {
 
-  private val classLocation = "../JeMPI_LibShared/src/main/java/org/jembi/jempi/linker"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerProbabilistic"
   private val packageText = "org.jembi.jempi.linker"
 
@@ -31,7 +31,7 @@ object CustomLinkerProbabilistic {
            |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
            |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
-           |public final class $custom_className {
+           |final class $custom_className {
            |
            |  private $custom_className() {
            |  }
@@ -64,7 +64,7 @@ object CustomLinkerProbabilistic {
            |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
            |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
-           |public final class $custom_className {
+           |final class $custom_className {
            |
            |   static Fields updatedFields = null;
            |
