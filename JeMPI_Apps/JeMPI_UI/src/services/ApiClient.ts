@@ -58,15 +58,17 @@ interface PatientRecord extends Pick<PR, 'sourceId' | 'uid'> {
 }
 
 class ApiClient {
+  constructor() {
+  }
   async getFields() {
     return await client
       .get<Fields>(ROUTES.GET_FIELDS_CONFIG)
       .then(res => res.data)
   }
 
-  async getMatches() {
+  async getMatches(limit: string, offset: string, created: string) {
     return await client
-      .get<NotificationResponse>(ROUTES.GET_NOTIFICATIONS)
+      .get<NotificationResponse>(`${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}`)
       .then(res => res.data)
       .then(({ records }) =>
         records.map(record => ({

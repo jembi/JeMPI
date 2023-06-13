@@ -19,6 +19,8 @@ import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
+import React, { useEffect } from 'react';
+
 
 const columns: GridColDef[] = [
   {
@@ -110,12 +112,22 @@ const columns: GridColDef[] = [
 ]
 
 const NotificationWorklist = () => {
+    let limit = '';
+    let offset = '';
+    let created = '';
+useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+            limit = params.get('limit') ?? '';
+            offset = params.get('offset') ?? '';
+            created = params.get('created') ?? '';
+
+  }, []);
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
   >({
     queryKey: ['notifications'],
-    queryFn: ApiClient.getMatches,
+    queryFn: () => ApiClient.getMatches(limit, offset, created),
     refetchOnWindowFocus: false
   })
 

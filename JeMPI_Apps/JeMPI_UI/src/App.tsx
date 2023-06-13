@@ -15,6 +15,7 @@ import Import from './components/import/Import'
 import LinkedRecords from './components/linkedRecords/LinkedRecords'
 import PatientDetails from './components/patient/PatientDetails'
 import NotificationWorklist from './components/reviewMatches/NotificationWorklist'
+import NotificationListFilter from './components/reviewMatches/NotificationListFilter'
 import ReviewLink from './components/reviewMatches/ReviewLink'
 import SimpleSearch from './components/search/SimpleSearch'
 import SearchResult from './components/searchResult/SearchResult'
@@ -54,6 +55,10 @@ const routes: Route[] = [
         children: [
           {
             path: '/',
+            element: <NotificationListFilter />
+          },
+          {
+            path: 'notification-list',
             element: <NotificationWorklist />
           },
           {
