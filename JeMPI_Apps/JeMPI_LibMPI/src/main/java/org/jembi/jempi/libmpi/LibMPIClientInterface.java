@@ -51,6 +51,8 @@ public interface LibMPIClientInterface {
 
    List<String> findGoldenIds();
 
+   List<String> fetchGoldenIds(long offset, long length);
+
    List<GoldenRecord> findCandidates(CustomDemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

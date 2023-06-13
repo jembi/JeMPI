@@ -94,6 +94,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(GetInteractionCountRequest.class, this::getInteractionCountHandler)
             .onMessage(GetNumberOfRecordsRequest.class, this::getNumberOfRecordsHandler)
             .onMessage(GetGoldenIdsRequest.class, this::getGoldenIdsHandler)
+            .onMessage(FetchGoldenIdsRequest.class, this::fetchGoldenIdsHandler)
             .onMessage(FindExpandedGoldenRecordRequest.class, this::findExpandedGoldenRecordHandler)
             .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
             .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
@@ -421,6 +422,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> fetchGoldenIdsHandler(final FetchGoldenIdsRequest request) {
+      LOGGER.debug("{} {}", request.offset, request.length);
+      libMPI.startTransaction();
+      var recs = libMPI.fetchGoldenIds(request.offset, request.length);
+      request.replyTo.tell(new FetchGoldenIdsResponse(recs));
+      libMPI.closeTransaction();
+      return Behaviors.same();
+   }
+
    private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
       try {
          psqlNotifications.updateNotificationState(request.notificationId, request.state);
@@ -471,6 +481,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetNumberOfRecordsResponse(
          long goldenRecords,
          long patientRecords) implements EventResponse {
+   }
+
+   public record FetchGoldenIdsRequest(ActorRef<FetchGoldenIdsResponse> replyTo,
+                                       long offset,
+                                       long length) implements Event {
+   }
+
+   public record FetchGoldenIdsResponse(List<String> goldenIds) implements EventResponse {
    }
 
    public record GoldenRecordAuditTrailRequest(

@@ -43,6 +43,7 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+
    static CompletionStage<BackEnd.GetNumberOfRecordsResponse> getNumberOfRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -190,6 +191,20 @@ public final class Ask {
       final CompletionStage<BackEnd.UpdateLinkToNewGoldenRecordResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.UpdateLinkToNewGoldenRecordRequest(replyTo, currentGoldenId, patientId, 2.0F),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.FetchGoldenIdsResponse> fetchGoldenIds(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final long offset,
+         final long length) {
+      LOGGER.debug("{} {}", offset, length);
+      final CompletionStage<BackEnd.FetchGoldenIdsResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.FetchGoldenIdsRequest(replyTo, offset, length),
                  java.time.Duration.ofSeconds(6),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

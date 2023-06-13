@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi.postgresql;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
@@ -117,6 +118,11 @@ public final class LibPostgresql implements LibMPIClientInterface {
 
    public List<String> findGoldenIds() {
       return PostgresqlQueries.getGoldenIds().stream().map(UUID::toString).toList();
+   }
+
+   public List<String> fetchGoldenIds(final long offset, final long length) {
+      LOGGER.error("Not implemented");
+      return Collections.emptyList();
    }
 
    public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {

@@ -81,6 +81,10 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getGoldenIds();
    }
 
+   public List<String> fetchGoldenIds(final long offset, final long length) {
+      return DgraphQueries.fetchGoldenIds(offset, length);
+   }
+
    public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
       final var candidates = CustomDgraphQueries.getCandidates(demographicData);
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();

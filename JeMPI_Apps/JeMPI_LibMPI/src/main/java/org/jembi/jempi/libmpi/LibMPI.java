@@ -114,6 +114,12 @@ public final class LibMPI {
       return client.findGoldenIds();
    }
 
+   public List<String> fetchGoldenIds(
+         final long offset,
+         final long length) {
+      return client.fetchGoldenIds(offset, length);
+   }
+
    public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
       return client.findCandidates(demographicData);
    }

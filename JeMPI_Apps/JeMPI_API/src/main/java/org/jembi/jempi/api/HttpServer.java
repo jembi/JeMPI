@@ -100,6 +100,8 @@ public final class HttpServer extends AllDirectives {
                                      path(GlobalConstants.SEGMENT_INTERACTION_AUDIT_TRAIL,
                                           () -> Routes.routeInteractionAuditTrail(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> Routes.routeGoldenIds(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_FETCH_GOLDEN_IDS,
+                                          () -> Routes.routeFetchGoldenIds(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS,
                                           () -> Routes.routeGoldenRecord(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS,
