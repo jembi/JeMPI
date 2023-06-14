@@ -196,8 +196,9 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd,
          final int limit,
          final int offset,
-         final LocalDate date) {
-      return onComplete(Ask.findMatchesForReview(actorSystem, backEnd, limit, offset, date),
+         final LocalDate date,
+         final String state) {
+      return onComplete(Ask.findMatchesForReview(actorSystem, backEnd, limit, offset, date, state),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));

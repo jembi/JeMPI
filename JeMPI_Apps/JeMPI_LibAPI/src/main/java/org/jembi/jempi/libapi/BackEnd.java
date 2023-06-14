@@ -172,8 +172,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
       LOGGER.debug("findMatchesForReviewHandler");
-      var recs = psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date());
-      request.replyTo.tell(new FindMatchesForReviewResponse(recs));
+      MatchesForReviewResult result =
+            psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date(), request.state);
+      request.replyTo.tell(new FindMatchesForReviewResponse(result.getCount(), result.getSkippedRecords(), result.getNotifications()));
       return Behaviors.same();
    }
 
@@ -358,7 +359,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          candidates = goldenRecords
                .stream()
                .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
-                                                                      CustomLinkerProbabilistic.probabilisticScore(candidate.demographicData(),
+                                                                      CustomLinkerProbabilistic.probabilisticScore(candidate
+                                                                      .demographicData(),
                                                                                                                    patientDemographic)))
                .toList();
          request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
@@ -536,10 +538,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          ActorRef<FindMatchesForReviewResponse> replyTo,
          int limit,
          int offset,
-         LocalDate date) implements Event {
+         LocalDate date,
+         String state) implements Event {
    }
 
-   public record FindMatchesForReviewResponse(List<HashMap<String, Object>> records) implements EventResponse {
+   public record FindMatchesForReviewResponse(
+         int count,
+         int skippedRecords,
+         List<HashMap<String, Object>> records) implements EventResponse {
    }
 
    public record UpdateGoldenRecordFieldsRequest(
