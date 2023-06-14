@@ -2,6 +2,7 @@ package org.jembi.jempi;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +38,7 @@ public final class AppConfig {
    }).toArray();
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
    public static final String SESSION_SECRET = CONFIG.getString("JEMPI_SESSION_SECRET");
+   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;

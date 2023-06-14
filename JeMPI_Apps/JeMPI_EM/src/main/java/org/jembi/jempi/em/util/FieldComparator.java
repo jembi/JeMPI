@@ -38,9 +38,9 @@ public class FieldComparator {
         boolean familyNameAgreement = compareField(patient.demographicData().getFamilyName(), candidate.demographicData().getFamilyName(), FieldType.FAMILY_NAME);
         boolean dobAgreement = compareField(patient.demographicData().getDob(), candidate.demographicData().getDob(), FieldType.DATE_OF_BIRTH);
         boolean cityAgreement = compareField(patient.demographicData().getCity(), candidate.demographicData().getCity(), FieldType.CITY);
-        boolean nationalIdAgreement = compareField(patient.demographicData().nationalId, candidate.demographicData().getNationalId(), FieldType.NATIONAL_ID);
+//        boolean nationalIdAgreement = compareField(patient.demographicData().nationalId, candidate.demographicData().getNationalId(), FieldType.NATIONAL_ID);
 
-        return givenNameAgreement && familyNameAgreement && dobAgreement && cityAgreement && nationalIdAgreement;
+        return givenNameAgreement && familyNameAgreement && dobAgreement && cityAgreement; //  && nationalIdAgreement;
     }
     public enum FieldType {
         GIVEN_NAME("given_name"),

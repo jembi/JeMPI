@@ -18,7 +18,7 @@ private object CustomDgraphMutations {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (25 - f.fieldName.length)}%s${" " * 10}.""")
         .mkString("\n")
@@ -30,7 +30,7 @@ private object CustomDgraphMutations {
       s"""AppUtils.quotedValue(uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.fieldName)}())"""
     end mapUniqueField
 
-    def mapCommonField(f: CommonField): String =
+    def mapCommonField(f: DemographicField): String =
       s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})"""
     end mapCommonField
 
@@ -43,7 +43,7 @@ private object CustomDgraphMutations {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           s"""${" " * 27}uuid, ${mapCommonField(f)},""")
         .mkString("\n")
@@ -67,7 +67,7 @@ private object CustomDgraphMutations {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           val c = castAs(f.fieldType)
           s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
@@ -86,7 +86,7 @@ private object CustomDgraphMutations {
       s"""AppUtils.quotedValue(uniqueGoldenRecordData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
     end mapUniqueField
 
-    def mapDemographicField(f: CommonField): String =
+    def mapDemographicField(f: DemographicField): String =
         s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
     end mapDemographicField
 
@@ -99,7 +99,7 @@ private object CustomDgraphMutations {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
         .mkString("\n")

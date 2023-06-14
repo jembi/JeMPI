@@ -15,6 +15,7 @@ import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
 import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.Ask;
 import org.jembi.jempi.libapi.BackEnd;
@@ -87,6 +88,7 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String jsonFields) {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
       http = Http.get(actorSystem);
       binding = http.newServerAt(httpServerHost, httpPort)
                     .bind(this.createCorsRoutes(actorSystem, backEnd, jsonFields));

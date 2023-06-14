@@ -145,6 +145,32 @@ final class DgraphQueries {
       return List.of();
    }
 
+   static List<String> fetchGoldenIds(
+         final long offset,
+         final long length) {
+      final String query = String.format(
+            """
+            query recordGoldenIds() {
+              list(func: type(GoldenRecord), offset: %d, first: %d) {
+                uid
+              }
+            }""", offset, length);
+      try {
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+         final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphUidList.class);
+         return response.list()
+                        .stream()
+                        .map(DgraphUid::uid)
+                        .sorted((o1, o2) -> Long.compare(Long.parseLong(o2.substring(2), 16),
+                                                         Long.parseLong(o1.substring(2), 16)))
+                        .toList();
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage());
+      }
+      return List.of();
+   }
+
+
    private static long getCount(final String query) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
@@ -447,7 +473,7 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc
-                                                         ) {
+                                                       ) {
       String gqlFunc = getSearchQueryFunc(RecordType.Interaction, offset, limit, sortBy, sortAsc);
       String gqlPagination = getSearchQueryPagination(RecordType.Interaction, gqlFilters);
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";

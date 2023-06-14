@@ -2,3 +2,6 @@ target
 .bsp
 .idea
 deprecated
+*.json
+!config-reference-api.json
+!config-reference.json

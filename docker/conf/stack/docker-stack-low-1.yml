@@ -249,6 +249,7 @@ services:
   async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     environment:
+      LOG4J2_LEVEL: "DEBUG" 
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_CLIENT_ID: client-id-syncrx
     networks:
@@ -279,6 +280,7 @@ services:
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     environment:
+      LOG4J2_LEVEL: "DEBUG" 
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-etl
     networks:
@@ -305,6 +307,7 @@ services:
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     environment:
+      LOG4J2_LEVEL: "DEBUG" 
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -341,6 +344,7 @@ services:
   em:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
     environment:
+      LOG4J2_LEVEL: "DEBUG" 
       KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
     - backend
@@ -366,6 +370,7 @@ services:
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     environment:
+      LOG4J2_LEVEL: "TRACE" 
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -405,6 +410,7 @@ services:
   api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
     environment:
+      LOG4J2_LEVEL: "DEBUG" 
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -441,6 +447,7 @@ services:
   api-kc:
     image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
     environment:
+      LOG4J2_LEVEL: "DEBUG" 
       KC_REALM_NAME: ${KC_REALM_NAME}
       KC_API_URL: ${KC_API_URL}
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}

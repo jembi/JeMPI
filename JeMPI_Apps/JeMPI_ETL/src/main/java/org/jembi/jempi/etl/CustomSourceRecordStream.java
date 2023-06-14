@@ -18,8 +18,12 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -37,6 +41,10 @@ public final class CustomSourceRecordStream {
    private final Random random = new Random(1234);
    ExecutorService executorService = Executors.newFixedThreadPool(1);
    private KafkaStreams interactionKafkaStreams = null;
+
+   public CustomSourceRecordStream() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+   }
 
    public void open() {
 
@@ -64,17 +72,11 @@ public final class CustomSourceRecordStream {
                         new Interaction(null,
                                         new SourceId(null,
                                                      FACILITY.get(random.nextInt(FACILITY.size())),
-                                                     StringUtils.isNotBlank(demographicData.nationalId)
-                                                           ? demographicData.nationalId
+                                                     StringUtils.isNotBlank(demographicData.givenName)
+                                                           ? demographicData.givenName
                                                            : "ANON"),
                                         interaction.uniqueInteractionData(),
-                                        new CustomDemographicData(demographicData.givenName.replace("'", ""),
-                                                                  demographicData.familyName.replace("'", ""),
-                                                                  demographicData.gender.replace("'", ""),
-                                                                  demographicData.dob.replace("'", ""),
-                                                                  demographicData.city.replace("'", ""),
-                                                                  demographicData.phoneNumber.replace("'", ""),
-                                                                  demographicData.nationalId.replace("'", ""))));
+                                        demographicData.clean()));
                   return KeyValue.pair(key, newEnvelop);
                } else {
                   return KeyValue.pair(key, rec);

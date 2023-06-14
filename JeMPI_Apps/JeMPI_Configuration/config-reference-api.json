@@ -3,7 +3,6 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact)",
       "fieldLabel": "AUX ID",
       "groups": [
         "identifiers"
@@ -18,10 +17,6 @@
     {
       "fieldName": "given_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
-      "m": 0.782501,
-      "u": 0.02372,
       "fieldLabel": "First Name",
       "groups": [
         "name",
@@ -45,10 +40,6 @@
     {
       "fieldName": "family_name",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
-      "m": 0.850909,
-      "u": 0.02975,
       "fieldLabel": "Last Name",
       "groups": [
         "name",
@@ -72,9 +63,6 @@
     {
       "fieldName": "gender",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.786614,
-      "u": 0.443018,
       "fieldLabel": "Gender",
       "groups": [
         "demographics",
@@ -94,8 +82,6 @@
     {
       "fieldName": "dob",
       "fieldType": "String",
-      "m": 0.894637,
-      "u": 0.012448,
       "fieldLabel": "Date of Birth",
       "groups": [
         "demographics",
@@ -118,9 +104,6 @@
     {
       "fieldName": "city",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(trigram)",
-      "m": 0.872691,
-      "u": 0.132717,
       "fieldLabel": "City",
       "groups": [
         "demographics",
@@ -139,9 +122,6 @@
     {
       "fieldName": "phone_number",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "m": 0.920281,
-      "u": 0.322629,
       "fieldLabel": "Phone No",
       "groups": [
         "demographics",
@@ -160,10 +140,6 @@
     {
       "fieldName": "national_id",
       "fieldType": "String",
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
-      "m": 0.832336,
-      "u": 0.000133,
       "fieldLabel": "National ID",
       "groups": [
         "identifiers",

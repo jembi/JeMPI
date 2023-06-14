@@ -18,7 +18,7 @@ private object CustomDgraphConstants {
               .stripMargin)
       }
     }
-    config.commonFields.zipWithIndex.foreach {
+    config.demographicFields.zipWithIndex.foreach {
       case (field, _) =>
         val name = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
@@ -39,7 +39,7 @@ private object CustomDgraphConstants {
               .stripMargin)
       }
     }
-    config.commonFields.zipWithIndex.foreach {
+    config.demographicFields.zipWithIndex.foreach {
       case (field, _) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
@@ -65,7 +65,7 @@ private object CustomDgraphConstants {
         writer.println(s"         GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         GoldenRecord.$name")
     })
@@ -94,7 +94,7 @@ private object CustomDgraphConstants {
         writer.println(s"         GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         GoldenRecord.$name")
     })
@@ -112,7 +112,7 @@ private object CustomDgraphConstants {
         writer.println(s"            Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            Interaction.$name")
     })
@@ -139,7 +139,7 @@ private object CustomDgraphConstants {
         writer.println(s"         Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         Interaction.$name")
     })
@@ -169,7 +169,7 @@ private object CustomDgraphConstants {
         writer.println(s"         Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"         Interaction.$name")
     })
@@ -189,7 +189,7 @@ private object CustomDgraphConstants {
         writer.println(s"            GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            GoldenRecord.$name")
     })
@@ -218,7 +218,7 @@ private object CustomDgraphConstants {
         writer.println(s"               GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               GoldenRecord.$name")
     })
@@ -247,7 +247,7 @@ private object CustomDgraphConstants {
         writer.println(s"               GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               GoldenRecord.$name")
     })
@@ -276,7 +276,7 @@ private object CustomDgraphConstants {
         writer.println(s"               GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               GoldenRecord.$name")
     })
@@ -294,7 +294,7 @@ private object CustomDgraphConstants {
         writer.println(s"                  Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"                  Interaction.$name")
     })
@@ -324,7 +324,7 @@ private object CustomDgraphConstants {
         writer.println(s"               Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               Interaction.$name")
     })
@@ -342,7 +342,7 @@ private object CustomDgraphConstants {
         writer.println(s"                  GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"                  GoldenRecord.$name")
     })
@@ -372,7 +372,7 @@ private object CustomDgraphConstants {
         writer.println(s"               Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"               Interaction.$name")
     })
@@ -418,7 +418,7 @@ private object CustomDgraphConstants {
         writer.println(s"            GoldenRecord.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            GoldenRecord.$name")
     })
@@ -447,7 +447,7 @@ private object CustomDgraphConstants {
           }$index${" " * (35 - index.length)}.""".stripMargin)
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       val index = field.indexGoldenRecord.getOrElse("")
       val fieldType = (if field.isList.isDefined && field.isList.get then "[" else "") +
@@ -477,7 +477,7 @@ private object CustomDgraphConstants {
         writer.println(s"            Interaction.$name")
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       writer.println(s"            Interaction.$name")
     })
@@ -505,7 +505,7 @@ private object CustomDgraphConstants {
           }$index${" " * (35 - index.length)}.""".stripMargin)
       })
     }
-    config.commonFields.foreach(field => {
+    config.demographicFields.foreach(field => {
       val name = field.fieldName
       val index = field.indexEntity.getOrElse("")
       val fieldType = field.fieldType.toLowerCase

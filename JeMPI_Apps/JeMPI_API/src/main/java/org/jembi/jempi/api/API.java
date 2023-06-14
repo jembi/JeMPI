@@ -34,7 +34,8 @@ public final class API {
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
          ActorRef<BackEnd.Event> backEnd =
-               context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
+               context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
+                                            AppConfig.getDGraphHosts(),
                                             AppConfig.getDGraphPorts(),
                                             AppConfig.POSTGRESQL_USER,
                                             AppConfig.POSTGRESQL_PASSWORD,

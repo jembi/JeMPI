@@ -32,7 +32,8 @@ public final class APIKC {
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
          final ActorSystem<Void> system = context.getSystem();
-         final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.getDGraphHosts(),
+         final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
+                                                                              AppConfig.getDGraphHosts(),
                                                                               AppConfig.getDGraphPorts(),
                                                                               AppConfig.POSTGRESQL_USER,
                                                                               AppConfig.POSTGRESQL_PASSWORD,

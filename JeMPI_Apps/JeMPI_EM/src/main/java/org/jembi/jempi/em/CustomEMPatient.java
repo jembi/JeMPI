@@ -21,7 +21,7 @@ record CustomEMPatient(
            patient.dob,
            patient.city, CustomEMTask.getPhonetic(patient.city),
            patient.phoneNumber,
-           patient.nationalId);
+           null);
    }
 }
 

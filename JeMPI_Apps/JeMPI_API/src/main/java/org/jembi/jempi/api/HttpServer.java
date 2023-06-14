@@ -10,6 +10,7 @@ import akka.http.javadsl.server.Route;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.Routes;
@@ -32,6 +33,7 @@ public final class HttpServer extends AllDirectives {
 
 
    private HttpServer() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
    static HttpServer create() {
@@ -98,6 +100,8 @@ public final class HttpServer extends AllDirectives {
                                      path(GlobalConstants.SEGMENT_INTERACTION_AUDIT_TRAIL,
                                           () -> Routes.routeInteractionAuditTrail(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> Routes.routeGoldenIds(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_FETCH_GOLDEN_IDS,
+                                          () -> Routes.routeFetchGoldenIds(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS,
                                           () -> Routes.routeGoldenRecord(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS,

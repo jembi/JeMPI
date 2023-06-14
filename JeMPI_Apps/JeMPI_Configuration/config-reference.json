@@ -2,7 +2,8 @@
   "uniqueInteractionFields": [
     {
       "fieldName": "aux_id",
-      "fieldType": "String"
+      "fieldType": "String",
+      "csvCol": 0
     }
   ],
   "uniqueGoldenRecordFields": [
@@ -16,69 +17,94 @@
       "fieldType": "String"
     }
   ],
-  "commonFields": [
+  "demographicFields": [
     {
       "fieldName": "given_name",
       "fieldType": "String",
+      "csvCol": 1,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.92
+      ],
       "m": 0.782501,
       "u": 0.02372
     },
     {
       "fieldName": "family_name",
       "fieldType": "String",
+      "csvCol": 2,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.92
+      ],
       "m": 0.850909,
       "u": 0.02975
     },
     {
       "fieldName": "gender",
       "fieldType": "String",
+      "csvCol": 3,
       "indexGoldenRecord": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.92
+      ],
       "m": 0.786614,
       "u": 0.443018
     },
     {
       "fieldName": "dob",
       "fieldType": "String",
+      "csvCol": 4,
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.92
+      ],
       "m": 0.894637,
       "u": 0.012448
     },
     {
       "fieldName": "city",
       "fieldType": "String",
+      "csvCol": 5,
       "indexGoldenRecord": "@index(trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.92
+      ],
       "m": 0.872691,
       "u": 0.132717
     },
     {
       "fieldName": "phone_number",
       "fieldType": "String",
+      "csvCol": 6,
       "indexGoldenRecord": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.92
+      ],
       "m": 0.920281,
       "u": 0.322629
     },
     {
       "fieldName": "national_id",
       "fieldType": "String",
+      "csvCol": 7,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexEntity": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevel": 0.92,
+      "comparisonLevels": [
+        0.93,
+        0.92,
+        0.91,
+        0.90
+
+      ],
       "m": 0.832336,
       "u": 0.000133
     }

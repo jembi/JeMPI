@@ -18,7 +18,7 @@ private object CustomDgraphGoldenRecord {
         .mkString("\n") + "\n")
       +
       config
-        .commonFields
+        .demographicFields
         .map(f =>
           s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
         .mkString("\n")
@@ -39,7 +39,7 @@ private object CustomDgraphGoldenRecord {
 
   private def demographicArguments(config: Config): String =
     config
-      .commonFields
+      .demographicFields
       .map(f =>
         s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
       .mkString("\n").trim.dropRight(1)

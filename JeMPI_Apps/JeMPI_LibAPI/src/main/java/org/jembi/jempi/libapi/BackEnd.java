@@ -6,13 +6,13 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.linker.CustomLinkerProbabilistic;
-import org.jembi.jempi.linker.LinkerProbabilistic;
+//import org.jembi.jempi.linker.LinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -39,6 +39,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
 
    private BackEnd(
+         final Level level,
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
@@ -54,16 +55,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgPassword = sqlPassword;
       psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
       psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
-      openMPI();
+      openMPI(level);
    }
 
    public static Behavior<Event> create(
+         final Level level,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
          final String sqlUser,
          final String sqlPassword,
          final String sqlDatabase) {
-      return Behaviors.setup(context -> new BackEnd(context,
+      return Behaviors.setup(context -> new BackEnd(level,
+                                                    context,
                                                     dgraphHosts,
                                                     dgraphPorts,
                                                     sqlUser,
@@ -71,9 +74,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlDatabase));
    }
 
-   private void openMPI() {
+   private void openMPI(final Level level) {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
-         libMPI = new LibMPI(dgraphHosts, dgraphPorts);
+         libMPI = new LibMPI(level, dgraphHosts, dgraphPorts);
       } else {
          libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase), pgUser, pgPassword);
       }
@@ -91,6 +94,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(GetInteractionCountRequest.class, this::getInteractionCountHandler)
             .onMessage(GetNumberOfRecordsRequest.class, this::getNumberOfRecordsHandler)
             .onMessage(GetGoldenIdsRequest.class, this::getGoldenIdsHandler)
+            .onMessage(FetchGoldenIdsRequest.class, this::fetchGoldenIdsHandler)
             .onMessage(FindExpandedGoldenRecordRequest.class, this::findExpandedGoldenRecordHandler)
             .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
             .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
@@ -326,6 +330,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
       LOGGER.debug("getCandidates");
+/*
       LOGGER.debug("{} {}", request.patientId, request.mu);
       Interaction interaction = null;
       List<GoldenRecord> goldenRecords = null;
@@ -364,7 +369,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                "Patient not found",
                request.patientId))));
       }
-
+*/
+      request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
+            "Patient not found",
+            request.patientId))));
       return Behaviors.same();
    }
 
@@ -411,6 +419,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       LOGGER.debug("{}", request.uid);
       final var auditTrail = psqlAuditTrail.interactionRecordAuditTrail(request.uid);
       request.replyTo.tell(new InteractionAuditTrailResponse(auditTrail));
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> fetchGoldenIdsHandler(final FetchGoldenIdsRequest request) {
+      LOGGER.debug("{} {}", request.offset, request.length);
+      libMPI.startTransaction();
+      var recs = libMPI.fetchGoldenIds(request.offset, request.length);
+      request.replyTo.tell(new FetchGoldenIdsResponse(recs));
+      libMPI.closeTransaction();
       return Behaviors.same();
    }
 
@@ -464,6 +481,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetNumberOfRecordsResponse(
          long goldenRecords,
          long patientRecords) implements EventResponse {
+   }
+
+   public record FetchGoldenIdsRequest(ActorRef<FetchGoldenIdsResponse> replyTo,
+                                       long offset,
+                                       long length) implements Event {
+   }
+
+   public record FetchGoldenIdsResponse(List<String> goldenIds) implements EventResponse {
    }
 
    public record GoldenRecordAuditTrailRequest(

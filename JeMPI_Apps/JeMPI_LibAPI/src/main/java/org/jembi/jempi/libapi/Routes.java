@@ -77,6 +77,22 @@ public final class Routes {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+   public static Route routeFetchGoldenIds(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("offset",
+                       offset -> parameter("length",
+                                           length -> onComplete(Ask.fetchGoldenIds(actorSystem,
+                                                                                   backEnd,
+                                                                                   Long.parseLong(offset),
+                                                                                   Long.parseLong(length)),
+                                                                result -> result.isSuccess()
+                                                                      ? complete(StatusCodes.OK,
+                                                                                 result.get(),
+                                                                                 Jackson.marshaller())
+                                                                      : complete(StatusCodes.IM_A_TEAPOT))));
+   }
+
    public static Route routeGoldenRecordAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {

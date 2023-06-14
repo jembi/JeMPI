@@ -205,7 +205,7 @@ object CustomDgraphQueries {
             writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
           })
         }
-        config.commonFields.foreach(field => {
+        config.demographicFields.foreach(field => {
           writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
         })
         writer.println(s"${" " * 12}}")
@@ -235,7 +235,7 @@ object CustomDgraphQueries {
           writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
         })
       }
-      config.commonFields.foreach(field => {
+      config.demographicFields.foreach(field => {
         writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
       })
       writer.println(s"${" " * 12}}")

@@ -8,6 +8,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.IOException;
@@ -30,6 +32,10 @@ public final class StatsTask {
    private final int[] truePositives = {0};
    private final int[] falsePositives = {0};
    private final int[] falseNegatives = {0};
+
+   public StatsTask() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+   }
 
    private Long getCount(final String field) throws IOException {
       final HttpUrl.Builder urlBuilder =
@@ -116,18 +122,22 @@ public final class StatsTask {
          var goldenRecordCount = getCount(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS);
          var numberOfRecords = getNumberOfRecords();
          var goldenIdList = getGoldenIdList();
-         LOGGER.info("Document Count:       {}", documentCount);
-         LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
-         LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
-         LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
+         if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Document Count:       {}", documentCount);
+            LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
+            LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
+            LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
+         }
          final var goldenRecords = goldenIdList.records.size();
          final var subListSize = 20L;
          final var subLists = goldenRecords / min(subListSize, goldenRecords);
          final var finalSubListSize = goldenRecords % subListSize;
-         LOGGER.info("Golden Records:       {}", goldenRecords);
-         LOGGER.info("Sub List Size:        {}", subListSize);
-         LOGGER.info("Sub Lists:            {}", subLists);
-         LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
+         if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Golden Records:       {}", goldenRecords);
+            LOGGER.info("Sub List Size:        {}", subListSize);
+            LOGGER.info("Sub Lists:            {}", subLists);
+            LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
+         }
          int fromIdx;
          int toIdx;
          for (long i = 0; i < subLists; i++) {
@@ -165,10 +175,12 @@ public final class StatsTask {
          double recall = (double) truePositives[0] / ((double) (truePositives[0] + falseNegatives[0]));
          double fScore = 2 * (precision * recall) / (precision + recall);
 
-         LOGGER.info("Golden Records Found: {}", dataSet.size());
-         LOGGER.info("TP:{}  FP:{}  FN:{}  Precision:{}  Recall:{}  F-score:{}",
-                     truePositives[0], falsePositives[0], falseNegatives[0],
-                     precision, recall, fScore);
+         if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Golden Records Found: {}", dataSet.size());
+            LOGGER.info("TP:{}  FP:{}  FN:{}  Precision:{}  Recall:{}  F-score:{}",
+                        truePositives[0], falsePositives[0], falseNegatives[0],
+                        precision, recall, fScore);
+         }
          return new StatsResults(
                documentCount,
                goldenRecords,
