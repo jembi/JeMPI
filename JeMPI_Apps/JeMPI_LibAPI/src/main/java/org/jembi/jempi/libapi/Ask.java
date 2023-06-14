@@ -73,10 +73,11 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final int limit,
          final int offset,
-         final LocalDate date) {
+         final LocalDate date,
+         final String state) {
       CompletionStage<BackEnd.FindMatchesForReviewResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.FindMatchesForReviewRequest(replyTo, limit, offset, date),
+                 replyTo -> new BackEnd.FindMatchesForReviewRequest(replyTo, limit, offset, date, state),
                  java.time.Duration.ofSeconds(30),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

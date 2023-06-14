@@ -2,6 +2,7 @@ package org.jembi.jempi.libapi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.models.MatchesForReviewResult;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ final class PsqlNotifications {
    private static final String QUERY = """
                                        SELECT patient_id, id, names, created, state,type, score, golden_id
                                        FROM notification
-                                       WHERE created >= ?
+                                       WHERE created >= ? AND state = ?
                                        ORDER BY created
                                        LIMIT ? OFFSET ?
                                        """;
@@ -28,16 +29,34 @@ final class PsqlNotifications {
       psqlClient = new PsqlClient(pgDatabase, pgUser, pgPassword);
    }
 
-   List<HashMap<String, Object>> getMatchesForReview(
+   /**
+    * Retrieves matches for review based on the provided parameters.
+    *
+    * @param limit  The maximum number of matches to retrieve.
+    * @param offset The number of matches to skip from the beginning.
+    * @param date   The date threshold for match creation.
+    * @param state   The state of notification.
+    * @return A {@link MatchesForReviewResult} object containing the matches and related information.
+    */
+   MatchesForReviewResult getMatchesForReview(
          final int limit,
          final int offset,
-         final LocalDate date) {
+         final LocalDate date,
+         final String state) {
       final var list = new ArrayList<HashMap<String, Object>>();
+      MatchesForReviewResult result = new MatchesForReviewResult();
+      int skippedRows = 0;
       psqlClient.connect();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY)) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY);
+           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification")) {
+         ResultSet countRs = countStatement.executeQuery();
+         countRs.next();
+         int totalCount = countRs.getInt(1);
+
          preparedStatement.setDate(1, java.sql.Date.valueOf(date));
-         preparedStatement.setInt(2, limit);
-         preparedStatement.setInt(3, offset);
+         preparedStatement.setString(2, state);
+         preparedStatement.setInt(3, limit);
+         preparedStatement.setInt(4, offset);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
@@ -52,11 +71,15 @@ final class PsqlNotifications {
             }
             list.add(row);
             row.put("candidates", getCandidates(notificationID));
+            skippedRows++;
          }
+         result.setCount(list.size());
+         result.setSkippedRecords(totalCount - list.size());
       } catch (SQLException e) {
          LOGGER.error(e);
       }
-      return list;
+      result.setNotifications(list);
+      return result;
    }
 
    List<HashMap<String, Object>> getCandidates(final UUID nID) {

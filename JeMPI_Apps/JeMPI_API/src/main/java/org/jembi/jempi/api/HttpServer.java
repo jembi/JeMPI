@@ -112,12 +112,14 @@ public final class HttpServer extends AllDirectives {
                                           () -> parameter("limit", limit ->
                                                 parameter("offset", offset ->
                                                       parameter("date", date ->
+                                                            parameter("state", state ->
                                                                       Routes.routeFindMatchesForReview(actorSystem,
                                                                                                        backEnd,
                                                                                                        Integer.parseInt(limit),
                                                                                                        Integer.parseInt(offset),
-                                                                                                       LocalDate.parse(date))
-                                                               )))
+                                                                                                       LocalDate.parse(date),
+                                                                                                       state)
+                                                               ))))
                                          ),
                                      path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS,
                                           () -> Routes.routeFindCandidates(actorSystem, backEnd)),
