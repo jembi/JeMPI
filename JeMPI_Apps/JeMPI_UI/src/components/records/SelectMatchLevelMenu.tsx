@@ -12,15 +12,16 @@ import { FC } from 'react'
 // }
 
 const SelectMatchLevelMenu: FC<{
-  onChange: (param: string) => (value: string) => void
-}> = ({ onChange }) => {
+  value: number
+  onChange: (value: number) => void
+}> = ({ value, onChange }) => {
   const onSelectChange = (event: SelectChangeEvent<string>) => {
-    const onValueChange = onChange('distance')
-    onValueChange(event.target.value)
+    onChange(Number(event.target.value))
   }
   return (
     <FormControl sx={{ '.MuiSelect-select': { p: 0, height: 'auto' } }}>
       <Select
+        value={value?.toString()}
         defaultValue={'none'}
         style={{ width: '150px' }}
         displayEmpty
@@ -35,13 +36,13 @@ const SelectMatchLevelMenu: FC<{
         <MenuItem disabled value="">
           <em>Select Match Level</em>
         </MenuItem>
-        <MenuItem selected value="none">
+        <MenuItem selected value={NaN}>
           None
         </MenuItem>
-        <MenuItem value="exact">Exact</MenuItem>
-        <MenuItem value="L1">Levenshtein 1</MenuItem>
-        <MenuItem value="L2">Levenshtein 2</MenuItem>
-        <MenuItem value="L3">Levenshtein 3</MenuItem>
+        <MenuItem value={0}>Exact</MenuItem>
+        <MenuItem value={1}>Levenshtein 1</MenuItem>
+        <MenuItem value={2}>Levenshtein 2</MenuItem>
+        <MenuItem value={3}>Levenshtein 3</MenuItem>
       </Select>
     </FormControl>
   )

@@ -241,13 +241,18 @@ class ApiClient {
     })
   }
 
-  async getGoldenIds() {
+  async getGoldenIds(offset: number, length: number) {
     return await client
-      .get<{ records: string[] }>('golden-ids')
-      .then(res => res.data.records)
+      .get<{ goldenIds: string[] }>('fetch-golden-ids', {
+        params: {
+          offset,
+          length
+        }
+      })
+      .then(res => res.data.goldenIds)
   }
 
-  async getExpandedGoldenRecords() {
+  async getExpandedGoldenRecords(goldenIds: Array<string> | undefined) {
     return await client
       .get<
         Array<{
@@ -257,7 +262,7 @@ class ApiClient {
           score: number | null
         }>
       >(ROUTES.EXPANDED_GOLDEN_RECORDS, {
-        params: { uidList: (await this.getGoldenIds()).slice(0, 10).toString() }
+        params: { uidList: goldenIds?.toString() }
       })
       .then(res => res.data)
       .then(data =>
@@ -277,15 +282,7 @@ class ApiClient {
               type: 'golden',
               score: null
             }
-            const linkedRecords = curr.mpiPatientRecords.map(
-              (record: { patientRecord: PatientRecord; score: number }) => ({
-                uid: record.patientRecord.uid,
-                record: record.patientRecord.demographicData,
-                type: 'patient',
-                score: record.score
-              })
-            )
-            acc.push(record, ...linkedRecords)
+            acc.push(record)
             return acc
           },
           []

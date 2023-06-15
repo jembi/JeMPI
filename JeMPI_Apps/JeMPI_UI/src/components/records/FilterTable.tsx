@@ -1,4 +1,6 @@
 import {
+  Box,
+  Button,
   Paper,
   Table,
   TableBody,
@@ -9,17 +11,22 @@ import {
 } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { useAppConfig } from 'hooks/useAppConfig'
-import { useState } from 'react'
-import DateRangeField from './DateRangeField'
+import { FC, useState } from 'react'
 import SelectMatchLevelMenu from './SelectMatchLevelMenu'
 import TableCellInput from './TableCellInput'
+import { SearchParameter } from 'types/SimpleSearch'
 
-const FilterTable = () => {
+export type QueryParam = {
+  [field: string]: { [key: string]: string }
+}
+
+export const FilterTable: FC<{
+  onSubmit: (query: SearchParameter[]) => void
+  onCancel: () => void
+}> = ({ onSubmit, onCancel }) => {
   const { availableFields } = useAppConfig()
 
-  const [filterQuery, setFilterQuery] = useState<{
-    [field: string]: { [key: string]: string }
-  }>()
+  const [query, setQuery] = useState<SearchParameter[]>([])
   const columns: GridColDef[] = availableFields.map(
     ({ fieldName, fieldLabel }) => {
       return {
@@ -31,64 +38,93 @@ const FilterTable = () => {
     }
   )
 
-  const onFilterParamsChange = (key: string) => {
-    return (param: string) => {
-      return (value: string) => {
-        setFilterQuery({
-          ...filterQuery,
-          [key]: { [param]: value }
-        })
+  const onValueChange = (fieldName: string) => {
+    return (value: string | Date) => {
+      const queryParam = query?.find(param => param.fieldName === fieldName)
+      if (queryParam) {
+        const newQuery = query.map(queryParms =>
+          queryParms.fieldName === fieldName
+            ? { ...queryParms, value: value }
+            : queryParms
+        )
+        setQuery(newQuery)
+      } else {
+        const param = { fieldName, value: value, distance: 0 }
+        setQuery([...query, param])
       }
     }
   }
 
-  const onDateRangeChange = (key: string, value: string | null) => {
-    console.log(key, value)
+  const onDistanceChange = (fieldName: string) => {
+    return (distance: number) => {
+      const queryParam = query?.find(param => param.fieldName === fieldName)
+      if (queryParam) {
+        const newQuery = query?.map(queryParms =>
+          queryParms.fieldName === fieldName
+            ? { ...queryParms, distance: distance }
+            : queryParms
+        )
+        setQuery(newQuery)
+      } else {
+        const param = { fieldName, distance: distance, value: '' }
+        setQuery([...query, param])
+      }
+    }
+  }
+
+  const getFieldValue = (fieldName: string) => {
+    return query.find(param => param.fieldName === fieldName)?.value
+  }
+
+  const getMatchLevel = (fieldName: string) => {
+    return query.find(param => param.fieldName === fieldName)?.distance
+  }
+
+  const handleCancel = () => {
+    setQuery([])
+    onCancel()
   }
 
   return (
-    <TableContainer title="Filterby" component={Paper}>
-      <Table sx={{ width: '100%' }} aria-label="simple table">
+    <TableContainer component={Paper}>
+      <Table aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>UID</TableCell>
-            <TableCell>Date Created Range</TableCell>
+            <TableCell></TableCell>
             {columns.map(column => (
               <TableCell align={column.align}>{column.headerName}</TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow
-            sx={{
-              '&:last-child td, &:last-child th': { border: 0 }
-            }}
-          >
+          <TableRow>
             <TableCell>Type</TableCell>
-            <TableCell>Date range</TableCell>
             {columns.map(column => (
               <TableCell align="left">
                 <SelectMatchLevelMenu
-                  onChange={onFilterParamsChange(column.field)}
+                  value={getMatchLevel(column.field) || NaN}
+                  onChange={onDistanceChange(column.field)}
                 />
               </TableCell>
             ))}
           </TableRow>
-          <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+          <TableRow>
             <TableCell>Value</TableCell>
-            <TableCell>
-              <DateRangeField onChange={onDateRangeChange} />
-            </TableCell>
             {columns.map(column => (
               <TableCell align="left">
-                <TableCellInput onChange={onFilterParamsChange(column.field)} />
+                <TableCellInput
+                  value={getFieldValue(column.field) || ''}
+                  onChange={onValueChange(column.field)}
+                />
               </TableCell>
             ))}
           </TableRow>
         </TableBody>
       </Table>
+      <Box p={3} display={'flex'} justifyContent={'flex-end'} gap={'10px'}>
+        <Button onClick={() => handleCancel()}>Cancel</Button>
+        <Button onClick={() => onSubmit(query)}>Search</Button>
+      </Box>
     </TableContainer>
   )
 }
-
-export default FilterTable

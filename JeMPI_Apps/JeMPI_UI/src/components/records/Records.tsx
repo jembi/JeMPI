@@ -1,17 +1,23 @@
-import { Box, Link } from '@mui/material'
+import { Container, Link } from '@mui/material'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
 import { useAppConfig } from 'hooks/useAppConfig'
-import ApiClient from 'services/ApiClient'
-import { AnyRecord, ValueOf } from 'types/PatientRecord'
-import FilterTable from './FilterTable'
+import { AnyRecord, PatientRecord, ValueOf } from 'types/PatientRecord'
+import { FilterTable } from './FilterTable'
+import { SearchParameter } from 'types/SimpleSearch'
+import { useState } from 'react'
+import { isPatientCorresponding } from 'hooks/useSearch'
+import useExpandedGoldenRecords from 'hooks/useExpandedGoldenRecords'
 
 const Records = () => {
   const { getFieldsByGroup } = useAppConfig()
+  const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10
+  })
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue }) => {
       return {
@@ -41,11 +47,12 @@ const Records = () => {
     }
   )
 
-  const { data, isLoading, isError, error } = useQuery<any, AxiosError>({
-    queryKey: ['golden-records'],
-    queryFn: async () => await ApiClient.getExpandedGoldenRecords(),
-    refetchOnWindowFocus: false
-  })
+  const {
+    expandeGoldenRecordsQuery: { data, isLoading, isError, error }
+  } = useExpandedGoldenRecords(
+    paginationModel.page * paginationModel.pageSize,
+    paginationModel.pageSize
+  )
 
   if (isLoading) {
     return <Loading />
@@ -73,24 +80,38 @@ const Records = () => {
     })
   )
 
+  const onSearch = (query: SearchParameter[]) => {
+    setSearchQuery(query)
+  }
+
+  const getClassName = (patient: PatientRecord) => {
+    return isPatientCorresponding(patient, searchQuery)
+      ? `super-app-theme--searchable`
+      : ''
+  }
+
   return (
-    <>
-      <Box sx={{ position: 'relative' }}>
-        <FilterTable />
-      </Box>
+    <Container
+      maxWidth={false}
+      sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+    >
+      <FilterTable onSubmit={onSearch} onCancel={() => setSearchQuery([])} />
       <DataGrid
         sx={{
-          '& .super-app-theme--golden': {
-            backgroundColor: '#FFFACD'
+          '& .super-app-theme--searchable': {
+            backgroundColor: '#c5e1a5',
+            '&:hover': {
+              backgroundColor: '#a2cf6e'
+            }
           }
         }}
         getRowId={({ uid }) => uid}
         columns={columns}
         rows={records || []}
         autoHeight={true}
-        getRowClassName={params => `super-app-theme--${params.row.type}`}
+        getRowClassName={params => `${getClassName(params.row)}`}
       />
-    </>
+    </Container>
   )
 }
 

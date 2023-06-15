@@ -2,15 +2,16 @@ import { TextField } from '@mui/material'
 import { FC } from 'react'
 
 const TableCellInput: FC<{
-  onChange: (param: string) => (value: string) => void
-}> = ({ onChange }) => {
+  value: string | Date | undefined
+  onChange: (value: string | Date) => void
+}> = ({ value, onChange }) => {
   const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const onValueChange = onChange('value')
-    onValueChange(event.target.value)
+    onChange(event.target.value)
   }
 
   return (
     <TextField
+      value={value}
       variant="standard"
       sx={{
         width: '100%',
