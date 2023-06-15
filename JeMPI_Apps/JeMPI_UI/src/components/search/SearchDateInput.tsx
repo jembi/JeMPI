@@ -51,19 +51,18 @@ const SearchDateInput: React.FC<SearchDateInputProps> = ({
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <DesktopDatePicker
         label={label}
-        inputFormat="DD/MM/YYYY"
+        format="DD/MM/YYYY"
         value={dateValue}
         onChange={handleChange}
-        renderInput={params => (
-          <TextField
-            {...params}
-            name={name}
-            variant="outlined"
-            size={size}
-            onChange={onChange}
-            sx={sx}
-          />
-        )}
+        slotProps={{
+          textField: {
+            name: name,
+            variant: 'outlined',
+            size: size,
+            onChange: onChange,
+            sx: sx
+          }
+        }}
       />
     </LocalizationProvider>
   )

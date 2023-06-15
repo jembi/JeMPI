@@ -64,9 +64,11 @@ class ApiClient {
       .then(res => res.data)
   }
 
-  async getMatches() {
+  async getMatches(limit: string, offset: string, created: string, state:string) {
     return await client
-      .get<NotificationResponse>(ROUTES.GET_NOTIFICATIONS)
+      .get<NotificationResponse>(
+        `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
+      )
       .then(res => res.data)
       .then(({ records }) =>
         records.map(record => ({
