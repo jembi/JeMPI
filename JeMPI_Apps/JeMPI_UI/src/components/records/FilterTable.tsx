@@ -16,10 +16,6 @@ import SelectMatchLevelMenu from './SelectMatchLevelMenu'
 import TableCellInput from './TableCellInput'
 import { SearchParameter } from 'types/SimpleSearch'
 
-export type QueryParam = {
-  [field: string]: { [key: string]: string }
-}
-
 export const FilterTable: FC<{
   onSubmit: (query: SearchParameter[]) => void
   onCancel: () => void
@@ -40,6 +36,7 @@ export const FilterTable: FC<{
 
   const onValueChange = (fieldName: string) => {
     return (value: string | Date) => {
+      console.log(fieldName, value)
       const queryParam = query?.find(param => param.fieldName === fieldName)
       if (queryParam) {
         const newQuery = query.map(queryParms =>
@@ -56,17 +53,18 @@ export const FilterTable: FC<{
   }
 
   const onDistanceChange = (fieldName: string) => {
-    return (distance: number) => {
+    return (distance: string) => {
+      console.log(fieldName, distance)
       const queryParam = query?.find(param => param.fieldName === fieldName)
       if (queryParam) {
         const newQuery = query?.map(queryParms =>
           queryParms.fieldName === fieldName
-            ? { ...queryParms, distance: distance }
+            ? { ...queryParms, distance: parseInt(distance) }
             : queryParms
         )
         setQuery(newQuery)
       } else {
-        const param = { fieldName, distance: distance, value: '' }
+        const param = { fieldName, distance: parseInt(distance), value: '' }
         setQuery([...query, param])
       }
     }

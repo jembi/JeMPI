@@ -1,22 +1,22 @@
-import { Container, Link } from '@mui/material'
+import { Box, Container, Link } from '@mui/material'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
-import NotFound from 'components/error/NotFound'
 import { useAppConfig } from 'hooks/useAppConfig'
 import { AnyRecord, PatientRecord, ValueOf } from 'types/PatientRecord'
 import { FilterTable } from './FilterTable'
 import { SearchParameter } from 'types/SimpleSearch'
 import { useState } from 'react'
 import { isPatientCorresponding } from 'hooks/useSearch'
-import useExpandedGoldenRecords from 'hooks/useExpandedGoldenRecords'
+import { useQuery } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
+import ApiClient from 'services/ApiClient'
 
 const Records = () => {
   const { getFieldsByGroup } = useAppConfig()
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10
+    pageSize: 25
   })
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue }) => {
@@ -47,26 +47,34 @@ const Records = () => {
     }
   )
 
-  const {
-    expandeGoldenRecordsQuery: { data, isLoading, isError, error }
-  } = useExpandedGoldenRecords(
-    paginationModel.page * paginationModel.pageSize,
-    paginationModel.pageSize
-  )
+  const [idsPaginationModel, setIdsPaginationModel] = useState()
+  const [displayedSize, setDisplayedSize] = useState(10)
+  const [fetchedSize, setFetchedSize] = useState(100)
 
-  if (isLoading) {
-    return <Loading />
+  const goldenIdsQuery = useQuery<Array<string>, AxiosError>({
+    queryKey: ['golden-records-ids', { ...paginationModel }],
+    queryFn: async () =>
+      await ApiClient.getGoldenIds(
+        paginationModel.page * paginationModel.pageSize,
+        paginationModel.pageSize
+      ),
+    enabled: true,
+    refetchOnWindowFocus: false
+  })
+
+  const expandeGoldenRecordsQuery = useQuery<any, AxiosError>({
+    queryKey: ['expanded-golden-records', { ...paginationModel }],
+    queryFn: async () =>
+      await ApiClient.getExpandedGoldenRecords(goldenIdsQuery?.data, false),
+    enabled: !!goldenIdsQuery.data,
+    refetchOnWindowFocus: false
+  })
+
+  if (expandeGoldenRecordsQuery.isError) {
+    return <ApiErrorMessage error={expandeGoldenRecordsQuery.error} />
   }
 
-  if (isError) {
-    return <ApiErrorMessage error={error} />
-  }
-
-  if (!data) {
-    return <NotFound />
-  }
-
-  const records = data.map(
+  const records = expandeGoldenRecordsQuery?.data?.map(
     (record: {
       uid: string
       record: AnyRecord
@@ -96,21 +104,26 @@ const Records = () => {
       sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
     >
       <FilterTable onSubmit={onSearch} onCancel={() => setSearchQuery([])} />
-      <DataGrid
-        sx={{
-          '& .super-app-theme--searchable': {
-            backgroundColor: '#c5e1a5',
-            '&:hover': {
-              backgroundColor: '#a2cf6e'
+      <Box sx={{ position: 'static' }}>
+        <DataGrid
+          sx={{
+            '& .super-app-theme--searchable': {
+              backgroundColor: '#c5e1a5',
+              '&:hover': {
+                backgroundColor: '#a2cf6e'
+              }
             }
-          }
-        }}
-        getRowId={({ uid }) => uid}
-        columns={columns}
-        rows={records || []}
-        autoHeight={true}
-        getRowClassName={params => `${getClassName(params.row)}`}
-      />
+          }}
+          getRowId={({ uid }) => uid}
+          columns={columns}
+          rows={records || []}
+          getRowClassName={params => `${getClassName(params.row)}`}
+          onPaginationModelChange={setPaginationModel}
+          paginationMode="server"
+          loading={expandeGoldenRecordsQuery.isLoading}
+          rowCount={1000}
+        />
+      </Box>
     </Container>
   )
 }

@@ -24,6 +24,7 @@ import { config } from './config'
 import { AppConfigProvider } from './hooks/useAppConfig'
 import { AuthProvider } from './hooks/useAuth'
 import theme from './theme'
+import RecordDetails from 'components/record-details/RecordDetails'
 
 const location = new ReactLocation({})
 const queryClient = new QueryClient({
@@ -48,6 +49,23 @@ const routes: Route[] = [
       {
         path: '/',
         element: <Records />
+      },
+      {
+        path: 'record-details',
+        children: [
+          {
+            path: ':uid',
+            children: [
+              {
+                path: '/',
+                element: <RecordDetails />,
+                loader: async ({ params }) => ({
+                  uid: params.uid
+                })
+              }
+            ]
+          }
+        ]
       },
       {
         path: 'notifications',

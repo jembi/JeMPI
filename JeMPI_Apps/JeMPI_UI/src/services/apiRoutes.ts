@@ -16,7 +16,9 @@ const ROUTES = {
   AUDIT_TRAIL: '/Audit-trail',
   UPLOAD: '/Upload',
   UPDATE_GOLDEN_RECORD: '/golden-record',
-  EXPANDED_GOLDEN_RECORDS: '/expanded-golden-records'
+  EXPANDED_GOLDEN_RECORDS: '/expanded-golden-records',
+  GOLDEN_RECORD_AUDIT_TRAIL: '/golden-record-audit-trail',
+  INTERACTION_AUDIT_TRAIL: '/interaction-audit-trail'
 }
 
 export default ROUTES

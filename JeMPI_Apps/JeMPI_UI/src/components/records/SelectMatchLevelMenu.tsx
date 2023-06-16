@@ -13,18 +13,16 @@ import { FC } from 'react'
 
 const SelectMatchLevelMenu: FC<{
   value: number
-  onChange: (value: number) => void
+  onChange: (value: string) => void
 }> = ({ value, onChange }) => {
   const onSelectChange = (event: SelectChangeEvent<string>) => {
-    onChange(Number(event.target.value))
+    onChange(event.target.value)
   }
   return (
     <FormControl sx={{ '.MuiSelect-select': { p: 0, height: 'auto' } }}>
       <Select
         value={value?.toString()}
-        defaultValue={'none'}
         style={{ width: '150px' }}
-        displayEmpty
         input={<OutlinedInput />}
         inputProps={{ 'aria-label': 'Without label' }}
         onChange={onSelectChange}
@@ -33,10 +31,10 @@ const SelectMatchLevelMenu: FC<{
           '.MuiOutlinedInput-notchedOutline': { border: 0 }
         }}
       >
-        <MenuItem disabled value="">
+        <MenuItem disabled value={-2}>
           <em>Select Match Level</em>
         </MenuItem>
-        <MenuItem selected value={NaN}>
+        <MenuItem selected value={-1}>
           None
         </MenuItem>
         <MenuItem value={0}>Exact</MenuItem>
