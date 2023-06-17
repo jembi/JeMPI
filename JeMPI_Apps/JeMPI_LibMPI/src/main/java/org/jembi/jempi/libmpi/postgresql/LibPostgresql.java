@@ -2,7 +2,6 @@ package org.jembi.jempi.libmpi.postgresql;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
@@ -10,6 +9,8 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,9 +45,9 @@ public final class LibPostgresql implements LibMPIClientInterface {
       final var interaction = PostgresqlQueries.getInteraction(UUID.fromString(interactionId));
       final var sourceId = PostgresqlQueries.getInteractionSourceIds(interaction.uid());
       return new Interaction(interaction.uid().toString(),
-                             new SourceId(sourceId.get(0).id().toString(),
-                                          sourceId.get(0).data().facility(),
-                                          sourceId.get(0).data().patient()),
+                             new CustomSourceId(sourceId.get(0).id().toString(),
+                                                sourceId.get(0).data().facility(),
+                                                sourceId.get(0).data().patient()),
                              null,
                              interaction.data());
    }
@@ -63,11 +64,12 @@ public final class LibPostgresql implements LibMPIClientInterface {
             List.of(new GoldenRecordWithScore(new GoldenRecord(goldenRecord.uid().toString(),
                                                                PostgresqlQueries.getGoldenRecordSourceIds(goldenRecord.uid())
                                                                                 .stream()
-                                                                                .map(x -> new SourceId(x.id().toString(),
-                                                                                                       x.data().facility(),
-                                                                                                       x.data().patient()))
+                                                                                .map(x -> new CustomSourceId(x.id().toString(),
+                                                                                                             x.data().facility(),
+                                                                                                             x.data().patient()))
                                                                                 .toList(),
-                                                               new CustomUniqueGoldenRecordData(true,
+                                                               new CustomUniqueGoldenRecordData(LocalDateTime.now(),
+                                                                                                true,
                                                                                                 interaction.uniqueInteractionData()
                                                                                                            .auxId()),
                                                                goldenRecord.data()),
@@ -83,9 +85,9 @@ public final class LibPostgresql implements LibMPIClientInterface {
       final var sourceIds = PostgresqlQueries.getGoldenRecordSourceIds(UUID.fromString(goldenId));
       return new GoldenRecord(goldenId,
                               sourceIds.stream()
-                                       .map(x -> new SourceId(x.id().toString(), x.data().facility(), x.data().patient()))
+                                       .map(x -> new CustomSourceId(x.id().toString(), x.data().facility(), x.data().patient()))
                                        .toList(),
-                              new CustomUniqueGoldenRecordData(true, "AUX_ID"),
+                              new CustomUniqueGoldenRecordData(LocalDateTime.now(), true, "AUX_ID"),
                               goldenRecord.data());
    }
 
@@ -105,9 +107,9 @@ public final class LibPostgresql implements LibMPIClientInterface {
                               final var sid = PostgresqlQueries.getInteractionSourceIds(e.uid()).get(0);
                               final var score = PostgresqlQueries.getScore(gidUUID, e.uid());
                               return new InteractionWithScore(new Interaction(e.uid().toString(),
-                                                                              new SourceId(sid.id().toString(),
-                                                                                           sid.data().facility(),
-                                                                                           sid.data().patient()),
+                                                                              new CustomSourceId(sid.id().toString(),
+                                                                                                 sid.data().facility(),
+                                                                                                 sid.data().patient()),
                                                                               null,
                                                                               e.data()),
                                                               score);
@@ -120,7 +122,9 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return PostgresqlQueries.getGoldenIds().stream().map(UUID::toString).toList();
    }
 
-   public List<String> fetchGoldenIds(final long offset, final long length) {
+   public List<String> fetchGoldenIds(
+         final long offset,
+         final long length) {
       LOGGER.error("Not implemented");
       return Collections.emptyList();
    }

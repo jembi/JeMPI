@@ -4,9 +4,18 @@
       "fieldName": "aux_id",
       "fieldType": "String",
       "csvCol": 0
+    },
+    {
+      "fieldName": "aux_clinical_data",
+      "fieldType": "String",
+      "csvCol": 10
     }
   ],
   "uniqueGoldenRecordFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
     {
       "fieldName": "aux_auto_update_enabled",
       "fieldType": "Bool",
@@ -17,13 +26,30 @@
       "fieldType": "String"
     }
   ],
+  "additionalNodes": [
+    {
+      "nodeName": "SourceId",
+      "fields": [
+        {
+          "fieldName": "facility",
+          "fieldType": "String",
+          "csvCol": 8
+        },
+        {
+          "fieldName": "patient",
+          "fieldType": "String",
+          "csvCol": 9
+        }
+      ]
+    }
+  ],
   "demographicFields": [
     {
       "fieldName": "given_name",
       "fieldType": "String",
       "csvCol": 1,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevels": [
         0.92
@@ -36,7 +62,7 @@
       "fieldType": "String",
       "csvCol": 2,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevels": [
         0.92
@@ -96,14 +122,13 @@
       "fieldType": "String",
       "csvCol": 7,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexEntity": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevels": [
         0.93,
         0.92,
         0.91,
         0.90
-
       ],
       "m": 0.832336,
       "u": 0.000133

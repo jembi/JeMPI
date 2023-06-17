@@ -263,7 +263,7 @@ private object CustomDgraphConstants {
       s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          |         \"\"\"
          |         query expandedGoldenRecord() {
-         |            all(func: uid(%s)) {
+         |            all(func: uid(%s), orderdesc: GoldenRecord.aux_date_created) {
          |               uid
          |               GoldenRecord.source_id {
          |                  uid
@@ -507,7 +507,7 @@ private object CustomDgraphConstants {
     }
     config.demographicFields.foreach(field => {
       val name = field.fieldName
-      val index = field.indexEntity.getOrElse("")
+      val index = field.indexInteraction.getOrElse("")
       val fieldType = field.fieldType.toLowerCase
       writer.println(
         s"""${" " * 9}Interaction.$name:${

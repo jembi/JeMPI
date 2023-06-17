@@ -2,7 +2,6 @@ package org.jembi.jempi.linker;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.AskPattern;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -12,47 +11,39 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public final class PatientStreamAsync {
+public final class SPInteractions {
 
-   private static final Logger LOGGER = LogManager.getLogger(PatientStreamAsync.class);
+   private static final Logger LOGGER = LogManager.getLogger(SPInteractions.class);
    private KafkaStreams patientKafkaStreams;
 
-   private PatientStreamAsync() {
-      LOGGER.info("PatientStreamAsync constructor");
+   private SPInteractions() {
+      LOGGER.info("SPInteractions constructor");
    }
 
-   public static PatientStreamAsync create() {
-      return new PatientStreamAsync();
+   public static SPInteractions create() {
+      return new SPInteractions();
    }
 
    private void linkPatient(
          final ActorSystem<Void> system,
-         final ActorRef<BackEnd.Event> backEnd,
+         final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final InteractionEnvelop batchInteraction) {
       if (batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return;
       }
-      final CompletionStage<BackEnd.EventLinkInteractionAsyncRsp> result = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.EventLinkInteractionAsyncReq(
-                       key,
-                       batchInteraction,
-                       replyTo),
-                 java.time.Duration.ofSeconds(60),
-                 system.scheduler());
-      final var completableFuture = result.toCompletableFuture();
+      final var completableFuture = Ask.linkInteraction(system, backEnd, key, batchInteraction).toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
@@ -66,7 +57,7 @@ public final class PatientStreamAsync {
 
    public void open(
          final ActorSystem<Void> system,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Request> backEnd) {
       LOGGER.info("EM Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();

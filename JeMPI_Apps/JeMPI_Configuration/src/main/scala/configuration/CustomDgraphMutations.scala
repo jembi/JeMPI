@@ -53,6 +53,7 @@ private object CustomDgraphMutations {
     t match
       case "String" => ""
       case "Bool" => "^^<xs:boolean>"
+      case "DateTime" => "^^<xs:dateTime>"
   end castAs
 
   private def goldenRecordFields(config: Config): String =
@@ -79,6 +80,7 @@ private object CustomDgraphMutations {
     def checkToString(v: String): String =
       v match
         case "Bool" => ".toString()"
+        case "DateTime" => ".toString()"
         case _ => ""
     end checkToString
 

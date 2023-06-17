@@ -19,13 +19,13 @@ private object CustomPatient {
   private def generateDemographicData(config: Config): Unit =
 
     def cleanedFields(config: Config): String =
-        config
-          .demographicFields
-          .map(f =>
-            s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
-          .mkString("\n")
-          .trim
-          .dropRight(1)
+      config
+        .demographicFields
+        .map(f =>
+          s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
+        .mkString("\n")
+        .trim
+        .dropRight(1)
     end cleanedFields
 
     println("Creating " + classCustomDemographicDataFile)
@@ -151,10 +151,47 @@ private object CustomPatient {
     writer.close()
   end generateUniqueInteractionData
 
+  private def generateAdditionalNodes(config: Config): Unit =
+    println("Creating additional nodes")
+    if (config.additionalNodes.isDefined) {
+      val nodes = config.additionalNodes.get
+      nodes.foreach(n => {
+
+        def nodeFields(): String =
+          n.fields.map(f =>
+            s"""${" " * 6}${f.fieldType} ${f.fieldName}""".stripMargin)
+            .mkString(
+              s""",
+                 |""")
+        end nodeFields
+
+        val className = "Custom" + n.nodeName
+        val fileName = classLocation + File.separator + className + ".java"
+        val file: File = new File(fileName)
+        val writer: PrintWriter = new PrintWriter(file)
+        writer.println(
+          s"""
+             |package org.jembi.jempi.shared.models;
+             |
+             |import com.fasterxml.jackson.annotation.JsonInclude;
+             |
+             |@JsonInclude(JsonInclude.Include.NON_NULL)
+             |public record ${className}(
+             |      String uid,
+             |${nodeFields()}) {
+             |}
+             |""".stripMargin)
+        writer.flush()
+        writer.close()
+      })
+    }
+  end generateAdditionalNodes
+
   def generate(config: Config): Unit =
     generateDemographicData(config)
     generateUniqueGoldenRecordData(config)
     generateUniqueInteractionData(config)
+    generateAdditionalNodes(config)
   end generate
 
 }

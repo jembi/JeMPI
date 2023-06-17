@@ -12,6 +12,7 @@ record CustomDgraphInteraction(
       @JsonProperty("uid") String interactionId,
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_CLINICAL_DATA) String auxClinicalData,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_FAMILY_NAME) String familyName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
@@ -27,6 +28,7 @@ record CustomDgraphInteraction(
       this(interaction.interactionId(),
            new DgraphSourceId(interaction.sourceId()),
            interaction.uniqueInteractionData().auxId(),
+           interaction.uniqueInteractionData().auxClinicalData(),
            interaction.demographicData().givenName,
            interaction.demographicData().familyName,
            interaction.demographicData().gender,
@@ -42,7 +44,8 @@ record CustomDgraphInteraction(
                              this.sourceId() != null
                                    ? this.sourceId().toSourceId()
                                    : null,
-                             new CustomUniqueInteractionData(this.auxId),
+                             new CustomUniqueInteractionData(this.auxId,
+                                                               this.auxClinicalData),
                              new CustomDemographicData(this.givenName,
                                                        this.familyName,
                                                        this.gender,

@@ -12,15 +12,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
 import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.concurrent.CompletionStage;
 
-public final class InteractionsHTTP extends AllDirectives {
+public final class HttpServer extends AllDirectives {
 
-   private static final Logger LOGGER = LogManager.getLogger(InteractionsHTTP.class);
+   private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
 
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;
@@ -43,7 +44,7 @@ public final class InteractionsHTTP extends AllDirectives {
    private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
-            .create("http://linker:50000/JeMPI/link_patient")
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -52,7 +53,7 @@ public final class InteractionsHTTP extends AllDirectives {
 
    private CompletionStage<HttpResponse> postLinkInteractionToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/link_patient_to_gid")
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -67,7 +68,7 @@ public final class InteractionsHTTP extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
-   private Route routeLinkPatient() {
+   private Route routeLinkInteraction() {
       return entity(Jackson.unmarshaller(LinkInteractionSyncBody.class),
                     obj -> {
                        try {
@@ -83,7 +84,7 @@ public final class InteractionsHTTP extends AllDirectives {
                     });
    }
 
-   private Route routeLinkPatientToGid() {
+   private Route routeLinkInteractionToGid() {
       return entity(Jackson.unmarshaller(LinkInteractionToGidSyncBody.class),
                     obj -> {
                        try {
@@ -111,8 +112,8 @@ public final class InteractionsHTTP extends AllDirectives {
       return pathPrefix("JeMPI",
                         () -> concat(
                               post(() -> concat(
-                                    path("link_patient", this::routeLinkPatient),
-                                    path("link_patient_to_gid", this::routeLinkPatientToGid))),
+                                    path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION, this::routeLinkInteraction),
+                                    path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID, this::routeLinkInteractionToGid))),
                               get(() -> path("mu", this::routeMU))));
    }
 

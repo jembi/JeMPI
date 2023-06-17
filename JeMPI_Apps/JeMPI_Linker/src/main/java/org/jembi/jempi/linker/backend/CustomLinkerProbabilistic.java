@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker;
+package org.jembi.jempi.linker.backend;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
@@ -6,8 +6,8 @@ import org.jembi.jempi.shared.models.CustomMU;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
-import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
 final class CustomLinkerProbabilistic {
 

@@ -20,6 +20,7 @@ final class CustomDgraphMutations {
       return String.format("""
                            _:%s  <Interaction.source_id>                <%s>        .
                            _:%s  <Interaction.aux_id>                   %s          .
+                           _:%s  <Interaction.aux_clinical_data>        %s          .
                            _:%s  <Interaction.given_name>               %s          .
                            _:%s  <Interaction.family_name>              %s          .
                            _:%s  <Interaction.gender>                   %s          .
@@ -31,6 +32,7 @@ final class CustomDgraphMutations {
                            """,
                            uuid, sourceUID,
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxId()),
+                           uuid, AppUtils.quotedValue(uniqueInteractionData.auxClinicalData()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),
                            uuid, AppUtils.quotedValue(demographicData.familyName),
                            uuid, AppUtils.quotedValue(demographicData.gender),
@@ -50,6 +52,7 @@ final class CustomDgraphMutations {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
                            _:%s  <GoldenRecord.source_id>                     <%s>                  .
+                           _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
                            _:%s  <GoldenRecord.aux_id>                        %s                    .
                            _:%s  <GoldenRecord.given_name>                    %s                    .
@@ -63,6 +66,7 @@ final class CustomDgraphMutations {
                            _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
                            uuid, sourceUID,
+                           uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString()),
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId()),
                            uuid, AppUtils.quotedValue(demographicData.givenName),

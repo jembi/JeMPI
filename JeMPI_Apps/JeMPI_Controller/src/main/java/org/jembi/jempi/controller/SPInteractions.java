@@ -20,9 +20,9 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
 
-public final class InteractionsStreamProcessor {
+public final class SPInteractions {
 
-   private static final Logger LOGGER = LogManager.getLogger(InteractionsStreamProcessor.class);
+   private static final Logger LOGGER = LogManager.getLogger(SPInteractions.class);
    private MyKafkaProducer<String, InteractionEnvelop> topicEM;
    private KafkaStreams interactionKafkaStreams = null;
 

@@ -6,7 +6,35 @@ info:
 servers:
   - url: 'http://localhost:50000'
 paths:
-    /JeMPI/NumberOfRecords:
+    /JeMPI/count-golden-records:
+      get:
+        summary: Get the number of golden records
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      example: 444
+    /JeMPI/count-interactions:
+      get:
+        summary: Get the number of interactions
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      example: 444
+    /JeMPI/count-records:
       get:
         summary: Get the number of records
         responses:
@@ -20,12 +48,12 @@ paths:
                     goldenRecords:
                       type: integer
                       example: 444
-                    patients:
+                    interactions:
                       type: integer
                       example: 607
-    /JeMPI/GoldenRecordCount:
+    /JeMPI/gids-all:
       get:
-        summary: Get the number of Golden Records
+        summary: Get all golden identifiers
         responses:
           "200":
             description: "OK"
@@ -34,26 +62,74 @@ paths:
                 schema:
                   type: object
                   properties:
-                    goldenRecords:
-                      type: integer
-                      example: 444
-    /JeMPI/patient-record/{uid}:
+                    gidList:
+                      type: array
+                      items: {string}
+                      example:
+                        ["0x5", "0x8", "0xb"]
+    /JeMPI/gids-paged:
       parameters:
         - schema:
-            type: string
-            example: "0x4"
-          name: uid
-          in: path
+            type: integer
+            example: 0
+          name: offset
+          in: header
+          required: true
+        - schema:
+            type: integer
+            example: 100
+          name: length
+          in: header
           required: true
       get:
-        summary: Fetches patient record
+        summary: Get paginated golden identifiers
         responses:
           "200":
             description: "OK"
             content:
               application/json:
                 schema:
-                  $ref: "#/components/schemas/patientRecord"
+                  type: object
+                  properties:
+                    gidList:
+                      type: array
+                      items: {string}
+                      example:
+                        ["0x5", "0x8", "0xb"]
+    /JeMPI/interaction/{iid}:
+      parameters:
+        - schema:
+            type: string
+            example: "0x4"
+          name: iid
+          in: path
+          required: true
+      get:
+        summary: Fetches interaction
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/interaction"
+    /JeMPI/expanded-golden-record/{gid}:
+      parameters:
+        - schema:
+            type: string
+            example: "0x5"
+          name: gid
+          in: path
+          required: true
+      get:
+        summary: Fetches expanded golden record
+        responses:
+          "200":
+            description: "OK"
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/golden-record"
     /JeMPI/Unlink:
       parameters:
         - schema:
@@ -109,7 +185,17 @@ components:
         uid:
           type: string
           example: "0x3"
-    patientRecord:
+    interaction:
+      type: object
+      properties:
+        demographicData:
+          $ref: "#/components/schemas/demographicData"
+        sourceId:
+          $ref: "#/components/schemas/sourceId"
+        iid:
+          type: string
+          example: "0x4"
+    golden-record:
       type: object
       properties:
         demographicData:
@@ -118,4 +204,4 @@ components:
           $ref: "#/components/schemas/sourceId"
         uid:
           type: string
-          example: "0x4"
+          example: "0x5"
