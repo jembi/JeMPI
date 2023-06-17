@@ -1,6 +1,10 @@
 {
   "uniqueInteractionFields": [
     {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
       "fieldName": "aux_id",
       "fieldType": "String",
       "csvCol": 0

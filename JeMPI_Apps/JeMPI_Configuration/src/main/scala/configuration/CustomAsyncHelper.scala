@@ -16,18 +16,19 @@ private object CustomAsyncHelper {
            |""".stripMargin).stripTrailing()
     end additionalNodeFields
 
+    def uniqueInteractionFields(fields: Array[UniqueField]): String =
+      fields
+        .map(f => if (f.csvCol.isEmpty) "" else
+          s"""   private static final int ${f.fieldName.toUpperCase()}_COL_NUM = ${f.csvCol.get};
+             |""".stripMargin)
+        .mkString("").stripMargin
+    end uniqueInteractionFields
+
     (if (config.uniqueInteractionFields.isEmpty) "" else
-      config
-        .uniqueInteractionFields
-        .get
-        .map(f =>
-          s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get};""")
-        .mkString("\n") + "\n")
+      uniqueInteractionFields(config.uniqueInteractionFields.get))
       +
-      (if (config.additionalNodes.isEmpty)
-        ""
-      else
-        (config.additionalNodes.get.map(x => s"""${additionalNodeFields(x)};""").mkString("\n"))) + "\n"
+      (if (config.additionalNodes.isEmpty) "" else
+        config.additionalNodes.get.map(x => s"""${additionalNodeFields(x)};""").mkString("\n")) + "\n"
       +
       config
         .demographicFields
@@ -53,6 +54,8 @@ private object CustomAsyncHelper {
         .map(f =>
           if (f.fieldName.toUpperCase.equals("AUX_ID")) {
             s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""
+          } else if (f.fieldName.toUpperCase.equals("AUX_DATE_CREATED")) {
+            s"""${" " * 45}java.time.LocalDateTime.now()"""
           } else {
             s"""${" " * 45}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM)"""
           })

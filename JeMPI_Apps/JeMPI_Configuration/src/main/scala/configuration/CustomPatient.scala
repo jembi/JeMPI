@@ -158,8 +158,8 @@ private object CustomPatient {
       nodes.foreach(n => {
 
         def nodeFields(): String =
-          n.fields.map(f =>
-            s"""${" " * 6}${f.fieldType} ${f.fieldName}""".stripMargin)
+          n.fields
+            .map(f => s"""${" " * 6}${f.fieldType} ${f.fieldName}""".stripMargin)
             .mkString(
               s""",
                  |""")

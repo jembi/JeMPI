@@ -13,6 +13,7 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
    public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
+   public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
    public static final String PREDICATE_INTERACTION_AUX_CLINICAL_DATA = "Interaction.aux_clinical_data";
    public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
@@ -68,6 +69,7 @@ public final class CustomDgraphConstants {
                SourceId.facility
                SourceId.patient
             }
+            Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
             Interaction.given_name
@@ -87,6 +89,7 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
          Interaction.given_name
@@ -106,6 +109,7 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
          Interaction.given_name
@@ -145,6 +149,7 @@ public final class CustomDgraphConstants {
                  SourceId.facility
                  SourceId.patient
                }
+               Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
                Interaction.given_name
@@ -192,6 +197,7 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
+               Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
                Interaction.given_name
@@ -274,6 +280,7 @@ public final class CustomDgraphConstants {
                     SourceId.facility
                     SourceId.patient
                   }
+                  Interaction.aux_date_created
                   Interaction.aux_id
                   Interaction.aux_clinical_data
                   Interaction.given_name
@@ -342,6 +349,7 @@ public final class CustomDgraphConstants {
 
          type Interaction {
             Interaction.source_id:                     SourceId
+            Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
             Interaction.given_name
@@ -357,6 +365,7 @@ public final class CustomDgraphConstants {
    static final String MUTATION_CREATE_INTERACTION_FIELDS =
          """
          Interaction.source_id:                    uid                                          .
+         Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
          Interaction.aux_clinical_data:            string                                       .
          Interaction.given_name:                   string    @index(exact,trigram)              .

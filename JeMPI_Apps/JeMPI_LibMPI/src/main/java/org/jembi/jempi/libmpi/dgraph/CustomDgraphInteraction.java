@@ -11,6 +11,7 @@ import org.jembi.jempi.shared.models.Interaction;
 record CustomDgraphInteraction(
       @JsonProperty("uid") String interactionId,
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_CLINICAL_DATA) String auxClinicalData,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
@@ -27,6 +28,7 @@ record CustomDgraphInteraction(
          final Float score) {
       this(interaction.interactionId(),
            new DgraphSourceId(interaction.sourceId()),
+           interaction.uniqueInteractionData().auxDateCreated(),
            interaction.uniqueInteractionData().auxId(),
            interaction.uniqueInteractionData().auxClinicalData(),
            interaction.demographicData().givenName,
@@ -44,7 +46,8 @@ record CustomDgraphInteraction(
                              this.sourceId() != null
                                    ? this.sourceId().toSourceId()
                                    : null,
-                             new CustomUniqueInteractionData(this.auxId,
+                             new CustomUniqueInteractionData(this.auxDateCreated,
+                                                               this.auxId,
                                                                this.auxClinicalData),
                              new CustomDemographicData(this.givenName,
                                                        this.familyName,

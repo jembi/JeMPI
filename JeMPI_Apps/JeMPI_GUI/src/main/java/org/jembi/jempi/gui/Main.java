@@ -24,7 +24,7 @@ public class Main extends JPanel {
       var goldenRecords = cache.fetchExpandedGoldenRecords();
       final var tableModel = new MyTableModel(goldenRecords);
       final JTable table = new JTable(tableModel);
-      table.setPreferredScrollableViewportSize(new Dimension(2000, 1100));
+      table.setPreferredScrollableViewportSize(new Dimension(2500, 1100));
       table.setFillsViewportHeight(true);
       JScrollPane scrollPane = new JScrollPane(table);
       add(scrollPane);
@@ -48,6 +48,7 @@ public class Main extends JPanel {
    private static class MyTableModel extends AbstractTableModel {
       final Vector<String> colNames = new Vector<>(Stream.of("Aux ID",
                                                              "UID",
+                                                             "Created",
                                                              "Given Name",
                                                              "Family Name",
                                                              "Gender",
@@ -124,6 +125,7 @@ public class Main extends JPanel {
          return Arrays.stream(new String[]{
                             expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId(),
                             expandedGoldenRecord.goldenRecord().uid(),
+                            expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxDateCreated().toString(),
                             expandedGoldenRecord.goldenRecord().demographicData().givenName,
                             expandedGoldenRecord.goldenRecord().demographicData().familyName,
                             expandedGoldenRecord.goldenRecord().demographicData().gender,
@@ -139,7 +141,7 @@ public class Main extends JPanel {
          return Arrays.stream(new String[]{
                             interactionWithScore.interaction().uniqueInteractionData().auxId(),
                             interactionWithScore.interaction().uid(),
-                            interactionWithScore.interaction().demographicData().givenName,
+                            interactionWithScore.interaction().uniqueInteractionData().auxDateCreated().toString(),                            interactionWithScore.interaction().demographicData().givenName,
                             interactionWithScore.interaction().demographicData().familyName,
                             interactionWithScore.interaction().demographicData().gender,
                             interactionWithScore.interaction().demographicData().dob,
