@@ -144,7 +144,7 @@ public class Main extends JPanel {
          totalWidth += setColWidth("Phone Number", charWidth, 15);
          totalWidth += setColWidth("National ID", charWidth, 20);
          totalWidth += setColWidth("Score", charWidth, 10);
-         this.setPreferredScrollableViewportSize(new Dimension(totalWidth, 1100));
+         this.setPreferredScrollableViewportSize(new Dimension(totalWidth, 30 * Math.round((metrics.getHeight() * 1.4F))));
          this.setFillsViewportHeight(true);
       }
 

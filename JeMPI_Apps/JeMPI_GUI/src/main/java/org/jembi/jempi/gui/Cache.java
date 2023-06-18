@@ -70,9 +70,7 @@ public final class Cache {
          return new String[]{
                interactionWithScore.interaction().uniqueInteractionData().auxId(),
                interactionWithScore.interaction().uid(),
-               interactionWithScore.interaction()
-                                   .uniqueInteractionData()
-                                   .auxDateCreated().toString(),
+               interactionWithScore.interaction().uniqueInteractionData().auxDateCreated().toString(),
                interactionWithScore.interaction().demographicData().givenName,
                interactionWithScore.interaction().demographicData().familyName,
                interactionWithScore.interaction().demographicData().gender,
