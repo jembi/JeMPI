@@ -41,7 +41,7 @@ class ApiClient {
       }
    }
 
-   List<String> getGoldenIdList() {
+   List<String> getGidsAll() {
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GIDS_ALL)).newBuilder();
       final String url = urlBuilder.build().toString();
@@ -57,7 +57,7 @@ class ApiClient {
       }
    }
 
-   List<String> getFetchGoldenIdList(
+   List<String> getGidsPaged(
          final long offset,
          final long length) {
       final HttpUrl.Builder urlBuilder =
@@ -77,11 +77,11 @@ class ApiClient {
       }
    }
 
-   List<ApiModels.ApiExpandedGoldenRecord> getGoldenRecordDocumentsList(final List<String> ids) {
+   List<ApiModels.ApiExpandedGoldenRecord> getGoldenRecordsInteractions(final List<String> gids) {
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST))
                    .newBuilder();
-      ids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
+      gids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
