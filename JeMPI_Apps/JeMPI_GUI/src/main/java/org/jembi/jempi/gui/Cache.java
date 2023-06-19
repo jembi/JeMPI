@@ -156,19 +156,21 @@ public final class Cache {
          if (row < buffer[base].rowNumber) {
             bufferFillPrev();
             return getRow(row);
-         }
-         int k = base;
-         while (buffer[k].rowNumber + buffer[k].numberRows <= row) {
-            k = (k + 1) % BUFFER_SIZE;
-            if (k == base) {
-               break;
+         } else {
+            int k = base;
+            while (buffer[k].rowNumber + buffer[k].numberRows <= row) {
+               k = (k + 1) % BUFFER_SIZE;
+               if (k == base) {
+                  break;
+               }
+            }
+            if (k == base && buffer[k].rowNumber + buffer[k].numberRows < row) {
+               bufferFillNext();
+               return getRow(row);
+            } else {
+               return buffer[k].rowData.get(row - buffer[k].rowNumber);
             }
          }
-         if (k == base && buffer[k].rowNumber + buffer[k].numberRows < row) {
-            bufferFillNext();
-            return getRow(row);
-         }
-         return buffer[k].rowData.get(row - buffer[k].rowNumber);
       }
 
       private static class BufferItem {
