@@ -6,6 +6,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { SearchDateInputProps } from 'components/search/SearchDateInput'
 import moment from 'moment'
 import ApiClient from 'services/ApiClient'
+import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+
 
 const DataGridToolbar: FC<SearchDateInputProps> = () => {
 
@@ -32,16 +34,20 @@ const DataGridToolbar: FC<SearchDateInputProps> = () => {
             }}
         />
       </LocalizationProvider>
-      <GridToolbarQuickFilter
+     <FormControl sx={{ minWidth: 200 }}>
+        <InputLabel>Notification Type</InputLabel>
+        <Select
+          renderValue={(selected) => (selected as string)}
           placeholder="Search for Notification Type"
-          quickFilterParser={searchInput =>
-              searchInput.split(',').map(value => value.trim())
-          }
-          quickFilterFormatter={quickFilterValues =>
-              quickFilterValues ? quickFilterValues.join(', ') : ''
-          }
-          debounceMs={200}
-      />
+          onChange={handleChange}
+          sx={{ minWidth: 200 }} // Add this CSS rule to control the width of the select component
+        >
+          <MenuItem value="type1">Type 1</MenuItem>
+          <MenuItem value="type2">Type 2</MenuItem>
+          <MenuItem value="type3">Type 3</MenuItem>
+        </Select>
+      </FormControl>
+
       <GridToolbarQuickFilter
         placeholder="Type to filter results"
         quickFilterParser={searchInput =>

@@ -167,6 +167,15 @@ const NotificationWorklist = () => {
         rowsPerPageOptions={[5, 10, 20]}
         sx={{ mt: 4 }}
         autoHeight={true}
+        onPageChange={(params) => {
+          // Call the API with the selected date and notification type
+          ApiClient.getMatches(
+            '5',
+           '10',
+           '2023-06-13',
+            'Closed'
+          );
+        }}
       />
     </Container>
   )
