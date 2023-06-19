@@ -11,6 +11,7 @@ import org.jembi.jempi.shared.models.GoldenRecord;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -210,7 +211,8 @@ public final class PostgresqlQueries {
                                                                                             CustomDemographicData.class));
             list.add(new GoldenRecord(id,
                                       null,
-                                      new CustomUniqueGoldenRecordData(true,
+                                      new CustomUniqueGoldenRecordData(LocalDateTime.now(),
+                                                                       true,
                                                                        "AUX_ID"),
                                       goldenRecordData));
          }

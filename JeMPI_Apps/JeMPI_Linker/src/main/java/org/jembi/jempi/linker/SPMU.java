@@ -13,6 +13,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
@@ -24,18 +25,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public final class FrontEndMUStream {
+public final class SPMU {
 
-   private static final Logger LOGGER = LogManager.getLogger(FrontEndMUStream.class);
+   private static final Logger LOGGER = LogManager.getLogger(SPMU.class);
    private KafkaStreams muKafkaStreams;
 
-   FrontEndMUStream() {
-      LOGGER.info("FrontEndMUStream constructor");
+   SPMU() {
+      LOGGER.info("SPMU constructor");
    }
 
    void installMU(
          final ActorSystem<Void> system,
-         final ActorRef<BackEnd.Event> backEnd,
+         final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final CustomMU mu) {
       LOGGER.info("New MU set: {}/{}", key, mu);
@@ -59,7 +60,7 @@ public final class FrontEndMUStream {
 
    public void open(
          final ActorSystem<Void> system,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Request> backEnd) {
       LOGGER.info("MY Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();

@@ -24,18 +24,18 @@ public final class Main {
             context -> {
                final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEndActor);
-               final var auditTrailStreamProcessor = new AuditTrailStreamProcessor();
-               auditTrailStreamProcessor.open();
-               final var notificationStreamProcessor = new NotificationStreamProcessor();
-               notificationStreamProcessor.open();
-               final var interactionsStreamProcessor = new InteractionsStreamProcessor();
-               interactionsStreamProcessor.open(context.getSystem(), backEndActor);
-               final var interactionsHTTP = new InteractionsHTTP();
-               interactionsHTTP.open(context.getSystem(), backEndActor);
+               final var spAuditTrail = new SPAuditTrail();
+               spAuditTrail.open();
+               final var spNotification = new SPNotification();
+               spNotification.open();
+               final var spInteractions = new SPInteractions();
+               spInteractions.open(context.getSystem(), backEndActor);
+               final var httpServer = new HttpServer();
+               httpServer.open(context.getSystem(), backEndActor);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> {
-                                            interactionsHTTP.close(context.getSystem());
+                                            httpServer.close(context.getSystem());
                                             return Behaviors.stopped();
                                          })
                                .build();

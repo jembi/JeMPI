@@ -2,7 +2,7 @@ package configuration
 
 object Utils {
 
-  val javaType: Map[String, String] = Map.apply("String" -> "String", "Bool" -> "Boolean")
+  val javaType: Map[String, String] = Map.apply("String" -> "String", "Bool" -> "Boolean", "DateTime" -> "java.time.LocalDateTime")
 
 
   def camelCaseToSnakeCase(name: String) = "[A-Z\\d]".r.replaceAllIn(name, {

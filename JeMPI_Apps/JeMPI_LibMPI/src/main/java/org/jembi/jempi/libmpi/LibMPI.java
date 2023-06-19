@@ -78,12 +78,12 @@ public final class LibMPI {
    }
 
 
-   public Interaction findInteraction(final String interactionID) {
-      return client.findInteraction(interactionID);
+   public Interaction findInteraction(final String iid) {
+      return client.findInteraction(iid);
    }
 
-   public List<Interaction> findInteraction(final List<String> interactionIDs) {
-      return client.findInteractions(interactionIDs);
+   public List<Interaction> findInteraction(final List<String> iidList) {
+      return client.findInteractions(iidList);
    }
 
    public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIDs) {

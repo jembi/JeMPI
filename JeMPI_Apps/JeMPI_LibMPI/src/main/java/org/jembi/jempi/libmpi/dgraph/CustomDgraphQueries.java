@@ -31,6 +31,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
@@ -61,6 +62,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
@@ -82,6 +84,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
@@ -103,6 +106,7 @@ final class CustomDgraphQueries {
                GoldenRecord.source_id {
                   uid
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name

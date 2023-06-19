@@ -3,6 +3,8 @@ package org.jembi.jempi.shared.utils;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +20,8 @@ import java.util.stream.Collectors;
 
 public final class AppUtils implements Serializable {
 
-   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                                                                      .registerModule(new JavaTimeModule());
    private static final Logger LOGGER = LogManager.getLogger(AppUtils.class);
    @Serial
    private static final long serialVersionUID = 1L;
@@ -28,6 +31,7 @@ public final class AppUtils implements Serializable {
    }
 
    static String getResourceFileAsString(final String fileName) throws IOException {
+
       ClassLoader classLoader = ClassLoader.getSystemClassLoader();
       try (InputStream is = classLoader.getResourceAsStream(fileName)) {
          if (is == null) {

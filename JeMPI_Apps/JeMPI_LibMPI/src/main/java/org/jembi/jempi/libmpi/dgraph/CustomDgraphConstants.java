@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 public final class CustomDgraphConstants {
 
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED = "GoldenRecord.aux_date_created";
    public static final String PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED = "GoldenRecord.aux_auto_update_enabled";
    public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
    public static final String PREDICATE_GOLDEN_RECORD_GIVEN_NAME = "GoldenRecord.given_name";
@@ -12,7 +13,9 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
    public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
    public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
+   public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
+   public static final String PREDICATE_INTERACTION_AUX_CLINICAL_DATA = "Interaction.aux_clinical_data";
    public static final String PREDICATE_INTERACTION_GIVEN_NAME = "Interaction.given_name";
    public static final String PREDICATE_INTERACTION_FAMILY_NAME = "Interaction.family_name";
    public static final String PREDICATE_INTERACTION_GENDER = "Interaction.gender";
@@ -29,6 +32,7 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         GoldenRecord.aux_date_created
          GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
          GoldenRecord.given_name
@@ -48,6 +52,7 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         GoldenRecord.aux_date_created
          GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
          GoldenRecord.given_name
@@ -64,7 +69,9 @@ public final class CustomDgraphConstants {
                SourceId.facility
                SourceId.patient
             }
+            Interaction.aux_date_created
             Interaction.aux_id
+            Interaction.aux_clinical_data
             Interaction.given_name
             Interaction.family_name
             Interaction.gender
@@ -82,7 +89,9 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         Interaction.aux_date_created
          Interaction.aux_id
+         Interaction.aux_clinical_data
          Interaction.given_name
          Interaction.family_name
          Interaction.gender
@@ -100,7 +109,9 @@ public final class CustomDgraphConstants {
             SourceId.facility
             SourceId.patient
          }
+         Interaction.aux_date_created
          Interaction.aux_id
+         Interaction.aux_clinical_data
          Interaction.given_name
          Interaction.family_name
          Interaction.gender
@@ -115,6 +126,7 @@ public final class CustomDgraphConstants {
               SourceId.facility
               SourceId.patient
             }
+            GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
             GoldenRecord.given_name
@@ -137,7 +149,9 @@ public final class CustomDgraphConstants {
                  SourceId.facility
                  SourceId.patient
                }
+               Interaction.aux_date_created
                Interaction.aux_id
+               Interaction.aux_clinical_data
                Interaction.given_name
                Interaction.family_name
                Interaction.gender
@@ -159,6 +173,7 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
@@ -182,7 +197,9 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
+               Interaction.aux_date_created
                Interaction.aux_id
+               Interaction.aux_clinical_data
                Interaction.given_name
                Interaction.family_name
                Interaction.gender
@@ -197,6 +214,7 @@ public final class CustomDgraphConstants {
                     SourceId.facility
                     SourceId.patient
                   }
+                  GoldenRecord.aux_date_created
                   GoldenRecord.aux_auto_update_enabled
                   GoldenRecord.aux_id
                   GoldenRecord.given_name
@@ -221,6 +239,7 @@ public final class CustomDgraphConstants {
                   SourceId.facility
                   SourceId.patient
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
@@ -237,13 +256,14 @@ public final class CustomDgraphConstants {
    static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          """
          query expandedGoldenRecord() {
-            all(func: uid(%s)) {
+            all(func: uid(%s), orderdesc: GoldenRecord.aux_date_created) {
                uid
                GoldenRecord.source_id {
                   uid
                   SourceId.facility
                   SourceId.patient
                }
+               GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
                GoldenRecord.given_name
@@ -260,7 +280,9 @@ public final class CustomDgraphConstants {
                     SourceId.facility
                     SourceId.patient
                   }
+                  Interaction.aux_date_created
                   Interaction.aux_id
+                  Interaction.aux_clinical_data
                   Interaction.given_name
                   Interaction.family_name
                   Interaction.gender
@@ -292,6 +314,7 @@ public final class CustomDgraphConstants {
 
          type GoldenRecord {
             GoldenRecord.source_id:                 [SourceId]
+            GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
             GoldenRecord.given_name
@@ -308,6 +331,7 @@ public final class CustomDgraphConstants {
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
          GoldenRecord.source_id:                [uid]                                        .
+         GoldenRecord.aux_date_created:         datetime                                     .
          GoldenRecord.aux_auto_update_enabled:  bool                                         .
          GoldenRecord.aux_id:                   string                                       .
          GoldenRecord.given_name:               string    @index(exact,trigram)              .
@@ -325,7 +349,9 @@ public final class CustomDgraphConstants {
 
          type Interaction {
             Interaction.source_id:                     SourceId
+            Interaction.aux_date_created
             Interaction.aux_id
+            Interaction.aux_clinical_data
             Interaction.given_name
             Interaction.family_name
             Interaction.gender
@@ -339,7 +365,9 @@ public final class CustomDgraphConstants {
    static final String MUTATION_CREATE_INTERACTION_FIELDS =
          """
          Interaction.source_id:                    uid                                          .
+         Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
+         Interaction.aux_clinical_data:            string                                       .
          Interaction.given_name:                   string    @index(exact,trigram)              .
          Interaction.family_name:                  string    @index(exact,trigram)              .
          Interaction.gender:                       string                                       .

@@ -6,9 +6,9 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerDeterministic {
 
-  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
   private val custom_className = "CustomLinkerDeterministic"
-  private val packageText = "org.jembi.jempi.linker"
+  private val packageText = "org.jembi.jempi.linker.backend"
 
   def parseRules(config: Config): Any = {
     val classFile: String = classLocation + File.separator + custom_className + ".java"

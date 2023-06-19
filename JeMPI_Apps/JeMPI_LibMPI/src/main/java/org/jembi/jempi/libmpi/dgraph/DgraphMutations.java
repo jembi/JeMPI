@@ -15,6 +15,7 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,8 @@ final class DgraphMutations {
                                                          result.interactionUID,
                                                          result.sourceUID,
                                                          1.0F,
-                                                         new CustomUniqueGoldenRecordData(true,
+                                                         new CustomUniqueGoldenRecordData(LocalDateTime.now(),
+                                                                                          true,
                                                                                           interaction.uniqueInteractionData()
                                                                                                      .auxId()));
       if (grUID == null) {
@@ -55,7 +57,7 @@ final class DgraphMutations {
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
-   private String createSourceIdTriple(final SourceId sourceId) {
+   private String createSourceIdTriple(final CustomSourceId sourceId) {
       final String uuid = UUID.randomUUID().toString();
       return String.format("""
                            _:%s  <SourceId.facility>                 %s          .
@@ -65,7 +67,7 @@ final class DgraphMutations {
                            uuid);
    }
 
-   private DgraphSourceIds getSourceId(final SourceId sourceId) {
+   private DgraphSourceIds getSourceId(final CustomSourceId sourceId) {
       if (StringUtils.isBlank(sourceId.facility())
           || StringUtils.isBlank(sourceId.patient())) {
          return new DgraphSourceIds(List.of());
@@ -297,7 +299,7 @@ final class DgraphMutations {
       final var newGoldenID = cloneGoldenRecordFromInteraction(
             interaction.demographicData(), interaction.interactionId(),
             interaction.sourceId().uid(),
-            score, new CustomUniqueGoldenRecordData(true, interaction.uniqueInteractionData().auxId()));
+            score, new CustomUniqueGoldenRecordData(LocalDateTime.now(), true, interaction.uniqueInteractionData().auxId()));
       return Either.right(new LinkInfo(newGoldenID, interactionId, score));
    }
 

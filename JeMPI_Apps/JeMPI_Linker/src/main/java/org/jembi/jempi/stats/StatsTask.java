@@ -1,6 +1,5 @@
 package org.jembi.jempi.stats;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -10,7 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.io.IOException;
 import java.util.*;
@@ -37,20 +37,33 @@ public final class StatsTask {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
-   private Long getCount(final String field) throws IOException {
+   private Long countGoldenRecords() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + field)).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, Count.class).count;
+         return OBJECT_MAPPER.readValue(json, ApiModels.ApiGoldenRecordCount.class).count();
       }
    }
 
-   private NumberOfRecords getNumberOfRecords() throws IOException {
+   private Long countInteractions() throws IOException {
+      final HttpUrl.Builder urlBuilder =
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_INTERACTIONS)).newBuilder();
+      final String url = urlBuilder.build().toString();
+      final Request request = new Request.Builder().url(url).build();
+      final Call call = client.newCall(request);
+      try (var response = call.execute()) {
+         assert response.body() != null;
+         var json = response.body().string();
+         return OBJECT_MAPPER.readValue(json, ApiModels.ApiInterationCount.class).count();
+      }
+   }
+
+   private ApiModels.ApiNumberOfRecords getNumberOfRecords() throws IOException {
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_RECORDS)).newBuilder();
       final String url = urlBuilder.build().toString();
@@ -59,13 +72,13 @@ public final class StatsTask {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, NumberOfRecords.class);
+         return OBJECT_MAPPER.readValue(json, ApiModels.ApiNumberOfRecords.class);
       }
    }
 
    private GoldenIdList getGoldenIdList() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GOLDEN_IDS)).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GIDS_ALL)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
@@ -76,28 +89,31 @@ public final class StatsTask {
       }
    }
 
-   private List<ApiExpandedGoldenRecord> getGoldenRecordDocumentsList(final List<String> ids) throws IOException {
+   private List<ApiModels.ApiExpandedGoldenRecord> getGoldenRecordInteractions(final List<String> gids) throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS)).newBuilder();
-      ids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST))
+                   .newBuilder();
+      gids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;
-         var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, new TypeReference<List<ApiExpandedGoldenRecord>>() {
+         return OBJECT_MAPPER.readValue(response.body().string(), new TypeReference<>() {
          });
       }
    }
 
-   private void updateStatsDataSet(final ApiExpandedGoldenRecord expandedGoldenRecord) {
-      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord.uniqueGoldenRecordData.auxId();
+   private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
+      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
-      expandedGoldenRecord.mpiPatientRecords.forEach(mpiPatientRecord -> list.add(mpiPatientRecord.patientRecord.uniqueInteractionData.auxId()));
+      expandedGoldenRecord.interactionsWithScore()
+                          .forEach(interactionWithScore -> list.add(interactionWithScore.interaction()
+                                                                                        .uniqueInteractionData()
+                                                                                        .auxId()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
@@ -112,20 +128,20 @@ public final class StatsTask {
          final int toIdx,
          final List<String> ids) throws IOException {
       var subList = ids.subList(fromIdx, toIdx);
-      var goldenRecordDocuments = getGoldenRecordDocumentsList(subList);
+      var goldenRecordDocuments = getGoldenRecordInteractions(subList);
       goldenRecordDocuments.forEach(this::updateStatsDataSet);
    }
 
    public StatsResults run() {
       try {
-         var documentCount = getCount(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS);
-         var goldenRecordCount = getCount(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS);
+         var interactionCount = countInteractions();
+         var goldenRecordCount = countGoldenRecords();
          var numberOfRecords = getNumberOfRecords();
          var goldenIdList = getGoldenIdList();
          if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Document Count:       {}", documentCount);
+            LOGGER.info("Interaction Count:    {}", interactionCount);
             LOGGER.info("Golden Record Count:  {}", goldenRecordCount);
-            LOGGER.info("Number of Records:    {},{}", numberOfRecords.patientRecords, numberOfRecords.goldenRecords);
+            LOGGER.info("Number of Records:    {},{}", numberOfRecords.interactions(), numberOfRecords.goldenRecords());
             LOGGER.info("Number if id's:       {}", goldenIdList.records.size());
          }
          final var goldenRecords = goldenIdList.records.size();
@@ -182,7 +198,7 @@ public final class StatsTask {
                         precision, recall, fScore);
          }
          return new StatsResults(
-               documentCount,
+               interactionCount,
                goldenRecords,
                truePositives[0],
                falsePositives[0],
@@ -197,41 +213,7 @@ public final class StatsTask {
       return new StatsResults(null, null, null, null, null, null, null, null);
    }
 
-   private record Count(Long count) {
-   }
-
-   private record NumberOfRecords(
-         Long patientRecords,
-         Long goldenRecords) {
-   }
-
    private record GoldenIdList(List<String> records) {
-   }
-
-   private record ApiGoldenRecord(
-         String uid,
-         List<SourceId> sourceId,
-         CustomUniqueGoldenRecordData uniqueGoldenRecordData,
-         CustomDemographicData demographicData) {
-   }
-
-   @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiPatientRecord(
-         String uid,
-         SourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData demographicData) {
-   }
-
-   @JsonInclude(JsonInclude.Include.NON_NULL)
-   private record ApiPatientRecordWithScore(
-         ApiPatientRecord patientRecord,
-         Float score) {
-   }
-
-   private record ApiExpandedGoldenRecord(
-         ApiGoldenRecord goldenRecord,
-         List<ApiPatientRecordWithScore> mpiPatientRecords) {
    }
 
    private record GoldenRecordMembers(

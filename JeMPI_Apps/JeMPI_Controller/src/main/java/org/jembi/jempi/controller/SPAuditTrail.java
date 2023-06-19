@@ -19,9 +19,9 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.util.Properties;
 
-public final class AuditTrailStreamProcessor {
+public final class SPAuditTrail {
 
-   private static final Logger LOGGER = LogManager.getLogger(AuditTrailStreamProcessor.class);
+   private static final Logger LOGGER = LogManager.getLogger(SPAuditTrail.class);
 
    public void open() {
       LOGGER.info("Stream Processor");

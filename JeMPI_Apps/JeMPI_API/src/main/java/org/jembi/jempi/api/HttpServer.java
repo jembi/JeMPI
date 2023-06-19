@@ -17,7 +17,6 @@ import org.jembi.jempi.libapi.Routes;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.RecordType;
 
-import java.time.LocalDate;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Pattern;
 
@@ -62,73 +61,67 @@ public final class HttpServer extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String jsonFields) {
-      return concat(post(() -> concat(path(GlobalConstants.SEGMENT_UPDATE_NOTIFICATION,
-                                           () -> Routes.routeUpdateNotificationState(actorSystem, backEnd)),
+      return concat(post(() -> concat(path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
+                                           () -> Routes.postUpdateNotification(actorSystem, backEnd)),
                                       path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH).slash(segment(Pattern.compile(
-                                            "^(golden|patient)$"))), type -> {
-                                         final var t = type.equals("golden")
-                                               ? RecordType.GoldenRecord
-                                               : RecordType.Interaction;
-                                         return Routes.routeSimpleSearch(actorSystem, backEnd, t);
-                                      }),
+                                                 "^(golden|patient)$"))),
+                                           type -> Routes.postSimpleSearch(actorSystem, backEnd,
+                                                                           type.equals("golden")
+                                                                                 ? RecordType.GoldenRecord
+                                                                                 : RecordType.Interaction)),
                                       path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH).slash(segment(Pattern.compile(
-                                            "^(golden|patient)$"))), type -> {
-                                         final var t = type.equals("golden")
-                                               ? RecordType.GoldenRecord
-                                               : RecordType.Interaction;
-                                         return Routes.routeCustomSearch(actorSystem, backEnd, t);
-                                      }),
-                                      path(GlobalConstants.SEGMENT_CALCULATE_SCORES, () -> Routes.routeCalculateScores(http)),
-                                      path(GlobalConstants.SEGMENT_UPLOAD,
-                                           () -> Routes.routeUploadCsvFile(actorSystem, backEnd)))),
-                    patch(() -> concat(path(segment(GlobalConstants.SEGMENT_UPDATE_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                                             "^[A-z0-9]+$"))), goldenId -> Routes.routeUpdateGoldenRecordFields(actorSystem,
-                                                                                                                backEnd,
-                                                                                                                goldenId)),
-                                       path(GlobalConstants.SEGMENT_CREATE_GOLDEN_RECORD,
-                                            () -> Routes.routeUpdateLinkToNewGoldenRecord(actorSystem, backEnd)),
-                                       path(GlobalConstants.SEGMENT_LINK_RECORD,
-                                            () -> Routes.routeUpdateLinkToExistingGoldenRecord(actorSystem, backEnd)))),
+                                                 "^(golden|patient)$"))),
+                                           type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
+                                                 ? RecordType.GoldenRecord
+                                                 : RecordType.Interaction)),
+                                      path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
+                                           () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
+                                      path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                                           () -> Routes.proxyPostCalculateScores(http)))),
+                    patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
+                                             "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
+                                       path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,
+                                            () -> Routes.patchIidNewGidLink(actorSystem, backEnd)),
+                                       path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
+                                            () -> Routes.patchIidGidLink(actorSystem, backEnd)))),
                     get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
-                                          () -> Routes.routeGoldenRecordCount(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_COUNT_PATIENT_RECORDS,
-                                          () -> Routes.routeInteractionCount(actorSystem, backEnd)),
+                                          () -> Routes.countGoldenRecords(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
+                                          () -> Routes.countInteractions(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_COUNT_RECORDS,
-                                          () -> Routes.routeNumberOfRecords(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GOLDEN_RECORD_AUDIT_TRAIL,
-                                          () -> Routes.routeGoldenRecordAuditTrail(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_INTERACTION_AUDIT_TRAIL,
-                                          () -> Routes.routeInteractionAuditTrail(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GOLDEN_IDS, () -> Routes.routeGoldenIds(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_FETCH_GOLDEN_IDS,
-                                          () -> Routes.routeFetchGoldenIds(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_GOLDEN_ID_DOCUMENTS,
-                                          () -> Routes.routeGoldenRecord(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_EXPANDED_GOLDEN_RECORDS,
-                                          () -> Routes.routeExpandedGoldenRecords(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_EXPANDED_PATIENT_RECORDS,
-                                          () -> Routes.routeExpandedPatientRecords(actorSystem, backEnd)),
+                                          () -> Routes.countRecords(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
+                                          () -> Routes.getGidsAll(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_GIDS_PAGED,
+                                          () -> Routes.getGidsPaged(actorSystem, backEnd)),
+                                     path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
+                                                "^[A-z0-9]+$"))),
+                                          iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
+                                     path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
+                                                "^[A-z0-9]+$"))),
+                                          gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
+                                     path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
+                                          () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
+                                          () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
+                                          () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
+                                          () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
+                                          () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
-                                          () -> parameter("limit", limit ->
-                                                parameter("offset", offset ->
-                                                      parameter("date", date ->
-                                                                      Routes.routeFindMatchesForReview(actorSystem,
-                                                                                                       backEnd,
-                                                                                                       Integer.parseInt(limit),
-                                                                                                       Integer.parseInt(offset),
-                                                                                                       LocalDate.parse(date))
-                                                               )))
-                                         ),
-                                     path(GlobalConstants.SEGMENT_CANDIDATE_GOLDEN_RECORDS,
-                                          () -> Routes.routeFindCandidates(actorSystem, backEnd)),
-                                     path(segment(GlobalConstants.SEGMENT_PATIENT_RECORD_ROUTE).slash(segment(Pattern.compile(
+                                          () -> Routes.getNotifications(actorSystem, backEnd)),
+                                     path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
                                                 "^[A-z0-9]+$"))),
-                                          patientId -> Routes.routeFindPatientRecord(actorSystem, backEnd, patientId)),
-                                     path(segment(GlobalConstants.SEGMENT_GOLDEN_RECORD_ROUTE).slash(segment(Pattern.compile(
+                                          iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
+                                     path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                                 "^[A-z0-9]+$"))),
-                                          goldenId -> Routes.routeFindExpandedGoldenRecord(actorSystem, backEnd, goldenId)),
+                                          gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                          () -> complete(StatusCodes.OK, jsonFields)))));
+                                          () -> complete(StatusCodes.OK, jsonFields)),
+                                     path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
+                                          () -> Routes.proxyGetCandidatesWithScore(http)))));
    }
 
    Route createCorsRoutes(

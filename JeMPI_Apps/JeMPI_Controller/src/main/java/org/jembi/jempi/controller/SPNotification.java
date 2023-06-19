@@ -21,9 +21,9 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.UUID;
 
-final class NotificationStreamProcessor {
+final class SPNotification {
 
-   private static final Logger LOGGER = LogManager.getLogger(NotificationStreamProcessor.class);
+   private static final Logger LOGGER = LogManager.getLogger(SPNotification.class);
 
    void open() {
       LOGGER.info("Stream Processor");

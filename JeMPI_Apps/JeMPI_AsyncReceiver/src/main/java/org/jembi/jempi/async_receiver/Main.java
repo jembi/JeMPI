@@ -44,7 +44,7 @@ public final class Main {
    }
 
    static String parseRecordNumber(final String in) {
-      final var regex = "^rec-(?<rnum>\\d+)-(?<class>org|aaa|dup|bbb)-?(?<dnum>\\d+)?$";
+      final var regex = "^rec-(?<rnum>\\d+)-(?<class>(org|aaa|dup|bbb)?)-?(?<dnum>\\d+)?$";
       final Pattern pattern = Pattern.compile(regex);
       final Matcher matcher = pattern.matcher(in);
       if (matcher.find()) {
@@ -99,7 +99,7 @@ public final class Main {
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
                                                String.format("%s:%07d", stanDate, ++index),
                                                new Interaction(null,
-                                                               null,
+                                                               CustomAsyncHelper.customSourceId(csvRecord),
                                                                CustomAsyncHelper.customUniqueInteractionData(csvRecord),
                                                                CustomAsyncHelper.customDemographicData(csvRecord))));
          }
