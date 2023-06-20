@@ -1,8 +1,8 @@
-import { SxProps, TextField, Theme } from '@mui/material'
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { SxProps, Theme } from '@mui/material'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import moment, { Moment } from 'moment'
+import dayjs, { Dayjs } from 'dayjs'
 import { useState } from 'react'
 
 export interface SearchDateInputProps {
@@ -20,7 +20,6 @@ export interface SearchDateInputProps {
   fieldGroupIndex?: number
   index: number
   isCustomRow?: boolean
-  selectedDate?: (value: Date | null) => void
 }
 
 const SearchDateInput: React.FC<SearchDateInputProps> = ({
@@ -35,21 +34,21 @@ const SearchDateInput: React.FC<SearchDateInputProps> = ({
   fieldGroupIndex,
   isCustomRow
 }) => {
-  const [dateValue, setDateValue] = useState<Moment | null>(
-    value ? moment(value, 'DD/MM/YYYY') : moment()
+  const [dateValue, setDateValue] = useState<Dayjs | null>(
+    value ? dayjs(value, 'DD/MM/YYYY') : dayjs()
   )
-  const handleChange = (value: Moment | null) => {
+  const handleChange = (value: Dayjs | null) => {
     const fieldIdentifier = isCustomRow
       ? `$or[${fieldGroupIndex}].parameters[${index}].${name}`
       : `parameters[${index}].${name}`
 
-    setDateValue(moment(value, 'DD/MM/YYYY'))
-    const newDate = moment(value).format('DD/MM/YYYY')
+    setDateValue(dayjs(value, 'DD/MM/YYYY'))
+    const newDate = dayjs(value).format('DD/MM/YYYY')
     setFieldValue && setFieldValue(fieldIdentifier, newDate)
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DesktopDatePicker
         label={label}
         format="DD/MM/YYYY"

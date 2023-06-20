@@ -64,7 +64,12 @@ class ApiClient {
       .then(res => res.data)
   }
 
-  async getMatches(limit: string, offset: string, created: string, state:string) {
+  async getMatches(
+    limit: string,
+    offset: string,
+    created: string,
+    state: string
+  ) {
     return await client
       .get<NotificationResponse>(
         `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`

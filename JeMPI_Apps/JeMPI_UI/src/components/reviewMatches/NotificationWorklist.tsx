@@ -19,8 +19,7 @@ import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
-import React, { useEffect, useState } from 'react'
-import moment, {Moment} from "moment";
+import React from 'react'
 
 const columns: GridColDef[] = [
   {
@@ -121,7 +120,7 @@ const NotificationWorklist = () => {
     refetchOnWindowFocus: false,
     keepPreviousData: true
   })
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = React.useState<string>()
 
   if (isLoading || isFetching) {
     return <Loading />
@@ -135,8 +134,8 @@ const NotificationWorklist = () => {
     return <NotFound />
   }
 
-  const selectedDate = (date: Date | null) => {
-    if(date) {
+  const selectedDate = (date: string | undefined) => {
+    if (date) {
       setDate(date)
     }
   }
@@ -158,31 +157,16 @@ const NotificationWorklist = () => {
       <DataGrid
         columns={columns}
         components={{
-          Toolbar: () => (
-            <DataGridToolbar
-              index={0}
-              label={'Notification date'}
-              name={'notificationDate'}
-              size={'small'}
-              sx={{ width: 220 }}
-              value={date || new Date()}
-              selectedDate={ selectedDate }
-            />
-          )
+          Toolbar: () => <DataGridToolbar onChange={selectedDate} />
         }}
         rows={data as Notification[]}
         pageSize={10}
         rowsPerPageOptions={[5, 10, 20]}
         sx={{ mt: 4 }}
         autoHeight={true}
-        onPageChange={(params) => {
+        onPageChange={params => {
           // Call the API with the selected date and notification type
-          ApiClient.getMatches(
-            '5',
-           '10',
-           '2023-06-13',
-            'Closed'
-          );
+          ApiClient.getMatches('5', '10', '2023-06-13', 'Closed')
         }}
       />
     </Container>

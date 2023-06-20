@@ -11,7 +11,6 @@ test('Show correct label when rendered', () => {
       isCustomRow={true}
       index={1}
       sx={{ width: '20px' }}
-      selectedDate={ () => { console.log('TEST')} }
     />
   )
   expect(container.firstChild).toHaveTextContent('Test date')
@@ -27,7 +26,6 @@ test('Show correct date value when selected with date picker', () => {
       isCustomRow={true}
       index={1}
       sx={{ width: '20px' }}
-      selectedDate={ () => { console.log('TEST')} }
     />
   )
 
@@ -45,7 +43,6 @@ test('Change textbox color when input the wrong date format', () => {
       isCustomRow={true}
       index={1}
       sx={{ width: '20px' }}
-      selectedDate={ () => { console.log('TEST')} }
     />
   )
 
