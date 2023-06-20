@@ -77,6 +77,7 @@ const PatientDetails: FC<PatientDetailsProps> = ({ isGoldenRecord }) => {
     }
   })
 
+  console.log(updatedFields)
   const isEditable = isGoldenRecord && isEditMode
 
   const onDataChange = (newRow: PatientRecord | GoldenRecord) => {

@@ -24,7 +24,7 @@ export interface AnyRecord
 
 export interface PatientRecord extends AnyRecord {
   sourceId: SourceId
-  type?: 'Current' | 'Candidate' | 'Blocked' | 'Searched'
+  type?: 'Current' | 'Candidate' | 'Blocked' | 'Searched' | 'golden'
 }
 
 export interface GoldenRecord extends AnyRecord {

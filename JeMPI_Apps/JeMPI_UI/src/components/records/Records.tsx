@@ -1,4 +1,13 @@
-import { Box, Container, Link } from '@mui/material'
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Container,
+  Link,
+  Paper,
+  Typography
+} from '@mui/material'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
@@ -10,8 +19,11 @@ import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ApiClient from 'services/ApiClient'
+import { useNavigate } from '@tanstack/react-location'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 const Records = () => {
+  const navigate = useNavigate()
   const { getFieldsByGroup } = useAppConfig()
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
@@ -47,11 +59,7 @@ const Records = () => {
     }
   )
 
-  const [idsPaginationModel, setIdsPaginationModel] = useState()
-  const [displayedSize, setDisplayedSize] = useState(10)
-  const [fetchedSize, setFetchedSize] = useState(100)
-
-  const goldenIdsQuery = useQuery<Array<string>, AxiosError>({
+  const goldenIdsQuery = useQuery<any, AxiosError>({
     queryKey: ['golden-records-ids', { ...paginationModel }],
     queryFn: async () =>
       await ApiClient.getGoldenIds(
@@ -65,7 +73,10 @@ const Records = () => {
   const expandeGoldenRecordsQuery = useQuery<any, AxiosError>({
     queryKey: ['expanded-golden-records', { ...paginationModel }],
     queryFn: async () =>
-      await ApiClient.getExpandedGoldenRecords(goldenIdsQuery?.data, false),
+      await ApiClient.getExpandedGoldenRecords(
+        goldenIdsQuery?.data.goldenIds,
+        false
+      ),
     enabled: !!goldenIdsQuery.data,
     refetchOnWindowFocus: false
   })
@@ -73,20 +84,6 @@ const Records = () => {
   if (expandeGoldenRecordsQuery.isError) {
     return <ApiErrorMessage error={expandeGoldenRecordsQuery.error} />
   }
-
-  const records = expandeGoldenRecordsQuery?.data?.map(
-    (record: {
-      uid: string
-      record: AnyRecord
-      type: string
-      score: number | null
-    }) => ({
-      ...record.record,
-      uid: record.uid,
-      type: record.type,
-      score: record.score
-    })
-  )
 
   const onSearch = (query: SearchParameter[]) => {
     setSearchQuery(query)
@@ -103,8 +100,36 @@ const Records = () => {
       maxWidth={false}
       sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
     >
-      <FilterTable onSubmit={onSearch} onCancel={() => setSearchQuery([])} />
-      <Box sx={{ position: 'static' }}>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h6">Filter by</Typography>
+        </AccordionSummary>
+        <AccordionDetails></AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h6">Search within filtered results</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <FilterTable
+            onSubmit={onSearch}
+            onCancel={() => setSearchQuery([])}
+          />
+        </AccordionDetails>
+      </Accordion>
+
+      <Paper sx={{ p: 1 }}>
+        <Typography p={1} variant="h6">
+          Search result
+        </Typography>
         <DataGrid
           sx={{
             '& .super-app-theme--searchable': {
@@ -112,18 +137,25 @@ const Records = () => {
               '&:hover': {
                 backgroundColor: '#a2cf6e'
               }
+            },
+            '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
+              outline: 'none'
             }
           }}
           getRowId={({ uid }) => uid}
           columns={columns}
-          rows={records || []}
+          rows={expandeGoldenRecordsQuery?.data || []}
+          pageSizeOptions={[25, 50, 100]}
+          onRowDoubleClick={params =>
+            navigate({ to: `/record-details/${params.row.uid}` })
+          }
           getRowClassName={params => `${getClassName(params.row)}`}
           onPaginationModelChange={setPaginationModel}
           paginationMode="server"
           loading={expandeGoldenRecordsQuery.isLoading}
-          rowCount={1000}
+          rowCount={goldenIdsQuery?.data?.pagination?.total}
         />
-      </Box>
+      </Paper>
     </Container>
   )
 }

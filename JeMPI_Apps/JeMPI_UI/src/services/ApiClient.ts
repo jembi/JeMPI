@@ -241,15 +241,27 @@ class ApiClient {
     })
   }
 
+  async getGoldenIdCount() {
+    return await client
+      .get<{ count: number }>('count-golden-records')
+      .then(res => res.data.count)
+  }
+
   async getGoldenIds(offset: number, length: number) {
     return await client
-      .get<{ goldenIds: string[] }>('fetch-golden-ids', {
+      .get<{ goldenIds: string[] }>('gids-paged', {
         params: {
           offset,
           length
         }
       })
-      .then(res => res.data.goldenIds)
+      .then(async res => {
+        const total = await this.getGoldenIdCount()
+        return {
+          goldenIds: res.data.goldenIds,
+          pagination: { offset, length, total }
+        }
+      })
   }
 
   async getExpandedGoldenRecords(
@@ -280,16 +292,16 @@ class ApiClient {
             curr: any
           ) => {
             const record = {
+              ...curr.goldenRecord.demographicData,
               uid: curr.goldenRecord.uid,
-              record: curr.goldenRecord.demographicData,
               type: 'golden',
               score: null
             }
             if (getPatients) {
-              const linkedRecords = curr.mpiPatientRecords.map(
-                (record: { patientRecord: PatientRecord; score: number }) => ({
-                  uid: record.patientRecord.uid,
-                  record: record.patientRecord.demographicData,
+              const linkedRecords = curr.interactionsWithScore.map(
+                (record: { interaction: PatientRecord; score: number }) => ({
+                  ...record.interaction.demographicData,
+                  uid: record.interaction.uid,
                   type: 'patient',
                   score: record.score
                 })
@@ -305,11 +317,21 @@ class ApiClient {
       )
   }
 
-  async getGoldenRecordAuditTrail(uid: string) {
+  async getGoldenRecordAuditTrail(gid: string) {
     return await client
       .get(ROUTES.GOLDEN_RECORD_AUDIT_TRAIL, {
         params: {
-          uid
+          gid
+        }
+      })
+      .then(res => res.data.entries)
+  }
+
+  async getInteractionAuditTrail(iid: string) {
+    return await client
+      .get(ROUTES.INTERACTION_AUDIT_TRAIL, {
+        params: {
+          iid
         }
       })
       .then(res => res.data.entries)
