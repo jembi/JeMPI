@@ -9,7 +9,7 @@ import ApiClient from 'services/ApiClient'
 import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 
 
-const DataGridToolbar: FC<SearchDateInputProps> = () => {
+const DataGridToolbar: FC<SearchDateInputProps> = ( { selectedDate } ) => {
 
     // const onClick = () => {
     //     props.sendData(user)
@@ -24,9 +24,9 @@ const DataGridToolbar: FC<SearchDateInputProps> = () => {
     >
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DesktopDatePicker
-            value={moment(moment(), 'YYYY-MM-DD')}
+            value={ new Date() }
             format="YYYY-MM-DD"
-            onChange={handleChange}
+            onChange={ selectedDate }
             slotProps={{
               textField: {
                 variant: 'outlined'

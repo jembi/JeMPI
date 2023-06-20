@@ -19,8 +19,8 @@ import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
-import React, {useEffect, useState} from 'react'
-import moment from "moment";
+import React, { useEffect, useState } from 'react'
+import moment, {Moment} from "moment";
 
 const columns: GridColDef[] = [
   {
@@ -117,10 +117,11 @@ const NotificationWorklist = () => {
     AxiosError
   >({
     queryKey: ['notifications'],
-    queryFn: () => ApiClient.getMatches('500', '0', '2023-06-13', 'New'),
+    queryFn: () => ApiClient.getMatches('500', '0', '2023-06-20', 'New'),
     refetchOnWindowFocus: false,
     keepPreviousData: true
   })
+  const [date, setDate] = React.useState<Date>();
 
   if (isLoading || isFetching) {
     return <Loading />
@@ -132,6 +133,12 @@ const NotificationWorklist = () => {
 
   if (!data) {
     return <NotFound />
+  }
+
+  const selectedDate = (date: Date | null) => {
+    if(date) {
+      setDate(date)
+    }
   }
 
   return (
@@ -158,7 +165,8 @@ const NotificationWorklist = () => {
               name={'notificationDate'}
               size={'small'}
               sx={{ width: 220 }}
-              value={moment().toDate()}
+              value={date || new Date()}
+              selectedDate={ selectedDate }
             />
           )
         }}

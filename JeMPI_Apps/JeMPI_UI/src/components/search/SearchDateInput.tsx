@@ -20,6 +20,7 @@ export interface SearchDateInputProps {
   fieldGroupIndex?: number
   index: number
   isCustomRow?: boolean
+  selectedDate?: (value: Date | null) => void
 }
 
 const SearchDateInput: React.FC<SearchDateInputProps> = ({
