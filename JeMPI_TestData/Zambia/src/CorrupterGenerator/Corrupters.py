@@ -19,8 +19,18 @@ def position_mod_uniform(in_str):
 
     return pos
 
-
 def position_mod_normal(in_str):
+    """Select any position in the given input string with normally distributed
+       likelihood where the average of the normal distribution is set to one
+       character behind the middle of the string, and the standard deviation is
+       set to 1/4 of the string length.
+
+       This is based on studies on the distribution of errors in real text which
+       showed that errors such as typographical mistakes are more likely to
+       appear towards the middle and end of a string but not at the beginning.
+
+       Return 0 is the string is empty.
+    """
     if in_str == '':  # Empty input string
         return 0
     str_len = len(in_str)
