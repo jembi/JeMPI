@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
 final class CustomLinkerProbabilistic {
@@ -44,7 +46,7 @@ final class CustomLinkerProbabilistic {
                  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.894637F, 0.012448F),
                  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.872691F, 0.132717F),
                  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.920281F, 0.322629F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, Arrays.asList(0.93F, 0.92F, 0.91F, 0.9F), 0.832336F, 1.33E-4F));
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.832336F, 1.33E-4F));
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,
@@ -83,7 +85,7 @@ final class CustomLinkerProbabilistic {
             new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.dob().m(), mu.dob().u()),
             new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.city().m(), mu.city().u()),
             new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.phoneNumber().m(), mu.phoneNumber().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, Arrays.asList(0.93F, 0.92F, 0.91F, 0.9F), mu.nationalId().m(), mu.nationalId().u()));
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.nationalId().m(), mu.nationalId().u()));
       }
    }
 

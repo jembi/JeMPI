@@ -29,6 +29,8 @@ object CustomLinkerProbabilistic {
            import org.jembi.jempi.shared.models.CustomMU;
            |
            |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
            |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
            |final class $custom_className {
@@ -62,6 +64,8 @@ object CustomLinkerProbabilistic {
            |import java.util.List;
            |
            |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
            |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
            |final class $custom_className {

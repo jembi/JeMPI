@@ -2,6 +2,7 @@ package org.jembi.jempi.linker.backend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.JaccardSimilarity;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,8 @@ import static java.lang.Math.log;
 final class LinkerProbabilistic {
 
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
+   static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
+   static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
    private static final Logger LOGGER = LogManager.getLogger(LinkerProbabilistic.class);
    private static final double LOG2 = java.lang.Math.log(2.0);
@@ -93,12 +96,74 @@ final class LinkerProbabilistic {
          if (left == null || right == null) {
             return 0.5;
          }
-         return left.equals(right)
+         return StringUtils.equals(left, right)
                ? 1.0
                : 0.0;
       }
 
    }
+
+   static class JaroSimilarity implements SimilarityScore<Double> {
+
+      @Override
+      public Double apply(
+            final CharSequence s,
+            final CharSequence t) {
+
+         int sLen = s.length();
+         int tLen = t.length();
+
+         if (sLen == 0 && tLen == 0) {
+            return 1.0;
+         }
+
+         int matchDistance = Integer.max(sLen, tLen) / 2 - 1;
+
+         boolean[] sMatches = new boolean[sLen];
+         boolean[] tMatches = new boolean[tLen];
+
+         int matches = 0;
+         int transpositions = 0;
+
+         for (int i = 0; i < sLen; i++) {
+            int start = Integer.max(0, i - matchDistance);
+            int end = Integer.min(i + matchDistance + 1, tLen);
+
+            for (int j = start; j < end; j++) {
+               if ((tMatches[j]) || (s.charAt(i) != t.charAt(j))) {
+                  continue;
+               }
+               sMatches[i] = true;
+               tMatches[j] = true;
+               matches++;
+               break;
+            }
+         }
+
+         if (matches == 0) {
+            return 0.0;
+         }
+
+         int k = 0;
+         for (int i = 0; i < sLen; i++) {
+            if (!sMatches[i]) {
+               continue;
+            }
+            while (!tMatches[k]) {
+               k++;
+            }
+            if (s.charAt(i) != t.charAt(k)) {
+               transpositions++;
+            }
+            k++;
+         }
+
+         return (((double) matches / sLen) + ((double) matches / tLen) + ((matches - transpositions / 2.0) / matches)) / 3.0;
+
+      }
+
+   }
+
 
    record Field(
          SimilarityScore<Double> similarityScore,
