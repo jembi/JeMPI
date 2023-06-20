@@ -20,6 +20,8 @@ import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
 import React from 'react'
+import dayjs, {Dayjs} from "dayjs"
+import locale from "dayjs/locale/uk"
 
 const columns: GridColDef[] = [
   {
@@ -111,17 +113,19 @@ const columns: GridColDef[] = [
 ]
 
 const NotificationWorklist = () => {
+  const selectedDate = dayjs().locale({
+    ...locale,
+  });
+  const [date, setDate] = React.useState(selectedDate)
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
   >({
-    queryKey: ['notifications'],
-    queryFn: () => ApiClient.getMatches('500', '0', '2023-06-20', 'New'),
-    refetchOnWindowFocus: false,
-    keepPreviousData: true
+    queryKey: ['notifications', date.format('YYYY-MM-DD')],
+    queryFn: () => ApiClient.getMatches('500', '0', date.format('YYYY-MM-DD'), 'New'),
+    refetchOnWindowFocus: false
   })
-  const [date, setDate] = React.useState<string>()
-
+  console.log('********************************* : {}',date)
   if (isLoading || isFetching) {
     return <Loading />
   }
@@ -134,12 +138,12 @@ const NotificationWorklist = () => {
     return <NotFound />
   }
 
-  const selectedDate = (date: string | undefined) => {
+  const changeSelectedDate = (date: Dayjs | null) => {
     if (date) {
       setDate(date)
     }
   }
-
+  console.log('******************************  {}',date)
   return (
     <Container maxWidth={false}>
       <PageHeader
@@ -157,7 +161,7 @@ const NotificationWorklist = () => {
       <DataGrid
         columns={columns}
         components={{
-          Toolbar: () => <DataGridToolbar onChange={selectedDate} />
+          Toolbar: () => <DataGridToolbar onChange={changeSelectedDate} value={date}/>
         }}
         rows={data as Notification[]}
         pageSize={10}

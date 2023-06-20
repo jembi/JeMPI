@@ -4,11 +4,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Select, MenuItem, InputLabel, FormControl } from '@mui/material'
-import dayjs from 'dayjs'
+import dayjs, {Dayjs} from 'dayjs'
 
 const DataGridToolbar: FC<{
-  onChange: (value: string | undefined) => void
-}> = ({ onChange }) => {
+  onChange: (value: Dayjs | null) => void,
+  value: Dayjs
+}> = ({ onChange, value }) => {
   // const onClick = () => {
   //     props.sendData(user)
   // }
@@ -24,13 +25,14 @@ const DataGridToolbar: FC<{
     >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DesktopDatePicker
-          value={dayjs(new Date())}
+          value={value}
           format="YYYY-MM-DD"
-          onChange={value => onChange(value?.format('DD/MM/YYYY'))}
+          onChange={value => onChange(value)}
           slotProps={{
             textField: {
-              variant: 'outlined'
-            }
+              variant: 'standard',
+              size: 'small'
+            },
           }}
         />
       </LocalizationProvider>
