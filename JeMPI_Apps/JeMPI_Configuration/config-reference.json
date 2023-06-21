@@ -129,10 +129,7 @@
       "indexInteraction": "@index(exact,trigram)",
       "comparison": "JARO_WINKLER_SIMILARITY",
       "comparisonLevels": [
-        0.93,
-        0.92,
-        0.91,
-        0.90
+        0.92
       ],
       "m": 0.832336,
       "u": 0.000133

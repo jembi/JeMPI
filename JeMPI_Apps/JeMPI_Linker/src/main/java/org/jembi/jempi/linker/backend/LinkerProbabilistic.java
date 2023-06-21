@@ -19,8 +19,8 @@ import static java.lang.Math.log;
 final class LinkerProbabilistic {
 
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
-   static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
+   static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
    private static final Logger LOGGER = LogManager.getLogger(LinkerProbabilistic.class);
    private static final double LOG2 = java.lang.Math.log(2.0);
@@ -93,9 +93,10 @@ final class LinkerProbabilistic {
       public Double apply(
             final CharSequence left,
             final CharSequence right) {
-         if (left == null || right == null) {
+         if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
             return 0.5;
          }
+         //  assert - we have 2 non-empty strings
          return StringUtils.equals(left, right)
                ? 1.0
                : 0.0;
@@ -109,6 +110,8 @@ final class LinkerProbabilistic {
       public Double apply(
             final CharSequence s,
             final CharSequence t) {
+
+         // https://rosettacode.org/wiki/Jaro_similarity#Java
 
          int sLen = s.length();
          int tLen = t.length();

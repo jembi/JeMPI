@@ -10,8 +10,8 @@ from src import helper, basefunctions
 def generate_dataset():
     config = \
         {"BaseDate": "2022-01-01",
-         "NumberOfPatients": 2_500,
-         "AverageNumberOfClinicalRecordsPerPatient": 4,
+         "NumberOfPatients": 5_000,
+         "AverageNumberOfClinicalRecordsPerPatient": 2,
          "PercentageOfCorruptedRecords": 0.8,
          "fields": [
              {"name": "given_name",
@@ -19,13 +19,13 @@ def generate_dataset():
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
-                  "weight": [0.2, 0.2, 0.2, 0.1, 0.15, 0.15]}},
+                  "weight": [0.2, 0.2, 0.3, 0.0, 0.15, 0.15]}},
              {"name": "family_name",
               "weight": 0.2,
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
-                  "weight": [0.2, 0.3, 0.1, 0.1, 0.1, 0.2]}},
+                  "weight": [0.2, 0.3, 0.2, 0.0, 0.1, 0.2]}},
              {"name": "gender",
               "weight": 0.1,
               "corrupter": {
@@ -43,19 +43,19 @@ def generate_dataset():
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
-                  "weight": [0.3, 0.3, 0.2, 0.1, 0.0, 0.1]}},
+                  "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
              {"name": "city",
               "weight": 0.1,
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
-                  "weight": [0.3, 0.3, 0.2, 0.1, 0.0, 0.1]}},
+                  "weight": [0.3, 0.2, 0.2, 0.0, 0.2, 0.1]}},
              {"name": "national_id",
               "weight": 0.1,
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
-                  "weight": [0.3, 0.3, 0.2, 0.1, 0.0, 0.1]}},
+                  "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
          ]}
 
     fields = config["fields"]
