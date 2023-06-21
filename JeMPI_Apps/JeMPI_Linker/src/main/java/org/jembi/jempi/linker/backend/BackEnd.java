@@ -23,12 +23,8 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 import org.jembi.jempi.stats.StatsTask;
 
-import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -103,11 +99,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       if (useDGraph) {
          final var host = AppConfig.getDGraphHosts();
          final var port = AppConfig.getDGraphPorts();
-         libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL, host, port);
+         libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
+                             host,
+                             port,
+                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
       } else {
          libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE),
                              AppConfig.POSTGRESQL_USER,
-                             AppConfig.POSTGRESQL_PASSWORD);
+                             AppConfig.POSTGRESQL_PASSWORD,
+                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
       libMPI.startTransaction();
       if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
@@ -269,7 +271,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          final var candidateGoldenRecords = libMPI.findCandidates(interaction.demographicData());
          if (candidateGoldenRecords.isEmpty()) {
             linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+/*
             sendAuditEvent(linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> New GoldenRecord (1.00000)");
+*/
          } else {
             final var allCandidateScores = candidateGoldenRecords.parallelStream()
                                                                  .unordered()
@@ -305,7 +309,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
                   linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+/*
                   sendAuditEvent(linkInfo.interactionUID(), linkInfo.goldenUID(), "Interaction -> New GoldenRecord (1.00000)");
+*/
                   if (!belowThresholdNotifications.isEmpty()) {
                      sendNotification(Notification.NotificationType.THRESHOLD,
                                       linkInfo.interactionUID(),
@@ -323,9 +329,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                final var linkToGoldenId =
                      new LibMPIClientInterface.GoldenIdScore(firstCandidate.goldenRecord.goldenId(), firstCandidate.score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
+/*
                sendAuditEvent(linkInfo.interactionUID(),
                               linkInfo.goldenUID(),
                               String.format("Interaction -> Existing GoldenRecord (%.5f)", linkToGoldenId.score()));
+*/
                if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                   sendNotification(Notification.NotificationType.THRESHOLD,
                                    linkInfo.interactionUID(),
@@ -383,6 +391,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    }
 
+/*
    private void sendAuditEvent(
          final String interactionID,
          final String goldenID,
@@ -401,6 +410,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    }
 
+*/
 
    boolean helperUpdateGoldenRecordField(
          final String interactionId,
@@ -429,13 +439,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                }
                changed = true;
                final var goldenId = expandedGoldenRecord.goldenRecord().goldenId();
-               final var result = libMPI.updateGoldenRecordField(goldenId, fieldName, maxEntry.getKey());
+               final var result = libMPI.updateGoldenRecordField(interactionId,
+                                                                 goldenId,
+                                                                 fieldName,
+                                                                 goldenRecordFieldValue,
+                                                                 maxEntry.getKey());
                if (!result) {
                   LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
                }
+/*
                sendAuditEvent(interactionId,
                               goldenId,
                               String.format("%s: '%s' -> '%s'", fieldName, goldenRecordFieldValue, maxEntry.getKey()));
+*/
             }
          }
       }
@@ -462,12 +478,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             LOGGER.trace("{} -- {} : {}", interactionWithScore.score(), score, abs(interactionWithScore.score() - score) > 1E-2);
          }
          if (abs(interactionWithScore.score() - score) > 1E-3) {
-            final var rc = libMPI.setScore(interaction.interactionId(), expandedGoldenRecord.goldenRecord().goldenId(), score);
+            final var rc = libMPI.setScore(interaction.interactionId(),
+                                           expandedGoldenRecord.goldenRecord().goldenId(),
+                                           interactionWithScore.score(),
+                                           score);
             if (!rc) {
                LOGGER.error("set score error {} -> {} : {}",
                             interaction.interactionId(),
                             expandedGoldenRecord.goldenRecord().goldenId(),
                             score);
+/*
             } else {
                sendAuditEvent(interaction.interactionId(),
                               expandedGoldenRecord.goldenRecord().goldenId(),
@@ -475,6 +495,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                if (LOGGER.isTraceEnabled()) {
                   LOGGER.trace("set score result: {}", rc);
                }
+*/
             }
             if (score <= threshold) {
                sendNotification(Notification.NotificationType.UPDATE,

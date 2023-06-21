@@ -2,13 +2,17 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public final class LibMPI {
@@ -16,22 +20,55 @@ public final class LibMPI {
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
 
+   private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
+
    public LibMPI(
          final Level level,
          final String[] host,
-         final int[] port) {
+         final int[] port,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       LOGGER.info("{}", "LibMPI Constructor");
+      topicAuditEvents = new MyKafkaProducer<>(kafkaBootstrapServers,
+                                               GlobalConstants.TOPIC_AUDIT_TRAIL,
+                                               new StringSerializer(),
+                                               new JsonPojoSerializer<>(),
+                                               kafkaClientId);
       client = new LibDgraph(level, host, port);
    }
 
    public LibMPI(
          final String URL,
          final String USR,
-         final String PSW) {
+         final String PSW,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       LOGGER.info("{}", "LibMPI Constructor");
+      topicAuditEvents = new MyKafkaProducer<>(kafkaBootstrapServers,
+                                               GlobalConstants.TOPIC_AUDIT_TRAIL,
+                                               new StringSerializer(),
+                                               new JsonPojoSerializer<>(),
+                                               kafkaClientId);
       client = new LibPostgresql(URL, USR, PSW);
    }
 
+   private void sendAuditEvent(
+         final String interactionID,
+         final String goldenID,
+         final String event) {
+      topicAuditEvents.produceAsync(goldenID,
+                                    new AuditEvent(new Timestamp(System.currentTimeMillis()),
+                                                   null,
+                                                   interactionID,
+                                                   goldenID,
+                                                   event),
+                                    ((metadata, exception) -> {
+                                       if (exception != null) {
+                                          LOGGER.error(exception.getLocalizedMessage(), exception);
+                                       }
+                                    }));
+
+   }
 
    /*
     * *****************************************************************************
@@ -171,22 +208,59 @@ public final class LibMPI {
    public boolean setScore(
          final String interactionID,
          final String goldenID,
-         final float score) {
-      return client.setScore(interactionID, goldenID, score);
+         final float oldScore,
+         final float newScore) {
+      final var result = client.setScore(interactionID, goldenID, newScore);
+      if (result) {
+         sendAuditEvent(interactionID,
+                        goldenID,
+                        String.format("score: %.5f -> %.5f", oldScore, newScore));
+      } else {
+         sendAuditEvent(interactionID,
+                        goldenID,
+                        String.format("set score error: %.5f -> %.5f", oldScore, newScore));
+
+      }
+      return result;
    }
 
    public boolean updateGoldenRecordField(
+         final String interactionId,
          final String goldenId,
          final String fieldName,
-         final String value) {
-      return client.updateGoldenRecordField(goldenId, fieldName, value);
+         final String oldValue,
+         final String newValue) {
+      final var result = client.updateGoldenRecordField(goldenId, fieldName, newValue);
+      if (result) {
+         sendAuditEvent(interactionId,
+                        goldenId,
+                        String.format("%s: '%s' -> '%s'", fieldName, oldValue, newValue));
+      } else {
+         sendAuditEvent(interactionId,
+                        goldenId,
+                        String.format("%s: error updating '%s' -> '%s'", fieldName, oldValue, newValue));
+      }
+      return result;
    }
 
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String currentGoldenId,
          final String interactionId,
          final float score) {
-      return client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
+      final var result = client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
+      if (result.isRight()) {
+         sendAuditEvent(interactionId,
+                        result.get().goldenUID(),
+                        String.format("Interaction -> new GoldenID: old(%s) new(%s) [%f]",
+                                      currentGoldenId,
+                                      result.get().goldenUID(),
+                                      score));
+      } else {
+         sendAuditEvent(interactionId,
+                        currentGoldenId,
+                        String.format("Interaction -> update GoldenID error: old(%s) [%f]", currentGoldenId, score));
+      }
+      return result;
    }
 
    public Either<MpiGeneralError, LinkInfo> updateLink(
@@ -194,19 +268,54 @@ public final class LibMPI {
          final String newGoldenID,
          final String interactionID,
          final float score) {
-      return client.updateLink(goldenID, newGoldenID, interactionID, score);
+      final var result = client.updateLink(goldenID, newGoldenID, interactionID, score);
+      if (result.isRight()) {
+         sendAuditEvent(interactionID,
+                        newGoldenID,
+                        String.format("Interaction -> update GoldenID: old(%s) new(%s) [%f]", goldenID, newGoldenID, score));
+      } else {
+         sendAuditEvent(interactionID,
+                        newGoldenID,
+                        String.format("Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
+                                      goldenID,
+                                      newGoldenID,
+                                      score));
+      }
+      return result;
    }
 
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
-      return client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
+      final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
+      if (result != null) {
+         sendAuditEvent(result.interactionUID(),
+                        result.goldenUID(),
+                        String.format("Interaction -> Existing GoldenRecord (%.5f)", result.score()));
+      } else {
+         sendAuditEvent(interaction.interactionId(),
+                        goldenIdScore.goldenId(),
+                        String.format("Interaction -> error linking to existing GoldenRecord (%.5f)",
+                                      goldenIdScore.score()));
+      }
+      return result;
+
    }
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
-      return client.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
+      final var result = client.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
+      if (result != null) {
+         sendAuditEvent(result.interactionUID(),
+                        result.goldenUID(),
+                        String.format("Interaction -> New GoldenRecord (%f)", score));
+      } else {
+         sendAuditEvent(interaction.interactionId(),
+                        null,
+                        String.format("Interaction -> error linking to new GoldenRecord (%f)", score));
+      }
+      return result;
    }
 
 }
