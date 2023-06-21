@@ -38,13 +38,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
 
    private BackEnd(
-         final Level level,
+         final Level debugLevel,
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase) {
+         final String sqlDatabase,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       super(context);
       this.libMPI = null;
       this.dgraphHosts = dgraphHosts;
@@ -54,7 +56,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgPassword = sqlPassword;
       psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
       psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
-      openMPI(level);
+      openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
    }
 
    public static Behavior<Event> create(
@@ -63,21 +65,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final int[] dgraphPorts,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase) {
+         final String sqlDatabase,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       return Behaviors.setup(context -> new BackEnd(level,
                                                     context,
                                                     dgraphHosts,
                                                     dgraphPorts,
                                                     sqlUser,
                                                     sqlPassword,
-                                                    sqlDatabase));
+                                                    sqlDatabase,
+                                                    kafkaBootstrapServers,
+                                                    kafkaClientId));
    }
 
-   private void openMPI(final Level level) {
+   private void openMPI(
+         final String kafkaBootstrapServers,
+         final String kafkaClientId,
+         final Level debugLevel) {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
-         libMPI = new LibMPI(level, dgraphHosts, dgraphPorts);
+         libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase), pgUser, pgPassword);
+         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase),
+                             pgUser,
+                             pgPassword,
+                             kafkaBootstrapServers,
+                             kafkaClientId);
       }
    }
 
@@ -321,7 +334,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(goldenId, field.name(), field.value());
+         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), "?", field.value());
          if (result) {
             updatedFields.add(field);
          } else {

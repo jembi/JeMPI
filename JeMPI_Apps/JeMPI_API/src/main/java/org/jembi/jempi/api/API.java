@@ -11,6 +11,8 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.JsonFieldsConfig;
 
+import java.util.UUID;
+
 public final class API {
 
    private static final Logger LOGGER = LogManager.getLogger(API.class);
@@ -39,7 +41,10 @@ public final class API {
                                             AppConfig.getDGraphPorts(),
                                             AppConfig.POSTGRESQL_USER,
                                             AppConfig.POSTGRESQL_PASSWORD,
-                                            AppConfig.POSTGRESQL_DATABASE), "BackEnd");
+                                            AppConfig.POSTGRESQL_DATABASE,
+                                            AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                            "CLIENT_ID_API-" + UUID.randomUUID()),
+                             "BackEnd");
          context.watch(backEnd);
 //         final var notificationsSteam = new NotificationStreamProcessor();
 //         notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,

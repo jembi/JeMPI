@@ -28,7 +28,7 @@
 
     <suppress
             checks="(ParameterNumber)"
-            files="PsqlQueries.java"
+            files="(PsqlQueries|BackEnd).java"
     />
 
 </suppressions>
