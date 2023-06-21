@@ -197,9 +197,16 @@ const RecordDetails = () => {
   const onConfirm = () => {
     if (patientRecord) {
       const fields = Object.keys(patientRecord).reduce(
-        (acc: { name: string; value: FieldType }[], curr: string) => {
-          if (patientRecord && data[curr] !== patientRecord[curr]) {
-            acc.push({ name: curr, value: patientRecord[curr] as FieldType })
+        (
+          acc: { name: string; oldValue: FieldType; newValue: FieldType }[],
+          curr: string
+        ) => {
+          if (patientRecord && data[0][curr] !== patientRecord[curr]) {
+            acc.push({
+              name: curr,
+              oldValue: data[0][curr] as FieldType,
+              newValue: patientRecord[curr] as FieldType
+            })
           }
           return acc
         },

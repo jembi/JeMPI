@@ -4,10 +4,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Select, MenuItem, InputLabel, FormControl } from '@mui/material'
-import dayjs, {Dayjs} from 'dayjs'
+import { Dayjs } from 'dayjs'
 
 const DataGridToolbar: FC<{
-  onChange: (value: Dayjs | null) => void,
+  onChange: (value: Dayjs | null) => void
   value: Dayjs
 }> = ({ onChange, value }) => {
   // const onClick = () => {
@@ -32,7 +32,7 @@ const DataGridToolbar: FC<{
             textField: {
               variant: 'standard',
               size: 'small'
-            },
+            }
           }}
         />
       </LocalizationProvider>

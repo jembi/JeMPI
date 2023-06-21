@@ -20,8 +20,8 @@ import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
 import React from 'react'
-import dayjs, {Dayjs} from "dayjs"
-import locale from "dayjs/locale/uk"
+import dayjs, { Dayjs } from 'dayjs'
+import locale from 'dayjs/locale/uk'
 
 const columns: GridColDef[] = [
   {
@@ -114,18 +114,19 @@ const columns: GridColDef[] = [
 
 const NotificationWorklist = () => {
   const selectedDate = dayjs().locale({
-    ...locale,
-  });
+    ...locale
+  })
   const [date, setDate] = React.useState(selectedDate)
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
   >({
     queryKey: ['notifications', date.format('YYYY-MM-DD')],
-    queryFn: () => ApiClient.getMatches('500', '0', date.format('YYYY-MM-DD'), 'New'),
+    queryFn: () =>
+      ApiClient.getMatches('500', '0', date.format('YYYY-MM-DD'), 'New'),
     refetchOnWindowFocus: false
   })
-  console.log('********************************* : {}',date)
+  console.log('********************************* : {}', date)
   if (isLoading || isFetching) {
     return <Loading />
   }
@@ -143,7 +144,7 @@ const NotificationWorklist = () => {
       setDate(date)
     }
   }
-  console.log('******************************  {}',date)
+  console.log('******************************  {}', date)
   return (
     <Container maxWidth={false}>
       <PageHeader
@@ -161,16 +162,14 @@ const NotificationWorklist = () => {
       <DataGrid
         columns={columns}
         components={{
-          Toolbar: () => <DataGridToolbar onChange={changeSelectedDate} value={date}/>
+          Toolbar: () => (
+            <DataGridToolbar onChange={changeSelectedDate} value={date} />
+          )
         }}
         rows={data as Notification[]}
         pageSizeOptions={[5, 10, 20]}
         sx={{ mt: 4 }}
         autoHeight={true}
-        onPageChange={params => {
-          // Call the API with the selected date and notification type
-          ApiClient.getMatches('5', '10', '2023-06-13', 'Closed')
-        }}
       />
     </Container>
   )

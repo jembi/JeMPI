@@ -48,7 +48,7 @@ const routes: Route[] = [
     children: [
       {
         path: '/',
-        element: <Records />
+        element: <NotFound />
       },
       {
         path: 'record-details',
@@ -66,6 +66,10 @@ const routes: Route[] = [
             ]
           }
         ]
+      },
+      {
+        path: 'browse-records',
+        element: <Records />
       },
       {
         path: 'notifications',

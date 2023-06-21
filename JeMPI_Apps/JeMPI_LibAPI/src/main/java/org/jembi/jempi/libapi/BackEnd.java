@@ -334,7 +334,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), "?", field.value());
+         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(), field.newValue());
          if (result) {
             updatedFields.add(field);
          } else {

@@ -121,16 +121,26 @@ const PatientDetails: FC<PatientDetailsProps> = ({ isGoldenRecord }) => {
   }
 
   const onConfirm = () => {
-    const fields = Object.keys(patientRecord).reduce(
-      (acc: { name: string; value: FieldType }[], curr: string) => {
-        if (patientRecord && data[curr] !== patientRecord[curr]) {
-          acc.push({ name: curr, value: patientRecord[curr] as FieldType })
-        }
-        return acc
-      },
-      []
-    )
-    updatePatientRecord.mutate({ fields })
+    if (patientRecord) {
+      const fields = Object.keys(patientRecord).reduce(
+        (
+          acc: { name: string; oldValue: FieldType; newValue: FieldType }[],
+          curr: string
+        ) => {
+          if (patientRecord && data[curr] !== patientRecord[curr]) {
+            acc.push({
+              name: curr,
+              oldValue: data[curr] as FieldType,
+              newValue: patientRecord[curr] as FieldType
+            })
+          }
+          return acc
+        },
+        []
+      )
+      updatePatientRecord.mutate({ fields })
+    }
+
     setIsModalVisible(false)
     setIsEditMode(false)
     setUpdatedFields({})

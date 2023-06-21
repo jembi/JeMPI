@@ -22,11 +22,11 @@ const NavigationBar = () => {
             Dashboard
           </Button>
           <Button
-            href="/search/simple"
+            href="/browse-records"
             startIcon={<SearchIcon />}
             className="Appbar"
           >
-            Search
+            Browse
           </Button>
           <Button
             href="/notifications"

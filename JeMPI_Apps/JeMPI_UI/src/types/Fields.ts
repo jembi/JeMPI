@@ -27,10 +27,11 @@ export interface Field {
 }
 
 export interface FieldChangeReq {
-  fields: {
+  fields: Array<{
     name: string
-    value: FieldType
-  }[]
+    oldValue: FieldType
+    newValue: FieldType
+  }>
 }
 
 export interface DisplayField extends Field {
