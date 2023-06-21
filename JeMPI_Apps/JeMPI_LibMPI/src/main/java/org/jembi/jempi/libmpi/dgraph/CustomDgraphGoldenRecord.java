@@ -12,6 +12,7 @@ import java.util.List;
 record CustomDgraphGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED) Boolean auxAutoUpdateEnabled,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID) String auxId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GIVEN_NAME) String givenName,
@@ -27,7 +28,8 @@ record CustomDgraphGoldenRecord(
                               this.sourceId() != null
                                  ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                  : List.of(),
-                              new CustomUniqueGoldenRecordData(this.auxAutoUpdateEnabled(),
+                              new CustomUniqueGoldenRecordData(this.auxDateCreated(),
+                                                               this.auxAutoUpdateEnabled(),
                                                                this.auxId()),
                               new CustomDemographicData(this.givenName(),
                                                         this.familyName(),

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record Interaction(
       String interactionId,
-      SourceId sourceId,
+      CustomSourceId sourceId,
       CustomUniqueInteractionData uniqueInteractionData,
       CustomDemographicData demographicData) {
 }

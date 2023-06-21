@@ -22,7 +22,6 @@ object Main {
     val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
 
-    CustomPatient.generate(config)
     CustomMU.generate(config.demographicFields)
     CustomDgraphConstants.generate(config)
     CustomDgraphInteraction.generate(config)
@@ -39,5 +38,6 @@ object Main {
     CustomPostgresqlInteraction.generate(config.demographicFields)
     CustomPostgresqlGoldenRecord.generate(config.demographicFields)
     CustomAsyncHelper.generate(config)
+    CustomPatient.generate(config)
 
 }

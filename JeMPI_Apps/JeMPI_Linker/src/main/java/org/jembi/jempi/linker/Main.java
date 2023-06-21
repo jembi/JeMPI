@@ -8,11 +8,12 @@ import akka.actor.typed.javadsl.Behaviors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.linker.backend.BackEnd;
 
 public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
-   private PatientStreamSync patientStreamSync;
+   private HttpServer httpServer;
 
    private Main() {
    }
@@ -25,18 +26,18 @@ public final class Main {
       return Behaviors.setup(
             context -> {
                final var system = context.getSystem();
-               final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(), "BackEnd");
+               final ActorRef<BackEnd.Request> backEnd = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEnd);
-               final PatientStreamAsync patientStreamAsync = PatientStreamAsync.create();
-               patientStreamAsync.open(system, backEnd);
-               final FrontEndMUStream frontEndMUStream = new FrontEndMUStream();
-               frontEndMUStream.open(system, backEnd);
-               patientStreamSync = PatientStreamSync.create();
-               patientStreamSync.open(system, backEnd);
+               final SPInteractions spInteractions = SPInteractions.create();
+               spInteractions.open(system, backEnd);
+               final SPMU spMU = new SPMU();
+               spMU.open(system, backEnd);
+               httpServer = HttpServer.create();
+               httpServer.open(system, backEnd);
                return Behaviors.receive(Void.class)
                                .onSignal(Terminated.class,
                                          sig -> {
-                                            patientStreamSync.close(system);
+                                            httpServer.close(system);
                                             return Behaviors.stopped();
                                          })
                                .build();

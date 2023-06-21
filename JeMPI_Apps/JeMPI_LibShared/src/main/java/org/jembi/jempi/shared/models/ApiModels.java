@@ -1,17 +1,13 @@
-package org.jembi.jempi.libapi;
+package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.*;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 public abstract class ApiModels {
 
-   private static final Logger LOGGER = LogManager.getLogger(ApiModels.class);
    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
    public interface ApiPaginatedResultSet {
@@ -20,7 +16,7 @@ public abstract class ApiModels {
    public record ApiGoldenRecordCount(Long count) {
    }
 
-   public record ApiPatientCount(Long count) {
+   public record ApiInterationCount(Long count) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -43,23 +39,23 @@ public abstract class ApiModels {
       }
    }
 
-   public record ApiPatientRecordsPaginatedResultSet(
-         List<ApiPatientRecord> data,
+   public record ApiInteractionsPaginatedResultSet(
+         List<ApiInteraction> data,
          ApiPagination pagination) implements ApiPaginatedResultSet {
-      public static ApiPatientRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(
+      public static ApiInteractionsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<Interaction> resultSet) {
          final var data = resultSet.data()
                                    .stream()
-                                   .map(ApiPatientRecord::fromPatientRecord)
+                                   .map(ApiInteraction::fromInteraction)
                                    .toList();
-         return new ApiPatientRecordsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+         return new ApiInteractionsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecord(
          String uid,
-         List<SourceId> sourceId,
+         List<CustomSourceId> sourceId,
          CustomUniqueGoldenRecordData uniqueGoldenRecordData,
          CustomDemographicData demographicData) {
       static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
@@ -82,61 +78,61 @@ public abstract class ApiModels {
 
    public record ApiExpandedGoldenRecord(
          ApiGoldenRecord goldenRecord,
-         List<ApiPatientRecordWithScore> mpiPatientRecords) {
+         List<ApiInteractionWithScore> interactionsWithScore) {
       public static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
          return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
                                             expandedGoldenRecord.interactionsWithScore()
                                                                 .stream()
-                                                                .map(ApiPatientRecordWithScore::fromPatientRecordWithScore)
+                                                                .map(ApiInteractionWithScore::fromPatientRecordWithScore)
                                                                 .toList());
       }
    }
 
-   public record ApiExpandedPatientRecord(
-         ApiPatientRecord patientRecord,
+   public record ApiExpandedInteraction(
+         ApiInteraction interaction,
          List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
-      public static ApiExpandedPatientRecord fromExpandedPatientRecord(final ExpandedInteraction expandedInteraction) {
-         return new ApiExpandedPatientRecord(ApiPatientRecord.fromPatientRecord(expandedInteraction.interaction()),
-                                             expandedInteraction.goldenRecordsWithScore()
-                                                                .stream()
-                                                                .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                                                                .toList());
+      public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
+         return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
+                                           expandedInteraction.goldenRecordsWithScore()
+                                                              .stream()
+                                                              .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                              .toList());
       }
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiPatientRecord(
+   public record ApiInteraction(
          String uid,
-         SourceId sourceId,
+         CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
          CustomDemographicData demographicData) {
-      public static ApiPatientRecord fromPatientRecord(final Interaction interaction) {
-         return new ApiPatientRecord(interaction.interactionId(),
-                                     interaction.sourceId(),
-                                     interaction.uniqueInteractionData(),
-                                     interaction.demographicData());
+      public static ApiInteraction fromInteraction(final Interaction interaction) {
+         return new ApiInteraction(interaction.interactionId(),
+                                   interaction.sourceId(),
+                                   interaction.uniqueInteractionData(),
+                                   interaction.demographicData());
       }
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiPatientRecordWithScore(
-         ApiPatientRecord patientRecord,
+   public record ApiInteractionWithScore(
+         ApiInteraction interaction,
          Float score) {
-      static ApiPatientRecordWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
-         return new ApiPatientRecordWithScore(ApiPatientRecord.fromPatientRecord(interactionWithScore.interaction()),
-                                              interactionWithScore.score());
+      static ApiInteractionWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
+         return new ApiInteractionWithScore(ApiInteraction.fromInteraction(interactionWithScore.interaction()),
+                                            interactionWithScore.score());
       }
    }
 
    public record ApiNumberOfRecords(
          Long goldenRecords,
-         Long patientRecords) {
+         Long interactions) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiAuditTrail(
          List<AuditEntry> entries) {
-      static ApiAuditTrail fromAuditTrail(final List<AuditEvent> trail) {
+      public static ApiAuditTrail fromAuditTrail(final List<AuditEvent> trail) {
          final var apiDateFormat = new SimpleDateFormat(DATE_PATTERN);
          return new ApiAuditTrail(trail.stream().map(x -> new AuditEntry(apiDateFormat.format(x.insertedAt()),
                                                                          apiDateFormat.format(x.createdAt()),
@@ -155,4 +151,21 @@ public abstract class ApiModels {
             @JsonProperty("entry") String entry) {
       }
    }
+
+   public record ApiCalculateScoresRequest(
+         String interactionId,
+         List<String> goldenIds) {
+   }
+
+   public record ApiCalculateScoresResponse(
+         String interactionId,
+         List<ApiScore> scores) {
+
+      public record ApiScore(
+            String goldenId,
+            float score) {
+      }
+
+   }
+
 }

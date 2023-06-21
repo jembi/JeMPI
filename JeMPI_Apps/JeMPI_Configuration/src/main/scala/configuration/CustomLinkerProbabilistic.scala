@@ -6,9 +6,9 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerProbabilistic {
 
-  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
   private val custom_className = "CustomLinkerProbabilistic"
-  private val packageText = "org.jembi.jempi.linker"
+  private val packageText = "org.jembi.jempi.linker.backend"
 
   def parseRules(config: Config): Any = {
     val classFile: String = classLocation + File.separator + custom_className + ".java"
@@ -28,8 +28,10 @@ object CustomLinkerProbabilistic {
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            import org.jembi.jempi.shared.models.CustomMU;
            |
-           |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
-           |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
            |final class $custom_className {
            |
@@ -61,8 +63,10 @@ object CustomLinkerProbabilistic {
            |import java.util.Arrays;
            |import java.util.List;
            |
-           |import static org.jembi.jempi.linker.LinkerProbabilistic.EXACT_SIMILARITY;
-           |import static org.jembi.jempi.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
+           |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
            |
            |final class $custom_className {
            |

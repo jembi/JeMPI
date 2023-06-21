@@ -239,6 +239,13 @@
                 <version>2.14.3</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.14.3</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/io.dgraph/dgraph4j -->
             <dependency>
                 <groupId>io.dgraph</groupId>
@@ -470,6 +477,7 @@
         <module>JeMPI_Controller</module>
         <module>JeMPI_EM</module>
         <module>JeMPI_Linker</module>
+        <module>JeMPI_GUI</module>
     </modules>
 
 </project>

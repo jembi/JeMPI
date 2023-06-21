@@ -6,9 +6,9 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerBackEnd {
 
-  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
+  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
   private val custom_className = "CustomLinkerBackEnd"
-  private val packageText = "org.jembi.jempi.linker"
+  private val packageText = "org.jembi.jempi.linker.backend"
 
   def parseRules(config: Config): Any = {
     val classFile: String = classLocation + File.separator + custom_className + ".java"
@@ -52,15 +52,15 @@ object CustomLinkerBackEnd {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}k += backEnd.updateGoldenRecordField(interactionId, expandedGoldenRecord,
-           |${" " * 6}                                     "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName.charAt(0).toUpper}${fieldName.substring(1)})
+        s"""${" " * 6}k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
+           |${" " * 6}                                           "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName.charAt(0).toUpper}${fieldName.substring(1)})
            |${" " * 12}? 1
            |${" " * 12}: 0;""".stripMargin)
     })
     writer.println(
       s"""
          |${" " * 6}if (k > 0) {
-         |${" " * 6}  backEnd.updateInteractionsScore(threshold, expandedGoldenRecord);
+         |${" " * 6}  backEnd.helperUpdateInteractionsScore(threshold, expandedGoldenRecord);
          |${" " * 6}}""".stripMargin)
     writer.println()
     config.demographicFields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {

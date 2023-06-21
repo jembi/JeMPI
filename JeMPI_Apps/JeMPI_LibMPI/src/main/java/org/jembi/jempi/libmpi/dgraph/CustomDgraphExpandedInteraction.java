@@ -13,7 +13,9 @@ import java.util.List;
 record CustomDgraphExpandedInteraction(
       @JsonProperty("uid") String interactionId,
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_CLINICAL_DATA) String auxClinicalData,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_FAMILY_NAME) String familyName,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
@@ -26,7 +28,9 @@ record CustomDgraphExpandedInteraction(
    Interaction toInteraction() {
       return new Interaction(this.interactionId(),
                              this.sourceId().toSourceId(),
-                             new CustomUniqueInteractionData(this.auxId()),
+                             new CustomUniqueInteractionData(this.auxDateCreated(),
+                                                               this.auxId(),
+                                                               this.auxClinicalData()),
                              new CustomDemographicData(this.givenName(),
                                                        this.familyName(),
                                                        this.gender(),

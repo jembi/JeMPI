@@ -1,10 +1,5 @@
 package org.jembi.jempi.etl;
 
-import org.apache.commons.codec.language.DoubleMetaphone;
-import org.apache.commons.codec.language.Metaphone;
-import org.apache.commons.codec.language.RefinedSoundex;
-import org.apache.commons.codec.language.Soundex;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -23,22 +18,16 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class CustomSourceRecordStream {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomSourceRecordStream.class);
-   private static final List<String> FACILITY = Arrays.asList("CLINIC", "PHARMACY", "LABORATORY");
-   private final Random random = new Random(1234);
    ExecutorService executorService = Executors.newFixedThreadPool(1);
    private KafkaStreams interactionKafkaStreams = null;
 
@@ -70,11 +59,7 @@ public final class CustomSourceRecordStream {
                         rec.tag(),
                         rec.stan(),
                         new Interaction(null,
-                                        new SourceId(null,
-                                                     FACILITY.get(random.nextInt(FACILITY.size())),
-                                                     StringUtils.isNotBlank(demographicData.givenName)
-                                                           ? demographicData.givenName
-                                                           : "ANON"),
+                                        rec.interaction().sourceId(),
                                         interaction.uniqueInteractionData(),
                                         demographicData.clean()));
                   return KeyValue.pair(key, newEnvelop);
@@ -88,17 +73,6 @@ public final class CustomSourceRecordStream {
       interactionKafkaStreams.start();
    }
 
-   private String getEncodedMF(
-         final String value,
-         final OperationType algorithmType) {
-      return switch (algorithmType) {
-         case OPERATION_TYPE_METAPHONE -> (new Metaphone()).metaphone(value);
-         case OPERATION_TYPE_DOUBLE_METAPHONE -> (new DoubleMetaphone()).doubleMetaphone(value);
-         case OPERATION_TYPE_SOUNDEX -> (new Soundex()).encode(value);
-         case OPERATION_TYPE_REFINED_SOUNDEX -> (new RefinedSoundex()).encode(value);
-      };
-   }
-
    public void close() {
       interactionKafkaStreams.close();
    }
@@ -109,13 +83,6 @@ public final class CustomSourceRecordStream {
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
-   }
-
-   public enum OperationType {
-      OPERATION_TYPE_METAPHONE,
-      OPERATION_TYPE_DOUBLE_METAPHONE,
-      OPERATION_TYPE_SOUNDEX,
-      OPERATION_TYPE_REFINED_SOUNDEX
    }
 
 }

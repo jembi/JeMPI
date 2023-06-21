@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-//import org.jembi.jempi.linker.LinkerProbabilistic;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -39,13 +38,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
 
    private BackEnd(
-         final Level level,
+         final Level debugLevel,
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase) {
+         final String sqlDatabase,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       super(context);
       this.libMPI = null;
       this.dgraphHosts = dgraphHosts;
@@ -55,7 +56,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.pgPassword = sqlPassword;
       psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
       psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
-      openMPI(level);
+      openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
    }
 
    public static Behavior<Event> create(
@@ -64,21 +65,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final int[] dgraphPorts,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase) {
+         final String sqlDatabase,
+         final String kafkaBootstrapServers,
+         final String kafkaClientId) {
       return Behaviors.setup(context -> new BackEnd(level,
                                                     context,
                                                     dgraphHosts,
                                                     dgraphPorts,
                                                     sqlUser,
                                                     sqlPassword,
-                                                    sqlDatabase));
+                                                    sqlDatabase,
+                                                    kafkaBootstrapServers,
+                                                    kafkaClientId));
    }
 
-   private void openMPI(final Level level) {
+   private void openMPI(
+         final String kafkaBootstrapServers,
+         final String kafkaClientId,
+         final Level debugLevel) {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
-         libMPI = new LibMPI(level, dgraphHosts, dgraphPorts);
+         libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase), pgUser, pgPassword);
+         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase),
+                             pgUser,
+                             pgPassword,
+                             kafkaBootstrapServers,
+                             kafkaClientId);
       }
    }
 
@@ -90,32 +102,31 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public Receive<Event> actor() {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder
-            .onMessage(GetGoldenRecordCountRequest.class, this::getGoldenRecordCountHandler)
-            .onMessage(GetInteractionCountRequest.class, this::getInteractionCountHandler)
-            .onMessage(GetNumberOfRecordsRequest.class, this::getNumberOfRecordsHandler)
-            .onMessage(GetGoldenIdsRequest.class, this::getGoldenIdsHandler)
-            .onMessage(FetchGoldenIdsRequest.class, this::fetchGoldenIdsHandler)
-            .onMessage(FindExpandedGoldenRecordRequest.class, this::findExpandedGoldenRecordHandler)
-            .onMessage(FindExpandedGoldenRecordsRequest.class, this::findExpandedGoldenRecordsHandler)
-            .onMessage(FindExpandedPatientRecordsRequest.class, this::findExpandedPatientRecordsHandler)
-            .onMessage(FindInteractionRequest.class, this::findInteractionHandler)
-            .onMessage(FindCandidatesRequest.class, this::findCandidatesHandler)
-            .onMessage(FindMatchesForReviewRequest.class, this::findMatchesForReviewHandler)
-            .onMessage(UpdateGoldenRecordFieldsRequest.class, this::updateGoldenRecordFieldsHandler)
-            .onMessage(UpdateLinkToExistingGoldenRecordRequest.class, this::updateLinkToExistingGoldenRecordHandler)
-            .onMessage(UpdateLinkToNewGoldenRecordRequest.class, this::updateLinkToNewGoldenRecordHandler)
-            .onMessage(UpdateNotificationStateRequest.class, this::updateNotificationStateHandler)
-            .onMessage(SimpleSearchGoldenRecordsRequest.class, this::simpleSearchGoldenRecordsHandler)
-            .onMessage(CustomSearchGoldenRecordsRequest.class, this::customSearchGoldenRecordsHandler)
-            .onMessage(SimpleSearchInteractionsRequest.class, this::simpleSearchInteractionsHandler)
-            .onMessage(CustomSearchInteractionsRequest.class, this::customSearchInteractionsHandler)
-            .onMessage(UploadCsvFileRequest.class, this::uploadCsvFileHandler)
-            .onMessage(GoldenRecordAuditTrailRequest.class, this::goldenRecordAuditTrailHandler)
-            .onMessage(InteractionAuditTrailRequest.class, this::interactionAuditTrailHandler)
+            .onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
+            .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
+            .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
+            .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
+            .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
+            .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
+            .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
+            .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+            .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
+            .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
+            .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
+            .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
+            .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
+            .onMessage(PatchIidGidLinkRequest.class, this::patchIidGidLinkHandler)
+            .onMessage(PatchIidNewGidLinkRequest.class, this::patchIidNewGidLinkHandler)
+            .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
+            .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
+            .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
+            .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
+            .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+            .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
             .build();
    }
 
-   private Behavior<Event> simpleSearchGoldenRecordsHandler(final SimpleSearchGoldenRecordsRequest request) {
+   private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -125,11 +136,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       var recs = libMPI.simpleSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
-      request.replyTo.tell(new SearchGoldenRecordsResponse(recs));
+      request.replyTo.tell(new PostSearchGoldenRecordsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> customSearchGoldenRecordsHandler(final CustomSearchGoldenRecordsRequest request) {
+   private Behavior<Event> postCustomSearchGoldenRecordsHandler(final PostCustomSearchGoldenRecordsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -139,11 +150,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       var recs = libMPI.customSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
-      request.replyTo.tell(new SearchGoldenRecordsResponse(recs));
+      request.replyTo.tell(new PostSearchGoldenRecordsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> simpleSearchInteractionsHandler(final SimpleSearchInteractionsRequest request) {
+   private Behavior<Event> postSimpleSearchInteractionsHandler(final PostSimpleSearchInteractionsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -153,11 +164,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       var recs = libMPI.simpleSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
-      request.replyTo.tell(new SearchInteractionsResponse(recs));
+      request.replyTo.tell(new PostSearchInteractionsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> customSearchInteractionsHandler(final CustomSearchInteractionsRequest request) {
+   private Behavior<Event> postCustomSearchInteractionsHandler(final PostCustomSearchInteractionsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<SimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -167,73 +178,67 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       libMPI.startTransaction();
       var recs = libMPI.customSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
-      request.replyTo.tell(new SearchInteractionsResponse(recs));
+      request.replyTo.tell(new PostSearchInteractionsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> findMatchesForReviewHandler(final FindMatchesForReviewRequest request) {
-      LOGGER.debug("findMatchesForReviewHandler");
+   private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
       MatchesForReviewResult result =
             psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date(), request.state);
-      request.replyTo.tell(new FindMatchesForReviewResponse(result.getCount(), result.getSkippedRecords(), result.getNotifications()));
+      request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
+                                                        result.getSkippedRecords(),
+                                                        result.getNotifications()));
       return Behaviors.same();
    }
 
-   private Behavior<Event> getGoldenRecordCountHandler(final GetGoldenRecordCountRequest request) {
-      LOGGER.debug("getGoldenRecordCountHandler");
+   private Behavior<Event> countGoldenRecordsHandler(final CountGoldenRecordsRequest request) {
       try {
          libMPI.startTransaction();
          final long count = libMPI.countGoldenRecords();
          libMPI.closeTransaction();
 
-         request.replyTo.tell(new GetGoldenRecordCountResponse(Either.right(count)));
+         request.replyTo.tell(new CountGoldenRecordsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countGoldenRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(new GetGoldenRecordCountResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
+         request.replyTo.tell(new CountGoldenRecordsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
 
-   private Behavior<Event> getInteractionCountHandler(final GetInteractionCountRequest request) {
-      LOGGER.debug("etInteractionCountHandler");
-
+   private Behavior<Event> countInteractionsHandler(final CountInteractionsRequest request) {
       try {
          libMPI.startTransaction();
          final long count = libMPI.countInteractions();
          libMPI.closeTransaction();
 
-         request.replyTo.tell(new GetInteractionCountResponse(Either.right(count)));
+         request.replyTo.tell(new CountInteractionsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(new GetInteractionCountResponse(Either.left(new MpiServiceError.GeneralError(
+         request.replyTo.tell(new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(
                exception.getMessage()))));
       }
       return Behaviors.same();
    }
 
-   private Behavior<Event> getNumberOfRecordsHandler(final GetNumberOfRecordsRequest request) {
-      LOGGER.debug("getNumberOfRecordsHandler");
+   private Behavior<Event> countRecordsHandler(final CountRecordsRequest request) {
       libMPI.startTransaction();
       var recs = libMPI.countGoldenRecords();
       var docs = libMPI.countInteractions();
       libMPI.closeTransaction();
-      request.replyTo.tell(new GetNumberOfRecordsResponse(recs, docs));
+      request.replyTo.tell(new CountRecordsResponse(recs, docs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> getGoldenIdsHandler(final GetGoldenIdsRequest request) {
-      LOGGER.debug("getGoldenIds");
+   private Behavior<Event> getGidsAllHandler(final GetGidsAllRequest request) {
       libMPI.startTransaction();
       var recs = libMPI.findGoldenIds();
-      request.replyTo.tell(new GetGoldenIdsResponse(recs));
+      request.replyTo.tell(new GetGidsAllResponse(recs));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
 
-   private Behavior<Event> findExpandedGoldenRecordHandler(final FindExpandedGoldenRecordRequest request) {
+   private Behavior<Event> getExpandedGoldenRecordHandler(final GetExpandedGoldenRecordRequest request) {
       ExpandedGoldenRecord expandedGoldenRecord = null;
-      LOGGER.debug("findExpandedGoldenRecordHandler");
-
       try {
          libMPI.startTransaction();
          expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenId);
@@ -245,20 +250,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedGoldenRecord == null) {
-         request.replyTo.tell(new FindExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+         request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
                "Golden Record does not exist",
                request.goldenId))));
       } else {
-         request.replyTo.tell(new FindExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
+         request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
       }
 
       return Behaviors.same();
    }
 
-   private Behavior<Event> findExpandedGoldenRecordsHandler(final FindExpandedGoldenRecordsRequest request) {
+   private Behavior<Event> getExpandedGoldenRecordsHandler(final GetExpandedGoldenRecordsRequest request) {
       List<ExpandedGoldenRecord> goldenRecords = null;
-      LOGGER.debug("getExpandedGoldenRecords");
-
       try {
          libMPI.startTransaction();
          goldenRecords = libMPI.findExpandedGoldenRecords(request.goldenIds);
@@ -270,20 +273,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (goldenRecords == null) {
-         request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+         request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
                "Golden Records do not exist",
                Collections.singletonList(request.goldenIds).toString()))));
       } else {
-         request.replyTo.tell(new FindExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
+         request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
 
       return Behaviors.same();
    }
 
-   private Behavior<Event> findExpandedPatientRecordsHandler(final FindExpandedPatientRecordsRequest request) {
+   private Behavior<Event> getExpandedInteractionsHandler(final GetExpandedInteractionsRequest request) {
       List<ExpandedInteraction> expandedInteractions = null;
-      LOGGER.debug("getExpandedPatients");
-
       try {
          libMPI.startTransaction();
          expandedInteractions = libMPI.findExpandedInteractions(request.patientIds);
@@ -295,167 +296,109 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedInteractions == null) {
-         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
+         request.replyTo.tell(new GetExpandedInteractionsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
                "Patient Records do not exist",
                Collections.singletonList(request.patientIds).toString()))));
       } else {
-         request.replyTo.tell(new FindExpandedPatientRecordsResponse(Either.right(expandedInteractions)));
+         request.replyTo.tell(new GetExpandedInteractionsResponse(Either.right(expandedInteractions)));
       }
       return Behaviors.same();
    }
 
-   private Behavior<Event> findInteractionHandler(final FindInteractionRequest request) {
+   private Behavior<Event> getInteractionHandler(final GetInteractionRequest request) {
       Interaction interaction = null;
-      LOGGER.debug("findPatientRecordHandler");
-
       try {
          libMPI.startTransaction();
-         interaction = libMPI.findInteraction(request.patientId);
+         interaction = libMPI.findInteraction(request.iid);
          libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
-                      request.patientId,
+                      request.iid,
                       exception.getMessage());
       }
 
       if (interaction == null) {
-         request.replyTo.tell(new FindInteractionResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
-               "Patient not found",
-               request.patientId))));
+         request.replyTo.tell(new GetInteractionResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
+               "Interaction not found",
+               request.iid))));
       } else {
-         request.replyTo.tell(new FindInteractionResponse(Either.right(interaction)));
+         request.replyTo.tell(new GetInteractionResponse(Either.right(interaction)));
       }
 
       return Behaviors.same();
    }
 
-   private Behavior<Event> findCandidatesHandler(final FindCandidatesRequest request) {
-      LOGGER.debug("getCandidates");
-/*
-      LOGGER.debug("{} {}", request.patientId, request.mu);
-      Interaction interaction = null;
-      List<GoldenRecord> goldenRecords = null;
-      List<FindCandidatesResponse.Candidate> candidates = null;
-
-      try {
-         libMPI.startTransaction();
-         interaction = libMPI.findInteraction(request.patientId);
-
-         try {
-            goldenRecords = libMPI.findCandidates(interaction.demographicData());
-         } catch (Exception exception) {
-            LOGGER.error("libMPI.getCandidates failed to find patientRecord.demographicData: {}",
-                         interaction.demographicData());
-            request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.CandidatesNotFoundError(
-                  "Candidates(golden records) not found with demographic data for patientId",
-                  request.patientId))));
-            return Behaviors.same();
-         }
-
-         libMPI.closeTransaction();
-
-         final var patientDemographic = interaction.demographicData();
-         CustomLinkerProbabilistic.updateMU(request.mu);
-         LinkerProbabilistic.checkUpdatedMU();
-         candidates = goldenRecords
-               .stream()
-               .map(candidate -> new FindCandidatesResponse.Candidate(candidate,
-                                                                      CustomLinkerProbabilistic.probabilisticScore(candidate
-                                                                      .demographicData(),
-                                                                                                                   patientDemographic)))
-               .toList();
-         request.replyTo.tell(new FindCandidatesResponse(Either.right(candidates)));
-      } catch (Exception exception) {
-         LOGGER.error("findCandidatesHandler failed to find patientId: {}", request.patientId);
-         request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
-               "Patient not found",
-               request.patientId))));
-      }
-*/
-      request.replyTo.tell(new FindCandidatesResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
-            "Patient not found",
-            request.patientId))));
-      return Behaviors.same();
-   }
-
-   private Behavior<Event> updateGoldenRecordFieldsHandler(final UpdateGoldenRecordFieldsRequest request) {
+   private Behavior<Event> patchGoldenRecordHandler(final PatchGoldenRecordRequest request) {
       final var fields = request.fields();
       final var goldenId = request.goldenId;
       libMPI.startTransaction();
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
-      LOGGER.debug("Golden record {} update.", goldenId);
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(goldenId, field.name(), field.value());
+         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), "?", field.value());
          if (result) {
-            LOGGER.debug("Golden record field update {} has been successfully updated.", field);
             updatedFields.add(field);
          } else {
-            LOGGER.debug("Golden record field update {} update has failed.", field);
+            LOGGER.error("Golden record field update {} update has failed.", field);
          }
       }
-      request.replyTo.tell(new UpdateGoldenRecordFieldsResponse(updatedFields));
+      request.replyTo.tell(new PatchGoldenRecordResponse(updatedFields));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
 
-   private Behavior<Event> updateLinkToExistingGoldenRecordHandler(final UpdateLinkToExistingGoldenRecordRequest request) {
+   private Behavior<Event> patchIidGidLinkHandler(final PatchIidGidLinkRequest request) {
       var result = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
-      request.replyTo.tell(new UpdateLinkToExistingGoldenRecordResponse(result));
+      request.replyTo.tell(new PatchIidGidLinkResponse(result));
       return Behaviors.same();
    }
 
-   private Behavior<Event> updateLinkToNewGoldenRecordHandler(final UpdateLinkToNewGoldenRecordRequest request) {
+   private Behavior<Event> patchIidNewGidLinkHandler(final PatchIidNewGidLinkRequest request) {
       var linkInfo = libMPI.linkToNewGoldenRecord(request.currentGoldenId, request.patientId, request.score);
-      request.replyTo.tell(new UpdateLinkToNewGoldenRecordResponse(linkInfo));
+      request.replyTo.tell(new PatchIidNewGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
 
-   private Behavior<Event> goldenRecordAuditTrailHandler(final GoldenRecordAuditTrailRequest request) {
-      LOGGER.debug("{}", request.uid);
+   private Behavior<Event> getGoldenRecordAuditTrailHandler(final GetGoldenRecordAuditTrailRequest request) {
       final var auditTrail = psqlAuditTrail.goldenRecordAuditTrail(request.uid);
-      request.replyTo.tell(new GoldenRecordAuditTrailResponse(auditTrail));
+      request.replyTo.tell(new GetGoldenRecordAuditTrailResponse(auditTrail));
       return Behaviors.same();
    }
 
-   private Behavior<Event> interactionAuditTrailHandler(final InteractionAuditTrailRequest request) {
-      LOGGER.debug("{}", request.uid);
+   private Behavior<Event> getInteractionAuditTrailHandler(final GetInteractionAuditTrailRequest request) {
       final var auditTrail = psqlAuditTrail.interactionRecordAuditTrail(request.uid);
-      request.replyTo.tell(new InteractionAuditTrailResponse(auditTrail));
+      request.replyTo.tell(new GetInteractionAuditTrailResponse(auditTrail));
       return Behaviors.same();
    }
 
-   private Behavior<Event> fetchGoldenIdsHandler(final FetchGoldenIdsRequest request) {
-      LOGGER.debug("{} {}", request.offset, request.length);
+   private Behavior<Event> getGidsPagedHandler(final GetGidsPagedRequest request) {
       libMPI.startTransaction();
       var recs = libMPI.fetchGoldenIds(request.offset, request.length);
-      request.replyTo.tell(new FetchGoldenIdsResponse(recs));
+      request.replyTo.tell(new GetGidsPagedResponse(recs));
       libMPI.closeTransaction();
       return Behaviors.same();
    }
 
-   private Behavior<Event> updateNotificationStateHandler(final UpdateNotificationStateRequest request) {
+   private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
          psqlNotifications.updateNotificationState(request.notificationId, request.state);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
-      request.replyTo.tell(new UpdateNotificationStateRespnse());
+      request.replyTo.tell(new PostUpdateNotificationResponse());
       return Behaviors.same();
    }
 
-   private Behavior<Event> uploadCsvFileHandler(final UploadCsvFileRequest request) throws IOException {
+   private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       File file = request.file();
       try {
          Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
-//       final var result = file.delete()
          Files.delete(file.toPath());
-         LOGGER.debug("File moved successfully");
       } catch (NoSuchFileException e) {
-         LOGGER.debug("No such file");
+         LOGGER.error("No such file");
       } catch (SecurityException | IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      request.replyTo.tell(new UploadCsvFileResponse());
+      request.replyTo.tell(new PostUploadCsvFileResponse());
       return Behaviors.same();
    }
 
@@ -465,200 +408,188 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public interface EventResponse {
    }
 
-   public record GetGoldenRecordCountRequest(ActorRef<GetGoldenRecordCountResponse> replyTo) implements Event {
+   public record CountGoldenRecordsRequest(ActorRef<CountGoldenRecordsResponse> replyTo) implements Event {
    }
 
-   public record GetGoldenRecordCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
+   public record CountGoldenRecordsResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
    }
 
-   public record GetInteractionCountRequest(ActorRef<GetInteractionCountResponse> replyTo) implements Event {
+   public record CountInteractionsRequest(ActorRef<CountInteractionsResponse> replyTo) implements Event {
    }
 
-   public record GetInteractionCountResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
+   public record CountInteractionsResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
    }
 
-   public record GetNumberOfRecordsRequest(ActorRef<GetNumberOfRecordsResponse> replyTo) implements Event {
+   public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event {
    }
 
-   public record GetNumberOfRecordsResponse(
+   public record CountRecordsResponse(
          long goldenRecords,
          long patientRecords) implements EventResponse {
    }
 
-   public record FetchGoldenIdsRequest(ActorRef<FetchGoldenIdsResponse> replyTo,
-                                       long offset,
-                                       long length) implements Event {
+   public record GetGidsPagedRequest(
+         ActorRef<GetGidsPagedResponse> replyTo,
+         long offset,
+         long length) implements Event {
    }
 
-   public record FetchGoldenIdsResponse(List<String> goldenIds) implements EventResponse {
+   public record GetGidsPagedResponse(List<String> goldenIds) implements EventResponse {
    }
 
-   public record GoldenRecordAuditTrailRequest(
-         ActorRef<GoldenRecordAuditTrailResponse> replyTo,
+   public record GetGoldenRecordAuditTrailRequest(
+         ActorRef<GetGoldenRecordAuditTrailResponse> replyTo,
          String uid) implements Event {
    }
 
-   public record GoldenRecordAuditTrailResponse(List<AuditEvent> auditTrail) {
+   public record GetGoldenRecordAuditTrailResponse(List<AuditEvent> auditTrail) {
    }
 
-   public record InteractionAuditTrailRequest(
-         ActorRef<InteractionAuditTrailResponse> replyTo,
+   public record GetInteractionAuditTrailRequest(
+         ActorRef<GetInteractionAuditTrailResponse> replyTo,
          String uid) implements Event {
    }
 
-   public record InteractionAuditTrailResponse(List<AuditEvent> auditTrail) {
+   public record GetInteractionAuditTrailResponse(List<AuditEvent> auditTrail) {
    }
 
 
-   public record GetGoldenIdsRequest(ActorRef<GetGoldenIdsResponse> replyTo) implements Event {
+   public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event {
    }
 
-   public record GetGoldenIdsResponse(List<String> records) implements EventResponse {
+   public record GetGidsAllResponse(List<String> records) implements EventResponse {
    }
 
-   public record FindExpandedGoldenRecordRequest(
-         ActorRef<FindExpandedGoldenRecordResponse> replyTo,
+   public record GetExpandedGoldenRecordRequest(
+         ActorRef<GetExpandedGoldenRecordResponse> replyTo,
          String goldenId)
          implements Event {
    }
 
-   public record FindExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {
+   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {
    }
 
-   public record FindExpandedGoldenRecordsRequest(
-         ActorRef<FindExpandedGoldenRecordsResponse> replyTo,
+   public record GetExpandedGoldenRecordsRequest(
+         ActorRef<GetExpandedGoldenRecordsResponse> replyTo,
          List<String> goldenIds) implements Event {
    }
 
-   public record FindExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords)
+   public record GetExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords)
          implements EventResponse {
    }
 
-   public record FindExpandedPatientRecordsRequest(
-         ActorRef<FindExpandedPatientRecordsResponse> replyTo,
+   public record GetExpandedInteractionsRequest(
+         ActorRef<GetExpandedInteractionsResponse> replyTo,
          List<String> patientIds) implements Event {
    }
 
-   public record FindExpandedPatientRecordsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords)
+   public record GetExpandedInteractionsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords)
          implements EventResponse {
    }
 
-   public record FindInteractionRequest(
-         ActorRef<FindInteractionResponse> replyTo,
-         String patientId) implements Event {
+   public record GetInteractionRequest(
+         ActorRef<GetInteractionResponse> replyTo,
+         String iid) implements Event {
    }
 
-   public record FindInteractionResponse(Either<MpiGeneralError, Interaction> patient)
+   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient)
          implements EventResponse {
    }
 
-   public record FindMatchesForReviewRequest(
-         ActorRef<FindMatchesForReviewResponse> replyTo,
+   public record GetNotificationsRequest(
+         ActorRef<GetNotificationsResponse> replyTo,
          int limit,
          int offset,
          LocalDate date,
          String state) implements Event {
    }
 
-   public record FindMatchesForReviewResponse(
+   public record GetNotificationsResponse(
          int count,
          int skippedRecords,
          List<HashMap<String, Object>> records) implements EventResponse {
    }
 
-   public record UpdateGoldenRecordFieldsRequest(
-         ActorRef<UpdateGoldenRecordFieldsResponse> replyTo,
+   public record PatchGoldenRecordRequest(
+         ActorRef<PatchGoldenRecordResponse> replyTo,
          String goldenId,
          List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
    }
 
-   public record UpdateGoldenRecordFieldsResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
+   public record PatchGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
    }
 
-   public record UpdateLinkToExistingGoldenRecordRequest(
-         ActorRef<UpdateLinkToExistingGoldenRecordResponse> replyTo,
+   public record PatchIidGidLinkRequest(
+         ActorRef<PatchIidGidLinkResponse> replyTo,
          String currentGoldenId,
          String newGoldenId,
          String patientId,
          Float score) implements Event {
    }
 
-   public record UpdateLinkToExistingGoldenRecordResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
+   public record PatchIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
-   public record UpdateLinkToNewGoldenRecordRequest(
-         ActorRef<UpdateLinkToNewGoldenRecordResponse> replyTo,
+   public record PatchIidNewGidLinkRequest(
+         ActorRef<PatchIidNewGidLinkResponse> replyTo,
          String currentGoldenId,
          String patientId,
          float score) implements Event {
    }
 
-   public record UpdateLinkToNewGoldenRecordResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
+   public record PatchIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
          implements EventResponse {
    }
 
-   public record FindCandidatesRequest(
-         ActorRef<FindCandidatesResponse> replyTo,
-         String patientId,
-         CustomMU mu) implements Event {
-   }
-
-   public record FindCandidatesResponse(Either<MpiGeneralError, List<Candidate>> candidates) implements EventResponse {
-      public record Candidate(
-            GoldenRecord goldenRecord,
-            float score) {
-      }
-   }
-
-   public record UpdateNotificationStateRequest(
-         ActorRef<UpdateNotificationStateRespnse> replyTo,
+   public record PostUpdateNotificationRequest(
+         ActorRef<PostUpdateNotificationResponse> replyTo,
          String notificationId,
          String state) implements Event {
    }
 
-   public record UpdateNotificationStateRespnse() implements EventResponse {
+   public record PostUpdateNotificationResponse() implements EventResponse {
    }
 
    /**
     * Search events
     */
-   public record SimpleSearchGoldenRecordsRequest(
-         ActorRef<SearchGoldenRecordsResponse> replyTo,
+   public record PostSimpleSearchGoldenRecordsRequest(
+         ActorRef<PostSearchGoldenRecordsResponse> replyTo,
          SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record CustomSearchGoldenRecordsRequest(
-         ActorRef<SearchGoldenRecordsResponse> replyTo,
+   public record PostCustomSearchGoldenRecordsRequest(
+         ActorRef<PostSearchGoldenRecordsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
-   public record SearchGoldenRecordsResponse(
+   public record PostSearchGoldenRecordsResponse(
          LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {
    }
 
-   public record SimpleSearchInteractionsRequest(
-         ActorRef<SearchInteractionsResponse> replyTo,
+   public record PostSimpleSearchInteractionsRequest(
+         ActorRef<PostSearchInteractionsResponse> replyTo,
          SimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record CustomSearchInteractionsRequest(
-         ActorRef<SearchInteractionsResponse> replyTo,
+   public record PostCustomSearchInteractionsRequest(
+         ActorRef<PostSearchInteractionsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
-   public record SearchInteractionsResponse(
+   public record PostSearchInteractionsResponse(
          LibMPIPaginatedResultSet<Interaction> records) implements EventResponse {
    }
 
-   public record UploadCsvFileRequest(
-         ActorRef<UploadCsvFileResponse> replyTo,
+   public record PostUploadCsvFileRequest(
+         ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
          File file)
          implements Event {
    }
 
-   public record UploadCsvFileResponse() implements EventResponse {
+   public record PostUploadCsvFileResponse() implements EventResponse {
    }
 
 }

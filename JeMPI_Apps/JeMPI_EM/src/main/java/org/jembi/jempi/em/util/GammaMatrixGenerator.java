@@ -6,28 +6,37 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 
-public class GammaMatrixGenerator {
-    private static LibMPI libMPI = null;
-    private final FieldComparator fieldComparator = new FieldComparator();
-    private static final Logger LOGGER = LogManager.getLogger(GammaMatrixGenerator.class);
+import java.util.UUID;
 
-    public GammaMatrixGenerator() {
-        if (libMPI == null) {
-            openMPI(true);
-        }
-        LOGGER.debug(libMPI);
-    }
-    private static void openMPI(final boolean useDGraph) {
-        if (useDGraph) {
-            final var host = AppConfig.DGRAPH_ALPHA_HOSTS;
-            final var port = AppConfig.DGRAPH_ALPHA_PORTS;
-            libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL, host, port);
-        } else {
-            libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
-                    "postgres",
-                    null);
-        }
-    }
+public class GammaMatrixGenerator {
+   private static final Logger LOGGER = LogManager.getLogger(GammaMatrixGenerator.class);
+   private static LibMPI libMPI = null;
+   private final FieldComparator fieldComparator = new FieldComparator();
+
+   public GammaMatrixGenerator() {
+      if (libMPI == null) {
+         openMPI(true);
+      }
+      LOGGER.debug(libMPI);
+   }
+
+   private static void openMPI(final boolean useDGraph) {
+      if (useDGraph) {
+         final var host = AppConfig.DGRAPH_ALPHA_HOSTS;
+         final var port = AppConfig.DGRAPH_ALPHA_PORTS;
+         libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
+                             host,
+                             port,
+                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                             "CLIENT_ID_EM-" + UUID.randomUUID());
+      } else {
+         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
+                             "postgres",
+                             null,
+                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                             "CLIENT_ID_EM-" + UUID.randomUUID());
+      }
+   }
 
 //    public final List<Interaction> getRandomPatients(final int scale) {
 //

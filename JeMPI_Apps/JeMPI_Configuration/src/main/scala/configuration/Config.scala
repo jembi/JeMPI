@@ -7,12 +7,19 @@ case class UniqueField(fieldName: String,
                        isList: Option[Boolean],
                        default: Option[String])
 
+case class AdditionalNode(nodeName: String,
+                          fields: Array[AdditionalNodeField])
+
+case class AdditionalNodeField(fieldName: String,
+                               fieldType: String,
+                               csvCol: Option[Int])
+
 case class DemographicField(fieldName: String,
                             fieldType: String,
                             csvCol: Option[Int],
                             isList: Option[Boolean],
                             indexGoldenRecord: Option[String],
-                            indexEntity: Option[String],
+                            indexInteraction: Option[String],
                             comparison: Option[String],
                             comparisonLevels: Option[List[Double]],
                             m: Option[Double],
@@ -26,7 +33,6 @@ case class Rules(deterministic: Map[String, Rule],
 
 case class Config(uniqueInteractionFields: Option[Array[UniqueField]],
                   uniqueGoldenRecordFields: Option[Array[UniqueField]],
+                  additionalNodes: Option[Array[AdditionalNode]],
                   demographicFields: Array[DemographicField],
                   rules: Rules)
-
-
