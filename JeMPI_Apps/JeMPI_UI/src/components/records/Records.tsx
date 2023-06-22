@@ -6,6 +6,7 @@ import {
   Divider,
   Link,
   Paper,
+  TextField,
   Typography
 } from '@mui/material'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
@@ -22,6 +23,17 @@ import ApiClient from 'services/ApiClient'
 import { useNavigate } from '@tanstack/react-location'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
+import { DesktopDatePicker } from '@mui/x-date-pickers'
+
+const getAlignment = (fieldName: string) =>
+  fieldName === 'givenName' ||
+  fieldName === 'familyName' ||
+  fieldName === 'city' ||
+  fieldName === 'gender'
+    ? 'left'
+    : fieldName === 'dob'
+    ? 'right'
+    : 'center'
 
 const Records = () => {
   const navigate = useNavigate()
@@ -29,8 +41,10 @@ const Records = () => {
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 25
+    pageSize: 100
   })
+  // const [goldenIdsPageSize, setGoldenIdsPageSize] = useState(1000)
+
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue }) => {
       return {
@@ -41,24 +55,8 @@ const Records = () => {
           formatValue(value),
         sortable: false,
         disableColumnMenu: true,
-        align:
-          fieldName === 'givenName' ||
-          fieldName === 'familyName' ||
-          fieldName === 'city' ||
-          fieldName === 'gender'
-            ? 'left'
-            : fieldName === 'dob'
-            ? 'right'
-            : 'center',
-        headerAlign:
-          fieldName === 'givenName' ||
-          fieldName === 'familyName' ||
-          fieldName === 'city' ||
-          fieldName === 'gender'
-            ? 'left'
-            : fieldName === 'dob'
-            ? 'right'
-            : 'center',
+        align: getAlignment(fieldName),
+        headerAlign: getAlignment(fieldName),
         filterable: false,
         headerClassName: 'super-app-theme--header',
         renderCell: (params: GridRenderCellParams) => {
@@ -78,23 +76,27 @@ const Records = () => {
   )
 
   const goldenIdsQuery = useQuery<any, AxiosError>({
-    queryKey: ['golden-records-ids', { ...paginationModel }],
+    queryKey: [
+      'golden-records-ids',
+      paginationModel.page,
+      paginationModel.pageSize
+    ],
     queryFn: async () =>
       await ApiClient.getGoldenIds(
         paginationModel.page * paginationModel.pageSize,
         paginationModel.pageSize
       ),
-    enabled: true,
     refetchOnWindowFocus: false
   })
 
   const expandeGoldenRecordsQuery = useQuery<any, AxiosError>({
-    queryKey: ['expanded-golden-records', { ...paginationModel }],
+    queryKey: [
+      'expanded-golden-records',
+      paginationModel.page,
+      paginationModel.pageSize
+    ],
     queryFn: async () =>
-      await ApiClient.getExpandedGoldenRecords(
-        goldenIdsQuery?.data.goldenIds,
-        false
-      ),
+      await ApiClient.getExpandedGoldenRecords(goldenIdsQuery?.data, false),
     enabled: !!goldenIdsQuery.data,
     refetchOnWindowFocus: false
   })
@@ -128,7 +130,16 @@ const Records = () => {
         >
           <Typography variant="h6">Filter by</Typography>
         </AccordionSummary>
-        <AccordionDetails></AccordionDetails>
+        <AccordionDetails>
+          {/* <TextField
+            title="Limit"
+            helperText="how many records you want to fetch ?"
+            value={goldenIdsPageSize}
+            onChange={e => setGoldenIdsPageSize(parseInt(e.target.value))}
+            type="number"
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          /> */}
+        </AccordionDetails>
       </Accordion>
       <Accordion>
         <AccordionSummary
@@ -170,14 +181,15 @@ const Records = () => {
           columns={columns}
           rows={expandeGoldenRecordsQuery?.data || []}
           pageSizeOptions={[25, 50, 100]}
+          paginationModel={paginationModel}
           onRowDoubleClick={params =>
             navigate({ to: `/record-details/${params.row.uid}` })
           }
           getRowClassName={params => `${getClassName(params.row)}`}
-          onPaginationModelChange={setPaginationModel}
+          onPaginationModelChange={model => setPaginationModel(model)}
           paginationMode="server"
           loading={expandeGoldenRecordsQuery.isLoading}
-          rowCount={goldenIdsQuery?.data?.pagination?.total}
+          rowCount={10000}
         />
       </Paper>
     </Container>

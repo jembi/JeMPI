@@ -248,12 +248,6 @@ class ApiClient {
     })
   }
 
-  async getGoldenIdCount() {
-    return await client
-      .get<{ count: number }>('count-golden-records')
-      .then(res => res.data.count)
-  }
-
   async getGoldenIds(offset: number, length: number) {
     return await client
       .get<{ goldenIds: string[] }>('gids-paged', {
@@ -262,13 +256,7 @@ class ApiClient {
           length
         }
       })
-      .then(async res => {
-        const total = await this.getGoldenIdCount()
-        return {
-          goldenIds: res.data.goldenIds,
-          pagination: { offset, length, total }
-        }
-      })
+      .then(async res => res.data.goldenIds)
   }
 
   async getExpandedGoldenRecords(
