@@ -47,7 +47,7 @@ const NavigationBar = () => {
       </Toolbar>
       <Box
         sx={{
-          background: colorGradient,
+          background: '#274263',
           height: 12
         }}
       />

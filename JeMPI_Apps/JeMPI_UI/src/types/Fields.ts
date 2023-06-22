@@ -35,7 +35,7 @@ export interface FieldChangeReq {
 }
 
 export interface DisplayField extends Field {
-  formatValue: (v: ValueOf<AnyRecord>) => string | undefined
+  formatValue: (v: ValueOf<AnyRecord>) => string | number | undefined
   isValid: (value: ValueOf<AnyRecord>) => boolean
 }
 

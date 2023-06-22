@@ -41,6 +41,7 @@ const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
   {
     field: 'inserted_at',
     headerName: 'InsertedAt',
+    valueFormatter: ({ value }) => formatDate(value),
     sortable: false,
     disableColumnMenu: true,
     headerClassName: 'super-app-theme--header'
@@ -75,7 +76,7 @@ const RecordDetails = () => {
     data: { uid }
   } = useMatch()
   const { enqueueSnackbar } = useSnackbar()
-  const { availableFields, getPatientName } = useAppConfig()
+  const { availableFields } = useAppConfig()
   const [isEditMode, setIsEditMode] = useState(false)
   const [updatedFields, setUpdatedFields] = useState<UpdatedFields>({})
   const [patientRecord, setPatientRecord] = useState<
@@ -112,6 +113,7 @@ const RecordDetails = () => {
       const recordId = uid as string
       return await ApiClient.getExpandedGoldenRecords([recordId], true)
     },
+    onSuccess: data => setPatientRecord(data[0]),
     refetchOnWindowFocus: false
   })
 
@@ -191,9 +193,6 @@ const RecordDetails = () => {
     setIsModalVisible(true)
   }
 
-  console.log(updatedFields)
-  console.log(patientRecord)
-
   const onConfirm = () => {
     if (patientRecord) {
       const fields = Object.keys(patientRecord).reduce(
@@ -246,11 +245,10 @@ const RecordDetails = () => {
     >
       <PageHeader
         breadcrumbs={[
-          { icon: <Search />, title: 'Search', link: '/' },
-          { icon: <Person2Outlined />, title: 'Patient details' }
+          { icon: <Search />, title: 'Search', link: '/' }
+          // { icon: <Person2Outlined />, title: 'Patient details' }
         ]}
-        title={getPatientName(data[0])}
-        description={`Details for record ${uid}`}
+        title={`Patient interactions for GID ${uid}`}
       />
       <Divider />
       <ConfirmationModal

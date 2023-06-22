@@ -204,7 +204,7 @@
     {
       "fieldName": "score",
       "fieldType": "Number",
-      "fieldLabel": "Match",
+      "fieldLabel": "Score",
       "groups": [
         "none"
       ],

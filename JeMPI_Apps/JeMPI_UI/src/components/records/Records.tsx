@@ -2,8 +2,8 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Container,
+  Divider,
   Link,
   Paper,
   Typography
@@ -21,6 +21,7 @@ import { AxiosError } from 'axios'
 import ApiClient from 'services/ApiClient'
 import { useNavigate } from '@tanstack/react-location'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import PageHeader from 'components/shell/PageHeader'
 
 const Records = () => {
   const navigate = useNavigate()
@@ -40,9 +41,26 @@ const Records = () => {
           formatValue(value),
         sortable: false,
         disableColumnMenu: true,
-        align: 'center',
-        headerAlign: 'center',
+        align:
+          fieldName === 'givenName' ||
+          fieldName === 'familyName' ||
+          fieldName === 'city' ||
+          fieldName === 'gender'
+            ? 'left'
+            : fieldName === 'dob'
+            ? 'right'
+            : 'center',
+        headerAlign:
+          fieldName === 'givenName' ||
+          fieldName === 'familyName' ||
+          fieldName === 'city' ||
+          fieldName === 'gender'
+            ? 'left'
+            : fieldName === 'dob'
+            ? 'right'
+            : 'center',
         filterable: false,
+        headerClassName: 'super-app-theme--header',
         renderCell: (params: GridRenderCellParams) => {
           if (fieldName === 'uid') {
             return (
@@ -100,6 +118,8 @@ const Records = () => {
       maxWidth={false}
       sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
     >
+      <PageHeader title={`Browse Patients`} />
+      <Divider />
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -140,6 +160,10 @@ const Records = () => {
             },
             '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
               outline: 'none'
+            },
+            '& .super-app-theme--header': {
+              backgroundColor: '#274263',
+              color: 'white'
             }
           }}
           getRowId={({ uid }) => uid}

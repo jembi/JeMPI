@@ -1,5 +1,5 @@
 import { People } from '@mui/icons-material'
-import { Container, Divider } from '@mui/material'
+import { Box, Container, Divider, Paper } from '@mui/material'
 import {
   DataGrid,
   GridColDef,
@@ -13,7 +13,7 @@ import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import { formatDate, formatName } from 'utils/formatters'
+import { formatDate, formatName, formatNumber } from 'utils/formatters'
 import ApiClient from '../../services/ApiClient'
 import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
@@ -22,13 +22,14 @@ import NotificationState from './NotificationState'
 import React from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
+import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 const columns: GridColDef[] = [
   {
     field: 'state',
     headerName: 'Status',
-    width: 100,
-    minWidth: 80,
+    minWidth: 150,
     align: 'center',
     headerAlign: 'center',
     renderCell: (params: GridRenderCellParams) => {
@@ -36,80 +37,96 @@ const columns: GridColDef[] = [
     }
   },
   {
-    field: 'type',
-    headerName: 'Notification Type',
-    minWidth: 150
-  },
-  {
-    field: 'reason',
-    headerName: 'Notification Reason',
-    minWidth: 150,
-    flex: 2
-  },
-  {
-    field: 'names',
-    headerName: 'Patient',
-    minWidth: 150,
-    flex: 2,
-    valueFormatter: (params: GridValueFormatterParams<string>) =>
-      formatName(params.value)
-  },
-  {
-    field: 'score',
-    headerName: 'Score',
-    type: 'number',
-    width: 100,
-    minWidth: 80,
-    align: 'center',
-    headerAlign: 'center',
-    valueGetter: (params: GridValueGetterParams) => params.row.score
-  },
-  {
     field: 'created',
     headerName: 'Date',
     type: 'date',
-    minWidth: 110,
-    flex: 1,
+    minWidth: 150,
+
     align: 'center',
     headerAlign: 'center',
     valueFormatter: (params: GridValueFormatterParams<Date>) =>
       formatDate(params.value)
   },
+  // {
+  //   field: '',
+  //   headerName: 'Notification Type',
+  //   minWidth: 150
+  // },
   {
-    field: 'actions',
-    headerName: 'Actions',
-    maxWidth: 150,
-    flex: 1,
+    field: 'patient_id',
+    headerName: 'Interaction ID',
+    type: 'number',
+    minWidth: 150,
+    align: 'center',
+    headerAlign: 'center'
+  },
+  {
+    field: 'golden_id',
+    headerName: 'Golden ID',
+    type: 'number',
+    minWidth: 150,
+    align: 'center',
+    headerAlign: 'center'
+  },
+  {
+    field: 'score',
+    headerName: 'Score',
+    type: 'number',
+    minWidth: 150,
     align: 'center',
     headerAlign: 'center',
-    sortable: false,
-    filterable: false,
-    valueGetter: (params: GridValueGetterParams) => ({
-      id: params.row.id,
-      patient: params.row.patient
-    }),
-    renderCell: (params: GridRenderCellParams<Notification>) => {
-      const { patient_id, candidates, score, id, golden_id, status } =
-        params.row
-      return (
-        <LocationLink
-          to={`/notifications/match-details`}
-          search={{
-            payload: {
-              notificationId: id,
-              patient_id,
-              golden_id,
-              score,
-              candidates
-            }
-          }}
-          style={{ textDecoration: 'none' }}
-        >
-          {status !== 'Actioned' ? 'VIEW' : null}
-        </LocationLink>
-      )
-    }
+    valueGetter: (params: GridValueGetterParams) => params.row.score,
+    valueFormatter: params => formatNumber(params.value)
+  },
+  {
+    field: 'type',
+    headerName: 'Notification Reason',
+    minWidth: 150,
+    align: 'center'
+  },
+  {
+    field: 'names',
+    headerName: 'Patient',
+    minWidth: 150,
+    valueFormatter: (params: GridValueFormatterParams<string>) =>
+      formatName(params.value)
   }
+
+  // {
+  //   field: 'actions',
+  //   headerName: 'Actions',
+  //   maxWidth: 150,
+  //   flex: 1,
+  //   align: 'center',
+  //   headerAlign: 'center',
+  //   sortable: false,
+  //   filterable: false,
+  //   valueGetter: (params: GridValueGetterParams) => ({
+  //     id: params.row.id,
+  //     patient: params.row.patient
+  //   }),
+  //   renderCell: (params: GridRenderCellParams<Notification>) => {
+  //     const { patient_id, candidates, score, id, golden_id, status } =
+  //       params.row
+  //     return (
+  //       <LocationLink
+  //         to={`/notifications/match-details`}
+  //         search={{
+  //           payload: {
+  //             notificationId: id,
+  //             patient_id,
+  //             golden_id,
+  //             score,
+  //             candidates
+  //           }
+  //         }}
+  //         style={{ textDecoration: 'none' }}
+  //       >
+  //         {status !== 'Actioned' ? 'VIEW' : null}
+  //       </LocationLink>
+  //     )
+  //   }
+  // }
 ]
 
 const NotificationWorklist = () => {
@@ -123,7 +140,7 @@ const NotificationWorklist = () => {
   >({
     queryKey: ['notifications', date.format('YYYY-MM-DD')],
     queryFn: () =>
-      ApiClient.getMatches('500', '0', date.format('YYYY-MM-DD'), 'New'),
+      ApiClient.getMatches('10', '0', date.format('YYYY-MM-DD'), 'New'),
     refetchOnWindowFocus: false
   })
   console.log('********************************* : {}', date)
@@ -149,7 +166,6 @@ const NotificationWorklist = () => {
     <Container maxWidth={false}>
       <PageHeader
         title={'Notification Worklist'}
-        description="View the list of possible matches."
         breadcrumbs={[
           {
             link: '/review-matches/',
@@ -159,18 +175,37 @@ const NotificationWorklist = () => {
         ]}
       />
       <Divider />
-      <DataGrid
-        columns={columns}
-        components={{
-          Toolbar: () => (
-            <DataGridToolbar onChange={changeSelectedDate} value={date} />
-          )
+      <Paper
+        sx={{
+          p: 1,
+          mt: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px'
         }}
-        rows={data as Notification[]}
-        pageSizeOptions={[5, 10, 20]}
-        sx={{ mt: 4 }}
-        autoHeight={true}
-      />
+      >
+        <Box p={1}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              value={date}
+              format="YYYY/MM/DD"
+              onChange={value => changeSelectedDate(value)}
+              slotProps={{
+                textField: {
+                  variant: 'outlined',
+                  label: 'We are looking to name this'
+                }
+              }}
+            />
+          </LocalizationProvider>
+        </Box>
+        <DataGrid
+          sx={{ height: '500px' }}
+          columns={columns}
+          rows={data as Notification[]}
+          pageSizeOptions={[10, 25, 50]}
+        />
+      </Paper>
     </Container>
   )
 }

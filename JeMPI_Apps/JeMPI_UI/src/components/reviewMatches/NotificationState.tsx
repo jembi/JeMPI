@@ -16,7 +16,16 @@ const NotificationState: FC<{ value: string }> = ({ value }) => {
         return 'default'
     }
   }, [value])
-  return <Typography color={statusColor}>{value}</Typography>
+  return (
+    <Typography
+      lineHeight={'1.43'}
+      fontWeight={400}
+      fontSize={'0.875rem'}
+      color={statusColor}
+    >
+      {value}
+    </Typography>
+  )
 }
 
 export default NotificationState

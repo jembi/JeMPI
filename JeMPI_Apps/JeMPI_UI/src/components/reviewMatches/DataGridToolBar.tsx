@@ -21,22 +21,9 @@ const DataGridToolbar: FC<{
   }
   return (
     <GridToolbarContainer
-      sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'baseLine' }}
+      sx={{ p: 2, display: 'flex', gap: 5, alignItems: 'baseLine' }}
     >
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DesktopDatePicker
-          value={value}
-          format="YYYY-MM-DD"
-          onChange={value => onChange(value)}
-          slotProps={{
-            textField: {
-              variant: 'standard',
-              size: 'small'
-            }
-          }}
-        />
-      </LocalizationProvider>
-      <FormControl sx={{ minWidth: 200 }}>
+      {/* <FormControl sx={{ minWidth: 200 }}>
         <InputLabel>Notification Type</InputLabel>
         <Select
           renderValue={selected => selected as string}
@@ -48,18 +35,7 @@ const DataGridToolbar: FC<{
           <MenuItem value="type2">Type 2</MenuItem>
           <MenuItem value="type3">Type 3</MenuItem>
         </Select>
-      </FormControl>
-
-      <GridToolbarQuickFilter
-        placeholder="Type to filter results"
-        quickFilterParser={searchInput =>
-          searchInput.split(',').map(value => value.trim())
-        }
-        quickFilterFormatter={quickFilterValues =>
-          quickFilterValues ? quickFilterValues.join(', ') : ''
-        }
-        debounceMs={200}
-      />
+      </FormControl> */}
     </GridToolbarContainer>
   )
 }
