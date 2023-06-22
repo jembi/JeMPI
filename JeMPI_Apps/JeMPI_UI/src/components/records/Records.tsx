@@ -9,7 +9,12 @@ import {
   TextField,
   Typography
 } from '@mui/material'
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColDef,
+  GridPaginationModel,
+  GridRenderCellParams
+} from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
 import { AnyRecord, PatientRecord, ValueOf } from 'types/PatientRecord'
@@ -23,7 +28,6 @@ import ApiClient from 'services/ApiClient'
 import { useNavigate } from '@tanstack/react-location'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
-import { DesktopDatePicker } from '@mui/x-date-pickers'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -43,7 +47,12 @@ const Records = () => {
     page: 0,
     pageSize: 100
   })
-  // const [goldenIdsPageSize, setGoldenIdsPageSize] = useState(1000)
+  const [goldenIdsPagination, setGoldenIdsPagination] = useState({
+    offset: 0,
+    limit: 1000
+  })
+
+  const [goldenIds, setGoldenIds] = useState<Array<string>>([])
 
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue }) => {
@@ -76,16 +85,19 @@ const Records = () => {
   )
 
   const goldenIdsQuery = useQuery<any, AxiosError>({
-    queryKey: [
-      'golden-records-ids',
-      paginationModel.page,
-      paginationModel.pageSize
-    ],
+    queryKey: ['golden-records-ids', goldenIdsPagination.offset],
     queryFn: async () =>
       await ApiClient.getGoldenIds(
-        paginationModel.page * paginationModel.pageSize,
-        paginationModel.pageSize
+        goldenIdsPagination.offset,
+        goldenIdsPagination.limit
       ),
+    onSuccess: data => {
+      if (goldenIds.length === 0 || goldenIdsPagination.offset === 0) {
+        setGoldenIds([...data])
+      } else if (goldenIdsPagination.offset > 0) {
+        setGoldenIds([...goldenIds, ...data])
+      }
+    },
     refetchOnWindowFocus: false
   })
 
@@ -96,8 +108,15 @@ const Records = () => {
       paginationModel.pageSize
     ],
     queryFn: async () =>
-      await ApiClient.getExpandedGoldenRecords(goldenIdsQuery?.data, false),
-    enabled: !!goldenIdsQuery.data,
+      await ApiClient.getExpandedGoldenRecords(
+        goldenIds?.slice(
+          paginationModel.page * paginationModel.pageSize,
+          paginationModel.page * paginationModel.pageSize +
+            paginationModel.pageSize
+        ),
+        false
+      ),
+    enabled: goldenIds.length != 0,
     refetchOnWindowFocus: false
   })
 
@@ -107,6 +126,37 @@ const Records = () => {
 
   const onSearch = (query: SearchParameter[]) => {
     setSearchQuery(query)
+  }
+
+  const handlePagination = (model: GridPaginationModel) => {
+    setPaginationModel(model)
+    if (
+      goldenIdsPagination.offset === 0 &&
+      paginationModel.pageSize * paginationModel.page +
+        paginationModel.pageSize >=
+        goldenIdsPagination.limit - paginationModel.pageSize
+    ) {
+      setGoldenIds([...goldenIds, goldenIdsQuery.data])
+      setGoldenIdsPagination({
+        ...goldenIdsPagination,
+        offset:
+          goldenIdsPagination.offset +
+          (goldenIdsPagination.limit - paginationModel.pageSize)
+      })
+    }
+    if (
+      goldenIdsPagination.offset !== 0 &&
+      paginationModel.pageSize * paginationModel.page +
+        paginationModel.pageSize <
+        goldenIdsPagination.limit - paginationModel.pageSize
+    ) {
+      setGoldenIdsPagination({
+        ...goldenIdsPagination,
+        offset:
+          goldenIdsPagination.offset -
+          (goldenIdsPagination.limit - paginationModel.pageSize)
+      })
+    }
   }
 
   const getClassName = (patient: PatientRecord) => {
@@ -131,14 +181,19 @@ const Records = () => {
           <Typography variant="h6">Filter by</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          {/* <TextField
+          <TextField
             title="Limit"
             helperText="how many records you want to fetch ?"
-            value={goldenIdsPageSize}
-            onChange={e => setGoldenIdsPageSize(parseInt(e.target.value))}
+            value={goldenIdsPagination}
+            onChange={e =>
+              setGoldenIdsPagination({
+                ...goldenIdsPagination,
+                limit: parseInt(e.target.value)
+              })
+            }
             type="number"
             inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-          /> */}
+          />
         </AccordionDetails>
       </Accordion>
       <Accordion>
@@ -181,15 +236,14 @@ const Records = () => {
           columns={columns}
           rows={expandeGoldenRecordsQuery?.data || []}
           pageSizeOptions={[25, 50, 100]}
-          paginationModel={paginationModel}
           onRowDoubleClick={params =>
             navigate({ to: `/record-details/${params.row.uid}` })
           }
           getRowClassName={params => `${getClassName(params.row)}`}
-          onPaginationModelChange={model => setPaginationModel(model)}
+          onPaginationModelChange={model => handlePagination(model)}
           paginationMode="server"
           loading={expandeGoldenRecordsQuery.isLoading}
-          rowCount={10000}
+          rowCount={goldenIds.length}
         />
       </Paper>
     </Container>
