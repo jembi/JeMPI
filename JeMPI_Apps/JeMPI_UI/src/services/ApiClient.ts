@@ -91,9 +91,9 @@ class ApiClient {
       .then(res => res.data)
   }
 
-  async getPatientRecord(uid: string) {
+  async getInteraction(uid: string) {
     return await client
-      .get<PR>(`${ROUTES.PATIENT_RECORD_ROUTE}/${uid}`)
+      .get<PR>(`${ROUTES.INTERACTION}/${uid}`)
       .then(res => res.data)
       .then((patientRecord: Partial<PatientRecord>) => {
         return {
@@ -126,7 +126,7 @@ class ApiClient {
   async getGoldenRecords(uid: string[]) {
     const uids = uid?.map(u => '0x' + parseInt(u).toString(16))
     return await client
-      .get<GoldenRecordResponse>(ROUTES.GET_GOLDEN_ID_DOCUMENTS, {
+      .get<GoldenRecordResponse>(ROUTES.EXPANDED_GOLDEN_RECORDS, {
         params: {
           uid: uids
         },
@@ -150,9 +150,9 @@ class ApiClient {
     if (uid === null || uid === '' || typeof uid === 'undefined') {
       return [] as AnyRecord[]
     }
-    const patientRecord = this.getPatientRecord(uid)
-    const goldenRecord = this.getGoldenRecords([goldenId])
-    const candidateRecords = this.getGoldenRecords(candidates)
+    const patientRecord = this.getInteraction(uid)
+    const goldenRecord = this.getExpandedGoldenRecords([goldenId], false)
+    const candidateRecords = this.getExpandedGoldenRecords(candidates, false)
     return (await axios
       .all<any>([patientRecord, goldenRecord, candidateRecords])
       .then(response => {

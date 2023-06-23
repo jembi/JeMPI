@@ -3,10 +3,12 @@ import { Box, Container, Divider, Paper } from '@mui/material'
 import {
   DataGrid,
   GridColDef,
+  GridFilterItem,
   GridFilterModel,
   GridRenderCellParams,
   GridValueFormatterParams,
-  GridValueGetterParams
+  GridValueGetterParams,
+  useGridApiRef
 } from '@mui/x-data-grid'
 import { Link as LocationLink } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
@@ -20,7 +22,7 @@ import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
@@ -97,43 +99,42 @@ const columns: GridColDef[] = [
     valueFormatter: (params: GridValueFormatterParams<string>) =>
       formatName(params.value),
     filterable: false
+  },
+  {
+    field: 'actions',
+    headerName: 'Actions',
+    maxWidth: 150,
+    flex: 1,
+    align: 'center',
+    headerAlign: 'center',
+    sortable: false,
+    filterable: false,
+    valueGetter: (params: GridValueGetterParams) => ({
+      id: params.row.id,
+      patient: params.row.patient
+    }),
+    renderCell: (params: GridRenderCellParams<Notification>) => {
+      const { patient_id, candidates, score, id, golden_id, status } =
+        params.row
+      return (
+        <LocationLink
+          to={`/notifications/match-details`}
+          search={{
+            payload: {
+              notificationId: id,
+              patient_id,
+              golden_id,
+              score,
+              candidates
+            }
+          }}
+          style={{ textDecoration: 'none' }}
+        >
+          {status !== 'Actioned' ? 'VIEW' : null}
+        </LocationLink>
+      )
+    }
   }
-
-  // {
-  //   field: 'actions',
-  //   headerName: 'Actions',
-  //   maxWidth: 150,
-  //   flex: 1,
-  //   align: 'center',
-  //   headerAlign: 'center',
-  //   sortable: false,
-  //   filterable: false,
-  //   valueGetter: (params: GridValueGetterParams) => ({
-  //     id: params.row.id,
-  //     patient: params.row.patient
-  //   }),
-  //   renderCell: (params: GridRenderCellParams<Notification>) => {
-  //     const { patient_id, candidates, score, id, golden_id, status } =
-  //       params.row
-  //     return (
-  //       <LocationLink
-  //         to={`/notifications/match-details`}
-  //         search={{
-  //           payload: {
-  //             notificationId: id,
-  //             patient_id,
-  //             golden_id,
-  //             score,
-  //             candidates
-  //           }
-  //         }}
-  //         style={{ textDecoration: 'none' }}
-  //       >
-  //         {status !== 'Actioned' ? 'VIEW' : null}
-  //       </LocationLink>
-  //     )
-  //   }
-  // }
 ]
 
 const NotificationWorklist = () => {
@@ -145,7 +146,9 @@ const NotificationWorklist = () => {
     page: 0,
     pageSize: 25
   })
-  const [filterModel, setFilterModel] = useState('New')
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({
+    items: [{ field: 'state', value: 'New', operator: 'contains' }]
+  })
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
@@ -162,16 +165,15 @@ const NotificationWorklist = () => {
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
         date.format('YYYY-MM-DD'),
-        filterModel
+        filterModel.items[0].value ? filterModel.items[0].value : ''
       ),
     refetchOnWindowFocus: false
   })
-  const onFilterChange = React.useCallback((filterModel: GridFilterModel) => {
-    console.log(filterModel)
-    //setFilterModel(filterModel.items[0].value || '')
-  }, [
-      filterModel
-  ])
+
+  const onFilterChange = useCallback((filterModel: GridFilterModel) => {
+    setFilterModel({ ...filterModel })
+  }, [])
+
   if (isLoading || isFetching) {
     return <Loading />
   }
@@ -236,7 +238,8 @@ const NotificationWorklist = () => {
           paginationMode="server"
           rowCount={1000000}
           filterMode="server"
-          onFilterModelChange={onFilterChange}
+          filterModel={filterModel}
+          onFilterModelChange={model => onFilterChange(model)}
         />
       </Paper>
     </Container>
