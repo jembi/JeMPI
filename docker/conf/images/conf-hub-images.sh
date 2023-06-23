@@ -7,7 +7,7 @@ export REGISTRY_IMAGE=registry:2
 export KEYCLOAK_IMAGE=bitnami/keycloak:21.1.1
 
 # https://registry.hub.docker.com/r/bitnami/kafka/tags
-export KAFKA_IMAGE=bitnami/kafka:3.4.0
+export KAFKA_IMAGE=bitnami/kafka:3.4.1
 
 # https://registry.hub.docker.com/r/dgraph/dgraph/tags
 export DGRAPH_IMAGE=dgraph/dgraph:v23.0.0
