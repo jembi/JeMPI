@@ -53,7 +53,7 @@ const PatientDetails: FC<PatientDetailsProps> = ({ isGoldenRecord }) => {
       if (isGoldenRecord) {
         return await ApiClient.getGoldenRecord(uid as string)
       } else {
-        return await ApiClient.getPatientRecord(uid as string)
+        return await ApiClient.getInteraction(uid as string)
       }
     },
     refetchOnWindowFocus: false

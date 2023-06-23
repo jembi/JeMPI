@@ -30,7 +30,7 @@ axiosMockAdapterInstance
   .reply(200, currentUser)
   .onGet(ROUTES.GET_NOTIFICATIONS)
   .reply(200, { records: notifications })
-  .onGet(new RegExp(`^${ROUTES.PATIENT_RECORD_ROUTE}/[A-z0-9]+$`))
+  .onGet(new RegExp(`^${ROUTES.EXPANDED_GOLDEN_RECORDS}/[A-z0-9]+$`))
   .reply(config => {
     const id = config.url?.split('/').pop()
     if (patientRecord.uid === id) {

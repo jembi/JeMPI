@@ -2,7 +2,7 @@ const ROUTES = {
   GET_FIELDS_CONFIG: '/config',
   GET_LINKED_RECORDS: '/LinkedRecords',
   GET_NOTIFICATIONS: '/MatchesForReview',
-  PATIENT_RECORD_ROUTE: '/patient-record',
+  INTERACTION: '/interaction',
   GOLDEN_RECORD_ROUTE: '/golden-record',
   GET_GOLDEN_ID_DOCUMENTS: '/GoldenRecord',
   UPDATE_NOTIFICATION: '/NotificationRequest',
