@@ -146,7 +146,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             linkInteraction(req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
       req.replyTo.tell(new AsyncLinkInteractionResponse(listLinkInfo.getLeft()));
       return Behaviors.withTimers(timers -> {
-         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(30));
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
          return Behaviors.same();
       });
    }

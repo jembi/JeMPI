@@ -40,13 +40,13 @@ final class CustomLinkerProbabilistic {
    }
 
    static Fields currentFields =
-      new Fields(new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.782501F, 0.02372F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.850909F, 0.02975F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.786614F, 0.443018F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.894637F, 0.012448F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.872691F, 0.132717F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.920281F, 0.322629F),
-                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.832336F, 1.33E-4F));
+      new Fields(new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.6572374F, 5.061E-4F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.6410375F, 0.0016179F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9268863F, 0.3888039F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.7428104F, 4.52E-5F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8023774F, 0.8023774F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8210417F, 3.55E-5F),
+                 new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8181957F, 3.88E-5F));
 
    public static float probabilisticScore(
          final CustomDemographicData goldenRecord,
