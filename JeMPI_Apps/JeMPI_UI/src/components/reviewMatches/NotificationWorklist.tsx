@@ -3,6 +3,7 @@ import { Box, Container, Divider, Paper } from '@mui/material'
 import {
   DataGrid,
   GridColDef,
+  GridFilterModel,
   GridRenderCellParams,
   GridValueFormatterParams,
   GridValueGetterParams
@@ -19,7 +20,7 @@ import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
-import React from 'react'
+import React, { useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
@@ -45,7 +46,8 @@ const columns: GridColDef[] = [
     align: 'center',
     headerAlign: 'center',
     valueFormatter: (params: GridValueFormatterParams<Date>) =>
-      formatDate(params.value)
+      formatDate(params.value),
+    filterable: false
   },
   // {
   //   field: '',
@@ -58,7 +60,8 @@ const columns: GridColDef[] = [
     type: 'number',
     minWidth: 150,
     align: 'center',
-    headerAlign: 'center'
+    headerAlign: 'center',
+    filterable: false
   },
   {
     field: 'golden_id',
@@ -66,7 +69,8 @@ const columns: GridColDef[] = [
     type: 'number',
     minWidth: 150,
     align: 'center',
-    headerAlign: 'center'
+    headerAlign: 'center',
+    filterable: false
   },
   {
     field: 'score',
@@ -76,20 +80,23 @@ const columns: GridColDef[] = [
     align: 'center',
     headerAlign: 'center',
     valueGetter: (params: GridValueGetterParams) => params.row.score,
-    valueFormatter: params => formatNumber(params.value)
+    valueFormatter: params => formatNumber(params.value),
+    filterable: false
   },
   {
     field: 'type',
     headerName: 'Notification Reason',
     minWidth: 150,
-    align: 'center'
+    align: 'center',
+    filterable: false
   },
   {
     field: 'names',
     headerName: 'Patient',
     minWidth: 150,
     valueFormatter: (params: GridValueFormatterParams<string>) =>
-      formatName(params.value)
+      formatName(params.value),
+    filterable: false
   }
 
   // {
@@ -134,16 +141,34 @@ const NotificationWorklist = () => {
     ...locale
   })
   const [date, setDate] = React.useState(selectedDate)
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 25
+  })
+  const [queryOptions, setQueryOptions] = React.useState({})
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
   >({
-    queryKey: ['notifications', date.format('YYYY-MM-DD')],
+    queryKey: [
+      'notifications',
+      date.format('YYYY-MM-DD'),
+      paginationModel.page,
+      paginationModel.pageSize,
+      queryOptions
+    ],
     queryFn: () =>
-      ApiClient.getMatches('10', '0', date.format('YYYY-MM-DD'), 'New'),
+      ApiClient.getMatches(
+        paginationModel.pageSize,
+        paginationModel.page * paginationModel.pageSize,
+        date.format('YYYY-MM-DD'),
+        'New'
+      ),
     refetchOnWindowFocus: false
   })
-  console.log('********************************* : {}', date)
+  const onFilterChange = React.useCallback((filterModel: GridFilterModel) => {
+    setQueryOptions(filterModel)
+  }, [])
   if (isLoading || isFetching) {
     return <Loading />
   }
@@ -161,7 +186,6 @@ const NotificationWorklist = () => {
       setDate(date)
     }
   }
-  console.log('******************************  {}', date)
   return (
     <Container maxWidth={false}>
       <PageHeader
@@ -204,6 +228,12 @@ const NotificationWorklist = () => {
           columns={columns}
           rows={data as Notification[]}
           pageSizeOptions={[10, 25, 50]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={model => setPaginationModel(model)}
+          paginationMode="server"
+          rowCount={1000000}
+          filterMode="server"
+          onFilterModelChange={onFilterChange}
         />
       </Paper>
     </Container>

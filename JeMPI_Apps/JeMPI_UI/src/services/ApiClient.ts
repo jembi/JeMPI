@@ -65,10 +65,10 @@ class ApiClient {
   }
 
   async getMatches(
-    limit: string,
-    offset: string,
-    created: string,
-    state: string
+      limit: number,
+      offset: number,
+      created: string,
+      state: string
   ) {
     return await client
       .get<NotificationResponse>(
