@@ -32,6 +32,8 @@ interface LinkRequest {
 }
 
 interface NotificationResponse {
+  count: number
+  skippedRecords: number
   records: Notification[]
 }
 
@@ -65,10 +67,10 @@ class ApiClient {
   }
 
   async getMatches(
-      limit: number,
-      offset: number,
-      created: string,
-      state: string
+    limit: number,
+    offset: number,
+    created: string,
+    state: string
   ) {
     return await client
       .get<NotificationResponse>(

@@ -145,7 +145,7 @@ const NotificationWorklist = () => {
     page: 0,
     pageSize: 25
   })
-  const [queryOptions, setQueryOptions] = React.useState({})
+  const [filterModel, setFilterModel] = useState('New')
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
@@ -155,20 +155,23 @@ const NotificationWorklist = () => {
       date.format('YYYY-MM-DD'),
       paginationModel.page,
       paginationModel.pageSize,
-      queryOptions
+      filterModel
     ],
     queryFn: () =>
       ApiClient.getMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
         date.format('YYYY-MM-DD'),
-        'New'
+        filterModel
       ),
     refetchOnWindowFocus: false
   })
   const onFilterChange = React.useCallback((filterModel: GridFilterModel) => {
-    setQueryOptions(filterModel)
-  }, [])
+    console.log(filterModel)
+    //setFilterModel(filterModel.items[0].value || '')
+  }, [
+      filterModel
+  ])
   if (isLoading || isFetching) {
     return <Loading />
   }
