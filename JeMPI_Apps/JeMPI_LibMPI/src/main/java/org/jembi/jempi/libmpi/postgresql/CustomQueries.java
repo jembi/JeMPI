@@ -1,8 +1,7 @@
 package org.jembi.jempi.libmpi.postgresql;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jembi.jempi.shared.models.CustomDemographicData;
-
-import static org.jembi.jempi.libmpi.postgresql.PostgresqlMutations.TABLE_NODE_GOLDEN_RECORDS;
 
 final class CustomQueries {
 
@@ -10,6 +9,8 @@ final class CustomQueries {
    }
 
    static String sqlDeterministicCandidates(final CustomDemographicData customDemographicData) {
+      return StringUtils.EMPTY;
+/*
       return String.format(
             """
             SELECT * FROM %s
@@ -23,9 +24,12 @@ final class CustomQueries {
             customDemographicData.givenName,
             customDemographicData.familyName,
             customDemographicData.phoneNumber).stripIndent();
+*/
    }
 
    static String sqlBlockedCandidates(final CustomDemographicData customDemographicData) {
+      return StringUtils.EMPTY;
+/*
       return String.format(
             """
             SELECT * FROM %s
@@ -44,6 +48,7 @@ final class CustomQueries {
             customDemographicData.city,
             customDemographicData.phoneNumber,
             customDemographicData.phoneNumber).stripIndent();
+*/
    }
 
 }

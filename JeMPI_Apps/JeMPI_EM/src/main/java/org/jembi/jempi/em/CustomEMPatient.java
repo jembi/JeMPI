@@ -1,5 +1,6 @@
 package org.jembi.jempi.em;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 record CustomEMPatient(
@@ -19,8 +20,8 @@ record CustomEMPatient(
            patient.familyName, CustomEMTask.getPhonetic(patient.familyName),
            patient.gender,
            patient.dob,
-           patient.city, CustomEMTask.getPhonetic(patient.city),
-           patient.phoneNumber,
+           StringUtils.EMPTY, StringUtils.EMPTY, // patient.city, CustomEMTask.getPhonetic(patient.city),
+           StringUtils.EMPTY, // patient.phoneNumber,
            null);
    }
 }

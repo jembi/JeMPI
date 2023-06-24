@@ -1,7 +1,6 @@
 package org.jembi.jempi.libmpi.postgresql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
@@ -224,6 +223,8 @@ public final class PostgresqlQueries {
    }
 
    public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
+      return List.of();
+/*
       if (!(StringUtils.isBlank(customDemographicData.phoneNumber)
             && (StringUtils.isBlank(customDemographicData.givenName)
                 || StringUtils.isBlank(customDemographicData.familyName)
@@ -234,6 +235,7 @@ public final class PostgresqlQueries {
          }
       }
       return findCandidatesWorker(CustomQueries.sqlBlockedCandidates(customDemographicData));
+*/
    }
 
    public static NodeGoldenRecord getGoldenRecord(final UUID gid) {
