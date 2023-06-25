@@ -166,6 +166,7 @@
       ],
       "accessLevel": []
     }
+
   ],
   "systemFields": [
     {
@@ -201,20 +202,6 @@
       "accessLevel": []
     },
     {
-      "fieldName": "score",
-      "fieldType": "Number",
-      "fieldLabel": "Score",
-      "groups": [
-        "none"
-      ],
-      "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
-        "/record-details/:uid"
-      ],
-      "accessLevel": []
-    },
-    {
       "fieldName": "createdAt",
       "fieldType": "String",
       "fieldLabel": "Created At",
@@ -241,6 +228,20 @@
         "/record-details/:uid",
         "/golden-record/:uid/linked-records",
         ""
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "score",
+      "fieldType": "Number",
+      "fieldLabel": "Score",
+      "groups": [
+        "none"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid"
       ],
       "accessLevel": []
     }
