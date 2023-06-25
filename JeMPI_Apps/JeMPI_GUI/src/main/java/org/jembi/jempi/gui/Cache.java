@@ -60,8 +60,8 @@ public final class Cache {
                expandedGoldenRecord.goldenRecord().demographicData().familyName,
                expandedGoldenRecord.goldenRecord().demographicData().gender,
                expandedGoldenRecord.goldenRecord().demographicData().dob,
-               expandedGoldenRecord.goldenRecord().demographicData().city,
-               expandedGoldenRecord.goldenRecord().demographicData().phoneNumber,
+//               expandedGoldenRecord.goldenRecord().demographicData().city,
+//               expandedGoldenRecord.goldenRecord().demographicData().phoneNumber,
                expandedGoldenRecord.goldenRecord().demographicData().nationalId,
                null};
       }
@@ -75,8 +75,8 @@ public final class Cache {
                interactionWithScore.interaction().demographicData().familyName,
                interactionWithScore.interaction().demographicData().gender,
                interactionWithScore.interaction().demographicData().dob,
-               interactionWithScore.interaction().demographicData().city,
-               interactionWithScore.interaction().demographicData().phoneNumber,
+//               interactionWithScore.interaction().demographicData().city,
+//               interactionWithScore.interaction().demographicData().phoneNumber,
                interactionWithScore.interaction().demographicData().nationalId,
                Float.toString(interactionWithScore.score())};
       }

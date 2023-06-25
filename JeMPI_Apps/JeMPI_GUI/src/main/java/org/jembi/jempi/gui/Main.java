@@ -34,8 +34,8 @@ public class Main extends JPanel {
                                                      "Family Name",
                                                      "Gender",
                                                      "DOB",
-                                                     "City",
-                                                     "Phone Number",
+//                                                     "City",
+//                                                     "Phone Number",
                                                      "National ID",
                                                      "Score"};
       private int rowIndex = -1;
@@ -140,8 +140,8 @@ public class Main extends JPanel {
          totalWidth += setColWidth("Family Name", charWidth, 15);
          totalWidth += setColWidth("Gender", charWidth, 7);
          totalWidth += setColWidth("DOB", charWidth, 10);
-         totalWidth += setColWidth("City", charWidth, 15);
-         totalWidth += setColWidth("Phone Number", charWidth, 15);
+//         totalWidth += setColWidth("City", charWidth, 15);
+//         totalWidth += setColWidth("Phone Number", charWidth, 15);
          totalWidth += setColWidth("National ID", charWidth, 20);
          totalWidth += setColWidth("Score", charWidth, 10);
          this.setPreferredScrollableViewportSize(new Dimension(totalWidth, 30 * Math.round((metrics.getHeight() * 1.4F))));
@@ -160,7 +160,7 @@ public class Main extends JPanel {
             interactionRenderer = new DefaultTableCellRenderer();
             interactionRenderer.setBackground(new Color(0xfe, 0xf0, 0xde));
          }
-         final var score = getValueAt(row, 10);
+         final var score = getValueAt(row, 8);
          if (score == null) {
             return goldenRecordRenderer;
          } else {
