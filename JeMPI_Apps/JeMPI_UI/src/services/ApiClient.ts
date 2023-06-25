@@ -41,12 +41,15 @@ class ApiClient {
         `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
       )
       .then(res => res.data)
-      .then(({ records }) =>
-        records.map(record => ({
+      .then(({ records, skippedRecords, count }) => ({
+        records: records.map(record => ({
           ...record,
           created: new Date(record.created)
-        }))
-      )
+        })),
+        pagination: {
+          total: count + skippedRecords
+        }
+      }))
   }
 
   // replaced
@@ -243,6 +246,7 @@ class ApiClient {
           const record = {
             ...curr.goldenRecord.demographicData,
             uid: curr.goldenRecord.uid,
+            createdAt: curr.goldenRecord.uniqueGoldenRecordData.auxDateCreated,
             sourceId: curr.goldenRecord.sourceId,
             type: 'Golden'
           }
@@ -258,7 +262,12 @@ class ApiClient {
                 type: 'Current'
               })
             )
-            acc.push(record, ...linkedRecords)
+            acc.push(
+              record,
+              ...linkedRecords.sort(
+                (objA, objB) => Number(objA.createdAt) - Number(objB.createdAt)
+              )
+            )
           } else {
             acc.push(record)
           }

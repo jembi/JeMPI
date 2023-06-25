@@ -108,7 +108,12 @@ const NotificationWorklist = () => {
     items: [{ field: 'state', value: 'New', operator: 'contains' }]
   })
   const { data, error, isLoading, isFetching } = useQuery<
-    Notification[],
+    {
+      records: Notification[]
+      pagination: {
+        total: number
+      }
+    },
     AxiosError
   >({
     queryKey: [
@@ -194,12 +199,12 @@ const NotificationWorklist = () => {
             }
           }}
           columns={columns}
-          rows={data as Notification[]}
+          rows={data.records as Notification[]}
           pageSizeOptions={[10, 25, 50]}
           paginationModel={paginationModel}
           onPaginationModelChange={model => setPaginationModel(model)}
           paginationMode="server"
-          rowCount={1000000}
+          rowCount={data.pagination.total || 0}
           filterMode="server"
           filterModel={filterModel}
           onFilterModelChange={debounce(onFilterChange, 3000)}
