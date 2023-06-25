@@ -32,8 +32,6 @@ const RegisteringFacilityPanel: FC<{
         rows={data}
         autoHeight={true}
         hideFooter={true}
-        experimentalFeatures={{ newEditingApi: true }}
-        disableSelectionOnClick
       />
     </Paper>
   )

@@ -5,7 +5,7 @@ import DropZone from './DropZone'
 
 const Import = () => {
   return (
-    <Container>
+    <Container maxWidth={false}>
       <PageHeader
         title={'Import'}
         breadcrumbs={[

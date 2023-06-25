@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material'
+import { Typography } from '@mui/material'
 import { FC, useMemo } from 'react'
 
 const NotificationState: FC<{ value: string }> = ({ value }) => {
@@ -16,7 +16,16 @@ const NotificationState: FC<{ value: string }> = ({ value }) => {
         return 'default'
     }
   }, [value])
-  return <Chip variant="outlined" label={value} color={statusColor} />
+  return (
+    <Typography
+      lineHeight={'1.43'}
+      fontWeight={400}
+      fontSize={'0.875rem'}
+      color={statusColor}
+    >
+      {value}
+    </Typography>
+  )
 }
 
 export default NotificationState

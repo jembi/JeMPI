@@ -5,7 +5,7 @@ test('Show correct label when rendered', () => {
   const { container } = render(
     <SearchDateInput
       name="test"
-      value="1/01/2023"
+      value="2023-06-20"
       label="Test date"
       size="small"
       isCustomRow={true}
@@ -20,7 +20,7 @@ test('Show correct date value when selected with date picker', () => {
   render(
     <SearchDateInput
       name="test"
-      value="1/01/2023"
+      value="2023-06-20"
       label="Test date"
       size="small"
       isCustomRow={true}

@@ -27,14 +27,15 @@ export interface Field {
 }
 
 export interface FieldChangeReq {
-  fields: {
+  fields: Array<{
     name: string
-    value: FieldType
-  }[]
+    oldValue: FieldType
+    newValue: FieldType
+  }>
 }
 
 export interface DisplayField extends Field {
-  formatValue: (v: ValueOf<AnyRecord>) => string | undefined
+  formatValue: (v: ValueOf<AnyRecord>) => string | number | undefined
   isValid: (value: ValueOf<AnyRecord>) => boolean
 }
 

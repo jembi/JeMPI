@@ -9,7 +9,8 @@ public record GoldenRecordUpdateRequestPayload(List<Field> fields) {
 
    public record Field(
          String name,
-         String value) {
+         String oldValue,
+         String newValue) {
    }
 
 }

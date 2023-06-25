@@ -7,13 +7,10 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Records from 'components/records/Records'
 import { SnackbarProvider } from 'notistack'
 import { lazy } from 'react'
-import AuditTrail from './components/auditTrail/AuditTrail'
 import CustomSearch from './components/customSearch/CustomSearch'
 import ErrorBoundary from './components/error/ErrorBoundary'
 import NotFound from './components/error/NotFound'
 import Import from './components/import/Import'
-import LinkedRecords from './components/linkedRecords/LinkedRecords'
-import PatientDetails from './components/patient/PatientDetails'
 import NotificationWorklist from './components/reviewMatches/NotificationWorklist'
 import ReviewLink from './components/reviewMatches/ReviewLink'
 import SimpleSearch from './components/search/SimpleSearch'
@@ -24,6 +21,7 @@ import { config } from './config'
 import { AppConfigProvider } from './hooks/useAppConfig'
 import { AuthProvider } from './hooks/useAuth'
 import theme from './theme'
+import RecordDetails from 'components/record-details/RecordDetails'
 
 const location = new ReactLocation({})
 const queryClient = new QueryClient({
@@ -47,6 +45,27 @@ const routes: Route[] = [
     children: [
       {
         path: '/',
+        element: <NotFound />
+      },
+      {
+        path: 'record-details',
+        children: [
+          {
+            path: ':uid',
+            children: [
+              {
+                path: '/',
+                element: <RecordDetails />,
+                loader: async ({ params }) => ({
+                  uid: params.uid
+                })
+              }
+            ]
+          }
+        ]
+      },
+      {
+        path: 'browse-records',
         element: <Records />
       },
       {
@@ -95,55 +114,7 @@ const routes: Route[] = [
           }
         ]
       },
-      { path: 'import', element: <Import /> },
-      {
-        path: 'golden-record',
-        children: [
-          {
-            path: ':uid',
-            children: [
-              {
-                path: '/',
-                element: <PatientDetails isGoldenRecord={true} />,
-                loader: async ({ params }) => ({
-                  uid: params.uid
-                })
-              },
-              {
-                path: 'audit-trail',
-                element: <AuditTrail />,
-                loader: async ({ params }) => ({
-                  uid: params.uid
-                })
-              },
-              {
-                path: 'linked-records',
-                element: <LinkedRecords />,
-                loader: async ({ params }) => ({
-                  uid: params.uid
-                })
-              }
-            ]
-          }
-        ]
-      },
-      {
-        path: 'patient-record',
-        children: [
-          {
-            path: ':uid',
-            children: [
-              {
-                path: '/',
-                element: <PatientDetails isGoldenRecord={false} />,
-                loader: async ({ params }) => ({
-                  uid: params.uid
-                })
-              }
-            ]
-          }
-        ]
-      }
+      { path: 'import', element: <Import /> }
     ]
   },
   { element: <NotFound /> }

@@ -1,7 +1,7 @@
 import AutoSubmitForm from 'components/shared/AutoSubmitForm'
+import dayjs from 'dayjs'
 import { FieldArray, Formik } from 'formik'
 import { useAppConfig } from 'hooks/useAppConfig'
-import moment from 'moment'
 import { FC } from 'react'
 import { SearchQuery } from 'types/SimpleSearch'
 import { PAGINATION_LIMIT } from 'utils/constants'
@@ -16,7 +16,7 @@ const SimpleSearchForm: FC<{
     parameters: availableFields.map(({ fieldType, fieldName }) => {
       return {
         fieldName,
-        value: fieldType === 'Date' ? moment().format('DD/MM/YYYY') : '',
+        value: fieldType === 'Date' ? dayjs().format('DD/MM/YYYY') : '',
         distance: 0
       }
     }),

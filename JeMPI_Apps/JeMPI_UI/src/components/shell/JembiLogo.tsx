@@ -11,10 +11,7 @@ const JembiLogo = () => {
       <Typography variant="h6" sx={{ color: '#FFC400' }}>
         Je
       </Typography>
-      <Typography
-        variant="h6"
-        sx={{ color: theme => theme.palette.text.primary }}
-      >
+      <Typography variant="h6" sx={{ color: '#274263' }}>
         MPI
       </Typography>
     </Box>

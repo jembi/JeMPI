@@ -24,6 +24,11 @@ declare module '@mui/material/Typography' {
 }
 
 const overrides = createTheme({
+  palette: {
+    background: {
+      default: '#FAFAFA'
+    }
+  },
   components: {
     MuiAppBar: {
       styleOverrides: {

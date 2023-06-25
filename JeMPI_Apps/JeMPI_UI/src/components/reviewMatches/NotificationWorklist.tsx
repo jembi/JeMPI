@@ -1,123 +1,136 @@
 import { People } from '@mui/icons-material'
-import { Container, Divider } from '@mui/material'
+import { Box, Container, Divider, Paper, debounce } from '@mui/material'
 import {
   DataGrid,
   GridColDef,
+  GridFilterModel,
   GridRenderCellParams,
   GridValueFormatterParams,
   GridValueGetterParams
 } from '@mui/x-data-grid'
-import { Link as LocationLink } from '@tanstack/react-location'
+import { useNavigate } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import { formatDate, formatName } from 'utils/formatters'
+import { formatDate, formatName, formatNumber } from 'utils/formatters'
 import ApiClient from '../../services/ApiClient'
 import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
+import React, { useCallback, useState } from 'react'
+import dayjs, { Dayjs } from 'dayjs'
+import locale from 'dayjs/locale/uk'
+import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 const columns: GridColDef[] = [
   {
     field: 'state',
     headerName: 'Status',
-    width: 100,
-    minWidth: 80,
+    minWidth: 150,
     align: 'center',
     headerAlign: 'center',
-    renderCell: (params: GridRenderCellParams<string>) => {
+    renderCell: (params: GridRenderCellParams) => {
       return <NotificationState value={params.value || ''} />
     }
-  },
-  {
-    field: 'type',
-    headerName: 'Notification Type',
-    minWidth: 150
-  },
-  {
-    field: 'reason',
-    headerName: 'Notification Reason',
-    minWidth: 150,
-    flex: 2
-  },
-  {
-    field: 'names',
-    headerName: 'Patient',
-    minWidth: 150,
-    flex: 2,
-    valueFormatter: (params: GridValueFormatterParams<string>) =>
-      formatName(params.value)
-  },
-  {
-    field: 'score',
-    headerName: 'Score',
-    type: 'number',
-    width: 100,
-    minWidth: 80,
-    align: 'center',
-    headerAlign: 'center',
-    valueGetter: (params: GridValueGetterParams) => params.row.score
   },
   {
     field: 'created',
     headerName: 'Date',
     type: 'date',
-    minWidth: 110,
-    flex: 1,
+    minWidth: 150,
+
     align: 'center',
     headerAlign: 'center',
     valueFormatter: (params: GridValueFormatterParams<Date>) =>
-      formatDate(params.value)
+      formatDate(params.value),
+    filterable: false
   },
   {
-    field: 'actions',
-    headerName: 'Actions',
-    maxWidth: 150,
-    flex: 1,
+    field: 'patient_id',
+    headerName: 'Interaction ID',
+    type: 'number',
+    minWidth: 150,
     align: 'center',
     headerAlign: 'center',
-    sortable: false,
-    filterable: false,
-    valueGetter: (params: GridValueGetterParams) => ({
-      id: params.row.id,
-      patient: params.row.patient
-    }),
-    renderCell: (params: GridRenderCellParams<string, Notification>) => {
-      const { patient_id, candidates, score, id, golden_id, status } =
-        params.row
-      return (
-        <LocationLink
-          to={`/notifications/match-details`}
-          search={{
-            payload: {
-              notificationId: id,
-              patient_id,
-              golden_id,
-              score,
-              candidates
-            }
-          }}
-          style={{ textDecoration: 'none' }}
-        >
-          {status !== 'Actioned' ? 'VIEW' : null}
-        </LocationLink>
-      )
-    }
+    filterable: false
+  },
+  {
+    field: 'golden_id',
+    headerName: 'Golden ID',
+    type: 'number',
+    minWidth: 150,
+    align: 'center',
+    headerAlign: 'center',
+    filterable: false
+  },
+  {
+    field: 'score',
+    headerName: 'Score',
+    type: 'number',
+    minWidth: 150,
+    align: 'center',
+    headerAlign: 'center',
+    valueGetter: (params: GridValueGetterParams) => params.row.score,
+    valueFormatter: params => formatNumber(params.value),
+    filterable: false
+  },
+  {
+    field: 'type',
+    headerName: 'Notification Reason',
+    minWidth: 150,
+    align: 'center',
+    filterable: false
+  },
+  {
+    field: 'names',
+    headerName: 'Patient',
+    minWidth: 150,
+    valueFormatter: (params: GridValueFormatterParams<string>) =>
+      formatName(params.value),
+    filterable: false
   }
 ]
 
 const NotificationWorklist = () => {
+  const navigate = useNavigate()
+  const selectedDate = dayjs().locale({
+    ...locale
+  })
+  const [date, setDate] = React.useState(selectedDate)
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 25
+  })
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({
+    items: [{ field: 'state', value: 'New', operator: 'contains' }]
+  })
   const { data, error, isLoading, isFetching } = useQuery<
     Notification[],
     AxiosError
   >({
-    queryKey: ['notifications'],
-    queryFn: ApiClient.getMatches,
+    queryKey: [
+      'notifications',
+      date.format('YYYY-MM-DD'),
+      paginationModel.page,
+      paginationModel.pageSize,
+      filterModel
+    ],
+    queryFn: () =>
+      ApiClient.getMatches(
+        paginationModel.pageSize,
+        paginationModel.page * paginationModel.pageSize,
+        date.format('YYYY-MM-DD'),
+        filterModel.items[0].value ? filterModel.items[0].value : ''
+      ),
     refetchOnWindowFocus: false
   })
+
+  const onFilterChange = useCallback((filterModel: GridFilterModel) => {
+    setFilterModel({ ...filterModel })
+  }, [])
 
   if (isLoading || isFetching) {
     return <Loading />
@@ -131,11 +144,15 @@ const NotificationWorklist = () => {
     return <NotFound />
   }
 
+  const changeSelectedDate = (date: Dayjs | null) => {
+    if (date) {
+      setDate(date)
+    }
+  }
   return (
     <Container maxWidth={false}>
       <PageHeader
         title={'Notification Worklist'}
-        description="View the list of possible matches."
         breadcrumbs={[
           {
             link: '/review-matches/',
@@ -145,17 +162,63 @@ const NotificationWorklist = () => {
         ]}
       />
       <Divider />
-      <DataGrid
-        columns={columns}
-        components={{
-          Toolbar: () => <DataGridToolbar />
+      <Paper
+        sx={{
+          p: 1,
+          mt: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px'
         }}
-        rows={data as Notification[]}
-        pageSize={10}
-        rowsPerPageOptions={[5, 10, 20]}
-        sx={{ mt: 4 }}
-        autoHeight={true}
-      />
+      >
+        <Box p={1}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              value={date}
+              format="YYYY/MM/DD"
+              onChange={value => changeSelectedDate(value)}
+              slotProps={{
+                textField: {
+                  variant: 'outlined',
+                  label: 'We are looking to name this'
+                }
+              }}
+            />
+          </LocalizationProvider>
+        </Box>
+        <DataGrid
+          sx={{
+            height: '500px',
+            '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
+              outline: 'none'
+            }
+          }}
+          columns={columns}
+          rows={data as Notification[]}
+          pageSizeOptions={[10, 25, 50]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={model => setPaginationModel(model)}
+          paginationMode="server"
+          rowCount={1000000}
+          filterMode="server"
+          filterModel={filterModel}
+          onFilterModelChange={debounce(onFilterChange, 3000)}
+          onRowDoubleClick={params =>
+            navigate({
+              to: '/notifications/match-details',
+              search: {
+                payload: {
+                  notificationId: params.row.id,
+                  patient_id: params.row.patient_id,
+                  golden_id: params.row.golden_id,
+                  score: params.row.score,
+                  candidates: params.row.candidates
+                }
+              }
+            })
+          }
+        />
+      </Paper>
     </Container>
   )
 }

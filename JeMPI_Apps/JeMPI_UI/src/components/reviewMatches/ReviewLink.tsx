@@ -15,10 +15,10 @@ import ApiErrorMessage from '../error/ApiErrorMessage'
 import NotFound from '../error/NotFound'
 import Button from '../shared/Button'
 import PageHeader from '../shell/PageHeader'
-import DataGrid from './DataGrid'
 import Dialog from './Dialog'
 import SearchModal from './SearchModal'
 import Stepper from './Stepper'
+import DataGrid from './DataGrid'
 
 export type ReviewLinkParams = MakeGenerics<{
   Search: {
@@ -136,7 +136,7 @@ const ReviewLink = () => {
           enqueueSnackbar('New record linked', {
             variant: 'success'
           })
-          navigate({ to: `/golden-record/${data.goldenUID}` })
+          navigate({ to: `/record-details/${data.goldenUID}` })
         }
       }
     )
@@ -218,13 +218,10 @@ const ReviewLink = () => {
         <Typography pl={1.5} variant="dgSubTitle">
           PATIENT LINKED TO GOLDEN RECORD
         </Typography>
-
         <DataGrid
-          data={matchDetails.filter((r: AnyRecord) => {
-            if (r.type === 'Golden' || r.type === 'Current') {
-              return r
-            }
-          })}
+          data={matchDetails.filter(
+            record => record.type === 'Golden' || record.type === 'Current'
+          )}
           sx={{
             '.MuiDataGrid-columnSeparator': {
               display: 'none'
@@ -280,11 +277,11 @@ const ReviewLink = () => {
             isLoading={newGoldenRecord.isLoading}
             autoFocus
           >
-            Unlink and create new record
+            Confirm
           </Button>
         ]}
-        content={`Are you sure you want to unlink the patient record ${patientRecord?.uid} and golden record ${goldenRecord?.uid} and create a new record?`}
-        title="Confirm Records Unlinking"
+        content="This action will unlink the Patient record and Golden record and create a new Golden record."
+        title="Confirm unlinking"
         onClose={handleCancel}
         onOpen={isNewGoldenRecordDialogOpen}
       />
@@ -304,11 +301,11 @@ const ReviewLink = () => {
         content={
           <>
             <Typography>
-              This will accept the currently linked Golden Record and close the
-              notification
+              This action will accept the currently linked Golden Record and
+              close the notification.
             </Typography>
             <Typography>
-              No changes will be made to the golden record link
+              No changes will be made to the golden record link.
             </Typography>
           </>
         }
@@ -329,7 +326,7 @@ const ReviewLink = () => {
             Link these records?
           </Typography>
         }
-        subTitle="This will link the following records: "
+        subTitle="This action will link the following records: "
         onClose={handleCancel}
         onOpen={openLinkRecordDialog}
         maxWidth="lg"

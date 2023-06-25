@@ -1,7 +1,7 @@
 import { SxProps, Theme, Typography } from '@mui/material'
 import {
   GridCellParams,
-  GridColumns,
+  GridColDef,
   GridRenderCellParams,
   GridValueFormatterParams,
   DataGrid as MuiDataGrid
@@ -17,12 +17,12 @@ interface DataGridProps {
   isLoading?: boolean
   sx?: SxProps<Theme>
 }
-const getRecordTypeClassName = (params: GridCellParams<string>) => {
-  return params.row.type === 'Golden' ? 'record-type' : ''
+const getRecordTypeClassName = (params: GridCellParams) => {
+  return params.row === 'Golden' ? 'record-type' : ''
 }
 
 const getCellClassName = (
-  params: GridCellParams<string>,
+  params: GridCellParams,
   field: DisplayField,
   data: AnyRecord
 ) => {
@@ -34,63 +34,59 @@ const getCellClassName = (
 const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
   const { availableFields } = useAppConfig()
 
-  const columns: GridColumns = [
-    ...availableFields.map(field => {
-      const { fieldName, fieldLabel, formatValue } = field
-      switch (fieldName) {
-        case 'recordType':
-          return {
-            field: fieldName,
-            headerName: fieldLabel,
-            flex: 1,
-            valueFormatter: (
-              params: GridValueFormatterParams<number | string | Date>
-            ) => formatValue(params.value),
-            cellClassName: (params: GridCellParams<string>) =>
-              getRecordTypeClassName(params),
-            renderCell: (params: GridRenderCellParams) => {
-              switch (params.row.type) {
-                case 'Current':
-                  return <Typography>Patient</Typography>
-                case 'Golden':
-                  return (
-                    <Typography color="#D79B01" fontWeight={700}>
-                      Golden
-                    </Typography>
-                  )
-                case 'Candidate':
-                  if (params.row.searched) {
-                    return <Typography>Searched</Typography>
-                  } else {
-                    return <Typography>Blocked</Typography>
-                  }
-                default:
-                  return <></>
-              }
+  const columns: GridColDef[] = availableFields.map(field => {
+    const { fieldName, fieldLabel, formatValue } = field
+    switch (fieldName) {
+      case 'recordType':
+        return {
+          field: fieldName,
+          headerName: fieldLabel,
+          flex: 1,
+          valueFormatter: (
+            params: GridValueFormatterParams<number | string | Date>
+          ) => formatValue(params.value),
+          cellClassName: (params: GridCellParams) =>
+            getRecordTypeClassName(params),
+          renderCell: (params: GridRenderCellParams) => {
+            switch (params.row.type) {
+              case 'Current':
+                return <Typography>Patient</Typography>
+              case 'Golden':
+                return (
+                  <Typography color="#D79B01" fontWeight={700}>
+                    Golden
+                  </Typography>
+                )
+              case 'Candidate':
+                if (params.row.searched) {
+                  return <Typography>Searched</Typography>
+                } else {
+                  return <Typography>Blocked</Typography>
+                }
+              default:
+                return <></>
             }
           }
-        default:
-          return {
-            field: fieldName,
-            headerName: fieldLabel,
-            flex: 1,
-            valueFormatter: (
-              params: GridValueFormatterParams<number | string | Date>
-            ) => formatValue(params.value),
-            cellClassName: (params: GridCellParams<string>) =>
-              getCellClassName(params, field, data[0])
-          }
-      }
-    })
-  ]
+        }
+      default:
+        return {
+          field: fieldName,
+          headerName: fieldLabel,
+          flex: 1,
+          valueFormatter: (
+            params: GridValueFormatterParams<number | string | Date>
+          ) => formatValue(params.value),
+          cellClassName: (params: GridCellParams) =>
+            getCellClassName(params, field, data[0])
+        }
+    }
+  })
 
   return (
     <MuiDataGrid
       columns={columns}
-      rows={data}
-      pageSize={10}
-      rowsPerPageOptions={[10]}
-      getRowId={row => row.uid}
+      pageSizeOptions={[10]}
+      getRowId={({ uid }) => uid}
       hideFooter
       loading={isLoading}
       sx={{
@@ -113,6 +109,7 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
         ...sx
       }}
       autoHeight={true}
+      rows={data}
     />
   )
 }
