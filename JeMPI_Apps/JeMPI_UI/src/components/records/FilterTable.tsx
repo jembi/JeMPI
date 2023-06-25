@@ -36,7 +36,6 @@ export const FilterTable: FC<{
 
   const onValueChange = (fieldName: string) => {
     return (value: string | Date) => {
-      console.log(fieldName, value)
       const queryParam = query?.find(param => param.fieldName === fieldName)
       if (queryParam) {
         const newQuery = query.map(queryParms =>
@@ -54,7 +53,6 @@ export const FilterTable: FC<{
 
   const onDistanceChange = (fieldName: string) => {
     return (distance: string) => {
-      console.log(fieldName, distance)
       const queryParam = query?.find(param => param.fieldName === fieldName)
       if (queryParam) {
         const newQuery = query?.map(queryParms =>
@@ -72,10 +70,6 @@ export const FilterTable: FC<{
 
   const getFieldValue = (fieldName: string) => {
     return query.find(param => param.fieldName === fieldName)?.value
-  }
-
-  const getMatchLevel = (fieldName: string) => {
-    return query.find(param => param.fieldName === fieldName)?.distance
   }
 
   const handleCancel = () => {
@@ -100,7 +94,6 @@ export const FilterTable: FC<{
             {columns.map(column => (
               <TableCell align="left">
                 <SelectMatchLevelMenu
-                  value={getMatchLevel(column.field) || NaN}
                   onChange={onDistanceChange(column.field)}
                 />
               </TableCell>

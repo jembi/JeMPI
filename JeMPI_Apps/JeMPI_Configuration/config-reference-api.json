@@ -216,6 +216,19 @@
       "accessLevel": []
     },
     {
+      "fieldName": "createdAt",
+      "fieldType": "String",
+      "fieldLabel": "Created At",
+      "groups": [
+        "none"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
       "fieldName": "sourceId",
       "fieldType": "SourceId",
       "fieldLabel": "Site Code",

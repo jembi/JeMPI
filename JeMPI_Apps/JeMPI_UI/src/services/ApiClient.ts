@@ -1,13 +1,7 @@
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { config } from '../config'
 import AuditTrailRecord from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
-import Notification, { NotificationState } from '../types/Notification'
-import {
-  AnyRecord,
-  GoldenRecord as GR,
-  PatientRecord as PR
-} from '../types/PatientRecord'
 import {
   ApiSearchResult,
   CustomSearchQuery,
@@ -17,47 +11,17 @@ import { OAuthParams, User } from '../types/User'
 import ROUTES from './apiRoutes'
 import axiosInstance from './axios'
 import moxios from './mockBackend'
+import {
+  NotificationResponse,
+  Interaction,
+  ExpandedGoldenRecord,
+  InteractionWithScore,
+  NotificationRequest,
+  LinkRequest
+} from 'types/BackendResponse'
+import { GoldenRecord, PatientRecord, AnyRecord } from 'types/PatientRecord'
 
 const client = config.shouldMockBackend ? moxios : axiosInstance
-
-interface NotificationRequest {
-  notificationId: string
-  state: NotificationState
-}
-
-interface LinkRequest {
-  goldenID: string
-  patientID: string
-  newGoldenID?: string
-}
-
-interface NotificationResponse {
-  count: number
-  skippedRecords: number
-  records: Notification[]
-}
-
-interface GoldenRecordResponse {
-  expandedGoldenRecords: GR[]
-}
-
-interface GoldenRecord extends Pick<GR, 'sourceId' | 'uid'> {
-  demographicData: Omit<GR, 'sourceId' | 'uid'>
-}
-
-interface ExpandedGoldenRecord {
-  goldenRecord: GoldenRecord
-  mpiPatientRecords: Array<ExpandedPatientRecord>
-}
-
-interface ExpandedPatientRecord {
-  patientRecord: PatientRecord
-  score: number
-}
-
-interface PatientRecord extends Pick<PR, 'sourceId' | 'uid'> {
-  demographicData: Omit<PR, 'sourceId' | 'uid'>
-}
 
 class ApiClient {
   async getFields() {
@@ -85,6 +49,7 @@ class ApiClient {
       )
   }
 
+  // replaced
   async getAuditTrail() {
     return await client
       .get<AuditTrailRecord[]>(ROUTES.AUDIT_TRAIL)
@@ -93,55 +58,47 @@ class ApiClient {
 
   async getInteraction(uid: string) {
     return await client
-      .get<PR>(`${ROUTES.INTERACTION}/${uid}`)
+      .get<PatientRecord, AxiosResponse<Interaction>>(
+        `${ROUTES.GET_INTERACTION}/${uid}`
+      )
       .then(res => res.data)
-      .then((patientRecord: Partial<PatientRecord>) => {
+      .then((interaction: Interaction) => {
         return {
-          ...patientRecord,
-          ...patientRecord.demographicData
+          uid: interaction.uid,
+          sourceId: interaction.sourceId,
+          ...interaction.demographicData
         }
       })
   }
 
   async getGoldenRecord(uid: string) {
     return await client
-      .get<GR>(`${ROUTES.GOLDEN_RECORD_ROUTE}/${uid}`)
+      .get<GoldenRecord, AxiosResponse<ExpandedGoldenRecord>>(
+        `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
+      )
       .then(res => res.data)
-      .then(({ goldenRecord, mpiPatientRecords }: any) => {
-        return {
-          ...goldenRecord,
-          ...goldenRecord?.demographicData,
-          linkRecords: mpiPatientRecords?.map(
-            ({ patientRecord }: Partial<ExpandedPatientRecord>) => {
-              return {
-                ...patientRecord,
-                ...patientRecord?.demographicData
-              }
-            }
-          )
-        }
-      })
-  }
-
-  async getGoldenRecords(uid: string[]) {
-    const uids = uid?.map(u => '0x' + parseInt(u).toString(16))
-    return await client
-      .get<GoldenRecordResponse>(ROUTES.EXPANDED_GOLDEN_RECORDS, {
-        params: {
-          uid: uids
-        },
-        paramsSerializer: {
-          indexes: null
-        }
-      })
-      .then(res => res.data)
-      .then((data: any) =>
-        data.map(({ goldenRecord }: any) => {
+      .then(
+        ({
+          goldenRecord,
+          interactionsWithScore
+        }: Partial<ExpandedGoldenRecord>) => {
           return {
             ...goldenRecord,
-            ...goldenRecord.demographicData
+            ...goldenRecord?.demographicData,
+            linkRecords: interactionsWithScore?.map(
+              ({ interaction, score }: InteractionWithScore) => {
+                return {
+                  uid: interaction.uid,
+                  sourceId: interaction.sourceId,
+                  createdAt: interaction.uniqueInteractionData.auxDateCreated,
+                  auxId: interaction.uniqueInteractionData.auxId,
+                  score,
+                  ...interaction?.demographicData
+                }
+              }
+            )
           }
-        })
+        }
       )
   }
 
@@ -151,38 +108,42 @@ class ApiClient {
       return [] as AnyRecord[]
     }
     const patientRecord = this.getInteraction(uid)
-    const goldenRecord = this.getExpandedGoldenRecords([goldenId], false)
+    const goldenRecord = this.getGoldenRecord(goldenId)
     const candidateRecords = this.getExpandedGoldenRecords(candidates, false)
-    return (await axios
+    return await axios
       .all<any>([patientRecord, goldenRecord, candidateRecords])
       .then(response => {
-        return [{ type: 'Current', ...response[0] }]
+        return [
+          {
+            ...response[0],
+            type: 'Current'
+          }
+        ]
+          .concat({
+            ...response[1],
+            type: 'Golden'
+          })
           .concat(
-            response[1].map((r: AnyRecord) => {
-              r.type = 'Golden'
-              return r
-            })
+            response[2].map((r: AnyRecord) => ({
+              ...r,
+              type: 'Candidate'
+            }))
           )
-          .concat(
-            response[2].map((r: AnyRecord) => {
-              r.type = 'Candidate'
-              r.searched = false
-              return r
-            })
-          )
-      })) as AnyRecord[]
+      })
   }
 
   async updateNotification(request: NotificationRequest) {
-    return await client.post(ROUTES.UPDATE_NOTIFICATION, request).then(res => {
-      return res.data
-    })
+    return await client
+      .post(ROUTES.POST_UPDATE_NOTIFICATION, request)
+      .then(res => {
+        return res.data
+      })
   }
 
   async newGoldenRecord(request: LinkRequest) {
     return await client
       .patch(
-        `${ROUTES.CREATE_GOLDEN_RECORD}?goldenID=${request.goldenID}&patientID=${request.patientID}`
+        `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}`
       )
       .then(res => res.data)
   }
@@ -190,7 +151,7 @@ class ApiClient {
   async linkRecord(request: LinkRequest) {
     return await client
       .patch(
-        `${ROUTES.LINK_RECORD}?goldenID=${request.goldenID}&newGoldenID=${request.newGoldenID}&patientID=${request.patientID}&score=2`
+        `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${request.goldenID}&newGoldenID=${request.newGoldenID}&patientID=${request.patientID}&score=2`
       )
       .then(res => res.data)
   }
@@ -209,15 +170,19 @@ class ApiClient {
         const result: ApiSearchResult = {
           records: {
             data: data.map(
-              ({ goldenRecord, mpiPatientRecords }: ExpandedGoldenRecord) => {
+              ({
+                goldenRecord,
+                interactionsWithScore
+              }: ExpandedGoldenRecord) => {
                 return {
                   ...goldenRecord,
                   ...goldenRecord.demographicData,
-                  linkRecords: mpiPatientRecords.map(
-                    ({ patientRecord }: ExpandedPatientRecord) => {
+                  linkRecords: interactionsWithScore.map(
+                    ({ interaction }: InteractionWithScore) => {
                       return {
-                        ...patientRecord,
-                        ...patientRecord.demographicData
+                        uid: interaction.uid,
+                        sourceId: interaction.sourceId,
+                        ...interaction.demographicData
                       }
                     }
                   )
@@ -234,7 +199,7 @@ class ApiClient {
         const { pagination, data } = res.data
         const result: ApiSearchResult = {
           records: {
-            data: data.map((patientRecord: PatientRecord) => {
+            data: data.map((patientRecord: Interaction) => {
               return {
                 ...patientRecord,
                 ...patientRecord.demographicData
@@ -250,9 +215,9 @@ class ApiClient {
     })
   }
 
-  async getGoldenIds(offset: number, length: number) {
+  async getFilteredGoldenIds(offset: number, length: number) {
     return await client
-      .get<{ goldenIds: string[] }>('gids-paged', {
+      .get<{ goldenIds: string[] }>(ROUTES.GET_GIDS_PAGED, {
         params: {
           offset,
           length
@@ -266,57 +231,45 @@ class ApiClient {
     getPatients: boolean
   ) {
     return await client
-      .get<
-        Array<{
-          uid: string
-          record: GoldenRecord | PatientRecord
-          type: string
-          score: number | null
-        }>
-      >(ROUTES.EXPANDED_GOLDEN_RECORDS, {
-        params: { uidList: goldenIds?.toString() }
-      })
+      .get<Array<AnyRecord>, AxiosResponse<ExpandedGoldenRecord[]>>(
+        ROUTES.GET_EXPANDED_GOLDEN_RECORDS,
+        {
+          params: { uidList: goldenIds?.toString() }
+        }
+      )
       .then(res => res.data)
       .then(data =>
-        data.reduce(
-          (
-            acc: Array<{
-              uid: string
-              record: GoldenRecord | PatientRecord
-              type: string
-              score: number | null
-            }>,
-            curr: any
-          ) => {
-            const record = {
-              ...curr.goldenRecord.demographicData,
-              uid: curr.goldenRecord.uid,
-              type: 'golden',
-              score: null
-            }
-            if (getPatients) {
-              const linkedRecords = curr.interactionsWithScore.map(
-                (record: { interaction: PatientRecord; score: number }) => ({
-                  ...record.interaction.demographicData,
-                  uid: record.interaction.uid,
-                  type: 'patient',
-                  score: record.score
-                })
-              )
-              acc.push(record, ...linkedRecords)
-            } else {
-              acc.push(record)
-            }
-            return acc
-          },
-          []
-        )
+        data.reduce((acc: Array<AnyRecord>, curr: ExpandedGoldenRecord) => {
+          const record = {
+            ...curr.goldenRecord.demographicData,
+            uid: curr.goldenRecord.uid,
+            sourceId: curr.goldenRecord.sourceId,
+            type: 'Golden'
+          }
+          if (getPatients) {
+            const linkedRecords = curr.interactionsWithScore.map(
+              ({ interaction, score }: InteractionWithScore) => ({
+                ...interaction.demographicData,
+                uid: interaction.uid,
+                sourceId: interaction.sourceId,
+                createdAt: interaction.uniqueInteractionData.auxDateCreated,
+                auxId: interaction.uniqueInteractionData.auxId,
+                score: score,
+                type: 'Current'
+              })
+            )
+            acc.push(record, ...linkedRecords)
+          } else {
+            acc.push(record)
+          }
+          return acc
+        }, [])
       )
   }
 
   async getGoldenRecordAuditTrail(gid: string) {
     return await client
-      .get(ROUTES.GOLDEN_RECORD_AUDIT_TRAIL, {
+      .get(ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL, {
         params: {
           gid
         }
@@ -326,7 +279,7 @@ class ApiClient {
 
   async getInteractionAuditTrail(iid: string) {
     return await client
-      .get(ROUTES.INTERACTION_AUDIT_TRAIL, {
+      .get(ROUTES.GET_INTERACTION_AUDIT_TRAIL, {
         params: {
           iid
         }
@@ -353,7 +306,7 @@ class ApiClient {
 
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
     return await client
-      .patch(`${ROUTES.UPDATE_GOLDEN_RECORD}/${uid}`, request)
+      .patch(`${ROUTES.PATCH_GOLDEN_RECORD}/${uid}`, request)
       .then(res => res)
   }
 

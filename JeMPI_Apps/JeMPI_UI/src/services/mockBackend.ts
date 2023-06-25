@@ -30,7 +30,7 @@ axiosMockAdapterInstance
   .reply(200, currentUser)
   .onGet(ROUTES.GET_NOTIFICATIONS)
   .reply(200, { records: notifications })
-  .onGet(new RegExp(`^${ROUTES.EXPANDED_GOLDEN_RECORDS}/[A-z0-9]+$`))
+  .onGet(new RegExp(`^${ROUTES.GET_INTERACTION}/[A-z0-9]+$`))
   .reply(config => {
     const id = config.url?.split('/').pop()
     if (patientRecord.uid === id) {
@@ -38,7 +38,7 @@ axiosMockAdapterInstance
     }
     return [404, {}]
   })
-  .onGet(new RegExp(`^${ROUTES.GOLDEN_RECORD_ROUTE}/[A-z0-9]+$`))
+  .onGet(new RegExp(`^${ROUTES.GET_GOLDEN_RECORD}/[A-z0-9]+$`))
   .reply(config => {
     const id = config.url?.split('/').pop()
     if (goldenRecord.goldenRecord.uid === id) {
@@ -46,21 +46,21 @@ axiosMockAdapterInstance
     }
     return [404, {}]
   })
-  .onGet(ROUTES.GET_GOLDEN_ID_DOCUMENTS)
+  .onGet(ROUTES.GET_EXPANDED_GOLDEN_RECORDS)
   .reply(() => {
     // Unique row ids for data grid
     return [200, goldenRecords]
   })
-  .onPost(ROUTES.UPDATE_NOTIFICATION)
+  .onPost(ROUTES.POST_UPDATE_NOTIFICATION)
   .reply(() => {
     notifications[0].status = NotificationState.Accepted
     return [200, notifications]
   })
-  .onPatch(new RegExp(`^${ROUTES.CREATE_GOLDEN_RECORD}?.*`))
+  .onPatch(new RegExp(`^${ROUTES.PATCH_IID_NEW_GID_LINK}?.*`))
   .reply(() => {
     return [200, notifications]
   })
-  .onPatch(new RegExp(`^${ROUTES.LINK_RECORD}?.*`))
+  .onPatch(new RegExp(`^${ROUTES.PATCH_IID_GID_LINK}?.*`))
   .reply(() => {
     return [200, notifications]
   })

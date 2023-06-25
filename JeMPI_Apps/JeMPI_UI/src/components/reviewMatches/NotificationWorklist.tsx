@@ -1,16 +1,14 @@
 import { People } from '@mui/icons-material'
-import { Box, Container, Divider, Paper } from '@mui/material'
+import { Box, Container, Divider, Paper, debounce } from '@mui/material'
 import {
   DataGrid,
   GridColDef,
-  GridFilterItem,
   GridFilterModel,
   GridRenderCellParams,
   GridValueFormatterParams,
-  GridValueGetterParams,
-  useGridApiRef
+  GridValueGetterParams
 } from '@mui/x-data-grid'
-import { Link as LocationLink } from '@tanstack/react-location'
+import { useNavigate } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
@@ -20,7 +18,6 @@ import { formatDate, formatName, formatNumber } from 'utils/formatters'
 import ApiClient from '../../services/ApiClient'
 import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import DataGridToolbar from './DataGridToolBar'
 import NotificationState from './NotificationState'
 import React, { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
@@ -51,11 +48,6 @@ const columns: GridColDef[] = [
       formatDate(params.value),
     filterable: false
   },
-  // {
-  //   field: '',
-  //   headerName: 'Notification Type',
-  //   minWidth: 150
-  // },
   {
     field: 'patient_id',
     headerName: 'Interaction ID',
@@ -99,45 +91,11 @@ const columns: GridColDef[] = [
     valueFormatter: (params: GridValueFormatterParams<string>) =>
       formatName(params.value),
     filterable: false
-  },
-  {
-    field: 'actions',
-    headerName: 'Actions',
-    maxWidth: 150,
-    flex: 1,
-    align: 'center',
-    headerAlign: 'center',
-    sortable: false,
-    filterable: false,
-    valueGetter: (params: GridValueGetterParams) => ({
-      id: params.row.id,
-      patient: params.row.patient
-    }),
-    renderCell: (params: GridRenderCellParams<Notification>) => {
-      const { patient_id, candidates, score, id, golden_id, status } =
-        params.row
-      return (
-        <LocationLink
-          to={`/notifications/match-details`}
-          search={{
-            payload: {
-              notificationId: id,
-              patient_id,
-              golden_id,
-              score,
-              candidates
-            }
-          }}
-          style={{ textDecoration: 'none' }}
-        >
-          {status !== 'Actioned' ? 'VIEW' : null}
-        </LocationLink>
-      )
-    }
   }
 ]
 
 const NotificationWorklist = () => {
+  const navigate = useNavigate()
   const selectedDate = dayjs().locale({
     ...locale
   })
@@ -229,7 +187,12 @@ const NotificationWorklist = () => {
           </LocalizationProvider>
         </Box>
         <DataGrid
-          sx={{ height: '500px' }}
+          sx={{
+            height: '500px',
+            '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
+              outline: 'none'
+            }
+          }}
           columns={columns}
           rows={data as Notification[]}
           pageSizeOptions={[10, 25, 50]}
@@ -239,7 +202,21 @@ const NotificationWorklist = () => {
           rowCount={1000000}
           filterMode="server"
           filterModel={filterModel}
-          onFilterModelChange={model => onFilterChange(model)}
+          onFilterModelChange={debounce(onFilterChange, 3000)}
+          onRowDoubleClick={params =>
+            navigate({
+              to: '/notifications/match-details',
+              search: {
+                payload: {
+                  notificationId: params.row.id,
+                  patient_id: params.row.patient_id,
+                  golden_id: params.row.golden_id,
+                  score: params.row.score,
+                  candidates: params.row.candidates
+                }
+              }
+            })
+          }
         />
       </Paper>
     </Container>

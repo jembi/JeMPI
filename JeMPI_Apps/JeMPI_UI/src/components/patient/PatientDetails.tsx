@@ -3,7 +3,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { Box, ButtonGroup, Container, Grid } from '@mui/material'
 import { useMatch } from '@tanstack/react-location'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import { useSnackbar } from 'notistack'
 import { FC, useEffect, useState } from 'react'
 import { useAppConfig } from '../../hooks/useAppConfig'
@@ -51,9 +51,9 @@ const PatientDetails: FC<PatientDetailsProps> = ({ isGoldenRecord }) => {
     queryKey: [isGoldenRecord ? 'golden-record' : 'patient-record', uid],
     queryFn: async () => {
       if (isGoldenRecord) {
-        return await ApiClient.getGoldenRecord(uid as string)
+        return (await ApiClient.getGoldenRecord(uid as string)) as GoldenRecord
       } else {
-        return await ApiClient.getInteraction(uid as string)
+        return (await ApiClient.getInteraction(uid as string)) as PatientRecord
       }
     },
     refetchOnWindowFocus: false

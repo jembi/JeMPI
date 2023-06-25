@@ -15,10 +15,10 @@ import ApiErrorMessage from '../error/ApiErrorMessage'
 import NotFound from '../error/NotFound'
 import Button from '../shared/Button'
 import PageHeader from '../shell/PageHeader'
-import DataGrid from './DataGrid'
 import Dialog from './Dialog'
 import SearchModal from './SearchModal'
 import Stepper from './Stepper'
+import DataGrid from './DataGrid'
 
 export type ReviewLinkParams = MakeGenerics<{
   Search: {
@@ -136,7 +136,7 @@ const ReviewLink = () => {
           enqueueSnackbar('New record linked', {
             variant: 'success'
           })
-          navigate({ to: `/golden-record/${data.goldenUID}` })
+          navigate({ to: `/record-details/${data.goldenUID}` })
         }
       }
     )
@@ -218,13 +218,10 @@ const ReviewLink = () => {
         <Typography pl={1.5} variant="dgSubTitle">
           PATIENT LINKED TO GOLDEN RECORD
         </Typography>
-
         <DataGrid
-          data={matchDetails.filter((r: AnyRecord) => {
-            if (r.type === 'Golden' || r.type === 'Current') {
-              return r
-            }
-          })}
+          data={matchDetails.filter(
+            record => record.type === 'Golden' || record.type === 'Current'
+          )}
           sx={{
             '.MuiDataGrid-columnSeparator': {
               display: 'none'

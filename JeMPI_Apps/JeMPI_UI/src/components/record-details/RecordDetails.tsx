@@ -1,5 +1,6 @@
-import { Person2Outlined, PersonOffOutlined, Search } from '@mui/icons-material'
+import { Search } from '@mui/icons-material'
 import {
+  Box,
   Button,
   Container,
   Divider,
@@ -93,7 +94,7 @@ const RecordDetails = () => {
         valueFormatter: ({ value }) => formatValue(value),
         sortable: false,
         disableColumnMenu: true,
-        editable: !readOnly && isEditMode && patientRecord?.type === 'golden',
+        editable: !readOnly && isEditMode && patientRecord?.type === 'Golden',
         // a Callback used to validate the user's input
         preProcessEditCellProps: ({ props }) => {
           return {
@@ -107,11 +108,17 @@ const RecordDetails = () => {
     }
   )
 
-  const { data, error, isLoading, isError } = useQuery<any, AxiosError>({
+  const { data, error, isLoading, isError } = useQuery<
+    Array<GoldenRecord>,
+    AxiosError
+  >({
     queryKey: ['record-details', uid],
     queryFn: async () => {
       const recordId = uid as string
-      return await ApiClient.getExpandedGoldenRecords([recordId], true)
+      return (await ApiClient.getExpandedGoldenRecords(
+        [recordId],
+        true
+      )) as Array<GoldenRecord>
     },
     onSuccess: data => setPatientRecord(data[0]),
     refetchOnWindowFocus: false
@@ -124,7 +131,7 @@ const RecordDetails = () => {
   } = useQuery<any, AxiosError>({
     queryKey: ['audit-trail', patientRecord?.uid],
     queryFn: async () => {
-      if (patientRecord?.type === 'golden') {
+      if (patientRecord?.type === 'Golden') {
         return await ApiClient.getGoldenRecordAuditTrail(
           patientRecord?.uid || ''
         )
@@ -162,7 +169,7 @@ const RecordDetails = () => {
   const onDataChange = (newRow: PatientRecord | GoldenRecord) => {
     const newlyUpdatedFields: UpdatedFields = availableFields.reduce(
       (acc: UpdatedFields, curr: DisplayField) => {
-        if (data[0] && data[0][curr.fieldName] !== newRow[curr.fieldName]) {
+        if (data && data[0][curr.fieldName] !== newRow[curr.fieldName]) {
           acc[curr.fieldLabel] = {
             oldValue: data[0][curr.fieldName],
             newValue: newRow[curr.fieldName]
@@ -231,9 +238,6 @@ const RecordDetails = () => {
     <Container
       maxWidth={false}
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
         '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
           outline: 'none'
         },
@@ -244,10 +248,7 @@ const RecordDetails = () => {
       }}
     >
       <PageHeader
-        breadcrumbs={[
-          { icon: <Search />, title: 'Search', link: '/' }
-          // { icon: <Person2Outlined />, title: 'Patient details' }
-        ]}
+        breadcrumbs={[{ icon: <Search />, title: 'Browse Records', link: '/' }]}
         title={`Patient interactions for GID ${uid}`}
       />
       <Divider />
@@ -257,74 +258,89 @@ const RecordDetails = () => {
         updatedFields={updatedFields}
         onConfirm={onConfirm}
       />
-      <Paper sx={{ p: 1 }}>
-        <Stack
-          p={1}
-          display={'flex'}
-          flexDirection={'row'}
-          justifyContent={'space-between'}
-        >
-          <Typography variant="h6">Records</Typography>
-          <Stack display={'flex'} flexDirection={'row'}>
-            <Button
-              onClick={() => setIsEditMode(true)}
-              disabled={isEditMode === true || patientRecord?.type !== 'golden'}
-            >
-              Edit
-            </Button>
-            <Button
-              onClick={() => onRecordSave()}
-              disabled={isEditMode !== true || patientRecord?.type !== 'golden'}
-            >
-              Save
-            </Button>
-            <Button
-              disabled={isEditMode !== true || patientRecord?.type !== 'golden'}
-              onClick={() => onCancelEditing()}
-            >
-              Cancel
-            </Button>
+      <Box
+        sx={{
+          mt: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}
+      >
+        <Paper sx={{ p: 1 }}>
+          <Stack
+            p={1}
+            display={'flex'}
+            flexDirection={'row'}
+            justifyContent={'space-between'}
+          >
+            <Typography variant="h6">Records</Typography>
+            <Stack display={'flex'} flexDirection={'row'}>
+              <Button
+                onClick={() => setIsEditMode(true)}
+                disabled={
+                  isEditMode === true || patientRecord?.type !== 'Golden'
+                }
+              >
+                Edit
+              </Button>
+              <Button
+                onClick={() => onRecordSave()}
+                disabled={
+                  isEditMode !== true || patientRecord?.type !== 'Golden'
+                }
+              >
+                Save
+              </Button>
+              <Button
+                disabled={
+                  isEditMode !== true || patientRecord?.type !== 'Golden'
+                }
+                onClick={() => onCancelEditing()}
+              >
+                Cancel
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
-        <DataGrid
-          getRowId={({ uid }) => uid}
-          columns={columns}
-          onRowClick={params => {
-            setPatientRecord(params.row)
-          }}
-          rows={data}
-          autoHeight={true}
-          hideFooter={true}
-          sx={{
-            '& .super-app-theme--golden': {
-              backgroundColor: '#f5df68',
-              '&:hover': {
-                backgroundColor: '#fff08d'
-              },
-              '&.Mui-selected': {
-                backgroundColor: '#e2be1d',
-                '&:hover': { backgroundColor: '#fff08d' }
+          <DataGrid
+            getRowId={({ uid }) => uid}
+            columns={columns}
+            onRowClick={params => {
+              setPatientRecord(params.row)
+            }}
+            rows={data}
+            autoHeight={true}
+            hideFooter={true}
+            sx={{
+              '& .super-app-theme--Golden': {
+                backgroundColor: '#f5df68',
+                '&:hover': {
+                  backgroundColor: '#fff08d'
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#e2be1d',
+                  '&:hover': { backgroundColor: '#fff08d' }
+                }
               }
-            }
-          }}
-          getRowClassName={params => `super-app-theme--${params.row.type}`}
-          processRowUpdate={newRow => onDataChange(newRow)}
-        />
-      </Paper>
-      <Paper sx={{ p: 1 }}>
-        <Typography p={1} variant="h6">
-          Audit Trail
-        </Typography>
-        <DataGrid
-          getRowId={({ created_at }) => created_at}
-          columns={AUDIT_TRAIL_COLUMNS}
-          rows={auditTrail || []}
-          autoHeight={true}
-          hideFooter={true}
-          processRowUpdate={newRow => onDataChange(newRow)}
-          loading={isAuditTrailLoading && isFetching}
-        />
-      </Paper>
+            }}
+            getRowClassName={params => `super-app-theme--${params.row.type}`}
+            processRowUpdate={newRow => onDataChange(newRow)}
+          />
+        </Paper>
+        <Paper sx={{ p: 1 }}>
+          <Typography p={1} variant="h6">
+            Audit Trail
+          </Typography>
+          <DataGrid
+            getRowId={({ created_at }) => created_at}
+            columns={AUDIT_TRAIL_COLUMNS}
+            rows={auditTrail || []}
+            autoHeight={true}
+            hideFooter={true}
+            processRowUpdate={newRow => onDataChange(newRow)}
+            loading={isAuditTrailLoading && isFetching}
+          />
+        </Paper>
+      </Box>
     </Container>
   )
 }
