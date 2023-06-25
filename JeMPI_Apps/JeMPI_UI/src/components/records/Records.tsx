@@ -37,6 +37,7 @@ import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
+import { formatDate } from 'utils/formatters'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -82,7 +83,9 @@ const Records = () => {
         headerName: fieldLabel,
         flex: 1,
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
-          formatValue(value),
+          fieldName === 'createdAt'
+            ? formatDate(value as Date)
+            : formatValue(value),
         sortable: false,
         disableColumnMenu: true,
         align: getAlignment(fieldName),
@@ -137,6 +140,14 @@ const Records = () => {
         false
       )) as Array<GoldenRecord>,
     enabled: goldenIds.length != 0,
+    onSuccess: data =>
+      data?.sort(
+        (a: AnyRecord, b: AnyRecord) =>
+          Number(dateSearch.toDate()) -
+          Number(a.createdAt) -
+          Number(dateSearch.toDate()) -
+          Number(b.createdAt)
+      ),
     refetchOnWindowFocus: false
   })
 

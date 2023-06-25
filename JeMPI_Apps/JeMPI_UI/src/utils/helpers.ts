@@ -1,3 +1,5 @@
+import { GridColDef } from '@mui/x-data-grid'
+
 export const isInputValid = (
   value: unknown,
   rules?: { regex: string; required: boolean }
@@ -8,3 +10,8 @@ export const isInputValid = (
   }
   return false
 }
+
+export const sortColumns = (columns: GridColDef[], position: Array<string>) =>
+  columns.sort((a, b) => {
+    return position.indexOf(a.field) - position.indexOf(b.field)
+  })

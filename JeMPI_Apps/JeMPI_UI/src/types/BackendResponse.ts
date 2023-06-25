@@ -18,6 +18,8 @@ export interface LinkRequest {
 
 export interface NotificationResponse {
   records: Notification[]
+  skippedRecords: number
+  count: number
 }
 
 export interface GoldenRecordResponse {

@@ -8,7 +8,7 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useMatch } from '@tanstack/react-location'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -25,6 +25,7 @@ import ApiClient from 'services/ApiClient'
 import { DisplayField, FieldChangeReq, FieldType } from 'types/Fields'
 import { PatientRecord, GoldenRecord } from 'types/PatientRecord'
 import { formatDate } from 'utils/formatters'
+import { sortColumns } from 'utils/helpers'
 
 export interface UpdatedFields {
   [fieldName: string]: { oldValue: unknown; newValue: unknown }
@@ -85,27 +86,64 @@ const RecordDetails = () => {
   >(undefined)
 
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const columns: GridColDef[] = availableFields.map(
-    ({ fieldName, fieldLabel, readOnly, isValid, formatValue }) => {
-      return {
-        field: fieldName,
-        headerName: fieldLabel,
-        flex: 1,
-        valueFormatter: ({ value }) => formatValue(value),
-        sortable: false,
-        disableColumnMenu: true,
-        editable: !readOnly && isEditMode && patientRecord?.type === 'Golden',
-        // a Callback used to validate the user's input
-        preProcessEditCellProps: ({ props }) => {
-          return {
-            ...props,
-            error: isValid(props.value)
+  const columns: GridColDef[] = sortColumns(
+    availableFields.map(
+      ({ fieldName, fieldLabel, readOnly, isValid, formatValue }) => {
+        return {
+          field: fieldName,
+          headerName: fieldLabel,
+          flex: 1,
+          valueFormatter: ({ value }) =>
+            fieldName === 'createdAt'
+              ? formatDate(value as Date)
+              : formatValue(value),
+          sortable: false,
+          disableColumnMenu: true,
+          editable: !readOnly && isEditMode && patientRecord?.type === 'Golden',
+          // a Callback used to validate the user's input
+          preProcessEditCellProps: ({ props }) => {
+            return {
+              ...props,
+              error: isValid(props.value)
+            }
+          },
+          renderEditCell: props => <DataGridCellInput {...props} />,
+          headerClassName: 'super-app-theme--header',
+          renderCell: (params: GridRenderCellParams) => {
+            if (fieldName === 'sourceId') {
+              if (Array.isArray(params.row.sourceId)) {
+                return (
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    {params.row.sourceId.map((value: any) => (
+                      <Typography fontSize={'9px'}>{value.facility}</Typography>
+                    ))}
+                  </Box>
+                )
+              }
+              return (
+                <Typography fontSize={'9px'}>
+                  {params.row.sourceId.facility}
+                </Typography>
+              )
+            }
           }
-        },
-        renderEditCell: props => <DataGridCellInput {...props} />,
-        headerClassName: 'super-app-theme--header'
+        }
       }
-    }
+    ),
+    [
+      'uid',
+      'createdAt',
+      'sourceId',
+      'auxId',
+      'givenName',
+      'familyName',
+      'gender',
+      'dob',
+      'city',
+      'phoneNumber',
+      'nationalId',
+      'score'
+    ]
   )
 
   const { data, error, isLoading, isError } = useQuery<

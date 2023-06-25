@@ -166,7 +166,6 @@
       ],
       "accessLevel": []
     }
-
   ],
   "systemFields": [
     {
@@ -220,7 +219,7 @@
       "fieldType": "String",
       "fieldLabel": "Created At",
       "groups": [
-        "none"
+        "linked_records"
       ],
       "scope": [
         "/record-details/:uid",
