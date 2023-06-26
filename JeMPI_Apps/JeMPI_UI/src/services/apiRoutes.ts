@@ -11,6 +11,7 @@ const ROUTES = {
   POST_UPDATE_NOTIFICATION: '/NotificationRequest',
   POST_SIMPLE_SEARCH: '/search',
   POST_CUSTOM_SEARCH: '/custom-search',
+  POST_FILTER_GIDS: '/filter-gids',
   PATCH_IID_NEW_GID_LINK: '/Unlink',
   PATCH_IID_GID_LINK: '/Link',
   PATCH_GOLDEN_RECORD: '/golden-record',

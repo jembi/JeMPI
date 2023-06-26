@@ -26,11 +26,4 @@ public record SimpleSearchRequestPayload(
       this.sortBy = ObjectUtils.defaultIfNull(sortBy, "uid");
       this.sortAsc = ObjectUtils.defaultIfNull(sortAsc, false);
    }
-
-   public record SearchParameter(
-         String value,
-         String fieldName,
-         Integer distance) {
-
-   }
 }

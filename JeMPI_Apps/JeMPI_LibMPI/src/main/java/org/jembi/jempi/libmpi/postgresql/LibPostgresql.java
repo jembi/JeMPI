@@ -9,6 +9,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -59,21 +60,26 @@ public final class LibPostgresql implements LibMPIClientInterface {
    private ExpandedInteraction findExpandedInteraction(final String eid) {
       final var interaction = findInteraction(eid);
       final var goldenRecord = PostgresqlQueries.getGoldenRecordsOfInteraction(UUID.fromString(eid)).get(0);
-      return new ExpandedInteraction(
-            interaction,
-            List.of(new GoldenRecordWithScore(new GoldenRecord(goldenRecord.uid().toString(),
-                                                               PostgresqlQueries.getGoldenRecordSourceIds(goldenRecord.uid())
-                                                                                .stream()
-                                                                                .map(x -> new CustomSourceId(x.id().toString(),
-                                                                                                             x.data().facility(),
-                                                                                                             x.data().patient()))
-                                                                                .toList(),
-                                                               new CustomUniqueGoldenRecordData(LocalDateTime.now(),
-                                                                                                true,
-                                                                                                interaction.uniqueInteractionData()
-                                                                                                           .auxId()),
-                                                               goldenRecord.data()),
-                                              PostgresqlQueries.getScore(goldenRecord.uid(), UUID.fromString(eid)))));
+      return new ExpandedInteraction(interaction,
+                                     List.of(new GoldenRecordWithScore(new GoldenRecord(goldenRecord.uid().toString(),
+                                                                                        PostgresqlQueries.getGoldenRecordSourceIds(
+                                                                                                               goldenRecord.uid())
+                                                                                                         .stream()
+                                                                                                         .map(x -> new CustomSourceId(
+                                                                                                               x.id().toString(),
+                                                                                                               x.data()
+                                                                                                                .facility(),
+                                                                                                               x.data()
+                                                                                                                .patient()))
+                                                                                                         .toList(),
+                                                                                        new CustomUniqueGoldenRecordData(
+                                                                                              LocalDateTime.now(),
+                                                                                              true,
+                                                                                              interaction.uniqueInteractionData()
+                                                                                                         .auxId()),
+                                                                                        goldenRecord.data()),
+                                                                       PostgresqlQueries.getScore(goldenRecord.uid(),
+                                                                                                  UUID.fromString(eid)))));
    }
 
    public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIds) {
@@ -100,21 +106,16 @@ public final class LibPostgresql implements LibMPIClientInterface {
          final var gidUUID = UUID.fromString(gid);
          final var goldenRecord = findGoldenRecord(gid);
          final var interactions = PostgresqlQueries.getGoldenRecordInteractions(gidUUID);
-         return new ExpandedGoldenRecord(
-               goldenRecord,
-               interactions.stream()
-                           .map(e -> {
-                              final var sid = PostgresqlQueries.getInteractionSourceIds(e.uid()).get(0);
-                              final var score = PostgresqlQueries.getScore(gidUUID, e.uid());
-                              return new InteractionWithScore(new Interaction(e.uid().toString(),
-                                                                              new CustomSourceId(sid.id().toString(),
-                                                                                                 sid.data().facility(),
-                                                                                                 sid.data().patient()),
-                                                                              null,
-                                                                              e.data()),
-                                                              score);
-                           })
-                           .toList());
+         return new ExpandedGoldenRecord(goldenRecord, interactions.stream().map(e -> {
+            final var sid = PostgresqlQueries.getInteractionSourceIds(e.uid()).get(0);
+            final var score = PostgresqlQueries.getScore(gidUUID, e.uid());
+            return new InteractionWithScore(new Interaction(e.uid().toString(),
+                                                            new CustomSourceId(sid.id().toString(),
+                                                                               sid.data().facility(),
+                                                                               sid.data().patient()),
+                                                            null,
+                                                            e.data()), score);
+         }).toList());
       }).toList();
    }
 
@@ -134,7 +135,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -154,7 +155,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -165,6 +166,18 @@ public final class LibPostgresql implements LibMPIClientInterface {
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
          final List<SimpleSearchRequestPayload> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc) {
+      LOGGER.error("Not implemented");
+      return null;
+   }
+
+   @Override
+   public LibMPIPaginatedResultSet<String> filterGids(
+         final List<SearchParameter> params,
+         final LocalDate createdAt,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -237,12 +250,11 @@ public final class LibPostgresql implements LibMPIClientInterface {
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      final var nodeSourceIds = PostgresqlQueries.findSourceId(interaction.sourceId().facility(),
-                                                               interaction.sourceId().patient());
+      final var nodeSourceIds =
+            PostgresqlQueries.findSourceId(interaction.sourceId().facility(), interaction.sourceId().patient());
       final var goldenRecordSourceIds = PostgresqlQueries.getGoldenRecordSourceIds(UUID.fromString(goldenIdScore.goldenId()));
       final var sid = nodeSourceIds.isEmpty()
-            ? new NodeSourceId(interaction.sourceId().facility(),
-                               interaction.sourceId().patient()).createNode()
+            ? new NodeSourceId(interaction.sourceId().facility(), interaction.sourceId().patient()).createNode()
             : nodeSourceIds.get(0).id();
       final var eid = new NodeInteraction(interaction.demographicData()).createNode();
       Edge.createEdge(eid, sid, Edge.EdgeName.IID2SID);
@@ -259,8 +271,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final float score) {
-      final var sid = new NodeSourceId(interaction.sourceId().facility(),
-                                       interaction.sourceId().patient()).createNode();
+      final var sid = new NodeSourceId(interaction.sourceId().facility(), interaction.sourceId().patient()).createNode();
       final var iid = new NodeInteraction(interaction.demographicData()).createNode();
       final var gid = new NodeGoldenRecord(interaction.demographicData()).createNode();
       Edge.createEdge(iid, sid, Edge.EdgeName.IID2SID);

@@ -241,7 +241,8 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/record-details/:uid"
+        "/record-details/:uid",
+        "/notifications/match-details"
       ],
       "accessLevel": []
     }

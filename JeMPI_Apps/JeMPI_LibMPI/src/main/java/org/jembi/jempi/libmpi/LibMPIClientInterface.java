@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface LibMPIClientInterface {
@@ -56,7 +57,7 @@ public interface LibMPIClientInterface {
    List<GoldenRecord> findCandidates(CustomDemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
+         List<SearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
@@ -70,7 +71,7 @@ public interface LibMPIClientInterface {
          Boolean sortAsc);
 
    LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         List<SimpleSearchRequestPayload.SearchParameter> params,
+         List<SearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
@@ -78,6 +79,14 @@ public interface LibMPIClientInterface {
 
    LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
          List<SimpleSearchRequestPayload> params,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc);
+
+   LibMPIPaginatedResultSet<String> filterGids(
+         List<SearchParameter> params,
+         LocalDate createdAt,
          Integer offset,
          Integer limit,
          String sortBy,

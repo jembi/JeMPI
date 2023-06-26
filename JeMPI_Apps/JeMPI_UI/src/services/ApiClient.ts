@@ -5,6 +5,7 @@ import { FieldChangeReq, Fields } from '../types/Fields'
 import {
   ApiSearchResult,
   CustomSearchQuery,
+  FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
 import { OAuthParams, User } from '../types/User'
@@ -218,15 +219,13 @@ class ApiClient {
     })
   }
 
-  async getFilteredGoldenIds(offset: number, length: number) {
+  async getFilteredGoldenIds(request: FilterQuery) {
     return await client
-      .get<{ goldenIds: string[] }>(ROUTES.GET_GIDS_PAGED, {
-        params: {
-          offset,
-          length
-        }
-      })
-      .then(async res => res.data.goldenIds)
+      .post<{ data: string[]; pagination: { total: number } }>(
+        ROUTES.POST_FILTER_GIDS,
+        request
+      )
+      .then(async res => res.data)
   }
 
   async getExpandedGoldenRecords(

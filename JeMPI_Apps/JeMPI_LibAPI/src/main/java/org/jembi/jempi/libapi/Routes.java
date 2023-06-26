@@ -9,6 +9,8 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
 import akka.japi.Pair;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
@@ -371,6 +373,25 @@ public final class Routes {
                                 return Ask.postSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
                              }
                           },
+                          response -> {
+                             if (response.isSuccess()) {
+                                final var eventSearchRsp = response.get();
+                                return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
+                             } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                             }
+                          }));
+   }
+
+   public static Route postFilterGids(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      LOGGER.info("Filter Guids");
+      final ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(objectMapper, FilterGidsRequestPayload.class),
+                    searchParameters -> onComplete(
+                          () -> Ask.postFilterGids(actorSystem, backEnd, searchParameters),
                           response -> {
                              if (response.isSuccess()) {
                                 final var eventSearchRsp = response.get();

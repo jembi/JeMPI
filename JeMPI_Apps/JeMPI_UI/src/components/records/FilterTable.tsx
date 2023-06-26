@@ -20,10 +20,10 @@ export const FilterTable: FC<{
   onSubmit: (query: SearchParameter[]) => void
   onCancel: () => void
 }> = ({ onSubmit, onCancel }) => {
-  const { availableFields } = useAppConfig()
+  const { getFieldsByGroup } = useAppConfig()
 
   const [query, setQuery] = useState<SearchParameter[]>([])
-  const columns: GridColDef[] = availableFields.map(
+  const columns: GridColDef[] = getFieldsByGroup('demographics').map(
     ({ fieldName, fieldLabel }) => {
       return {
         field: fieldName,

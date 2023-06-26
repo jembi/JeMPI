@@ -52,6 +52,17 @@ public abstract class ApiModels {
       }
    }
 
+   public record ApiFiteredGidsPaginatedResultSet(
+         List<String> data,
+         ApiPagination pagination) implements ApiPaginatedResultSet {
+      public static ApiFiteredGidsPaginatedResultSet fromLibMPIPaginatedResultSet(
+            final LibMPIPaginatedResultSet<String> resultSet) {
+         final var data = resultSet.data()
+                                   .stream().toList();
+         return new ApiFiteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+      }
+   }
+
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecord(
          String uid,
