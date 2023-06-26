@@ -24,6 +24,11 @@ export interface SearchQuery extends BaseSearchQuery {
   parameters: SearchParameter[]
 }
 
+export interface FilterQuery extends BaseSearchQuery {
+  parameters: SearchParameter[]
+  createdAt: string
+}
+
 export enum FlagLabel {
   ALL_RECORDS = 'ALL RECORDS',
   GOLDEN_ONLY = 'GOLDEN ONLY',

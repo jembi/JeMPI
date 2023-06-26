@@ -77,7 +77,8 @@ public final class HttpServer extends AllDirectives {
                                       path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                            () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
-                                           () -> Routes.proxyPostCalculateScores(http)))),
+                                           () -> Routes.proxyPostCalculateScores(http)),
+                                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS, () -> Routes.postFilterGids(actorSystem, backEnd)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
                                        path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,

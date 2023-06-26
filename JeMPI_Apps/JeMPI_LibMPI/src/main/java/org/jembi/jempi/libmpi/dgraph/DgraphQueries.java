@@ -7,9 +7,11 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.RecordType;
+import org.jembi.jempi.shared.models.SearchParameter;
 import org.jembi.jempi.shared.models.SimpleSearchRequestPayload;
 import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.time.LocalDate;
 import java.util.*;
 
 final class DgraphQueries {
@@ -44,6 +46,20 @@ final class DgraphQueries {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       return new DgraphInteractions(List.of());
+   }
+
+   static DgraphPaginatedUidList runfilterGidsQuery(
+         final String query,
+         final Map<String, String> vars) {
+      try {
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
+         if (!StringUtils.isBlank(json)) {
+            return AppUtils.OBJECT_MAPPER.readValue(json, DgraphPaginatedUidList.class);
+         }
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage());
+      }
+      return new DgraphPaginatedUidList(List.of());
    }
 
    static DgraphGoldenRecords runGoldenRecordsQuery(
@@ -283,9 +299,9 @@ final class DgraphQueries {
    }
 */
 
-   private static List<String> getSimpleSearchQueryArguments(final List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+   private static List<String> getSimpleSearchQueryArguments(final List<SearchParameter> parameters) {
       List<String> args = new ArrayList<>();
-      for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
+      for (SearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
             args.add(String.format("$%s: string", fieldName));
@@ -297,8 +313,8 @@ final class DgraphQueries {
    private static List<String> getCustomSearchQueryArguments(final List<SimpleSearchRequestPayload> payloads) {
       List<String> args = new ArrayList<>();
       for (int i = 0; i < payloads.size(); i++) {
-         List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
-         for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
+         List<SearchParameter> parameters = payloads.get(i).parameters();
+         for (SearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                args.add(String.format("$%s_%d: string", fieldName, i));
@@ -308,9 +324,9 @@ final class DgraphQueries {
       return args;
    }
 
-   private static HashMap<String, String> getSimpleSearchQueryVariables(final List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+   private static HashMap<String, String> getSimpleSearchQueryVariables(final List<SearchParameter> parameters) {
       final var vars = new HashMap<String, String>();
-      for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
+      for (SearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
             String value = param.value();
@@ -323,8 +339,8 @@ final class DgraphQueries {
    private static HashMap<String, String> getCustomSearchQueryVariables(final List<SimpleSearchRequestPayload> payloads) {
       final var vars = new HashMap<String, String>();
       for (int i = 0; i < payloads.size(); i++) {
-         List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
-         for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
+         List<SearchParameter> parameters = payloads.get(i).parameters();
+         for (SearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                String value = param.value();
@@ -337,9 +353,9 @@ final class DgraphQueries {
 
    private static String getSimpleSearchQueryFilters(
          final RecordType recordType,
-         final List<SimpleSearchRequestPayload.SearchParameter> parameters) {
+         final List<SearchParameter> parameters) {
       List<String> gqlFilters = new ArrayList<>();
-      for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
+      for (SearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
             Integer distance = param.distance();
@@ -362,9 +378,9 @@ final class DgraphQueries {
          final List<SimpleSearchRequestPayload> payloads) {
       final List<String> gqlOrCondition = new ArrayList<>();
       for (int i = 0; i < payloads.size(); i++) {
-         List<SimpleSearchRequestPayload.SearchParameter> parameters = payloads.get(i).parameters();
+         List<SearchParameter> parameters = payloads.get(i).parameters();
          List<String> gqlAndCondition = new ArrayList<>();
-         for (SimpleSearchRequestPayload.SearchParameter param : parameters) {
+         for (SearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                Integer distance = param.distance();
@@ -436,7 +452,7 @@ final class DgraphQueries {
    }
 
    static DgraphExpandedGoldenRecords simpleSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -489,8 +505,50 @@ final class DgraphQueries {
       return runInteractionsQuery(gql, gqlVars);
    }
 
+   private static DgraphPaginatedUidList filterGidsFunc(
+         final String gqlFilters,
+         final List<String> gqlArgs,
+         final HashMap<String, String> gqlVars,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
+                                                       ) {
+      String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
+      String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
+      String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
+      gql += String.format("all(%s) @filter(%s)", gqlFunc, gqlFilters);
+      gql += "{\n";
+      gql += "uid";
+      gql += "}\n";
+      gql += gqlPagination;
+      gql += "}";
+
+      LOGGER.debug("Filter Gids Query {}", gql);
+      LOGGER.debug("Filter Gids Variables {}", gqlVars);
+      return runfilterGidsQuery(gql, gqlVars);
+   }
+
+   static DgraphPaginatedUidList filterGidsWithParams(
+         final List<SearchParameter> params,
+         final LocalDate createdAt,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc
+                                                     ) {
+      LOGGER.debug("Filter Gids Params {}", params);
+      // String dateFilter = String.format("lt(GoldenRecord.aux_date_created, %s)", createdAt);
+      String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
+      // String gqlFilters = filter.length() > 0 ? filter + " AND " + dateFilter : dateFilter;
+      List<String> gqlArgs = getSimpleSearchQueryArguments(params);
+      HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
+
+      return filterGidsFunc(filter, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
+   }
+
    static DgraphInteractions simpleSearchInteractions(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,

@@ -238,6 +238,19 @@ public final class Ask {
             response.records()));
    }
 
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> postFilterGids(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final FilterGidsRequestPayload filterRequestPayload) {
+      CompletionStage<BackEnd.PostFilterGidsResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.PostFilterGidsRequest(replyTo, filterRequestPayload),
+                 java.time.Duration.ofSeconds(11),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> ApiModels.ApiFiteredGidsPaginatedResultSet.fromLibMPIPaginatedResultSet(
+            response.goldenIds()));
+   }
+
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postSimpleSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,

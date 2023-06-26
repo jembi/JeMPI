@@ -13,6 +13,7 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 public final class LibMPI {
@@ -162,7 +163,7 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -180,7 +181,7 @@ public final class LibMPI {
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -195,6 +196,16 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       return client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
+   }
+
+   public LibMPIPaginatedResultSet<String> filterGids(
+         final List<SearchParameter> params,
+         final LocalDate createdAt,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc) {
+      return client.filterGids(params, createdAt, offset, limit, sortBy, sortAsc);
    }
 
    /*

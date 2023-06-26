@@ -11,6 +11,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static io.dgraph.DgraphProto.Operation.DropOp.DATA;
@@ -109,6 +110,15 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
+   private LibMPIPaginatedResultSet<String> paginatedGids(final DgraphPaginatedUidList list) {
+      if (list == null) {
+         return null;
+      }
+      final var data = list.all().stream().map(item -> item.uid()).toList();
+      final var pagination = list.pagination().get(0);
+      return new LibMPIPaginatedResultSet<>(data, pagination);
+   }
+
    public boolean setScore(
          final String interactionUID,
          final String goldenRecordUid,
@@ -117,7 +127,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -137,7 +147,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         final List<SimpleSearchRequestPayload.SearchParameter> params,
+         final List<SearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -155,6 +165,18 @@ public final class LibDgraph implements LibMPIClientInterface {
       final var list = DgraphQueries.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
       return paginatedInteractions(list);
    }
+
+   public LibMPIPaginatedResultSet<String> filterGids(
+         final List<SearchParameter> params,
+         final LocalDate createdAt,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc) {
+      final var list = DgraphQueries.filterGidsWithParams(params, createdAt, offset, limit, sortBy, sortAsc);
+      return paginatedGids(list);
+   }
+
 
    /*
     * *******************************************************

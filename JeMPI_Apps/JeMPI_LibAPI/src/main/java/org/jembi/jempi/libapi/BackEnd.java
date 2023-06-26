@@ -122,13 +122,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
             .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
             .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+            .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
             .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
             .build();
    }
 
    private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
-      List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
+      List<SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
@@ -156,7 +157,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postSimpleSearchInteractionsHandler(final PostSimpleSearchInteractionsRequest request) {
       SimpleSearchRequestPayload payload = request.searchRequestPayload();
-      List<SimpleSearchRequestPayload.SearchParameter> parameters = payload.parameters();
+      List<SearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
@@ -179,6 +180,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       var recs = libMPI.customSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
       libMPI.closeTransaction();
       request.replyTo.tell(new PostSearchInteractionsResponse(recs));
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> postFilterGidsHandler(final PostFilterGidsRequest request) {
+      FilterGidsRequestPayload payload = request.filterGidsRequestPayload();
+      List<SearchParameter> parameters = payload.parameters();
+      LocalDate createdAt = payload.createdAt();
+      Integer offset = payload.offset();
+      Integer limit = payload.limit();
+      String sortBy = payload.sortBy();
+      Boolean sortAsc = payload.sortAsc();
+      libMPI.startTransaction();
+      var recs = libMPI.filterGids(parameters, createdAt, offset, limit, sortBy, sortAsc);
+      libMPI.closeTransaction();
+      request.replyTo.tell(new PostFilterGidsResponse(recs));
       return Behaviors.same();
    }
 
@@ -557,6 +573,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostSimpleSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,
          SimpleSearchRequestPayload searchRequestPayload) implements Event {
+   }
+
+   public record PostFilterGidsRequest(
+         ActorRef<PostFilterGidsResponse> replyTo,
+         FilterGidsRequestPayload filterGidsRequestPayload) implements Event {
+   }
+
+   public record PostFilterGidsResponse(
+         LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse {
    }
 
    public record PostCustomSearchGoldenRecordsRequest(

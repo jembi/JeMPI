@@ -6,7 +6,6 @@ import {
   Container,
   Divider,
   Paper,
-  TextField,
   Typography
 } from '@mui/material'
 import {
@@ -24,7 +23,7 @@ import {
   ValueOf
 } from 'types/PatientRecord'
 import { FilterTable } from './FilterTable'
-import { SearchParameter } from 'types/SimpleSearch'
+import { FilterQuery, SearchParameter } from 'types/SimpleSearch'
 import { useState } from 'react'
 import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
@@ -52,14 +51,11 @@ const getAlignment = (fieldName: string) =>
 const Records = () => {
   const navigate = useNavigate()
   const { getFieldsByGroup } = useAppConfig()
+
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 100
-  })
-  const [goldenIdsPagination, setGoldenIdsPagination] = useState({
-    offset: 0,
-    limit: 1000
   })
 
   const [dateFilter, setDateFilter] = useState(
@@ -73,6 +69,19 @@ const Records = () => {
       ...locale
     })
   )
+
+  const [filterPayload, setFilterPayload] = useState<FilterQuery>({
+    parameters: [],
+    createdAt: dayjs()
+      .locale({
+        ...locale
+      })
+      .format('YYYY-MM-DD'),
+    limit: 1000,
+    offset: 0,
+    sortAsc: false,
+    sortBy: 'auxDateCreated'
+  })
 
   const [goldenIds, setGoldenIds] = useState<Array<string>>([])
 
@@ -107,18 +116,23 @@ const Records = () => {
     }
   )
 
-  const goldenIdsQuery = useQuery<Array<string>, AxiosError>({
-    queryKey: ['golden-records-ids', goldenIdsPagination.offset],
-    queryFn: async () =>
-      await ApiClient.getFilteredGoldenIds(
-        goldenIdsPagination.offset,
-        goldenIdsPagination.limit
-      ),
+  const goldenIdsQuery = useQuery<
+    { data: Array<string>; pagination: { total: number } },
+    AxiosError
+  >({
+    queryKey: [
+      'golden-records-ids',
+      ...filterPayload.parameters,
+      filterPayload.createdAt,
+      filterPayload.offset,
+      filterPayload.limit
+    ],
+    queryFn: async () => await ApiClient.getFilteredGoldenIds(filterPayload),
     onSuccess: data => {
-      if (goldenIds.length === 0 || goldenIdsPagination.offset === 0) {
-        setGoldenIds([...data])
-      } else if (goldenIdsPagination.offset > 0) {
-        setGoldenIds([...goldenIds, ...data])
+      if (goldenIds.length === 0 || filterPayload.offset === 0) {
+        setGoldenIds([...data.data])
+      } else if (filterPayload.offset > 0) {
+        setGoldenIds([...goldenIds, ...data.data])
       }
     },
     refetchOnWindowFocus: false
@@ -139,7 +153,12 @@ const Records = () => {
         ),
         false
       )) as Array<GoldenRecord>,
-    enabled: goldenIds.length != 0,
+    enabled:
+      goldenIds?.slice(
+        paginationModel.page * paginationModel.pageSize,
+        paginationModel.page * paginationModel.pageSize +
+          paginationModel.pageSize
+      ).length > 0,
     onSuccess: data =>
       data?.sort(
         (a: AnyRecord, b: AnyRecord) =>
@@ -159,35 +178,36 @@ const Records = () => {
     setSearchQuery(query)
   }
 
+  const onFilter = (query: SearchParameter[]) => {
+    setFilterPayload({
+      ...filterPayload,
+      parameters: [...query],
+      createdAt: dateFilter.format('YYYY-MM-DD')
+    })
+  }
+
   const handlePagination = (model: GridPaginationModel) => {
     setPaginationModel(model)
     if (
-      goldenIdsPagination.offset === 0 &&
+      filterPayload.offset === 0 &&
       paginationModel.pageSize * paginationModel.page +
         paginationModel.pageSize >=
-        goldenIdsPagination.limit - paginationModel.pageSize
+        filterPayload.limit
     ) {
-      if (goldenIdsQuery.data) {
-        setGoldenIds([...goldenIds, ...goldenIdsQuery.data])
-      }
-      setGoldenIdsPagination({
-        ...goldenIdsPagination,
-        offset:
-          goldenIdsPagination.offset +
-          (goldenIdsPagination.limit - paginationModel.pageSize)
+      setFilterPayload({
+        ...filterPayload,
+        offset: filterPayload.offset + filterPayload.limit
       })
     }
     if (
-      goldenIdsPagination.offset !== 0 &&
+      filterPayload.offset !== 0 &&
       paginationModel.pageSize * paginationModel.page +
         paginationModel.pageSize <
-        goldenIdsPagination.limit - paginationModel.pageSize
+        filterPayload.limit
     ) {
-      setGoldenIdsPagination({
-        ...goldenIdsPagination,
-        offset:
-          goldenIdsPagination.offset -
-          (goldenIdsPagination.limit - paginationModel.pageSize)
+      setFilterPayload({
+        ...filterPayload,
+        offset: filterPayload.offset - filterPayload.limit
       })
     }
   }
@@ -248,20 +268,17 @@ const Records = () => {
                   }}
                 />
               </LocalizationProvider>
-              <TextField
-                title="Limit"
-                helperText="how many records you want to fetch ?"
-                value={goldenIdsPagination}
-                onChange={e =>
-                  setGoldenIdsPagination({
-                    ...goldenIdsPagination,
-                    limit: parseInt(e.target.value)
-                  })
-                }
-                type="number"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-              />
             </Box>
+            <FilterTable
+              onSubmit={onFilter}
+              onCancel={() =>
+                setFilterPayload({
+                  ...filterPayload,
+                  parameters: [],
+                  createdAt: dayjs(new Date()).format('YYYY-MM-DD')
+                })
+              }
+            />
           </AccordionDetails>
         </Accordion>
         <Accordion>
@@ -326,7 +343,7 @@ const Records = () => {
             onPaginationModelChange={model => handlePagination(model)}
             paginationMode="server"
             loading={expandeGoldenRecordsQuery.isLoading}
-            rowCount={goldenIds.length}
+            rowCount={goldenIdsQuery?.data?.pagination.total || 0}
           />
         </Paper>
       </Box>
