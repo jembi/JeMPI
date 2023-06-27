@@ -41,7 +41,8 @@ const columns: GridColDef[] = [
     headerName: 'Date',
     type: 'date',
     minWidth: 150,
-
+    sortable: true,
+    sortingOrder: ['desc'],
     align: 'center',
     headerAlign: 'center',
     valueFormatter: (params: GridValueFormatterParams<Date>) =>

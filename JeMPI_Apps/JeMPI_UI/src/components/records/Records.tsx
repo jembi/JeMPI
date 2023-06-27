@@ -129,10 +129,10 @@ const Records = () => {
     ],
     queryFn: async () => await ApiClient.getFilteredGoldenIds(filterPayload),
     onSuccess: data => {
-      if (goldenIds.length === 0 || filterPayload.offset === 0) {
-        setGoldenIds([...data.data])
-      } else if (filterPayload.offset > 0) {
+      if (filterPayload.offset > 0) {
         setGoldenIds([...goldenIds, ...data.data])
+      } else {
+        setGoldenIds([...data.data])
       }
     },
     refetchOnWindowFocus: false
@@ -142,7 +142,9 @@ const Records = () => {
     queryKey: [
       'expanded-golden-records',
       paginationModel.page,
-      paginationModel.pageSize
+      paginationModel.pageSize,
+      ...filterPayload.parameters,
+      goldenIds
     ],
     queryFn: async () =>
       (await ApiClient.getExpandedGoldenRecords(
@@ -153,12 +155,7 @@ const Records = () => {
         ),
         false
       )) as Array<GoldenRecord>,
-    enabled:
-      goldenIds?.slice(
-        paginationModel.page * paginationModel.pageSize,
-        paginationModel.page * paginationModel.pageSize +
-          paginationModel.pageSize
-      ).length > 0,
+    enabled: goldenIds.length > 0,
     onSuccess: data =>
       data?.sort(
         (a: AnyRecord, b: AnyRecord) =>
