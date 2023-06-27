@@ -55,7 +55,7 @@ const Records = () => {
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 100
+    pageSize: 10
   })
 
   const [dateFilter, setDateFilter] = useState(
@@ -144,7 +144,11 @@ const Records = () => {
       paginationModel.page,
       paginationModel.pageSize,
       ...filterPayload.parameters,
-      goldenIds
+      goldenIds?.slice(
+        paginationModel.page * paginationModel.pageSize,
+        paginationModel.page * paginationModel.pageSize +
+          paginationModel.pageSize
+      )
     ],
     queryFn: async () =>
       (await ApiClient.getExpandedGoldenRecords(
@@ -330,14 +334,15 @@ const Records = () => {
               }
             }}
             getRowId={({ uid }) => uid}
+            paginationModel={paginationModel}
             columns={columns}
             rows={expandeGoldenRecordsQuery?.data || []}
-            pageSizeOptions={[25, 50, 100]}
+            pageSizeOptions={[10, 25, 50, 100]}
             onRowDoubleClick={params =>
               navigate({ to: `/record-details/${params.row.uid}` })
             }
             getRowClassName={params => `${getClassName(params.row)}`}
-            onPaginationModelChange={model => handlePagination(model)}
+            onPaginationModelChange={handlePagination}
             paginationMode="server"
             loading={expandeGoldenRecordsQuery.isLoading}
             rowCount={goldenIdsQuery?.data?.pagination.total || 0}

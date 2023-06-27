@@ -1,4 +1,4 @@
-import { SxProps, Theme, Typography } from '@mui/material'
+import { Box, SxProps, Theme, Typography } from '@mui/material'
 import {
   GridCellParams,
   GridColDef,
@@ -77,7 +77,25 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
             params: GridValueFormatterParams<number | string | Date>
           ) => formatValue(params.value),
           cellClassName: (params: GridCellParams) =>
-            getCellClassName(params, field, data[0])
+            getCellClassName(params, field, data[0]),
+          renderCell: (params: GridRenderCellParams) => {
+            if (fieldName === 'sourceId') {
+              if (Array.isArray(params.row.sourceId)) {
+                return (
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    {params.row.sourceId.map((value: any) => (
+                      <Typography fontSize={'9px'}>{value.facility}</Typography>
+                    ))}
+                  </Box>
+                )
+              }
+              return (
+                <Typography fontSize={'9px'}>
+                  {params.row.sourceId.facility}
+                </Typography>
+              )
+            }
+          }
         }
     }
   })
