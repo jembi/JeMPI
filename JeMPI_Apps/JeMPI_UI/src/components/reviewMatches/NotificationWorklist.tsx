@@ -103,7 +103,7 @@ const NotificationWorklist = () => {
   const [date, setDate] = React.useState(selectedDate)
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 25
+    pageSize: 10
   })
   const [filterModel, setFilterModel] = useState<GridFilterModel>({
     items: [{ field: 'state', value: 'New', operator: 'contains' }]
