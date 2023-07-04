@@ -78,12 +78,17 @@ final class LinkerProbabilistic {
          final String left,
          final String right,
          final Field field) {
+//      if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
+//         metrics[0] += field.min;
+//         metrics[1] += field.max;
+//         metrics[2] += fieldScore(left, right, field);
+//      } else {
+//         metrics[3] *= MISSING_PENALTY;
+//      }
+      metrics[0] += field.min;
+      metrics[1] += field.max;
       if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
-         metrics[0] += field.min;
-         metrics[1] += field.max;
          metrics[2] += fieldScore(left, right, field);
-      } else {
-         metrics[3] *= MISSING_PENALTY;
       }
    }
 
