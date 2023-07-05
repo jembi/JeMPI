@@ -16,10 +16,10 @@ record CustomEMPatient(
       String nationalID) {
 
    CustomEMPatient(final CustomDemographicData patient) {
-      this(patient.givenName, CustomEMTask.getPhonetic(patient.givenName),
-           patient.familyName, CustomEMTask.getPhonetic(patient.familyName),
-           patient.gender,
-           patient.dob,
+      this(StringUtils.EMPTY, StringUtils.EMPTY,
+           StringUtils.EMPTY, StringUtils.EMPTY,
+           StringUtils.EMPTY,
+           StringUtils.EMPTY,
            StringUtils.EMPTY, StringUtils.EMPTY, // patient.city, CustomEMTask.getPhonetic(patient.city),
            StringUtils.EMPTY, // patient.phoneNumber,
            null);

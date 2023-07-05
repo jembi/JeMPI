@@ -8,11 +8,14 @@ from src import helper, basefunctions
 
 
 def generate_dataset():
+
+    csv_file_name = "results/dataset-3-002000-05-50.csv"
+
     # config = \
     #     {"BaseDate": "2022-01-01",
     #      "NumberOfPatients": 5_000,
     #      "AverageNumberOfClinicalRecordsPerPatient": 2,
-    #      "PercentageOfCorruptedRecords": 0.8,
+    #      "PercentageOfCorruptedRecords": 0.0
     #      "fields": [
     #          {"name": "given_name",
     #           "weight": 0.2,
@@ -58,38 +61,11 @@ def generate_dataset():
     #               "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
     #      ]}
 
-    # config = \
-    #     {"BaseDate": "2022-01-01",
-    #      "NumberOfPatients": 2_000,
-    #      "AverageNumberOfClinicalRecordsPerPatient": 5,
-    #      "PercentageOfCorruptedRecords": 0.1,
-    #      "fields": [
-    #          {"name": "gender",
-    #           "weight": 0.3,
-    #           "corrupter": {
-    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-    #                        "phonetic_corrupter", "ocr_corrupter"],
-    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
-    #          {"name": "dob",
-    #           "weight": 0.4,
-    #           "corrupter": {
-    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-    #                        "phonetic_corrupter", "ocr_corrupter"],
-    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
-    #          {"name": "city",
-    #           "weight": 0.3,
-    #           "corrupter": {
-    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-    #                        "phonetic_corrupter", "ocr_corrupter"],
-    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
-    #
-    #      ]}
-
     config = \
         {"BaseDate": "2022-01-01",
          "NumberOfPatients": 2_000,
          "AverageNumberOfClinicalRecordsPerPatient": 5,
-         "PercentageOfCorruptedRecords": 0.1,
+         "PercentageOfCorruptedRecords": 0.5,
          "fields": [
              {"name": "gender",
               "weight": 0.3,
@@ -112,10 +88,42 @@ def generate_dataset():
              {"name": "national_id",
               "weight": 0.1,
               "corrupter": {
-                           "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-                                    "phonetic_corrupter", "ocr_corrupter"],
-                           "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
+                  "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+                           "phonetic_corrupter", "ocr_corrupter"],
+                  "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}}
          ]}
+
+    # config = \
+    #     {"BaseDate": "2022-01-01",
+    #      "NumberOfPatients": 2_000,
+    #      "AverageNumberOfClinicalRecordsPerPatient": 5,
+    #      "PercentageOfCorruptedRecords": 0.1,
+    #      "fields": [
+    #          {"name": "gender",
+    #           "weight": 0.3,
+    #           "corrupter": {
+    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+    #                        "phonetic_corrupter", "ocr_corrupter"],
+    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
+    #          {"name": "dob",
+    #           "weight": 0.3,
+    #           "corrupter": {
+    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+    #                        "phonetic_corrupter", "ocr_corrupter"],
+    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
+    #          {"name": "city",
+    #           "weight": 0.3,
+    #           "corrupter": {
+    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+    #                        "phonetic_corrupter", "ocr_corrupter"],
+    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
+    #          {"name": "national_id",
+    #           "weight": 0.1,
+    #           "corrupter": {
+    #                        "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+    #                                 "phonetic_corrupter", "ocr_corrupter"],
+    #                        "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
+    #      ]}
 
 
     fields = config["fields"]
@@ -189,7 +197,7 @@ def generate_dataset():
             # data.append([rec_num, given_name, family_name, gender, dob, city, phone_number, national_id,
             #              facility, patient_id, c_data])
             # data.append([rec_num, gender, dob, city, facility, patient_id, c_data])
-            data.append([rec_num, gender, dob, city, facility, patient_id, c_data, national_id ])
+            data.append([rec_num, gender, dob, city, national_id, facility, patient_id, c_data ])
         k = k + 1
         if k % 1000 == 0:
             print(k)
@@ -201,8 +209,8 @@ def generate_dataset():
     #                                  'city',
     #                                  'src_id_facility', 'src_id_patient', 'clinical_data'])
     df = pd.DataFrame(data, columns=['rec_num', 'gender', 'dob',
-                                     'city',
-                                     'src_id_facility', 'src_id_patient', 'clinical_data', 'national_id'])
+                                     'city', 'national_id',
+                                     'src_id_facility', 'src_id_patient', 'clinical_data'])
     df['corrupted'] = False
     number_of_records = df.shape[0]
     percentage_of_corrupted_records = config['PercentageOfCorruptedRecords']
@@ -232,7 +240,7 @@ def generate_dataset():
             df.at[row_to_corrupt, column_to_corrupt] = corrupter_value
         # print()
     df = df.drop('corrupted', axis=1)
-    df.to_csv('results/' + str(helper.generate_log_filename('synthetic_data_V')), index=False, encoding='utf-8')
+    df.to_csv(csv_file_name, index=False, encoding='utf-8')
 
 
 def main():

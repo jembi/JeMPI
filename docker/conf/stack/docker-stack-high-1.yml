@@ -265,7 +265,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
-    command: dgraph zero --my=zero-01:5080 --replicas 1
+    command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   alpha-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -295,7 +295,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -325,7 +325,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 -o 1 --telemetry "reports=false; sentry=false;"
 
   alpha-03:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -355,7 +355,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
-    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
+    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 -o 2 --telemetry "reports=false; sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
@@ -502,7 +502,7 @@ services:
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     environment:
-      LOG4J2_LEVEL: "INFO" 
+      LOG4J2_LEVEL: "TRACE" 
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
