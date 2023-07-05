@@ -4,7 +4,6 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import { ReactLocation, Route, Router } from '@tanstack/react-location'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import Records from 'components/records/Records'
 import { SnackbarProvider } from 'notistack'
 import { lazy } from 'react'
 import CustomSearch from './components/customSearch/CustomSearch'
@@ -21,7 +20,8 @@ import { config } from './config'
 import { AppConfigProvider } from './hooks/useAppConfig'
 import { AuthProvider } from './hooks/useAuth'
 import theme from './theme'
-import RecordDetails from 'components/record-details/RecordDetails'
+import Records from 'components/browseRecords/BrowseRecords'
+import RecordDetails from 'components/recordDetails/RecordDetails'
 
 const location = new ReactLocation({})
 const queryClient = new QueryClient({

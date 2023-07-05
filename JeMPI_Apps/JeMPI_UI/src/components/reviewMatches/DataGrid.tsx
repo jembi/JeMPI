@@ -1,4 +1,4 @@
-import { Box, SxProps, Theme, Typography } from '@mui/material'
+import { SxProps, Theme, Typography } from '@mui/material'
 import {
   GridCellParams,
   GridColDef,
@@ -9,6 +9,7 @@ import {
 import { DisplayField } from 'types/Fields'
 import { AnyRecord } from 'types/PatientRecord'
 import { useAppConfig } from '../../hooks/useAppConfig'
+import SourceIdComponent from 'components/browseRecords/SourceIdComponent'
 interface DataGridProps {
   data: AnyRecord[]
   onLinkedRecordDialogOpen?: (uid: string) => void
@@ -72,7 +73,7 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
         return {
           field: fieldName,
           headerName: fieldLabel,
-          flex: 1,
+          flex: fieldName === 'sourceId' ? 2 : 1,
           valueFormatter: (
             params: GridValueFormatterParams<number | string | Date>
           ) => formatValue(params.value),
@@ -80,20 +81,7 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
             getCellClassName(params, field, data[0]),
           renderCell: (params: GridRenderCellParams) => {
             if (fieldName === 'sourceId') {
-              if (Array.isArray(params.row.sourceId)) {
-                return (
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    {params.row.sourceId.map((value: any) => (
-                      <Typography fontSize={'9px'}>{value.facility}</Typography>
-                    ))}
-                  </Box>
-                )
-              }
-              return (
-                <Typography fontSize={'9px'}>
-                  {params.row.sourceId.facility}
-                </Typography>
-              )
+              return <SourceIdComponent content={params.row.sourceId} />
             }
           }
         }

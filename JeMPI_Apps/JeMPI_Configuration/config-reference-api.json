@@ -217,7 +217,7 @@
     {
       "fieldName": "sourceId",
       "fieldType": "SourceId",
-      "fieldLabel": "Site Code",
+      "fieldLabel": "Source Id",
       "groups": [
         "registering_facility",
         "linked_records"

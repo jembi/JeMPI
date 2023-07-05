@@ -7,13 +7,11 @@ import {
 } from '@mui/material'
 import { FC, useState } from 'react'
 
-// interface SelectMatchLevelMenuProps {
-//   onChange: (() => void) | undefined
-// }
-
-const SelectMatchLevelMenu: FC<{
+interface SelectMatchLevelMenuProps {
   onChange: (value: string) => void
-}> = ({ onChange }) => {
+}
+
+const SelectMatchLevelMenu: FC<SelectMatchLevelMenuProps> = ({ onChange }) => {
   const [selectedValue, setSelectedValue] = useState('0')
   const onSelectChange = (event: SelectChangeEvent<string>) => {
     setSelectedValue(event.target.value)

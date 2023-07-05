@@ -6,6 +6,7 @@ import {
   Container,
   Divider,
   Paper,
+  Stack,
   Typography
 } from '@mui/material'
 import {
@@ -37,6 +38,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
 import { formatDate } from 'utils/formatters'
+import SourceIdComponent from './SourceIdComponent'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -90,7 +92,7 @@ const Records = () => {
       return {
         field: fieldName,
         headerName: fieldLabel,
-        flex: 1,
+        flex: fieldName === 'sourceId' ? 2 : 1,
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
           fieldName === 'createdAt'
             ? formatDate(value as Date)
@@ -103,13 +105,7 @@ const Records = () => {
         headerClassName: 'super-app-theme--header',
         renderCell: (params: GridRenderCellParams) => {
           if (fieldName === 'sourceId') {
-            return (
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                {params.row.sourceId.map((value: any) => (
-                  <Typography fontSize={'9px'}>{value.facility}</Typography>
-                ))}
-              </Box>
-            )
+            return <SourceIdComponent content={params.row.sourceId} />
           }
         }
       }
