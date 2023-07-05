@@ -624,11 +624,6 @@ services:
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
-    command: sh -c "yarn build && serve -s build"
-    environment:
-      REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
-      REACT_APP_MOCK_BACKEND: "${JEMPI_UI_MOCKBACKEND}"
-      REACT_APP_ENABLE_SSO: "${JEMPI_UI_ENABLE_SSO}"
     networks:
       - frontend
     deploy:
