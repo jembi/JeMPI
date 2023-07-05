@@ -8,11 +8,14 @@ from src import helper, basefunctions
 
 
 def generate_dataset():
+
+    csv_file_name = "results/dataset-5-002000-05-50.csv"
+
     # config = \
     #     {"BaseDate": "2022-01-01",
     #      "NumberOfPatients": 5_000,
     #      "AverageNumberOfClinicalRecordsPerPatient": 2,
-    #      "PercentageOfCorruptedRecords": 0.8,
+    #      "PercentageOfCorruptedRecords": 0.0
     #      "fields": [
     #          {"name": "given_name",
     #           "weight": 0.2,
@@ -58,53 +61,38 @@ def generate_dataset():
     #               "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
     #      ]}
 
-    # config = \
-    #     {"BaseDate": "2022-01-01",
-    #      "NumberOfPatients": 2_000,
-    #      "AverageNumberOfClinicalRecordsPerPatient": 5,
-    #      "PercentageOfCorruptedRecords": 0.1,
-    #      "fields": [
-    #          {"name": "gender",
-    #           "weight": 0.3,
-    #           "corrupter": {
-    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-    #                        "phonetic_corrupter", "ocr_corrupter"],
-    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
-    #          {"name": "dob",
-    #           "weight": 0.4,
-    #           "corrupter": {
-    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-    #                        "phonetic_corrupter", "ocr_corrupter"],
-    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
-    #          {"name": "city",
-    #           "weight": 0.3,
-    #           "corrupter": {
-    #               "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-    #                        "phonetic_corrupter", "ocr_corrupter"],
-    #               "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
-    #
-    #      ]}
-
     config = \
         {"BaseDate": "2022-01-01",
          "NumberOfPatients": 2_000,
          "AverageNumberOfClinicalRecordsPerPatient": 5,
-         "PercentageOfCorruptedRecords": 0.1,
+         "PercentageOfCorruptedRecords": 0.5,
          "fields": [
+             {"name": "given_name",
+              "weight": 0.2,
+              "corrupter": {
+                  "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+                           "phonetic_corrupter", "ocr_corrupter"],
+                  "weight": [0.2, 0.2, 0.3, 0.0, 0.15, 0.15]}},
+             {"name": "family_name",
+              "weight": 0.2,
+              "corrupter": {
+                  "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+                           "phonetic_corrupter", "ocr_corrupter"],
+                  "weight": [0.2, 0.3, 0.2, 0.0, 0.1, 0.2]}},
              {"name": "gender",
-              "weight": 0.3,
+              "weight": 0.1,
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
                   "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
              {"name": "dob",
-              "weight": 0.3,
+              "weight": 0.2,
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
                   "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
              {"name": "city",
-              "weight": 0.3,
+              "weight": 0.2,
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
@@ -112,11 +100,10 @@ def generate_dataset():
              {"name": "national_id",
               "weight": 0.1,
               "corrupter": {
-                           "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
-                                    "phonetic_corrupter", "ocr_corrupter"],
-                           "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
+                  "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
+                           "phonetic_corrupter", "ocr_corrupter"],
+                  "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}}
          ]}
-
 
     fields = config["fields"]
     field_name_list = []
@@ -133,10 +120,10 @@ def generate_dataset():
     seed = 123456
     rng = np.random.default_rng(seed)
     gender_generator = PatientGenerator.gender_generator(seed, 0.50)
-    # given_name_male_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-male-given-names.csv')
-    # given_name_female_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-female-given-names.csv')
-    # family_name_female_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-female-family-names.csv')
-    # family_name_male_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-male-family-names.csv')
+    given_name_male_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-male-given-names.csv')
+    given_name_female_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-female-given-names.csv')
+    family_name_female_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-female-family-names.csv')
+    family_name_male_generator = PatientGenerator.name_generator(seed, 'metadata/private/zambia-male-family-names.csv')
     dob_generator = PatientGenerator.date_generator(seed, base_date, 'gumbel', 35, 12 * 10)
     # phone_number_generator = PatientGenerator.phone_number_generator(seed, 'metadata/phone_area_codes.csv')
     city_generator = PatientGenerator.city_generator(seed, 'metadata/cities.csv')
@@ -173,8 +160,8 @@ def generate_dataset():
     for i in range(0, number_of_patients):
 
         gender = next(gender_generator)
-        # given_name = next(given_name_female_generator)[1] if gender == 'female' else next(given_name_male_generator)[1]
-        # family_name = next(family_name_female_generator)[1] if gender == 'female' else next(family_name_male_generator)[1]
+        given_name = next(given_name_female_generator)[1] if gender == 'female' else next(given_name_male_generator)[1]
+        family_name = next(family_name_female_generator)[1] if gender == 'female' else next(family_name_male_generator)[1]
         dob = next(dob_generator)
         dob = np.datetime_as_string(dob, unit='D')
         city = next(city_generator)[1]
@@ -189,7 +176,7 @@ def generate_dataset():
             # data.append([rec_num, given_name, family_name, gender, dob, city, phone_number, national_id,
             #              facility, patient_id, c_data])
             # data.append([rec_num, gender, dob, city, facility, patient_id, c_data])
-            data.append([rec_num, gender, dob, city, facility, patient_id, c_data, national_id ])
+            data.append([rec_num, given_name, family_name, gender, dob, city, national_id, facility, patient_id, c_data ])
         k = k + 1
         if k % 1000 == 0:
             print(k)
@@ -200,9 +187,9 @@ def generate_dataset():
     # df = pd.DataFrame(data, columns=['rec_num', 'gender', 'dob',
     #                                  'city',
     #                                  'src_id_facility', 'src_id_patient', 'clinical_data'])
-    df = pd.DataFrame(data, columns=['rec_num', 'gender', 'dob',
-                                     'city',
-                                     'src_id_facility', 'src_id_patient', 'clinical_data', 'national_id'])
+    df = pd.DataFrame(data, columns=['rec_num', 'given_name', 'family_name', 'gender', 'dob',
+                                     'city', 'national_id',
+                                     'src_id_facility', 'src_id_patient', 'clinical_data'])
     df['corrupted'] = False
     number_of_records = df.shape[0]
     percentage_of_corrupted_records = config['PercentageOfCorruptedRecords']
@@ -232,7 +219,7 @@ def generate_dataset():
             df.at[row_to_corrupt, column_to_corrupt] = corrupter_value
         # print()
     df = df.drop('corrupted', axis=1)
-    df.to_csv('results/' + str(helper.generate_log_filename('synthetic_data_V')), index=False, encoding='utf-8')
+    df.to_csv(csv_file_name, index=False, encoding='utf-8')
 
 
 def main():
