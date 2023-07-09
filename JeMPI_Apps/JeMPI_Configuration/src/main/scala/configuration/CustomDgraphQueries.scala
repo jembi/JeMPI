@@ -10,7 +10,19 @@ object CustomDgraphQueries {
   private val custom_className = "CustomDgraphQueries"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
+
   def parseRules(config: Config): Any = {
+
+    def getDeterministicFunctions: String = {
+      config
+        .rules
+        .deterministic
+        .map((name, _) => s"""${" " * 14}CustomDgraphQueries::${Utils.snakeCaseToCamelCase(name.toLowerCase)},""".stripMargin)
+        .mkString("\n")
+        .trim
+        .dropRight(1)
+    }
+
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
@@ -18,6 +30,7 @@ object CustomDgraphQueries {
     writer.println(
       s"""package $packageText;
          |
+         |import io.vavr.Function1;
          |import org.apache.commons.lang3.StringUtils;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |
@@ -28,6 +41,9 @@ object CustomDgraphQueries {
          |import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
          |
          |final class $custom_className {
+         |
+         |   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_FUNCTIONS =
+         |      List.of($getDeterministicFunctions);
          |""".stripMargin)
     config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     if (config.rules.probabilistic != null)
@@ -118,7 +134,7 @@ object CustomDgraphQueries {
     if (vars.length == 1)
       val v = vars(0)
       writer.println(
-        s"""   static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {
+        s"""   private static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {
            |      if (StringUtils.isBlank(demographicData.${Utils.snakeCaseToCamelCase(v)})) {
            |         return new DgraphGoldenRecords(List.of());
            |      }
@@ -128,7 +144,7 @@ object CustomDgraphQueries {
            |""".stripMargin)
     else
       val expr = expression(ParseRule.parse(text))
-      writer.println(s"   static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {")
+      writer.println(s"   private static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {")
       vars.foreach(v => {
         val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
         writer.println(s"      final var $camelCaseVarName = demographicData.$camelCaseVarName;")
@@ -192,7 +208,7 @@ object CustomDgraphQueries {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
-          s"""${" " * 12}all(func: $fn(GoldenRecord.$v, $$$v${
+          s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, $$$v${
             if (meta(v)._2.isDefined) ", " + meta(v)._2.get else
               ""
           })) {
@@ -216,14 +232,14 @@ object CustomDgraphQueries {
       vars.foreach(v => {
         val fn = meta(v)._1
         writer.println(
-          s"""${" " * 12}var(func: $fn(GoldenRecord.$v, $$$v${
+          s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, $$$v${
             if (meta(v)._2.isDefined) ", " + meta(v)._2.get else ""
           })) {
              |${" " * 15}${varsMap(v)} as uid
              |${" " * 12}}""".stripMargin)
       })
       writer.println(
-        s"""${" " * 12}all(func: uid(${(for (field <- varsMap) yield field._2).mkString(",")})) @filter ${
+        s"""${" " * 12}all(func:type(GoldenRecord)) @filter${
           if (all_func_str.startsWith("(")) "" else "("
         }$all_func_str${if (all_func_str.startsWith("(")) "" else "("} {
            |${" " * 15}uid
@@ -247,7 +263,7 @@ object CustomDgraphQueries {
     })
 
     writer.print(
-      s"""${" " * 3}static final String ${name.toUpperCase} =
+      s"""${" " * 3}private static final String ${name.toUpperCase} =
          |${" " * 9}\"\"\"
          |${" " * 9}query ${name.toLowerCase}(""".stripMargin)
 

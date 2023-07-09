@@ -137,36 +137,31 @@
   ],
   "rules": {
     "deterministic": {
-      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
+      "QUERY_DETERMINISTIC_A": {
+        "vars": [
+          "national_id"
+        ],
+        "text": "eq(national_id)"
+      },
+      "QUERY_DETERMINISTIC_B": {
         "vars": [
           "given_name",
           "family_name",
-          "phone_number",
-          "national_id"
+          "phone_number"
         ],
-        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
+        "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
       }
     },
     "probabilistic": {
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
+      "QUERY_PROBABILISTIC": {
         "vars": [
           "given_name",
           "family_name",
-          "city"
-        ],
-        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
-        "vars": [
-          "phone_number"
-        ],
-        "text": "match(phone_number,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
-        "vars": [
+          "city",
+          "phone_number",
           "national_id"
         ],
-        "text": "match(national_id,3)"
+        "text": "(match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)) or match(phone_number,2) or match(national_id,3)"
       }
     }
   }

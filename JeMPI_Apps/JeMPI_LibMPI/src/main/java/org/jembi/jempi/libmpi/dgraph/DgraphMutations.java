@@ -356,6 +356,8 @@ final class DgraphMutations {
       try {
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(schema).build();
          DgraphClient.getInstance().alter(operation);
+         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
+         LOGGER.trace("{}", mySchema);
          return Option.none();
       } catch (RuntimeException ex) {
          LOGGER.warn("{}", schema);

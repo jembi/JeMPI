@@ -3,5 +3,6 @@ target
 .idea
 deprecated
 *.json
+kenya
 !reference/config-reference-api.json
 !reference/config-reference.json

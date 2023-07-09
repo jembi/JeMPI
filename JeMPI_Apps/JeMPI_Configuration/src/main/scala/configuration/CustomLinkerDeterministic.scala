@@ -15,19 +15,24 @@ object CustomLinkerDeterministic {
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    writer.println(s"package $packageText;")
-    writer.println()
     writer.println(
-      """import org.apache.commons.lang3.StringUtils;
-        |
-        |import org.jembi.jempi.shared.models.CustomDemographicData;
-        |""".stripMargin)
-    writer.println(s"final class $custom_className {")
-    writer.println()
-    writer.println(
-      s"""    private $custom_className() {
-         |    }""".stripMargin)
-    writer.println()
+      s"""package $packageText;
+         |
+         |import org.apache.commons.lang3.StringUtils;
+         |
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |
+         |final class $custom_className {
+         |
+         |   private $custom_className() {
+         |   }
+         |
+         |   private static boolean isMatch(
+         |         final String left,
+         |         final String right) {
+         |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
+         |   }
+         |""".stripMargin)
     emitDeterminsticMatch(writer, config.rules)
     writer.println("}")
     writer.flush()
@@ -35,14 +40,6 @@ object CustomLinkerDeterministic {
   }
 
   def emitDeterminsticMatch(writer: PrintWriter, rules: Rules): Unit = {
-
-    writer.println(
-      """   private static boolean isMatch(
-        |         final String left,
-        |         final String right) {
-        |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
-        |   }
-        |""".stripMargin)
 
     def checkNullExpression(expr: Ast.Expression): String = {
 
@@ -75,17 +72,27 @@ object CustomLinkerDeterministic {
         |         final CustomDemographicData goldenRecord,
         |         final CustomDemographicData interaction) {""".stripMargin)
     val map = rules.deterministic
-    map.foreach((_, rule) => {
-      val expression: Ast.Expression = ParseRule.parse(rule.text)
+
+    val z = map.zipWithIndex
+    z.foreach((map, index) => {
+      val expression: Ast.Expression = ParseRule.parse(map._2.text)
       val expr_1 = checkNullExpression(expression)
-      rule.vars.foreach(v => {
+      map._2.vars.foreach(v => {
         val field = Utils.snakeCaseToCamelCase(v)
         val left = field + "L"
         val right = field + "R"
         writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
         writer.println(" " * 6 + s"final var $right = interaction.$field;")
       })
-      writer.println(s"      return $expr_1;")
+      if (index < z.size - 1) {
+        writer.println(
+          s"""      if ($expr_1) {
+             |         return true;
+             |      }""".stripMargin);
+      } else {
+        writer.println(
+          s"""      return $expr_1;""".stripMargin);
+      }
     })
     writer.println(
       """   }
