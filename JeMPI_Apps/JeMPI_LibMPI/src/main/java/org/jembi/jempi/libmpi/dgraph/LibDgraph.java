@@ -11,7 +11,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static io.dgraph.DgraphProto.Operation.DropOp.DATA;
@@ -82,7 +82,9 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getGoldenIds();
    }
 
-   public List<String> fetchGoldenIds(final long offset, final long length) {
+   public List<String> fetchGoldenIds(
+         final long offset,
+         final long length) {
       return DgraphQueries.fetchGoldenIds(offset, length);
    }
 
@@ -110,13 +112,23 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
-   private LibMPIPaginatedResultSet<String> paginatedGids(final DgraphPaginatedUidList list) {
+   private LibMPIPaginatedResultSet<String> paginatedGids(final  DgraphPaginatedUidList list) {
       if (list == null) {
          return null;
       }
       final var data = list.all().stream().map(item -> item.uid()).toList();
       final var pagination = list.pagination().get(0);
       return new LibMPIPaginatedResultSet<>(data, pagination);
+   }
+
+   private PaginatedGIDsWithInteractionCount paginatedGidsWithInteractionCount(final  DgraphPaginationUidListWithInteractionCount list) {
+      if (list == null) {
+         return null;
+      }
+      final var data = list.all().stream().map(item -> item.uid()).toList();
+      final var pagination = list.pagination().get(0);
+      final var interactionCount = list.interactionCount().get(0);
+      return new PaginatedGIDsWithInteractionCount(data, pagination, interactionCount);
    }
 
    public boolean setScore(
@@ -168,13 +180,18 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    public LibMPIPaginatedResultSet<String> filterGids(
          final List<SearchParameter> params,
-         final LocalDate createdAt,
-         final Integer offset,
-         final Integer limit,
-         final String sortBy,
-         final Boolean sortAsc) {
-      final var list = DgraphQueries.filterGidsWithParams(params, createdAt, offset, limit, sortBy, sortAsc);
-      return paginatedGids(list);
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      final var list = DgraphQueries.filterGidsWithParams(params, createdAt, paginationOptions, false);
+      return paginatedGids(list.getLeft());
+   }
+
+   public PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         final List<SearchParameter> params,
+         final LocalDateTime createdAt,
+         final PaginationOptions paginationOptions) {
+      final var list = DgraphQueries.filterGidsWithParams(params, createdAt, paginationOptions, true);
+      return paginatedGidsWithInteractionCount(list.get());
    }
 
 

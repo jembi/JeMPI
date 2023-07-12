@@ -22,6 +22,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -123,6 +124,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
             .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
             .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
+            .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
             .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
             .build();
    }
@@ -186,15 +188,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postFilterGidsHandler(final PostFilterGidsRequest request) {
       FilterGidsRequestPayload payload = request.filterGidsRequestPayload();
       List<SearchParameter> parameters = payload.parameters();
-      LocalDate createdAt = payload.createdAt();
+      LocalDateTime createdAt = payload.createdAt();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
+      PaginationOptions paginationOptions = new PaginationOptions(offset, limit, sortBy, sortAsc);
       libMPI.startTransaction();
-      var recs = libMPI.filterGids(parameters, createdAt, offset, limit, sortBy, sortAsc);
+      var recs = libMPI.filterGids(parameters, createdAt, paginationOptions);
       libMPI.closeTransaction();
       request.replyTo.tell(new PostFilterGidsResponse(recs));
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> postFilterGidsWithInteractionCountHandler(final PostFilterGidsWithInteractionCountRequest request) {
+      FilterGidsRequestPayload payload = request.filterGidsRequestPayload();
+      List<SearchParameter> parameters = payload.parameters();
+      LocalDateTime createdAt = payload.createdAt();
+      Integer offset = payload.offset();
+      Integer limit = payload.limit();
+      String sortBy = payload.sortBy();
+      Boolean sortAsc = payload.sortAsc();
+      PaginationOptions paginationOptions = new PaginationOptions(offset, limit, sortBy, sortAsc);
+      libMPI.startTransaction();
+      var recs = libMPI.filterGidsWithInteractionCount(parameters, createdAt, paginationOptions);
+      libMPI.closeTransaction();
+      request.replyTo.tell(new PostFilterGidsWithInteractionCountResponse(recs));
       return Behaviors.same();
    }
 
@@ -230,8 +249,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new CountInteractionsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(
-               exception.getMessage()))));
+         request.replyTo.tell(new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
@@ -328,9 +346,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          interaction = libMPI.findInteraction(request.iid);
          libMPI.closeTransaction();
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}",
-                      request.iid,
-                      exception.getMessage());
+         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid, exception.getMessage());
       }
 
       if (interaction == null) {
@@ -582,7 +598,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record PostFilterGidsResponse(
          LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse {
-   }
+         }
+
+   public record PostFilterGidsWithInteractionCountRequest(
+         ActorRef<PostFilterGidsWithInteractionCountResponse> replyTo,
+         FilterGidsRequestPayload filterGidsRequestPayload) implements Event {
+         }
+
+   public record PostFilterGidsWithInteractionCountResponse(
+         PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse {
+         }
 
    public record PostCustomSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,

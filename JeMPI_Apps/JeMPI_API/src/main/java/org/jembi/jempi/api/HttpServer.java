@@ -46,8 +46,7 @@ public final class HttpServer extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd,
          final String jsonFields) {
       http = Http.get(actorSystem);
-      binding = http.newServerAt(httpServerHost, httpPort)
-                    .bind(this.createCorsRoutes(actorSystem, backEnd, jsonFields));
+      binding = http.newServerAt(httpServerHost, httpPort).bind(this.createCorsRoutes(actorSystem, backEnd, jsonFields));
       LOGGER.info("Server online at http://{}:{}", httpServerHost, httpPort);
    }
 
@@ -65,20 +64,26 @@ public final class HttpServer extends AllDirectives {
                                            () -> Routes.postUpdateNotification(actorSystem, backEnd)),
                                       path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH).slash(segment(Pattern.compile(
                                                  "^(golden|patient)$"))),
-                                           type -> Routes.postSimpleSearch(actorSystem, backEnd,
+                                           type -> Routes.postSimpleSearch(actorSystem,
+                                                                           backEnd,
                                                                            type.equals("golden")
                                                                                  ? RecordType.GoldenRecord
                                                                                  : RecordType.Interaction)),
                                       path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH).slash(segment(Pattern.compile(
                                                  "^(golden|patient)$"))),
-                                           type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
-                                                 ? RecordType.GoldenRecord
-                                                 : RecordType.Interaction)),
+                                           type -> Routes.postCustomSearch(actorSystem,
+                                                                           backEnd,
+                                                                           type.equals("golden")
+                                                                                 ? RecordType.GoldenRecord
+                                                                                 : RecordType.Interaction)),
                                       path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                            () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
                                            () -> Routes.proxyPostCalculateScores(http)),
-                                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS, () -> Routes.postFilterGids(actorSystem, backEnd)))),
+                                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
+                                           () -> Routes.postFilterGids(actorSystem, backEnd)),
+                                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
+                                           () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
                                        path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,
@@ -89,18 +94,14 @@ public final class HttpServer extends AllDirectives {
                                           () -> Routes.countGoldenRecords(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
                                           () -> Routes.countInteractions(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_COUNT_RECORDS,
-                                          () -> Routes.countRecords(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
-                                          () -> Routes.getGidsAll(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> Routes.countRecords(actorSystem, backEnd)),
+                                     path(GlobalConstants.SEGMENT_GET_GIDS_ALL, () -> Routes.getGidsAll(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_GIDS_PAGED,
                                           () -> Routes.getGidsPaged(actorSystem, backEnd)),
                                      path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                                                "^[A-z0-9]+$"))),
-                                          iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
+                                           "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
                                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                                                "^[A-z0-9]+$"))),
-                                          gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
+                                           "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                                      path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
                                           () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
@@ -114,13 +115,10 @@ public final class HttpServer extends AllDirectives {
                                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
                                           () -> Routes.getNotifications(actorSystem, backEnd)),
                                      path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                                                "^[A-z0-9]+$"))),
-                                          iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
+                                           "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
                                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                                                "^[A-z0-9]+$"))),
-                                          gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
-                                     path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
-                                          () -> complete(StatusCodes.OK, jsonFields)),
+                                           "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
+                                     path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                           () -> Routes.proxyGetCandidatesWithScore(http)))));
    }

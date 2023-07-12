@@ -60,7 +60,9 @@ const SourceIdComponent: React.FC<{ content: SourceId | Array<SourceId> }> = ({
         }
         arrow
       >
-        <SourceIdElement sourceId={content[0]} />
+        <div>
+          <SourceIdElement sourceId={content[0]} />
+        </div>
       </CustomTooltip>
     )
   } else {

@@ -228,9 +228,26 @@ class ApiClient {
       .then(async res => res.data)
   }
 
+  async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
+    return await client
+      .post<{
+        data: string[]
+        interationCount: { total: number }
+        pagination: { total: number }
+      }>(ROUTES.POST_FILTER_GIDS_WITH_INTERACTION_COUNT, request)
+      .then(async res => res.data)
+      .then(({ data, interationCount, pagination }) => {
+        console.log(data, interationCount)
+        return {
+          data,
+          pagination: { total: pagination.total + interationCount.total }
+        }
+      })
+  }
+
   async getExpandedGoldenRecords(
     goldenIds: Array<string> | undefined,
-    getPatients: boolean
+    getInteractions: boolean
   ) {
     return await client
       .get<Array<AnyRecord>, AxiosResponse<ExpandedGoldenRecord[]>>(
@@ -249,7 +266,7 @@ class ApiClient {
             sourceId: curr.goldenRecord.sourceId,
             type: 'Golden'
           }
-          if (getPatients) {
+          if (getInteractions) {
             const linkedRecords = curr.interactionsWithScore.map(
               ({ interaction, score }: InteractionWithScore) => ({
                 ...interaction.demographicData,

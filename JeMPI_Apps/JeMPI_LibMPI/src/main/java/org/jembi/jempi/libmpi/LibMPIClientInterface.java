@@ -4,7 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.shared.models.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LibMPIClientInterface {
@@ -86,11 +86,13 @@ public interface LibMPIClientInterface {
 
    LibMPIPaginatedResultSet<String> filterGids(
          List<SearchParameter> params,
-         LocalDate createdAt,
-         Integer offset,
-         Integer limit,
-         String sortBy,
-         Boolean sortAsc);
+         LocalDateTime createdAt,
+         PaginationOptions paginationOptions);
+
+   PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
+         List<SearchParameter> params,
+         LocalDateTime createdAt,
+         PaginationOptions paginationOptions);
 
    /*
     * *****************************************************************************

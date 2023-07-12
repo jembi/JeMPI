@@ -5,8 +5,9 @@ import {
   Box,
   Container,
   Divider,
+  FormControlLabel,
   Paper,
-  Stack,
+  Switch,
   Typography
 } from '@mui/material'
 import {
@@ -54,6 +55,7 @@ const Records = () => {
   const navigate = useNavigate()
   const { getFieldsByGroup } = useAppConfig()
 
+  const [isFetchingInteractions, setIsFetchingInteractions] = useState(false)
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
@@ -74,11 +76,6 @@ const Records = () => {
 
   const [filterPayload, setFilterPayload] = useState<FilterQuery>({
     parameters: [],
-    createdAt: dayjs()
-      .locale({
-        ...locale
-      })
-      .format('YYYY-MM-DD'),
     limit: 1000,
     offset: 0,
     sortAsc: false,
@@ -121,9 +118,15 @@ const Records = () => {
       ...filterPayload.parameters,
       filterPayload.createdAt,
       filterPayload.offset,
-      filterPayload.limit
+      filterPayload.limit,
+      isFetchingInteractions
     ],
-    queryFn: async () => await ApiClient.getFilteredGoldenIds(filterPayload),
+    queryFn: async () =>
+      isFetchingInteractions
+        ? await ApiClient.getFilteredGoldenIdsWithInteractionCount(
+            filterPayload
+          )
+        : await ApiClient.getFilteredGoldenIds(filterPayload),
     onSuccess: data => {
       if (filterPayload.offset > 0) {
         setGoldenIds([...goldenIds, ...data.data])
@@ -144,7 +147,8 @@ const Records = () => {
         paginationModel.page * paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize +
           paginationModel.pageSize
-      )
+      ),
+      isFetchingInteractions
     ],
     queryFn: async () =>
       (await ApiClient.getExpandedGoldenRecords(
@@ -153,7 +157,7 @@ const Records = () => {
           paginationModel.page * paginationModel.pageSize +
             paginationModel.pageSize
         ),
-        false
+        isFetchingInteractions
       )) as Array<GoldenRecord>,
     enabled: goldenIds.length > 0,
     onSuccess: data =>
@@ -251,7 +255,14 @@ const Records = () => {
             <Typography variant="h6">Filter by</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box sx={{ p: 1, display: 'flex', gap: '10px' }}>
+            <Box
+              sx={{
+                p: 1,
+                display: 'flex',
+                gap: '20px',
+                alignItems: 'center'
+              }}
+            >
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   value={dateFilter}
@@ -265,6 +276,17 @@ const Records = () => {
                   }}
                 />
               </LocalizationProvider>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isFetchingInteractions}
+                    onChange={(e, checked) =>
+                      setIsFetchingInteractions(checked)
+                    }
+                  />
+                }
+                label="Get Interactions"
+              />
             </Box>
             <FilterTable
               onSubmit={onFilter}
@@ -321,12 +343,23 @@ const Records = () => {
                   backgroundColor: '#a2cf6e'
                 }
               },
+
               '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
                 outline: 'none'
               },
               '& .super-app-theme--header': {
                 backgroundColor: '#274263',
                 color: 'white'
+              },
+              '& .super-app-theme--Golden': {
+                backgroundColor: '#f5df68',
+                '&:hover': {
+                  backgroundColor: '#fff08d'
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#e2be1d',
+                  '&:hover': { backgroundColor: '#fff08d' }
+                }
               }
             }}
             getRowId={({ uid }) => uid}
@@ -337,7 +370,13 @@ const Records = () => {
             onRowDoubleClick={params =>
               navigate({ to: `/record-details/${params.row.uid}` })
             }
-            getRowClassName={params => `${getClassName(params.row)}`}
+            getRowClassName={params =>
+              `${
+                params.row.type === 'Golden' && isFetchingInteractions
+                  ? 'super-app-theme--Golden'
+                  : getClassName(params.row)
+              }`
+            }
             onPaginationModelChange={handlePagination}
             paginationMode="server"
             loading={expandeGoldenRecordsQuery.isLoading}

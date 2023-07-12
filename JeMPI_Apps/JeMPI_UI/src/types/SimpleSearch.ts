@@ -26,7 +26,7 @@ export interface SearchQuery extends BaseSearchQuery {
 
 export interface FilterQuery extends BaseSearchQuery {
   parameters: SearchParameter[]
-  createdAt: string
+  createdAt?: string
 }
 
 export enum FlagLabel {
