@@ -10,8 +10,6 @@ pushd .
   source ./0-conf.env
 
   declare -a APPS=(
-    sync-receiver
-    etl
     controller
     em
     linker

@@ -270,36 +270,6 @@ services:
         - node.labels.name == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
-  etl:
-    image: ${IMAGE_REGISTRY}${ETL_IMAGE}
-    environment:
-      LOG4J2_LEVEL: "DEBUG" 
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APPLICATION_ID: app-id-etl
-    networks:
-    - backend
-    volumes:
-    - type: bind
-      source: $DATA_DIR_ETL/conf
-      target: /app/conf
-      read_only: true
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${ETL_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_ETL}
-
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     environment:

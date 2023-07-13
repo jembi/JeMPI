@@ -4,12 +4,6 @@ JAVA_VERSION_X=${JAVA_VERSION}_7
 # https://hub.docker.com/_/eclipse-temurin/tags
 export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
 
-export SYNC_RECEIVER_IMAGE=sync_receiver:1.0-SNAPSHOT
-export SYNC_RECEIVER_JAR=SyncReceiver-1.0-SNAPSHOT-spring-boot.jar
-
-export ETL_IMAGE=etl:1.0-SNAPSHOT
-export ETL_JAR=ETL-1.0-SNAPSHOT-spring-boot.jar
-
 export CONTROLLER_IMAGE=controller:1.0-SNAPSHOT
 export CONTROLLER_JAR=Controller-1.0-SNAPSHOT-spring-boot.jar
 

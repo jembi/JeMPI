@@ -34,10 +34,6 @@ pushd .
   mkdir -p ${DATA_POSTGRESQL_DIR}
   cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
 
-  mkdir -p ${DATA_DIR_SYNC_RECEIVER}/conf
-  
-  mkdir -p ${DATA_DIR_ETL}/conf
-  
   mkdir -p ${DATA_DIR_CONTROLLER}/conf
   
   mkdir -p ${DATA_DIR_EM}/conf
