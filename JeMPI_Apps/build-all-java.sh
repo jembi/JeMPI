@@ -8,9 +8,6 @@ cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API_KC/src/main/resources
 
 mvn clean package
 
-pushd JeMPI_AsyncReceiver
-  ./build.sh || exit 1
-popd
 pushd JeMPI_ETL
   ./build.sh || exit 1
 popd

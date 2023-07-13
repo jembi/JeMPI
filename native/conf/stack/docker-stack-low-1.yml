@@ -275,40 +275,6 @@ services:
         - node.labels.name == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
-  async-receiver:
-    image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
-    environment:
-      LOG4J2_LEVEL: "DEBUG" 
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_CLIENT_ID: client-id-syncrx
-    networks:
-    - backend
-    volumes:
-    - type: bind
-      source: $DATA_DIR_ASYNC_RECEIVER/csv
-      target: /app/csv
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_ASYNC_RECEIVER/conf
-      target: /app/conf
-      read_only: true
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          memory: ${ASYNC_RECEIVER_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
-
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     environment:

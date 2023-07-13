@@ -27,3 +27,5 @@ sleep 2
 source ./helper/scripts/d-stack-03-up-hub-containers.sh
 sleep 2
 source ./helper/scripts/d-stack-04-up-app-containers.sh
+sleep 2
+source ./helper/java/start-app-async-receiver.sh

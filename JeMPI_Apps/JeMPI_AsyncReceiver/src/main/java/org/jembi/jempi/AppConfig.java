@@ -26,6 +26,7 @@ public final class AppConfig {
     public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
     public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
     public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+    public static final String CSV_DIR = CONFIG.getString("CSV_DIR");
     private AppConfig() {
     }
 

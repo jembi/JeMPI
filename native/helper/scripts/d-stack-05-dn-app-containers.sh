@@ -11,7 +11,6 @@ pushd .
 
   declare -a APPS=(
     sync-receiver
-    async-receiver
     etl
     controller
     em
