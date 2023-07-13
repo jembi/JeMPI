@@ -1,0 +1,559 @@
+version: '3.8'
+
+networks:
+  backend:
+    name: backend
+    driver: overlay
+    attachable: true
+  frontend:
+    name: frontend
+    driver: overlay
+    attachable: true
+
+services:
+
+  postgresql:
+    image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
+    networks:
+    - backend
+    ports:
+    - published: 5432
+      target: 5432
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_POSTGRESQL_DIR}
+      target: /conf
+      read_only: true
+    environment:
+      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      ALLOW_EMPTY_PASSWORD: "no"
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_POSTGRESQL}
+      resources:
+        limits:
+          memory: ${POSTGRESQL_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_POSTGRESQL}
+
+  keycloak-test-server:
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    user: root
+    networks:
+      - frontend
+      - backend
+    volumes:
+    - type: bind
+      source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
+      target: /docker-entrypoint-initdb.d
+      read_only: true
+    environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+      DB_ADDR: postgresql
+      DB_PORT: 5432
+      DB_DATABASE: ${POSTGRESQL_DATABASE}
+      DB_USER: ${POSTGRESQL_USERNAME}
+      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_KEYCLOAK_TEST_SERVER}
+      resources:
+        limits:
+          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
+
+  nginx:
+    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
+    networks:
+      - frontend
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_NGINX}
+      resources:
+        limits:
+          memory: ${NGINX_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_NGINX
+
+  haproxy:
+    image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
+    dns:
+      - 127.0.0.11
+    networks:
+      - frontend
+      - backend
+    ports:
+      - published: 30460
+        target: 30460
+        protocol: tcp
+        mode: host
+      - published: 40000
+        target: 40000
+        protocol: tcp
+        mode: host
+      - published: 50000
+        target: 50000
+        protocol: tcp
+        mode: host
+      - published: 3000
+        target: 3000
+        protocol: tcp
+        mode: host
+      - published: 80
+        target: 8080
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: ${DATA_HAPROXY_DIR}
+        target: /etc/haproxy/
+        read_only: true
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: ${HAPROXY_RAM_LIMIT}
+      
+  kafka-01:
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
+    user: root
+    networks:
+      - backend
+    ports:
+      - published: 29092
+        target: 29092
+        protocol: tcp
+        mode: host
+    environment:
+      BITNAMI_DEBUG: 'true'
+      KAFKA_ENABLE_KRAFT: 'yes'
+      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_HOST://:29092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    volumes:
+      - type: bind
+        source: ${DATA_KAFKA_01_DIR}
+        target: /bitnami/kafka
+        read_only: false
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_KAFKA_01}
+      resources:
+        limits:
+          memory: ${KAFKA_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KAFKA_01
+  
+  zero-01:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "zero-01"
+    networks:
+    - backend
+    ports:
+    - published: 5080
+      target: 5080
+      protocol: tcp
+      mode: host
+    - published: 6080
+      target: 6080
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ZERO_01_DIR}
+      target: /dgraph
+    deploy:
+      replicas: ${SCALE_ZERO_01}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
+    command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
+
+  alpha-01:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "alpha-01"
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ALPHA_01_DIR}
+      target: /dgraph
+    ports:
+    - published: 8080
+      target: 8080
+      protocol: tcp
+      mode: host
+    - published: 9080
+      target: 9080
+      protocol: tcp
+      mode: host
+    deploy:
+      replicas: ${SCALE_ALPHA_01}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
+
+  ratel:
+    image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
+    ports:
+    - published: 8010
+      target: 8000
+      protocol: tcp
+      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    networks:
+    - backend
+    deploy:
+      replicas: ${SCALE_RATEL}
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_RATEL}
+    command: dgraph-ratel
+
+  async-receiver:
+    image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_CLIENT_ID: client-id-syncrx
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${ASYNC_RECEIVER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
+
+  etl:
+    image: ${IMAGE_REGISTRY}${ETL_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-etl
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_ETL/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${ETL_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_ETL}
+
+  controller:
+    image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-ctrl
+      KAFKA_CLIENT_ID: client-id-ctrl
+      HTTP_SERVER_PORT: 50000
+    networks:
+    - backend
+    ports:
+    - published: 50020
+      target: 50000
+      protocol: tcp
+      mode: host      
+    volumes:
+    - type: bind
+      source: $DATA_DIR_CONTROLLER/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${CONTROLLER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_CONTROLLER}
+       
+  em:
+    image: ${IMAGE_REGISTRY}${EM_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      KAFKA_SERVERS: ${KAFKA_SERVERS}
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_EM/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          memory: ${EM_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_EM}
+
+  linker:
+    image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "TRACE" 
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID_INTERACTIONS: app-id-lnk1
+      KAFKA_APPLICATION_ID_MU: app-id-lnk2
+      KAFKA_CLIENT_ID_NOTIFICATIONS: client-id-lnk3
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      HTTP_SERVER_PORT: 50000
+      LINKER_MATCH_THRESHOLD: 0.55
+      LINKER_MATCH_THRESHOLD_MARGIN: 0.1
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_LINKER/conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${LINKER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_LINKER}
+
+  api:
+    image: ${IMAGE_REGISTRY}${API_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-api
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      HTTP_SERVER_PORT: 50000
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_API/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${API_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_API}
+
+  api-kc:
+    image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_API_URL: ${KC_API_URL}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
+      JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-api
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      HTTP_SERVER_PORT: 50000
+    networks:
+    - frontend
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_API_KC/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${API_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_API_KC}
+
+  ui:
+    image: ${IMAGE_REGISTRY}${UI_IMAGE}
+    networks:
+      - frontend
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${UI_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+          - node.labels.name == ${PLACEMENT_UI}
