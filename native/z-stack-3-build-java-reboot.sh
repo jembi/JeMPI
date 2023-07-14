@@ -11,7 +11,34 @@ echo
 echo "Build Apps"
 pwd
 pushd ../JeMPI_Apps
-  source ./build-all-java.sh
+
+  mvn clean package
+
+  pushd JeMPI_EM
+    ./build.sh || exit 1
+  popd
+  pushd JeMPI_Linker
+    ./build.sh || exit 1
+  popd
+  pushd JeMPI_API
+    ./build.sh || exit 1
+  popd
+  pushd JeMPI_API_KC
+    ./build.sh || exit 1
+  popd
+
+  pushd JeMPI_EM
+    ./push.sh
+  popd
+  pushd JeMPI_Linker
+    ./push.sh
+  popd
+  pushd JeMPI_API
+    ./push.sh
+  popd
+  pushd JeMPI_API_KC
+    ./push.sh
+  popd
 popd
 #./helper/scripts/c-registry-3-build-push-app-images.sh
 sleep 2
@@ -25,4 +52,5 @@ source ./helper/scripts/d-stack-02-deploy-0.sh
 sleep 2
 source ./helper/scripts/d-stack-03-up-hub-containers.sh
 sleep 2
-source ./helper/scripts/d-stack-04-up-app-containers.sh
+source ./helper/scripts/d-stack-04-up-app-containers.sh &&
+source ./helper/java/start-all-java-apps.sh

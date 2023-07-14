@@ -10,7 +10,6 @@ pushd .
   source ./0-conf.env
 
   declare -a APPS=(
-    controller
     em
     linker
     api

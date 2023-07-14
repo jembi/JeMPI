@@ -275,46 +275,6 @@ services:
         - node.labels.name == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
-  controller:
-    image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
-    environment:
-      LOG4J2_LEVEL: "DEBUG" 
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APPLICATION_ID: app-id-ctrl
-      KAFKA_CLIENT_ID: client-id-ctrl
-      HTTP_SERVER_PORT: 50000
-    networks:
-    - backend
-    ports:
-    - published: 50020
-      target: 50000
-      protocol: tcp
-      mode: host      
-    volumes:
-    - type: bind
-      source: $DATA_DIR_CONTROLLER/conf
-      target: /app/conf
-      read_only: true
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          memory: ${CONTROLLER_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_CONTROLLER}
-       
   em:
     image: ${IMAGE_REGISTRY}${EM_IMAGE}
     environment:

@@ -11,7 +11,34 @@ echo
 echo "Build Apps"
 pwd
 pushd ../JeMPI_Apps
-  source ./build-all-java.sh
+
+  mvn clean package
+
+  pushd JeMPI_EM
+    ./build.sh || exit 1
+  popd
+  pushd JeMPI_Linker
+    ./build.sh || exit 1
+  popd
+  pushd JeMPI_API
+    ./build.sh || exit 1
+  popd
+  pushd JeMPI_API_KC
+    ./build.sh || exit 1
+  popd
+
+  pushd JeMPI_EM
+    ./push.sh
+  popd
+  pushd JeMPI_Linker
+    ./push.sh
+  popd
+  pushd JeMPI_API
+    ./push.sh
+  popd
+  pushd JeMPI_API_KC
+    ./push.sh
+  popd
   source ./build-all-ui.sh
 popd
 #./helper/scripts/c-registry-3-build-push-app-images.sh

@@ -25,6 +25,7 @@ public final class AppConfig {
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
+   public static final String POSTGRESQL_SERVER = CONFIG.getString("POSTGRESQL_SERVER");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");

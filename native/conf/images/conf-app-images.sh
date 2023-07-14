@@ -4,9 +4,6 @@ JAVA_VERSION_X=${JAVA_VERSION}_7
 # https://hub.docker.com/_/eclipse-temurin/tags
 export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
 
-export CONTROLLER_IMAGE=controller:1.0-SNAPSHOT
-export CONTROLLER_JAR=Controller-1.0-SNAPSHOT-spring-boot.jar
-
 export EM_IMAGE=em:1.0-SNAPSHOT
 export EM_JAR=EM-1.0-SNAPSHOT-spring-boot.jar
 
