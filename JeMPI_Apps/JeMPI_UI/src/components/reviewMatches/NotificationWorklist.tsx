@@ -37,9 +37,9 @@ const columns: GridColDef[] = [
     }
   },
   {
-    field: 'created',
+    field: 'created_at',
     headerName: 'Date',
-    type: 'date',
+    type: 'Date',
     minWidth: 150,
     sortable: true,
     sortingOrder: ['desc'],

@@ -22,6 +22,7 @@
       "groups": [
         "name",
         "demographics",
+        "filter",
         "linked_records"
       ],
       "scope": [
@@ -46,6 +47,7 @@
       "groups": [
         "name",
         "demographics",
+        "filter",
         "linked_records"
       ],
       "scope": [
@@ -64,11 +66,36 @@
       "accessLevel": []
     },
     {
+      "fieldName": "state",
+      "fieldType": "String",
+      "fieldLabel": "Status",
+      "groups": [
+        "notifications"
+      ],
+      "scope": [
+        "/notifications"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "notification_type",
+      "fieldType": "String",
+      "fieldLabel": "Notification Reason",
+      "groups": [
+        "notifications"
+      ],
+      "scope": [
+        "/notifications"
+      ],
+      "accessLevel": []
+    },
+    {
       "fieldName": "gender",
       "fieldType": "String",
       "fieldLabel": "Gender",
       "groups": [
         "demographics",
+        "filter",
         "sub_heading",
         "linked_records"
       ],
@@ -89,6 +116,7 @@
       "fieldLabel": "Date of Birth",
       "groups": [
         "demographics",
+        "filter",
         "sub_heading",
         "linked_records"
       ],
@@ -112,6 +140,7 @@
       "fieldLabel": "City",
       "groups": [
         "demographics",
+        "filter",
         "linked_records"
       ],
       "scope": [
@@ -131,6 +160,7 @@
       "fieldLabel": "Phone No",
       "groups": [
         "demographics",
+        "filter",
         "linked_records"
       ],
       "scope": [
@@ -166,7 +196,6 @@
       ],
       "accessLevel": []
     }
-
   ],
   "systemFields": [
     {
@@ -186,6 +215,7 @@
       "fieldType": "String",
       "fieldLabel": "UID",
       "groups": [
+        "filter",
         "identifiers",
         "sub_heading",
         "linked_records"
@@ -202,11 +232,75 @@
       "accessLevel": []
     },
     {
-      "fieldName": "createdAt",
+      "fieldName": "inserted_at",
+      "fieldType": "Date",
+      "fieldLabel": "Inserted At",
+      "groups": [
+        "linked_records",
+        "audit_trail"
+      ],
+      "scope": [
+        "/record-details/:uid"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "interaction_id",
       "fieldType": "String",
+      "fieldLabel": "InteractionID",
+      "groups": [
+        "audit_trail",
+        "notifications"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "golden_id",
+      "fieldType": "String",
+      "fieldLabel": "GoldenID",
+      "groups": [
+        "audit_trail"
+      ],
+      "scope": [
+        "/record-details/:uid"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "golden_id",
+      "fieldType": "String",
+      "fieldLabel": "GoldenID",
+      "groups": [
+        "audit_trail"
+      ],
+      "scope": [
+        "/record-details/:uid"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "entry",
+      "fieldType": "String",
+      "fieldLabel": "Event",
+      "groups": [
+        "audit_trail"
+      ],
+      "scope": [
+        "/record-details/:uid"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "created_At",
+      "fieldType": "Date",
       "fieldLabel": "Created At",
       "groups": [
-        "linked_records"
+        "linked_records",
+        "audit_trail"
       ],
       "scope": [
         "/record-details/:uid",

@@ -29,7 +29,7 @@ public class Main extends JPanel {
    private static class MyTableModel extends AbstractTableModel {
       private final String[] colNames = new String[]{"Aux ID",
                                                      "UID",
-                                                     "Created",
+                                                     "Created_At",
                                                      "Given Name",
                                                      "Family Name",
                                                      "Gender",
@@ -135,7 +135,7 @@ public class Main extends JPanel {
          var totalWidth = 0;
          totalWidth += setColWidth("Aux ID", charWidth, 17);
          totalWidth += setColWidth("UID", charWidth, 10);
-         totalWidth += setColWidth("Created", charWidth, 28);
+         totalWidth += setColWidth("Created_At", charWidth, 28);
          totalWidth += setColWidth("Given Name", charWidth, 15);
          totalWidth += setColWidth("Family Name", charWidth, 15);
          totalWidth += setColWidth("Gender", charWidth, 7);

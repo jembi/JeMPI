@@ -13,10 +13,10 @@ import java.util.UUID;
 
 final class PsqlNotifications {
    private static final String QUERY = """
-                                       SELECT patient_id, id, names, created, state,type, score, golden_id
+                                       SELECT patient_id, id, names, created_At, state,type, score, golden_id
                                        FROM notification
-                                       WHERE created >= ? AND state = ?
-                                       ORDER BY created
+                                       WHERE created_At >= ? AND state = ?
+                                       ORDER BY created_At
                                        LIMIT ? OFFSET ?
                                        """;
    private static final Logger LOGGER = LogManager.getLogger(PsqlNotifications.class);

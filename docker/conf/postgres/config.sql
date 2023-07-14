@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Notification
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     Type VARCHAR(50),
-    Created date,
+    Created_At date,
     Reviewd_By uuid,
     Reviewed_At timestamp without time zone,
     State VARCHAR(50),

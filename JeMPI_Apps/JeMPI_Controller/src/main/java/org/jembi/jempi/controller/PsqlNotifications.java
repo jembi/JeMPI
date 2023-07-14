@@ -33,7 +33,7 @@ final class PsqlNotifications {
          Date res = new Date(created);
          String state = "New";
 
-         String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) "
+         String sql = "INSERT INTO notification (id, type, state, names, created_At, patient_id, golden_id, score) "
                       + "VALUES ('" + id + "','" + type + "','" + state + "','" + patientNames + "', '" + res + "', '" + dID
                       + "', '" + gID + "', '" + score + "')";
          stmt.addBatch(sql);

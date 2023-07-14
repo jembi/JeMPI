@@ -91,7 +91,7 @@ const Records = () => {
         headerName: fieldLabel,
         flex: fieldName === 'sourceId' ? 2 : 1,
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
-          fieldName === 'createdAt'
+          fieldName === 'created_At'
             ? formatDate(value as Date)
             : formatValue(value),
         sortable: false,
@@ -118,15 +118,9 @@ const Records = () => {
       ...filterPayload.parameters,
       filterPayload.createdAt,
       filterPayload.offset,
-      filterPayload.limit,
-      isFetchingInteractions
+      filterPayload.limit
     ],
-    queryFn: async () =>
-      isFetchingInteractions
-        ? await ApiClient.getFilteredGoldenIdsWithInteractionCount(
-            filterPayload
-          )
-        : await ApiClient.getFilteredGoldenIds(filterPayload),
+    queryFn: async () => await ApiClient.getFilteredGoldenIds(filterPayload),
     onSuccess: data => {
       if (filterPayload.offset > 0) {
         setGoldenIds([...goldenIds, ...data.data])
