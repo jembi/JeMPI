@@ -1,7 +1,7 @@
 library(fastLink)
 library(magrittr)
 
-dfX <- read.csv("../../JeMPI_TestData/Kenya/results/test-data-0100000-02.csv", header = TRUE)
+dfX <- read.csv("../../JeMPI_TestData/Kenya/results/test-data-0030000-02-10.csv", header = TRUE)
 # varnames <- c("given_name", "family_name", "gender", "dob", "city", "phone_number", "national_id")
 varnames <- c("phonetic_given_name", "phonetic_family_name", "gender", "dob", "nupi")
 dfX_block <- dfX[varnames]
