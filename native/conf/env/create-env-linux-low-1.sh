@@ -54,7 +54,6 @@ export HAPROXY_RAM_LIMIT="8G"
 export KAFKA_RAM_LIMIT="8G"
 export DGRAPH_RAM_LIMIT="16G"
 export EM_RAM_LIMIT="8G"
-export LINKER_RAM_LIMIT="8G"
 export API_RAM_LIMIT="8G"
 export UI_RAM_LIMIT="8G"
 

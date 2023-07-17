@@ -17,9 +17,6 @@ pushd ../JeMPI_Apps
   pushd JeMPI_EM
     ./build.sh || exit 1
   popd
-  pushd JeMPI_Linker
-    ./build.sh || exit 1
-  popd
   pushd JeMPI_API
     ./build.sh || exit 1
   popd
@@ -28,9 +25,6 @@ pushd ../JeMPI_Apps
   popd
 
   pushd JeMPI_EM
-    ./push.sh
-  popd
-  pushd JeMPI_Linker
     ./push.sh
   popd
   pushd JeMPI_API

@@ -7,9 +7,6 @@ export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre
 export EM_IMAGE=em:1.0-SNAPSHOT
 export EM_JAR=EM-1.0-SNAPSHOT-spring-boot.jar
 
-export LINKER_IMAGE=linker:1.0-SNAPSHOT
-export LINKER_JAR=Linker-1.0-SNAPSHOT-spring-boot.jar
-
 export API_IMAGE=api:1.0-SNAPSHOT
 export API_JAR=API-1.0-SNAPSHOT-spring-boot.jar
 

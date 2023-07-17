@@ -11,7 +11,6 @@ pushd .
 
   declare -a SERVICES=(
     em
-    linker
     api
     api-kc
     ratel

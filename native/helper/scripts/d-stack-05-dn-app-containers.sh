@@ -11,7 +11,6 @@ pushd .
 
   declare -a APPS=(
     em
-    linker
     api
     api_kc
     ui
