@@ -17,17 +17,11 @@ pushd ../JeMPI_Apps
   pushd JeMPI_EM
     ./build.sh || exit 1
   popd
-  pushd JeMPI_API
-    ./build.sh || exit 1
-  popd
   pushd JeMPI_API_KC
     ./build.sh || exit 1
   popd
 
   pushd JeMPI_EM
-    ./push.sh
-  popd
-  pushd JeMPI_API
     ./push.sh
   popd
   pushd JeMPI_API_KC
