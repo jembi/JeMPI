@@ -24,16 +24,7 @@ pushd .
   mkdir -p ${DATA_KAFKA_01_DIR}
   if [ ! -z ${DATA_KAFKA_02_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_02_DIR}; fi
   if [ ! -z ${DATA_KAFKA_03_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_03_DIR}; fi
-  mkdir -p ${DATA_DGRAPH_ZERO_01_DIR}
-  if [ ! -z ${DATA_DGRAPH_ZERO_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ZERO_02_DIR}; fi
-  if [ ! -z ${DATA_DGRAPH_ZERO_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ZERO_03_DIR}; fi
-  mkdir -p ${DATA_DGRAPH_ALPHA_01_DIR}
-  if [ ! -z ${DATA_DGRAPH_ALPHA_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_02_DIR}; fi
-  if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}; fi
 
-  mkdir -p ${DATA_POSTGRESQL_DIR}
-  cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
-  
   mkdir -p ${DATA_DIR_EM}/conf
   
   mkdir -p ${DATA_DIR_API}/conf

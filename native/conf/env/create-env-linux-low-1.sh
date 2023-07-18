@@ -24,7 +24,6 @@ export SCALE_KAFKA_01=1
 export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
 export SCALE_RATEL=1
-export SCALE_POSTGRESQL=1
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
@@ -47,7 +46,6 @@ export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
 # ram limit for linker
-export POSTGRESQL_RAM_LIMIT="8G"
 export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
 export NGINX_RAM_LIMIT="8G"
 export HAPROXY_RAM_LIMIT="8G"

@@ -12,42 +12,6 @@ networks:
 
 services:
 
-  postgresql:
-    image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
-    networks:
-    - backend
-    ports:
-    - published: 5432
-      target: 5432
-      protocol: tcp
-      mode: host
-    volumes:
-    - type: bind
-      source: ${DATA_POSTGRESQL_DIR}
-      target: /conf
-      read_only: true
-    environment:
-      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      ALLOW_EMPTY_PASSWORD: "no"
-    deploy:
-      mode: replicated
-      replicas: ${SCALE_POSTGRESQL}
-      resources:
-        limits:
-          memory: ${POSTGRESQL_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_POSTGRESQL}
-
   keycloak-test-server:
     image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
     user: root
@@ -184,72 +148,6 @@ services:
       placement:
         constraints:
           - node.labels.name == $PLACEMENT_KAFKA_01
-  
-  zero-01:
-    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "zero-01"
-    networks:
-    - backend
-    ports:
-    - published: 5080
-      target: 5080
-      protocol: tcp
-      mode: host
-    - published: 6080
-      target: 6080
-      protocol: tcp
-      mode: host
-    volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ZERO_01_DIR}
-      target: /dgraph
-    deploy:
-      replicas: ${SCALE_ZERO_01}
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
-    command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
-
-  alpha-01:
-    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
-    hostname: "alpha-01"
-    networks:
-    - backend
-    volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ALPHA_01_DIR}
-      target: /dgraph
-    ports:
-    - published: 8080
-      target: 8080
-      protocol: tcp
-      mode: host
-    - published: 9080
-      target: 9080
-      protocol: tcp
-      mode: host
-    deploy:
-      replicas: ${SCALE_ALPHA_01}
-      resources:
-        limits:
-          memory: ${DGRAPH_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}

@@ -11,13 +11,8 @@ pushd .
 
   declare -a SERVICES=(
     em
-    api
     api-kc
     ratel
-    alpha-03
-    alpha-02
-    alpha-01
-    zero-01
     kafka-03
     kafka-02
     kafka-01

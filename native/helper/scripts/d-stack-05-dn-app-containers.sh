@@ -11,7 +11,6 @@ pushd .
 
   declare -a APPS=(
     em
-    api
     api_kc
     ui
   )

@@ -10,9 +10,7 @@ declare -a IMAGES=("$KEYCLOAK_IMAGE"
                    "$HAPROXY_IMAGE"
                    "$NGINX_IMAGE"
                    "$KAFKA_IMAGE"
-                   "$DGRAPH_IMAGE"
-                   "$RATEL_IMAGE"
-                   "$POSTGRESQL_IMAGE")
+                   "$RATEL_IMAGE")
 
 for IMAGE in ${IMAGES[@]}; do
   echo $IMAGE
