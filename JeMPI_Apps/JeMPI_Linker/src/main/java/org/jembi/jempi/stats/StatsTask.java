@@ -22,7 +22,7 @@ import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 public final class StatsTask {
 
    private static final Logger LOGGER = LogManager.getLogger(StatsTask.class);
-   private static final String URL = "http://api:50000";
+   private static final String URL = "http://" + AppConfig.API_SERVER;
    private static final String URL_LINK = String.format("%s/JeMPI/", URL);
    // 01234567890123456
    // rec-0000000001-....

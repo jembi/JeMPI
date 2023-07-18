@@ -1,3 +1,5 @@
+CREATE EXTENSION pgcrypto;
+
 CREATE TABLE IF NOT EXISTS Notification_Type
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -15,18 +17,6 @@ CREATE TABLE IF NOT EXISTS Notification_State
     Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     State VARCHAR(50)
 );
-
--- CREATE TABLE IF NOT EXISTS Notification
--- (
---     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
---     Type_Id uuid,
---     Created date,
---     Reviewd_By uuid,
---     Reviewed_At timestamp without time zone,
---     State_Id uuid,
---     Patient_Id VARCHAR(50),
---     Names VARCHAR(100)
--- );
 
 CREATE TABLE IF NOT EXISTS Notification
 (

@@ -24,6 +24,8 @@ public final class AppConfig {
          .withResource("application.conf")
          .build();
 
+   public static final Boolean USE_DGRAPH = CONFIG.getBoolean("USE_DGRAPH");
+   public static final String API_SERVER = CONFIG.getString("API_SERVER");
    public static final String POSTGRESQL_SERVER = CONFIG.getString("POSTGRESQL_SERVER");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");

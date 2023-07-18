@@ -47,7 +47,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
-         openMPI(true);
+         openMPI(AppConfig.USE_DGRAPH);
       }
       topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                  GlobalConstants.TOPIC_NOTIFICATIONS,

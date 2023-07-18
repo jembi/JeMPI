@@ -8,6 +8,6 @@ pushd .
   cd ${SCRIPT_DIR}/../..
 
   source ./0-conf.env
-
-  docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgres) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} -a -f /conf/config.sql
+  sudo -u postgres psql -tc "select 1 from pg_database where datname = 'notifications';" | grep -q 1 || sudo -u postgres psql -c "create database notifications;"
+  sudo -u postgres psql -d "notifications" -a -f ./conf/postgres/config.sql
 popd
