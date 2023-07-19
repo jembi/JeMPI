@@ -38,7 +38,7 @@ import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
-import { formatDate } from 'utils/formatters'
+import { formatDateTime } from 'utils/formatters'
 import SourceIdComponent from './SourceIdComponent'
 
 const getAlignment = (fieldName: string) =>
@@ -92,7 +92,7 @@ const Records = () => {
         flex: fieldName === 'sourceId' ? 2 : 1,
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
           fieldName === 'createdAt'
-            ? formatDate(value as Date)
+            ? formatDateTime(value as Date)
             : formatValue(value),
         sortable: false,
         disableColumnMenu: true,
