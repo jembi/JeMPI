@@ -91,7 +91,7 @@ services:
         protocol: tcp
         mode: host
       - published: 80
-        target: 8080
+        target: 8081
         protocol: tcp
         mode: host
     volumes:
