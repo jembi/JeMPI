@@ -5,7 +5,7 @@ export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
-export CSV_DIR=/app/csv
+export CSV_DIR="/app/csv"
 
 if [ $USE_LOCAL_REGISTRY == 'true' ]; then
     # In cluster mode, we set the network ip address
