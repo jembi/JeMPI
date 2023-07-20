@@ -37,7 +37,6 @@ import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import locale from 'dayjs/locale/uk'
 import { formatDateTime } from 'utils/formatters'
 import SourceIdComponent from './SourceIdComponent'
 
@@ -62,17 +61,9 @@ const Records = () => {
     pageSize: 10
   })
 
-  const [dateFilter, setDateFilter] = useState(
-    dayjs().locale({
-      ...locale
-    })
-  )
+  const [dateFilter, setDateFilter] = useState(dayjs())
 
-  const [dateSearch, setDateSearch] = useState(
-    dayjs().locale({
-      ...locale
-    })
-  )
+  const [dateSearch, setDateSearch] = useState(dayjs())
 
   const [filterPayload, setFilterPayload] = useState<FilterQuery>({
     parameters: [],
@@ -183,7 +174,7 @@ const Records = () => {
     setFilterPayload({
       ...filterPayload,
       parameters: [...query],
-      createdAt: dateFilter.format('YYYY-MM-DD')
+      createdAt: dateFilter.toJSON()
     })
   }
 

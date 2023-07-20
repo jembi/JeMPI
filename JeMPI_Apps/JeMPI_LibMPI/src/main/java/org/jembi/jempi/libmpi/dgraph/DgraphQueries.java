@@ -545,13 +545,12 @@ final class DgraphQueries {
          final PaginationOptions paginationOptions,
          final Boolean getInteractionCount) {
       LOGGER.debug("Filter Gids Params {}", params);
-      // String dateFilter = String.format("lt(GoldenRecord.aux_date_created, %s)", createdAt);
+      String dateFilter = String.format("le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
       String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
-      // String gqlFilters = filter.length() > 0 ? filter + " AND " + dateFilter : dateFilter;
+      String gqlFilters = filter.length() > 0 ? String.format("%s AND %s",  filter, dateFilter) : dateFilter;
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
-
-      return filterGidsFunc(filter, gqlArgs, gqlVars, paginationOptions, getInteractionCount);
+      return filterGidsFunc(gqlFilters, gqlArgs, gqlVars, paginationOptions, getInteractionCount);
    }
 
    static DgraphInteractions simpleSearchInteractions(
