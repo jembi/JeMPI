@@ -3,4 +3,4 @@
 set -e
 set -u
 
-java --enable-preview -DLOG4J2_LEVEL="DEBUG" -DKAFKA_BOOTSTRAP_SERVERS="localhost:29092" -DKAFKA_CLIENT_ID="client-id-ctl" -DKAFKA_APPLICATION_ID="app-id-ctl" -DPOSTGRESQL_SERVER="localhost:5432" -DPOSTGRESQL_DATABASE="notifications" -DPOSTGRESQL_USER="postgres" -DPOSTGRESQL_PASSWORD="postgres" -DHTTP_SERVER_PORT=50011 -jar ../JeMPI_Apps/JeMPI_Controller/target/Controller-1.0-SNAPSHOT-spring-boot.jar
+java --enable-preview -DLINKER_SERVER="localhost:50021" -DLOG4J2_LEVEL="DEBUG" -DKAFKA_BOOTSTRAP_SERVERS="localhost:29092" -DKAFKA_CLIENT_ID="client-id-ctl" -DKAFKA_APPLICATION_ID="app-id-ctl" -DPOSTGRESQL_SERVER="localhost:5432" -DPOSTGRESQL_DATABASE="notifications" -DPOSTGRESQL_USER="postgres" -DPOSTGRESQL_PASSWORD="postgres" -DHTTP_SERVER_PORT=50011 -jar ../JeMPI_Apps/JeMPI_Controller/target/Controller-1.0-SNAPSHOT-spring-boot.jar
