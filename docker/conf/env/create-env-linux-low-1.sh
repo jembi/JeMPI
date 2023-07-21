@@ -36,6 +36,8 @@ export KAFKA_SERVERS="kafka-01:9092"
 export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
+export LINKER_SERVER="linker:50000"
+
 # API related env vars
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
