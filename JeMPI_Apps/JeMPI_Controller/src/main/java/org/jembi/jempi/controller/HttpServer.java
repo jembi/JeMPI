@@ -44,7 +44,7 @@ public final class HttpServer extends AllDirectives {
    private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION)
+            .create("http://" + AppConfig.LINKER_SERVER + "JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -53,7 +53,7 @@ public final class HttpServer extends AllDirectives {
 
    private CompletionStage<HttpResponse> postLinkInteractionToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID)
+            .create("http://" + AppConfig.LINKER_SERVER + "JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -62,7 +62,7 @@ public final class HttpServer extends AllDirectives {
 
    private CompletionStage<HttpResponse> getMU() {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/mu")
+            .create("http://" + AppConfig.LINKER_SERVER + "JeMPI/mu")
             .withMethod(HttpMethods.GET);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
