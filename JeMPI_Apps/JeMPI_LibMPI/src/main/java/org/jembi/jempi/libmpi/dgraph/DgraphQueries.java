@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
+import io.vavr.Function1;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -194,7 +195,6 @@ final class DgraphQueries {
       return List.of();
    }
 
-
    private static long getCount(final String query) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
@@ -238,11 +238,14 @@ final class DgraphQueries {
 
    static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      var block = CustomDgraphQueries.queryDeterministicGoldenRecordCandidates(interaction);
-      if (!block.all().isEmpty()) {
-         final List<CustomDgraphGoldenRecord> list = block.all();
-         if (!AppUtils.isNullOrEmpty(list)) {
-            candidateGoldenRecords.addAll(list);
+      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : CustomDgraphQueries.DETERMINISTIC_FUNCTIONS) {
+         final var block = deterministicFunction.apply(interaction);
+         if (!block.all().isEmpty()) {
+            final var list = block.all();
+            if (!AppUtils.isNullOrEmpty(list)) {
+               candidateGoldenRecords.addAll(list);
+               return candidateGoldenRecords;
+            }
          }
       }
       return candidateGoldenRecords;

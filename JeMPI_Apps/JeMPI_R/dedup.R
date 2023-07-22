@@ -1,8 +1,9 @@
 library(fastLink)
 library(magrittr)
 
-dfX <- read.csv("../../JeMPI_TestData/Reference/results/test-data-0005000-02.csv", header = TRUE)
-varnames <- c("given_name", "family_name", "gender", "dob", "city", "phone_number", "national_id")
+dfX <- read.csv("../../JeMPI_TestData/Kenya/results/test-data-0030000-02-10.csv", header = TRUE)
+# varnames <- c("given_name", "family_name", "gender", "dob", "city", "phone_number", "national_id")
+varnames <- c("phonetic_given_name", "phonetic_family_name", "gender", "dob", "nupi")
 dfX_block <- dfX[varnames]
 fl.out <- fastLink(dfA = dfX_block, dfB = dfX_block, varnames = varnames, stringdist.method = 'jaro', estimate.only = TRUE, verbose = TRUE)
 m <- fl.out$p.gamma.k.m

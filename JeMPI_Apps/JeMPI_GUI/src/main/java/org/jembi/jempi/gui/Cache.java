@@ -3,6 +3,7 @@ package org.jembi.jempi.gui;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,33 +53,37 @@ public final class Cache {
       }
 
       private static String[] getGoldenRecordVector(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
-         return new String[]{
-               expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId(),
-               expandedGoldenRecord.goldenRecord().uid(),
-               expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxDateCreated().toString(),
-               expandedGoldenRecord.goldenRecord().demographicData().givenName,
-               expandedGoldenRecord.goldenRecord().demographicData().familyName,
-               expandedGoldenRecord.goldenRecord().demographicData().gender,
-               expandedGoldenRecord.goldenRecord().demographicData().dob,
-               expandedGoldenRecord.goldenRecord().demographicData().city,
-               expandedGoldenRecord.goldenRecord().demographicData().phoneNumber,
-               expandedGoldenRecord.goldenRecord().demographicData().nationalId,
-               null};
+         final var demographicFields = CustomDemographicData.class.getDeclaredFields();
+         final String[] vector = new String[3 + demographicFields.length + 1];
+         vector[0] = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
+         vector[1] = expandedGoldenRecord.goldenRecord().uid();
+         vector[2] = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxDateCreated().toString();
+         for (int i = 0; i < demographicFields.length; i++) {
+            try {
+               vector[3 + i] = demographicFields[i].get(expandedGoldenRecord.goldenRecord().demographicData()).toString();
+            } catch (IllegalAccessException e) {
+               LOGGER.error(e.getLocalizedMessage(), e);
+            }
+         }
+         vector[3 + demographicFields.length] = null;
+         return vector;
       }
 
       private static String[] getInteractionVector(final ApiModels.ApiInteractionWithScore interactionWithScore) {
-         return new String[]{
-               interactionWithScore.interaction().uniqueInteractionData().auxId(),
-               interactionWithScore.interaction().uid(),
-               interactionWithScore.interaction().uniqueInteractionData().auxDateCreated().toString(),
-               interactionWithScore.interaction().demographicData().givenName,
-               interactionWithScore.interaction().demographicData().familyName,
-               interactionWithScore.interaction().demographicData().gender,
-               interactionWithScore.interaction().demographicData().dob,
-               interactionWithScore.interaction().demographicData().city,
-               interactionWithScore.interaction().demographicData().phoneNumber,
-               interactionWithScore.interaction().demographicData().nationalId,
-               Float.toString(interactionWithScore.score())};
+         final var demographicFields = CustomDemographicData.class.getDeclaredFields();
+         final String[] vector = new String[3 + demographicFields.length + 1];
+         vector[0] = interactionWithScore.interaction().uniqueInteractionData().auxId();
+         vector[1] = interactionWithScore.interaction().uid();
+         vector[2] = interactionWithScore.interaction().uniqueInteractionData().auxDateCreated().toString();
+         for (int i = 0; i < demographicFields.length; i++) {
+            try {
+               vector[3 + i] = demographicFields[i].get(interactionWithScore.interaction().demographicData()).toString();
+            } catch (IllegalAccessException e) {
+               LOGGER.error(e.getLocalizedMessage(), e);
+            }
+         }
+         vector[3 + demographicFields.length] = Float.toString(interactionWithScore.score());
+         return vector;
       }
 
       private void bufferFillPrev() {

@@ -47,7 +47,19 @@ export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
 # ram limit for linker
+export POSTGRESQL_RAM_LIMIT="8G"
+export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
+export NGINX_RAM_LIMIT="8G"
+export HAPROXY_RAM_LIMIT="8G"
+export KAFKA_RAM_LIMIT="8G"
+export DGRAPH_RAM_LIMIT="16G"
+export ASYNC_RECEIVER_RAM_LIMIT="8G"
+export ETL_RAM_LIMIT="8G"
+export CONTROLLER_RAM_LIMIT="8G"
+export EM_RAM_LIMIT="8G"
 export LINKER_RAM_LIMIT="8G"
+export API_RAM_LIMIT="8G"
+export UI_RAM_LIMIT="8G"
 
 #UI env vars
 export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
