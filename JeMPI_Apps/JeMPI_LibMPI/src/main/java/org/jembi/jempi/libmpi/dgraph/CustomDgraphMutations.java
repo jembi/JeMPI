@@ -5,6 +5,7 @@ import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.util.Locale;
 import java.util.UUID;
 
 final class CustomDgraphMutations {
@@ -52,7 +53,7 @@ final class CustomDgraphMutations {
          final String sourceUID,
          final float score) {
       final String uuid = UUID.randomUUID().toString();
-      return String.format("""
+      return String.format(Locale.ROOT, """
                            _:%s  <GoldenRecord.source_id>                     <%s>                  .
                            _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .

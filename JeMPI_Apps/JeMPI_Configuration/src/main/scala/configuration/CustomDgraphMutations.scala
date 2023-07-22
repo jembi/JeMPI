@@ -150,7 +150,7 @@ private object CustomDgraphMutations {
          |         final String sourceUID,
          |         final float score) {
          |      final String uuid = UUID.randomUUID().toString();
-         |      return String.format(\"\"\"
+         |      return String.format(Locale.ROOT, \"\"\"
          |                           _:%s  <GoldenRecord.source_id>                     <%s>                  .
          |${goldenRecordFields(config)}
          |${" " * 27}_:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
