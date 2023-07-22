@@ -45,11 +45,11 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
    2. dgraph version
    3. create system account
       1. sudo groupadd --system dgraph
-      2. sudo useradd --system -d /var/run/dgraph -s /bin/false -g dgraph dgraph
+      2. sudo useradd --system -d /var/lib/dgraph -s /bin/false -g dgraph dgraph
    4. create directories
       1. sudo mkdir -p /var/log/dgraph
-      2. sudo mkdir -p /var/run/dgraph/{p,w,zw}
-      3. sudo chown -R dgraph:dgraph /var/{run,log}/dgraph
+      2. sudo mkdir -p /var/lib/dgraph/{p,w,zw}
+      3. sudo chown -R dgraph:dgraph /var/{lib,log}/dgraph
    5. sudo cp native/data-dgraph/dgraph-alpha.service /etc/systemd/system/
    6. enable services
       1. sudo systemctl daemon-reload
