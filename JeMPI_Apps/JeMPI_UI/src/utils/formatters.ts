@@ -2,9 +2,10 @@ import dayjs from 'dayjs'
 import { FieldType } from '../types/Fields'
 import { AnyRecord, ValueOf } from '../types/PatientRecord'
 
-export const formatDate = (value: Date) => {
-  return dayjs(value).format('YYYY/MM/DD')
-}
+export const formatDate = (value: Date) => dayjs(value).format('YYYY/MM/DD')
+
+export const formatDateTime = (value: Date) =>
+  dayjs(value).format('YYYY/MM/DD HH:MM:ss ')
 
 export const formatNumber = (value: number) => value.toFixed(3)
 
