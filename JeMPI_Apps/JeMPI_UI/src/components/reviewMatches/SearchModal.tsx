@@ -52,17 +52,19 @@ const SearchModal: FC<{
         <SearchTypeToggle onChange={setSelectedTab} options={options} />
 
         {selectedTab === SearchType.SIMPLE_SEARCH && (
-          <SearchFormTable
-            onChange={query =>
-              setRefineSearchQuery({
-                parameters: query,
-                sortBy: 'uid',
-                sortAsc: false,
-                offset: 0,
-                limit: PAGINATION_LIMIT
-              })
-            }
-          />
+          <Box mt={3}>
+            <SearchFormTable
+              onChange={query =>
+                setRefineSearchQuery({
+                  parameters: query,
+                  sortBy: 'uid',
+                  sortAsc: false,
+                  offset: 0,
+                  limit: PAGINATION_LIMIT
+                })
+              }
+            />
+          </Box>
         )}
         {selectedTab === SearchType.CUSTOM_SEARCH && (
           <Box mt={3}>

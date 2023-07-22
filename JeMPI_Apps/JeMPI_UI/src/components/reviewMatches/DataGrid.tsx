@@ -1,15 +1,17 @@
-import { SxProps, Theme, Typography } from '@mui/material'
+import { Link, SxProps, Theme, Typography } from '@mui/material'
 import {
   GridCellParams,
   GridColDef,
   GridRenderCellParams,
   GridValueFormatterParams,
+  GridValueGetterParams,
   DataGrid as MuiDataGrid
 } from '@mui/x-data-grid'
 import { DisplayField } from 'types/Fields'
 import { AnyRecord } from 'types/PatientRecord'
 import { useAppConfig } from '../../hooks/useAppConfig'
 import SourceIdComponent from 'components/browseRecords/SourceIdComponent'
+import MoreIcon from './MoreIcon'
 interface DataGridProps {
   data: AnyRecord[]
   onLinkedRecordDialogOpen?: (uid: string) => void
@@ -32,7 +34,12 @@ const getCellClassName = (
   } else return ''
 }
 
-const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
+const DataGrid: React.FC<DataGridProps> = ({
+  data,
+  onLinkedRecordDialogOpen,
+  isLoading = false,
+  sx
+}) => {
   const { availableFields } = useAppConfig()
 
   const columns: GridColDef[] = availableFields.map(field => {
@@ -85,6 +92,44 @@ const DataGrid: React.FC<DataGridProps> = ({ data, isLoading = false, sx }) => {
             }
           }
         }
+    }
+  })
+  columns.push({
+    field: 'actions',
+    headerName: 'Actions',
+    maxWidth: 180,
+    minWidth: 120,
+    flex: 1,
+    align: 'center',
+    headerAlign: 'center',
+    sortable: false,
+    filterable: false,
+    valueGetter: (params: GridValueGetterParams) => ({
+      id: params.row.id,
+      patient: params.row.patient,
+      type: params.row.type
+    }),
+    renderCell: (params: GridRenderCellParams) => {
+      switch (params.row.type) {
+        case 'Current':
+        case 'Golden':
+          return <MoreIcon params={params} />
+        case 'Candidate':
+          return (
+            <Link
+              sx={{ ':hover': { cursor: 'pointer' } }}
+              onClick={() =>
+                onLinkedRecordDialogOpen
+                  ? onLinkedRecordDialogOpen(params.row.uid)
+                  : null
+              }
+            >
+              Link
+            </Link>
+          )
+        default:
+          return <></>
+      }
     }
   })
 
