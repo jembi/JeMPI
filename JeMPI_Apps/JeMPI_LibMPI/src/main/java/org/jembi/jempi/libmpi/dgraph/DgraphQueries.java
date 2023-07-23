@@ -298,9 +298,9 @@ final class DgraphQueries {
    }
 */
 
-   private static List<String> getSimpleSearchQueryArguments(final List<SearchParameter> parameters) {
+   private static List<String> getSimpleSearchQueryArguments(final List<ApiModels.ApiSearchParameter> parameters) {
       List<String> args = new ArrayList<>();
-      for (SearchParameter param : parameters) {
+      for (ApiModels.ApiSearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
             args.add(String.format("$%s: string", fieldName));
@@ -309,11 +309,11 @@ final class DgraphQueries {
       return args;
    }
 
-   private static List<String> getCustomSearchQueryArguments(final List<SimpleSearchRequestPayload> payloads) {
+   private static List<String> getCustomSearchQueryArguments(final List<ApiModels.ApiSimpleSearchRequestPayload> payloads) {
       List<String> args = new ArrayList<>();
       for (int i = 0; i < payloads.size(); i++) {
-         List<SearchParameter> parameters = payloads.get(i).parameters();
-         for (SearchParameter param : parameters) {
+         List<ApiModels.ApiSearchParameter> parameters = payloads.get(i).parameters();
+         for (ApiModels.ApiSearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                args.add(String.format("$%s_%d: string", fieldName, i));
@@ -323,9 +323,9 @@ final class DgraphQueries {
       return args;
    }
 
-   private static HashMap<String, String> getSimpleSearchQueryVariables(final List<SearchParameter> parameters) {
+   private static HashMap<String, String> getSimpleSearchQueryVariables(final List<ApiModels.ApiSearchParameter> parameters) {
       final var vars = new HashMap<String, String>();
-      for (SearchParameter param : parameters) {
+      for (ApiModels.ApiSearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
             String value = param.value();
@@ -335,11 +335,11 @@ final class DgraphQueries {
       return vars;
    }
 
-   private static HashMap<String, String> getCustomSearchQueryVariables(final List<SimpleSearchRequestPayload> payloads) {
+   private static HashMap<String, String> getCustomSearchQueryVariables(final List<ApiModels.ApiSimpleSearchRequestPayload> payloads) {
       final var vars = new HashMap<String, String>();
       for (int i = 0; i < payloads.size(); i++) {
-         List<SearchParameter> parameters = payloads.get(i).parameters();
-         for (SearchParameter param : parameters) {
+         final var parameters = payloads.get(i).parameters();
+         for (var param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                String value = param.value();
@@ -352,9 +352,9 @@ final class DgraphQueries {
 
    private static String getSimpleSearchQueryFilters(
          final RecordType recordType,
-         final List<SearchParameter> parameters) {
+         final List<ApiModels.ApiSearchParameter> parameters) {
       List<String> gqlFilters = new ArrayList<>();
-      for (SearchParameter param : parameters) {
+      for (ApiModels.ApiSearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
             String fieldName = camelToSnake(param.fieldName());
             Integer distance = param.distance();
@@ -374,12 +374,12 @@ final class DgraphQueries {
 
    private static String getCustomSearchQueryFilters(
          final RecordType recordType,
-         final List<SimpleSearchRequestPayload> payloads) {
+         final List<ApiModels.ApiSimpleSearchRequestPayload> payloads) {
       final List<String> gqlOrCondition = new ArrayList<>();
       for (int i = 0; i < payloads.size(); i++) {
-         List<SearchParameter> parameters = payloads.get(i).parameters();
+         List<ApiModels.ApiSearchParameter> parameters = payloads.get(i).parameters();
          List<String> gqlAndCondition = new ArrayList<>();
-         for (SearchParameter param : parameters) {
+         for (ApiModels.ApiSearchParameter param : parameters) {
             if (!param.value().isEmpty()) {
                String fieldName = camelToSnake(param.fieldName());
                Integer distance = param.distance();
@@ -451,7 +451,7 @@ final class DgraphQueries {
    }
 
    static DgraphExpandedGoldenRecords simpleSearchGoldenRecords(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -466,7 +466,7 @@ final class DgraphQueries {
    }
 
    static DgraphExpandedGoldenRecords customSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload> payloads,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -529,7 +529,7 @@ final class DgraphQueries {
    }
 
    static DgraphPaginatedUidList filterGidsWithParams(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final LocalDate createdAt,
          final Integer offset,
          final Integer limit,
@@ -547,7 +547,7 @@ final class DgraphQueries {
    }
 
    static DgraphInteractions simpleSearchInteractions(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -562,7 +562,7 @@ final class DgraphQueries {
    }
 
    static DgraphInteractions customSearchInteractions(
-         final List<SimpleSearchRequestPayload> payloads,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,
          final String sortBy,

@@ -135,7 +135,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -145,7 +145,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -155,7 +155,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -165,7 +165,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
-         final List<SimpleSearchRequestPayload> params,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
          final String sortBy,
@@ -176,7 +176,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
 
    @Override
    public LibMPIPaginatedResultSet<String> filterGids(
-         final List<SearchParameter> params,
+         final List<ApiModels.ApiSearchParameter> params,
          final LocalDate createdAt,
          final Integer offset,
          final Integer limit,

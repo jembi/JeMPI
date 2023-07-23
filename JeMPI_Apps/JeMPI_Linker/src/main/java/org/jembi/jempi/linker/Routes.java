@@ -8,7 +8,10 @@ import akka.http.javadsl.server.Route;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
+import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 
 import static akka.http.javadsl.server.Directives.*;
 
@@ -23,6 +26,7 @@ final class Routes {
          case MpiServiceError.GoldenIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, Jackson.marshaller());
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }
@@ -52,9 +56,9 @@ final class Routes {
                        if (response.isSuccess()) {
                           final var eventLinkPatientSyncRsp = response.get();
                           return complete(StatusCodes.OK,
-                                          new ExtendedLinkInfo(eventLinkPatientSyncRsp.stan(),
-                                                               eventLinkPatientSyncRsp.linkInfo(),
-                                                               eventLinkPatientSyncRsp.externalLinkCandidateList()),
+                                          new ApiModels.ApiExtendedLinkInfo(eventLinkPatientSyncRsp.stan(),
+                                                                            eventLinkPatientSyncRsp.linkInfo(),
+                                                                            eventLinkPatientSyncRsp.externalLinkCandidateList()),
                                           Jackson.marshaller());
                        } else {
                           return complete(StatusCodes.IM_A_TEAPOT);
@@ -90,5 +94,66 @@ final class Routes {
                               ? complete(StatusCodes.OK, response.get().mu(), Jackson.marshaller())
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
+
+   static Route proxyGetCrFind(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrFindRequest.class),
+                    obj -> onComplete(Ask.getCrFind(actorSystem, backEnd, obj), response -> {
+                       if (response.isSuccess()) {
+                          final var rsp = response.get();
+                          if (rsp.response().isLeft()) {
+                             return mapError(rsp.response().getLeft());
+                          }
+                          return complete(StatusCodes.OK,
+                                          new ApiModels.ApiCrFindResponse(rsp.response().get()),
+                                          Jackson.marshaller());
+                       } else {
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    }));
+   }
+
+   static Route proxyPostCrRegister(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrRegisterRequest.class),
+                    obj -> onComplete(Ask.postCrRegister(actorSystem, backEnd, obj), response -> {
+                       if (response.isSuccess()) {
+                          final var rsp = response.get();
+                          if (rsp.goldenId().isLeft()) {
+                             return mapError(rsp.goldenId().getLeft());
+                          } else {
+                             return complete(StatusCodes.OK,
+                                             new ApiModels.ApiCrRegisterResponse(rsp.goldenId().get()),
+                                             Jackson.marshaller());
+                          }
+                       } else {
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    }));
+   }
+
+   static Route proxyPatchCrUpdateField(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldRequest.class),
+                    obj -> onComplete(Ask.patchCrUpdateField(actorSystem, backEnd, obj), response -> {
+                       if (response.isSuccess()) {
+                          final var rsp = response.get();
+                          if (rsp.response().isLeft()) {
+                             return mapError(rsp.response().getLeft());
+                          } else {
+                             final var r = rsp.response().get();
+                             return complete(StatusCodes.OK,
+                                             new ApiModels.ApiCrUpdateFieldResponse(r.goldenId(), r.name(), r.value()),
+                                             Jackson.marshaller());
+                          }
+                       } else {
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    }));
+   }
+
 
 }

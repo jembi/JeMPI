@@ -364,7 +364,7 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       LOGGER.info("Simple search on {}", recordType);
-      return entity(Jackson.unmarshaller(SimpleSearchRequestPayload.class),
+      return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
                     searchParameters -> onComplete(
                           () -> {
                              if (recordType == RecordType.GoldenRecord) {
@@ -473,7 +473,87 @@ public final class Routes {
                              return complete(StatusCodes.IM_A_TEAPOT);
                           }
                        });
+   }
 
+   private static CompletionStage<HttpResponse> patchCrUpdateFieldProxy(
+         final Http http,
+         final ApiModels.ApiCrUpdateFieldRequest body) throws JsonProcessingException {
+      final var request = HttpRequest
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELD)
+            .withMethod(HttpMethods.PATCH)
+            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> response);
+   }
+
+   private static CompletionStage<HttpResponse> postCrRegisterProxy(
+         final Http http,
+         final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
+      final var request = HttpRequest
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_REGISTER)
+            .withMethod(HttpMethods.POST)
+            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> response);
+   }
+
+   private static CompletionStage<HttpResponse> getCrFindProxy(
+         final Http http,
+         final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
+      final var request = HttpRequest
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_FIND)
+            .withMethod(HttpMethods.GET)
+            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> response);
+   }
+
+   public static Route patchCrUpdateField(final Http http) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldRequest.class),
+                    apiCrUpdateField -> {
+                       LOGGER.debug("{}", apiCrUpdateField);
+                       try {
+                          return onComplete(patchCrUpdateFieldProxy(http, apiCrUpdateField),
+                                            response -> response.isSuccess()
+                                                  ? complete(response.get())
+                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    });
+   }
+
+   public static Route getCrFind(final Http http) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrFindRequest.class),
+                    apiCrFind -> {
+                       LOGGER.debug("{}", apiCrFind);
+                       try {
+                          return onComplete(getCrFindProxy(http, apiCrFind),
+                                            response -> response.isSuccess()
+                                                  ? complete(response.get())
+                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    });
+   }
+
+   public static Route postCrRegister(final Http http) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrRegisterRequest.class),
+                    apiCrRegister -> {
+                       LOGGER.debug("{}", apiCrRegister);
+                       try {
+                          return onComplete(postCrRegisterProxy(http, apiCrRegister),
+                                            response -> response.isSuccess()
+                                                  ? complete(response.get())
+                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    });
    }
 
 }

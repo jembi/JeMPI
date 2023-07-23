@@ -8,14 +8,14 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CustomSearchRequestPayload(
-      List<SimpleSearchRequestPayload> $or,
+      List<ApiModels.ApiSimpleSearchRequestPayload> $or,
       Integer offset,
       Integer limit,
       String sortBy,
       Boolean sortAsc) {
 
    public CustomSearchRequestPayload(
-         final List<SimpleSearchRequestPayload> $or,
+         final List<ApiModels.ApiSimpleSearchRequestPayload> $or,
          final Integer offset,
          final Integer limit,
          final String sortBy,

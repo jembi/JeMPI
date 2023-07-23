@@ -128,8 +128,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
-      SimpleSearchRequestPayload payload = request.searchRequestPayload();
-      List<SearchParameter> parameters = payload.parameters();
+      ApiModels.ApiSimpleSearchRequestPayload payload = request.searchRequestPayload();
+      List<ApiModels.ApiSearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
@@ -143,7 +143,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postCustomSearchGoldenRecordsHandler(final PostCustomSearchGoldenRecordsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
-      List<SimpleSearchRequestPayload> parameters = payload.$or();
+      List<ApiModels.ApiSimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
@@ -156,8 +156,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postSimpleSearchInteractionsHandler(final PostSimpleSearchInteractionsRequest request) {
-      SimpleSearchRequestPayload payload = request.searchRequestPayload();
-      List<SearchParameter> parameters = payload.parameters();
+      final var payload = request.searchRequestPayload();
+      List<ApiModels.ApiSearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
@@ -171,7 +171,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postCustomSearchInteractionsHandler(final PostCustomSearchInteractionsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
-      List<SimpleSearchRequestPayload> parameters = payload.$or();
+      List<ApiModels.ApiSimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
@@ -184,8 +184,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postFilterGidsHandler(final PostFilterGidsRequest request) {
-      FilterGidsRequestPayload payload = request.filterGidsRequestPayload();
-      List<SearchParameter> parameters = payload.parameters();
+      final var payload = request.filterGidsRequestPayload();
+      final var parameters = payload.parameters();
       LocalDate createdAt = payload.createdAt();
       Integer offset = payload.offset();
       Integer limit = payload.limit();
@@ -572,7 +572,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
     */
    public record PostSimpleSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,
-         SimpleSearchRequestPayload searchRequestPayload) implements Event {
+         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
    public record PostFilterGidsRequest(
@@ -595,7 +595,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record PostSimpleSearchInteractionsRequest(
          ActorRef<PostSearchInteractionsResponse> replyTo,
-         SimpleSearchRequestPayload searchRequestPayload) implements Event {
+         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
    public record PostCustomSearchInteractionsRequest(

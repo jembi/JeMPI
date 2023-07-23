@@ -2,8 +2,10 @@ package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ApiModels {
@@ -17,6 +19,65 @@ public abstract class ApiModels {
    }
 
    public record ApiInterationCount(Long count) {
+   }
+
+   public record ApiSearchParameter(
+         String value,
+         String fieldName,
+         Integer distance) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrFindRequest(List<ApiSearchParameter> parameters) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrFindResponse(List<GoldenRecord> goldenRecords) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrRegisterRequest(Interaction interaction) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrRegisterResponse(String goldenId) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrUpdateFieldRequest(
+         String goldenId,
+         String field,
+         String value) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrUpdateFieldResponse(
+         String goldenId,
+         String field,
+         String value) {
+   }
+
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiSimpleSearchRequestPayload(
+         List<ApiSearchParameter> parameters,
+         Integer offset,
+         Integer limit,
+         String sortBy,
+         Boolean sortAsc) {
+
+      public ApiSimpleSearchRequestPayload(
+            final List<ApiSearchParameter> parameters,
+            final Integer offset,
+            final Integer limit,
+            final String sortBy,
+            final Boolean sortAsc) {
+         this.parameters = ObjectUtils.defaultIfNull(parameters, new ArrayList<>());
+         this.offset = ObjectUtils.defaultIfNull(offset, 0);
+         this.limit = ObjectUtils.defaultIfNull(limit, 10);
+         this.sortBy = ObjectUtils.defaultIfNull(sortBy, "uid");
+         this.sortAsc = ObjectUtils.defaultIfNull(sortAsc, false);
+      }
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -177,6 +238,12 @@ public abstract class ApiModels {
             float score) {
       }
 
+   }
+
+   public record ApiExtendedLinkInfo(
+         String stan,
+         LinkInfo linkInfo,
+         List<ExternalLinkCandidate> externalLinkCandidateList) {
    }
 
 }

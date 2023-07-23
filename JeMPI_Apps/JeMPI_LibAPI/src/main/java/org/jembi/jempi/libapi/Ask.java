@@ -228,7 +228,7 @@ public final class Ask {
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postSimpleSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final SimpleSearchRequestPayload searchRequestPayload) {
+         final ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) {
       CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.PostSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
@@ -254,7 +254,7 @@ public final class Ask {
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postSimpleSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final SimpleSearchRequestPayload simpleSearchRequestPayload) {
+         final ApiModels.ApiSimpleSearchRequestPayload simpleSearchRequestPayload) {
       CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.PostSimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),

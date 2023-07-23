@@ -43,18 +43,21 @@ final class HttpServer extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(
-                              post(() -> concat(
-                                    path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
-                                         () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
-                                    path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-                                         () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
-                                    path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
-                                         () -> Routes.proxyPostCalculateScores(actorSystem, backEnd)))),
-                              get(() -> concat(
-                                    path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
-                                    path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                                         () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd))))));
+                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELD,
+                                                      () -> Routes.proxyPatchCrUpdateField(actorSystem, backEnd))),
+                                     post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                                                            () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
+                                                            () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                                                            () -> Routes.proxyPostCalculateScores(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_CR_REGISTER,
+                                                            () -> Routes.proxyPostCrRegister(actorSystem, backEnd)))),
+                                     get(() -> concat(path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
+                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
+                                                           () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd)),
+                                                      path(GlobalConstants.SEGMENT_PROXY_CR_FIND,
+                                                           () -> Routes.proxyGetCrFind(actorSystem, backEnd))))));
    }
 
 }

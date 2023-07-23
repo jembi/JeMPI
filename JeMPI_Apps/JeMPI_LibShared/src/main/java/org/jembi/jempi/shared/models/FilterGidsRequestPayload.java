@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record FilterGidsRequestPayload(
-        List<SearchParameter> parameters,
+        List<ApiModels.ApiSearchParameter> parameters,
         LocalDate createdAt,
         Integer offset,
         Integer limit,
@@ -18,7 +18,7 @@ public record FilterGidsRequestPayload(
         Boolean sortAsc) {
 
     public FilterGidsRequestPayload(
-            final List<SearchParameter> parameters,
+            final List<ApiModels.ApiSearchParameter> parameters,
             final LocalDate createdAt,
             final Integer offset,
             final Integer limit,
