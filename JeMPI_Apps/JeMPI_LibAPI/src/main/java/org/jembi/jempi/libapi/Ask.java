@@ -250,6 +250,18 @@ public final class Ask {
       return stage.thenApply(response -> ApiModels.ApiFiteredGidsPaginatedResultSet.fromLibMPIPaginatedResultSet(
             response.goldenIds()));
    }
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> postFilterGidsWithInteractionCount(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final FilterGidsRequestPayload filterRequestPayload) {
+      CompletionStage<BackEnd.PostFilterGidsWithInteractionCountResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.PostFilterGidsWithInteractionCountRequest(replyTo, filterRequestPayload),
+                 java.time.Duration.ofSeconds(11),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> ApiModels.ApiFiteredGidsWithInteractionCountPaginatedResultSet.fromPaginatedGidsWithInteractionCount(
+            response.goldenIds()));
+   }
 
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postSimpleSearchInteractions(
          final ActorSystem<Void> actorSystem,

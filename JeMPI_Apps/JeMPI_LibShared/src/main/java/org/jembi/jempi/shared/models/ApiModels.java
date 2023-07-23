@@ -81,6 +81,13 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record InteractionCount(@JsonProperty("total") Integer total) {
+      static InteractionCount fromInteractionCount(final LibMPIInteractionCount interactionCount) {
+         return new InteractionCount(interactionCount.total());
+      }
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiPagination(@JsonProperty("total") Integer total) {
       static ApiPagination fromLibMPIPagination(final LibMPIPagination pagination) {
          return new ApiPagination(pagination.total());
@@ -121,6 +128,19 @@ public abstract class ApiModels {
          final var data = resultSet.data()
                                    .stream().toList();
          return new ApiFiteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+      }
+   }
+
+   public record ApiFiteredGidsWithInteractionCountPaginatedResultSet(
+         List<String> data,
+         InteractionCount interationCount,
+         ApiPagination pagination
+         ) implements ApiPaginatedResultSet {
+      public static ApiFiteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
+            final PaginatedGIDsWithInteractionCount resultSet) {
+         final var data = resultSet.data()
+                                   .stream().toList();
+         return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data, InteractionCount.fromInteractionCount(resultSet.interactionCount()), ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 

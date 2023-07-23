@@ -10,6 +10,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/search/custom"
       ],
       "accessLevel": []
@@ -33,6 +34,7 @@
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
+        "/record-details/:uid",
         ""
       ],
       "accessLevel": []
@@ -49,6 +51,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/golden-record/:uid/audit-trail",
@@ -72,6 +75,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom",
@@ -91,6 +95,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/simple",
@@ -112,6 +117,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom",
@@ -130,6 +136,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/custom",
@@ -148,6 +155,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
         "/golden-record/:uid/linked-records",
         "/search/simple",
@@ -194,22 +202,22 @@
       "accessLevel": []
     },
     {
-      "fieldName": "score",
-      "fieldType": "Number",
-      "fieldLabel": "Match",
+      "fieldName": "createdAt",
+      "fieldType": "String",
+      "fieldLabel": "Created At",
       "groups": [
-        "none"
+        "linked_records"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid"
+        "/record-details/:uid",
+        "/browse-records"
       ],
       "accessLevel": []
     },
     {
       "fieldName": "sourceId",
       "fieldType": "SourceId",
-      "fieldLabel": "Site Code",
+      "fieldLabel": "Source Id",
       "groups": [
         "registering_facility",
         "linked_records"
@@ -217,8 +225,24 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
+        "/record-details/:uid",
         "/golden-record/:uid/linked-records",
         ""
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "score",
+      "fieldType": "Number",
+      "fieldLabel": "Score",
+      "groups": [
+        "none"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/notifications/match-details"
       ],
       "accessLevel": []
     }

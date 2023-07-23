@@ -15,7 +15,7 @@ final class PsqlNotifications {
    private static final String QUERY = """
                                        SELECT patient_id, id, names, created, state,type, score, golden_id
                                        FROM notification
-                                       WHERE created >= ? AND state = ?
+                                       WHERE created <= ? AND state = ?
                                        ORDER BY created
                                        LIMIT ? OFFSET ?
                                        """;
@@ -57,6 +57,7 @@ final class PsqlNotifications {
          preparedStatement.setString(2, state);
          preparedStatement.setInt(3, limit);
          preparedStatement.setInt(4, offset);
+         LOGGER.debug("{}", preparedStatement);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();

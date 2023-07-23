@@ -1,6 +1,6 @@
 package org.jembi.jempi.shared.models;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record FilterGidsRequestPayload(
-        List<ApiModels.ApiSearchParameter> parameters,
-        LocalDate createdAt,
+      List<ApiModels.ApiSearchParameter> parameters,
+        LocalDateTime createdAt,
         Integer offset,
         Integer limit,
         String sortBy,
@@ -19,16 +19,16 @@ public record FilterGidsRequestPayload(
 
     public FilterGidsRequestPayload(
             final List<ApiModels.ApiSearchParameter> parameters,
-            final LocalDate createdAt,
+            final LocalDateTime createdAt,
             final Integer offset,
             final Integer limit,
             final String sortBy,
             final Boolean sortAsc) {
-        this.parameters = ObjectUtils.defaultIfNull(parameters, new ArrayList<>());
-        this.createdAt = ObjectUtils.defaultIfNull(createdAt, LocalDate.now());
+      this.parameters = ObjectUtils.defaultIfNull(parameters, new ArrayList<>());
+        this.createdAt = ObjectUtils.defaultIfNull(createdAt, LocalDateTime.now());
         this.offset = ObjectUtils.defaultIfNull(offset, 0);
         this.limit = ObjectUtils.defaultIfNull(limit, 10);
         this.sortBy = ObjectUtils.defaultIfNull(sortBy, "uid");
         this.sortAsc = ObjectUtils.defaultIfNull(sortAsc, false);
-    }
+   }
 }

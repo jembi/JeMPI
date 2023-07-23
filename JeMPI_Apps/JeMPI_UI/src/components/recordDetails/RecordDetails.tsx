@@ -12,6 +12,7 @@ import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useMatch } from '@tanstack/react-location'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import SourceIdComponent from 'components/browseRecords/SourceIdComponent'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
@@ -92,7 +93,7 @@ const RecordDetails = () => {
         return {
           field: fieldName,
           headerName: fieldLabel,
-          flex: 1,
+          flex: fieldName === 'sourceId' ? 2 : 1,
           valueFormatter: ({ value }) =>
             fieldName === 'createdAt'
               ? formatDate(value as Date)
@@ -111,20 +112,7 @@ const RecordDetails = () => {
           headerClassName: 'super-app-theme--header',
           renderCell: (params: GridRenderCellParams) => {
             if (fieldName === 'sourceId') {
-              if (Array.isArray(params.row.sourceId)) {
-                return (
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    {params.row.sourceId.map((value: any) => (
-                      <Typography fontSize={'9px'}>{value.facility}</Typography>
-                    ))}
-                  </Box>
-                )
-              }
-              return (
-                <Typography fontSize={'9px'}>
-                  {params.row.sourceId.facility}
-                </Typography>
-              )
+              return <SourceIdComponent content={params.row.sourceId} />
             }
           }
         }

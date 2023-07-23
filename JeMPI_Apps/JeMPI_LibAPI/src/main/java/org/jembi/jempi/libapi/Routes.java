@@ -402,6 +402,25 @@ public final class Routes {
                           }));
    }
 
+   public static Route postFilterGidsWithInteractionCount(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      LOGGER.info("Filter Guids");
+      final ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(objectMapper, FilterGidsRequestPayload.class),
+                    searchParameters -> onComplete(
+                          () -> Ask.postFilterGidsWithInteractionCount(actorSystem, backEnd, searchParameters),
+                          response -> {
+                             if (response.isSuccess()) {
+                                final var eventSearchRsp = response.get();
+                                return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
+                             } else {
+                                return complete(StatusCodes.IM_A_TEAPOT);
+                             }
+                          }));
+   }
+
    public static Route postCustomSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,

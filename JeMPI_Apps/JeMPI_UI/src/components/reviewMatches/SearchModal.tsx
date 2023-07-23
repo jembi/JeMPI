@@ -8,7 +8,6 @@ import {
   Divider
 } from '@mui/material'
 import CustomSearchForm from 'components/customSearch/CustomSearchForm'
-import SimpleSearchForm from 'components/search/SimpleSearchForm'
 import { FC, useState } from 'react'
 import { SearchType } from 'types/ReviewLink'
 import {
@@ -17,6 +16,9 @@ import {
   ToggleButtonOptions
 } from 'types/SimpleSearch'
 import SearchTypeToggle from './SearchTypeToggle'
+
+import SearchFormTable from 'components/browseRecords/SearchFormTable'
+import { PAGINATION_LIMIT } from 'utils/constants'
 
 const options: ToggleButtonOptions[] = [
   { value: 0, label: SearchType.CUSTOM_SEARCH },
@@ -43,14 +45,26 @@ const SearchModal: FC<{
   }
 
   return (
-    <Dialog fullWidth maxWidth={'md'} open={isOpen}>
+    <Dialog fullWidth maxWidth={'xl'} open={isOpen}>
       <DialogContent sx={{ p: 0 }}>
         <DialogTitle>Refine the current search</DialogTitle>
         <Divider />
         <SearchTypeToggle onChange={setSelectedTab} options={options} />
 
         {selectedTab === SearchType.SIMPLE_SEARCH && (
-          <SimpleSearchForm onChange={setRefineSearchQuery} />
+          <Box mt={3}>
+            <SearchFormTable
+              onChange={query =>
+                setRefineSearchQuery({
+                  parameters: query,
+                  sortBy: 'uid',
+                  sortAsc: false,
+                  offset: 0,
+                  limit: PAGINATION_LIMIT
+                })
+              }
+            />
+          </Box>
         )}
         {selectedTab === SearchType.CUSTOM_SEARCH && (
           <Box mt={3}>
