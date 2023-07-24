@@ -145,10 +145,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{} {} {}",
-                      req.crRegister.demographicData().givenName,
-                      req.crRegister.demographicData().familyName,
-                      req.crRegister.demographicData().nationalId);
+         LOGGER.trace("{}", req.crRegister.demographicData());
       }
 
       final var candidateGoldenRecords = libMPI.findCandidates(req.crRegister.demographicData());
