@@ -34,7 +34,6 @@ final class DgraphMutations {
          LOGGER.error("Failed to insert interaction");
          return null;
       }
-      LOGGER.debug("{}", result);
       final var grUID = cloneGoldenRecordFromInteraction(interaction.demographicData(),
                                                          result.interactionUID,
                                                          result.sourceUID,
@@ -43,7 +42,6 @@ final class DgraphMutations {
                                                                                           true,
                                                                                           interaction.uniqueInteractionData()
                                                                                                      .auxId()));
-      LOGGER.debug("grUID: {}", grUID);
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
