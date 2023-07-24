@@ -29,9 +29,15 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          String predicate) implements MpiServiceError {
    }
 
-   record ClientExists(
+   record CRClientExistsError(
          CustomDemographicData exists,
          CustomDemographicData request) implements MpiServiceError {
+   }
+
+   record CRUpdateFieldError(
+         String goldenId,
+         String name,
+         String value) implements MpiServiceError {
    }
 
    record GeneralError(String error) implements MpiServiceError {

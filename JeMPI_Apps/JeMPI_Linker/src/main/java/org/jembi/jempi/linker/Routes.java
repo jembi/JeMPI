@@ -29,7 +29,8 @@ final class Routes {
          case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, Jackson.marshaller());
-         case MpiServiceError.ClientExists e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.CRClientExistsError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.CRUpdateFieldError  e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }

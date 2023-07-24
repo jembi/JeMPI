@@ -139,7 +139,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", req.crFindData.parameters());
       }
-      req.replyTo.tell(new CrFindResponse(Either.left(new MpiServiceError.NotImplementedError("crFind"))));
+      final var params = req.crFindData.parameters();
+      final var rec = libMPI.simpleSearchGoldenRecords(params,
+                                                       0,
+                                                       100,
+                                                       "givenName",
+                                                       true);
+      if (rec == null) {
+         req.replyTo.tell(new CrFindResponse(Either.right(List.of())));
+      } else {
+         req.replyTo.tell(new CrFindResponse(Either.right(rec.data().stream().map(ExpandedGoldenRecord::goldenRecord).toList())));
+      }
       return Behaviors.same();
    }
 
@@ -149,30 +159,36 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       }
 
       final var candidateGoldenRecords = libMPI.findCandidates(req.crRegister.demographicData());
-      LOGGER.debug("{}", candidateGoldenRecords);
       if (candidateGoldenRecords.isEmpty()) {
-         LOGGER.debug("IS EMPTY");
          final var interaction = new Interaction(null,
                                                  req.crRegister.sourceId(),
                                                  req.crRegister.uniqueInteractionData(),
                                                  req.crRegister.demographicData());
          final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
-         LOGGER.debug("{}", linkInfo);
          req.replyTo.tell(new CrRegisterResponse(Either.right(linkInfo)));
       } else {
-         LOGGER.debug("EXISTS");
-         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.ClientExists(candidateGoldenRecords.get(0)
-                                                                                                                    .demographicData(),
-                                                                                              req.crRegister.demographicData()))));
+         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.CRClientExistsError(candidateGoldenRecords.get(0)
+                                                                                                                           .demographicData(),
+                                                                                                     req.crRegister.demographicData()))));
       }
       return Behaviors.same();
    }
 
    private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{}", req.crUpdateField);
+         LOGGER.trace("{} {} {}", req.crUpdateField.goldenId(), req.crUpdateField.field(), req.crUpdateField.value());
       }
-      req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.NotImplementedError("crUpdateField"))));
+      final var success = libMPI.updateGoldenRecordField(req.crUpdateField.goldenId(),
+                                                         req.crUpdateField.field(),
+                                                         req.crUpdateField.value());
+      LOGGER.debug("{}", success);
+      if (success) {
+         req.replyTo.tell(new CrUpdateFieldResponse(Either.right(new CrUpdateFieldResponse.UpdateFieldResponse(req.crUpdateField.goldenId(),
+                                                                                                               req.crUpdateField.field(),
+                                                                                                               req.crUpdateField.value()))));
+      } else {
+         req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.NotImplementedError("crUpdateField"))));
+      }
       return Behaviors.same();
    }
 

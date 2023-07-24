@@ -239,6 +239,14 @@ public final class LibMPI {
    }
 
    public boolean updateGoldenRecordField(
+         final String goldenId,
+         final String fieldName,
+         final String newValue) {
+      return client.updateGoldenRecordField(goldenId, fieldName, newValue);
+   }
+
+
+   public boolean updateGoldenRecordField(
          final String interactionId,
          final String goldenId,
          final String fieldName,
