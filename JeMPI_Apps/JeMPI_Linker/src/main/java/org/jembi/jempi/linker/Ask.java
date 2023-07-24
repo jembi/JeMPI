@@ -3,6 +3,8 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
@@ -12,6 +14,9 @@ import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 import java.util.concurrent.CompletionStage;
 
 final class Ask {
+
+   private static final Logger LOGGER = LogManager.getLogger(Ask.class);
+
 
    private Ask() {
    }
@@ -31,11 +36,19 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCrRegisterRequest body) {
-      CompletionStage<BackEnd.CrRegisterResponse> stage = AskPattern.ask(backEnd,
-                                                                         replyTo -> new BackEnd.CrRegisterRequest(body, replyTo),
-                                                                         java.time.Duration.ofSeconds(10),
-                                                                         actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      final CompletionStage<BackEnd.CrRegisterResponse> stage = AskPattern.ask(backEnd,
+                                                                               replyTo -> new BackEnd.CrRegisterRequest(body,
+                                                                                                                        replyTo),
+                                                                               java.time.Duration.ofSeconds(10),
+                                                                               actorSystem.scheduler());
+      return stage.thenApply(response -> {
+         if (response.linkInfo().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.linkInfo().get());
+         }
+         return response;
+      });
    }
 
    static CompletionStage<BackEnd.CrUpdateFieldResponse> patchCrUpdateField(

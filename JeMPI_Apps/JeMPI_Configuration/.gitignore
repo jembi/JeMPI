@@ -4,5 +4,6 @@ target
 deprecated
 *.json
 kenya
+!openmrs/*
 !reference/config-reference-api.json
 !reference/config-reference.json

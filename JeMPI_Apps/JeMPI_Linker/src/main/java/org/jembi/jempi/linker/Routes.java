@@ -5,6 +5,8 @@ import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
@@ -27,6 +29,7 @@ final class Routes {
          case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, Jackson.marshaller());
+         case MpiServiceError.ClientExists e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }
@@ -117,15 +120,17 @@ final class Routes {
    static Route proxyPostCrRegister(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrRegisterRequest.class),
+      final ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(objectMapper, ApiModels.ApiCrRegisterRequest.class),
                     obj -> onComplete(Ask.postCrRegister(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
                           final var rsp = response.get();
-                          if (rsp.goldenId().isLeft()) {
-                             return mapError(rsp.goldenId().getLeft());
+                          if (rsp.linkInfo().isLeft()) {
+                             return mapError(rsp.linkInfo().getLeft());
                           } else {
                              return complete(StatusCodes.OK,
-                                             new ApiModels.ApiCrRegisterResponse(rsp.goldenId().get()),
+                                             new ApiModels.ApiCrRegisterResponse(rsp.linkInfo().get()),
                                              Jackson.marshaller());
                           }
                        } else {

@@ -36,11 +36,13 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrRegisterRequest(Interaction interaction) {
+   public record ApiCrRegisterRequest(CustomSourceId sourceId,
+                                      CustomUniqueInteractionData uniqueInteractionData,
+                                      CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrRegisterResponse(String goldenId) {
+   public record ApiCrRegisterResponse(LinkInfo linkInfo) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)

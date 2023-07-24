@@ -508,10 +508,12 @@ public final class Routes {
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
          final Http http,
          final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
+      final ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_REGISTER)
             .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, objectMapper.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
@@ -560,7 +562,9 @@ public final class Routes {
    }
 
    public static Route postCrRegister(final Http http) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrRegisterRequest.class),
+      final ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(objectMapper, ApiModels.ApiCrRegisterRequest.class),
                     apiCrRegister -> {
                        LOGGER.debug("{}", apiCrRegister);
                        try {
@@ -570,7 +574,7 @@ public final class Routes {
                                                   : complete(StatusCodes.IM_A_TEAPOT));
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(StatusCodes.NO_CONTENT);
                        }
                     });
    }

@@ -145,9 +145,29 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{}", req.crRegister.interaction());
+         LOGGER.trace("{} {} {}",
+                      req.crRegister.demographicData().givenName,
+                      req.crRegister.demographicData().familyName,
+                      req.crRegister.demographicData().nationalId);
       }
-      req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.NotImplementedError("crRegister"))));
+
+      final var candidateGoldenRecords = libMPI.findCandidates(req.crRegister.demographicData());
+      LOGGER.debug("{}", candidateGoldenRecords);
+      if (candidateGoldenRecords.isEmpty()) {
+         LOGGER.debug("IS EMPTY");
+         final var interaction = new Interaction(null,
+                                                 req.crRegister.sourceId(),
+                                                 req.crRegister.uniqueInteractionData(),
+                                                 req.crRegister.demographicData());
+         final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+         LOGGER.debug("{}", linkInfo);
+         req.replyTo.tell(new CrRegisterResponse(Either.right(linkInfo)));
+      } else {
+         LOGGER.debug("EXISTS");
+         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.ClientExists(candidateGoldenRecords.get(0)
+                                                                                                                    .demographicData(),
+                                                                                              req.crRegister.demographicData()))));
+      }
       return Behaviors.same();
    }
 
@@ -629,7 +649,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record CrRegisterResponse(
-         Either<MpiGeneralError, String> goldenId) implements Response {
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 
    public record CrFindRequest(
