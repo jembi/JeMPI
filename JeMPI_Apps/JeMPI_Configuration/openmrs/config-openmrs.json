@@ -137,12 +137,22 @@
   ],
   "rules": {
     "deterministic": {
-      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
+      "QUERY_DETERMINISTIC_1": {
         "vars": [
           "national_id"
         ],
         "text": "eq(national_id)"
+      },
+      "QUERY_DETERMINISTIC_2": {
+        "vars": [
+          "given_name",
+          "family_name",
+          "dob",
+          "gender"
+        ],
+        "text": "eq(given_name) and eq(family_name) and eq(dob) and eq(gender)"
       }
+
     },
     "probabilistic": {
       "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {

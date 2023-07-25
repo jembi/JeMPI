@@ -135,20 +135,35 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .build();
    }
 
+   private List<GoldenRecord> crMatchedCandidates(
+         final float candidateThreshold,
+         final CustomDemographicData demographicData) {
+      final var candidates = libMPI.findCandidates(demographicData);
+      if (candidates.isEmpty()) {
+         return List.of();
+      } else {
+         return candidates.parallelStream()
+                          .unordered()
+                          .map(candidate -> new WorkCandidate(candidate,
+                                                              calcNormalizedScore(candidate.demographicData(),
+                                                                                  demographicData)))
+                          .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                          .filter(x -> x.score >= candidateThreshold)
+                          .map(x -> x.goldenRecord)
+                          .collect(Collectors.toCollection(ArrayList::new));
+      }
+   }
+
    private Behavior<Request> crFind(final CrFindRequest req) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{}", req.crFindData.parameters());
+         LOGGER.trace("{}", req.crFindData.demographicData());
       }
-      final var params = req.crFindData.parameters();
-      final var rec = libMPI.simpleSearchGoldenRecords(params,
-                                                       0,
-                                                       100,
-                                                       "givenName",
-                                                       true);
-      if (rec == null) {
+      final var matchedCandidates = crMatchedCandidates(req.crFindData.candidateThreshold(), req.crFindData().demographicData());
+      LOGGER.trace("size = {}", matchedCandidates.size());
+      if (matchedCandidates.isEmpty()) {
          req.replyTo.tell(new CrFindResponse(Either.right(List.of())));
       } else {
-         req.replyTo.tell(new CrFindResponse(Either.right(rec.data().stream().map(ExpandedGoldenRecord::goldenRecord).toList())));
+         req.replyTo.tell(new CrFindResponse(Either.right(matchedCandidates)));
       }
       return Behaviors.same();
    }
@@ -157,9 +172,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", req.crRegister.demographicData());
       }
-
-      final var candidateGoldenRecords = libMPI.findCandidates(req.crRegister.demographicData());
-      if (candidateGoldenRecords.isEmpty()) {
+      final var matchedCandidates = crMatchedCandidates(req.crRegister.candidateThreshold(),
+                                                        req.crRegister.demographicData());
+      if (matchedCandidates.isEmpty()) {
          final var interaction = new Interaction(null,
                                                  req.crRegister.sourceId(),
                                                  req.crRegister.uniqueInteractionData(),
@@ -167,8 +182,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
          req.replyTo.tell(new CrRegisterResponse(Either.right(linkInfo)));
       } else {
-         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.CRClientExistsError(candidateGoldenRecords.get(0)
-                                                                                                                           .demographicData(),
+         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.CRClientExistsError(matchedCandidates.stream()
+                                                                                                                      .map(GoldenRecord::demographicData)
+                                                                                                                      .toList(),
                                                                                                      req.crRegister.demographicData()))));
       }
       return Behaviors.same();
@@ -671,7 +687,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record CrFindResponse(
-         Either<MpiGeneralError, List<GoldenRecord>> response) implements Response {
+         Either<MpiGeneralError, List<GoldenRecord>> goldenRecords) implements Response {
    }
 
    public record CrUpdateFieldRequest(

@@ -22,6 +22,7 @@ public final class AppUtils implements Serializable {
 
    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                                                                       .registerModule(new JavaTimeModule());
+
    private static final Logger LOGGER = LogManager.getLogger(AppUtils.class);
    @Serial
    private static final long serialVersionUID = 1L;

@@ -29,7 +29,14 @@ final class Ask {
                                                                      replyTo -> new BackEnd.CrFindRequest(body, replyTo),
                                                                      java.time.Duration.ofSeconds(10),
                                                                      actorSystem.scheduler());
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> {
+         if (response.goldenRecords().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.goldenRecords().get());
+         }
+         return response;
+      });
    }
 
    static CompletionStage<BackEnd.CrRegisterResponse> postCrRegister(

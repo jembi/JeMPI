@@ -28,7 +28,8 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrFindRequest(List<ApiSearchParameter> parameters) {
+   public record ApiCrFindRequest(Float candidateThreshold,
+                                  CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -36,7 +37,8 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrRegisterRequest(CustomSourceId sourceId,
+   public record ApiCrRegisterRequest(Float candidateThreshold,
+                                      CustomSourceId sourceId,
                                       CustomUniqueInteractionData uniqueInteractionData,
                                       CustomDemographicData demographicData) {
    }
