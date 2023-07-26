@@ -5,7 +5,8 @@
       "fieldType": "String",
       "fieldLabel": "AUX ID",
       "groups": [
-        "identifiers"
+        "identifiers",
+        "record_details"
       ],
       "scope": [
         "/patient-record/:uid",
@@ -22,20 +23,18 @@
       "groups": [
         "name",
         "demographics",
-        "linked_records"
+        "filter",
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
-        "/golden-record/:uid/audit-trail",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
         "/record-details/:uid",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -46,20 +45,18 @@
       "groups": [
         "name",
         "demographics",
-        "linked_records"
+        "filter",
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
-        "/golden-record/:uid/audit-trail",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -69,40 +66,38 @@
       "fieldLabel": "Gender",
       "groups": [
         "demographics",
+        "filter",
         "sub_heading",
-        "linked_records"
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
         "/search/custom",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
     {
       "fieldName": "dob",
-      "fieldType": "String",
+      "fieldType": "Date",
       "fieldLabel": "Date of Birth",
       "groups": [
         "demographics",
+        "filter",
         "sub_heading",
-        "linked_records"
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -112,16 +107,15 @@
       "fieldLabel": "City",
       "groups": [
         "demographics",
-        "linked_records"
+        "filter",
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
         "/search/custom",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -131,16 +125,15 @@
       "fieldLabel": "Phone No",
       "groups": [
         "demographics",
-        "linked_records"
+        "filter",
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
         "/search/custom",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -150,23 +143,20 @@
       "fieldLabel": "National ID",
       "groups": [
         "identifiers",
-        "linked_records"
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     }
-
   ],
   "systemFields": [
     {
@@ -188,16 +178,16 @@
       "groups": [
         "identifiers",
         "sub_heading",
-        "linked_records"
+        "linked_records",
+        "record_details",
+        "filter"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/notifications/match-details",
-        "/golden-record/:uid/linked-records",
         "/search-results/golden",
         "/search-results/patient",
-        ""
+        "/record-details/:uid",
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -206,7 +196,9 @@
       "fieldType": "String",
       "fieldLabel": "Created At",
       "groups": [
-        "linked_records"
+        "linked_records",
+        "record_details",
+        "audit_trail"
       ],
       "scope": [
         "/record-details/:uid",
@@ -220,14 +212,12 @@
       "fieldLabel": "Source Id",
       "groups": [
         "registering_facility",
-        "linked_records"
+        "linked_records",
+        "record_details"
       ],
       "scope": [
-        "/patient-record/:uid",
-        "/golden-record/:uid",
         "/record-details/:uid",
-        "/golden-record/:uid/linked-records",
-        ""
+        "/browse-records"
       ],
       "accessLevel": []
     },
@@ -236,7 +226,8 @@
       "fieldType": "Number",
       "fieldLabel": "Score",
       "groups": [
-        "none"
+        "none",
+        "record_details"
       ],
       "scope": [
         "/patient-record/:uid",
