@@ -369,7 +369,7 @@ final class DgraphQueries {
             Integer distance = param.distance();
             String value = param.value();
             if (distance == 0) {
-               gqlFilters.add("regexp(" + recordType + "." + fieldName + ", /^" + value + "$/i)");
+               gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
             } else {
                gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
@@ -394,7 +394,7 @@ final class DgraphQueries {
                Integer distance = param.distance();
                String value = param.value();
                if (distance == 0) {
-                  gqlAndCondition.add("regexp(" + recordType + "." + fieldName + ", /^" + value + "$/i)");
+                  gqlAndCondition.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
                } else {
                   gqlAndCondition.add("match(" + recordType + "." + fieldName + ", $" + fieldName + "_" + i + ", " + distance + ")");
                }

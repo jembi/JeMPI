@@ -133,9 +133,7 @@ final class PsqlNotifications {
          final String state) throws SQLException {
       psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
-         ResultSet rs = stmt.executeQuery("update notification set state_id = "
-                                          + "(select id from notification_state where state = '" + state + "' )where id = '" + id
-                                          + "'");
+         ResultSet rs = stmt.executeQuery(String.format("update notification set state = \'%s\' where id = \'%s\'", state, id));
          psqlClient.commit();
       }
    }

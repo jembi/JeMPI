@@ -14,7 +14,7 @@ const SearchFormTable: React.FC<SearchTableFormProps> = ({ onChange }) => {
   const { getFieldsByGroup } = useAppConfig()
   const [query, setQuery] = useState<SearchParameter[]>([])
 
-  const columns: GridColDef[] = getFieldsByGroup('demographics').map(
+  const columns: GridColDef[] = getFieldsByGroup('filter').map(
     ({ fieldName, fieldLabel }) => {
       return {
         field: fieldName,

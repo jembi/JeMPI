@@ -82,9 +82,7 @@ const Records = () => {
         headerName: fieldLabel,
         flex: fieldName === 'sourceId' ? 2 : 1,
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
-          fieldName === 'createdAt'
-            ? formatDateTime(value as Date)
-            : formatValue(value),
+          formatValue(value),
         sortable: false,
         disableColumnMenu: true,
         align: getAlignment(fieldName),
@@ -94,6 +92,25 @@ const Records = () => {
         renderCell: (params: GridRenderCellParams) => {
           if (fieldName === 'sourceId') {
             return <SourceIdComponent content={params.row.sourceId} />
+          }
+          if (fieldName === 'createdAt') {
+            return (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}
+              >
+                <Typography fontSize={'1em'}>{`${dayjs(
+                  params.row.createdAt as Date
+                ).format('YYYY/MM/DD')}`}</Typography>
+
+                <Typography fontSize={'1em'}>{`${dayjs(
+                  params.row.createdAt as Date
+                ).format('HH:MM:ss')}`}</Typography>
+              </Box>
+            )
           }
         }
       }
