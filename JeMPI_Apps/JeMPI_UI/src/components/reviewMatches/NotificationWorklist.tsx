@@ -1,5 +1,12 @@
 import { People } from '@mui/icons-material'
-import { Box, Container, Divider, Paper, debounce } from '@mui/material'
+import {
+  Box,
+  Container,
+  Divider,
+  Paper,
+  Typography,
+  debounce
+} from '@mui/material'
 import {
   DataGrid,
   GridColDef,
@@ -14,7 +21,7 @@ import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import { formatDate, formatName, formatNumber } from 'utils/formatters'
+import { formatName, formatNumber } from 'utils/formatters'
 import ApiClient from '../../services/ApiClient'
 import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
@@ -45,9 +52,24 @@ const columns: GridColDef[] = [
     sortingOrder: ['desc'],
     align: 'center',
     headerAlign: 'center',
-    valueFormatter: (params: GridValueFormatterParams<Date>) =>
-      formatDate(params.value),
-    filterable: false
+    filterable: false,
+    renderCell: (params: GridRenderCellParams) => (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+      >
+        <Typography fontSize={'1em'}>{`${dayjs(
+          params.row.created as Date
+        ).format('YYYY/MM/DD')}`}</Typography>
+
+        <Typography fontSize={'1em'}>{`${dayjs(
+          params.row.created as Date
+        ).format('HH:MM:ss')}`}</Typography>
+      </Box>
+    )
   },
   {
     field: 'patient_id',
