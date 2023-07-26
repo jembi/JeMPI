@@ -5,8 +5,6 @@ import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
@@ -16,6 +14,7 @@ import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
 import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 
 import static akka.http.javadsl.server.Directives.*;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class Routes {
 
@@ -29,7 +28,8 @@ final class Routes {
          case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, Jackson.marshaller());
-         case MpiServiceError.ClientExists e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.CRClientExistsError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
+         case MpiServiceError.CRUpdateFieldError e -> complete(StatusCodes.BAD_REQUEST, e, Jackson.marshaller());
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }
@@ -101,16 +101,16 @@ final class Routes {
    static Route proxyGetCrFind(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrFindRequest.class),
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
                     obj -> onComplete(Ask.getCrFind(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
                           final var rsp = response.get();
-                          if (rsp.response().isLeft()) {
-                             return mapError(rsp.response().getLeft());
+                          if (rsp.goldenRecords().isLeft()) {
+                             return mapError(rsp.goldenRecords().getLeft());
                           }
                           return complete(StatusCodes.OK,
-                                          new ApiModels.ApiCrFindResponse(rsp.response().get()),
-                                          Jackson.marshaller());
+                                          new ApiModels.ApiCrFindResponse(rsp.goldenRecords().get()),
+                                          Jackson.marshaller(OBJECT_MAPPER));
                        } else {
                           return complete(StatusCodes.IM_A_TEAPOT);
                        }
@@ -120,9 +120,9 @@ final class Routes {
    static Route proxyPostCrRegister(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      final ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      return entity(Jackson.unmarshaller(objectMapper, ApiModels.ApiCrRegisterRequest.class),
+//      final ObjectMapper objectMapper = new ObjectMapper();
+//      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     obj -> onComplete(Ask.postCrRegister(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
                           final var rsp = response.get();
@@ -131,7 +131,7 @@ final class Routes {
                           } else {
                              return complete(StatusCodes.OK,
                                              new ApiModels.ApiCrRegisterResponse(rsp.linkInfo().get()),
-                                             Jackson.marshaller());
+                                             Jackson.marshaller(OBJECT_MAPPER));
                           }
                        } else {
                           return complete(StatusCodes.IM_A_TEAPOT);

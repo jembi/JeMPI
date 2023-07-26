@@ -9,14 +9,11 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
 import akka.japi.Pair;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -26,11 +23,12 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static akka.http.javadsl.server.Directives.*;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Routes {
 
    private static final Logger LOGGER = LogManager.getLogger(Routes.class);
-   private static final Marshaller<Object, RequestEntity> JSON_MARSHALLER = Jackson.marshaller(AppUtils.OBJECT_MAPPER);
+   private static final Marshaller<Object, RequestEntity> JSON_MARSHALLER = Jackson.marshaller(OBJECT_MAPPER);
 
    private static final Function<Map.Entry<String, String>, String> PARAM_STRING = Map.Entry::getValue;
 
@@ -305,7 +303,7 @@ public final class Routes {
                                             goldenRecord -> complete(StatusCodes.OK,
                                                                      ApiModels.ApiExpandedGoldenRecord.fromExpandedGoldenRecord(
                                                                            goldenRecord),
-                                                                     Jackson.marshaller(AppUtils.OBJECT_MAPPER)))
+                                                                     Jackson.marshaller(OBJECT_MAPPER)))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
@@ -387,9 +385,9 @@ public final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
-      final ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      return entity(Jackson.unmarshaller(objectMapper, FilterGidsRequestPayload.class),
+//      final ObjectMapper objectMapper = new ObjectMapper();
+//      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
                     searchParameters -> onComplete(
                           () -> Ask.postFilterGids(actorSystem, backEnd, searchParameters),
                           response -> {
@@ -406,9 +404,9 @@ public final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
-      final ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      return entity(Jackson.unmarshaller(objectMapper, FilterGidsRequestPayload.class),
+//      final ObjectMapper objectMapper = new ObjectMapper();
+//      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
                     searchParameters -> onComplete(
                           () -> Ask.postFilterGidsWithInteractionCount(actorSystem, backEnd, searchParameters),
                           response -> {
@@ -447,7 +445,7 @@ public final class Routes {
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES)
             .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
@@ -500,7 +498,7 @@ public final class Routes {
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELD)
             .withMethod(HttpMethods.PATCH)
-            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
@@ -508,12 +506,12 @@ public final class Routes {
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
          final Http http,
          final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
-      final ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
+//      final ObjectMapper objectMapper = new ObjectMapper();
+//      objectMapper.registerModule(new JavaTimeModule());
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_REGISTER)
             .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, objectMapper.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
@@ -524,9 +522,12 @@ public final class Routes {
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_FIND)
             .withMethod(HttpMethods.GET)
-            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
+      return stage.thenApply(response -> {
+         LOGGER.debug("{}", response);
+         return response;
+      });
    }
 
    public static Route patchCrUpdateField(final Http http) {
@@ -546,7 +547,7 @@ public final class Routes {
    }
 
    public static Route getCrFind(final Http http) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrFindRequest.class),
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
                     apiCrFind -> {
                        LOGGER.debug("{}", apiCrFind);
                        try {
@@ -562,9 +563,9 @@ public final class Routes {
    }
 
    public static Route postCrRegister(final Http http) {
-      final ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      return entity(Jackson.unmarshaller(objectMapper, ApiModels.ApiCrRegisterRequest.class),
+//      final ObjectMapper objectMapper = new ObjectMapper();
+//      objectMapper.registerModule(new JavaTimeModule());
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     apiCrRegister -> {
                        LOGGER.debug("{}", apiCrRegister);
                        try {

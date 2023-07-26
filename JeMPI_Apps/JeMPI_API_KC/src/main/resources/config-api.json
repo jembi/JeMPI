@@ -107,6 +107,44 @@
       "accessLevel": []
     },
     {
+      "fieldName": "city",
+      "fieldType": "String",
+      "fieldLabel": "City",
+      "groups": [
+        "demographics",
+        "linked_records"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/golden-record/:uid/linked-records",
+        "/search/custom",
+        ""
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "phone_number",
+      "fieldType": "String",
+      "fieldLabel": "Phone No",
+      "groups": [
+        "demographics",
+        "linked_records"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/golden-record/:uid/linked-records",
+        "/search/custom",
+        ""
+      ],
+      "accessLevel": []
+    },
+    {
       "fieldName": "national_id",
       "fieldType": "String",
       "fieldLabel": "National ID",
