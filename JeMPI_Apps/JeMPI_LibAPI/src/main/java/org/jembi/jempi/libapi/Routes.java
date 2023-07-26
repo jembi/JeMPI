@@ -492,11 +492,11 @@ public final class Routes {
                        });
    }
 
-   private static CompletionStage<HttpResponse> patchCrUpdateFieldProxy(
+   private static CompletionStage<HttpResponse> patchCrUpdateFieldsProxy(
          final Http http,
-         final ApiModels.ApiCrUpdateFieldRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrUpdateFieldsRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELD)
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS)
             .withMethod(HttpMethods.PATCH)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -506,8 +506,6 @@ public final class Routes {
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
          final Http http,
          final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
-//      final ObjectMapper objectMapper = new ObjectMapper();
-//      objectMapper.registerModule(new JavaTimeModule());
       final var request = HttpRequest
             .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_REGISTER)
             .withMethod(HttpMethods.POST)
@@ -516,12 +514,12 @@ public final class Routes {
       return stage.thenApply(response -> response);
    }
 
-   private static CompletionStage<HttpResponse> getCrFindProxy(
+   private static CompletionStage<HttpResponse> postCrCandidatesProxy(
          final Http http,
-         final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrCandidatesRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_FIND)
-            .withMethod(HttpMethods.GET)
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES)
+            .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> {
@@ -530,12 +528,26 @@ public final class Routes {
       });
    }
 
-   public static Route patchCrUpdateField(final Http http) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldRequest.class),
-                    apiCrUpdateField -> {
-                       LOGGER.debug("{}", apiCrUpdateField);
+   private static CompletionStage<HttpResponse> postCrFindProxy(
+         final Http http,
+         final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
+      final var request = HttpRequest
+            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_FIND)
+            .withMethod(HttpMethods.POST)
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> {
+         LOGGER.debug("{}", response);
+         return response;
+      });
+   }
+
+   public static Route patchCrUpdateFields(final Http http) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
+                    apiCrUpdateFields -> {
+                       LOGGER.debug("{}", apiCrUpdateFields);
                        try {
-                          return onComplete(patchCrUpdateFieldProxy(http, apiCrUpdateField),
+                          return onComplete(patchCrUpdateFieldsProxy(http, apiCrUpdateFields),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -546,12 +558,28 @@ public final class Routes {
                     });
    }
 
-   public static Route getCrFind(final Http http) {
+   public static Route postCrFind(final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
                     apiCrFind -> {
                        LOGGER.debug("{}", apiCrFind);
                        try {
-                          return onComplete(getCrFindProxy(http, apiCrFind),
+                          return onComplete(postCrFindProxy(http, apiCrFind),
+                                            response -> response.isSuccess()
+                                                  ? complete(response.get())
+                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    });
+   }
+
+   public static Route postCrCandidates(final Http http) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
+                    apiCrCandidates -> {
+                       LOGGER.debug("{}", apiCrCandidates);
+                       try {
+                          return onComplete(postCrCandidatesProxy(http, apiCrCandidates),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -563,8 +591,6 @@ public final class Routes {
    }
 
    public static Route postCrRegister(final Http http) {
-//      final ObjectMapper objectMapper = new ObjectMapper();
-//      objectMapper.registerModule(new JavaTimeModule());
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     apiCrRegister -> {
                        LOGGER.debug("{}", apiCrRegister);

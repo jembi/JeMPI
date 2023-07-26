@@ -49,7 +49,8 @@ public final class GlobalConstants {
 
    public static final String SEGMENT_PROXY_CR_REGISTER = "cr-register";
    public static final String SEGMENT_PROXY_CR_FIND = "cr-find";
-   public static final String SEGMENT_PROXY_CR_UPDATE_FIELD = "cr-update-field";
+   public static final String SEGMENT_PROXY_CR_CANDIDATES = "cr-candidates";
+   public static final String SEGMENT_PROXY_CR_UPDATE_FIELDS = "cr-update-fields";
 
 
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidate-golden-records";

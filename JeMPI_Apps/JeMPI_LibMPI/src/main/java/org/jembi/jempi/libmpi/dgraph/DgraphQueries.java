@@ -1,8 +1,8 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.vavr.control.Either;
 import io.vavr.Function1;
+import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +11,8 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.jembi.jempi.libmpi.dgraph.CustomDgraphConstants.GOLDEN_RECORD_FIELD_NAMES;
 
 final class DgraphQueries {
 
@@ -238,7 +240,8 @@ final class DgraphQueries {
 
    static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : CustomDgraphQueries.DETERMINISTIC_FUNCTIONS) {
+      for (Function1<CustomDemographicData,
+            DgraphGoldenRecords> deterministicFunction : CustomDgraphQueries.DETERMINISTIC_FUNCTIONS) {
          final var block = deterministicFunction.apply(interaction);
          if (!block.all().isEmpty()) {
             final var list = block.all();
@@ -550,7 +553,9 @@ final class DgraphQueries {
       LOGGER.debug("Filter Gids Params {}", params);
       String dateFilter = String.format("le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
       String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
-      String gqlFilters = filter.length() > 0 ? String.format("%s AND %s",  filter, dateFilter) : dateFilter;
+      String gqlFilters = filter.length() > 0
+            ? String.format("%s AND %s", filter, dateFilter)
+            : dateFilter;
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
       return filterGidsFunc(gqlFilters, gqlArgs, gqlVars, paginationOptions, getInteractionCount);
@@ -583,5 +588,58 @@ final class DgraphQueries {
 
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
+
+   static DgraphGoldenRecords findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
+
+      final var op = req.operand();
+      StringBuilder queryBuilder = new StringBuilder("query query_1 ($").append(camelToSnake(op.name())).append(":string");
+      for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
+         queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
+      }
+      queryBuilder.append(") {\n\n");
+      char alias = 'A';
+      queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                  .append(op.fn())
+                  .append("(GoldenRecord.")
+                  .append(camelToSnake(op.name()))
+                  .append(", $")
+                  .append(camelToSnake(op.name()))
+                  .append(")) {\n    ")
+                  .append(alias)
+                  .append(" as uid\n  }\n\n");
+
+      for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+         queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                     .append(o.operand().fn())
+                     .append("(GoldenRecord.")
+                     .append(camelToSnake(o.operand().name()))
+                     .append(", $")
+                     .append(camelToSnake(o.operand().name()))
+                     .append(")) {\n    ")
+                     .append(++alias)
+                     .append(" as uid\n  }\n\n");
+      }
+
+      alias = 'A';
+      queryBuilder.append("  all(func:type(GoldenRecord)) @filter(uid(A)");
+      for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+         queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
+      }
+      queryBuilder.append(") {\n")
+                  .append(GOLDEN_RECORD_FIELD_NAMES)
+                  .append("  }\n}\n");
+      final var query = queryBuilder.toString();
+      final var map = new HashMap<String, String>();
+      map.put("$" + camelToSnake(op.name()), op.value());
+      for (var o : req.operands()) {
+         map.put("$" + camelToSnake(o.operand().name()), o.operand().value());
+      }
+      LOGGER.debug("{}", "\n" + query);
+      LOGGER.debug("{}", map);
+      final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
+      LOGGER.debug("{}", dgraphGoldenRecords);
+      return dgraphGoldenRecords;
+   }
+
 
 }

@@ -96,6 +96,8 @@ public interface LibMPIClientInterface {
          LocalDateTime createdAt,
          PaginationOptions paginationOptions);
 
+   List<GoldenRecord> findGoldenRecords(ApiModels.ApiCrFindRequest request);
+
    /*
     * *****************************************************************************
     * *

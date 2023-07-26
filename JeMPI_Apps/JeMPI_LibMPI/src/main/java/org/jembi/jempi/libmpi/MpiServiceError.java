@@ -38,8 +38,7 @@ public sealed interface MpiServiceError extends MpiGeneralError {
 
    record CRUpdateFieldError(
          String goldenId,
-         String name,
-         String value) implements MpiServiceError {
+         List<String> fields) implements MpiServiceError {
    }
 
    record GeneralError(String error) implements MpiServiceError {

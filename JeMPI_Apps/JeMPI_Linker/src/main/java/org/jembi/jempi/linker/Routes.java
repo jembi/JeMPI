@@ -98,6 +98,25 @@ final class Routes {
                               : complete(StatusCodes.IM_A_TEAPOT));
    }
 
+   static Route proxyGetCrCandidates(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
+                    obj -> onComplete(Ask.getCrCandidates(actorSystem, backEnd, obj), response -> {
+                       if (response.isSuccess()) {
+                          final var rsp = response.get();
+                          if (rsp.goldenRecords().isLeft()) {
+                             return mapError(rsp.goldenRecords().getLeft());
+                          }
+                          return complete(StatusCodes.OK,
+                                          new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
+                                          Jackson.marshaller(OBJECT_MAPPER));
+                       } else {
+                          return complete(StatusCodes.IM_A_TEAPOT);
+                       }
+                    }));
+   }
+
    static Route proxyGetCrFind(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
@@ -109,7 +128,7 @@ final class Routes {
                              return mapError(rsp.goldenRecords().getLeft());
                           }
                           return complete(StatusCodes.OK,
-                                          new ApiModels.ApiCrFindResponse(rsp.goldenRecords().get()),
+                                          new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                           Jackson.marshaller(OBJECT_MAPPER));
                        } else {
                           return complete(StatusCodes.IM_A_TEAPOT);
@@ -117,11 +136,10 @@ final class Routes {
                     }));
    }
 
+
    static Route proxyPostCrRegister(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-//      final ObjectMapper objectMapper = new ObjectMapper();
-//      objectMapper.registerModule(new JavaTimeModule());
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     obj -> onComplete(Ask.postCrRegister(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
@@ -142,7 +160,7 @@ final class Routes {
    static Route proxyPatchCrUpdateField(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldRequest.class),
+      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
                     obj -> onComplete(Ask.patchCrUpdateField(actorSystem, backEnd, obj), response -> {
                        if (response.isSuccess()) {
                           final var rsp = response.get();
@@ -151,7 +169,7 @@ final class Routes {
                           } else {
                              final var r = rsp.response().get();
                              return complete(StatusCodes.OK,
-                                             new ApiModels.ApiCrUpdateFieldResponse(r.goldenId(), r.name(), r.value()),
+                                             new ApiModels.ApiCrUpdateFieldsResponse(r.goldenId(), r.updated(), r.failed()),
                                              Jackson.marshaller());
                           }
                        } else {

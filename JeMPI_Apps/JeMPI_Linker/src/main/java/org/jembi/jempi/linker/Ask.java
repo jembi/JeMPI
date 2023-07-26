@@ -21,6 +21,25 @@ final class Ask {
    private Ask() {
    }
 
+   static CompletionStage<BackEnd.CrCandidatesResponse> getCrCandidates(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrCandidatesRequest body) {
+      CompletionStage<BackEnd.CrCandidatesResponse> stage = AskPattern.ask(backEnd,
+                                                                           replyTo -> new BackEnd.CrCandidatesRequest(body,
+                                                                                                                      replyTo),
+                                                                           java.time.Duration.ofSeconds(10),
+                                                                           actorSystem.scheduler());
+      return stage.thenApply(response -> {
+         if (response.goldenRecords().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.goldenRecords().get());
+         }
+         return response;
+      });
+   }
+
    static CompletionStage<BackEnd.CrFindResponse> getCrFind(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
@@ -61,7 +80,7 @@ final class Ask {
    static CompletionStage<BackEnd.CrUpdateFieldResponse> patchCrUpdateField(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
-         final ApiModels.ApiCrUpdateFieldRequest body) {
+         final ApiModels.ApiCrUpdateFieldsRequest body) {
       CompletionStage<BackEnd.CrUpdateFieldResponse> stage = AskPattern.ask(backEnd,
                                                                             replyTo -> new BackEnd.CrUpdateFieldRequest(body,
                                                                                                                         replyTo),
