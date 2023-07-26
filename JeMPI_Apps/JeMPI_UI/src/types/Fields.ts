@@ -12,6 +12,7 @@ export type FieldGroup =
   | 'system'
   | 'linked_records'
   | 'audit_trail'
+  | 'filter'
 
 export type FieldType = 'String' | 'Number' | 'Date' | 'Boolean' | 'SourceId'
 
