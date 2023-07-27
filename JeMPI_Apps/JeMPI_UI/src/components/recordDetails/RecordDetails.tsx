@@ -19,6 +19,7 @@ import NotFound from 'components/error/NotFound'
 import ConfirmationModal from 'components/patient/ConfirmationModal'
 import DataGridCellInput from 'components/patient/DataGridCellInput'
 import PageHeader from 'components/shell/PageHeader'
+import dayjs from 'dayjs'
 import { useAppConfig } from 'hooks/useAppConfig'
 import { useSnackbar } from 'notistack'
 import { useState } from 'react'
@@ -113,6 +114,25 @@ const RecordDetails = () => {
           renderCell: (params: GridRenderCellParams) => {
             if (fieldName === 'sourceId') {
               return <SourceIdComponent content={params.row.sourceId} />
+            }
+            if (fieldName === 'createdAt') {
+              return (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Typography fontSize={'1em'}>{`${dayjs(
+                    params.row.createdAt as Date
+                  ).format('YYYY/MM/DD')}`}</Typography>
+
+                  <Typography fontSize={'1em'}>{`${dayjs(
+                    params.row.createdAt as Date
+                  ).format('HH:MM:ss')}`}</Typography>
+                </Box>
+              )
             }
           }
         }

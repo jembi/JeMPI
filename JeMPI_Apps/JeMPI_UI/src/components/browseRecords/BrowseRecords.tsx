@@ -37,7 +37,6 @@ import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import { formatDateTime } from 'utils/formatters'
 import SourceIdComponent from './SourceIdComponent'
 
 const getAlignment = (fieldName: string) =>
