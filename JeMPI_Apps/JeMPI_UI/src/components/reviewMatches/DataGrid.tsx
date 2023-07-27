@@ -38,7 +38,8 @@ const DataGrid: React.FC<DataGridProps> = ({
   data,
   onLinkedRecordDialogOpen,
   isLoading = false,
-  sx
+  sx,
+  hideAction = false
 }) => {
   const { availableFields } = useAppConfig()
 
@@ -94,44 +95,46 @@ const DataGrid: React.FC<DataGridProps> = ({
         }
     }
   })
-  columns.push({
-    field: 'actions',
-    headerName: 'Actions',
-    maxWidth: 180,
-    minWidth: 120,
-    flex: 1,
-    align: 'center',
-    headerAlign: 'center',
-    sortable: false,
-    filterable: false,
-    valueGetter: (params: GridValueGetterParams) => ({
-      id: params.row.id,
-      patient: params.row.patient,
-      type: params.row.type
-    }),
-    renderCell: (params: GridRenderCellParams) => {
-      switch (params.row.type) {
-        case 'Current':
-        case 'Golden':
-          return <MoreIcon params={params} />
-        case 'Candidate':
-          return (
-            <Link
-              sx={{ ':hover': { cursor: 'pointer' } }}
-              onClick={() =>
-                onLinkedRecordDialogOpen
-                  ? onLinkedRecordDialogOpen(params.row.uid)
-                  : null
-              }
-            >
-              Link
-            </Link>
-          )
-        default:
-          return <></>
+  if (!hideAction) {
+    columns.push({
+      field: 'actions',
+      headerName: 'Actions',
+      maxWidth: 180,
+      minWidth: 120,
+      flex: 1,
+      align: 'center',
+      headerAlign: 'center',
+      sortable: false,
+      filterable: false,
+      valueGetter: (params: GridValueGetterParams) => ({
+        id: params.row.id,
+        patient: params.row.patient,
+        type: params.row.type
+      }),
+      renderCell: (params: GridRenderCellParams) => {
+        switch (params.row.type) {
+          case 'Current':
+          case 'Golden':
+            return <MoreIcon params={params} />
+          case 'Candidate':
+            return (
+              <Link
+                sx={{ ':hover': { cursor: 'pointer' } }}
+                onClick={() =>
+                  onLinkedRecordDialogOpen
+                    ? onLinkedRecordDialogOpen(params.row.uid)
+                    : null
+                }
+              >
+                Link
+              </Link>
+            )
+          default:
+            return <></>
+        }
       }
-    }
-  })
+    })
+  }
 
   return (
     <MuiDataGrid
