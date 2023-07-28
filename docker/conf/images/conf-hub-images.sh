@@ -4,7 +4,7 @@
 export REGISTRY_IMAGE=registry:2
 
 # https://hub.docker.com/r/bitnami/keycloak/tags
-export KEYCLOAK_IMAGE=bitnami/keycloak:21.1.1
+#export KEYCLOAK_IMAGE=bitnami/keycloak:21.1.1
 
 # https://registry.hub.docker.com/r/bitnami/kafka/tags
 export KAFKA_IMAGE=bitnami/kafka:3.4.1
@@ -22,5 +22,5 @@ export POSTGRESQL_IMAGE=bitnami/postgresql:15.3.0
 export HAPROXY_IMAGE=haproxytech/haproxy-debian:2.8
 
 # https://hub.docker.com/_/nginx/tags
-export NGINX_IMAGE=nginx:1.24.0
+#export NGINX_IMAGE=nginx:1.24.0
 #export NGINX_IMAGE=bitnami/nginx:latest
