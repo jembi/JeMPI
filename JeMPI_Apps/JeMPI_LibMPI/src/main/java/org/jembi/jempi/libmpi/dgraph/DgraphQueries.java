@@ -604,6 +604,9 @@ final class DgraphQueries {
                   .append(camelToSnake(op.name()))
                   .append(", $")
                   .append(camelToSnake(op.name()))
+                  .append(op.fn().equals("match")
+                                ? String.format(", %d", op.distance())
+                                : "")
                   .append(")) {\n    ")
                   .append(alias)
                   .append(" as uid\n  }\n\n");
@@ -615,6 +618,9 @@ final class DgraphQueries {
                      .append(camelToSnake(o.operand().name()))
                      .append(", $")
                      .append(camelToSnake(o.operand().name()))
+                     .append(o.operand().fn().equals("match")
+                                   ? String.format(", %d", o.operand().distance())
+                                   : "")
                      .append(")) {\n    ")
                      .append(++alias)
                      .append(" as uid\n  }\n\n");
