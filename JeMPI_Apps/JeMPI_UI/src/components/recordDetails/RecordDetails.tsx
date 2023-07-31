@@ -37,10 +37,27 @@ const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
   {
     field: 'created_at',
     headerName: 'CreatedAt',
-    valueFormatter: ({ value }) => formatDate(value),
+
     sortable: false,
     disableColumnMenu: true,
-    headerClassName: 'super-app-theme--header'
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: GridRenderCellParams) => (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
+      >
+        <Typography fontSize={'1em'}>{`${dayjs(params.row.createdAt).format(
+          'YYYY/MM/DD'
+        )}`}</Typography>
+
+        <Typography fontSize={'1em'}>{`${dayjs(params.value).format(
+          'HH:mm:ss'
+        )}`}</Typography>
+      </Box>
+    )
   },
   {
     field: 'inserted_at',
@@ -125,12 +142,12 @@ const RecordDetails = () => {
                   }}
                 >
                   <Typography fontSize={'1em'}>{`${dayjs(
-                    params.row.createdAt as Date
+                    params.row.createdAt
                   ).format('YYYY/MM/DD')}`}</Typography>
 
-                  <Typography fontSize={'1em'}>{`${dayjs(
-                    params.row.createdAt as Date
-                  ).format('HH:MM:ss')}`}</Typography>
+                  <Typography fontSize={'1em'}>{`${dayjs(params.value).format(
+                    'HH:mm:ss'
+                  )}`}</Typography>
                 </Box>
               )
             }

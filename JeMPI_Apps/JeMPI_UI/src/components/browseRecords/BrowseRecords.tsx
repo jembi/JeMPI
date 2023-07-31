@@ -43,7 +43,8 @@ const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
   fieldName === 'familyName' ||
   fieldName === 'city' ||
-  fieldName === 'gender'
+  fieldName === 'gender' ||
+  fieldName === 'sourceId'
     ? 'left'
     : fieldName === 'dob'
     ? 'right'
@@ -102,12 +103,12 @@ const Records = () => {
                 }}
               >
                 <Typography fontSize={'1em'}>{`${dayjs(
-                  params.row.createdAt as Date
+                  params.row.createdAt
                 ).format('YYYY/MM/DD')}`}</Typography>
 
                 <Typography fontSize={'1em'}>{`${dayjs(
-                  params.row.createdAt as Date
-                ).format('HH:MM:ss')}`}</Typography>
+                  params.row.createdAt
+                ).format('HH:mm:ss')}`}</Typography>
               </Box>
             )
           }

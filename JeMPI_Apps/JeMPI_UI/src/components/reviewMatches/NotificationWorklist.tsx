@@ -67,7 +67,7 @@ const columns: GridColDef[] = [
 
         <Typography fontSize={'1em'}>{`${dayjs(
           params.row.created as Date
-        ).format('HH:MM:ss')}`}</Typography>
+        ).format('HH:mm:ss')}`}</Typography>
       </Box>
     )
   },
