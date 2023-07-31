@@ -38,6 +38,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
+
    private final Executor ec;
    private LibMPI libMPI = null;
    private MyKafkaProducer<String, Notification> topicNotifications;
@@ -129,6 +130,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
                                 .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+                                .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
@@ -154,19 +156,30 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       }
    }
 
-   private Behavior<Request> crFind(final CrFindRequest req) {
+   private Behavior<Request> crCandidates(final CrCandidatesRequest req) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{}", req.crFindData.demographicData());
+         LOGGER.trace("{}", req.crCandidatesData.demographicData());
       }
-      final var matchedCandidates = crMatchedCandidates(req.crFindData.candidateThreshold(), req.crFindData().demographicData());
+      final var matchedCandidates =
+            crMatchedCandidates(req.crCandidatesData.candidateThreshold(), req.crCandidatesData().demographicData());
       LOGGER.trace("size = {}", matchedCandidates.size());
       if (matchedCandidates.isEmpty()) {
-         req.replyTo.tell(new CrFindResponse(Either.right(List.of())));
+         req.replyTo.tell(new CrCandidatesResponse(Either.right(List.of())));
       } else {
-         req.replyTo.tell(new CrFindResponse(Either.right(matchedCandidates)));
+         req.replyTo.tell(new CrCandidatesResponse(Either.right(matchedCandidates)));
       }
       return Behaviors.same();
    }
+
+   private Behavior<Request> crFind(final CrFindRequest req) {
+      if (LOGGER.isTraceEnabled()) {
+         LOGGER.trace("{}", req.crFindData);
+      }
+      final var goldenRecords = libMPI.findGoldenRecords(req.crFindData);
+      req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords)));
+      return Behaviors.same();
+   }
+
 
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       if (LOGGER.isTraceEnabled()) {
@@ -192,18 +205,31 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
       if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{} {} {}", req.crUpdateField.goldenId(), req.crUpdateField.field(), req.crUpdateField.value());
+         LOGGER.trace("{} {}", req.crUpdateFields.goldenId(), req.crUpdateFields.fields());
       }
-      final var success = libMPI.updateGoldenRecordField(req.crUpdateField.goldenId(),
-                                                         req.crUpdateField.field(),
-                                                         req.crUpdateField.value());
+      final var fail = new ArrayList<String>();
+      final var pass = new ArrayList<String>();
+      if (StringUtils.isBlank(req.crUpdateFields.goldenId())) {
+         req.crUpdateFields.fields().forEach(field -> fail.add(field.name()));
+         req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.CRUpdateFieldError(null, fail))));
+         return Behaviors.same();
+      }
+      final boolean[] success = new boolean[1];
+      req.crUpdateFields.fields().forEach(field -> {
+         if (libMPI.updateGoldenRecordField(req.crUpdateFields.goldenId(), field.name(), field.value())) {
+            pass.add(field.name());
+         } else {
+            fail.add(field.name());
+         }
+      });
       LOGGER.debug("{}", success);
-      if (success) {
-         req.replyTo.tell(new CrUpdateFieldResponse(Either.right(new CrUpdateFieldResponse.UpdateFieldResponse(req.crUpdateField.goldenId(),
-                                                                                                               req.crUpdateField.field(),
-                                                                                                               req.crUpdateField.value()))));
+      if (fail.isEmpty()) {
+         req.replyTo.tell(new CrUpdateFieldResponse(Either.right(new CrUpdateFieldResponse.UpdateFieldResponse(req.crUpdateFields.goldenId(),
+                                                                                                               pass,
+                                                                                                               fail))));
       } else {
-         req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.NotImplementedError("crUpdateField"))));
+         req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.CRUpdateFieldError(req.crUpdateFields.goldenId(),
+                                                                                                       fail))));
       }
       return Behaviors.same();
    }
@@ -681,6 +707,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 
+   public record CrCandidatesRequest(
+         ApiModels.ApiCrCandidatesRequest crCandidatesData,
+         ActorRef<CrCandidatesResponse> replyTo) implements Request {
+   }
+
+   public record CrCandidatesResponse(
+         Either<MpiGeneralError, List<GoldenRecord>> goldenRecords) implements Response {
+   }
+
    public record CrFindRequest(
          ApiModels.ApiCrFindRequest crFindData,
          ActorRef<CrFindResponse> replyTo) implements Request {
@@ -691,7 +726,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record CrUpdateFieldRequest(
-         ApiModels.ApiCrUpdateFieldRequest crUpdateField,
+         ApiModels.ApiCrUpdateFieldsRequest crUpdateFields,
          ActorRef<CrUpdateFieldResponse> replyTo) implements Request {
    }
 
@@ -699,8 +734,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          Either<MpiGeneralError, UpdateFieldResponse> response) implements Response {
       public record UpdateFieldResponse(
             String goldenId,
-            String name,
-            String value) {
+            List<String> updated,
+            List<String> failed) {
       }
    }
 

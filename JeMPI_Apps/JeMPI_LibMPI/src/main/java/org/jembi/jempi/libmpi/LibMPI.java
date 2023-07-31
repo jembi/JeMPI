@@ -162,6 +162,10 @@ public final class LibMPI {
       return client.findCandidates(demographicData);
    }
 
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      return client.findGoldenRecords(request);
+   }
+
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,

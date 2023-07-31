@@ -28,19 +28,45 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrFindRequest(Float candidateThreshold,
-                                  CustomDemographicData demographicData) {
+   public record ApiCrCandidatesRequest(
+         Float candidateThreshold,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrCandidatesResponse(List<GoldenRecord> goldenRecords) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrFindRequest(
+         ApiOperand operand,
+         List<ApiLogicalOperand> operands) {
+      @JsonInclude(JsonInclude.Include.NON_NULL)
+      public record ApiOperand(
+            String fn,
+            Long distance,
+            String name,
+            String value) {
+      }
+
+      public record ApiLogicalOperand(
+            String operator,
+            ApiOperand operand) {
+      }
+
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrFindResponse(List<GoldenRecord> goldenRecords) {
    }
 
+
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrRegisterRequest(Float candidateThreshold,
-                                      CustomSourceId sourceId,
-                                      CustomUniqueInteractionData uniqueInteractionData,
-                                      CustomDemographicData demographicData) {
+   public record ApiCrRegisterRequest(
+         Float candidateThreshold,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -48,17 +74,22 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrUpdateFieldRequest(
+   public record ApiCrUpdateFieldsRequest(
          String goldenId,
-         String field,
-         String value) {
+         List<ApiCrUpdateField> fields) {
+
+      public record ApiCrUpdateField(
+            String name,
+            String value) {
+      }
+
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrUpdateFieldResponse(
+   public record ApiCrUpdateFieldsResponse(
          String goldenId,
-         String field,
-         String value) {
+         List<String> updated,
+         List<String> failed) {
    }
 
 
@@ -139,12 +170,14 @@ public abstract class ApiModels {
          List<String> data,
          InteractionCount interationCount,
          ApiPagination pagination
-         ) implements ApiPaginatedResultSet {
+   ) implements ApiPaginatedResultSet {
       public static ApiFiteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
             final PaginatedGIDsWithInteractionCount resultSet) {
          final var data = resultSet.data()
                                    .stream().toList();
-         return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data, InteractionCount.fromInteractionCount(resultSet.interactionCount()), ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+         return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data,
+                                                                         InteractionCount.fromInteractionCount(resultSet.interactionCount()),
+                                                                         ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 

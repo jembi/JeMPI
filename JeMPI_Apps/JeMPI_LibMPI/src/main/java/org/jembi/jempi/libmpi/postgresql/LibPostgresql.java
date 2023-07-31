@@ -133,6 +133,11 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return PostgresqlQueries.findCandidates(demographicData);
    }
 
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      LOGGER.error("Not implemented");
+      return null;
+   }
+
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
