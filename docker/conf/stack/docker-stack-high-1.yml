@@ -83,24 +83,24 @@ services:
 #        constraints:
 #          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
 
-#  nginx:
-#    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
-#    networks:
-#      - frontend
-#    deploy:
-#      mode: replicated
-#      replicas: 0
-#      resources:
-#        limits:
-#          memory: ${NGINX_RAM_LIMIT}
-#      update_config:
-#        parallelism: 1
-#        delay: 10s
-#      restart_policy:
-#        condition: on-failure
-#      placement:
-#        constraints:
-#          - node.labels.name == $PLACEMENT_NGINX
+  nginx:
+    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
+    networks:
+      - frontend
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: ${NGINX_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_NGINX
 
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
