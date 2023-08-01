@@ -172,39 +172,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> crFind(final CrFindRequest req) {
-      final String test =
-            """
-            query query_deterministic_2($given_name: string, $family_name: string, $dob: string, $gender: string) {
-               var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.given_name, $given_name)) {
-                  A as uid
-               }
-               var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.family_name, $family_name)) {
-                  B as uid
-               }
-               var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.dob, $dob)) {
-                  C as uid
-               }
-               var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.gender, $gender)) {
-                  D as uid
-               }
-               all(func:type(GoldenRecord)) @filter(uid(A) AND uid(B) AND uid(C) AND uid(D)) {
-                  uid
-                  GoldenRecord.source_id {
-                     uid
-                  }
-                  GoldenRecord.aux_date_created
-                  GoldenRecord.aux_auto_update_enabled
-                  GoldenRecord.aux_id
-                  GoldenRecord.given_name
-                  GoldenRecord.family_name
-                  GoldenRecord.gender
-                  GoldenRecord.dob
-                  GoldenRecord.phone_number
-                  GoldenRecord.city
-                  GoldenRecord.national_id
-               }
-            }
-            """;
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", req.crFindData);
       }
@@ -240,9 +207,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{} {}", req.crUpdateFields.goldenId(), req.crUpdateFields.fields());
       }
-      final boolean[] success = new boolean[1];
       final var fail = new ArrayList<String>();
       final var pass = new ArrayList<String>();
+      if (StringUtils.isBlank(req.crUpdateFields.goldenId())) {
+         req.crUpdateFields.fields().forEach(field -> fail.add(field.name()));
+         req.replyTo.tell(new CrUpdateFieldResponse(Either.left(new MpiServiceError.CRUpdateFieldError(null, fail))));
+         return Behaviors.same();
+      }
+      final boolean[] success = new boolean[1];
       req.crUpdateFields.fields().forEach(field -> {
          if (libMPI.updateGoldenRecordField(req.crUpdateFields.goldenId(), field.name(), field.value())) {
             pass.add(field.name());
