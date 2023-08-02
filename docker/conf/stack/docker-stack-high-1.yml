@@ -48,59 +48,59 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
-  keycloak-test-server:
-    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
-    user: root
-    networks:
-      - frontend
-      - backend
-    volumes:
-    - type: bind
-      source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
-      target: /docker-entrypoint-initdb.d
-      read_only: true
-    environment:
-      KEYCLOAK_CREATE_ADMIN_USER: "true"
-      KEYCLOAK_ADMIN_USER: "admin"
-      KEYCLOAK_ADMIN_PASSWORD: "admin"
-      DB_ADDR: postgresql
-      DB_PORT: 5432
-      DB_DATABASE: ${POSTGRESQL_DATABASE}
-      DB_USER: ${POSTGRESQL_USERNAME}
-      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
-    deploy:
-      mode: replicated
-      replicas: ${SCALE_KEYCLOAK_TEST_SERVER}
-      resources:
-        limits:
-          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
+  # keycloak-test-server:
+  #   image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+  #   user: root
+  #   networks:
+  #     - frontend
+  #     - backend
+  #   volumes:
+  #   - type: bind
+  #     source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
+  #     target: /docker-entrypoint-initdb.d
+  #     read_only: true
+  #   environment:
+  #     KEYCLOAK_CREATE_ADMIN_USER: "true"
+  #     KEYCLOAK_ADMIN_USER: "admin"
+  #     KEYCLOAK_ADMIN_PASSWORD: "admin"
+  #     DB_ADDR: postgresql
+  #     DB_PORT: 5432
+  #     DB_DATABASE: ${POSTGRESQL_DATABASE}
+  #     DB_USER: ${POSTGRESQL_USERNAME}
+  #     DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+  #   deploy:
+  #     mode: replicated
+  #     replicas: ${SCALE_KEYCLOAK_TEST_SERVER}
+  #     resources:
+  #       limits:
+  #         memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #     placement:
+  #       constraints:
+  #         - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
 
-  nginx:
-    image: ${IMAGE_REGISTRY}$NGINX_IMAGE
-    networks:
-      - frontend
-    deploy:
-      mode: replicated
-      replicas: ${SCALE_NGINX}
-      resources:
-        limits:
-          memory: ${NGINX_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.labels.name == $PLACEMENT_NGINX
+  # nginx:
+  #   image: ${IMAGE_REGISTRY}$NGINX_IMAGE
+  #   networks:
+  #     - frontend
+  #   deploy:
+  #     mode: replicated
+  #     replicas: ${SCALE_NGINX}
+  #     resources:
+  #       limits:
+  #         memory: ${NGINX_RAM_LIMIT}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #     placement:
+  #       constraints:
+  #         - node.labels.name == $PLACEMENT_NGINX
 
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
@@ -114,20 +114,12 @@ services:
         target: 30460
         protocol: tcp
         mode: host
-      - published: 40000
-        target: 40000
-        protocol: tcp
-        mode: host
       - published: 50000
         target: 50000
         protocol: tcp
         mode: host
       - published: 3000
         target: 3000
-        protocol: tcp
-        mode: host
-      - published: 80
-        target: 8080
         protocol: tcp
         mode: host
     volumes:
@@ -301,7 +293,7 @@ services:
       source: ${DATA_DGRAPH_ALPHA_01_DIR}
       target: /dgraph
     ports:
-    - published: 8080
+    - published: 8081
       target: 8080
       protocol: tcp
       mode: host
@@ -334,7 +326,7 @@ services:
       source: ${DATA_DGRAPH_ALPHA_02_DIR}
       target: /dgraph
     ports:
-    - published: 8081
+    - published: 8082
       target: 8081
       protocol: tcp
       mode: host
@@ -367,7 +359,7 @@ services:
       source: ${DATA_DGRAPH_ALPHA_03_DIR}
       target: /dgraph
     ports:
-    - published: 8082
+    - published: 8083
       target: 8082
       protocol: tcp
       mode: host
@@ -491,11 +483,6 @@ services:
       HTTP_SERVER_PORT: 50000
     networks:
     - backend
-    ports:
-    - published: 50020
-      target: 50000
-      protocol: tcp
-      mode: host      
     volumes:
     - type: bind
       source: $DATA_DIR_CONTROLLER/conf
@@ -627,54 +614,54 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
 
-  api-kc:
-    image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
-    environment:
-      LOG4J2_LEVEL: "DEBUG" 
-      KC_REALM_NAME: ${KC_REALM_NAME}
-      KC_API_URL: ${KC_API_URL}
-      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
-      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
-      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
-      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
-      JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
-      JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APPLICATION_ID: app-id-api
-      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
-      DGRAPH_PORTS: ${DGRAPH_PORTS}
-      HTTP_SERVER_PORT: 50000
-    networks:
-    - frontend
-    - backend
-    volumes:
-    - type: bind
-      source: $DATA_DIR_API_KC/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_ASYNC_RECEIVER/csv
-      target: /app/csv
-      read_only: false
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          memory: ${API_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_API_KC}
+  # api-kc:
+  #   image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
+  #   environment:
+  #     LOG4J2_LEVEL: "DEBUG" 
+  #     KC_REALM_NAME: ${KC_REALM_NAME}
+  #     KC_API_URL: ${KC_API_URL}
+  #     KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+  #     KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+  #     KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+  #     JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+  #     JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
+  #     JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
+  #     POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+  #     POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+  #     POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+  #     KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+  #     KAFKA_APPLICATION_ID: app-id-api
+  #     DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+  #     DGRAPH_PORTS: ${DGRAPH_PORTS}
+  #     HTTP_SERVER_PORT: 50000
+  #   networks:
+  #   - frontend
+  #   - backend
+  #   volumes:
+  #   - type: bind
+  #     source: $DATA_DIR_API_KC/conf
+  #     target: /app/conf
+  #     read_only: true
+  #   - type: bind
+  #     source: $DATA_DIR_ASYNC_RECEIVER/csv
+  #     target: /app/csv
+  #     read_only: false
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     resources:
+  #       limits:
+  #         memory: ${API_RAM_LIMIT}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
+  #     placement:
+  #       constraints:
+  #       - node.labels.name == ${PLACEMENT_API_KC}
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
