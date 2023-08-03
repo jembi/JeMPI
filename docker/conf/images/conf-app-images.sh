@@ -1,4 +1,4 @@
-JAVA_VERSION=17.0.7
+JAVA_VERSION=17.0.8
 JAVA_VERSION_X=${JAVA_VERSION}_7
 
 # https://hub.docker.com/_/eclipse-temurin/tags
