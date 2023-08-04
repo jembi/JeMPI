@@ -215,6 +215,7 @@ public final class LibMPI {
          final PaginationOptions paginationOptions) {
       return client.filterGidsWithInteractionCount(params, createdAt, paginationOptions);
    }
+
    /*
     * *****************************************************************************
     * *

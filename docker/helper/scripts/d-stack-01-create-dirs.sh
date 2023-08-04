@@ -15,6 +15,7 @@ pushd .
 
   sudo rm -f -r ${PROJECT_DATA_DIR}/*
 
+  echo ${DATA_HAPROXY_DIR}
   mkdir -p ${DATA_HAPROXY_DIR}
   cp conf/haproxy/*.* ${DATA_HAPROXY_DIR}
 
