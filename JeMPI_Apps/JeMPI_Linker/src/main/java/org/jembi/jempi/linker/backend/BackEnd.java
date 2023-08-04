@@ -185,20 +185,24 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", req.crRegister.demographicData());
       }
-      final var matchedCandidates = crMatchedCandidates(req.crRegister.candidateThreshold(),
-                                                        req.crRegister.demographicData());
-      if (matchedCandidates.isEmpty()) {
-         final var interaction = new Interaction(null,
-                                                 req.crRegister.sourceId(),
-                                                 req.crRegister.uniqueInteractionData(),
-                                                 req.crRegister.demographicData());
-         final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
-         req.replyTo.tell(new CrRegisterResponse(Either.right(linkInfo)));
+      if (req.crRegister.uniqueInteractionData().auxDateCreated() == null) {
+         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"))));
       } else {
-         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.CRClientExistsError(matchedCandidates.stream()
-                                                                                                                      .map(GoldenRecord::demographicData)
-                                                                                                                      .toList(),
-                                                                                                     req.crRegister.demographicData()))));
+         final var matchedCandidates = crMatchedCandidates(req.crRegister.candidateThreshold(),
+                                                           req.crRegister.demographicData());
+         if (matchedCandidates.isEmpty()) {
+            final var interaction = new Interaction(null,
+                                                    req.crRegister.sourceId(),
+                                                    req.crRegister.uniqueInteractionData(),
+                                                    req.crRegister.demographicData());
+            final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+            req.replyTo.tell(new CrRegisterResponse(Either.right(linkInfo)));
+         } else {
+            req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.CRClientExistsError(matchedCandidates.stream()
+                                                                                                                         .map(GoldenRecord::demographicData)
+                                                                                                                         .toList(),
+                                                                                                        req.crRegister.demographicData()))));
+         }
       }
       return Behaviors.same();
    }

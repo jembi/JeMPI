@@ -31,6 +31,11 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          String predicate) implements MpiServiceError {
    }
 
+   record CRMissingFieldError(
+         String field
+   ) implements MpiServiceError {
+   }
+
    record CRClientExistsError(
          List<CustomDemographicData> exists,
          CustomDemographicData request) implements MpiServiceError {
