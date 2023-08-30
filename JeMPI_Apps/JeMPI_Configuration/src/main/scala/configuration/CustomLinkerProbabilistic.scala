@@ -117,7 +117,7 @@ object CustomLinkerProbabilistic {
           levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
         end extractComparisonList
 
-        writer.print(" " * margin + s"new LinkerProbabilistic.Field(${comparison}, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F)")
+        writer.print(" " * margin + s"new LinkerProbabilistic.Field($comparison, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F)")
         if (idx + 1 < muList.length)
           writer.println(",")
           margin = 17
@@ -164,7 +164,7 @@ object CustomLinkerProbabilistic {
           levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
         end extractComparisonList
 
-        writer.print(" " * 12 + s"new LinkerProbabilistic.Field(${comparison}, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), mu.$fieldName().m(), mu.$fieldName().u())")
+        writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), mu.$fieldName().m(), mu.$fieldName().u())")
         if (idx + 1 < muList.length)
           writer.println(",")
         else

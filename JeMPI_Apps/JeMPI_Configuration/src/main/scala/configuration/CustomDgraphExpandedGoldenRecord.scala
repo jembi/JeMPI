@@ -49,7 +49,6 @@ private object CustomDgraphExpandedGoldenRecord {
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    val margin = 40
     writer.println(
       s"""package $packageText;
          |

@@ -1,6 +1,8 @@
 target
 .bsp
 .idea
+.bloop
+.metals
 deprecated
 *.json
 kenya

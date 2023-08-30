@@ -8,68 +8,63 @@ private object CustomDgraphInteraction {
   private val customClassName = "CustomDgraphInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def interactionFields(config: Config): String =
-    (if (config.uniqueInteractionFields.isEmpty) "" else
-      config
-        .uniqueInteractionFields
-        .get
-        .map(f =>
-          s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
-  end interactionFields
-
-  def interactionConstructorArguments(config: Config): String =
-    (if (config.uniqueInteractionFields.isEmpty) "" else
-      config
-        .uniqueInteractionFields
-        .get
-        .map(f =>
-          s"""${" " * 11}interaction.uniqueInteractionData().${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          s"""${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
-  end interactionConstructorArguments
-
-  private def uniqueArguments(config: Config): String =
-    if (config.uniqueInteractionFields.isEmpty)
-      ""
-    else
-      config
-        .uniqueInteractionFields
-        .get
-        .map(f =>
-          s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
-        .trim
-        .dropRight(1)
-  end uniqueArguments
-
-  private def demographicArguments(config: Config): String =
-    config
-      .demographicFields
-      .map(f =>
-        s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-      .mkString("\n")
-      .trim
-      .dropRight(1)
-  end demographicArguments
-
-  def generate(config: Config): Unit =
+  def generate(config: Config): Unit = {
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    val margin = 32
+
+    def interactionFields(): String =
+      (if (config.uniqueInteractionFields.isEmpty) "" else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+          .mkString("\n") + "\n")
+        +
+        config
+          .demographicFields
+          .map(f => s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+          .mkString("\n")
+    end interactionFields
+
+    def interactionConstructorArguments(): String =
+      (if (config.uniqueInteractionFields.isEmpty) "" else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => s"""${" " * 11}interaction.uniqueInteractionData().${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+          .mkString("\n") + "\n")
+        +
+        config
+          .demographicFields
+          .map(f => s"""${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+          .mkString("\n")
+    end interactionConstructorArguments
+
+    def uniqueArguments(): String =
+      if (config.uniqueInteractionFields.isEmpty)
+        ""
+      else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+          .mkString("\n")
+          .trim
+          .dropRight(1)
+      end if      
+    end uniqueArguments
+
+    def demographicArguments(): String =
+      config
+        .demographicFields
+        .map(f => s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+        .mkString("\n")
+        .trim
+        .dropRight(1)
+    end demographicArguments
+
     writer.println(
       s"""package $packageText;
          |
@@ -84,7 +79,7 @@ private object CustomDgraphInteraction {
          |record $customClassName(
          |      @JsonProperty("uid") String interactionId,
          |      @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
-         |${interactionFields(config)}
+         |${interactionFields()}
          |      @JsonProperty("GoldenRecord.interactions|score") Float score) {
          |
          |   $customClassName(
@@ -92,7 +87,7 @@ private object CustomDgraphInteraction {
          |         final Float score) {
          |      this(interaction.interactionId(),
          |           new DgraphSourceId(interaction.sourceId()),
-         |${interactionConstructorArguments(config)}
+         |${interactionConstructorArguments()}
          |           score);
          |   }
          |
@@ -101,8 +96,8 @@ private object CustomDgraphInteraction {
          |                             this.sourceId() != null
          |                                   ? this.sourceId().toSourceId()
          |                                   : null,
-         |                             new CustomUniqueInteractionData(${uniqueArguments(config)}),
-         |                             new CustomDemographicData(${demographicArguments(config)}));
+         |                             new CustomUniqueInteractionData(${uniqueArguments()}),
+         |                             new CustomDemographicData(${demographicArguments()}));
          |   }
          |
          |   InteractionWithScore toInteractionWithScore() {
@@ -113,6 +108,7 @@ private object CustomDgraphInteraction {
          |""".stripMargin)
     writer.flush()
     writer.close()
+  }
   end generate
 
 }

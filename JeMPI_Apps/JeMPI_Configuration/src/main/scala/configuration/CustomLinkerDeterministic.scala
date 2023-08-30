@@ -71,7 +71,7 @@ object CustomLinkerDeterministic {
       """   static boolean deterministicMatch(
         |         final CustomDemographicData goldenRecord,
         |         final CustomDemographicData interaction) {""".stripMargin)
-    val map = rules.deterministic
+    val map = rules.link.deterministic
 
     val z = map.zipWithIndex
     z.foreach((map, index) => {
@@ -88,10 +88,10 @@ object CustomLinkerDeterministic {
         writer.println(
           s"""      if ($expr_1) {
              |         return true;
-             |      }""".stripMargin);
+             |      }""".stripMargin)
       } else {
         writer.println(
-          s"""      return $expr_1;""".stripMargin);
+          s"""      return $expr_1;""".stripMargin)
       }
     })
     writer.println(

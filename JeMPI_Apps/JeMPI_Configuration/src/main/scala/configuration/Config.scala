@@ -20,6 +20,7 @@ case class DemographicField(fieldName: String,
                             isList: Option[Boolean],
                             indexGoldenRecord: Option[String],
                             indexInteraction: Option[String],
+                            roles: List[String],
                             comparison: Option[String],
                             comparisonLevels: Option[List[Double]],
                             m: Option[Double],
@@ -28,8 +29,14 @@ case class DemographicField(fieldName: String,
 case class Rule(vars: Array[String],
                 text: String)
 
-case class Rules(deterministic: Map[String, Rule],
-                 probabilistic: Map[String, Rule])
+case class LinkRules(deterministic: Map[String, Rule],
+                     probabilistic: Map[String, Rule])
+
+case class ValidateRules(deterministic: Map[String, Rule],
+                         probabilistic: Map[String, Rule])
+
+case class Rules(validate: ValidateRules,
+                 link: LinkRules)
 
 case class Config(uniqueInteractionFields: Option[Array[UniqueField]],
                   uniqueGoldenRecordFields: Option[Array[UniqueField]],

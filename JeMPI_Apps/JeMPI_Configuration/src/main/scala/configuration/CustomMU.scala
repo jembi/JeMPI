@@ -1,7 +1,5 @@
 package configuration
 
-import configuration.Config
-
 import java.io.{File, PrintWriter}
 
 private object CustomMU {

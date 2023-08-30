@@ -13,7 +13,7 @@ object Main {
 
     val config_file_name = if (in_config_file_name.isBlank) {
       println("Dude: you should specify a config file name")
-      "config_reference.json"
+      "reference/config-reference.json"
     } else {
       in_config_file_name
     }

@@ -29,14 +29,14 @@ private object CustomDgraphMutations {
         .get
         .map(f =>
           val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
+          s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s$c${" " * (20 - c.length)}.""")
         .mkString("\n") + "\n")
       +
       config
         .demographicFields
         .map(f =>
           val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
+          s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s$c${" " * (20 - c.length)}.""")
         .mkString("\n")
   end interactionFields
 
@@ -72,14 +72,14 @@ private object CustomDgraphMutations {
         .get
         .map(f =>
           val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
+          s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s$c${" " * (20 - c.length)}.""")
         .mkString("\n") + "\n")
       +
       config
         .demographicFields
         .map(f =>
           val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
+          s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s$c${" " * (20 - c.length)}.""")
         .mkString("\n")
   end goldenRecordFields
 

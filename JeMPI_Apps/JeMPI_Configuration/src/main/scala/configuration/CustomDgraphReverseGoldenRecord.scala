@@ -62,7 +62,6 @@ private object CustomDgraphReverseGoldenRecord {
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    val margin = 39
     writer.println(
       s"""package $packageText;
          |
