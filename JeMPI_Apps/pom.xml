@@ -188,7 +188,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
+                <version>3.13.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
@@ -209,21 +209,21 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
             <dependency>
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
-                <version>3.5.1.Final</version>
+                <version>3.5.3.Final</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
@@ -272,7 +272,7 @@
             <dependency>
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
-                <version>5.7.1</version>
+                <version>5.8.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
