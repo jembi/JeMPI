@@ -38,7 +38,7 @@ def name_generator(seed, csv_filename):
     while True:
         r = rng.integers(0, prefix_high + 1)
         idx = __find_ceil(freq_table, r, 0, high)
-        yield idx, freq_table.at[idx, 'name']
+        yield idx, freq_table.at[idx, 'name'].lower()
 
 
 def city_generator(seed, csv_filename):

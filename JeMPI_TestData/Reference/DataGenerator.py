@@ -119,7 +119,7 @@ def generate_dataset():
         city = next(city_generator)[1]
         phone_number = phone_number_generator.send(city)
         national_id = national_id_generator.send((dob, gender))
-        clinical_data = clinical_data_generator.send((gender, base_date, dob, "patient_id"))
+        clinical_data = clinical_data_generator.send((gender, base_date, dob, national_id))
         for j in range(0, len(clinical_data)):
             rec_num = "rec-%010d-%02d" % (i + 1, j)
             facility = clinical_data[j]['facility']
