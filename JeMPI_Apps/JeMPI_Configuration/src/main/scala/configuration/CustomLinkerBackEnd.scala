@@ -37,7 +37,6 @@ object CustomLinkerBackEnd {
          |   }
          |
          |   static void updateGoldenRecordFields(
-         |         final BackEnd backEnd,
          |         final LibMPI libMPI,
          |         final float threshold,
          |         final String interactionId,
@@ -52,15 +51,15 @@ object CustomLinkerBackEnd {
       val field_name = mu.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
-        s"""${" " * 6}k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-           |${" " * 6}                                           "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName.charAt(0).toUpper}${fieldName.substring(1)})
+        s"""${" " * 6}k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+           |${" " * 6}                                            "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName.charAt(0).toUpper}${fieldName.substring(1)})
            |${" " * 12}? 1
            |${" " * 12}: 0;""".stripMargin)
     })
     writer.println(
       s"""
          |${" " * 6}if (k > 0) {
-         |${" " * 6}  backEnd.helperUpdateInteractionsScore(threshold, expandedGoldenRecord);
+         |${" " * 6}  LinkerDWH.helperUpdateInteractionsScore(libMPI, threshold, expandedGoldenRecord);
          |${" " * 6}}""".stripMargin)
     writer.println()
     config.demographicFields.filter(field => field.isList.isDefined && field.isList.get).foreach(field => {

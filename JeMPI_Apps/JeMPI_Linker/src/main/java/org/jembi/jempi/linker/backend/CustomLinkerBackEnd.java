@@ -11,7 +11,6 @@ public final class CustomLinkerBackEnd {
    }
 
    static void updateGoldenRecordFields(
-         final BackEnd backEnd,
          final LibMPI libMPI,
          final float threshold,
          final String interactionId,
@@ -21,37 +20,37 @@ public final class CustomLinkerBackEnd {
       final var demographicData = goldenRecord.demographicData();
       var k = 0;
 
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "givenName", demographicData.givenName, CustomDemographicData::getGivenName)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "givenName", demographicData.givenName, CustomDemographicData::getGivenName)
             ? 1
             : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "familyName", demographicData.familyName, CustomDemographicData::getFamilyName)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "familyName", demographicData.familyName, CustomDemographicData::getFamilyName)
             ? 1
             : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "gender", demographicData.gender, CustomDemographicData::getGender)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "gender", demographicData.gender, CustomDemographicData::getGender)
             ? 1
             : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "dob", demographicData.dob, CustomDemographicData::getDob)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "dob", demographicData.dob, CustomDemographicData::getDob)
             ? 1
             : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "city", demographicData.city, CustomDemographicData::getCity)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "city", demographicData.city, CustomDemographicData::getCity)
             ? 1
             : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "phoneNumber", demographicData.phoneNumber, CustomDemographicData::getPhoneNumber)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "phoneNumber", demographicData.phoneNumber, CustomDemographicData::getPhoneNumber)
             ? 1
             : 0;
-      k += backEnd.helperUpdateGoldenRecordField(interactionId, expandedGoldenRecord,
-                                                 "nationalId", demographicData.nationalId, CustomDemographicData::getNationalId)
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "nationalId", demographicData.nationalId, CustomDemographicData::getNationalId)
             ? 1
             : 0;
 
       if (k > 0) {
-        backEnd.helperUpdateInteractionsScore(threshold, expandedGoldenRecord);
+        LinkerDWH.helperUpdateInteractionsScore(libMPI, threshold, expandedGoldenRecord);
       }
 
    }
