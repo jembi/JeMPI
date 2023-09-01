@@ -17,7 +17,9 @@ object CustomLinkerMU {
     val writer: PrintWriter = new PrintWriter(file)
 
     val muList = for (
-      t <- config.demographicFields.filter(f => f.m.isDefined && f.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined &&
+        f.linkMetaData.get.m.isDefined &&
+        f.linkMetaData.get.u.isDefined)
     ) yield t
 
     writer.println(s"package $packageText;")
@@ -157,7 +159,7 @@ object CustomLinkerMU {
         muList.zipWithIndex.foreach((mu, idx) => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(s"                              computeM($fieldName), computeU($fieldName)"
-                           + (if ((idx + 1) != muList.length) "," else ");"))
+            + (if ((idx + 1) != muList.length) "," else ");"))
         })
       }
 

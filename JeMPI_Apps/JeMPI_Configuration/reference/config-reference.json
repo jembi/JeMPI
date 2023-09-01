@@ -54,15 +54,14 @@
       "csvCol": 1,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
-      "roles": [
-        "validate"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.8806329,
-      "u": 0.0026558
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8806329,
+        "u": 0.0026558
+      }
     },
     {
       "fieldName": "family_name",
@@ -70,74 +69,69 @@
       "csvCol": 2,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
-      "roles": [
-        "validate"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.9140443,
-      "u": 0.0006275
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.9140443,
+        "u": 0.0006275
+      }
     },
     {
       "fieldName": "gender",
       "fieldType": "String",
       "csvCol": 3,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "roles": [
-        "validate"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.9468393,
-      "u": 0.4436446
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.9468393,
+        "u": 0.4436446
+      }
     },
     {
       "fieldName": "dob",
       "fieldType": "String",
       "csvCol": 4,
-      "roles": [
-        "validate"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.7856196,
-      "u": 0.0000465
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.7856196,
+        "u": 0.0000465
+      }
     },
     {
       "fieldName": "city",
       "fieldType": "String",
       "csvCol": 5,
       "indexGoldenRecord": "@index(trigram)",
-      "roles": [
-        "validate"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.8445694,
-      "u": 0.0355741
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8445694,
+        "u": 0.0355741
+      }
     },
     {
       "fieldName": "phone_number",
       "fieldType": "String",
       "csvCol": 6,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "roles": [
-        "validate"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.8408500,
-      "u": 0.0000004
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8408500,
+        "u": 0.0000004
+      }
     },
     {
       "fieldName": "national_id",
@@ -145,15 +139,14 @@
       "csvCol": 7,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
-      "roles": [
-        "link"
-      ],
-      "comparison": "JARO_WINKLER_SIMILARITY",
-      "comparisonLevels": [
-        0.92
-      ],
-      "m": 0.8441029,
-      "u": 0.0000002
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8441029,
+        "u": 0.0000002
+      }
     }
   ],
   "rules": {

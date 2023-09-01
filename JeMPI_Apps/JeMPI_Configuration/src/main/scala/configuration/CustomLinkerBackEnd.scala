@@ -16,11 +16,17 @@ object CustomLinkerBackEnd {
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
-    config.demographicFields.filter(f => f.m.isDefined && f.u.isDefined).foreach(f => {
-      var t = (f.fieldName, f.m.get, f.u.get)
-    })
+    config.demographicFields
+      .filter(f => f.linkMetaData.isDefined &&
+        f.linkMetaData.get.m.isDefined &&
+        f.linkMetaData.get.u.isDefined)
+      .foreach(f => {
+        var t = (f.fieldName, f.linkMetaData.get.m.get, f.linkMetaData.get.u.get)
+      })
     val muList = for (
-      t <- config.demographicFields.filter(f => f.m.isDefined && f.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined &&
+        f.linkMetaData.get.m.isDefined &&
+        f.linkMetaData.get.u.isDefined)
     ) yield t
 
     writer.println(s"package $packageText;")
@@ -47,8 +53,8 @@ object CustomLinkerBackEnd {
          |      var k = 0;
          |""".stripMargin)
 
-    muList.zipWithIndex.foreach((mu, _) => {
-      val field_name = mu.fieldName
+    config.demographicFields.foreach(f => {
+      val field_name = f.fieldName
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
         s"""${" " * 6}k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,

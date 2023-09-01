@@ -20,11 +20,18 @@ case class DemographicField(fieldName: String,
                             isList: Option[Boolean],
                             indexGoldenRecord: Option[String],
                             indexInteraction: Option[String],
-                            roles: List[String],
-                            comparison: Option[String],
+                            validateMetaData: Option[ValidateMetaData],
+                            linkMetaData: Option[LinkMetaData])
+
+case class ValidateMetaData(comparison: Option[String],
                             comparisonLevels: Option[List[Double]],
                             m: Option[Double],
                             u: Option[Double])
+
+case class LinkMetaData(comparison: Option[String],
+                        comparisonLevels: Option[List[Double]],
+                        m: Option[Double],
+                        u: Option[Double])
 
 case class Rule(vars: Array[String],
                 text: String)

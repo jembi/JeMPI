@@ -17,7 +17,9 @@ object CustomLinkerProbabilistic {
     val writer: PrintWriter = new PrintWriter(file)
 
     val muList = for (
-      t <- config.demographicFields.filter(f => f.m.isDefined && f.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined &&
+        f.linkMetaData.get.m.isDefined &&
+        f.linkMetaData.get.u.isDefined)
     ) yield t
 
     writer.println(s"""package $packageText;""")
@@ -108,10 +110,10 @@ object CustomLinkerProbabilistic {
       writer.print("      new Fields(")
       var margin = 0
       muList.zipWithIndex.foreach((field, idx) => {
-        val comparison = field.comparison.get
-        val comparisonLevels = field.comparisonLevels.get
-        val m: Double = field.m.get
-        val u: Double = field.u.get
+        val comparison = field.linkMetaData.get.comparison.get
+        val comparisonLevels = field.linkMetaData.get.comparisonLevels.get
+        val m: Double = field.linkMetaData.get.m.get
+        val u: Double = field.linkMetaData.get.u.get
 
         def extractComparisonList(levels: List[Double]): String =
           levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
@@ -157,8 +159,8 @@ object CustomLinkerProbabilistic {
       writer.println(" " * 9 + "updatedFields = new Fields(")
       muList.zipWithIndex.foreach((field, idx) => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        val comparison = field.comparison.get
-        val comparisonLevels = field.comparisonLevels.get
+        val comparison = field.linkMetaData.get.comparison.get
+        val comparisonLevels = field.linkMetaData.get.comparisonLevels.get
 
         def extractComparisonList(levels: List[Double]): String =
           levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
