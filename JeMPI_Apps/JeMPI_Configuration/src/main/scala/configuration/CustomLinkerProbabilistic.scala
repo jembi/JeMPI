@@ -11,15 +11,14 @@ object CustomLinkerProbabilistic {
   private val packageText = "org.jembi.jempi.linker.backend"
 
   def parseRules(config: Config): Any = {
+
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
     val muList = for (
-      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined &&
-        f.linkMetaData.get.m.isDefined &&
-        f.linkMetaData.get.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined)
     ) yield t
 
     writer.println(s"""package $packageText;""")
@@ -110,10 +109,10 @@ object CustomLinkerProbabilistic {
       writer.print("      new Fields(")
       var margin = 0
       muList.zipWithIndex.foreach((field, idx) => {
-        val comparison = field.linkMetaData.get.comparison.get
-        val comparisonLevels = field.linkMetaData.get.comparisonLevels.get
-        val m: Double = field.linkMetaData.get.m.get
-        val u: Double = field.linkMetaData.get.u.get
+        val comparison = field.linkMetaData.get.comparison
+        val comparisonLevels = field.linkMetaData.get.comparisonLevels
+        val m: Double = field.linkMetaData.get.m
+        val u: Double = field.linkMetaData.get.u
 
         def extractComparisonList(levels: List[Double]): String =
           levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
@@ -159,8 +158,8 @@ object CustomLinkerProbabilistic {
       writer.println(" " * 9 + "updatedFields = new Fields(")
       muList.zipWithIndex.foreach((field, idx) => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        val comparison = field.linkMetaData.get.comparison.get
-        val comparisonLevels = field.linkMetaData.get.comparisonLevels.get
+        val comparison = field.linkMetaData.get.comparison
+        val comparisonLevels = field.linkMetaData.get.comparisonLevels
 
         def extractComparisonList(levels: List[Double]): String =
           levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim

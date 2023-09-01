@@ -15,7 +15,7 @@ final class CustomLinkerDeterministic {
       return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
    }
 
-   static boolean deterministicMatch(
+   static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       final var nationalIdL = goldenRecord.nationalId;

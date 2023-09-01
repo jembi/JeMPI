@@ -17,9 +17,7 @@ object CustomLinkerMU {
     val writer: PrintWriter = new PrintWriter(file)
 
     val muList = for (
-      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined &&
-        f.linkMetaData.get.m.isDefined &&
-        f.linkMetaData.get.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined)
     ) yield t
 
     writer.println(s"package $packageText;")

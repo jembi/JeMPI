@@ -17,16 +17,12 @@ object CustomLinkerBackEnd {
     val writer: PrintWriter = new PrintWriter(file)
 
     config.demographicFields
-      .filter(f => f.linkMetaData.isDefined &&
-        f.linkMetaData.get.m.isDefined &&
-        f.linkMetaData.get.u.isDefined)
+      .filter(f => f.linkMetaData.isDefined)
       .foreach(f => {
-        var t = (f.fieldName, f.linkMetaData.get.m.get, f.linkMetaData.get.u.get)
+        var t = (f.fieldName, f.linkMetaData.get.m, f.linkMetaData.get.u)
       })
     val muList = for (
-      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined &&
-        f.linkMetaData.get.m.isDefined &&
-        f.linkMetaData.get.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined)
     ) yield t
 
     writer.println(s"package $packageText;")

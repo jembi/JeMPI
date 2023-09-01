@@ -21,7 +21,7 @@ private object CustomMU {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public record $customClassName(""".stripMargin)
     val margin = 23
-    val filteredFields = fields.filter(f => f.linkMetaData.isDefined && f.linkMetaData.get.m.isDefined)
+    val filteredFields = fields.filter(f => f.linkMetaData.isDefined)
     if (filteredFields.length == 0)
       writer.println("Probability dummy) {")
     else

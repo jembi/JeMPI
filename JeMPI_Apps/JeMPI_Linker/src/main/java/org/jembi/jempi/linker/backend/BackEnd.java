@@ -70,14 +70,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.setup(context -> new BackEnd(context, lib));
    }
 
-   private static float calcNormalizedScore(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
-      if (CustomLinkerDeterministic.deterministicMatch(goldenRecord, interaction)) {
-         return 1.0F;
-      }
-      return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
-   }
+//   private static float calcNormalizedScore(
+//         final CustomDemographicData goldenRecord,
+//         final CustomDemographicData interaction) {
+//      if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
+//         return 1.0F;
+//      }
+//      return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
+//   }
 
    private void openMPI(final boolean useDGraph) {
       if (useDGraph) {
@@ -251,7 +251,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       final var scores = goldenRecords.parallelStream()
                                       .unordered()
                                       .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                             calcNormalizedScore(
+                                                                                                             LinkerUtils.calcNormalizedScore(
                                                                                                                    goldenRecord.demographicData(),
                                                                                                                    interaction.demographicData())))
                                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))

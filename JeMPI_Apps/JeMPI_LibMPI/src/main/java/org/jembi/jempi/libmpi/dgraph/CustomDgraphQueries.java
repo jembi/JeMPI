@@ -13,12 +13,12 @@ import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 final class CustomDgraphQueries {
 
    static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_FUNCTIONS =
-      List.of(CustomDgraphQueries::queryDeterministicA,
-              CustomDgraphQueries::queryDeterministicB);
+      List.of(CustomDgraphQueries::queryLinkDeterministicA,
+              CustomDgraphQueries::queryLinkDeterministicB);
 
-   private static final String QUERY_DETERMINISTIC_A =
+   private static final String QUERY_LINK_DETERMINISTIC_A =
          """
-         query query_deterministic_a($national_id: string) {
+         query query_link_deterministic_a($national_id: string) {
             all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.national_id, $national_id)) {
                uid
                GoldenRecord.source_id {
@@ -38,9 +38,9 @@ final class CustomDgraphQueries {
          }
          """;
 
-   private static final String QUERY_DETERMINISTIC_B =
+   private static final String QUERY_LINK_DETERMINISTIC_B =
          """
-         query query_deterministic_b($given_name: string, $family_name: string, $phone_number: string) {
+         query query_link_deterministic_b($given_name: string, $family_name: string, $phone_number: string) {
             var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.given_name, $given_name)) {
                A as uid
             }
@@ -69,9 +69,9 @@ final class CustomDgraphQueries {
          }
          """;
 
-   private static final String QUERY_PROBABILISTIC =
+   private static final String QUERY_LINK_PROBABILISTIC =
          """
-         query query_probabilistic($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
+         query query_link_probabilistic($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.given_name, $given_name, 3)) {
                A as uid
             }
@@ -107,15 +107,15 @@ final class CustomDgraphQueries {
          """;
 
 
-   private static DgraphGoldenRecords queryDeterministicA(final CustomDemographicData demographicData) {
+   private static DgraphGoldenRecords queryLinkDeterministicA(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.nationalId)) {
          return new DgraphGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", demographicData.nationalId);
-      return runGoldenRecordsQuery(QUERY_DETERMINISTIC_A, map);
+      return runGoldenRecordsQuery(QUERY_LINK_DETERMINISTIC_A, map);
    }
 
-   private static DgraphGoldenRecords queryDeterministicB(final CustomDemographicData demographicData) {
+   private static DgraphGoldenRecords queryLinkDeterministicB(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName;
       final var familyName = demographicData.familyName;
       final var phoneNumber = demographicData.phoneNumber;
@@ -137,10 +137,10 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(phoneNumber)
                                    ? phoneNumber
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordsQuery(QUERY_DETERMINISTIC_B, map);
+      return runGoldenRecordsQuery(QUERY_LINK_DETERMINISTIC_B, map);
    }
 
-   private static DgraphGoldenRecords queryProbabilistic(final CustomDemographicData demographicData) {
+   private static DgraphGoldenRecords queryLinkProbabilistic(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName;
       final var familyName = demographicData.familyName;
       final var city = demographicData.city;
@@ -174,7 +174,7 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(nationalId)
                                    ? nationalId
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordsQuery(QUERY_PROBABILISTIC, map);
+      return runGoldenRecordsQuery(QUERY_LINK_PROBABILISTIC, map);
    }
 
    private static void mergeCandidates(
@@ -204,7 +204,7 @@ final class CustomDgraphQueries {
          return result;
       }
       result = new LinkedList<>();
-      mergeCandidates(result, queryProbabilistic(interaction));
+      mergeCandidates(result, queryLinkProbabilistic(interaction));
       return result;
    }
 

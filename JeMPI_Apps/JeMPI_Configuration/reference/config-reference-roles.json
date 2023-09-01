@@ -150,30 +150,6 @@
     }
   ],
   "rules": {
-    "validate": {
-      "deterministic": {
-        "QUERY_VALIDATE_DETERMINISTIC_A": {
-          "vars": [
-            "given_name",
-            "family_name",
-            "phone_number"
-          ],
-          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
-        }
-      },
-      "probabilistic": {
-        "QUERY_LINK_PROBABILISTIC": {
-          "vars": [
-            "given_name",
-            "family_name",
-            "city",
-            "phone_number",
-            "national_id"
-          ],
-          "text": "(match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)) or match(phone_number,2) or match(national_id,3)"
-        }
-      }
-    },
     "link": {
       "deterministic": {
         "QUERY_LINK_DETERMINISTIC_A": {
@@ -184,6 +160,18 @@
         }
       },
       "probabilistic": {
+      }
+    },
+    "validate": {
+      "deterministic": {
+        "QUERY_VALIDATE_DETERMINISTIC_A": {
+          "vars": [
+            "given_name",
+            "family_name",
+            "phone_number"
+          ],
+          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
+        }
       }
     }
   }

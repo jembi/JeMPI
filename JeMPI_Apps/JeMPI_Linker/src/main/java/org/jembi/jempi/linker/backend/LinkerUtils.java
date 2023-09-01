@@ -10,7 +10,7 @@ final class LinkerUtils {
    static float calcNormalizedScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      if (CustomLinkerDeterministic.deterministicMatch(goldenRecord, interaction)) {
+      if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
       return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);

@@ -152,13 +152,13 @@
   "rules": {
     "link": {
       "deterministic": {
-        "QUERY_DETERMINISTIC_A": {
+        "QUERY_LINK_DETERMINISTIC_A": {
           "vars": [
             "national_id"
           ],
           "text": "eq(national_id)"
         },
-        "QUERY_DETERMINISTIC_B": {
+        "QUERY_LINK_DETERMINISTIC_B": {
           "vars": [
             "given_name",
             "family_name",
@@ -168,7 +168,7 @@
         }
       },
       "probabilistic": {
-        "QUERY_PROBABILISTIC": {
+        "QUERY_LINK_PROBABILISTIC": {
           "vars": [
             "given_name",
             "family_name",

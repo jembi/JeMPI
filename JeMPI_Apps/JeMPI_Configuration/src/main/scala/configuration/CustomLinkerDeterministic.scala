@@ -33,16 +33,18 @@ object CustomLinkerDeterministic {
          |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
          |   }
          |""".stripMargin)
-    emitDeterminsticMatch(writer, config.rules)
+    emitDeterminsticMatch(writer, "linkDeterministicMatch", config.rules.link.deterministic)
+    if (config.rules.validate.isDefined)
+      emitDeterminsticMatch(writer, "validateDeterministicMatch", config.rules.validate.get.deterministic)
+    end if
     writer.println("}")
     writer.flush()
     writer.close()
   }
 
-  def emitDeterminsticMatch(writer: PrintWriter, rules: Rules): Unit = {
+  def emitDeterminsticMatch(writer: PrintWriter, funcName: String, map: Map[String, Rule]): Unit = {
 
     def checkNullExpression(expr: Ast.Expression): String = {
-
       expr match {
         case Ast.Or(x) => "("
           + (for (k <- x.zipWithIndex) yield if (k._2 == 0) checkNullExpression(k._1) else " || " + checkNullExpression(k._1)).mkString
@@ -68,10 +70,9 @@ object CustomLinkerDeterministic {
     }
 
     writer.println(
-      """   static boolean deterministicMatch(
+      s"""   static boolean ${funcName}(
         |         final CustomDemographicData goldenRecord,
         |         final CustomDemographicData interaction) {""".stripMargin)
-    val map = rules.link.deterministic
 
     val z = map.zipWithIndex
     z.foreach((map, index) => {
