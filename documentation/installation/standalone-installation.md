@@ -30,10 +30,10 @@ To check the installation, you can check the version by running: _sdk version_
 
 We should install the following:
 
-* Maven: Command: _sdk install maven_\
+- Maven: Command: _sdk install maven_\
   Version: 3.8.6
-* Scala Build Tool: Command: _sdk install sbt_
-* Java: Command: _sdk install java 17.0.6-tem_\
+- Scala Build Tool: Command: _sdk install sbt_
+- Java: Command: _sdk install java 17.0.6-tem_\
   Version: Temerin 17.0.6-tem (See list by running: _sdk list java_)
 
 Check the version of java by running: _java --version_. We should get: Temurin-17.0.6+10.
@@ -41,9 +41,10 @@ Check the version of java by running: _java --version_. We should get: Temurin-1
 ## Starting JeMPI <a href="#_1yk2dvaqt5h9" id="_1yk2dvaqt5h9"></a>
 
 ### #1 Run without local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+
 Run in the terminal _./launch-local.sh_
 
-[//]: # (You can **run** the script in [**this link**]&#40;https://github.com/jembi/JeMPI/pull/15/files&#41; **OR** follow these steps below:)
+[//]: # "You can **run** the script in [**this link**](https://github.com/jembi/JeMPI/pull/15/files) **OR** follow these steps below:"
 
 ### #2 Alternatively run with a local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
 
@@ -67,8 +68,8 @@ Go to: _docker/_, and run in the terminal with the same order the following bash
 
 ![](../.gitbook/assets/6)
 
-**2-** Make some changes to the _JeMPI\_Apps/build-all.sh_: before running _build-all.sh_ script, you need to **comment the lines where there is a “push”** and keep only the script that will build the images.\
-Then you can cd to _JeMPI\_Apps_/ and run: _./build-all.sh_.
+**2-** Make some changes to the _JeMPI_Apps/build-all.sh_: before running _build-all.sh_ script, you need to **comment the lines where there is a “push”** and keep only the script that will build the images.\
+Then you can cd to _JeMPI_Apps_/ and run: _./build-all.sh_.
 
 Example:
 
@@ -88,17 +89,17 @@ These should be removed/commented:
 # popd
 ```
 
-**3-** Edit _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_: The images now does exit in the local docker hub, the name convention is same except it will not start with the hostname and a “/”, you can select the first part _“${REGISTRY\_NODE\_IP}/”_ and remove it in all the two files.
+**3-** Edit _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_: The images now does exit in the local docker hub, the name convention is same except it will not start with the hostname and a “/”, you can select the first part _“${REGISTRY_NODE_IP}/”_ and remove it in all the two files.
 
 As an example, this is the old version of _docker-stack-0.yml_:
 
 ```yaml
 services:
 jempi-kafka-01:
-    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE
-    user: root
-    networks:
-        - backend-kafka
+  image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE
+  user: root
+  networks:
+    - backend-kafka
 ```
 
 An this is after the changes:
@@ -106,10 +107,10 @@ An this is after the changes:
 ```yaml
 services:
 jempi-kafka-01:
-    image: $KAFKA_IMAGE
-    user: root
-    networks:
-        - backend-kafka
+  image: $KAFKA_IMAGE
+  user: root
+  networks:
+    - backend-kafka
 ```
 
 **NB:** Don’t forget to update both _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_ files.
@@ -136,8 +137,8 @@ After these changes, ping the hostname and should respond.
 Example of the resulted file:
 
 127.0.0.1 localhost\
-\#127.0.1.1 \<MACHINE\_NAME> //commented line\
-127.0.0.1 \<MACHINE\_NAME> //127.0.0.1 or the other ip address
+\#127.0.1.1 \<MACHINE_NAME> //commented line\
+127.0.0.1 \<MACHINE_NAME> //127.0.0.1 or the other ip address
 
 **Set a local registry**
 
@@ -172,7 +173,6 @@ Go to: _docker/_, and run in the terminal with the same order the following bash
 **2-** _b-swarm-1-init-node1.sh_: This script will initialize swarm with “--advertise-addr”, if you get any error about the address, you may skip the first step.\
 You can run the provided tokens in the other nodes if you are running a cluster.\
 
-
 <figure><img src="../.gitbook/assets/8" alt=""><figcaption></figcaption></figure>
 
 **3-** _c-registry-1-create.sh_: It will create the registry service.
@@ -191,10 +191,9 @@ docker service create \
 $REGISTRY_IMAGE
 ```
 
-PWD, PLACEMENT\_REGISTRY and REGISTRY\_IMAGE are environment variables populated dynamically.
+PWD, PLACEMENT_REGISTRY and REGISTRY_IMAGE are environment variables populated dynamically.
 
 You can check that the service is running: _docker service ls_\
-
 
 <figure><img src="../.gitbook/assets/9" alt=""><figcaption></figcaption></figure>
 
@@ -206,9 +205,9 @@ You can check that the service is running: _docker service ls_\
 
 **Other scripts**
 
-* _z-stack-3-build-reboot.sh_: first, it will remove everything and then this will build and push and create needed directories such as logs and configurations (conf) and it will start everything again.
-* _z-stack-2-reboot.sh_: This script will only remove everything and start again.
-* _z-stack-1-build.sh_: This script will build and push everything to the local docker registry.
+- _z-stack-3-build-reboot.sh_: first, it will remove everything and then this will build and push and create needed directories such as logs and configurations (conf) and it will start everything again.
+- _z-stack-2-reboot.sh_: This script will only remove everything and start again.
+- _z-stack-1-build.sh_: This script will build and push everything to the local docker registry.
 
 That's it 🚀
 
@@ -221,7 +220,7 @@ To check for running services you can run: _docker service ls_\
 To list all the containers you can run: _docker ps -a_
 
 Or you can go to docker/helper/scripts and run _d-stack-07-ps.sh_ and it will run:\
-_docker stack ps \<NAME\_STACK>_
+_docker stack ps \<NAME_STACK>_
 
 Example of the stack when running with local docker registry: _(docker stack ps JeMPI)_
 
