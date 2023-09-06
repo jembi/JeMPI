@@ -20,9 +20,12 @@ final class CustomLinkerDeterministic {
          final CustomDemographicData interaction) {
       final var nationalIdL = goldenRecord.nationalId;
       final var nationalIdR = interaction.nationalId;
-      if (isMatch(nationalIdL, nationalIdR)) {
-         return true;
-      }
+      return isMatch(nationalIdL, nationalIdR);
+   }
+
+   static boolean validateDeterministicMatch(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData interaction) {
       final var givenNameL = goldenRecord.givenName;
       final var givenNameR = interaction.givenName;
       final var familyNameL = goldenRecord.familyName;

@@ -13,6 +13,6 @@ final class LinkerUtils {
       if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
-      return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
+      return CustomLinkerProbabilistic.linkProbabilisticScore(goldenRecord, interaction);
    }
 }
