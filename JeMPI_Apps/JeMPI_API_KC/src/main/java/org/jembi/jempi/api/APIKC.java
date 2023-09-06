@@ -20,7 +20,7 @@ public final class APIKC {
 
 
    private APIKC() {
-      LOGGER.info("API started.");
+      LOGGER.info("Secure API started.");
    }
 
    public static void main(final String[] args) {
@@ -70,9 +70,9 @@ public final class APIKC {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);
          LOGGER.info("Fields configuration file successfully loaded");
-         ActorSystem.create(this.create(), "API-App");
+         ActorSystem.create(this.create(), "Secure-API-App");
       } catch (Exception e) {
-         LOGGER.error("Unable to start the API", e);
+         LOGGER.error("Unable to start the Secure API", e);
       }
    }
 

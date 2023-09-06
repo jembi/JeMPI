@@ -38,44 +38,55 @@ class User {
       );
    }
 
-   String getUsername() {
+   public String getUsername() {
       return username;
    }
 
-   void setUsername(final String username) {
+   public void setUsername(final String username) {
       this.username = username;
    }
 
-   String getId() {
+   public String getId() {
       return id;
    }
 
-   void setId(final String id) {
+   public void setId(final String id) {
       this.id = id;
    }
 
-   String getEmail() {
+   public String getEmail() {
       return email;
    }
 
-   void setEmail(final String email) {
+   public void setEmail(final String email) {
       this.email = email;
    }
 
-   String getFamilyName() {
+   public String getFamilyName() {
       return familyName;
    }
 
-   void setFamilyName(final String familyName) {
+   public void setFamilyName(final String familyName) {
       this.familyName = familyName;
    }
 
-   String getGivenName() {
+   public String getGivenName() {
       return givenName;
    }
 
-   void setGivenName(final String givenName) {
+   public void setGivenName(final String givenName) {
       this.givenName = givenName;
+   }
+
+   @Override
+   public String toString() {
+      return "User{"
+         + "id='" + id + '\''
+         + ", username='" + username + '\''
+         + ", email='" + email + '\''
+         + ", familyName='" + familyName + '\''
+         + ", givenName='" + givenName + '\''
+         + '}';
    }
 
 }

@@ -48,40 +48,42 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
-  # keycloak-test-server:
-  #   image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
-  #   user: root
-  #   networks:
-  #     - frontend
-  #     - backend
-  #   volumes:
-  #   - type: bind
-  #     source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
-  #     target: /docker-entrypoint-initdb.d
-  #     read_only: true
-  #   environment:
-  #     KEYCLOAK_CREATE_ADMIN_USER: "true"
-  #     KEYCLOAK_ADMIN_USER: "admin"
-  #     KEYCLOAK_ADMIN_PASSWORD: "admin"
-  #     DB_ADDR: postgresql
-  #     DB_PORT: 5432
-  #     DB_DATABASE: ${POSTGRESQL_DATABASE}
-  #     DB_USER: ${POSTGRESQL_USERNAME}
-  #     DB_PASSWORD: ${POSTGRESQL_PASSWORD}
-  #   deploy:
-  #     mode: replicated
-  #     replicas: 0
-  #     resources:
-  #       limits:
-  #         memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
-  #     update_config:
-  #       parallelism: 1
-  #       delay: 10s
-  #     restart_policy:
-  #       condition: on-failure
-  #     placement:
-  #       constraints:
-  #         - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
+  keycloak-test-server:
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    user: root
+    networks:
+      - frontend
+      - backend
+    volumes:
+    - type: bind
+      source: ${DATA_KEYCLOAK_TEST_SERVER_DIR}
+      target: /docker-entrypoint-initdb.d
+      read_only: true
+    environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+      DB_ADDR: postgresql
+      DB_PORT: 5432
+      DB_DATABASE: ${POSTGRESQL_DATABASE}
+      DB_USER: ${POSTGRESQL_USERNAME}
+      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+      KC_HOSTNAME_URL: ${REACT_APP_KC_FRONTEND_URL}
+      KC_PROXY: edge
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
 
   # nginx:
   #   image: ${IMAGE_REGISTRY}$NGINX_IMAGE
@@ -118,8 +120,16 @@ services:
         target: 50000
         protocol: tcp
         mode: host
+      - published: 40000
+        target: 40000
+        protocol: tcp
+        mode: host
       - published: 3000
         target: 3000
+        protocol: tcp
+        mode: host
+      - published: 9088
+        target: 9088
         protocol: tcp
         mode: host
     volumes:
@@ -526,6 +536,8 @@ services:
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
+    environment:
+      KC_REALM_NAME: ${KC_REALM_NAME}
     networks:
       - frontend
     deploy:
