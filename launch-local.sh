@@ -93,3 +93,11 @@ popd
 pushd ./docker/ || exit
   source ./z-stack-2-reboot.sh
 popd || exit
+
+# Configure keycloak
+echo "Waiting to configure keycloak..."
+sleep 30
+pushd docker/conf/keycloak/ || exit
+  ./1-import.sh || exit 1
+popd || exit
+echo "Done configuring keycloak"
