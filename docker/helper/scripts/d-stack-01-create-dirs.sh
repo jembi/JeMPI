@@ -19,9 +19,6 @@ pushd .
   mkdir -p ${DATA_HAPROXY_DIR}
   cp conf/haproxy/*.* ${DATA_HAPROXY_DIR}
 
-  mkdir -p ${DATA_KEYCLOAK_TEST_SERVER_DIR}
-  cp conf/keycloak/*.* ${DATA_KEYCLOAK_TEST_SERVER_DIR}
-
   mkdir -p ${DATA_KAFKA_01_DIR}
   if [ ! -z ${DATA_KAFKA_02_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_02_DIR}; fi
   if [ ! -z ${DATA_KAFKA_03_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_03_DIR}; fi

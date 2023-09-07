@@ -15,7 +15,7 @@ if [ $USE_LOCAL_REGISTRY == 'true' ]; then
 else
     # For local deployments (single mode), we set localhost IP
     export NODE1="node-1"
-    export NODE1_IP="127.0.0.1"
+    export NODE1_IP="localhost"
 fi
 
 export SCALE_NGINX=1
@@ -66,9 +66,12 @@ export API_RAM_LIMIT="16G"
 export UI_RAM_LIMIT="16G"
 
 #UI env vars
-export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
+export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:40000/JeMPI
 export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
+export REACT_APP_ENABLE_SSO="true"
+export REACT_APP_KC_REALM_NAME=jempi-dev
+export REACT_APP_KC_FRONTEND_URL=http://localhost:9088
+export REACT_APP_KC_JEMPI_CLIENT_ID=jempi-oauth
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
