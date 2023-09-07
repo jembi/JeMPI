@@ -44,7 +44,6 @@ while true; do
 done
 
 # Copy Config for API
-cp -f ./JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json ./JeMPI_Apps/JeMPI_API/src/main/resources/config-reference.json
 cp -L -f ./JeMPI_Apps/JeMPI_Configuration/config-api.json ./JeMPI_Apps/JeMPI_API/src/main/resources/config-api.json
 cp -L -f ./JeMPI_Apps/JeMPI_Configuration/config-api.json ./JeMPI_Apps/JeMPI_API_KC/src/main/resources/config-api.json
 
