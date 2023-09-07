@@ -6,10 +6,12 @@ description: Useful for development or custom implementations
 
 ## Prerequisites <a href="#_4a1yqprqttyw" id="_4a1yqprqttyw"></a>
 
+In the following, we will introduce the software prerequisites to be able to run the JeMPI client registry on your machine.
+
 ### Docker <a href="#_rglemv3fug4d" id="_rglemv3fug4d"></a>
 
-Docker should be installed in the machine.\
-It is best to grant docker sudo access.
+Please refer to the [official installation guide](https://docs.docker.com/engine/install/ubuntu/) in order to install docker on your machine.
+It is best to follow the post installation process so that you grant docker sudo access.
 
 ### \[for Windows users] WSL2 <a href="#_ku1gqbfaemlj" id="_ku1gqbfaemlj"></a>
 
@@ -18,7 +20,7 @@ It is recommended to limit the memory usage of WSL2.
 
 ### Build Utilities <a href="#_ruowqnawk4n7" id="_ruowqnawk4n7"></a>
 
-We need to download [sdkmanager](https://sdkman.io/), check if you already have it by running _sdk_.\
+Follow the steps to install sdk [sdkmanager](https://sdkman.io/), check if you already have it by running _sdk_.\
 To install it, run the two following commands:
 
 ```bash

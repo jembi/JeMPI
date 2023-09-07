@@ -14,7 +14,7 @@ The JeMPI Client Registry is a system that incorporates a microservice architect
 
 ## JeMPI_AsyncReceiver <a href="#_6om7ih1t1k41" id="_6om7ih1t1k41"></a>
 
-**Description:** A microservice that sends the content of an uploaded csv file to the JeMPI_ETL service. the content of the csv file will be saved in the kafka topic one line at a time, in other words, each message in the kafka topic will have a record value.
+**Description:** A microservice that sends the content of an uploaded csv file to the JeMPI_ETL service. the JeMPI_AsyncReciever service produces kafka messages where each message has a row from the CSV file uploaded. it will then be saved under a kafka topic.
 
 The base version of JeMPI supports only 10 columns in the following order **\[for the current version]**:
 
@@ -31,7 +31,7 @@ The base version of JeMPI supports only 10 columns in the following order **\[fo
 
 **Input**
 
-1. A CSV file located in the JeMPI_AsyncReciever associated volume under \*/app/csv\_ directory (this can be done through HTTP request).\
+1. A CSV file located in the JeMPI_AsyncReciever associated volume, under \*/app/csv\_ directory (this can be done through HTTP request).\
    Example of input file:
 
 ```
@@ -43,9 +43,8 @@ rec-00000002-bbb-0,Biniyam,Maalim,male,20191022,Nairobi,098-119-7244,20000623184
 
 **Output**
 
-The service will save the data one line at a time in the Kafka topic: _TOPIC_INTERACTION_ASYNC_ETL="JeMPI-async-etl"_
-
-<figure><img src=".gitbook/assets/2" alt=""><figcaption></figcaption></figure>
+The service will save the data from the CSV file, one line at a time.\
+Kafka topic: _TOPIC_INTERACTION_ASYNC_ETL="JeMPI-async-etl"_
 
 ## JeMPI_ETL <a href="#_r783bgaxx08b" id="_r783bgaxx08b"></a>
 
@@ -53,12 +52,12 @@ The service will save the data one line at a time in the Kafka topic: _TOPIC_INT
 
 **Input:**
 
-Data coming from the the JeMPI_AsyncReciever.
+Data coming from the the JeMPI_AsyncReciever service.\
 Kafka topic: \_TOPIC_PATIENT_ASYNC_PREPROCESSOR="JeMPI-async-etl"\*
 
 **Output:**
 
-The resulted data will sent to the JeMPI*Controller.It will be stored in the Kafka topic: \_TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"*
+Data transformed into JSON will sent to the JeMPI_Controller. It will be stored in the Kafka topic: \_TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"*
 
 Example or a Kafka message coming from the patient controller topic:
 
@@ -126,8 +125,7 @@ MU process: Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
 **Description:** A microservice that will interact with Dgraph database to do the matching of the patients. It will get the candidates that have a similarity to the patient, and then:
 
-- For async flow:\
-  If the score of the candidate is superior than a _**threshold**_, it will link the patient to a master record.
+If the score of the candidate is superior than a _**threshold**_, it will link the patient to a master record.
 
 Else, it will create a new patient with a new golden ID and if the score is between a certain range (probable match), the Linker will send a notification to the admin to check the probable match.
 
@@ -159,7 +157,7 @@ Component linked:
 
 ## JeMPI_API <a href="#_ioszcxv7tpj" id="_ioszcxv7tpj"></a>
 
-**Description:** All the endpoints are in this component, it is used for the interaction with JeMPI WEB.
+**Description:** The JeMPI_API service contains the endpoints needed to interact with JeMPI. aside from acting as an access point to the JeMPI system, this service
 
 It will do the following actions:
 
