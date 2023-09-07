@@ -31,7 +31,7 @@ The base version of JeMPI supports only 10 columns in the following order **\[fo
 
 **Input**
 
-1. A CSV file located in the JeMPI*AsyncReciever associated volume under */app/csv\_ directory (this can be done through HTTP request).\
+1. A CSV file located in the JeMPI_AsyncReciever associated volume under \*/app/csv\_ directory (this can be done through HTTP request).\
    Example of input file:
 
 ```
@@ -49,86 +49,66 @@ The service will save the data one line at a time in the Kafka topic: _TOPIC_INT
 
 ## JeMPI_ETL <a href="#_r783bgaxx08b" id="_r783bgaxx08b"></a>
 
-**Description:** A microservice that transforms the input format from the receiver, to one single line JSON (JSON Streaming) to the controller:
-
-- For async flow:\
-  Send it to the Kafka topic for the Controller.
-- For sync flow:\
-  Proxy the HTTP request coming from the Sync_receiver to the Controller.\
-  Get the response coming from the Controller and transform it to FHIR and then send it to the Sync_receiver.
+**Description:** A microservice that pocesses the input coming from the JeMPI_AsyncReceiver. The JeMPI_ETL service will perform some data trasformation e.g. lower case the values for name of the patient or unformat the date for the date of birth. The resulting data will be sent as JSON (JSON Streaming) to the JeMPI_Controller service.
 
 **Input:**
 
-- For async flow:\
-  Kafka topic: _TOPIC_PATIENT_ASYNC_PREPROCESSOR="JeMPI-async-preprocessor"_
-- For sync flow:\
-  HTTP request that is coming from the Sync_receiver.\
-  HTTP response coming from the Controller.
+Data coming from the the JeMPI_AsyncReciever.
+Kafka topic: \_TOPIC_PATIENT_ASYNC_PREPROCESSOR="JeMPI-async-etl"\*
 
 **Output:**
 
-The resulted data next will be sent to:
+The resulted data will sent to the JeMPI*Controller.It will be stored in the Kafka topic: \_TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"*
 
-- For async flow:\
-  Kafka topic: _TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"_
-- For sync flow:\
-  HTTP request proxied to the microservice JeMPI_Controller.\
-  HTTP request to the Sync_receiver containing the response.
-
-Example:
+Example or a Kafka message coming from the patient controller topic:
 
 <figure><img src=".gitbook/assets/3" alt=""><figcaption></figcaption></figure>
 
 ```json
 {
-    "entityType": "BATCH_RECORD",
-    "stan": "2022/11/24 13:35:02:0000003",
-    "entity": {
-        "sourceId": {
-            "facility": "LABORATORY",
-            "patient": "200006231841948"
-        },js
-        "auxId": "rec-00000002-bbb-0",
-        "givenName": "Biniyam",
-        "familyName": "Maalim",
-        "gender": "male",
-        "dob": "20191022",
-        "city": "Nairobi",
-        "phoneNumber": "098-119-7244",
-        "nationalId": "200006231841948"
+  "contentType": "BATCH_INTERACTION",
+  "tag": "csv/import-1050836091564327170.csv",
+  "stan": "2023/09/06 08:29:13:0000008",
+  "interaction": {
+    "sourceId": { "facility": "FA4", "patient": "197910145001067" },
+    "uniqueInteractionData": {
+      "auxDateCreated": "2023-09-06T08:29:13.426518561",
+      "auxId": "rec-0000000002--5",
+      "auxClinicalData": "RANDOM DATA(975)"
+    },
+    "demographicData": {
+      "givenName": "esther",
+      "familyName": "zulu",
+      "gender": "female",
+      "dob": "19791014",
+      "city": "mufulira",
+      "phoneNumber": "0157172342",
+      "nationalId": "197910145001067"
     }
+  }
 }
 ```
 
 ## JeMPI_Controller <a href="#_lpn0tn79g4ka" id="_lpn0tn79g4ka"></a>
 
-**Description:** A microservice that has different tasks:
+**Description:** The JeMPI_Controller service has multiple tasks:
 
-- For async flow:\
-  Send the data coming to the two kafka topics (For JeMPI_EM & JeMPI_Linker).
-- For sync flow:\
-  Send the data to one kafka topic for JeMPI_EM and route it also to JeMPI_Linker through HTTP.
-- Control and manage the optimization of the MU calculation by activating/stopping the link process of the linker and getting the new value of MU from JeMPI_EM to provide it to the linker.
+- Send the data coming from the JeMPI_ETL to both the JeMPI_Linker and the JeMPI_EM services. The data will be stored in their respective Kafka topics accessed (consumed) by those service.
+- Control and manage the optimization of the M & U value computing by activating or stopping the linkage process of the JeMPI_Linker service. The new values of M & U will be brought from JeMPI_EM service to then be provided to the JeMPI_Linker service.
 
 **Input:**
+Data coming from the JeMPI_ETL service
+Kafka topic: \_TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"\*.
 
-- For async flow:\
-  Kafka topic: _TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"_.
-- For sync flow:\
-  HTTP request coming from the preprocessor.\
-  HTTP response coming from the Linker.
-
-MU process: Kafka topic: _TOPIC_MU_CONTROLLER="JeMPI-mu-controller"_
+Values of the M & U computed in the JeMPI_EM service
+Kafka topic: \_TOPIC_MU_CONTROLLER="JeMPI-mu-controller"\*
 
 **Output:**
+Send the data to the JeMPI_EM
 
-- For async flow:
-  - Kafka topic: _TOPIC_PATIENT_EM="JeMPI-patient-em"_
-  - Kafka topic: _TOPIC_PATIENT_LINKER="JeMPI-patient-linker"_
-- For sync flow:
-  - Kafka topic: _TOPIC_PATIENT_EM="JeMPI-patient-em"_
-  - Routing the data to JeMPI_Linker (HTTP)
-  - Routing the HTTP response coming from the Linker to the Preprocessor.
+- Kafka topic: _TOPIC_PATIENT_EM="JeMPI-patient-em"_
+  Send the data to the JeMPI_Linker
+- Kafka topic: _TOPIC_PATIENT_LINKER="JeMPI-patient-linker"_
 
 MU process: Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
@@ -151,19 +131,11 @@ MU process: Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
 Else, it will create a new patient with a new golden ID and if the score is between a certain range (probable match), the Linker will send a notification to the admin to check the probable match.
 
-- For sync flow:\
-  Same as the async flow except it will return the list of the candidates as a response to the controller.\
-  If there is a match, it will return the information of the match as a response.
-
 **NB:** The **threshold** used can be specified in the config.
 
 **Input:**
-
-- For async flow:\
-  Kafka topic: _TOPIC_PATIENT_EM="JeMPI-patient-em"_\
-  Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
-- For sync flow:\
-  HTTP request coming from the Controller.
+Kafka topic: _TOPIC_PATIENT_EM="JeMPI-patient-em"_\
+ Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
 **Output:**
 
@@ -173,11 +145,11 @@ Else, it will create a new patient with a new golden ID and if the score is betw
 
 ## JeMPI_Dgraph <a href="#_kb1wgk9uafqz" id="_kb1wgk9uafqz"></a>
 
-**Description:** The Dgraph database used for JeMPI.
+**Description:** The Dgraph database used for JeMPI to store the patient records. it is a graph database.
 
 Component linked:
 
-- **Dgraph Ratel:** A tool for data visualization and cluster management can be used with Dgraph to manage cluster settings and run DQL queries and mutations, and see results.
+- **Dgraph Ratel:** A tool for data visualization and cluster management. Ratel can be used with Dgraph to manage cluster settings, run DQL queries and mutations and see results of the mentioned operations.
 - **Dgraph Alpha:** Expose and host endpoints of the indexes.
 - **Dgraph Zero:** it is like a zookeeper in Kafka, it will control the instances of Alpha by assigning them to a group, and re-balances the data between them.
 
