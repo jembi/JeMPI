@@ -35,10 +35,16 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
      5. ```./z-stack-3-build-reboot.sh```
 
 ## Development
-It's possible to run the whole stack local without having to use a local registry using the command : 
+It's possible to run the whole stack local without having to use a local registry using the command :
 ```
 ./launch-local.sh
 ```
+
+This also launches the UI at <http://localhost:3000/>. Login with:
+
+* u: dev-user
+* p: dev_password_only
+
 In order to remove the stack, you could use the following command :
 ```
 docker stack remove jempi
