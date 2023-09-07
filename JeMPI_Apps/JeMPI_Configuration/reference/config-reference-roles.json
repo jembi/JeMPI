@@ -138,15 +138,7 @@
       "fieldType": "String",
       "csvCol": 7,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8441029,
-        "u": 0.0000002
-      }
+      "indexInteraction": "@index(exact,trigram)"
     }
   ],
   "rules": {

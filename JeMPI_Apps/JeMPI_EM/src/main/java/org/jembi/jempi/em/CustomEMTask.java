@@ -28,8 +28,7 @@ import static java.lang.Math.log;
 /*
  *
  * Implements the EM algorithm as specified in section 3 from
- * https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries
- * /developingstandardtoolsfordatalinkagefebruary2021
+ * https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries/developingstandardtoolsfordatalinkagefebruary2021
  *
  * https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries
  * /developingstandardtoolsfordatalinkagefebruary2021

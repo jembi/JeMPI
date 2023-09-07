@@ -51,6 +51,12 @@ public final class CustomLinkerMU {
    void updateMatchSums(
          final CustomDemographicData patient,
          final CustomDemographicData goldenRecord) {
+      updateMatchedPair(fields.givenName, patient.givenName, goldenRecord.givenName);
+      updateMatchedPair(fields.familyName, patient.familyName, goldenRecord.familyName);
+      updateMatchedPair(fields.gender, patient.gender, goldenRecord.gender);
+      updateMatchedPair(fields.dob, patient.dob, goldenRecord.dob);
+      updateMatchedPair(fields.city, patient.city, goldenRecord.city);
+      updateMatchedPair(fields.phoneNumber, patient.phoneNumber, goldenRecord.phoneNumber);
       updateMatchedPair(fields.nationalId, patient.nationalId, goldenRecord.nationalId);
       LOGGER.debug("{}", fields);
    }
@@ -58,6 +64,12 @@ public final class CustomLinkerMU {
    void updateMissmatchSums(
          final CustomDemographicData patient,
          final CustomDemographicData goldenRecord) {
+      updateUnMatchedPair(fields.givenName, patient.givenName, goldenRecord.givenName);
+      updateUnMatchedPair(fields.familyName, patient.familyName, goldenRecord.familyName);
+      updateUnMatchedPair(fields.gender, patient.gender, goldenRecord.gender);
+      updateUnMatchedPair(fields.dob, patient.dob, goldenRecord.dob);
+      updateUnMatchedPair(fields.city, patient.city, goldenRecord.city);
+      updateUnMatchedPair(fields.phoneNumber, patient.phoneNumber, goldenRecord.phoneNumber);
       updateUnMatchedPair(fields.nationalId, patient.nationalId, goldenRecord.nationalId);
       LOGGER.debug("{}", fields);
    }
@@ -78,6 +90,12 @@ public final class CustomLinkerMU {
    }
 
    static class Fields {
+      final Field givenName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field familyName = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field gender = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field dob = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field city = new Field(JARO_WINKLER_SIMILARITY, 0.92);
+      final Field phoneNumber = new Field(JARO_WINKLER_SIMILARITY, 0.92);
       final Field nationalId = new Field(JARO_WINKLER_SIMILARITY, 0.92);
 
       private float computeM(final Field field) {
@@ -92,7 +110,13 @@ public final class CustomLinkerMU {
 
       @Override
       public String toString() {
-         return String.format("f1(%f:%f)",
+         return String.format("f1(%f:%f) f2(%f:%f) f3(%f:%f) f4(%f:%f) f5(%f:%f) f6(%f:%f) f7(%f:%f)",
+                              computeM(givenName), computeU(givenName),
+                              computeM(familyName), computeU(familyName),
+                              computeM(gender), computeU(gender),
+                              computeM(dob), computeU(dob),
+                              computeM(city), computeU(city),
+                              computeM(phoneNumber), computeU(phoneNumber),
                               computeM(nationalId), computeU(nationalId));
       }
 

@@ -13,7 +13,7 @@ object CustomLinkerProbabilistic {
   def parseRules(config: Config): Any = {
 
     def generateFieldsRecord(writer: PrintWriter, recordName: String, demographicFields: Array[DemographicField]): Unit = {
-      writer.println(s"   private record ${recordName}(")
+      writer.println(s"   private record $recordName(")
       demographicFields.zipWithIndex.foreach((mu, idx) => {
         writer.print(s"""${" " * 9}LinkerProbabilistic.Field ${Utils.snakeCaseToCamelCase(mu.fieldName)}""")
         if (idx + 1 < demographicFields.length)
@@ -40,9 +40,9 @@ object CustomLinkerProbabilistic {
           val m: Double = if (linking) field.linkMetaData.get.m else field.validateMetaData.get.m
           val u: Double = if (linking) field.linkMetaData.get.u else field.validateMetaData.get.u
 
-          def extractComparisonList(levels: List[Double]): String =
+          def extractComparisonList(levels: List[Double]): String = {
             levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
-          end extractComparisonList
+          }
 
           writer.print(" " * margin + s"new LinkerProbabilistic.Field($comparison, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F)")
           if (idx + 1 < demographicFields.length)
@@ -87,8 +87,8 @@ object CustomLinkerProbabilistic {
            |  private $custom_className() {
            |  }
            |
-           |  public static float probabilisticScore(final CustomDemographicData goldenRecord,
-           |                                         final CustomDemographicData interaction) {
+           |  public static float linkProbabilisticScore(final CustomDemographicData goldenRecord,
+           |                                             final CustomDemographicData interaction) {
            |    return 0.0F;
            |  }
            |
@@ -140,9 +140,13 @@ object CustomLinkerProbabilistic {
 
 
       generateFieldsRecord(writer, "LinkFields", linkMuList)
-      generateFieldsRecord(writer, "ValidateFields", validateMuList)
+      if (!validateMuList.isEmpty) {
+        generateFieldsRecord(writer, "ValidateFields", validateMuList)
+      }
       generateCurrentFields(writer, "LinkFields", "currentLinkFields", true, linkMuList)
-      generateCurrentFields(writer, "ValidateFields", "currentValidateFields", false, validateMuList)
+      if (!validateMuList.isEmpty) {
+        generateCurrentFields(writer, "ValidateFields", "currentValidateFields", false, validateMuList)
+      }
 
       writer.println(
         """   static float linkProbabilisticScore(
