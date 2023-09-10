@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.ulp;
 
 final class LinkerDWH {
 
@@ -93,7 +94,8 @@ final class LinkerDWH {
       expandedGoldenRecord.interactionsWithScore().forEach(interactionWithScore -> {
          final var interaction = interactionWithScore.interaction();
          final var score =
-               LinkerUtils.calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(), interaction.demographicData());
+               LinkerUtils.calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
+                                               interaction.demographicData());
 
          if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("{} -- {} : {}", interactionWithScore.score(), score, abs(interactionWithScore.score() - score) > 1E-2);
@@ -189,6 +191,16 @@ final class LinkerDWH {
                final var linkToGoldenId =
                      new LibMPIClientInterface.GoldenIdScore(firstCandidate.goldenRecord.goldenId(), firstCandidate.score);
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
+               final var validated1 =
+                     CustomLinkerDeterministic.validateDeterministicMatch(firstCandidate.goldenRecord.demographicData(),
+                                                                          interaction.demographicData());
+               final var validated2 =
+                     CustomLinkerProbabilistic.validateProbabilisticScore(firstCandidate.goldenRecord.demographicData(),
+                                                                          interaction.demographicData());
+               if (LOGGER.isInfoEnabled()) {
+                  LOGGER.info("validated:{} {}", validated1, validated2);
+               }
+
                if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                   sendNotification(Notification.NotificationType.THRESHOLD,
                                    linkInfo.interactionUID(),

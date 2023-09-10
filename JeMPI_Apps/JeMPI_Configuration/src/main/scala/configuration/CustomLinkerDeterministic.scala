@@ -34,9 +34,7 @@ object CustomLinkerDeterministic {
          |   }
          |""".stripMargin)
     emitDeterminsticMatch(writer, "linkDeterministicMatch", config.rules.link.deterministic)
-    if (config.rules.validate.isDefined)
-      emitDeterminsticMatch(writer, "validateDeterministicMatch", config.rules.validate.get.deterministic)
-    end if
+    emitDeterminsticMatch(writer, "validateDeterministicMatch",  if (config.rules.validate.isDefined) config.rules.validate.get.deterministic else Map.empty[String, Rule])
     writer.println("}")
     writer.flush()
     writer.close()
@@ -71,34 +69,40 @@ object CustomLinkerDeterministic {
 
     writer.println(
       s"""   static boolean ${funcName}(
-        |         final CustomDemographicData goldenRecord,
-        |         final CustomDemographicData interaction) {""".stripMargin)
+         |         final CustomDemographicData goldenRecord,
+         |         final CustomDemographicData interaction) {""".stripMargin)
 
-    val z = map.zipWithIndex
-    z.foreach((map, index) => {
-      val expression: Ast.Expression = ParseRule.parse(map._2.text)
-      val expr_1 = checkNullExpression(expression)
-      map._2.vars.foreach(v => {
-        val field = Utils.snakeCaseToCamelCase(v)
-        val left = field + "L"
-        val right = field + "R"
-        writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
-        writer.println(" " * 6 + s"final var $right = interaction.$field;")
+    if (map.isEmpty) {
+      writer.println(
+        s"""      return false;
+           |   }
+           |""".stripMargin)
+    } else {
+      val z = map.zipWithIndex
+      z.foreach((map, index) => {
+        val expression: Ast.Expression = ParseRule.parse(map._2.text)
+        val expr_1 = checkNullExpression(expression)
+        map._2.vars.foreach(v => {
+          val field = Utils.snakeCaseToCamelCase(v)
+          val left = field + "L"
+          val right = field + "R"
+          writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
+          writer.println(" " * 6 + s"final var $right = interaction.$field;")
+        })
+        if (index < z.size - 1) {
+          writer.println(
+            s"""      if ($expr_1) {
+               |         return true;
+               |      }""".stripMargin)
+        } else {
+          writer.println(
+            s"""      return $expr_1;""".stripMargin)
+        }
       })
-      if (index < z.size - 1) {
-        writer.println(
-          s"""      if ($expr_1) {
-             |         return true;
-             |      }""".stripMargin)
-      } else {
-        writer.println(
-          s"""      return $expr_1;""".stripMargin)
-      }
-    })
-    writer.println(
-      """   }
-        |""".stripMargin)
+      writer.println(
+        """   }
+          |""".stripMargin)
 
+    }
   }
-
 }

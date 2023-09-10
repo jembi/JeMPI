@@ -1,8 +1,12 @@
 package org.jembi.jempi.linker.backend;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 final class LinkerUtils {
+
+   private static final Logger LOGGER = LogManager.getLogger(LinkerUtils.class);
 
    private LinkerUtils() {
    }
@@ -13,7 +17,6 @@ final class LinkerUtils {
       if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
-
       return CustomLinkerProbabilistic.linkProbabilisticScore(goldenRecord, interaction);
    }
 }

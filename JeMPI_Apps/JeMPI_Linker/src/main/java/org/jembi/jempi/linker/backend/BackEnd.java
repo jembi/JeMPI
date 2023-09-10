@@ -58,6 +58,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          final LibMPI lib) {
       super(context);
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+      Configurator.setLevel(LinkerUtils.class, AppConfig.GET_LOG_LEVEL);
+
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       libMPI = lib;
    }
@@ -111,7 +113,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
-                                .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+//                                .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
@@ -269,10 +271,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
-      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
-      return Behaviors.same();
-   }
+//   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
+//      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
+//      return Behaviors.same();
+//   }
 
    private enum TeaTimeRequest implements Request {
       INSTANCE
@@ -310,11 +312,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public record EventUpdateMURsp(boolean rc) implements Response {
    }
 
-   public record EventGetMUReq(ActorRef<EventGetMURsp> replyTo) implements Request {
-   }
-
-   public record EventGetMURsp(CustomMU mu) implements Response {
-   }
+//   public record EventGetMUReq(ActorRef<EventGetMURsp> replyTo) implements Request {
+//   }
+//
+//   public record EventGetMURsp(CustomMU mu) implements Response {
+//   }
 
    public record CalculateScoresRequest(
          ApiModels.ApiCalculateScoresRequest calculateScoresRequest,
