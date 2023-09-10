@@ -40,7 +40,6 @@ final class CustomLinkerProbabilistic {
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return 0.0F;
-      return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
    }
 
    static float validateProbabilisticScore(
@@ -61,7 +60,7 @@ final class CustomLinkerProbabilistic {
                                                       goldenRecord.city, interaction.city, currentValidateFields.city);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
                                                       goldenRecord.phoneNumber, interaction.phoneNumber, currentValidateFields.phoneNumber);
-      return ((meetrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
+      return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
 
    }
    public static void updateMU(final CustomMU mu) {

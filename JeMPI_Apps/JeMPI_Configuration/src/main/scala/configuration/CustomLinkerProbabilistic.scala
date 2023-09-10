@@ -140,9 +140,13 @@ object CustomLinkerProbabilistic {
       writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentLinkFields" +
         s".$fieldName);")
     })
+    if (!linkMuList.isEmpty) {
+      writer.println(
+        s"""${" " * 6}return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
+           |""".stripMargin)
+    }
     writer.println(
-      s"""${" " * 6}return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
-         |${" " * 3}}
+      s"""${" " * 3}}
          |""".stripMargin)
 
     writer.println(
