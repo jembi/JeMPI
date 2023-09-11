@@ -202,9 +202,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                LOGGER.error("Golden Record for GID {} is null", gid);
                linkInfo = null;
             } else {
+               final var validated1 =
+                     CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
+                                                                          interaction.demographicData());
+               final var validated2 =
+                     CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
+                                                                          interaction.demographicData());
+
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
                                                                                 new LibMPIClientInterface.GoldenIdScore(gid,
-                                                                                                                        3.0F));
+                                                                                                                        3.0F),
+                                                                                validated1, validated2);
                if (Boolean.TRUE.equals(goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                   CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, 0.0F, linkInfo.interactionUID(), gid);
                }

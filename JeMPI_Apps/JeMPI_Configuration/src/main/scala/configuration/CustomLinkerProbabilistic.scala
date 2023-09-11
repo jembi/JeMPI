@@ -160,7 +160,7 @@ object CustomLinkerProbabilistic {
         """
           |      // min, max, score, missingPenalty
           |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
-      validateMuList.zipWithIndex.foreach((field, _) => {
+      validateMuList.foreach(field => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
         writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentValidateFields" +

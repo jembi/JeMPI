@@ -189,16 +189,14 @@ final class LinkerDWH {
                final var firstCandidate = candidatesAboveMatchThreshold.get(0);
                final var linkToGoldenId =
                      new LibMPIClientInterface.GoldenIdScore(firstCandidate.goldenRecord.goldenId(), firstCandidate.score);
-               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId);
                final var validated1 =
                      CustomLinkerDeterministic.validateDeterministicMatch(firstCandidate.goldenRecord.demographicData(),
                                                                           interaction.demographicData());
                final var validated2 =
                      CustomLinkerProbabilistic.validateProbabilisticScore(firstCandidate.goldenRecord.demographicData(),
                                                                           interaction.demographicData());
-               if (LOGGER.isInfoEnabled()) {
-                  LOGGER.info("validated:{} {}", validated1, validated2);
-               }
+               linkInfo =
+                     libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction, linkToGoldenId, validated1, validated2);
 
                if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                   sendNotification(Notification.NotificationType.THRESHOLD,
