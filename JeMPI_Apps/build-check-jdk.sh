@@ -18,8 +18,7 @@ if [[ "$_java" ]]; then
     version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
     echo version "$version"
     if [[ "$version" != "$JAVA_VERSION" ]]; then
-        echo java version $version is the wrong version
+        echo java version "$version" is the wrong version, expected "$JAVA_VERSION"
         exit 1
     fi
 fi
-
