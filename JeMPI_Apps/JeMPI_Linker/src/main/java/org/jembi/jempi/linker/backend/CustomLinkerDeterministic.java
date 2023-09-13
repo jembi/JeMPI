@@ -15,7 +15,7 @@ final class CustomLinkerDeterministic {
       return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
    }
 
-   static boolean deterministicMatch(
+   static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       final var nationalIdL = goldenRecord.nationalId;
@@ -30,6 +30,12 @@ final class CustomLinkerDeterministic {
       final var phoneNumberL = goldenRecord.phoneNumber;
       final var phoneNumberR = interaction.phoneNumber;
       return (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(phoneNumberL, phoneNumberR));
+   }
+
+   static boolean validateDeterministicMatch(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData interaction) {
+      return false;
    }
 
 }

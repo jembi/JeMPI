@@ -33,16 +33,16 @@ object CustomLinkerDeterministic {
          |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
          |   }
          |""".stripMargin)
-    emitDeterminsticMatch(writer, config.rules)
+    emitDeterminsticMatch(writer, "linkDeterministicMatch", config.rules.link.deterministic)
+    emitDeterminsticMatch(writer, "validateDeterministicMatch",  if (config.rules.validate.isDefined) config.rules.validate.get.deterministic else Map.empty[String, Rule])
     writer.println("}")
     writer.flush()
     writer.close()
   }
 
-  def emitDeterminsticMatch(writer: PrintWriter, rules: Rules): Unit = {
+  def emitDeterminsticMatch(writer: PrintWriter, funcName: String, map: Map[String, Rule]): Unit = {
 
     def checkNullExpression(expr: Ast.Expression): String = {
-
       expr match {
         case Ast.Or(x) => "("
           + (for (k <- x.zipWithIndex) yield if (k._2 == 0) checkNullExpression(k._1) else " || " + checkNullExpression(k._1)).mkString
@@ -68,36 +68,41 @@ object CustomLinkerDeterministic {
     }
 
     writer.println(
-      """   static boolean deterministicMatch(
-        |         final CustomDemographicData goldenRecord,
-        |         final CustomDemographicData interaction) {""".stripMargin)
-    val map = rules.deterministic
+      s"""   static boolean ${funcName}(
+         |         final CustomDemographicData goldenRecord,
+         |         final CustomDemographicData interaction) {""".stripMargin)
 
-    val z = map.zipWithIndex
-    z.foreach((map, index) => {
-      val expression: Ast.Expression = ParseRule.parse(map._2.text)
-      val expr_1 = checkNullExpression(expression)
-      map._2.vars.foreach(v => {
-        val field = Utils.snakeCaseToCamelCase(v)
-        val left = field + "L"
-        val right = field + "R"
-        writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
-        writer.println(" " * 6 + s"final var $right = interaction.$field;")
+    if (map.isEmpty) {
+      writer.println(
+        s"""      return false;
+           |   }
+           |""".stripMargin)
+    } else {
+      val z = map.zipWithIndex
+      z.foreach((map, index) => {
+        val expression: Ast.Expression = ParseRule.parse(map._2.text)
+        val expr_1 = checkNullExpression(expression)
+        map._2.vars.foreach(v => {
+          val field = Utils.snakeCaseToCamelCase(v)
+          val left = field + "L"
+          val right = field + "R"
+          writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
+          writer.println(" " * 6 + s"final var $right = interaction.$field;")
+        })
+        if (index < z.size - 1) {
+          writer.println(
+            s"""      if ($expr_1) {
+               |         return true;
+               |      }""".stripMargin)
+        } else {
+          writer.println(
+            s"""      return $expr_1;""".stripMargin)
+        }
       })
-      if (index < z.size - 1) {
-        writer.println(
-          s"""      if ($expr_1) {
-             |         return true;
-             |      }""".stripMargin);
-      } else {
-        writer.println(
-          s"""      return $expr_1;""".stripMargin);
-      }
-    })
-    writer.println(
-      """   }
-        |""".stripMargin)
+      writer.println(
+        """   }
+          |""".stripMargin)
 
+    }
   }
-
 }

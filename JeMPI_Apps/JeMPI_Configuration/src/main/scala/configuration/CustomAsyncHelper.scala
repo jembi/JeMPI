@@ -8,12 +8,52 @@ private object CustomAsyncHelper {
   private val customClassName = "CustomAsyncHelper"
   private val packageText = "org.jembi.jempi.async_receiver"
 
+  def generate(config: Config): Unit =
+    val classFile: String = classLocation + File.separator + customClassName + ".java"
+    println("Creating " + classFile)
+    val file: File = new File(classFile)
+    val writer: PrintWriter = new PrintWriter(file)
+    writer.println(
+      s"""package $packageText;
+         |
+         |import org.apache.commons.csv.CSVRecord;
+         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.CustomSourceId;
+         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
+         |
+         |final class $customClassName {
+         |
+         |${columnIndices(config)}
+         |
+         |   private $customClassName() {
+         |   }
+         |
+         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
+         |      return new CustomUniqueInteractionData(${customUniqueInteractionArguments(config)});
+         |   }
+         |
+         |   static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
+         |      return new CustomDemographicData(
+         |${demographicFields(config)});
+         |   }
+         |
+         |${if (config.additionalNodes.isEmpty) "" else config.additionalNodes.get.map(x => customNodeConstructor(x)).mkString}
+         |}
+         |""".stripMargin)
+
+    writer.flush()
+    writer.close()
+  end generate
+
   private def columnIndices(config: Config): String =
 
     def additionalNodeFields(additionalNode: AdditionalNode): String =
-      additionalNode.fields.map(f => s"""${" " * 3}private static final int ${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get}""").mkString(
-        s""";
-           |""".stripMargin).stripTrailing()
+      additionalNode.fields
+        .map(f => s"""${" " * 3}private static final int ${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get}""")
+        .mkString(
+          s""";
+             |""".stripMargin)
+        .stripTrailing()
     end additionalNodeFields
 
     def uniqueInteractionFields(fields: Array[UniqueField]): String =
@@ -21,7 +61,8 @@ private object CustomAsyncHelper {
         .map(f => if (f.csvCol.isEmpty) "" else
           s"""   private static final int ${f.fieldName.toUpperCase()}_COL_NUM = ${f.csvCol.get};
              |""".stripMargin)
-        .mkString("").stripMargin
+        .mkString("")
+        .stripMargin
     end uniqueInteractionFields
 
     (if (config.uniqueInteractionFields.isEmpty) "" else
@@ -40,8 +81,7 @@ private object CustomAsyncHelper {
   private def demographicFields(config: Config): String =
     config
       .demographicFields
-      .map(f =>
-        s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),""")
+      .map(f => s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),""")
       .mkString("\n")
       .dropRight(1)
   end demographicFields
@@ -65,7 +105,7 @@ private object CustomAsyncHelper {
         .trim
   end customUniqueInteractionArguments
 
-  def customNodeConstructor(additionalNode: AdditionalNode): String =
+  private def customNodeConstructor(additionalNode: AdditionalNode): String =
 
     def arguments(fields: Array[AdditionalNodeField]): String =
       fields.map(f => s"""         csvRecord.get(${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase()}_COL_NUM)""").mkString(",\n")
@@ -78,43 +118,5 @@ private object CustomAsyncHelper {
        |   }
        |""".stripMargin
   end customNodeConstructor
-
-  def generate(config: Config): Unit =
-    val classFile: String = classLocation + File.separator + customClassName + ".java"
-    println("Creating " + classFile)
-    val file: File = new File(classFile)
-    val writer: PrintWriter = new PrintWriter(file)
-    val margin = 33
-    writer.println(
-      s"""package $packageText;
-         |
-         |import org.apache.commons.csv.CSVRecord;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.CustomSourceId;
-         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-         |
-         |final class $customClassName {
-         |
-         |${columnIndices(config)}
-         |
-         |   private ${customClassName}() {
-         |   }
-         |
-         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
-         |      return new CustomUniqueInteractionData(${customUniqueInteractionArguments(config)});
-         |   }
-         |
-         |   static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
-         |      return new CustomDemographicData(
-         |${demographicFields(config)});
-         |   }
-         |
-         |${if (config.additionalNodes.isEmpty) "" else config.additionalNodes.get.map(x => customNodeConstructor(x)).mkString}
-         |}
-         |""".stripMargin)
-
-    writer.flush()
-    writer.close()
-  end generate
 
 }

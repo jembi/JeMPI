@@ -54,7 +54,7 @@
       "csvCol": 1,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
+      "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -69,7 +69,7 @@
       "csvCol": 2,
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
+      "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -83,7 +83,7 @@
       "fieldType": "String",
       "csvCol": 3,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "linkMetaData": {
+      "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -96,7 +96,7 @@
       "fieldName": "dob",
       "fieldType": "String",
       "csvCol": 4,
-      "linkMetaData": {
+      "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -110,7 +110,7 @@
       "fieldType": "String",
       "csvCol": 5,
       "indexGoldenRecord": "@index(trigram)",
-      "linkMetaData": {
+      "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -124,7 +124,7 @@
       "fieldType": "String",
       "csvCol": 6,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "linkMetaData": {
+      "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -138,15 +138,7 @@
       "fieldType": "String",
       "csvCol": 7,
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8441029,
-        "u": 0.0000002
-      }
+      "indexInteraction": "@index(exact,trigram)"
     }
   ],
   "rules": {
@@ -157,26 +149,20 @@
             "national_id"
           ],
           "text": "eq(national_id)"
-        },
-        "QUERY_LINK_DETERMINISTIC_B": {
+        }
+      },
+      "probabilistic": {
+      }
+    },
+    "validate": {
+      "deterministic": {
+        "QUERY_VALIDATE_DETERMINISTIC_A": {
           "vars": [
             "given_name",
             "family_name",
             "phone_number"
           ],
           "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
-        }
-      },
-      "probabilistic": {
-        "QUERY_LINK_PROBABILISTIC": {
-          "vars": [
-            "given_name",
-            "family_name",
-            "city",
-            "phone_number",
-            "national_id"
-          ],
-          "text": "(match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)) or match(phone_number,2) or match(national_id,3)"
         }
       }
     }

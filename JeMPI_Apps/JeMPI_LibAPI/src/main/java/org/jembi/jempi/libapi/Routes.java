@@ -561,19 +561,20 @@ public final class Routes {
    }
 
    public static Route postCrFind(final Http http) {
-      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
-                    apiCrFind -> {
-                       LOGGER.debug("{}", apiCrFind);
-                       try {
-                          return onComplete(postCrFindProxy(http, apiCrFind),
-                                            response -> response.isSuccess()
-                                                  ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
-                       } catch (JsonProcessingException e) {
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
-                       }
-                    });
+      return entity(
+            Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
+            apiCrFind -> {
+               LOGGER.debug("{}", apiCrFind);
+               try {
+                  return onComplete(postCrFindProxy(http, apiCrFind),
+                                    response -> response.isSuccess()
+                                          ? complete(response.get())
+                                          : complete(StatusCodes.IM_A_TEAPOT));
+               } catch (JsonProcessingException e) {
+                  LOGGER.error(e.getLocalizedMessage(), e);
+                  return complete(StatusCodes.IM_A_TEAPOT);
+               }
+            });
    }
 
    public static Route postCrCandidates(final Http http) {

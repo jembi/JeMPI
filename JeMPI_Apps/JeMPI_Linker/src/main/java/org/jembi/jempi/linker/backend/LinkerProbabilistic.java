@@ -66,11 +66,11 @@ final class LinkerProbabilistic {
    }
 
    static void checkUpdatedMU() {
-      if (CustomLinkerProbabilistic.updatedFields != null) {
-         LOGGER.info("Using updated MU values: {}", CustomLinkerProbabilistic.updatedFields);
-         CustomLinkerProbabilistic.currentFields = CustomLinkerProbabilistic.updatedFields;
-         CustomLinkerProbabilistic.updatedFields = null;
-      }
+//      if (CustomLinkerProbabilistic.updatedFields != null) {
+//         LOGGER.info("Using updated MU values: {}", CustomLinkerProbabilistic.updatedFields);
+//         CustomLinkerProbabilistic.currentLinkFields = CustomLinkerProbabilistic.updatedFields;
+//         CustomLinkerProbabilistic.updatedFields = null;
+//      }
    }
 
    static void updateMetricsForStringField(

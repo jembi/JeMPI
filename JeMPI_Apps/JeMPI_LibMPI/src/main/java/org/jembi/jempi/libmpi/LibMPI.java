@@ -313,12 +313,15 @@ public final class LibMPI {
 
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
-         final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
+         final LibMPIClientInterface.GoldenIdScore goldenIdScore,
+         final boolean deterministicValidation,
+         final float probabilisticValidation) {
       final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
-                        String.format("Interaction -> Existing GoldenRecord (%.5f)", result.score()));
+                        String.format("Interaction -> Existing GoldenRecord (%.5f)  /  Validation (%s, %.3f)", result.score(),
+                                      deterministicValidation, probabilisticValidation));
       } else {
          sendAuditEvent(interaction.interactionId(),
                         goldenIdScore.goldenId(),

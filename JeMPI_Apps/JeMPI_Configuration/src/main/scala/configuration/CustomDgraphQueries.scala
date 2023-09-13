@@ -16,7 +16,7 @@ object CustomDgraphQueries {
     def getDeterministicFunctions: String = {
       config
         .rules
-        .deterministic
+        .link.deterministic
         .map((name, _) => s"""${" " * 14}CustomDgraphQueries::${Utils.snakeCaseToCamelCase(name.toLowerCase)},""".stripMargin)
         .mkString("\n")
         .trim
@@ -45,13 +45,13 @@ object CustomDgraphQueries {
          |   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_FUNCTIONS =
          |      List.of($getDeterministicFunctions);
          |""".stripMargin)
-    config.rules.deterministic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
-    if (config.rules.probabilistic != null)
-      config.rules.probabilistic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
+    config.rules.link.deterministic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
+    if (config.rules.link.probabilistic != null)
+      config.rules.link.probabilistic.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     writer.println()
-    config.rules.deterministic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
-    if (config.rules.probabilistic != null)
-      config.rules.probabilistic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
+    config.rules.link.deterministic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
+    if (config.rules.link.probabilistic != null)
+      config.rules.link.probabilistic.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     emitGetCandidates(writer, config.rules)
     writer.println(
       s"""   private $custom_className() {
@@ -63,7 +63,7 @@ object CustomDgraphQueries {
 
   private def emitGetCandidates(writer: PrintWriter, rules: Rules): Unit = {
     writer.println(
-      """   private static void updateCandidates(
+      """   private static void mergeCandidates(
         |         final List<CustomDgraphGoldenRecord> goldenRecords,
         |         final DgraphGoldenRecords block) {
         |      final var candidates = block.all();
@@ -90,11 +90,11 @@ object CustomDgraphQueries {
         |         return result;
         |      }
         |      result = new LinkedList<>();""".stripMargin)
-    if (rules.probabilistic != null) {
-      rules.probabilistic.foreach((name, rule) => {
+    if (rules.link.probabilistic != null) {
+      rules.link.probabilistic.foreach((name, _) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
         val vars = "interaction"
-        writer.println(s"""${" " * 6}updateCandidates(result, $filterName($vars));""".stripMargin)
+        writer.println(s"""${" " * 6}mergeCandidates(result, $filterName($vars));""".stripMargin)
       })
     }
     writer.println(

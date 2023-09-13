@@ -344,11 +344,6 @@ services:
       HTTP_SERVER_PORT: 50000
     networks:
     - backend
-    ports:
-    - published: 50020
-      target: 50000
-      protocol: tcp
-      mode: host      
     volumes:
     - type: bind
       source: $DATA_DIR_CONTROLLER/conf
@@ -414,7 +409,7 @@ services:
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
       HTTP_SERVER_PORT: 50000
-      LINKER_MATCH_THRESHOLD: 0.60
+      LINKER_MATCH_THRESHOLD: 0.65
       LINKER_MATCH_THRESHOLD_MARGIN: 0.1
     networks:
     - backend
@@ -480,54 +475,54 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
 
-  api-kc:
-    image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
-    environment:
-      LOG4J2_LEVEL: "DEBUG" 
-      KC_REALM_NAME: ${KC_REALM_NAME}
-      KC_API_URL: ${KC_API_URL}
-      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
-      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
-      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
-      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
-      JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
-      JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
-      KAFKA_APPLICATION_ID: app-id-api
-      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
-      DGRAPH_PORTS: ${DGRAPH_PORTS}
-      HTTP_SERVER_PORT: 50000
-    networks:
-    - frontend
-    - backend
-    volumes:
-    - type: bind
-      source: $DATA_DIR_API_KC/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_ASYNC_RECEIVER/csv
-      target: /app/csv
-      read_only: false
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          memory: ${API_RAM_LIMIT}
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
-      placement:
-        constraints:
-        - node.labels.name == ${PLACEMENT_API_KC}
+  # api-kc:
+  #   image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
+  #   environment:
+  #     LOG4J2_LEVEL: "DEBUG" 
+  #     KC_REALM_NAME: ${KC_REALM_NAME}
+  #     KC_API_URL: ${KC_API_URL}
+  #     KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+  #     KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+  #     KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+  #     JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+  #     JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
+  #     JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
+  #     POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+  #     POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+  #     POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+  #     KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+  #     KAFKA_APPLICATION_ID: app-id-api
+  #     DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+  #     DGRAPH_PORTS: ${DGRAPH_PORTS}
+  #     HTTP_SERVER_PORT: 50000
+  #   networks:
+  #   - frontend
+  #   - backend
+  #   volumes:
+  #   - type: bind
+  #     source: $DATA_DIR_API_KC/conf
+  #     target: /app/conf
+  #     read_only: true
+  #   - type: bind
+  #     source: $DATA_DIR_ASYNC_RECEIVER/csv
+  #     target: /app/csv
+  #     read_only: false
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 0
+  #     resources:
+  #       limits:
+  #         memory: ${API_RAM_LIMIT}
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 0
+  #     placement:
+  #       constraints:
+  #       - node.labels.name == ${PLACEMENT_API_KC}
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
