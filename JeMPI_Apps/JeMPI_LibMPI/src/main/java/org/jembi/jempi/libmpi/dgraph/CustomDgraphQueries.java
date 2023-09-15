@@ -12,7 +12,7 @@ import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 
 final class CustomDgraphQueries {
 
-   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_FUNCTIONS =
+   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
       List.of(CustomDgraphQueries::queryLinkDeterministicA,
               CustomDgraphQueries::queryLinkDeterministicB);
 
@@ -106,7 +106,6 @@ final class CustomDgraphQueries {
          }
          """;
 
-
    private static DgraphGoldenRecords queryLinkDeterministicA(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.nationalId)) {
          return new DgraphGoldenRecords(List.of());
@@ -197,9 +196,9 @@ final class CustomDgraphQueries {
       }
    }
 
-   static List<CustomDgraphGoldenRecord> getCandidates(
+   static List<CustomDgraphGoldenRecord> findLinkCandidates(
       final CustomDemographicData interaction) {
-      var result = DgraphQueries.deterministicFilter(interaction);
+      var result = DgraphQueries.deterministicFilter(DETERMINISTIC_LINK_FUNCTIONS, interaction);
       if (!result.isEmpty()) {
          return result;
       }
@@ -210,4 +209,5 @@ final class CustomDgraphQueries {
 
    private CustomDgraphQueries() {
    }
+
 }

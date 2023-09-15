@@ -158,8 +158,12 @@ public final class LibMPI {
       return client.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
-      return client.findCandidates(demographicData);
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+      return client.findLinkCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      return client.findMatchCandidates(demographicData);
    }
 
    public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {

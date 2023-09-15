@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.log;
+import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.*;
 
 final class LinkerProbabilistic {
 
@@ -85,10 +86,10 @@ final class LinkerProbabilistic {
 //      } else {
 //         metrics[3] *= MISSING_PENALTY;
 //      }
-      metrics[0] += field.min;
-      metrics[1] += field.max;
+      metrics[METRIC_MIN] += field.min;
+      metrics[METRIC_MAX] += field.max;
       if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
-         metrics[2] += fieldScore(left, right, field);
+         metrics[METRIC_SCORE] += fieldScore(left, right, field);
       }
    }
 

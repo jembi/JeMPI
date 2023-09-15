@@ -44,7 +44,7 @@ final class LinkerCR {
          final LibMPI libMPI,
          final float candidateThreshold,
          final CustomDemographicData demographicData) {
-      final var candidates = libMPI.findCandidates(demographicData);
+      final var candidates = libMPI.findLinkCandidates(demographicData);
       if (candidates.isEmpty()) {
          return List.of();
       } else {

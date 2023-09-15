@@ -62,7 +62,7 @@ final class DgraphQueries {
       return new DgraphPaginatedUidList(List.of());
    }
 
-   static DgraphPaginationUidListWithInteractionCount runfilterGidsWithInteractionCountQuery(
+   static DgraphPaginationUidListWithInteractionCount runFilterGidsWithInteractionCountQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -238,10 +238,12 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(final CustomDemographicData interaction) {
+   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(
+         final List<Function1<CustomDemographicData, DgraphGoldenRecords>> listFunction,
+         final CustomDemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
       for (Function1<CustomDemographicData,
-            DgraphGoldenRecords> deterministicFunction : CustomDgraphQueries.DETERMINISTIC_FUNCTIONS) {
+            DgraphGoldenRecords> deterministicFunction : listFunction) {
          final var block = deterministicFunction.apply(interaction);
          if (!block.all().isEmpty()) {
             final var list = block.all();
@@ -415,7 +417,7 @@ final class DgraphQueries {
          final Integer offset,
          final Integer limit,
          final String sortBy,
-         final Boolean sortAsc) {
+         final boolean sortAsc) {
       String direction = sortAsc
             ? "asc"
             : "desc";
@@ -520,7 +522,7 @@ final class DgraphQueries {
                                           paginationOptions.sortBy(),
                                           paginationOptions.sortAsc());
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
-      String gqlPaginationCount = getInteractionCount
+      String gqlPaginationCount = Boolean.TRUE.equals(getInteractionCount)
             ? String.format("""
                               var(func: type(GoldenRecord)) @filter(%s){
                                 a as count(GoldenRecord.interactions)}
@@ -540,8 +542,8 @@ final class DgraphQueries {
 
       LOGGER.debug("Filter Gids Query {}", gql);
       LOGGER.debug("Filter Gids Variables {}", gqlVars);
-      return getInteractionCount
-            ? Either.right(runfilterGidsWithInteractionCountQuery(gql, gqlVars))
+      return Boolean.TRUE.equals(getInteractionCount)
+            ? Either.right(runFilterGidsWithInteractionCountQuery(gql, gqlVars))
             : Either.left(runfilterGidsQuery(gql, gqlVars));
    }
 
@@ -553,7 +555,7 @@ final class DgraphQueries {
       LOGGER.debug("Filter Gids Params {}", params);
       String dateFilter = String.format("le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
       String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
-      String gqlFilters = filter.length() > 0
+      String gqlFilters = !filter.isEmpty()
             ? String.format("%s AND %s", filter, dateFilter)
             : dateFilter;
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);

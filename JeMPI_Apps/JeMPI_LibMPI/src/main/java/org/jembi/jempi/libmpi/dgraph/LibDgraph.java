@@ -88,8 +88,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
-      final var candidates = CustomDgraphQueries.getCandidates(demographicData);
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+      final var candidates = CustomDgraphQueries.findLinkCandidates(demographicData);
+      return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      final var candidates = CustomDgraphQueries.findMatchCandidates(demographicData);
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
@@ -130,7 +135,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(item -> item.uid()).toList();
+      final var data = list.all().stream().map(DgraphUid::uid).toList();
       final var pagination = list.pagination().get(0);
       final var interactionCount = list.interactionCount().get(0);
       return new PaginatedGIDsWithInteractionCount(data, pagination, interactionCount);

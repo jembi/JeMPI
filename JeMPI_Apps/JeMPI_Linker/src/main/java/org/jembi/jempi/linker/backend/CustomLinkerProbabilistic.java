@@ -13,7 +13,17 @@ import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SI
 
 final class CustomLinkerProbabilistic {
 
-   static LinkFields updatedFields = null;
+   static final int METRIC_MIN = 0;
+   static final int METRIC_MAX = 1;
+   static final int METRIC_SCORE = 2;
+   static final int METRIC_MISSING_PENALTY = 3;
+   static final boolean PROBABILISTIC_DO_LINKING = true;
+   static final boolean PROBABILISTIC_DO_VALIDATING = false;
+   static final boolean PROBABILISTIC_DO_MATCHING = false;
+
+   static LinkFields updatedLinkFields = null;
+
+
 
    private CustomLinkerProbabilistic() {
    }
@@ -68,11 +78,17 @@ final class CustomLinkerProbabilistic {
                                                       goldenRecord.phoneNumber, interaction.phoneNumber, currentLinkFields.phoneNumber);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
                                                       goldenRecord.nationalId, interaction.nationalId, currentLinkFields.nationalId);
-      return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
+      return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
 
    }
 
    static float validateProbabilisticScore(
+         final CustomDemographicData goldenRecord,
+         final CustomDemographicData interaction) {
+      return 0F;
+   }
+
+   static float matchNotificationProbabilisticScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return 0F;

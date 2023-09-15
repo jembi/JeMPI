@@ -26,10 +26,14 @@
             files="CustomLinkerBackEnd.java"
     />
 
-
     <suppress
             checks="(UnusedImports)"
             files="CustomLinkerProbabilistic.java"
+    />
+
+    <suppress
+            checks="(MethodLength)"
+            files="LinkerDWH.java"
     />
 
 </suppressions>

@@ -70,6 +70,10 @@ object CustomLinkerProbabilistic {
       t <- config.demographicFields.filter(f => f.validateMetaData.isDefined)
     ) yield t
 
+    val matchNotificationMuList = for (
+      t <- config.demographicFields.filter(f => f.matchMetaData.isDefined)
+    ) yield t
+
     writer.println(s"""package $packageText;""")
     writer.println(
       s"""
@@ -86,7 +90,17 @@ object CustomLinkerProbabilistic {
          |
          |final class $custom_className {
          |
-         |${if (linkMuList.isEmpty) "" else "   static LinkFields updatedFields = null;"}
+         |   static final int METRIC_MIN = 0;
+         |   static final int METRIC_MAX = 1;
+         |   static final int METRIC_SCORE = 2;
+         |   static final int METRIC_MISSING_PENALTY = 3;
+         |   static final boolean PROBABILISTIC_DO_LINKING = ${if (config.demographicFields.exists(x => x.linkMetaData.isDefined)) "true" else "false"};
+         |   static final boolean PROBABILISTIC_DO_VALIDATING = ${if (config.demographicFields.exists(x => x.validateMetaData.isDefined)) "true" else "false"};
+         |   static final boolean PROBABILISTIC_DO_MATCHING = ${if (config.demographicFields.exists(x => x.matchMetaData.isDefined)) "true" else "false"};
+         |
+         |${if (linkMuList.isEmpty) "" else "   static LinkFields updatedLinkFields = null;"}
+         |${if (validateMuList.isEmpty) "" else "   static ValidateFields updatedValidateFields = null;"}
+         |${if (matchNotificationMuList.isEmpty) "" else "   static MatchNotificationFields updatedMatchNotificationFields = null;"}
          |
          |   private $custom_className() {
          |   }
@@ -113,11 +127,18 @@ object CustomLinkerProbabilistic {
     if (!validateMuList.isEmpty) {
       generateFieldsRecord(writer, "ValidateFields", validateMuList)
     }
+    if (!matchNotificationMuList.isEmpty) {
+      generateFieldsRecord(writer, "MatchNotificationFields", matchNotificationMuList)
+    }
+
     if (!linkMuList.isEmpty) {
       generateCurrentFields(writer, "LinkFields", "currentLinkFields", true, linkMuList)
     }
     if (!validateMuList.isEmpty) {
       generateCurrentFields(writer, "ValidateFields", "currentValidateFields", false, validateMuList)
+    }
+    if (!matchNotificationMuList.isEmpty) {
+      generateCurrentFields(writer, "MatchNotificationFields", "currentMatchNotificationFields", false, matchNotificationMuList)
     }
 
     writer.println(
@@ -142,7 +163,7 @@ object CustomLinkerProbabilistic {
     })
     if (!linkMuList.isEmpty) {
       writer.println(
-        s"""${" " * 6}return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
+        s"""${" " * 6}return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
            |""".stripMargin)
     }
     writer.println(
@@ -166,11 +187,36 @@ object CustomLinkerProbabilistic {
         writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentValidateFields" +
           s".$fieldName);")
       })
-      writer.println(
-        s"""${" " * 6}return ((metrics[2] - metrics[0]) / (metrics[1] - metrics[0])) * metrics[3];
+      writer.print(
+        s"""${" " * 6}return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
            |""".stripMargin)
     }
     writer.println("   }");
+
+    writer.println(
+      """
+        |   static float matchNotificationProbabilisticScore(
+        |         final CustomDemographicData goldenRecord,
+        |         final CustomDemographicData interaction) {""".stripMargin)
+    if (matchNotificationMuList.isEmpty) {
+      writer.println("      return 0F;")
+    } else {
+      writer.println(
+        """
+          |      // min, max, score, missingPenalty
+          |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
+      matchNotificationMuList.foreach(field => {
+        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+        writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
+        writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentMatchNotificationFields" +
+          s".$fieldName);")
+      })
+      writer.print(
+        s"""${" " * 6}return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
+           |""".stripMargin)
+    }
+    writer.println("   }");
+
 
     writer.println("   public static void updateMU(final CustomMU mu) {")
     linkMuList.zipWithIndex.foreach((field, idx) => {

@@ -160,9 +160,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             return Behaviors.same();
          });
       }
-      final var listLinkInfo =
+      final var linkInfo =
             LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
-      req.replyTo.tell(new AsyncLinkInteractionResponse(listLinkInfo.getLeft()));
+      if (linkInfo.isLeft()) {
+         req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
+      } else {
+         req.replyTo.tell(new AsyncLinkInteractionResponse(null));
+      }
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
          return Behaviors.same();

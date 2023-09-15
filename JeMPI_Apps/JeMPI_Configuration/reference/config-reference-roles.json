@@ -61,6 +61,14 @@
         ],
         "m": 0.8806329,
         "u": 0.0026558
+      },
+      "matchMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8806329,
+        "u": 0.0026558
       }
     },
     {
@@ -70,6 +78,14 @@
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
       "validateMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.9140443,
+        "u": 0.0006275
+      },
+      "matchMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -90,6 +106,14 @@
         ],
         "m": 0.9468393,
         "u": 0.4436446
+      },
+      "matchMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.9468393,
+        "u": 0.4436446
       }
     },
     {
@@ -103,13 +127,21 @@
         ],
         "m": 0.7856196,
         "u": 0.0000465
+      },
+      "matchMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.7856196,
+        "u": 0.0000465
       }
     },
     {
       "fieldName": "city",
       "fieldType": "String",
       "csvCol": 5,
-      "indexGoldenRecord": "@index(trigram)",
+      "indexGoldenRecord": "@index(exact,trigram)",
       "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -117,6 +149,14 @@
         ],
         "m": 0.8445694,
         "u": 0.0355741
+      },
+      "matchMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8408500,
+        "u": 0.0000004
       }
     },
     {
@@ -125,6 +165,14 @@
       "csvCol": 6,
       "indexGoldenRecord": "@index(exact,trigram)",
       "validateMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8408500,
+        "u": 0.0000004
+      },
+      "matchMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
           0.92
@@ -150,8 +198,28 @@
           ],
           "text": "eq(national_id)"
         }
+      }
+    },
+    "matchNotification": {
+      "deterministic": {
+        "QUERY_MATCH_DETERMINISTIC_A": {
+          "vars": [
+            "given_name",
+            "family_name",
+            "phone_number"
+          ],
+          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
+        }
       },
       "probabilistic": {
+        "QUERY_MATCH_PROBABILISTIC_BLOCK": {
+          "vars": [
+            "given_name",
+            "family_name",
+            "phone_number"
+          ],
+          "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(phone_number,3) or match(family_name,3) and match(phone_number,3)"
+        }
       }
     },
     "validate": {
