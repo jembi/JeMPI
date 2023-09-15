@@ -47,14 +47,19 @@ object CustomDgraphQueries {
       writer.println(
         s"""   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of(${getDeterministicFunctions(config.rules.matchNotification.get)});
-           |""".stripMargin);
+           |""".stripMargin)
+    } else {
+      writer.println(
+        s"""   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+           |      List.of();
+           |""".stripMargin)
     }
 
     if (config.rules.link.get.deterministic.isDefined) {
       config.rules.link.get.deterministic.get.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     }
-    if (config.rules.link.get.probabilistic.isDefined) {
-      config.rules.link.probabilistic.get.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
+    if (config.rules.link.isDefined && config.rules.link.get.probabilistic.isDefined) {
+      config.rules.link.get.probabilistic.get.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     }
 
     if (config.rules.matchNotification.isDefined && config.rules.matchNotification.get.deterministic.isDefined) {
@@ -64,11 +69,11 @@ object CustomDgraphQueries {
       config.rules.matchNotification.get.probabilistic.get.foreach((name, rule) => emitRuleTemplate(config, writer, name, rule))
     }
 
-    if (config.rules.link.deterministic.isDefined) {
-      config.rules.link.deterministic.get.foreach((name, rule) => emitRuleFunction(writer, name, rule))
+    if (config.rules.link.isDefined && config.rules.link.get.deterministic.isDefined) {
+      config.rules.link.get.deterministic.get.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     }
-    if (config.rules.link.probabilistic.isDefined) {
-      config.rules.link.probabilistic.get.foreach((name, rule) => emitRuleFunction(writer, name, rule))
+    if (config.rules.link.isDefined && config.rules.link.get.probabilistic.isDefined) {
+      config.rules.link.get.probabilistic.get.foreach((name, rule) => emitRuleFunction(writer, name, rule))
     }
 
     emitMergeCandidates(writer);
@@ -102,8 +107,8 @@ object CustomDgraphQueries {
          |         return result;
          |      }
          |      result = new LinkedList<>();""".stripMargin)
-    if (rules.probabilistic.isDefined) {
-      rules.probabilistic.get.foreach((name, _) => {
+    if (rules.isDefined && rules.get.probabilistic.isDefined) {
+      rules.get.probabilistic.get.foreach((name, _) => {
         val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
         val vars = "interaction"
         writer.println(s"""${" " * 6}mergeCandidates(result, $filterName($vars));""".stripMargin)

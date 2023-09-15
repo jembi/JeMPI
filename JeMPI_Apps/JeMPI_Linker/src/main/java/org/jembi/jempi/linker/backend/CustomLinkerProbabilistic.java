@@ -101,7 +101,7 @@ final class CustomLinkerProbabilistic {
           && mu.city().m() > mu.city().u()
           && mu.phoneNumber().m() > mu.phoneNumber().u()
           && mu.nationalId().m() > mu.nationalId().u()) {
-         updatedFields = new LinkFields(
+         updatedLinkFields = new LinkFields(
             new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.givenName().m(), mu.givenName().u()),
             new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.familyName().m(), mu.familyName().u()),
             new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.gender().m(), mu.gender().u()),

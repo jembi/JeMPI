@@ -233,7 +233,7 @@ object CustomLinkerProbabilistic {
       }
     })
     if (!linkMuList.isEmpty) {
-      writer.println(" " * 9 + "updatedFields = new LinkFields(")
+      writer.println(" " * 9 + "updatedLinkFields = new LinkFields(")
       linkMuList.zipWithIndex.foreach((field, idx) => {
         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
         val comparison = field.linkMetaData.get.comparison

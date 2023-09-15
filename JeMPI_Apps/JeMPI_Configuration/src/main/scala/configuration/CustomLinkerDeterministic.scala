@@ -111,7 +111,7 @@ object CustomLinkerDeterministic {
          |
          |final class $custom_className {
          |
-         |   static final boolean DETERMINISTIC_DO_LINKING = ${if (config.rules.link.deterministic.nonEmpty) "true" else "false"};
+         |   static final boolean DETERMINISTIC_DO_LINKING = ${if (config.rules.link.get.deterministic.nonEmpty) "true" else "false"};
          |   static final boolean DETERMINISTIC_DO_VALIDATING = ${if (config.rules.validate.nonEmpty) "true" else "false"};
          |   static final boolean DETERMINISTIC_DO_MATCHING = ${if (config.rules.matchNotification.nonEmpty) "true" else "false"};
          |
@@ -124,8 +124,8 @@ object CustomLinkerDeterministic {
          |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
          |   }
          |""".stripMargin)
-    emitCanApplyLinking(config.rules.link.deterministic.get)
-    emitDeterministicMatch("linkDeterministicMatch", config.rules.link.deterministic.get)
+    emitCanApplyLinking(config.rules.link.get.deterministic.get)
+    emitDeterministicMatch("linkDeterministicMatch", config.rules.link.get.deterministic.get)
     emitDeterministicMatch("validateDeterministicMatch", if (config.rules.validate.isDefined) config.rules.validate.get.deterministic else Map.empty[String, Rule])
     emitDeterministicMatch("matchNotificationDeterministicMatch", if (config.rules.matchNotification.isDefined) config.rules.matchNotification.get.deterministic.get else Map.empty[String, Rule])
     writer.println("}")

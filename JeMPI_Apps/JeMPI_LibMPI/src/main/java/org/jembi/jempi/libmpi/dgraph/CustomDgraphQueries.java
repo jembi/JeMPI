@@ -16,6 +16,9 @@ final class CustomDgraphQueries {
       List.of(CustomDgraphQueries::queryLinkDeterministicA,
               CustomDgraphQueries::queryLinkDeterministicB);
 
+   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+      List.of();
+
    private static final String QUERY_LINK_DETERMINISTIC_A =
          """
          query query_link_deterministic_a($national_id: string) {
@@ -204,6 +207,16 @@ final class CustomDgraphQueries {
       }
       result = new LinkedList<>();
       mergeCandidates(result, queryLinkProbabilistic(interaction));
+      return result;
+   }
+
+   static List<CustomDgraphGoldenRecord> findMatchCandidates(
+      final CustomDemographicData interaction) {
+      var result = DgraphQueries.deterministicFilter(DETERMINISTIC_MATCH_FUNCTIONS, interaction);
+      if (!result.isEmpty()) {
+         return result;
+      }
+      result = new LinkedList<>();
       return result;
    }
 
