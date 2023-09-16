@@ -10,7 +10,7 @@ object CustomLinkerMU {
   private val custom_className = "CustomLinkerMU"
   private val packageText = "org.jembi.jempi.linker"
 
-  def parseRules(config: Config): Any = {
+  def generate(config: Config): Any = {
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)

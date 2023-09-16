@@ -10,7 +10,7 @@ object CustomLinkerBackEnd {
   private val custom_className = "CustomLinkerBackEnd"
   private val packageText = "org.jembi.jempi.linker.backend"
 
-  def parseRules(config: Config): Any = {
+  def generate(config: Config): Any = {
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
@@ -72,7 +72,6 @@ object CustomLinkerBackEnd {
            |${" " * 42}expandedGoldenRecord.entity().$fieldName(),
            |${" " * 42}CustomDocEntity::$fieldName);""".stripMargin)
     })
-
 
     writer.println(
       s"""   }

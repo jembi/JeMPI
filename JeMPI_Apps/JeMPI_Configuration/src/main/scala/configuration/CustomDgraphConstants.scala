@@ -15,6 +15,37 @@ private object CustomDgraphConstants {
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
+    writer.println(
+      s"""package $packageText;
+         |
+         |public final class $customClassName {
+         |""".stripMargin)
+
+    golden_record_predicates()
+    interaction_predicates()
+    golden_record_field_names()
+    expanded_golden_record_field_names()
+    interaction_field_names()
+    expanded_interaction_field_names()
+    query_get_interaction_by_uid()
+    query_get_golden_record_by_uid()
+    query_get_expanded_interactions()
+    query_get_golden_records()
+    query_get_expanded_golden_records()
+    mutation_create_source_id_type()
+    mutation_create_source_id_fields()
+    mutation_create_golden_record_type()
+    mutation_create_golden_record_fields()
+    mutation_create_interaction_type()
+    mutation_create_interaction_fields()
+
+    writer.println(
+      s"""   private $customClassName() {}
+         |
+         |}""".stripMargin)
+    writer.flush()
+    writer.close()
+
     def golden_record_predicates(): Unit =
       if (config.uniqueGoldenRecordFields.isDefined)
         config.uniqueGoldenRecordFields.get.zipWithIndex.foreach { case (field, _) => val name = Utils.camelCaseToSnakeCase(field.fieldName)
@@ -503,36 +534,6 @@ private object CustomDgraphConstants {
            |""".stripMargin)
     }
 
-    writer.println(
-      s"""package $packageText;
-         |
-         |public final class $customClassName {
-         |""".stripMargin)
-
-    golden_record_predicates()
-    interaction_predicates()
-    golden_record_field_names()
-    expanded_golden_record_field_names()
-    interaction_field_names()
-    expanded_interaction_field_names()
-    query_get_interaction_by_uid()
-    query_get_golden_record_by_uid()
-    query_get_expanded_interactions()
-    query_get_golden_records()
-    query_get_expanded_golden_records()
-    mutation_create_source_id_type()
-    mutation_create_source_id_fields()
-    mutation_create_golden_record_type()
-    mutation_create_golden_record_fields()
-    mutation_create_interaction_type()
-    mutation_create_interaction_fields()
-
-    writer.println(
-      s"""   private $customClassName() {}
-         |
-         |}""".stripMargin)
-    writer.flush()
-    writer.close()
   }
   end generate
 

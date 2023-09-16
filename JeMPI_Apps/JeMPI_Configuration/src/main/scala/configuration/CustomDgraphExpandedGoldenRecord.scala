@@ -8,42 +8,6 @@ private object CustomDgraphExpandedGoldenRecord {
   private val customClassName = "CustomDgraphExpandedGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def goldenRecordFields(config: Config): String =
-    (if (config.uniqueGoldenRecordFields.isEmpty) "" else
-      config
-        .uniqueGoldenRecordFields
-        .get
-        .map(f =>
-          s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
-  end goldenRecordFields
-
-  private def uniqueArguments(config: Config): String =
-    if (config.uniqueGoldenRecordFields.isEmpty)
-      ""
-    else
-      config
-        .uniqueGoldenRecordFields
-        .get
-        .map(f =>
-          s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-        .mkString("\n").trim.dropRight(1)
-  end uniqueArguments
-
-  private def demographicArguments(config: Config): String =
-    config
-      .demographicFields
-      .map(f =>
-        s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-      .mkString("\n").trim.dropRight(1)
-  end demographicArguments
-
   def generate(config: Config): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
@@ -65,7 +29,7 @@ private object CustomDgraphExpandedGoldenRecord {
          |record $customClassName(
          |      @JsonProperty("uid") String goldenId,
          |      @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
-         |${goldenRecordFields(config)}
+         |${goldenRecordFields()}
          |      @JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
          |
          |   GoldenRecord toGoldenRecord() {
@@ -73,8 +37,8 @@ private object CustomDgraphExpandedGoldenRecord {
          |                              this.sourceId() != null
          |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
          |                                    : List.of(),
-         |                              new CustomUniqueGoldenRecordData(${uniqueArguments(config)}),
-         |                              new CustomDemographicData(${demographicArguments(config)}));
+         |                              new CustomUniqueGoldenRecordData(${uniqueArguments()}),
+         |                              new CustomDemographicData(${demographicArguments()}));
          |   }
          |
          |   ExpandedGoldenRecord toExpandedGoldenRecord() {
@@ -86,6 +50,49 @@ private object CustomDgraphExpandedGoldenRecord {
     writer.println("}")
     writer.flush()
     writer.close()
+
+    def goldenRecordFields(): String =
+
+      def mapField(fieldName: String, fieldType: String): String = s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${fieldName.toUpperCase}) ${Utils.javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
+
+      val f1 = if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f => mapField(f.fieldName, f.fieldType))
+          .mkString("\n") + "\n"
+
+      val f2 =
+        config
+          .demographicFields
+          .map(f => mapField(f.fieldName, f.fieldType))
+          .mkString("\n")
+
+      f1 + f2
+
+    end goldenRecordFields
+
+    def uniqueArguments(): String =
+      if (config.uniqueGoldenRecordFields.isEmpty)
+        ""
+      else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f =>
+            s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+          .mkString("\n").trim.dropRight(1)
+
+    end uniqueArguments
+
+    def demographicArguments(): String =
+      config
+        .demographicFields
+        .map(f =>
+          s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+        .mkString("\n").trim.dropRight(1)
+    end demographicArguments
+
   end generate
 
 }

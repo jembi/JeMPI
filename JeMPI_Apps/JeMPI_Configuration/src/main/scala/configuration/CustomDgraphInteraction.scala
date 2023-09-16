@@ -8,62 +8,11 @@ private object CustomDgraphInteraction {
   private val customClassName = "CustomDgraphInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  def generate(config: Config): Unit = {
+  def generate(config: Config): Unit =
     val classFile: String = classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-
-    def interactionFields(): String =
-      (if (config.uniqueInteractionFields.isEmpty) "" else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n") + "\n")
-        +
-        config
-          .demographicFields
-          .map(f => s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}) ${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
-    end interactionFields
-
-    def interactionConstructorArguments(): String =
-      (if (config.uniqueInteractionFields.isEmpty) "" else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => s"""${" " * 11}interaction.uniqueInteractionData().${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-          .mkString("\n") + "\n")
-        +
-        config
-          .demographicFields
-          .map(f => s"""${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
-    end interactionConstructorArguments
-
-    def uniqueArguments(): String =
-      if (config.uniqueInteractionFields.isEmpty)
-        ""
-      else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
-          .trim
-          .dropRight(1)
-      end if      
-    end uniqueArguments
-
-    def demographicArguments(): String =
-      config
-        .demographicFields
-        .map(f => s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
-        .trim
-        .dropRight(1)
-    end demographicArguments
 
     writer.println(
       s"""package $packageText;
@@ -108,7 +57,65 @@ private object CustomDgraphInteraction {
          |""".stripMargin)
     writer.flush()
     writer.close()
-  }
+
+    def interactionFields(): String =
+
+      def mapField(fieldName: String, fieldType: String): String = s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${fieldName.toUpperCase}) ${Utils.javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
+
+      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => mapField(f.fieldName, f.fieldType))
+          .mkString("\n") + "\n"
+
+      val f2 = config
+        .demographicFields
+        .map(f => mapField(f.fieldName, f.fieldType))
+        .mkString("\n")
+
+      f1 + f2
+    end interactionFields
+
+    def interactionConstructorArguments(): String =
+      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => s"""${" " * 11}interaction.uniqueInteractionData().${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
+          .mkString("\n") + "\n"
+
+      val f2 = config
+        .demographicFields
+        .map(f => s"""${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+        .mkString("\n")
+
+      f1 + f2
+    end interactionConstructorArguments
+
+    def uniqueArguments(): String =
+      if (config.uniqueInteractionFields.isEmpty)
+        ""
+      else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+          .mkString("\n")
+          .trim
+          .dropRight(1)
+      end if
+    end uniqueArguments
+
+    def demographicArguments(): String =
+      config
+        .demographicFields
+        .map(f => s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
+        .mkString("\n")
+        .trim
+        .dropRight(1)
+    end demographicArguments
+
   end generate
 
 }

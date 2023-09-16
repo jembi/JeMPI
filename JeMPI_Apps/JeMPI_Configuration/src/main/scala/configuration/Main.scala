@@ -17,7 +17,7 @@ object Main {
     } else {
       in_config_file_name
     }
-    println(s"name =  ${config_file_name}")
+    println(s"name =  $config_file_name")
 
     val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
     val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
@@ -30,11 +30,11 @@ object Main {
     CustomDgraphExpandedGoldenRecord.generate(config)
     CustomDgraphExpandedInteraction.generate(config)
     CustomDgraphMutations.generate(config)
-    CustomDgraphQueries.parseRules(config)
-    CustomLinkerDeterministic.parseRules(config)
-    CustomLinkerProbabilistic.parseRules(config)
-    CustomLinkerBackEnd.parseRules(config)
-    CustomLinkerMU.parseRules(config)
+    CustomDgraphQueries.generate(config)
+    CustomLinkerDeterministic.generate(config)
+    CustomLinkerProbabilistic.generate(config)
+    CustomLinkerBackEnd.generate(config)
+    CustomLinkerMU.generate(config)
     CustomPostgresqlInteraction.generate(config.demographicFields)
     CustomPostgresqlGoldenRecord.generate(config.demographicFields)
     CustomAsyncHelper.generate(config)

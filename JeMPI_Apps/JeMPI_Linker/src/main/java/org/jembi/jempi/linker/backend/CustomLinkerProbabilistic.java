@@ -85,13 +85,13 @@ final class CustomLinkerProbabilistic {
    static float validateProbabilisticScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      return 0F;
+      return 0.0F;
    }
 
    static float matchNotificationProbabilisticScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      return 0F;
+      return 0.0F;
    }
    public static void updateMU(final CustomMU mu) {
       if (mu.givenName().m() > mu.givenName().u()
