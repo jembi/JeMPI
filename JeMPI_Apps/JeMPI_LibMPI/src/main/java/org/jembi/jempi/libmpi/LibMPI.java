@@ -324,7 +324,7 @@ public final class LibMPI {
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
-                        String.format("Interaction -> Existing GoldenRecord (%.5f)  /  Validation (%s, %.3f)", result.score(),
+                        String.format("Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), Probabilistic(%.3f)", result.score(),
                                       deterministicValidation, probabilisticValidation));
       } else {
          sendAuditEvent(interaction.interactionId(),

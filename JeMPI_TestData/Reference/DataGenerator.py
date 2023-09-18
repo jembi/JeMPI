@@ -55,7 +55,7 @@ def generate_dataset():
               "corrupter": {
                   "type": ["missing_value_corrupter", "keyboard_corrupter", "edit1_corrupter", "edit2_corrupter",
                            "phonetic_corrupter", "ocr_corrupter"],
-                  "weight": [0.3, 0.3, 0.0, 0.3, 0.0, 0.1]}},
+                  "weight": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]}},
          ]}
 
     fields = config["fields"]

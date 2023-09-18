@@ -338,7 +338,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.family_name:              string    @index(exact,trigram)              .
          GoldenRecord.gender:                   string    @index(exact,trigram)              .
          GoldenRecord.dob:                      string                                       .
-         GoldenRecord.city:                     string    @index(trigram)                    .
+         GoldenRecord.city:                     string    @index(exact,trigram)              .
          GoldenRecord.phone_number:             string    @index(exact,trigram)              .
          GoldenRecord.national_id:              string    @index(exact,trigram)              .
          GoldenRecord.interactions:             [uid]     @reverse                           .
