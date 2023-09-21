@@ -14,7 +14,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.version>[3.8.6,)</maven.version>
+        <maven.version>[3.9.4,)</maven.version>
         <akka.version>2.6.21</akka.version>
         <akka.http.version>10.2.10</akka.http.version>
         <jackson.version>2.14.3</jackson.version>
@@ -437,9 +437,6 @@
                                 <requireJavaVersion>
                                     <version>${java.version}</version>
                                 </requireJavaVersion>
-                                <requireOS>
-                                    <family>unix</family>
-                                </requireOS>
                             </rules>
                             <fail>true</fail>
                         </configuration>

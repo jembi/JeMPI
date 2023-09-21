@@ -3,8 +3,8 @@
 set -e
 set -u
 
-source ../../docker/0-conf.env
-source ../../docker/conf/images/conf-app-images.sh
+source $PROJECT_DEVOPS_DIR/conf.env
+source $PROJECT_DEVOPS_DIR/conf/images/conf-app-images.sh
 
 docker tag ${API_IMAGE} ${REGISTRY_NODE_IP}/${API_IMAGE}
 docker push ${REGISTRY_NODE_IP}/${API_IMAGE}
