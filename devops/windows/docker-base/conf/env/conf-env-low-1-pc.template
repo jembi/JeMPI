@@ -10,6 +10,7 @@ export NODE1_IP=${NODE1_IP}
 
 export STACK_NAME=jempi
 
+export PROJECT_DEVOPS_DIR=${PROJECT_DIR}
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor

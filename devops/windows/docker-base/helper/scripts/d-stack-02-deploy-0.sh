@@ -9,7 +9,6 @@ pushd .
 
   source ./conf.env
   source ./conf/images/conf-hub-images.sh
-  source ./conf/images/conf-app-images.sh
 
   rm -f ./0-docker-stack-0.yml
   rm -f ./0-docker-stack-1.yml

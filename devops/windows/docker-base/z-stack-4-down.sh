@@ -3,6 +3,6 @@
 #set -e
 set -u
 
-source ./0-conf.env
+source ./conf.env
 docker stack rm ${STACK_NAME}
 echo
