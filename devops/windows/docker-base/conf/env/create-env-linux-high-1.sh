@@ -3,7 +3,6 @@
 export USE_LOCAL_REGISTRY=${USE_LOCAL_REGISTRY:-"true"}
 export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
-export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
 if [ $USE_LOCAL_REGISTRY == 'true' ]; then
