@@ -3,11 +3,11 @@
 # build apps
 #
 
-cd Z:\devops\windows\windows-apps
+#cd Z:\devops\windows\windows-apps
+$scriptpath = $MyInvocation.MyCommand.Path
+$dir = Split-Path $scriptpath
+cd $dir
 
-$workingDir = Get-Location
-
-Write-Output (Get-Location)
 pushd ..\..\..\JeMPI_Apps
   mvn clean  
   mvn package
@@ -15,7 +15,7 @@ popd
 $AsyncReceiverFolder = '.\app_data\async_receiver'
 
 #
-# start async receiver7
+# start async receiver
 #
 if (Test-path $AsyncReceiverFolder\app\csv) {
   Write-Host "$AsyncReceiverFolder\app\csv Folder Exists"
@@ -31,11 +31,6 @@ Start-Process -FilePath java `
                             "-jar ..\..\..\..\..\..\JeMPI_Apps\JeMPI_AsyncReceiver\target\AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar" `
               -WindowStyle Normal `
               -WorkingDirectory .\$AsyncReceiverFolder\app `
-              -RedirectStandardError error.txt `
-              -RedirectStandardOutput log.txt `
               -Debug `
               -Verbose
-
-Get-Job
-
 
