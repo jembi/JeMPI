@@ -3,7 +3,7 @@
 #set -e
 set -u
 
-source ./0-conf.env
+source ./conf.env
 
 docker swarm leave --force
 docker ps -a
