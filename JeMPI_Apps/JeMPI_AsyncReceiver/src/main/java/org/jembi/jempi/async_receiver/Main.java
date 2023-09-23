@@ -9,7 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.io.IOException;
@@ -29,13 +31,13 @@ public final class Main {
 
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
+   public Main() {
+      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+   }
+
    public static void main(final String[] args)
          throws InterruptedException, ExecutionException, IOException {
       new Main().run();
-   }
-
-   public Main() {
-      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
    @SuppressWarnings("unchecked")
@@ -146,16 +148,25 @@ public final class Main {
                                                          GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
                                                          keySerializer(), valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
-      try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
-         Path csvDir = Paths.get("/app/csv");
-         csvDir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
-         while (true) {
-            WatchKey key = watcher.take();
+      try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+//         Path csvDir = Paths.get("/app/csv");
+         LOGGER.debug("1");
+         final var csvDir = Path.of("exitC:/users");
+         LOGGER.debug("2");
+         csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+         LOGGER.debug("3");
+         for (;;) {
+            WatchKey key = watchService.take();
+            LOGGER.debug("4");
             for (WatchEvent<?> event : key.pollEvents()) {
                handleEvent(event);
             }
             key.reset();
          }
+      } catch (IOException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      } catch (InterruptedException e) {
+         LOGGER.warn(e.getLocalizedMessage(), e);
       }
    }
 }
