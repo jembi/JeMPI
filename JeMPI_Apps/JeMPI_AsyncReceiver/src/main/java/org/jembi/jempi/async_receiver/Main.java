@@ -126,7 +126,7 @@ public final class Main {
             apacheReadCSV("csv/" + filename);
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
-         LOGGER.info("EVENT:{}", kind);
+         LOGGER.info("EVENT: {}", kind);
       } else if (ENTRY_DELETE.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       }
@@ -149,15 +149,10 @@ public final class Main {
                                                          keySerializer(), valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-//         Path csvDir = Paths.get("/app/csv");
-         LOGGER.debug("1");
-         final var csvDir = Path.of("exitC:/users");
-         LOGGER.debug("2");
+         final var csvDir = Path.of("./csv");
          csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
-         LOGGER.debug("3");
          for (;;) {
             WatchKey key = watchService.take();
-            LOGGER.debug("4");
             for (WatchEvent<?> event : key.pollEvents()) {
                handleEvent(event);
             }
