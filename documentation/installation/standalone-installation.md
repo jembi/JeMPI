@@ -128,77 +128,19 @@ Pull the latest image versions form docker hub using
 
 It is fine to keep the images, you can either remove all the services, containers, volumes, configs and secrets.
 
-Run the `./b-swarm-3-leave.sh` to leave your current swar
+Run the `b-swarm-3-leave.sh` to leave your current swarm
 
 ```bash
 ./b-swarm-3-leave.sh
 ```
 
-**Run bash scripts**
-
-Go to: _docker/_, and run in the terminal with the same order the following bash scripts:
-
-**1-** _a-images-1-pull-from-hub.sh_: This script is going to pull the needed images
-
-![](../.gitbook/assets/6)
-
-**2-** Make some changes to the _JeMPI_Apps/build-all.sh_: before running _build-all.sh_ script, you need to **comment the lines where there is a “push”** and keep only the script that will build the images.\
-Then you can cd to _JeMPI_Apps_/ and run: _./build-all.sh_.
-
-Example:
-
-You should keep these:
+After runing the previous script, initialize a new swarm by running the `b-swarm-1-init-node1.sh` script locacted in the _JeMPI/docker/_ directory.
 
 ```bash
-pushd JeMPI_Controller
-  ./build.sh || exit 1
-popd
+./b-swarm-1-init-node1.sh
 ```
 
-These should be removed/commented:
-
-```bash
-# pushd JeMPI_Controller
-# ./push.sh
-# popd
-```
-
-**3-** Edit _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_: The images now does exit in the local docker hub, the name convention is same except it will not start with the hostname and a “/”, you can select the first part _“${REGISTRY_NODE_IP}/”_ and remove it in all the two files.
-
-As an example, this is the old version of _docker-stack-0.yml_:
-
-```yaml
-services:
-jempi-kafka-01:
-  image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE
-  user: root
-  networks:
-    - backend-kafka
-```
-
-An this is after the changes:
-
-```yaml
-services:
-jempi-kafka-01:
-  image: $KAFKA_IMAGE
-  user: root
-  networks:
-    - backend-kafka
-```
-
-**NB:** Don’t forget to update both _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_ files.
-
-**5-** _z-stack-2-reboot.sh_: The script will deploy the stack and scale the containers up in order after removing everything.
-
-That's it 🚀
-
-
-**Set a local registry**
-
-Go to: _docker/conf/env/_.
-
-Run in the terminal _./create-env-linux-1.sh_, it is going to create a file _conf.env_ that we will need.
+**Add the ability to use local regestries**
 
 Now, we need to tell docker that it is okay to run on the local registry because it is http and not https \[not secure].
 
@@ -210,11 +152,44 @@ Run _./x-swarm-o-set-insecure-registries.sh_ (you need to grant it executable ac
 
 NB: The script will edit the access grants of the _/etc/docker/daemon.json_ file.
 
+```bash
+./x-swarm-o-set-insecure-registries.sh
+```
+
+**Create a local registry**
+Now that you can use local Docker registries, run the `c-registry-1-create.sh` script to create a registry service. This service will host the docker images that we will use in our stack.
+
+```bash
+./c-registry-1-create
+```
+
+**Push the images to the local registry**
+We will need to push the images that we pulled earlier. to so, run the `c-registry-1-create.sh` script.
+
+```bash
+./c-registry-1-create.sh
+```
+
+**Run the stack**
+
+After pushing the images into the local registry, we are ready to run the app, we have several options, we can run the whole stack (UI + Backend) by running the `z-stack-3-build-all-reboot.sh`, Or run each of the backend (`z-stack-3-build-java-reboot.sh`) and the UI (`z-stack-3-build-ui-reboot`) seperatly.
+
+```bash 
+# build, push and run the whole stack (backend + ui)
+./z-stack-3-build-all-reboot
+
+# build, push and run the backend services only
+./z-stack-3-build-java-reboot
+
+# build, push and run the UI
+./z-stack-3-build-ui-reboot
+```
+
 **Other scripts**
 
-- _z-stack-3-build-reboot.sh_: first, it will remove everything and then this will build and push and create needed directories such as logs and configurations (conf) and it will start everything again.
+- _z-stack-1-build-java.sh_: This script will build and push the backend services to the local docker registry.
+- _z-stack-1-build-ui.sh_: This script will build and push the UI service to the local docker registry.
 - _z-stack-2-reboot.sh_: This script will only remove everything and start again.
-- _z-stack-1-build.sh_: This script will build and push everything to the local docker registry.
 
 That's it 🚀
 
