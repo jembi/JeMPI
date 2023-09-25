@@ -43,7 +43,8 @@ public final class Main {
    }
 
    private void run() {
-      LOGGER.info("KAFKA: {} {} {}",
+      LOGGER.info("CONFIG: {} {} {} {}",
+                  AppConfig.POSTGRESQL_DATABASE,
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);

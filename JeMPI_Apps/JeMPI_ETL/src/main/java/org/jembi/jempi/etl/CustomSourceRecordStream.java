@@ -40,15 +40,15 @@ public final class CustomSourceRecordStream {
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
       final Serializer<InteractionEnvelop> interactionEnvelopSerializer = new JsonPojoSerializer<>();
-      final Deserializer<InteractionEnvelop> interactionEnvelopDeserializer =
-            new JsonPojoDeserializer<>(InteractionEnvelop.class);
-      final Serde<InteractionEnvelop> interactionEnvelopSerde =
-            Serdes.serdeFrom(interactionEnvelopSerializer, interactionEnvelopDeserializer);
+      final Deserializer<InteractionEnvelop> interactionEnvelopDeserializer = new JsonPojoDeserializer<>(
+            InteractionEnvelop.class);
+      final Serde<InteractionEnvelop> interactionEnvelopSerde = Serdes.serdeFrom(interactionEnvelopSerializer,
+            interactionEnvelopDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, InteractionEnvelop> sourceKStream =
-            streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
-                                  Consumed.with(stringSerde,
-                                                interactionEnvelopSerde));
+      final KStream<String, InteractionEnvelop> sourceKStream = streamsBuilder.stream(
+            GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+            Consumed.with(stringSerde,
+                  interactionEnvelopSerde));
       sourceKStream
             .map((key, rec) -> {
                if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
@@ -59,9 +59,9 @@ public final class CustomSourceRecordStream {
                         rec.tag(),
                         rec.stan(),
                         new Interaction(null,
-                                        rec.interaction().sourceId(),
-                                        interaction.uniqueInteractionData(),
-                                        demographicData.clean()));
+                              rec.interaction().sourceId(),
+                              interaction.uniqueInteractionData(),
+                              demographicData.clean()));
                   return KeyValue.pair(key, newEnvelop);
                } else {
                   return KeyValue.pair(key, rec);
