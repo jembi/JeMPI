@@ -57,7 +57,7 @@ Kafka topic: \_TOPIC_PATIENT_ASYNC_PREPROCESSOR="JeMPI-async-etl"\*
 
 **Output:**
 
-Data transformed into JSON will sent to the JeMPI_Controller. It will be stored in the Kafka topic: \_TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"*
+Data transformed into JSON that will be sent to the JeMPI_Controller. It will be stored in the Kafka topic: \_TOPIC_PATIENT_CONTROLLER="JeMPI-patient-controller"\*
 
 Example or a Kafka message coming from the patient controller topic:
 
@@ -115,7 +115,7 @@ MU process: Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
 ## JeMPI_EM <a href="#_7tf3t1atn1ab" id="_7tf3t1atn1ab"></a>
 
-**Description:** A microservice that will create an object containing m\&u of a patient against patient records that go into the EM algorithm (quality (m) and the uniqueness (u) per field). This object is used in the linker for matching patients. It uses a machine learning algorithm to optimize that value, it is launched after receiving a number of records specified in the configuration.
+**Description:** A microservice that will create an object containing m\&u of a patient against patient records that go into the EM algorithm (quality (m) and the uniqueness (u) per field). This object is used in the linker for matching patients. It uses a machine learning called Estimation maximisation (EM) algorithm to optimize that value, it is launched after receiving a number of records specified in the configuration.
 
 **Input:** Kafka topic: _TOPIC_PATIENT_LINKER="JeMPI-patient-linker"_
 
@@ -123,17 +123,15 @@ MU process: Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
 ## JeMPI_Linker <a href="#_111ah0ssrp64" id="_111ah0ssrp64"></a>
 
-**Description:** A microservice that will interact with Dgraph database to do the matching of the patients. It will get the candidates that have a similarity to the patient, and then:
+**Description:** A microservice that will interact with Dgraph database to do the matching of the patients. The Linker uses thresholds to drive the linking and notifications for review processes. These thresholds are the following:
 
-If the score of the candidate is superior than a _**threshold**_, it will link the patient to a master record.
-
-Else, it will create a new patient with a new golden ID and if the score is between a certain range (probable match), the Linker will send a notification to the admin to check the probable match.
-
-**NB:** The **threshold** used can be specified in the config.
+- **A single match or no match threshold :** the encounter will automatically be linked to the highest golden record candidate above the threshold. If no candidate has a score above the threshold, a new golden record is created. This is typically used for fully autonomous linking.
+- **Window around the match/no match threshold :** if the highest score generated for the candidates falls within this window, a notification is sent for Admin to review the encounter.
+- **Margin threshold :** if another candidate falls within a margin from the highest score and this highest score is above the match/no match threshold, a notification for review is sent for the Admin to review the linked encounter.
 
 **Input:**
 Kafka topic: _TOPIC_PATIENT_EM="JeMPI-patient-em"_\
- Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
+Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
 **Output:**
 

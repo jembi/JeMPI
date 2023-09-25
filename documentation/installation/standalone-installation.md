@@ -69,7 +69,7 @@ bash launch-local.sh
 **Setup an IP address**\
 Before starting the process of running JeMPI, you will need to setup an IP address for your machine.
 
-On your terminal of choice, run the `ip a` command and retrieve the ip address from your wi-fi or ethernet interface
+On your terminal of choice, run the `ip a` command and retrieve the ip address from your wi-fi or ethernet interfaces
 
 ```bash
 skunk@skunks-server:~$ ip a
@@ -122,7 +122,7 @@ if you have less than 32Gbs of ram run the _./create-env-linux-low-1.sh_. If you
 
 **Pull the latest images**
 
-Pull the latest image versions form docker hub using
+Pull the latest image versions form docker hub using the `a-images-1-pull-from-hub.sh`
 
 **Make sure you have a clean docker swarm**
 
