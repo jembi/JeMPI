@@ -21,6 +21,7 @@ private object CustomDgraphMutations {
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.utils.AppUtils;
          |
+         |import java.util.Locale;
          |import java.util.UUID;
          |
          |final class $custom_className {
@@ -33,7 +34,8 @@ private object CustomDgraphMutations {
          |         final CustomDemographicData demographicData,
          |         final String sourceUID) {
          |      final String uuid = UUID.randomUUID().toString();
-         |      return String.format(\"\"\"
+         |      return String.format(Locale.ROOT,
+         |                           \"\"\"
          |                           _:%s  <Interaction.source_id>${" " * 21}<%s>${" " * 18}.
          |${interactionFields()}
          |${" " * 27}_:%s  <dgraph.type>                               \"Interaction\"         .
@@ -50,7 +52,8 @@ private object CustomDgraphMutations {
          |         final String sourceUID,
          |         final float score) {
          |      final String uuid = UUID.randomUUID().toString();
-         |      return String.format(\"\"\"
+         |      return String.format(Locale.ROOT,
+         |                           \"\"\"
          |                           _:%s  <GoldenRecord.source_id>                     <%s>                  .
          |${goldenRecordFields()}
          |${" " * 27}_:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .

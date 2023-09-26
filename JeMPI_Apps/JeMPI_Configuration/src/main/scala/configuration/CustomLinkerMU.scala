@@ -153,7 +153,7 @@ object CustomLinkerMU {
         //    println(fmt)
 
         writer.println(
-          s"""         return String.format("$fmt",""".stripMargin)
+          s"""         return String.format(Locale.ROOT, "$fmt",""".stripMargin)
         muList.zipWithIndex.foreach((mu, idx) => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(s"                              computeM($fieldName), computeU($fieldName)"

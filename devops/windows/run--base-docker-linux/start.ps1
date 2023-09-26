@@ -33,7 +33,7 @@ $def_controller_kafka_client_id               = "-DKAFKA_CLIENT_ID=client-id-ctr
 $def_controller_http_server_port              = "-DHTTP_SERVER_PORT=50000"
 
 $linker_jar                                   = "-jar " + $jempi_apps_dir + "\JeMPI_Linker\target\Linker-1.0-SNAPSHOT-spring-boot.jar"
-$def_linker_log4j_level                       = "-DLOG4J2_LEVEL=TRACE" 
+$def_linker_log4j_level                       = "-DLOG4J2_LEVEL=DEBUG" 
 $def_linker_kafka_application_id_interactions = "-DKAFKA_APPLICATION_ID_INTERACTIONS=app-id-lnk1"
 $def_linker_kafka_application_id_mu           = "-DKAFKA_APPLICATION_ID_MU=app-id-lnk2"
 $def_linker_kafka_client_id_notifications     = "-DKAFKA_CLIENT_ID_NOTIFICATIONS=client-id-lnk3"

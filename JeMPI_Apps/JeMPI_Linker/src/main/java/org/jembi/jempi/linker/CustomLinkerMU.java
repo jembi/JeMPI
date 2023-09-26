@@ -110,7 +110,7 @@ public final class CustomLinkerMU {
 
       @Override
       public String toString() {
-         return String.format("f1(%f:%f) f2(%f:%f) f3(%f:%f) f4(%f:%f) f5(%f:%f) f6(%f:%f) f7(%f:%f)",
+         return String.format(Locale.ROOT, "f1(%f:%f) f2(%f:%f) f3(%f:%f) f4(%f:%f) f5(%f:%f) f6(%f:%f) f7(%f:%f)",
                               computeM(givenName), computeU(givenName),
                               computeM(familyName), computeU(familyName),
                               computeM(gender), computeU(gender),
