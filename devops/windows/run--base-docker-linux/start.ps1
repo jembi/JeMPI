@@ -1,0 +1,163 @@
+$kafka1_ip                                    = '192.168.0.7'
+$postgresql_server                            = '192.168.0.7:5432'
+$dgraph_hosts                                 = '192.168.0.7'
+$dgraph_ports                                 = '9080'
+
+$jempi_apps_dir                               = "..\..\..\..\..\JeMPI_Apps"
+
+$async_receiver_folder                        = '.\app_data\async_receiver'
+$etl_folder                                   = '.\app_data\etl'
+$controller_folder                            = '.\app_data\controller'
+$linker_folder                                = '.\app_data\linker'
+
+$def_kafka_bootstrap_servers                  = "-DKAFKA_BOOTSTRAP_SERVERS=" + $kafka1_ip + ":9094"
+$def_postgresql_server                        = "-DPOSTGRESQL_SERVER=" + $postgresql_server
+$def_postgresql_user                          = "-DPOSTGRESQL_USER=`"postgres`""
+$def_postgresql_password                      = "-DPOSTGRESQL_PASSWORD=`"postgres`""
+$def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notifications`""
+$def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
+$def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
+
+$async_receiver_jar                           = "-jar " + $jempi_apps_dir + "\JeMPI_AsyncReceiver\target\AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar"
+$def_async_reveiver_log4j_level               = "-DLOG4J2_LEVEL=DEBUG"
+$def_async_receiver_kafka_client_id           = "-DKAFKA_CLIENT_ID=client-id-syncrx"
+
+$etl_jar                                      = "-jar " + $jempi_apps_dir + "\JeMPI_ETL\target\ETL-1.0-SNAPSHOT-spring-boot.jar"
+$def_etl_log4j_level                          = "-DLOG4J2_LEVEL=DEBUG"
+$def_etl_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-etl"
+
+$controller_jar                               = "-jar " + $jempi_apps_dir + "\JeMPI_Controller\target\Controller-1.0-SNAPSHOT-spring-boot.jar"
+$def_controller_log4j_level                   = "-DLOG4J2_LEVEL=DEBUG"
+$def_controller_kafka_application_id          = "-DKAFKA_APPLICATION_ID=app-id-ctrl"
+$def_controller_kafka_client_id               = "-DKAFKA_CLIENT_ID=client-id-ctrl"
+$def_controller_http_server_port              = "-DHTTP_SERVER_PORT=50000"
+
+$linker_jar                                   = "-jar " + $jempi_apps_dir + "\JeMPI_Linker\target\Linker-1.0-SNAPSHOT-spring-boot.jar"
+$def_linker_log4j_level                       = "-DLOG4J2_LEVEL=TRACE" 
+$def_linker_kafka_application_id_interactions = "-DKAFKA_APPLICATION_ID_INTERACTIONS=app-id-lnk1"
+$def_linker_kafka_application_id_mu           = "-DKAFKA_APPLICATION_ID_MU=app-id-lnk2"
+$def_linker_kafka_client_id_notifications     = "-DKAFKA_CLIENT_ID_NOTIFICATIONS=client-id-lnk3"
+$def_linker_http_server_port                  = "-DHTTP_SERVER_PORT=50001"
+$def_linker_match_threshold                   = "-DLINKER_MATCH_THRESHOLD=0.65"
+$def_linker_match_threshold_margin            = "-DLINKER_MATCH_THRESHOLD_MARGIN=0.1"
+
+
+$scriptpath = $MyInvocation.MyCommand.Path
+$dir = Split-Path $scriptpath
+Set-Location $dir
+
+# 
+# build apps
+#
+Push-Location ..\..\..\JeMPI_Apps
+  mvn clean  
+  mvn package
+Pop-Location
+
+
+#
+# start async receiver
+#
+if (Test-path $async_receiver_folder\csv) {
+  Write-Host ${async_receiver_folder}'\csv exists'   
+} else {
+  New-Item $async_receiver_folder\csv -ItemType Directory
+  Write-Host 'Folder Created successfully'
+}
+$async_handle = Start-Process -FilePath java `
+                              -ArgumentList $def_async_reveiver_log4j_level, `
+                                            $def_kafka_bootstrap_servers, `
+                                            $def_async_receiver_kafka_client_id, `
+                                            $async_receiver_jar `
+                              -WindowStyle Normal `
+                              -WorkingDirectory $async_receiver_folder `
+                              -Debug `
+                              -Verbose `
+                              -PassThru
+$async_handle | Export-Clixml -Path (Join-Path './' 'async_handle.xml')
+
+#
+# start etl
+#
+if (Test-path $etl_folder) {
+  Write-Host ${etl_folder}' exists'   
+} else {
+  New-Item $etl_folder -ItemType Directory
+  Write-Host 'Folder Created successfully'
+}
+$etl_handle = Start-Process -FilePath java `
+                            -ArgumentList $def_etl_log4j_level, `
+                                          $def_kafka_bootstrap_servers, `
+                                          $def_etl_kafka_application_id, `
+                                          $etl_jar `
+                            -WindowStyle Normal `
+                            -WorkingDirectory $etl_folder `
+                            -Debug `
+                            -Verbose `
+                            -PassThru
+$etl_handle | Export-Clixml -Path (Join-Path './' 'etl_handle.xml')
+
+
+#
+# start controller
+#
+if (Test-path $controller_folder) {
+  Write-Host ${controller_folder}' exists'   
+} else {
+  New-Item $controller_folder -ItemType Directory
+  Write-Host 'Folder Created successfully'
+}
+$controller_handle = Start-Process -FilePath java `
+                                   -ArgumentList $def_controller_log4j_level, `
+                                                 $def_postgresql_server, `
+                                                 $def_postgresql_user, `
+                                                 $def_postgresql_password, `
+                                                 $def_postgresql_notifications_db, `
+                                                 $def_kafka_bootstrap_servers, `
+                                                 $def_controller_kafka_application_id, `
+                                                 $def_controller_kafka_client_id, `
+                                                 $def_controller_http_server_port, `
+                                                 $controller_jar `
+                                   -WindowStyle Normal `
+                                   -WorkingDirectory $controller_folder `
+                                   -Debug `
+                                   -Verbose `
+                                   -PassThru
+#                                  -RedirectStandardError 'controller-stderr.txt' `
+#                                  -RedirectStandardOutput 'controller-stdout.txt'
+$controller_handle | Export-Clixml -Path (Join-Path './' 'controller_handle.xml')
+
+
+#
+# start linker
+#
+if (Test-path $linker_folder) {
+  Write-Host ${linker_folder}' exists'   
+} else {
+  New-Item $linker_folder -ItemType Directory
+  Write-Host 'Folder Created successfully'
+}
+$linker_handle = Start-Process -FilePath java `
+                               -ArgumentList $def_linker_log4j_level, `
+                                             $def_postgresql_server, `
+                                             $def_postgresql_user, `
+                                             $def_postgresql_password, `
+                                             $def_postgresql_notifications_db, `
+                                             $def_kafka_bootstrap_servers, `
+                                             $def_linker_kafka_application_id_interactions, `
+                                             $def_linker_kafka_application_id_mu, `
+                                             $def_linker_kafka_client_id_notifications, `
+                                             $def_dgraph_hosts, `
+                                             $def_dgraph_ports, `
+                                             $def_linker_http_server_port, `
+                                             $def_linker_match_threshold, `
+                                             $def_linker_match_threshold_margin, `
+                                             $linker_jar `
+                               -WindowStyle Normal `
+                               -WorkingDirectory $linker_folder `
+                               -Debug `
+                               -Verbose `
+                               -PassThru
+#                               -RedirectStandardError 'linker-stderr.txt' `
+#                               -RedirectStandardOutput 'linker-stdout.txt'
+$linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
