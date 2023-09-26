@@ -163,7 +163,7 @@ final class DgraphClient {
                startTransaction();
                return null;
             } else {
-               LOGGER.warn("{}", ex.getLocalizedMessage());
+               LOGGER.error(ex.getLocalizedMessage(), ex);
                done = false;
                zapTransaction();
                sleep();
