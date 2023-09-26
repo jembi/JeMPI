@@ -1,5 +1,4 @@
 tests-backup
 data-registry
 docker_data
-0-docker-stack-0.yml
-0-docker-stack-1.yml
+docker-stack.yml
