@@ -3,6 +3,6 @@
 set -e
 set -u
 
-source ../../0-conf.env
+source ../../conf.env
 docker service logs -f --raw ${STACK_NAME}_keycloak-test-server
 echo
