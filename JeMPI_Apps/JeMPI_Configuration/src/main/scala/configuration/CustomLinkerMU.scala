@@ -37,6 +37,7 @@ object CustomLinkerMU {
            |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
            |
+           |import java.util.Locale;
            |
            |public final class $custom_className {
            |
