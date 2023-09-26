@@ -164,6 +164,7 @@ final class DgraphClient {
                return null;
             } else {
                LOGGER.error(ex.getLocalizedMessage(), ex);
+               LOGGER.debug("{}", mutation.toByteString());
                done = false;
                zapTransaction();
                sleep();

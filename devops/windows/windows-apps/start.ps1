@@ -157,7 +157,7 @@ $linker_handle = Start-Process -FilePath java `
                                -WorkingDirectory $linker_folder `
                                -Debug `
                                -Verbose `
-                               -PassThru `
-                               -RedirectStandardError 'linker-stderr.txt' `
-                               -RedirectStandardOutput 'linker-stdout.txt'
+                               -PassThru
+#                               -RedirectStandardError 'linker-stderr.txt' `
+#                               -RedirectStandardOutput 'linker-stdout.txt'
 $linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
