@@ -60,7 +60,6 @@ class ApiClient {
     }
   }
 
-  // replaced
   async getAuditTrail() {
     const { data } = await client.get<AuditTrailRecord[]>(ROUTES.AUDIT_TRAIL)
     return data
@@ -79,34 +78,27 @@ class ApiClient {
   }
 
   async getGoldenRecord(uid: string) {
-    return await client
-      .get<GoldenRecord, AxiosResponse<ExpandedGoldenRecord>>(
-        `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
+    const {
+      data: { goldenRecord, interactionsWithScore }
+    } = await client.get<
+      GoldenRecord,
+      AxiosResponse<Partial<ExpandedGoldenRecord>>
+    >(`${ROUTES.GET_GOLDEN_RECORD}/${uid}`)
+
+    return {
+      ...goldenRecord,
+      ...goldenRecord?.demographicData,
+      linkRecords: interactionsWithScore?.map(
+        ({ interaction, score }: InteractionWithScore) => ({
+          uid: interaction.uid,
+          sourceId: interaction.sourceId,
+          createdAt: interaction.uniqueInteractionData.auxDateCreated,
+          auxId: interaction.uniqueInteractionData.auxId,
+          score,
+          ...interaction?.demographicData
+        })
       )
-      .then(res => res.data)
-      .then(
-        ({
-          goldenRecord,
-          interactionsWithScore
-        }: Partial<ExpandedGoldenRecord>) => {
-          return {
-            ...goldenRecord,
-            ...goldenRecord?.demographicData,
-            linkRecords: interactionsWithScore?.map(
-              ({ interaction, score }: InteractionWithScore) => {
-                return {
-                  uid: interaction.uid,
-                  sourceId: interaction.sourceId,
-                  createdAt: interaction.uniqueInteractionData.auxDateCreated,
-                  auxId: interaction.uniqueInteractionData.auxId,
-                  score,
-                  ...interaction?.demographicData
-                }
-              }
-            )
-          }
-        }
-      )
+    }
   }
 
   //TODO Move this logic to the backend and just get match details by notification ID
