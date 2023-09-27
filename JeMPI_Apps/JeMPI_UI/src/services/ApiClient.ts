@@ -296,13 +296,14 @@ class ApiClient {
   }
 
   async getGoldenRecordAuditTrail(gid: string) {
-    return await client
-      .get(ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL, {
-        params: {
-          gid
-        }
-      })
-      .then(res => res.data.entries)
+    const {
+      data: { entries }
+    } = await client.get(ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL, {
+      params: {
+        gid
+      }
+    })
+    return entries
   }
 
   async getInteractionAuditTrail(iid: string) {
