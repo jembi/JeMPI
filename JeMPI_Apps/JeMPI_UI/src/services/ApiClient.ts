@@ -208,12 +208,11 @@ class ApiClient {
   }
 
   async getFilteredGoldenIds(request: FilterQuery) {
-    return await client
-      .post<{ data: string[]; pagination: { total: number } }>(
-        ROUTES.POST_FILTER_GIDS,
-        request
-      )
-      .then(async res => res.data)
+    const { data } = await client.post<{
+      data: string[]
+      pagination: { total: number }
+    }>(ROUTES.POST_FILTER_GIDS, request)
+    return data
   }
 
   async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
