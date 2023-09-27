@@ -68,18 +68,15 @@ class ApiClient {
   }
 
   async getInteraction(uid: string) {
-    return await client
-      .get<PatientRecord, AxiosResponse<Interaction>>(
-        `${ROUTES.GET_INTERACTION}/${uid}`
-      )
-      .then(res => res.data)
-      .then((interaction: Interaction) => {
-        return {
-          uid: interaction.uid,
-          sourceId: interaction.sourceId,
-          ...interaction.demographicData
-        }
-      })
+    const { data: interaction } = await client.get<
+      PatientRecord,
+      AxiosResponse<Interaction>
+    >(`${ROUTES.GET_INTERACTION}/${uid}`)
+    return {
+      uid: interaction.uid,
+      sourceId: interaction.sourceId,
+      ...interaction.demographicData
+    }
   }
 
   async getGoldenRecord(uid: string) {
