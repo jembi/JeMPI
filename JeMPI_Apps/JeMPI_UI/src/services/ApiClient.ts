@@ -143,11 +143,9 @@ class ApiClient {
   }
 
   async linkRecord(request: LinkRequest) {
-    return await client
-      .patch(
-        `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${request.goldenID}&newGoldenID=${request.newGoldenID}&patientID=${request.patientID}&score=2`
-      )
-      .then(res => res.data)
+    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${request.goldenID}&newGoldenID=${request.newGoldenID}&patientID=${request.patientID}&score=2`
+    const { data } = await client.patch(url)
+    return data
   }
 
   async searchQuery(
