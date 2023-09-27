@@ -132,11 +132,8 @@ class ApiClient {
   }
 
   async updateNotification(request: NotificationRequest) {
-    return await client
-      .post(ROUTES.POST_UPDATE_NOTIFICATION, request)
-      .then(res => {
-        return res.data
-      })
+    const { data } = await client.post(ROUTES.POST_UPDATE_NOTIFICATION, request)
+    return data
   }
 
   async newGoldenRecord(request: LinkRequest) {
