@@ -1,6 +1,5 @@
 package org.jembi.jempi.libmpi.dgraph;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.protobuf.ByteString;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class DgraphMutations {
 
@@ -100,10 +97,6 @@ final class DgraphMutations {
          final String goldenId,
          final String predicate,
          final String value) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {}", goldenId, predicate, value);
-      }
-
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      Locale.ROOT,
@@ -120,9 +113,6 @@ final class DgraphMutations {
          final String goldenId,
          final String predicate,
          final Boolean value) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {}", goldenId, predicate, value);
-      }
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      Locale.ROOT,
@@ -144,9 +134,6 @@ final class DgraphMutations {
          final String goldenId,
          final String predicate,
          final Double value) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {}", goldenId, predicate, value);
-      }
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      Locale.ROOT,
@@ -162,9 +149,6 @@ final class DgraphMutations {
          final String goldenId,
          final String predicate,
          final Long value) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {}", goldenId, predicate, value);
-      }
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      Locale.ROOT,
@@ -180,9 +164,6 @@ final class DgraphMutations {
          final String uid,
          final String predicate,
          final String value) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {}", uid, predicate, value);
-      }
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setDelNquads(ByteString.copyFromUtf8(String.format(
                                                      Locale.ROOT,
@@ -194,13 +175,6 @@ final class DgraphMutations {
    }
 
    private void addScoreFacets(final List<DgraphPairWithScore> interactionScoreList) {
-      if (LOGGER.isDebugEnabled()) {
-         try {
-            LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(interactionScoreList));
-         } catch (JsonProcessingException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-         }
-      }
       StringBuilder simWeightFacet = new StringBuilder();
       for (DgraphPairWithScore interactionScore : interactionScoreList) {
          simWeightFacet.append(
@@ -219,9 +193,6 @@ final class DgraphMutations {
    private void addSourceId(
          final String uid,
          final String sourceId) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {}", uid, sourceId);
-      }
       final var mutation = String.format(Locale.ROOT, "<%s> <GoldenRecord.source_id> <%s> .%n", uid, sourceId);
       final DgraphProto.Mutation mu = DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFromUtf8(mutation))
                                                           .build();
@@ -229,13 +200,6 @@ final class DgraphMutations {
    }
 
    private InsertInteractionResult insertInteraction(final Interaction interaction) {
-      if (LOGGER.isDebugEnabled()) {
-         try {
-            LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(interaction));
-         } catch (JsonProcessingException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-         }
-      }
       final DgraphProto.Mutation sourceIdMutation = DgraphProto.Mutation.newBuilder()
                                                                         .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
                                                                               interaction.sourceId())))
@@ -261,21 +225,11 @@ final class DgraphMutations {
          final String sourceUID,
          final float score,
          final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
-      if (LOGGER.isDebugEnabled()) {
-         try {
-            LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(customUniqueGoldenRecordData));
-         } catch (JsonProcessingException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-         }
-      }
       final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
                                                                                interaction,
                                                                                interactionUID,
                                                                                sourceUID,
                                                                                score);
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{}", command);
-      }
       final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
                                                                 .setSetNquads(ByteString.copyFromUtf8(command))
                                                                 .build();
@@ -286,7 +240,7 @@ final class DgraphMutations {
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setDelNquads(ByteString.copyFromUtf8(
                                                      String.format(Locale.ROOT,
-                                                                    """
+                                                                   """
                                                                     <%s> * *  .
                                                                    """,
                                                                    goldenId)))
@@ -364,9 +318,6 @@ final class DgraphMutations {
          final String newGoldenId,
          final String interactionId,
          final float score) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {} {}", goldenId, newGoldenId, interactionId, score);
-      }
       final var goldenUidInteractionUidList = DgraphQueries.findExpandedGoldenIds(goldenId);
       if (goldenUidInteractionUidList.isEmpty() || !goldenUidInteractionUidList.contains(interactionId)) {
          return Either.left(
@@ -428,9 +379,6 @@ final class DgraphMutations {
          final String interactionUid,
          final String goldenRecordUid,
          final float score) {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debug("{} {} {}", interactionUid, goldenRecordUid, score);
-      }
       final var mutation = DgraphProto.Mutation.newBuilder()
                                                .setSetNquads(ByteString.copyFromUtf8(String.format(
                                                      Locale.ROOT,
