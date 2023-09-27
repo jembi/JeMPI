@@ -26,9 +26,8 @@ const client = config.shouldMockBackend ? moxios : axiosInstance
 
 class ApiClient {
   async getFields() {
-    return await client
-      .get<Fields>(ROUTES.GET_FIELDS_CONFIG)
-      .then(res => res.data)
+    const { data } = await client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
+    return data
   }
 
   async getMatches(
