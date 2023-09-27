@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.jembi.jempi.libmpi.postgresql.PostgresqlMutations.TABLE_NODES;
@@ -23,7 +24,8 @@ interface Node {
    default UUID createNode() {
       UUID uid;
       try (var stmt = PostgresqlClient.getInstance().prepareStatement(
-            String.format("""
+            String.format(Locale.ROOT,
+                          """
                           insert into %s (type, fields)
                           values ('%s', '%s');
                           """,

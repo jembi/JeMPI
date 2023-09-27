@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
+import java.util.Locale;
 
 final class PsqlClient {
 
@@ -26,7 +27,7 @@ final class PsqlClient {
    boolean connect() {
       if (connection == null) {
          try {
-            final var url = String.format("jdbc:postgresql://postgresql:5432/%s", database);
+            final var url = String.format(Locale.ROOT, "jdbc:postgresql://postgresql:5432/%s", database);
             connection = DriverManager.getConnection(url, user, password);
             return connection.isValid(5);
          } catch (SQLException e) {
@@ -38,7 +39,7 @@ final class PsqlClient {
          try {
             if (!connection.isValid(5)) {
                connection.close();
-               final var url = String.format("jdbc:postgresql://postgresql:5432/%s", database);
+               final var url = String.format(Locale.ROOT, "jdbc:postgresql://postgresql:5432/%s", database);
                connection = DriverManager.getConnection(url, user, password);
             }
          } catch (SQLException e) {

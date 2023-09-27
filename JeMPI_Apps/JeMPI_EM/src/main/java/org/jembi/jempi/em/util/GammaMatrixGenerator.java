@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public class GammaMatrixGenerator {
@@ -30,7 +31,7 @@ public class GammaMatrixGenerator {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_EM-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
                              "postgres",
                              null,
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,

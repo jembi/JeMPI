@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
 
@@ -27,6 +28,7 @@ final class PsqlAuditTrail {
       final var list = new ArrayList<AuditEvent>();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
             String.format(
+                  Locale.ROOT,
                   """
                   SELECT * FROM %s where goldenID = ?;
                   """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
@@ -51,6 +53,7 @@ final class PsqlAuditTrail {
       final var list = new ArrayList<AuditEvent>();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
             String.format(
+                  Locale.ROOT,
                   """
                   SELECT * FROM %s where interactionID = ?;
                   """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {

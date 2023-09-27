@@ -13,6 +13,7 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -21,7 +22,7 @@ class ApiClient {
    private static final Logger LOGGER = LogManager.getLogger(ApiClient.class);
 
    private static final String URL = "http://localhost:50000";
-   private static final String URL_LINK = String.format("%s/JeMPI/", URL);
+   private static final String URL_LINK = String.format(Locale.ROOT, "%s/JeMPI/", URL);
 
    private final OkHttpClient client = new OkHttpClient();
 

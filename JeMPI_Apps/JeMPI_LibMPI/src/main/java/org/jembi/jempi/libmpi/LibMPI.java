@@ -30,6 +30,7 @@ public final class LibMPI {
          final int[] port,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
+      LOGGER.getRootLogger().
       LOGGER.info("{}", "LibMPI Constructor");
       topicAuditEvents = new MyKafkaProducer<>(kafkaBootstrapServers,
                                                GlobalConstants.TOPIC_AUDIT_TRAIL,

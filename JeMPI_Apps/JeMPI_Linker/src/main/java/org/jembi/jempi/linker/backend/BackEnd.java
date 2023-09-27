@@ -25,6 +25,7 @@ import org.jembi.jempi.stats.StatsTask;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -91,7 +92,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE),
                              AppConfig.POSTGRESQL_USER,
                              AppConfig.POSTGRESQL_PASSWORD,
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,

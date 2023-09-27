@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Locale;
 
 final class PostgresqlMutations {
 
@@ -29,22 +30,26 @@ final class PostgresqlMutations {
       try (var stmt = PostgresqlClient.getInstance().createStatement()) {
 
          stmt.executeUpdate(
-               String.format("""
+               String.format(Locale.ROOT,
+                             """
                              DROP TABLE IF EXISTS %s
                              """, TABLE_EDGES).stripIndent());
 
          stmt.executeUpdate(
-               String.format("""
+               String.format(Locale.ROOT,
+                             """
                              DROP TABLE IF EXISTS %s
                              """, TABLE_NODES).stripIndent());
 
          stmt.executeUpdate(
-               String.format("""
+               String.format(Locale.ROOT,
+                             """
                              DROP TYPE IF EXISTS %s
                              """, TYPE_NODE_TYPE).stripIndent());
 
          stmt.executeUpdate(
-               String.format("""
+               String.format(Locale.ROOT,
+                             """
                              DROP TYPE IF EXISTS %s
                              """, TYPE_EDGE_NAME).stripIndent());
       } catch (SQLException e) {
@@ -62,6 +67,7 @@ final class PostgresqlMutations {
          stmt.executeUpdate("CREATE EXTENSION fuzzystrmatch;");
          stmt.executeUpdate("CREATE EXTENSION btree_gist;");
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TYPE %s AS ENUM ('%s','%s','%s');
                """,
@@ -70,6 +76,7 @@ final class PostgresqlMutations {
                Node.NodeType.INTERACTION.name(),
                Node.NodeType.SOURCE_ID.name()).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TYPE %s AS ENUM ('%s','%s','%s');
                """,
@@ -78,6 +85,7 @@ final class PostgresqlMutations {
                Edge.EdgeName.GID2SID.name(),
                Edge.EdgeName.GID2IID.name()).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s (
                    type %s NOT NULL,
@@ -91,6 +99,7 @@ final class PostgresqlMutations {
                TABLE_NODES,
                TYPE_NODE_TYPE).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """                  
                CREATE TABLE IF NOT EXISTS %s
                PARTITION OF %s
@@ -100,6 +109,7 @@ final class PostgresqlMutations {
                TABLE_NODES,
                Node.NodeType.GOLDEN_RECORD).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """                  
                CREATE TABLE IF NOT EXISTS %s
                PARTITION OF %s
@@ -109,6 +119,7 @@ final class PostgresqlMutations {
                TABLE_NODES,
                Node.NodeType.INTERACTION).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s
                PARTITION OF %s
@@ -118,6 +129,7 @@ final class PostgresqlMutations {
                TABLE_NODES,
                Node.NodeType.SOURCE_ID).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s (
                   name %s NOT NULL,
@@ -130,6 +142,7 @@ final class PostgresqlMutations {
                TABLE_EDGES,
                TYPE_EDGE_NAME).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s
                PARTITION OF %s
@@ -139,6 +152,7 @@ final class PostgresqlMutations {
                TABLE_EDGES,
                Edge.EdgeName.GID2IID).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s
                PARTITION OF %s
@@ -148,6 +162,7 @@ final class PostgresqlMutations {
                TABLE_EDGES,
                Edge.EdgeName.GID2SID).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s
                PARTITION OF %s
@@ -158,10 +173,12 @@ final class PostgresqlMutations {
                Edge.EdgeName.IID2SID).stripIndent());
 
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE INDEX IF NOT EXISTS idx_gin_gr_a ON %s USING gin (fields jsonb_ops);
                """, TABLE_NODE_GOLDEN_RECORDS).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE INDEX IF NOT EXISTS idx_gin_gr_b ON %s USING gin (fields jsonb_path_ops);
                """, TABLE_NODE_GOLDEN_RECORDS).stripIndent());
@@ -178,6 +195,7 @@ final class PostgresqlMutations {
          final String fieldName,
          final String val) {
       final var sql = String.format(
+            Locale.ROOT,
             """
             UPDATE %s
             SET "fields" = JSONB_SET("fields"::JSONB, '{%s}', TO_JSONB('%s'::TEXT))
@@ -201,6 +219,7 @@ final class PostgresqlMutations {
          final String goldenRecordUid,
          final float score) {
       final var sql = String.format(
+            Locale.ROOT,
             """
             UPDATE %s
             SET facet = JSONB_SET(facet, '{score}', to_jsonb(%f))

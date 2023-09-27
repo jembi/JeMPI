@@ -87,7 +87,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
          libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
       } else {
-         libMPI = new LibMPI(String.format("jdbc:postgresql://postgresql:5432/%s", pgDatabase),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://postgresql:5432/%s", pgDatabase),
                              pgUser,
                              pgPassword,
                              kafkaBootstrapServers,

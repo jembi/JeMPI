@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -53,7 +54,8 @@ public final class Main {
          final var rNumber = matcher.group("rnum");
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
-         return String.format("rec-%010d-%s-%d",
+         return String.format(Locale.ROOT,
+                              "rec-%010d-%s-%d",
                               Integer.parseInt(rNumber),
                               klass,
                               (("org".equals(klass) || "aaa".equals(klass))
@@ -95,18 +97,18 @@ public final class Main {
 
          int index = 0;
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
-                                                  String.format("%s:%07d", stanDate, ++index), null));
+                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
          for (CSVRecord csvRecord : csvParser) {
             sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
-                                               String.format("%s:%07d", stanDate, ++index),
+                                               String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                new Interaction(null,
                                                                CustomAsyncHelper.customSourceId(csvRecord),
                                                                CustomAsyncHelper.customUniqueInteractionData(csvRecord),
                                                                CustomAsyncHelper.customDemographicData(csvRecord))));
          }
          sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, fileName,
-                                                  String.format("%s:%07d", stanDate, ++index), null));
+                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }

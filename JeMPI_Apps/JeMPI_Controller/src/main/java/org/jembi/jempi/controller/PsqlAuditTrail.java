@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.AuditEvent;
 
 import java.sql.SQLException;
+import java.util.Locale;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
 
@@ -21,6 +22,7 @@ final class PsqlAuditTrail {
       psqlClient.connect();
       try (var stmt = psqlClient.createStatement()) {
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE TABLE IF NOT EXISTS %s (
                    id             UUID         NOT NULL DEFAULT gen_random_uuid(),
@@ -34,10 +36,12 @@ final class PsqlAuditTrail {
                """,
                PSQL_TABLE_AUDIT_TRAIL).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE INDEX IF NOT EXISTS idx_gid ON %s(goldenID);
                """, PSQL_TABLE_AUDIT_TRAIL).stripIndent());
          stmt.executeUpdate(String.format(
+               Locale.ROOT,
                """
                CREATE INDEX IF NOT EXISTS idx_iid ON %s(interactionID);
                """, PSQL_TABLE_AUDIT_TRAIL).stripIndent());
@@ -50,6 +54,7 @@ final class PsqlAuditTrail {
       psqlClient.connect();
       try (var preparedStatement = psqlClient.prepareStatement(
             String.format(
+                  Locale.ROOT,
                   """
                   INSERT INTO %s (createdAt, interactionID, goldenID, event)
                   VALUES (?, ?, ?, ?);
