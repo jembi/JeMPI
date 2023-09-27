@@ -232,20 +232,18 @@ class ApiClient {
   }
 
   async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
-    return await client
-      .post<{
-        data: string[]
-        interationCount: { total: number }
-        pagination: { total: number }
-      }>(ROUTES.POST_FILTER_GIDS_WITH_INTERACTION_COUNT, request)
-      .then(async res => res.data)
-      .then(({ data, interationCount, pagination }) => {
-        console.log(data, interationCount)
-        return {
-          data,
-          pagination: { total: pagination.total + interationCount.total }
-        }
-      })
+    const {
+      data: { data, interactionCount, pagination }
+    } = await client.post<{
+      data: string[]
+      interactionCount: { total: number }
+      pagination: { total: number }
+    }>(ROUTES.POST_FILTER_GIDS_WITH_INTERACTION_COUNT, request)
+    const total = pagination.total + interactionCount.total
+    return {
+      data,
+      pagination: { total }
+    }
   }
 
   async getExpandedGoldenRecords(
