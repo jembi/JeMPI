@@ -317,10 +317,9 @@ class ApiClient {
     return entries
   }
 
-  async validateOAuth(oauthParams: OAuthParams) {
-    return await client
-      .post(ROUTES.VALIDATE_OAUTH, oauthParams)
-      .then(res => res.data as User)
+  async validateOAuth(oauthParams: OAuthParams): Promise<User> {
+    const { data } = await client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
+    return data
   }
 
   async getCurrentUser() {
