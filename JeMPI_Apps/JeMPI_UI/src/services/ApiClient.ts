@@ -306,14 +306,15 @@ class ApiClient {
     return entries
   }
 
-  async getInteractionAuditTrail(iid: string) {
-    return await client
-      .get(ROUTES.GET_INTERACTION_AUDIT_TRAIL, {
-        params: {
-          iid
-        }
-      })
-      .then(res => res.data.entries)
+  async getInteractionAuditTrail(interactionId: string) {
+    const {
+      data: { entries }
+    } = await client.get(ROUTES.GET_INTERACTION_AUDIT_TRAIL, {
+      params: {
+        iid: interactionId
+      }
+    })
+    return entries
   }
 
   async validateOAuth(oauthParams: OAuthParams) {
