@@ -36,20 +36,28 @@ class ApiClient {
     created: string,
     state: string
   ) {
-    return await client
-      .get<NotificationResponse>(
-        `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
-      )
-      .then(res => res.data)
-      .then(({ records, skippedRecords, count }) => ({
-        records: records.map(record => ({
-          ...record,
-          created: new Date(record.created)
-        })),
-        pagination: {
-          total: count + skippedRecords
-        }
-      }))
+    const queryParams = {
+      limit,
+      date: created,
+      offset,
+      state
+    }
+    const {
+      data: { records, skippedRecords, count }
+    } = await client.get<NotificationResponse>(ROUTES.GET_NOTIFICATIONS, {
+      params: queryParams
+    })
+    const formattedRecords = records.map(record => ({
+      ...record,
+      created: new Date(record.created)
+    }))
+    const pagination = {
+      total: count + skippedRecords
+    }
+    return {
+      records: formattedRecords,
+      pagination
+    }
   }
 
   // replaced
