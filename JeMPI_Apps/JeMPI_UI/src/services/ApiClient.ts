@@ -62,9 +62,8 @@ class ApiClient {
 
   // replaced
   async getAuditTrail() {
-    return await client
-      .get<AuditTrailRecord[]>(ROUTES.AUDIT_TRAIL)
-      .then(res => res.data)
+    const { data } = await client.get<AuditTrailRecord[]>(ROUTES.AUDIT_TRAIL)
+    return data
   }
 
   async getInteraction(uid: string) {
