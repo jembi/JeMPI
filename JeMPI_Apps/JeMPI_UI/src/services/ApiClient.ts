@@ -331,7 +331,7 @@ class ApiClient {
     return await client.get(ROUTES.LOGOUT)
   }
 
-  async updateGoldenRecord(uid: string, request: FieldChangeReq) {
+  async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
     const { data } = await client.patch(
       `${ROUTES.PATCH_GOLDEN_RECORD}/${uid}`,
       request
@@ -340,9 +340,12 @@ class ApiClient {
   }
 
   uploadFile = async (requestConfig: AxiosRequestConfig<FormData>) => {
-    await client
-      .post(ROUTES.UPLOAD, requestConfig.data, requestConfig)
-      .then(res => res.data)
+    const { data } = await client.post(
+      ROUTES.UPLOAD,
+      requestConfig.data,
+      requestConfig
+    )
+    return data
   }
 }
 
