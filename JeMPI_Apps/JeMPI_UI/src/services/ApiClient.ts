@@ -234,47 +234,48 @@ class ApiClient {
     goldenIds: Array<string> | undefined,
     getInteractions: boolean
   ) {
-    return await client
-      .get<Array<AnyRecord>, AxiosResponse<ExpandedGoldenRecord[]>>(
-        ROUTES.GET_EXPANDED_GOLDEN_RECORDS,
-        {
-          params: { uidList: goldenIds?.toString() }
+    const { data } = await client.get<
+      Array<AnyRecord>,
+      AxiosResponse<ExpandedGoldenRecord[]>
+    >(ROUTES.GET_EXPANDED_GOLDEN_RECORDS, {
+      params: { uidList: goldenIds?.toString() }
+    })
+
+    const expandedGoldenRecords = data.reduce(
+      (acc: Array<AnyRecord>, curr: ExpandedGoldenRecord) => {
+        const record = {
+          ...curr.goldenRecord.demographicData,
+          uid: curr.goldenRecord.uid,
+          createdAt: curr.goldenRecord.uniqueGoldenRecordData.auxDateCreated,
+          sourceId: curr.goldenRecord.sourceId,
+          type: 'Golden'
         }
-      )
-      .then(res => res.data)
-      .then(data =>
-        data.reduce((acc: Array<AnyRecord>, curr: ExpandedGoldenRecord) => {
-          const record = {
-            ...curr.goldenRecord.demographicData,
-            uid: curr.goldenRecord.uid,
-            createdAt: curr.goldenRecord.uniqueGoldenRecordData.auxDateCreated,
-            sourceId: curr.goldenRecord.sourceId,
-            type: 'Golden'
-          }
-          if (getInteractions) {
-            const linkedRecords = curr.interactionsWithScore.map(
-              ({ interaction, score }: InteractionWithScore) => ({
-                ...interaction.demographicData,
-                uid: interaction.uid,
-                sourceId: interaction.sourceId,
-                createdAt: interaction.uniqueInteractionData.auxDateCreated,
-                auxId: interaction.uniqueInteractionData.auxId,
-                score: score,
-                type: 'Current'
-              })
+        if (getInteractions) {
+          const linkedRecords = curr.interactionsWithScore.map(
+            ({ interaction, score }: InteractionWithScore) => ({
+              ...interaction.demographicData,
+              uid: interaction.uid,
+              sourceId: interaction.sourceId,
+              createdAt: interaction.uniqueInteractionData.auxDateCreated,
+              auxId: interaction.uniqueInteractionData.auxId,
+              score: score,
+              type: 'Current'
+            })
+          )
+          acc.push(
+            record,
+            ...linkedRecords.sort(
+              (objA, objB) => Number(objA.createdAt) - Number(objB.createdAt)
             )
-            acc.push(
-              record,
-              ...linkedRecords.sort(
-                (objA, objB) => Number(objA.createdAt) - Number(objB.createdAt)
-              )
-            )
-          } else {
-            acc.push(record)
-          }
-          return acc
-        }, [])
-      )
+          )
+        } else {
+          acc.push(record)
+        }
+        return acc
+      },
+      []
+    )
+    return expandedGoldenRecords
   }
 
   async getGoldenRecordAuditTrail(gid: string) {
