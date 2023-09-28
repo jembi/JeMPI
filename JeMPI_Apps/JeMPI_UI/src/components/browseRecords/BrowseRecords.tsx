@@ -18,12 +18,7 @@ import {
 } from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
-import {
-  AnyRecord,
-  GoldenRecord,
-  PatientRecord,
-  ValueOf
-} from 'types/PatientRecord'
+import { AnyRecord, PatientRecord, ValueOf } from 'types/PatientRecord'
 import { FilterTable } from './FilterTable'
 import { FilterQuery, SearchParameter } from 'types/SimpleSearch'
 import { useState } from 'react'
@@ -73,7 +68,7 @@ const Records = () => {
   const [goldenIds, setGoldenIds] = useState<Array<string>>([])
 
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
-    ({ fieldName, fieldLabel, formatValue }) => {
+    ({ fieldName, fieldLabel, formatValue, getValue }) => {
       return {
         field: fieldName,
         headerName: fieldLabel,
@@ -81,6 +76,7 @@ const Records = () => {
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
           formatValue(value),
         sortable: false,
+        valueGetter: getValue,
         disableColumnMenu: true,
         align: getAlignment(fieldName),
         headerAlign: getAlignment(fieldName),
@@ -120,7 +116,7 @@ const Records = () => {
     refetchOnWindowFocus: false
   })
 
-  const expandeGoldenRecordsQuery = useQuery<Array<GoldenRecord>, AxiosError>({
+  const expandeGoldenRecordsQuery = useQuery<Array<AnyRecord>, AxiosError>({
     queryKey: [
       'expanded-golden-records',
       paginationModel.page,
@@ -134,23 +130,22 @@ const Records = () => {
       isFetchingInteractions
     ],
     queryFn: async () =>
-      (await ApiClient.getExpandedGoldenRecords(
-        goldenIds?.slice(
-          paginationModel.page * paginationModel.pageSize,
-          paginationModel.page * paginationModel.pageSize +
-            paginationModel.pageSize
-        ),
-        isFetchingInteractions
-      )) as Array<GoldenRecord>,
+      isFetchingInteractions
+        ? await ApiClient.getFlatExpandedGoldenRecords(
+            goldenIds?.slice(
+              paginationModel.page * paginationModel.pageSize,
+              paginationModel.page * paginationModel.pageSize +
+                paginationModel.pageSize
+            )
+          )
+        : await ApiClient.getExpandedGoldenRecords(
+            goldenIds?.slice(
+              paginationModel.page * paginationModel.pageSize,
+              paginationModel.page * paginationModel.pageSize +
+                paginationModel.pageSize
+            )
+          ),
     enabled: goldenIds.length > 0,
-    onSuccess: data =>
-      data?.sort(
-        (a: AnyRecord, b: AnyRecord) =>
-          Number(dateSearch.toDate()) -
-          Number(a.createdAt) -
-          Number(dateSearch.toDate()) -
-          Number(b.createdAt)
-      ),
     refetchOnWindowFocus: false
   })
 
@@ -327,8 +322,8 @@ const Records = () => {
             }
             getRowClassName={params =>
               `${
-                params.row.type === 'Golden' && isFetchingInteractions
-                  ? 'super-app-theme--Golden'
+                params.row.type === 'Current' && isFetchingInteractions
+                  ? 'super-app-theme--Current'
                   : getClassName(params.row)
               }`
             }

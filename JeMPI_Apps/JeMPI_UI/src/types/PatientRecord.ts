@@ -1,36 +1,29 @@
+export type DemographicData = Record<string, string | number>
+
 export interface SourceId {
   uid: string
   facility: string
   patient: string
 }
 
-export interface AnyRecord
-  extends Record<
-    string,
-    | SourceId
-    | SourceId[]
-    | PatientRecord[]
-    | string
-    | number
-    | boolean
-    | Date
-    | undefined
-    | null
-  > {
-  score?: number
+export interface BaseRecord {
   uid: string
-  updatedBy?: string
+  demographicData: DemographicData
+  createdAt: string
+  auxId: string
 }
 
-export interface PatientRecord extends AnyRecord {
+export interface PatientRecord extends BaseRecord {
+  score?: number
   sourceId: SourceId
-  type?: 'Current' | 'Candidate' | 'Blocked' | 'Searched'
 }
 
-export interface GoldenRecord extends AnyRecord {
+export interface GoldenRecord extends BaseRecord {
   sourceId: SourceId[]
-  linkRecords?: PatientRecord[]
-  type?: 'Golden'
+  linkRecords: PatientRecord[]
+  type?: 'Current' | 'Blocked' | 'Searched'
 }
 
 export type ValueOf<T> = T[keyof T]
+
+export type AnyRecord = GoldenRecord | PatientRecord

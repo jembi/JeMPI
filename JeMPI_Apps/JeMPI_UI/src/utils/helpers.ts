@@ -1,4 +1,5 @@
 import { GridColDef } from '@mui/x-data-grid'
+import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
   regex?: string
@@ -18,3 +19,6 @@ export const sortColumns = (columns: GridColDef[], position: Array<string>) =>
   columns.sort((a, b) => {
     return position.indexOf(a.field) - position.indexOf(b.field)
   })
+
+export const isGoldenRecord = (record: AnyRecord | undefined) =>
+  record && 'linkRecords' in record
