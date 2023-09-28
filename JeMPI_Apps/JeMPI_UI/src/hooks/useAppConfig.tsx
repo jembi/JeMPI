@@ -48,7 +48,7 @@ export const AppConfigProvider = ({
         return {
           ...field,
           formatValue: getFieldValueFormatter(field.fieldType),
-          isValid: (value: unknown) => isInputValid(value, field.rules)
+          isValid: (value: unknown) => isInputValid(value, field?.validation)
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps

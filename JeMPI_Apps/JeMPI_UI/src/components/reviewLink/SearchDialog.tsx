@@ -22,10 +22,10 @@ import { PAGINATION_LIMIT } from 'utils/constants'
 
 const options: ToggleButtonOptions[] = [
   { value: 0, label: SearchType.CUSTOM_SEARCH },
-  { value: 1, label: SearchType.SIMPLE_SEARCH }
+  { value: 1, label: SearchType.SEARCH }
 ]
 
-const SearchModal: FC<{
+const SearchDialog: FC<{
   isOpen: boolean
   onClose: () => void
   onChange: (query: SearchQuery | CustomSearchQuery | undefined) => void
@@ -46,12 +46,11 @@ const SearchModal: FC<{
 
   return (
     <Dialog fullWidth maxWidth={'xl'} open={isOpen}>
+      <DialogTitle>Refine the current search</DialogTitle>
+      <Divider />
       <DialogContent sx={{ p: 0 }}>
-        <DialogTitle>Refine the current search</DialogTitle>
-        <Divider />
         <SearchTypeToggle onChange={setSelectedTab} options={options} />
-
-        {selectedTab === SearchType.SIMPLE_SEARCH && (
+        {selectedTab === SearchType.SEARCH && (
           <Box mt={3}>
             <SearchFormTable
               onChange={query =>
@@ -83,4 +82,4 @@ const SearchModal: FC<{
   )
 }
 
-export default SearchModal
+export default SearchDialog

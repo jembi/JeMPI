@@ -9,7 +9,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/notifications/match-details'],
     accessLevel: [],
     readOnly: true,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'uid',
@@ -26,7 +26,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: true,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'facilityId',
@@ -36,7 +36,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/notifications/match-details'],
     accessLevel: [],
     readOnly: true,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'patientId',
@@ -46,7 +46,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/notifications/match-details'],
     accessLevel: [],
     readOnly: true,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'nationalId',
@@ -65,7 +65,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: true, regex: '.*' }
+    validation: { required: true, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'auxId',
@@ -75,7 +75,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid', '/search/custom'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: true, regex: '.*' }
+    validation: { required: true, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'givenName',
@@ -95,7 +95,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: true, regex: '.*' }
+    validation: { required: true, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'familyName',
@@ -115,7 +115,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: true, regex: '.*' }
+    validation: { required: true, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'gender',
@@ -131,7 +131,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'dob',
@@ -149,7 +149,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: true, regex: '.*' }
+    validation: { required: true, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'phoneNumber',
@@ -165,7 +165,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'city',
@@ -181,7 +181,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   //TODO Add back when we have user information
   {
@@ -205,7 +205,7 @@ const FIELDS_CONFIG: Fields = [
     ],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'sourceId',
@@ -228,7 +228,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'ward',
@@ -238,7 +238,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'province',
@@ -248,7 +248,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'district',
@@ -258,7 +258,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'country',
@@ -268,7 +268,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   },
   {
     fieldName: 'guardianName',
@@ -278,7 +278,7 @@ const FIELDS_CONFIG: Fields = [
     scope: ['/patient-record/:uid', '/golden-record/:uid'],
     accessLevel: [],
     readOnly: false,
-    rules: { required: false, regex: '.*' }
+    validation: { required: false, regex: '.*', onErrorMessage: '' }
   }
 ]
 

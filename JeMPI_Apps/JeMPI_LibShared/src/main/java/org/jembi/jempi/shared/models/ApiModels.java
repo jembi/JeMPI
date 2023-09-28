@@ -18,7 +18,7 @@ public abstract class ApiModels {
    public record ApiGoldenRecordCount(Long count) {
    }
 
-   public record ApiInterationCount(Long count) {
+   public record ApiInteractionCount(Long count) {
    }
 
    public record ApiSearchParameter(
@@ -168,7 +168,7 @@ public abstract class ApiModels {
 
    public record ApiFiteredGidsWithInteractionCountPaginatedResultSet(
          List<String> data,
-         InteractionCount interationCount,
+         InteractionCount interactionCount,
          ApiPagination pagination
    ) implements ApiPaginatedResultSet {
       public static ApiFiteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(

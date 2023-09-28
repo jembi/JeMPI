@@ -1,6 +1,5 @@
 import { Search } from '@mui/icons-material'
 import {
-  Box,
   Button,
   Container,
   Divider,
@@ -8,151 +7,101 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import { useMatch } from '@tanstack/react-location'
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridRowSelectionModel
+} from '@mui/x-data-grid'
+import { useMatch, useNavigate } from '@tanstack/react-location'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import SourceIdComponent from 'components/browseRecords/SourceIdComponent'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import ConfirmationModal from 'components/patient/ConfirmationModal'
-import DataGridCellInput from 'components/patient/DataGridCellInput'
+import ConfirmEditingDialog from 'components/recordDetails/ConfirmEditingDialog'
+import DataGridCellInput from './DataGridCellInput'
 import PageHeader from 'components/shell/PageHeader'
-import dayjs from 'dayjs'
 import { useAppConfig } from 'hooks/useAppConfig'
 import { useSnackbar } from 'notistack'
 import { useState } from 'react'
 import ApiClient from 'services/ApiClient'
 import { DisplayField, FieldChangeReq, FieldType } from 'types/Fields'
 import { PatientRecord, GoldenRecord } from 'types/PatientRecord'
-import { formatDate } from 'utils/formatters'
 import { sortColumns } from 'utils/helpers'
+import getCellComponent from 'components/shared/getCellComponent'
+import { AUDIT_TRAIL_COLUMNS } from 'utils/constants'
+import { AuditTrail } from 'types/AuditTrail'
 
 export interface UpdatedFields {
   [fieldName: string]: { oldValue: unknown; newValue: unknown }
 }
 
-const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
-  {
-    field: 'created_at',
-    headerName: 'CreatedAt',
-    valueFormatter: ({ value }) => formatDate(value),
-    sortable: false,
-    disableColumnMenu: true,
-    headerClassName: 'super-app-theme--header'
-  },
-  {
-    field: 'inserted_at',
-    headerName: 'InsertedAt',
-    valueFormatter: ({ value }) => formatDate(value),
-    sortable: false,
-    disableColumnMenu: true,
-    headerClassName: 'super-app-theme--header'
-  },
-  {
-    field: 'interaction_id',
-    headerName: 'InteractionID',
-    sortable: false,
-    disableColumnMenu: true,
-    headerClassName: 'super-app-theme--header'
-  },
-  {
-    field: 'golden_id',
-    headerName: 'GoldenID',
-    sortable: false,
-    disableColumnMenu: true,
-    headerClassName: 'super-app-theme--header'
-  },
-
-  {
-    field: 'entry',
-    headerName: 'Event',
-    sortable: false,
-    disableColumnMenu: true,
-    headerClassName: 'super-app-theme--header',
-    flex: 1
-  }
-]
-
 const RecordDetails = () => {
   const {
     data: { uid }
   } = useMatch()
+  const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
   const { availableFields } = useAppConfig()
   const [isEditMode, setIsEditMode] = useState(false)
   const [updatedFields, setUpdatedFields] = useState<UpdatedFields>({})
+  const [records, setRecords] = useState<Array<GoldenRecord | PatientRecord>>(
+    []
+  )
   const [patientRecord, setPatientRecord] = useState<
     PatientRecord | GoldenRecord | undefined
   >(undefined)
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>([])
 
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const columns: GridColDef[] = sortColumns(
-    availableFields.map(
-      ({ fieldName, fieldLabel, readOnly, isValid, formatValue }) => {
-        return {
-          field: fieldName,
-          headerName: fieldLabel,
-          flex: fieldName === 'sourceId' ? 2 : 1,
-          valueFormatter: ({ value }) =>
-            fieldName === 'createdAt'
-              ? formatDate(value as Date)
-              : formatValue(value),
-          sortable: false,
-          disableColumnMenu: true,
-          editable: !readOnly && isEditMode && patientRecord?.type === 'Golden',
-          // a Callback used to validate the user's input
-          preProcessEditCellProps: ({ props }) => {
-            return {
-              ...props,
-              error: isValid(props.value)
-            }
-          },
-          renderEditCell: props => <DataGridCellInput {...props} />,
-          headerClassName: 'super-app-theme--header',
-          renderCell: (params: GridRenderCellParams) => {
-            if (fieldName === 'sourceId') {
-              return <SourceIdComponent content={params.row.sourceId} />
-            }
-            if (fieldName === 'createdAt') {
-              return (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Typography fontSize={'1em'}>{`${dayjs(
-                    params.row.createdAt as Date
-                  ).format('YYYY/MM/DD')}`}</Typography>
-
-                  <Typography fontSize={'1em'}>{`${dayjs(
-                    params.row.createdAt as Date
-                  ).format('HH:MM:ss')}`}</Typography>
-                </Box>
-              )
-            }
-          }
-        }
-      }
-    ),
-    [
-      'uid',
-      'createdAt',
-      'sourceId',
-      'auxId',
-      'givenName',
-      'familyName',
-      'gender',
-      'dob',
-      'city',
-      'phoneNumber',
-      'nationalId',
-      'score'
-    ]
+  const columns: GridColDef[] = availableFields.map(
+    ({
+      fieldName,
+      fieldLabel,
+      readOnly,
+      validation,
+      isValid,
+      formatValue
+    }) => ({
+      field: fieldName,
+      headerName: fieldLabel,
+      flex: fieldName === 'sourceId' ? 2 : 1,
+      valueFormatter: ({ value }) => formatValue(value),
+      sortable: false,
+      disableColumnMenu: true,
+      editable: !readOnly && isEditMode && patientRecord?.type === 'Golden',
+      // a Callback used to validate the user's input
+      preProcessEditCellProps: ({ props }) => ({
+        ...props,
+        error: isValid(props.value)
+      }),
+      renderEditCell: props => (
+        <DataGridCellInput
+          {...{ ...props, message: validation?.onErrorMessage }}
+        />
+      ),
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: GridRenderCellParams) =>
+        getCellComponent(fieldName, params)
+    })
   )
+
+  const sortedColumns = sortColumns(columns, [
+    'uid',
+    'createdAt',
+    'sourceId',
+    'auxId',
+    'givenName',
+    'familyName',
+    'gender',
+    'dob',
+    'city',
+    'phoneNumber',
+    'nationalId',
+    'score'
+  ])
 
   const { data, error, isLoading, isError } = useQuery<
     Array<GoldenRecord>,
@@ -166,7 +115,11 @@ const RecordDetails = () => {
         true
       )) as Array<GoldenRecord>
     },
-    onSuccess: data => setPatientRecord(data[0]),
+    onSuccess: data => {
+      setPatientRecord(data[0])
+      setRowSelectionModel([data[0].uid])
+      setRecords(data)
+    },
     refetchOnWindowFocus: false
   })
 
@@ -174,7 +127,7 @@ const RecordDetails = () => {
     data: auditTrail,
     isLoading: isAuditTrailLoading,
     isFetching
-  } = useQuery<any, AxiosError>({
+  } = useQuery<Array<AuditTrail>, AxiosError>({
     queryKey: ['audit-trail', patientRecord?.uid],
     queryFn: async () => {
       if (patientRecord?.type === 'Golden') {
@@ -204,11 +157,10 @@ const RecordDetails = () => {
         variant: 'success'
       })
     },
-    onError: (error: AxiosError) => {
+    onError: () => {
       enqueueSnackbar(`Could not save record changes`, {
         variant: 'error'
       })
-      console.log(`Oops! Error persisting data: ${error.message}`)
     }
   })
 
@@ -242,10 +194,6 @@ const RecordDetails = () => {
     return <NotFound />
   }
 
-  const onRecordSave = () => {
-    setIsModalVisible(true)
-  }
-
   const onConfirm = () => {
     if (patientRecord) {
       const fields = Object.keys(patientRecord).reduce(
@@ -271,13 +219,22 @@ const RecordDetails = () => {
     setIsEditMode(false)
     setUpdatedFields({})
   }
-  const onCancelEditing = () => {
-    setPatientRecord(data[0])
-    setIsEditMode(false)
-  }
 
-  const onCancelConfirmation = () => {
-    setIsModalVisible(false)
+  const handlePatientSelection = (record: PatientRecord) => {
+    if (isEditMode && rowSelectionModel[0] !== record.uid) {
+      enqueueSnackbar(
+        'Please finish editing the golden record by saving it or by canceling your changes',
+        {
+          variant: 'warning'
+        }
+      )
+    } else {
+      setPatientRecord(record)
+    }
+  }
+  const onCancelEditing = () => {
+    setRecords([...data])
+    setIsEditMode(false)
   }
 
   return (
@@ -286,51 +243,55 @@ const RecordDetails = () => {
       sx={{
         '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
           outline: 'none'
-        },
-        '& .super-app-theme--header': {
-          backgroundColor: '#274263',
-          color: 'white'
         }
       }}
     >
       <PageHeader
-        breadcrumbs={[{ icon: <Search />, title: 'Browse Records', link: '/' }]}
+        breadcrumbs={[
+          { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
+        ]}
         title={`Patient interactions for GID ${uid}`}
       />
       <Divider />
-      <ConfirmationModal
+      <ConfirmEditingDialog
         isVisible={isModalVisible}
-        handleClose={onCancelConfirmation}
+        handleClose={() => setIsModalVisible(false)}
         updatedFields={updatedFields}
         onConfirm={onConfirm}
       />
-      <Box
-        sx={{
-          mt: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px'
-        }}
-      >
+      <Stack mt="20px" direction="column" gap="20px">
         <Paper sx={{ p: 1 }}>
-          <Stack
-            p={1}
-            display={'flex'}
-            flexDirection={'row'}
-            justifyContent={'space-between'}
-          >
+          <Stack p={1} flexDirection={'row'} justifyContent={'space-between'}>
             <Typography variant="h6">Records</Typography>
             <Stack display={'flex'} flexDirection={'row'}>
+              {!patientRecord || patientRecord?.type === 'Golden' ? (
+                <Button
+                  onClick={() => setIsEditMode(true)}
+                  disabled={isEditMode === true}
+                >
+                  Edit
+                </Button>
+              ) : (
+                <Button
+                  onClick={() =>
+                    navigate({
+                      fromCurrent: true,
+                      to: 'relink',
+                      search: {
+                        payload: {
+                          patient_id: patientRecord.uid,
+                          golden_id: data[0].uid,
+                          score: patientRecord.score
+                        }
+                      }
+                    })
+                  }
+                >
+                  Relink
+                </Button>
+              )}
               <Button
-                onClick={() => setIsEditMode(true)}
-                disabled={
-                  isEditMode === true || patientRecord?.type !== 'Golden'
-                }
-              >
-                Edit
-              </Button>
-              <Button
-                onClick={() => onRecordSave()}
+                onClick={() => setIsModalVisible(true)}
                 disabled={
                   isEditMode !== true || patientRecord?.type !== 'Golden'
                 }
@@ -349,25 +310,16 @@ const RecordDetails = () => {
           </Stack>
           <DataGrid
             getRowId={({ uid }) => uid}
-            columns={columns}
-            onRowClick={params => {
-              setPatientRecord(params.row)
-            }}
-            rows={data}
+            columns={sortedColumns}
+            onRowClick={params => handlePatientSelection(params.row)}
+            onRowSelectionModelChange={row => setRowSelectionModel(row)}
+            rowSelectionModel={rowSelectionModel}
+            disableRowSelectionOnClick={isEditMode}
+            editMode="row"
+            isCellEditable={params => params.row.type === 'Golden'}
+            rows={records}
             autoHeight={true}
             hideFooter={true}
-            sx={{
-              '& .super-app-theme--Golden': {
-                backgroundColor: '#f5df68',
-                '&:hover': {
-                  backgroundColor: '#fff08d'
-                },
-                '&.Mui-selected': {
-                  backgroundColor: '#e2be1d',
-                  '&:hover': { backgroundColor: '#fff08d' }
-                }
-              }
-            }}
             getRowClassName={params => `super-app-theme--${params.row.type}`}
             processRowUpdate={newRow => onDataChange(newRow)}
           />
@@ -382,11 +334,10 @@ const RecordDetails = () => {
             rows={auditTrail || []}
             autoHeight={true}
             hideFooter={true}
-            processRowUpdate={newRow => onDataChange(newRow)}
             loading={isAuditTrailLoading && isFetching}
           />
         </Paper>
-      </Box>
+      </Stack>
     </Container>
   )
 }

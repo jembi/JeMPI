@@ -24,7 +24,7 @@ export interface Field {
   scope: string[]
   accessLevel: string[]
   readOnly?: boolean
-  rules?: { required: boolean; regex: string }
+  validation?: { required: boolean; regex?: string; onErrorMessage: string }
 }
 
 export interface FieldChangeReq {
