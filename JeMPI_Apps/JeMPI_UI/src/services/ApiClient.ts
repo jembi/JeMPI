@@ -156,55 +156,37 @@ class ApiClient {
     const endpoint = `${
       isCustomSearch ? ROUTES.POST_CUSTOM_SEARCH : ROUTES.POST_SIMPLE_SEARCH
     }/${isGoldenOnly ? 'golden' : 'patient'}`
-    return await client.post(endpoint, request).then(res => {
-      if (isGoldenOnly) {
-        const { pagination, data } = res.data
-        const result: ApiSearchResult = {
-          records: {
-            data: data.map(
+    const res = await client.post(endpoint, request)
+    const { pagination, data } = res.data
+    const result: ApiSearchResult = {
+      records: {
+        data: isGoldenOnly
+          ? data.map(
               ({
                 goldenRecord,
                 interactionsWithScore
-              }: ExpandedGoldenRecord) => {
-                return {
-                  ...goldenRecord,
-                  ...goldenRecord.demographicData,
-                  linkRecords: interactionsWithScore.map(
-                    ({ interaction }: InteractionWithScore) => {
-                      return {
-                        uid: interaction.uid,
-                        sourceId: interaction.sourceId,
-                        ...interaction.demographicData
-                      }
-                    }
-                  )
-                }
-              }
-            ),
-            pagination: {
-              total: pagination.total
-            }
-          }
+              }: ExpandedGoldenRecord) => ({
+                ...goldenRecord,
+                ...goldenRecord.demographicData,
+                linkRecords: interactionsWithScore.map(
+                  ({ interaction }: InteractionWithScore) => ({
+                    uid: interaction.uid,
+                    sourceId: interaction.sourceId,
+                    ...interaction.demographicData
+                  })
+                )
+              })
+            )
+          : data.map((patientRecord: Interaction) => ({
+              ...patientRecord,
+              ...patientRecord.demographicData
+            })),
+        pagination: {
+          total: pagination.total
         }
-        return result
-      } else {
-        const { pagination, data } = res.data
-        const result: ApiSearchResult = {
-          records: {
-            data: data.map((patientRecord: Interaction) => {
-              return {
-                ...patientRecord,
-                ...patientRecord.demographicData
-              }
-            }),
-            pagination: {
-              total: pagination.total
-            }
-          }
-        }
-        return result
       }
-    })
+    }
+    return result
   }
 
   async getFilteredGoldenIds(request: FilterQuery) {
