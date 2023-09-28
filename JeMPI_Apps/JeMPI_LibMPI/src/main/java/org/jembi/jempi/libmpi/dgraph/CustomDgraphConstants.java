@@ -302,13 +302,13 @@ public final class CustomDgraphConstants {
             SourceId.patient
          }
          """;
-     
+       
    static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
          """
          SourceId.facility:                     string    @index(exact)                      .
          SourceId.patient:                      string    @index(exact)                      .
          """;
-       
+         
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE =
          """
 
@@ -327,7 +327,7 @@ public final class CustomDgraphConstants {
             GoldenRecord.interactions:              [Interaction]
          }
          """;
-         
+           
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
          GoldenRecord.source_id:                [uid]                                        .
@@ -338,7 +338,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.family_name:              string    @index(exact,trigram)              .
          GoldenRecord.gender:                   string    @index(exact,trigram)              .
          GoldenRecord.dob:                      string                                       .
-         GoldenRecord.city:                     string    @index(trigram)                    .
+         GoldenRecord.city:                     string    @index(exact,trigram)              .
          GoldenRecord.phone_number:             string    @index(exact,trigram)              .
          GoldenRecord.national_id:              string    @index(exact,trigram)              .
          GoldenRecord.interactions:             [uid]     @reverse                           .

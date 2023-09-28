@@ -56,7 +56,9 @@ public interface LibMPIClientInterface {
          long offset,
          long length);
 
-   List<GoldenRecord> findCandidates(CustomDemographicData demographicData);
+   List<GoldenRecord> findLinkCandidates(CustomDemographicData demographicData);
+
+   List<GoldenRecord> findMatchCandidates(CustomDemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<ApiModels.ApiSearchParameter> params,

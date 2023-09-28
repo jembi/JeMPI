@@ -90,14 +90,14 @@ final class Routes {
                                             : complete(StatusCodes.IM_A_TEAPOT)));
    }
 
-   static Route routeMU(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Request> backEnd) {
-      return onComplete(Ask.getMU(actorSystem, backEnd),
-                        response -> response.isSuccess()
-                              ? complete(StatusCodes.OK, response.get().mu(), Jackson.marshaller())
-                              : complete(StatusCodes.IM_A_TEAPOT));
-   }
+//   static Route routeMU(
+//         final ActorSystem<Void> actorSystem,
+//         final ActorRef<BackEnd.Request> backEnd) {
+//      return onComplete(Ask.getMU(actorSystem, backEnd),
+//                        response -> response.isSuccess()
+//                              ? complete(StatusCodes.OK, response.get().mu(), Jackson.marshaller())
+//                              : complete(StatusCodes.IM_A_TEAPOT));
+//   }
 
    static Route proxyGetCrCandidates(
          final ActorSystem<Void> actorSystem,

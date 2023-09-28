@@ -158,8 +158,12 @@ public final class LibMPI {
       return client.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findCandidates(final CustomDemographicData demographicData) {
-      return client.findCandidates(demographicData);
+   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+      return client.findLinkCandidates(demographicData);
+   }
+
+   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+      return client.findMatchCandidates(demographicData);
    }
 
    public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
@@ -313,12 +317,15 @@ public final class LibMPI {
 
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
-         final LibMPIClientInterface.GoldenIdScore goldenIdScore) {
+         final LibMPIClientInterface.GoldenIdScore goldenIdScore,
+         final boolean deterministicValidation,
+         final float probabilisticValidation) {
       final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
-                        String.format("Interaction -> Existing GoldenRecord (%.5f)", result.score()));
+                        String.format("Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), Probabilistic(%.3f)", result.score(),
+                                      deterministicValidation, probabilisticValidation));
       } else {
          sendAuditEvent(interaction.interactionId(),
                         goldenIdScore.goldenId(),

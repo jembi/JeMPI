@@ -1,7 +1,5 @@
 package configuration
 
-import configuration.Config
-
 import java.io.{File, PrintWriter}
 
 private object CustomMU {
@@ -23,7 +21,7 @@ private object CustomMU {
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public record $customClassName(""".stripMargin)
     val margin = 23
-    val filteredFields = fields.filter(_.m.isDefined)
+    val filteredFields = fields.filter(f => f.linkMetaData.isDefined)
     if (filteredFields.length == 0)
       writer.println("Probability dummy) {")
     else
@@ -46,20 +44,15 @@ private object CustomMU {
     if (filteredFields.length == 0)
       writer.println(s"      this(new $customClassName.Probability(0.0F, 0.0F));")
     else
-      filteredFields.zipWithIndex.foreach {
-        case (_, idx) =>
-          val arg = s"new $customClassName.Probability((float) mHat[$idx], (float) uHat[$idx])"
-          if (idx == 0)
-            writer.println("      this(" + arg + ",")
-          else
-            writer.print(" " * 11)
-            if (idx + 1 < filteredFields.length)
-              writer.println(s"$arg,")
-            else
-              writer.println(s"$arg);")
-            end if
-          end if
-      }
+      var s = s"""${" " * 6}this(""".stripMargin
+      filteredFields.zipWithIndex.foreach((_, idx) =>
+        s +=
+          s"""${" " * (if (idx > 0) 11 else 0)}new $customClassName.Probability((float) mHat[$idx], (float) uHat[$idx])${
+            if (idx < filteredFields.length - 1) "," else ");"
+          }
+             |""".stripMargin
+      )
+      writer.print(s);
     end if
     writer.println(
       s"""   }

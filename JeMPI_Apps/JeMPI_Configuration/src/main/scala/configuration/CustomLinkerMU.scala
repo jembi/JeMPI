@@ -10,14 +10,14 @@ object CustomLinkerMU {
   private val custom_className = "CustomLinkerMU"
   private val packageText = "org.jembi.jempi.linker"
 
-  def parseRules(config: Config): Any = {
+  def generate(config: Config): Any = {
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
     val muList = for (
-      t <- config.demographicFields.filter(f => f.m.isDefined && f.u.isDefined)
+      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined)
     ) yield t
 
     writer.println(s"package $packageText;")
@@ -157,7 +157,7 @@ object CustomLinkerMU {
         muList.zipWithIndex.foreach((mu, idx) => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(s"                              computeM($fieldName), computeU($fieldName)"
-                           + (if ((idx + 1) != muList.length) "," else ");"))
+            + (if ((idx + 1) != muList.length) "," else ");"))
         })
       }
 

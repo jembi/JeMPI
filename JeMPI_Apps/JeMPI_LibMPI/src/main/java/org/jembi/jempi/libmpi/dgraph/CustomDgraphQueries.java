@@ -12,13 +12,15 @@ import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 
 final class CustomDgraphQueries {
 
-   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_FUNCTIONS =
-      List.of(CustomDgraphQueries::queryDeterministicA,
-              CustomDgraphQueries::queryDeterministicB);
+   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
+      List.of(CustomDgraphQueries::queryLinkDeterministicA);
 
-   private static final String QUERY_DETERMINISTIC_A =
+   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+      List.of(CustomDgraphQueries::queryMatchDeterministicA);
+
+   private static final String QUERY_LINK_DETERMINISTIC_A =
          """
-         query query_deterministic_a($national_id: string) {
+         query query_link_deterministic_a($national_id: string) {
             all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.national_id, $national_id)) {
                uid
                GoldenRecord.source_id {
@@ -38,9 +40,9 @@ final class CustomDgraphQueries {
          }
          """;
 
-   private static final String QUERY_DETERMINISTIC_B =
+   private static final String QUERY_MATCH_DETERMINISTIC_A =
          """
-         query query_deterministic_b($given_name: string, $family_name: string, $phone_number: string) {
+         query query_match_deterministic_a($given_name: string, $family_name: string, $phone_number: string) {
             var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.given_name, $given_name)) {
                A as uid
             }
@@ -69,25 +71,19 @@ final class CustomDgraphQueries {
          }
          """;
 
-   private static final String QUERY_PROBABILISTIC =
+   private static final String QUERY_MATCH_PROBABILISTIC_BLOCK =
          """
-         query query_probabilistic($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
+         query query_match_probabilistic_block($given_name: string, $family_name: string, $phone_number: string) {
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.given_name, $given_name, 3)) {
                A as uid
             }
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.family_name, $family_name, 3)) {
                B as uid
             }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.city, $city, 3)) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.phone_number, $phone_number, 3)) {
                C as uid
             }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.phone_number, $phone_number, 2)) {
-               D as uid
-            }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.national_id, $national_id, 3)) {
-               E as uid
-            }
-            all(func:type(GoldenRecord)) @filter(((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) OR uid(D) OR uid(E)) {
+            all(func:type(GoldenRecord)) @filter((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) {
                uid
                GoldenRecord.source_id {
                   uid
@@ -106,16 +102,45 @@ final class CustomDgraphQueries {
          }
          """;
 
-
-   private static DgraphGoldenRecords queryDeterministicA(final CustomDemographicData demographicData) {
+   private static DgraphGoldenRecords queryLinkDeterministicA(final CustomDemographicData demographicData) {
       if (StringUtils.isBlank(demographicData.nationalId)) {
          return new DgraphGoldenRecords(List.of());
       }
       final Map<String, String> map = Map.of("$national_id", demographicData.nationalId);
-      return runGoldenRecordsQuery(QUERY_DETERMINISTIC_A, map);
+      return runGoldenRecordsQuery(QUERY_LINK_DETERMINISTIC_A, map);
    }
 
-   private static DgraphGoldenRecords queryDeterministicB(final CustomDemographicData demographicData) {
+   private static void mergeCandidates(
+         final List<CustomDgraphGoldenRecord> goldenRecords,
+         final DgraphGoldenRecords block) {
+      final var candidates = block.all();
+      if (!candidates.isEmpty()) {
+         candidates.forEach(candidate -> {
+            var found = false;
+            for (CustomDgraphGoldenRecord goldenRecord : goldenRecords) {
+               if (candidate.goldenId().equals(goldenRecord.goldenId())) {
+                  found = true;
+                  break;
+               }
+            }
+            if (!found) {
+               goldenRecords.add(candidate);
+            }
+         });
+      }
+   }
+
+   static List<CustomDgraphGoldenRecord> findLinkCandidates(
+      final CustomDemographicData interaction) {
+      var result = DgraphQueries.deterministicFilter(DETERMINISTIC_LINK_FUNCTIONS, interaction);
+      if (!result.isEmpty()) {
+         return result;
+      }
+      result = new LinkedList<>();
+      return result;
+   }
+
+   private static DgraphGoldenRecords queryMatchDeterministicA(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName;
       final var familyName = demographicData.familyName;
       final var phoneNumber = demographicData.phoneNumber;
@@ -137,21 +162,17 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(phoneNumber)
                                    ? phoneNumber
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordsQuery(QUERY_DETERMINISTIC_B, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_DETERMINISTIC_A, map);
    }
 
-   private static DgraphGoldenRecords queryProbabilistic(final CustomDemographicData demographicData) {
+   private static DgraphGoldenRecords queryMatchProbabilisticBlock(final CustomDemographicData demographicData) {
       final var givenName = demographicData.givenName;
       final var familyName = demographicData.familyName;
-      final var city = demographicData.city;
       final var phoneNumber = demographicData.phoneNumber;
-      final var nationalId = demographicData.nationalId;
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
-      final var cityIsBlank = StringUtils.isBlank(city);
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
-      final var nationalIdIsBlank = StringUtils.isBlank(nationalId);
-      if ((((givenNameIsBlank || familyNameIsBlank) && (givenNameIsBlank || cityIsBlank) && (familyNameIsBlank || cityIsBlank)) && phoneNumberIsBlank && nationalIdIsBlank)) {
+      if (((givenNameIsBlank || familyNameIsBlank) && (givenNameIsBlank || phoneNumberIsBlank) && (familyNameIsBlank || phoneNumberIsBlank))) {
          return new DgraphGoldenRecords(List.of());
       }
       final var map = Map.of("$given_name",
@@ -162,52 +183,25 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(familyName)
                                    ? familyName
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$city",
-                             StringUtils.isNotBlank(city)
-                                   ? city
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
                              "$phone_number",
                              StringUtils.isNotBlank(phoneNumber)
                                    ? phoneNumber
-                                   : DgraphQueries.EMPTY_FIELD_SENTINEL,
-                             "$national_id",
-                             StringUtils.isNotBlank(nationalId)
-                                   ? nationalId
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordsQuery(QUERY_PROBABILISTIC, map);
+      return runGoldenRecordsQuery(QUERY_MATCH_PROBABILISTIC_BLOCK, map);
    }
 
-   private static void updateCandidates(
-         final List<CustomDgraphGoldenRecord> goldenRecords,
-         final DgraphGoldenRecords block) {
-      final var candidates = block.all();
-      if (!candidates.isEmpty()) {
-         candidates.forEach(candidate -> {
-            var found = false;
-            for (CustomDgraphGoldenRecord goldenRecord : goldenRecords) {
-               if (candidate.goldenId().equals(goldenRecord.goldenId())) {
-                  found = true;
-                  break;
-               }
-            }
-            if (!found) {
-               goldenRecords.add(candidate);
-            }
-         });
-      }
-   }
-
-   static List<CustomDgraphGoldenRecord> getCandidates(
+   static List<CustomDgraphGoldenRecord> findMatchCandidates(
       final CustomDemographicData interaction) {
-      var result = DgraphQueries.deterministicFilter(interaction);
+      var result = DgraphQueries.deterministicFilter(DETERMINISTIC_MATCH_FUNCTIONS, interaction);
       if (!result.isEmpty()) {
          return result;
       }
       result = new LinkedList<>();
-      updateCandidates(result, queryProbabilistic(interaction));
+      mergeCandidates(result, queryMatchProbabilisticBlock(interaction));
       return result;
    }
 
    private CustomDgraphQueries() {
    }
+
 }

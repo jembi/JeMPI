@@ -8,106 +8,6 @@ private object CustomDgraphMutations {
   private val custom_className = "CustomDgraphMutations"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
-  private def checkToString(v: String): String =
-    v match
-      case "Bool" => ".toString()"
-      case "DateTime" => ".toString()"
-      case _ => ""
-  end checkToString
-
-  private def castAs(t: String): String =
-    t match
-      case "String" => ""
-      case "Bool" => "^^<xs:boolean>"
-      case "DateTime" => "^^<xs:dateTime>"
-  end castAs
-
-  private def interactionFields(config: Config): String =
-    (if (config.uniqueInteractionFields.isEmpty) "" else
-      config
-        .uniqueInteractionFields
-        .get
-        .map(f =>
-          val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <Interaction.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
-        .mkString("\n")
-  end interactionFields
-
-  private def interactionArguments(config: Config): String =
-
-    def mapUniqueField(f: UniqueField): String =
-      s"""AppUtils.quotedValue(uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
-    end mapUniqueField
-
-    def mapCommonField(f: DemographicField): String =
-      s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
-    end mapCommonField
-
-    (if (config.uniqueInteractionFields.isEmpty) "" else
-      config
-        .uniqueInteractionFields
-        .get
-        .map(f =>
-          s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          s"""${" " * 27}uuid, ${mapCommonField(f)},""")
-        .mkString("\n")
-  end interactionArguments
-
-  private def goldenRecordFields(config: Config): String =
-    (if (config.uniqueGoldenRecordFields.isEmpty) "" else
-      config
-        .uniqueGoldenRecordFields
-        .get
-        .map(f =>
-          val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          val c = castAs(f.fieldType)
-          s"""${" " * 27}_:%s  <GoldenRecord.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s${c}${" " * (20 - c.length)}.""")
-        .mkString("\n")
-  end goldenRecordFields
-
-  private def goldenRecordArguments(config: Config): String =
-
-    def mapUniqueField(f: UniqueField): String =
-      s"""AppUtils.quotedValue(uniqueGoldenRecordData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
-    end mapUniqueField
-
-    def mapDemographicField(f: DemographicField): String =
-      s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
-    end mapDemographicField
-
-    (if (config.uniqueGoldenRecordFields.isEmpty) "" else
-      config
-        .uniqueGoldenRecordFields
-        .get
-        .map(f =>
-          s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
-        .mkString("\n") + "\n")
-      +
-      config
-        .demographicFields
-        .map(f =>
-          s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
-        .mkString("\n")
-  end goldenRecordArguments
-
   def generate(config: Config): Unit =
     val classFile: String = classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
@@ -135,11 +35,11 @@ private object CustomDgraphMutations {
          |      final String uuid = UUID.randomUUID().toString();
          |      return String.format(\"\"\"
          |                           _:%s  <Interaction.source_id>${" " * 21}<%s>${" " * 18}.
-         |${interactionFields(config)}
+         |${interactionFields()}
          |${" " * 27}_:%s  <dgraph.type>                               \"Interaction\"         .
          |${" " * 27}\"\"\",
          |${" " * 27}uuid, sourceUID,
-         |${interactionArguments(config)}
+         |${interactionArguments()}
          |${" " * 27}uuid);
          |   }
          |
@@ -152,18 +52,133 @@ private object CustomDgraphMutations {
          |      final String uuid = UUID.randomUUID().toString();
          |      return String.format(\"\"\"
          |                           _:%s  <GoldenRecord.source_id>                     <%s>                  .
-         |${goldenRecordFields(config)}
+         |${goldenRecordFields()}
          |${" " * 27}_:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
          |${" " * 27}_:%s  <dgraph.type>                                "GoldenRecord"        .
          |${" " * 27}\"\"\",
          |${" " * 27}uuid, sourceUID,
-         |${goldenRecordArguments(config)}
+         |${goldenRecordArguments()}
          |${" " * 27}uuid, interactionUID, score,
          |${" " * 27}uuid);
          |${" " * 3}}
          |}""".stripMargin)
     writer.flush()
     writer.close()
+
+
+    def checkToString(v: String): String =
+      v match
+        case "Bool" => ".toString()"
+        case "DateTime" => ".toString()"
+        case _ => ""
+    end checkToString
+
+    def castAs(t: String): String =
+      t match
+        case "String" => ""
+        case "Bool" => "^^<xs:boolean>"
+        case "DateTime" => "^^<xs:dateTime>"
+    end castAs
+
+    def interactionFields(): String =
+
+      def mapField(fieldName: String, fieldType: String): String =
+        val c = castAs(fieldType)
+        s"""${" " * 27}_:%s  <Interaction.$fieldName>${" " * (30 - fieldName.length)}%s$c${" " * (20 - c.length)}."""
+      end mapField
+
+      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => mapField(f.fieldName, f.fieldType))
+          .mkString("\n") + "\n"
+
+      val f2 = config
+        .demographicFields
+        .map(f => mapField(f.fieldName, f.fieldType))
+        .mkString("\n")
+
+      f1 + f2
+    end interactionFields
+
+    def interactionArguments(): String =
+
+      def mapUniqueField(f: UniqueField): String =
+        s"""AppUtils.quotedValue(uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
+      end mapUniqueField
+
+      def mapCommonField(f: DemographicField): String =
+        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
+      end mapCommonField
+
+      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
+        config
+          .uniqueInteractionFields
+          .get
+          .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
+          .mkString("\n") + "\n"
+
+      val f2 = config
+        .demographicFields
+        .map(f => s"""${" " * 27}uuid, ${mapCommonField(f)},""")
+        .mkString("\n")
+
+      f1 + f2
+
+    end interactionArguments
+
+    def goldenRecordFields(): String =
+
+      def mapField(fieldName: String, fieldType: String): String =
+        val c = castAs(fieldType)
+        s"""${" " * 27}_:%s  <GoldenRecord.${fieldName}>${" " * (30 - fieldName.length)}%s$c${" " * (20 - c.length)}."""
+      end mapField
+
+      val f1 = if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f => mapField(f.fieldName, f.fieldType))
+          .mkString("\n") + "\n"
+
+      val f2 = config
+        .demographicFields
+        .map(f => mapField(f.fieldName, f.fieldType))
+        .mkString("\n")
+
+      f1 + f2
+
+    end goldenRecordFields
+
+    def goldenRecordArguments(): String =
+
+      def mapUniqueField(f: UniqueField): String =
+        s"""AppUtils.quotedValue(uniqueGoldenRecordData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
+      end mapUniqueField
+
+      def mapDemographicField(f: DemographicField): String =
+        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
+      end mapDemographicField
+
+      val f1 = if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f =>
+            s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
+          .mkString("\n") + "\n"
+
+      val f2 = config
+        .demographicFields
+        .map(f =>
+          s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
+        .mkString("\n")
+
+      f1 + f2
+
+    end goldenRecordArguments
+
   end generate
 
 }
