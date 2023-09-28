@@ -24,7 +24,12 @@ implementation. This endpoint returns a JSON array. Below a sample of the respon
       "demographics",
       "linked_records"
     ],
-    "fieldType": "String"
+    "fieldType": "String",
+    "validation": {
+      "regex":"/(Golden|Interaction)/",
+      "required": true,
+      "onErrorMessage": "This field cannot be empty"
+    }
   },
   ...
 ]
@@ -38,9 +43,10 @@ For each field we have a set of attributes, as defined below :
 | fieldLabel  | A string that is a human readable name for the field                                                            | Frontend           |
 | scope       | Array of URL paths that tells the frontend UI in which pages should the field appear                            | Frontend           |
 | groups      | Array of strings which identifies in which section within a frontend UI page should the field be displayed      | Frontend           |
-| FieldType   | A string that identifies the type of field, could be String, Date, ...(useful for formatting for example)       | Frontend + Backend |
+| fieldType   | A string that identifies the type of field, could be String, Date, ...(useful for formatting for example)       | Frontend + Backend |
 | accessLevel | An array of string that identifies which user roles are permitted to access a given field (NOT YET IMPLEMENTED) | Frontend           |
 | readOnly    | Tells if the field can be editable.                                                                             | Frontend           |
+| validation  | An Object used for validating the field.                                                                        | Frontend           |
 
 The fields should be configured in the json file for each implementation and should not be updated in production : `JeMPI_Apps/JeMPI_Configuration/resources/config-reference.json`
 
@@ -55,16 +61,16 @@ There's two type of fields :
 
 The following endpoint returns notifications. notifications are used to inform the user about potential interaction linking to golden records and are generated when a certain case is triggerd. the response contains parameters (`count`, `skippedRecords` ) that are useful for pagination.
 
-bellow are the necessairy parameters to get the notifications list
+Below are the necessary parameters to get the notifications list
 
-| Parameter | Description                                                                             | Type   |
-| --------- | --------------------------------------------------------------------------------------- | ------ |
-| LIMIT     | Number of notification that the user want to get from the API                           | Number |
-| DATE      | A date limit, the user will get the data from the oldest to that particualar date limit | Date   |
-| OFFSET    | A pagination parameter                                                                  | Number |
-| STATE     | The state of the notificaitons that we want to fetch interaction                        | String |
+| Parameter | Description                                                                                               | Type   |
+| --------- | --------------------------------------------------------------------------------------------------------- | ------ |
+| limit     | Number of notification that the user want to get from the API                                             | Number |
+| date      | A date limit, the user will get the data from the oldest to that particualar date limit (YYYY-MM-DD)      | Date   |
+| offset    | A pagination parameter                                                                                    | Number |
+| state     | The state of the notificaitons that we want to fetch interaction (New, Seen, Actioned, Accepted, Pending) | String |
 
-bellow is a sample of the response
+Below is a sample of the response
 
 ```json
 {
@@ -401,9 +407,21 @@ Bellow a sample of the response
 
 The following endpoint returns the golden record count available in the database
 
+```json
+{
+  "count": 1911
+}
+```
+
 ## GET /count-interactions
 
 The following endpoint returns the interaction count available in the database
+
+```json
+{
+  "count": 5035
+}
+```
 
 ## GET /count-records
 
@@ -420,7 +438,7 @@ The following endpoint returns the record count available in the database. bello
 
 The following endpoint return the golden record candidates for a given interaction ID `INTERACTION_ID`
 
-## POST /NotificationRequest`GIDS_LIST`
+## POST /NotificationRequest
 
 The following endpoint update the notification state given a notification Id and a state.
 Below a sample of the request:
@@ -430,6 +448,12 @@ Below a sample of the request:
   "notificationId": "53512711-aca5-4bfb-a239-51e438d74d36",
   "state": "Pending"
 }
+```
+
+Below a sample of the response:
+
+```json
+{}
 ```
 
 ## POST /search/(golden|patient)
@@ -696,6 +720,17 @@ The following endpoint is used to upload file into JeMPI. the file uploaded will
 
 ## POST /calculate-scores
 
+The following endpoint is used to calculate the score between an interaction and a set of golden records
+
+Below a sample of the request body
+
+```json
+{
+  "goldenIds": ["0x26bc"],
+  "interactionId": "0x26bb"
+}
+```
+
 ## POST /filter-gids
 
 The following endpoint returns a paginated Golden Ids list a request body illustrated in the example bellow
@@ -827,15 +862,15 @@ Bellow a sample a the response body for this endpoint
 The following endpoint unlinks a golden record and an interaction linked to it given their respective Ids. after the unlink, a new golden record will be created based on the interaction involved earlier
 bellow a sample of the URI request for unlink an interaction with the UID :
 
+Below a sample of the response 
+
 ```json
-
-// PATCH /Unlink?goldenID=0x2e&patientID=0x2d";
-
+{}
 ```
 
-## PATCH /Link
+## PATCH /Link?goldenID=${GOLDEN_ID}&newGoldenID=${NEW_GOLDEN_ID}&patientID=${INTERACTION_ID}&score=2`
 
-The following endpoint links an interaction with a golden records given their respective Ids 
+The following endpoint links an interaction with a golden records given their respective Ids, you should mention the current golden Id in order to unlink it
 
 ## PATCH /golden-record/:uid
 
