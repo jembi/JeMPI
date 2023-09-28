@@ -9,3 +9,6 @@ $controller_handle | Stop-Process
 
 $linker_handle = Import-Clixml -Path (Join-Path './' 'linker_handle.xml')
 $linker_handle | Stop-Process
+
+$api_handle = Import-Clixml -Path (Join-Path './' 'api_handle.xml')
+$api_handle | Stop-Process

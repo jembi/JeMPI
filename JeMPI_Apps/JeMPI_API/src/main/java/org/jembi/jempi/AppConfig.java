@@ -23,6 +23,7 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
+   public static final String POSTGRESQL_SERVER = CONFIG.getString("POSTGRESQL_SERVER");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
@@ -36,7 +37,7 @@ public final class AppConfig {
          return Integer.MIN_VALUE;
       }
    }).toArray();
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
+   public static final Integer API_PORT = CONFIG.getInt("API_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;

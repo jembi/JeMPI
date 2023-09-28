@@ -22,7 +22,8 @@ import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 public final class StatsTask {
 
    private static final Logger LOGGER = LogManager.getLogger(StatsTask.class);
-   private static final String URL = "http://api:50000";
+   private static final String URL = String.format(Locale.ROOT, "http://%s:%s", AppConfig.API_IP, AppConfig.API_PORT);
+
    private static final String URL_LINK = String.format(Locale.ROOT, "%s/JeMPI/", URL);
    // 01234567890123456
    // rec-0000000001-....
@@ -54,11 +55,12 @@ public final class StatsTask {
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_COUNT_INTERACTIONS)).newBuilder();
       final String url = urlBuilder.build().toString();
+      LOGGER.debug("{}", url);
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;
-         var json = response.body().string();
+         final var json = response.body().string();
          return OBJECT_MAPPER.readValue(json, ApiModels.ApiInterationCount.class).count();
       }
    }

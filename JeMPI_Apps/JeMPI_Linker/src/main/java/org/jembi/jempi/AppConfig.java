@@ -40,6 +40,8 @@ public final class AppConfig {
       }
    }).toArray();
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
+   public static final String API_IP = CONFIG.getString("API_IP");
+   public static final String API_PORT = CONFIG.getString("API_PORT");
    public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
    public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
 

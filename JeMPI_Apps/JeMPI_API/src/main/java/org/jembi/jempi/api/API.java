@@ -39,6 +39,7 @@ public final class API {
                context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
                                             AppConfig.getDGraphHosts(),
                                             AppConfig.getDGraphPorts(),
+                                            AppConfig.POSTGRESQL_SERVER,
                                             AppConfig.POSTGRESQL_USER,
                                             AppConfig.POSTGRESQL_PASSWORD,
                                             AppConfig.POSTGRESQL_DATABASE,
@@ -46,14 +47,9 @@ public final class API {
                                             "CLIENT_ID_API-" + UUID.randomUUID()),
                              "BackEnd");
          context.watch(backEnd);
-//         final var notificationsSteam = new NotificationStreamProcessor();
-//         notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
-//                                 AppConfig.POSTGRESQL_PASSWORD,
-//                                 AppConfig.KAFKA_APPLICATION_ID,
-//                                 AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          httpServer = HttpServer.create();
          httpServer.open("0.0.0.0",
-                         AppConfig.HTTP_SERVER_PORT,
+                         AppConfig.API_PORT,
                          context.getSystem(),
                          backEnd,
                          jsonFieldsConfig.jsonFields);
@@ -65,7 +61,7 @@ public final class API {
    }
 
    private void run() {
-      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.API_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);

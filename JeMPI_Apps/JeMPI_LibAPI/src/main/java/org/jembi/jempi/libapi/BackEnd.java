@@ -28,9 +28,10 @@ import java.util.*;
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
-   private final String pgDatabase;
+   private final String pgServer;
    private final String pgUser;
    private final String pgPassword;
+   private final String pgDatabase;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
@@ -43,6 +44,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final ActorContext<Event> context,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
+         final String sqlServer,
          final String sqlUser,
          final String sqlPassword,
          final String sqlDatabase,
@@ -52,9 +54,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       this.libMPI = null;
       this.dgraphHosts = dgraphHosts;
       this.dgraphPorts = dgraphPorts;
-      this.pgDatabase = sqlDatabase;
+      this.pgServer = sqlServer;
       this.pgUser = sqlUser;
       this.pgPassword = sqlPassword;
+      this.pgDatabase = sqlDatabase;
       psqlNotifications = new PsqlNotifications(sqlDatabase, sqlUser, sqlPassword);
       psqlAuditTrail = new PsqlAuditTrail(sqlDatabase, sqlUser, sqlPassword);
       openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
@@ -64,6 +67,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final Level level,
          final String[] dgraphHosts,
          final int[] dgraphPorts,
+         final String sqlServer,
          final String sqlUser,
          final String sqlPassword,
          final String sqlDatabase,
@@ -73,6 +77,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     context,
                                                     dgraphHosts,
                                                     dgraphPorts,
+                                                    sqlServer,
                                                     sqlUser,
                                                     sqlPassword,
                                                     sqlDatabase,

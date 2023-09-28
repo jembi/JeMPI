@@ -23,6 +23,7 @@ public final class AppConfig {
          .withResource("application.local.conf")
          .withResource("application.conf")
          .build();
+   public static final String POSTGRESQL_SERVER = CONFIG.getString("POSTGRESQL_SERVER");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");

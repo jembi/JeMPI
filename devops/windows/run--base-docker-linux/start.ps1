@@ -3,12 +3,16 @@ $postgresql_server                            = '192.168.0.7:5432'
 $dgraph_hosts                                 = '192.168.0.7'
 $dgraph_ports                                 = '9080'
 
+$api_ip                                       = 'localhost'
+$api_port                                     = '50002'
+
 $jempi_apps_dir                               = "..\..\..\..\..\JeMPI_Apps"
 
 $async_receiver_folder                        = '.\app_data\async_receiver'
 $etl_folder                                   = '.\app_data\etl'
 $controller_folder                            = '.\app_data\controller'
 $linker_folder                                = '.\app_data\linker'
+$api_folder                                   = '.\app_data\api'
 
 $def_kafka_bootstrap_servers                  = "-DKAFKA_BOOTSTRAP_SERVERS=" + $kafka1_ip + ":9094"
 $def_postgresql_server                        = "-DPOSTGRESQL_SERVER=" + $postgresql_server
@@ -17,6 +21,8 @@ $def_postgresql_password                      = "-DPOSTGRESQL_PASSWORD=`"postgre
 $def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notifications`""
 $def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
 $def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
+$def_api_ip                                   = "-DAPI_IP=" + $api_ip
+$def_api_port                                 = "-DAPI_PORT="+ $api_port
 
 $async_receiver_jar                           = "-jar " + $jempi_apps_dir + "\JeMPI_AsyncReceiver\target\AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar"
 $def_async_reveiver_log4j_level               = "-DLOG4J2_LEVEL=DEBUG"
@@ -40,6 +46,10 @@ $def_linker_kafka_client_id_notifications     = "-DKAFKA_CLIENT_ID_NOTIFICATIONS
 $def_linker_http_server_port                  = "-DHTTP_SERVER_PORT=50001"
 $def_linker_match_threshold                   = "-DLINKER_MATCH_THRESHOLD=0.65"
 $def_linker_match_threshold_margin            = "-DLINKER_MATCH_THRESHOLD_MARGIN=0.1"
+
+$api_jar                                      = "-jar " + $jempi_apps_dir + "\JeMPI_API\target\API-1.0-SNAPSHOT-spring-boot.jar"
+$def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE" 
+$def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
 
 $scriptpath = $MyInvocation.MyCommand.Path
@@ -152,6 +162,8 @@ $linker_handle = Start-Process -FilePath java `
                                              $def_linker_http_server_port, `
                                              $def_linker_match_threshold, `
                                              $def_linker_match_threshold_margin, `
+                                             $def_api_ip, `
+                                             $def_api_port, `
                                              $linker_jar `
                                -WindowStyle Normal `
                                -WorkingDirectory $linker_folder `
@@ -161,3 +173,35 @@ $linker_handle = Start-Process -FilePath java `
 #                               -RedirectStandardError 'linker-stderr.txt' `
 #                               -RedirectStandardOutput 'linker-stdout.txt'
 $linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
+
+
+#
+# start api
+#
+if (Test-path $api_folder) {
+  Write-Host ${api_folder}' exists'   
+} else {
+  New-Item $api_folder -ItemType Directory
+  Write-Host 'Folder Created successfully'
+}
+$api_handle = Start-Process -FilePath java `
+                            -ArgumentList $def_api_log4j_level, `
+                                          $def_postgresql_server, `
+                                          $def_postgresql_user, `
+                                          $def_postgresql_password, `
+                                          $def_postgresql_notifications_db, `
+                                          $def_kafka_bootstrap_servers, `
+                                          $def_api_kafka_application_id, `
+                                          $def_dgraph_hosts, `
+                                          $def_dgraph_ports, `
+                                          $def_api_port, `
+                                          '--enable-preview', `
+                                          $api_jar `
+                            -WindowStyle Normal `
+                            -WorkingDirectory $linker_folder `
+                            -Debug `
+                            -Verbose `
+                            -PassThru
+#                            -RedirectStandardError 'api-stderr.txt' `
+#                            -RedirectStandardOutput 'api-stdout.txt'
+$api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')

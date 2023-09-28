@@ -37,6 +37,7 @@ public final class APIKC {
          final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
                                                                               AppConfig.getDGraphHosts(),
                                                                               AppConfig.getDGraphPorts(),
+                                                                              AppConfig.POSTGRESQL_SERVER,
                                                                               AppConfig.POSTGRESQL_USER,
                                                                               AppConfig.POSTGRESQL_PASSWORD,
                                                                               AppConfig.POSTGRESQL_DATABASE,
