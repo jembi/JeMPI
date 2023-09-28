@@ -35,9 +35,9 @@ const SourceIdElement: React.FC<{ sourceId: SourceId }> = ({ sourceId }) => {
   )
 }
 
-const SourceIdComponent: React.FC<{ content: SourceId | Array<SourceId> }> = ({
-  content
-}) => {
+const SourceIdCellComponent: React.FC<{
+  content: SourceId | Array<SourceId>
+}> = ({ content }) => {
   if (Array.isArray(content)) {
     if (content.length === 1) {
       return <SourceIdElement sourceId={content[0]} />
@@ -70,4 +70,4 @@ const SourceIdComponent: React.FC<{ content: SourceId | Array<SourceId> }> = ({
   }
 }
 
-export default SourceIdComponent
+export default SourceIdCellComponent

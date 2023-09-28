@@ -6,7 +6,7 @@ import {
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import Button from '../shared/Button'
-import { UpdatedFields } from './PatientDetails'
+import { UpdatedFields } from './RecordDetails'
 
 const columns = [
   {
@@ -26,7 +26,7 @@ const columns = [
   }
 ]
 
-const ConfirmationModal: React.FC<{
+const ConfirmEditingDialog: React.FC<{
   isVisible: boolean
   handleClose: () => void
   onConfirm: () => void
@@ -71,4 +71,4 @@ const ConfirmationModal: React.FC<{
   )
 }
 
-export default ConfirmationModal
+export default ConfirmEditingDialog

@@ -2,11 +2,11 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Container,
   Divider,
   FormControlLabel,
   Paper,
+  Stack,
   Switch,
   Typography
 } from '@mui/material'
@@ -37,7 +37,7 @@ import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import SourceIdComponent from './SourceIdComponent'
+import getCellComponent from 'components/shared/getCellComponent'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -45,8 +45,6 @@ const getAlignment = (fieldName: string) =>
   fieldName === 'city' ||
   fieldName === 'gender'
     ? 'left'
-    : fieldName === 'dob'
-    ? 'right'
     : 'center'
 
 const Records = () => {
@@ -88,30 +86,8 @@ const Records = () => {
         headerAlign: getAlignment(fieldName),
         filterable: false,
         headerClassName: 'super-app-theme--header',
-        renderCell: (params: GridRenderCellParams) => {
-          if (fieldName === 'sourceId') {
-            return <SourceIdComponent content={params.row.sourceId} />
-          }
-          if (fieldName === 'createdAt') {
-            return (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-              >
-                <Typography fontSize={'1em'}>{`${dayjs(
-                  params.row.createdAt as Date
-                ).format('YYYY/MM/DD')}`}</Typography>
-
-                <Typography fontSize={'1em'}>{`${dayjs(
-                  params.row.createdAt as Date
-                ).format('HH:MM:ss')}`}</Typography>
-              </Box>
-            )
-          }
-        }
+        renderCell: (params: GridRenderCellParams) =>
+          getCellComponent(fieldName, params)
       }
     }
   )
@@ -194,6 +170,8 @@ const Records = () => {
     })
   }
 
+  // This funciton needs to be removed when the @mui/x-data-grid is
+  // replaced with the the Material react table (https://www.material-react-table.com/)
   const handlePagination = (model: GridPaginationModel) => {
     setPaginationModel(model)
     if (
@@ -245,14 +223,7 @@ const Records = () => {
         description={'browse through golden records'}
       />
       <Divider />
-      <Box
-        sx={{
-          mt: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px'
-        }}
-      >
+      <Stack mt="20px" gap="10px" flexDirection="column">
         <Accordion>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -262,49 +233,45 @@ const Records = () => {
             <Typography variant="h6">Filter by</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box
-              sx={{
-                p: 1,
-                display: 'flex',
-                gap: '20px',
-                alignItems: 'center'
-              }}
-            >
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  value={dateFilter}
-                  format="YYYY/MM/DD"
-                  onChange={value => changeSelectedFileterDate(value)}
-                  slotProps={{
-                    textField: {
-                      variant: 'outlined',
-                      label: 'We are looking to name this'
-                    }
-                  }}
-                />
-              </LocalizationProvider>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isFetchingInteractions}
-                    onChange={(e, checked) =>
-                      setIsFetchingInteractions(checked)
-                    }
+            <Stack gap="10px">
+              <Stack gap="20px" flexDirection="row">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    value={dateFilter}
+                    format="YYYY/MM/DD"
+                    onChange={value => changeSelectedFileterDate(value)}
+                    slotProps={{
+                      textField: {
+                        variant: 'outlined',
+                        label: 'Date'
+                      }
+                    }}
                   />
+                </LocalizationProvider>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isFetchingInteractions}
+                      onChange={(_e, checked) =>
+                        setIsFetchingInteractions(checked)
+                      }
+                    />
+                  }
+                  label="Get Interactions"
+                />
+              </Stack>
+              <FilterTable
+                searchButtonLabel="Filter"
+                onSubmit={onFilter}
+                onCancel={() =>
+                  setFilterPayload({
+                    ...filterPayload,
+                    parameters: [],
+                    createdAt: dayjs(new Date()).format('YYYY-MM-DD')
+                  })
                 }
-                label="Get Interactions"
               />
-            </Box>
-            <FilterTable
-              onSubmit={onFilter}
-              onCancel={() =>
-                setFilterPayload({
-                  ...filterPayload,
-                  parameters: [],
-                  createdAt: dayjs(new Date()).format('YYYY-MM-DD')
-                })
-              }
-            />
+            </Stack>
           </AccordionDetails>
         </Accordion>
         <Accordion>
@@ -316,7 +283,7 @@ const Records = () => {
             <Typography variant="h6">Search within filtered results</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box sx={{ p: 1, display: 'flex', gap: '10px' }}>
+            <Stack gap="10px" alignItems="flex-start">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   value={dateSearch}
@@ -325,48 +292,27 @@ const Records = () => {
                   slotProps={{
                     textField: {
                       variant: 'outlined',
-                      label: 'We are looking to name this'
+                      label: 'Date'
                     }
                   }}
                 />
               </LocalizationProvider>
-            </Box>
-            <FilterTable
-              onSubmit={onSearch}
-              onCancel={() => setSearchQuery([])}
-            />
+
+              <FilterTable
+                onSubmit={onSearch}
+                onCancel={() => setSearchQuery([])}
+              />
+            </Stack>
           </AccordionDetails>
         </Accordion>
-
         <Paper sx={{ p: 1 }}>
           <Typography p={1} variant="h6">
             Search result
           </Typography>
           <DataGrid
             sx={{
-              '& .super-app-theme--searchable': {
-                backgroundColor: '#c5e1a5',
-                '&:hover': {
-                  backgroundColor: '#a2cf6e'
-                }
-              },
-
               '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
                 outline: 'none'
-              },
-              '& .super-app-theme--header': {
-                backgroundColor: '#274263',
-                color: 'white'
-              },
-              '& .super-app-theme--Golden': {
-                backgroundColor: '#f5df68',
-                '&:hover': {
-                  backgroundColor: '#fff08d'
-                },
-                '&.Mui-selected': {
-                  backgroundColor: '#e2be1d',
-                  '&:hover': { backgroundColor: '#fff08d' }
-                }
               }
             }}
             getRowId={({ uid }) => uid}
@@ -375,7 +321,9 @@ const Records = () => {
             rows={expandeGoldenRecordsQuery?.data || []}
             pageSizeOptions={[10, 25, 50, 100]}
             onRowDoubleClick={params =>
-              navigate({ to: `/record-details/${params.row.uid}` })
+              navigate({
+                to: `record-details/${params.row.uid}`
+              })
             }
             getRowClassName={params =>
               `${
@@ -387,10 +335,10 @@ const Records = () => {
             onPaginationModelChange={handlePagination}
             paginationMode="server"
             loading={expandeGoldenRecordsQuery.isLoading}
-            rowCount={goldenIdsQuery?.data?.pagination.total || 0}
+            rowCount={goldenIdsQuery?.data?.pagination?.total || 0}
           />
         </Paper>
-      </Box>
+      </Stack>
     </Container>
   )
 }

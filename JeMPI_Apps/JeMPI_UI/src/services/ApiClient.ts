@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { config } from '../config'
-import AuditTrailRecord from '../types/AuditTrail'
+import { AuditTrailEntries } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
   ApiSearchResult,
@@ -18,7 +18,9 @@ import {
   ExpandedGoldenRecord,
   InteractionWithScore,
   NotificationRequest,
-  LinkRequest
+  LinkRequest,
+  DemographicsData,
+  CustomGoldenRecord
 } from 'types/BackendResponse'
 import { GoldenRecord, PatientRecord, AnyRecord } from 'types/PatientRecord'
 
@@ -53,13 +55,6 @@ class ApiClient {
       }))
   }
 
-  // replaced
-  async getAuditTrail() {
-    return await client
-      .get<AuditTrailRecord[]>(ROUTES.AUDIT_TRAIL)
-      .then(res => res.data)
-  }
-
   async getInteraction(uid: string) {
     return await client
       .get<PatientRecord, AxiosResponse<Interaction>>(
@@ -81,29 +76,27 @@ class ApiClient {
         `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
       )
       .then(res => res.data)
-      .then(
-        ({
-          goldenRecord,
-          interactionsWithScore
-        }: Partial<ExpandedGoldenRecord>) => {
-          return {
-            ...goldenRecord,
-            ...goldenRecord?.demographicData,
-            linkRecords: interactionsWithScore?.map(
-              ({ interaction, score }: InteractionWithScore) => {
-                return {
-                  uid: interaction.uid,
-                  sourceId: interaction.sourceId,
-                  createdAt: interaction.uniqueInteractionData.auxDateCreated,
-                  auxId: interaction.uniqueInteractionData.auxId,
-                  score,
-                  ...interaction?.demographicData
-                }
+      .then(({ goldenRecord, interactionsWithScore }: ExpandedGoldenRecord) => {
+        return {
+          ...goldenRecord.demographicData,
+          uid: goldenRecord.uid,
+          sourceId: goldenRecord.sourceId,
+          createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
+          auxId: goldenRecord.uniqueGoldenRecordData.auxId,
+          linkRecords: interactionsWithScore?.map(
+            ({ interaction, score }: InteractionWithScore) => {
+              return {
+                uid: interaction.uid,
+                sourceId: interaction.sourceId,
+                createdAt: interaction.uniqueInteractionData.auxDateCreated,
+                auxId: interaction.uniqueInteractionData.auxId,
+                score,
+                ...interaction?.demographicData
               }
-            )
-          }
+            }
+          )
         }
-      )
+      })
   }
 
   //TODO Move this logic to the backend and just get match details by notification ID
@@ -117,12 +110,13 @@ class ApiClient {
     return await axios
       .all<any>([patientRecord, goldenRecord, candidateRecords])
       .then(response => {
-        return [
-          {
-            ...response[0],
+        const interactions = response[1].linkRecords.map(
+          (record: PatientRecord) => ({
+            ...record,
             type: 'Current'
-          }
-        ]
+          })
+        )
+        return [...interactions]
           .concat({
             ...response[1],
             type: 'Golden'
@@ -225,22 +219,21 @@ class ApiClient {
         ROUTES.POST_FILTER_GIDS,
         request
       )
-      .then(async res => res.data)
+      .then(res => res.data)
   }
 
   async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
     return await client
       .post<{
         data: string[]
-        interationCount: { total: number }
+        interactionCount: { total: number }
         pagination: { total: number }
       }>(ROUTES.POST_FILTER_GIDS_WITH_INTERACTION_COUNT, request)
-      .then(async res => res.data)
-      .then(({ data, interationCount, pagination }) => {
-        console.log(data, interationCount)
+      .then(res => res.data)
+      .then(({ data, interactionCount, pagination }) => {
         return {
           data,
-          pagination: { total: pagination.total + interationCount.total }
+          pagination: { total: pagination.total + interactionCount.total }
         }
       })
   }
@@ -292,9 +285,32 @@ class ApiClient {
       )
   }
 
+  async getCandidates(
+    demographicData: DemographicsData,
+    candidateThreshold: number
+  ) {
+    return await client
+      .post(ROUTES.POST_CR_CANDIDATES, {
+        demographicData,
+        candidateThreshold
+      })
+      .then(res =>
+        // records needs typing
+        res.data.goldenRecords?.map((record: CustomGoldenRecord) => ({
+          ...record.demographicData,
+          uid: record.goldenId,
+          sourceId: record.sourceId,
+          createdAt: record.customUniqueGoldenRecordData.auxDateCreated,
+          auxId: record.customUniqueGoldenRecordData.auxId,
+          score: candidateThreshold,
+          type: 'Candidate'
+        }))
+      )
+  }
+
   async getGoldenRecordAuditTrail(gid: string) {
     return await client
-      .get(ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL, {
+      .get<AuditTrailEntries>(ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL, {
         params: {
           gid
         }
@@ -304,7 +320,7 @@ class ApiClient {
 
   async getInteractionAuditTrail(iid: string) {
     return await client
-      .get(ROUTES.GET_INTERACTION_AUDIT_TRAIL, {
+      .get<AuditTrailEntries>(ROUTES.GET_INTERACTION_AUDIT_TRAIL, {
         params: {
           iid
         }

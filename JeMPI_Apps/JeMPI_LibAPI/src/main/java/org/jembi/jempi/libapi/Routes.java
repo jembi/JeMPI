@@ -194,7 +194,7 @@ public final class Routes {
                                       .mapLeft(Routes::mapError)
                                       .fold(error -> error,
                                             count -> complete(StatusCodes.OK,
-                                                              new ApiModels.ApiInterationCount(count),
+                                                              new ApiModels.ApiInteractionCount(count),
                                                               JSON_MARSHALLER))
                               : complete(StatusCodes.IM_A_TEAPOT));
    }

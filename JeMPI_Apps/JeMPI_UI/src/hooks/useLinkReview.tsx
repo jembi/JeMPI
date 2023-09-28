@@ -43,7 +43,8 @@ const mapDataToScores = (
 
 export const useLinkReview = (
   payload: ReviewLinkParams | undefined,
-  refineSearchQuery: SearchQuery | CustomSearchQuery | undefined
+  refineSearchQuery: SearchQuery | CustomSearchQuery | undefined,
+  matchThreshold?: number
 ) => {
   const { enqueueSnackbar } = useSnackbar()
   const [candidateGoldenRecords, setCandidateGoldenRecords] = useState<
@@ -122,10 +123,29 @@ export const useLinkReview = (
     refetchOnWindowFocus: false
   })
 
+  const thresholdCandidates = useQuery<AnyRecord[]>({
+    queryKey: ['candidates', patientRecord?.uid, matchThreshold],
+    queryFn: () =>
+      ApiClient.getCandidates(
+        {
+          givenName: patientRecord?.givenName,
+          familyName: patientRecord?.familyName,
+          dob: patientRecord?.dob,
+          gender: patientRecord?.gender,
+          phoneNumber: patientRecord?.phoneNumber,
+          city: patientRecord?.city,
+          nationalId: patientRecord?.nationalId
+        },
+        matchThreshold || 0
+      ),
+    refetchOnWindowFocus: false
+  })
+
   return {
     patientRecord,
     goldenRecord,
     candidateGoldenRecords,
+    thresholdCandidates: thresholdCandidates.data,
     matchDetails,
     error,
     isLoading,

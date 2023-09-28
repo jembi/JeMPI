@@ -13,6 +13,7 @@ const ROUTES = {
   POST_CUSTOM_SEARCH: '/custom-search',
   POST_FILTER_GIDS: '/filter-gids',
   POST_FILTER_GIDS_WITH_INTERACTION_COUNT: '/filter-gids-interaction',
+  POST_CR_CANDIDATES: '/cr-candidates',
   PATCH_IID_NEW_GID_LINK: '/Unlink',
   PATCH_IID_GID_LINK: '/Link',
   PATCH_GOLDEN_RECORD: '/golden-record',

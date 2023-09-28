@@ -1,5 +1,5 @@
 export const config = {
-  isDev: process.env.NODE_ENV === 'production',
+  isDev: process.env.NODE_ENV !== 'production',
   apiUrl:
     process.env.REACT_APP_JEMPI_BASE_URL || 'http://localhost:50000/JeMPI',
   shouldMockBackend: process.env.REACT_APP_MOCK_BACKEND === 'true',
