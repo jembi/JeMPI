@@ -8,35 +8,41 @@ import { AppBar, Box, Toolbar } from '@mui/material'
 import Button from '../shared/Button'
 import JembiLogo from './JembiLogo'
 import NavigationMenu from './NavigationMenu'
+import { useNavigate } from '@tanstack/react-location'
 
-const colorGradient =
-  'linear-gradient(90.05deg, #8BF280 -4.51%, #3B826B -4.5%, #58AB73 99.95%)'
+// const colorGradient =
+//   'linear-gradient(90.05deg, #8BF280 -4.51%, #3B826B -4.5%, #58AB73 99.95%)'
 
 const NavigationBar = () => {
+  const Navigate = useNavigate()
   return (
     <AppBar position="fixed">
       <Toolbar>
         <JembiLogo />
         <Box sx={{ flexGrow: 1 }}>
-          <Button href="/" startIcon={<DashboardIcon />} className="Appbar">
+          <Button
+            onClick={() => Navigate({ to: '/' })}
+            startIcon={<DashboardIcon />}
+            className="Appbar"
+          >
             Dashboard
           </Button>
           <Button
-            href="/browse-records"
+            onClick={() => Navigate({ to: '/browse-records' })}
             startIcon={<SearchIcon />}
             className="Appbar"
           >
             Browse
           </Button>
           <Button
-            href="/notifications"
+            onClick={() => Navigate({ to: '/notifications' })}
             startIcon={<PeopleIcon />}
             className="Appbar"
           >
             Notifications
           </Button>
           <Button
-            href="/import"
+            onClick={() => Navigate({ to: '/import' })}
             startIcon={<UploadFileIcon />}
             className="Appbar"
           >

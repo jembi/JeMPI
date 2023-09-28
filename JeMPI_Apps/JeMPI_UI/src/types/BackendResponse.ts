@@ -26,8 +26,10 @@ export interface GoldenRecordResponse {
   expandedGoldenRecords: ExpandedGoldenRecord[]
 }
 
+export type DemographicsData = Omit<GR, 'sourceId' | 'uid'>
+
 export interface GoldenRecord extends Pick<GR, 'sourceId' | 'uid'> {
-  demographicData: Omit<GR, 'sourceId' | 'uid'>
+  demographicData: DemographicsData
   uniqueGoldenRecordData: Omit<AnyRecord, 'sourceId' | 'PatienRecord'>
 }
 
@@ -42,6 +44,12 @@ export interface InteractionWithScore {
 }
 
 export interface Interaction extends Pick<PR, 'sourceId' | 'uid'> {
-  demographicData: Omit<PR, 'sourceId' | 'uid'>
+  demographicData: DemographicsData
   uniqueInteractionData: Omit<AnyRecord, 'sourceId' | 'PatienRecord'>
+}
+
+export interface CustomGoldenRecord
+  extends Omit<GoldenRecord, 'uniqueGoldenRecordData' | 'uid'> {
+  goldenId: string
+  customUniqueGoldenRecordData: Omit<AnyRecord, 'sourceId' | 'PatienRecord'>
 }

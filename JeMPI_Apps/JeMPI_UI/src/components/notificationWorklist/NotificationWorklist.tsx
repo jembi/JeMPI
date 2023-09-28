@@ -1,121 +1,21 @@
 import { People } from '@mui/icons-material'
-import {
-  Box,
-  Container,
-  Divider,
-  Paper,
-  Typography,
-  debounce
-} from '@mui/material'
-import {
-  DataGrid,
-  GridColDef,
-  GridFilterModel,
-  GridRenderCellParams,
-  GridValueFormatterParams,
-  GridValueGetterParams
-} from '@mui/x-data-grid'
+import { Container, Divider, Paper, debounce } from '@mui/material'
+import { DataGrid, GridFilterModel } from '@mui/x-data-grid'
 import { useNavigate } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import { formatName, formatNumber } from 'utils/formatters'
 import ApiClient from '../../services/ApiClient'
 import Notification from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import NotificationState from './NotificationState'
 import React, { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-
-const columns: GridColDef[] = [
-  {
-    field: 'state',
-    headerName: 'Status',
-    minWidth: 150,
-    align: 'center',
-    headerAlign: 'center',
-    renderCell: (params: GridRenderCellParams) => {
-      return <NotificationState value={params.value || ''} />
-    }
-  },
-  {
-    field: 'created',
-    headerName: 'Date',
-    type: 'date',
-    minWidth: 150,
-    sortable: true,
-    sortingOrder: ['desc'],
-    align: 'center',
-    headerAlign: 'center',
-    filterable: false,
-    renderCell: (params: GridRenderCellParams) => (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
-        <Typography fontSize={'1em'}>{`${dayjs(
-          params.row.created as Date
-        ).format('YYYY/MM/DD')}`}</Typography>
-
-        <Typography fontSize={'1em'}>{`${dayjs(
-          params.row.created as Date
-        ).format('HH:MM:ss')}`}</Typography>
-      </Box>
-    )
-  },
-  {
-    field: 'patient_id',
-    headerName: 'Interaction ID',
-    type: 'number',
-    minWidth: 150,
-    align: 'center',
-    headerAlign: 'center',
-    filterable: false
-  },
-  {
-    field: 'golden_id',
-    headerName: 'Golden ID',
-    type: 'number',
-    minWidth: 150,
-    align: 'center',
-    headerAlign: 'center',
-    filterable: false
-  },
-  {
-    field: 'score',
-    headerName: 'Score',
-    type: 'number',
-    minWidth: 150,
-    align: 'center',
-    headerAlign: 'center',
-    valueGetter: (params: GridValueGetterParams) => params.row.score,
-    valueFormatter: params => formatNumber(params.value),
-    filterable: false
-  },
-  {
-    field: 'type',
-    headerName: 'Notification Reason',
-    minWidth: 150,
-    align: 'center',
-    filterable: false
-  },
-  {
-    field: 'names',
-    headerName: 'Patient',
-    minWidth: 150,
-    valueFormatter: (params: GridValueFormatterParams<string>) =>
-      formatName(params.value),
-    filterable: false
-  }
-]
+import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 
 const NotificationWorklist = () => {
   const navigate = useNavigate()
@@ -193,35 +93,32 @@ const NotificationWorklist = () => {
       <Paper
         sx={{
           p: 1,
-          mt: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '15px'
+          pt: 2,
+          mt: 3,
+          gap: '10px'
         }}
       >
-        <Box p={1}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DesktopDatePicker
-              value={date}
-              format="YYYY/MM/DD"
-              onChange={value => changeSelectedDate(value)}
-              slotProps={{
-                textField: {
-                  variant: 'outlined',
-                  label: 'We are looking to name this'
-                }
-              }}
-            />
-          </LocalizationProvider>
-        </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DesktopDatePicker
+            sx={{ mb: '10px' }}
+            value={date}
+            format="YYYY/MM/DD"
+            onChange={value => changeSelectedDate(value)}
+            slotProps={{
+              textField: {
+                variant: 'outlined',
+                label: 'Date'
+              }
+            }}
+          />
+        </LocalizationProvider>
         <DataGrid
           sx={{
-            height: '500px',
             '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
               outline: 'none'
             }
           }}
-          columns={columns}
+          columns={NOTIFICATIONS_COLUMNS}
           rows={data.records as Notification[]}
           pageSizeOptions={[10, 25, 50]}
           paginationModel={paginationModel}

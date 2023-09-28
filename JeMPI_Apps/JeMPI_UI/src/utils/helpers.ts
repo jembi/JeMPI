@@ -1,12 +1,15 @@
 import { GridColDef } from '@mui/x-data-grid'
 
-export const isInputValid = (
-  value: unknown,
-  rules?: { regex: string; required: boolean }
-) => {
-  if (rules && typeof value === 'string') {
-    const regexp = new RegExp(rules.regex || '')
-    return !regexp.test(value) || (rules?.required && value.length === 0)
+interface ValidationObject {
+  regex?: string
+  required: boolean
+  onErrorMessage: string
+}
+
+export const isInputValid = (value: unknown, validation?: ValidationObject) => {
+  if (validation && typeof value === 'string') {
+    const regexp = new RegExp(validation.regex || '')
+    return !regexp.test(value) || (validation?.required && value.length === 0)
   }
   return false
 }

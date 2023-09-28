@@ -13,7 +13,7 @@ const Shell = () => {
     </ErrorBoundary>
   ) : (
     <Box sx={{ display: 'flex' }}>
-      {location.current.pathname !== '/notifications/match-details' && (
+      {!new RegExp(/match-details|relink/).test(location.current.pathname) && (
         <NavigationBar />
       )}
       <Box

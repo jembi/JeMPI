@@ -4,9 +4,10 @@ import { SearchParameter } from 'types/SimpleSearch'
 import SearchFormTable from './SearchFormTable'
 
 export const FilterTable: FC<{
+  searchButtonLabel?: string
   onSubmit: (query: SearchParameter[]) => void
   onCancel: () => void
-}> = ({ onSubmit, onCancel }) => {
+}> = ({ searchButtonLabel, onSubmit, onCancel }) => {
   const [query, setQuery] = useState<SearchParameter[]>([])
   const handleCancel = () => {
     setQuery([])
@@ -18,7 +19,9 @@ export const FilterTable: FC<{
       <SearchFormTable onChange={setQuery} />
       <Box p={3} display={'flex'} justifyContent={'flex-end'} gap={'10px'}>
         <Button onClick={() => handleCancel()}>Cancel</Button>
-        <Button onClick={() => onSubmit(query)}>Search</Button>
+        <Button onClick={() => onSubmit(query)}>
+          {searchButtonLabel || 'Search'}
+        </Button>
       </Box>
     </TableContainer>
   )

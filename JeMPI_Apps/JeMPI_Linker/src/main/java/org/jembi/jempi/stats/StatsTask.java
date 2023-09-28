@@ -59,7 +59,7 @@ public final class StatsTask {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
-         return OBJECT_MAPPER.readValue(json, ApiModels.ApiInterationCount.class).count();
+         return OBJECT_MAPPER.readValue(json, ApiModels.ApiInteractionCount.class).count();
       }
    }
 
