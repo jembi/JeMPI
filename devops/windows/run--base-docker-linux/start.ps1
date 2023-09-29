@@ -4,7 +4,16 @@ $dgraph_hosts                                 = '192.168.0.7'
 $dgraph_ports                                 = '9080'
 
 $api_ip                                       = 'localhost'
-$api_port                                     = '50002'
+$api_port                                     = '50004'
+
+$linker_ip                                    = 'localhost'
+$linker_port                                  = '50003'
+
+$controller_ip                                = 'localhost'
+$controller_port                              = '50002'
+
+$etl_ip                                       = 'localhost'
+$etl_port                                     = '50001'
 
 $jempi_apps_dir                               = "..\..\..\..\..\JeMPI_Apps"
 
@@ -21,6 +30,12 @@ $def_postgresql_password                      = "-DPOSTGRESQL_PASSWORD=`"postgre
 $def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notifications`""
 $def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
 $def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
+$def_etl_ip                                   = "-DETL_IP=" + $etl_ip
+$def_etl_port                                 = "-DETL_PORT="+ $etl_port
+$def_controller_ip                            = "-DCONTROLLER_IP=" + $controller_ip
+$def_controller_port                          = "-DCONTROLLER_PORT="+ $controller_port
+$def_linker_ip                                = "-DLINKER_IP=" + $linker_ip
+$def_linker_port                              = "-DLINKER_PORT="+ $linker_port
 $def_api_ip                                   = "-DAPI_IP=" + $api_ip
 $def_api_port                                 = "-DAPI_PORT="+ $api_port
 
@@ -99,6 +114,10 @@ $etl_handle = Start-Process -FilePath java `
                             -ArgumentList $def_etl_log4j_level, `
                                           $def_kafka_bootstrap_servers, `
                                           $def_etl_kafka_application_id, `
+                                          $def_etl_ip, `
+                                          $def_etl_port, `
+                                          $def_controller_ip, `
+                                          $def_controller_port, `                                          $def_linker_ip, `                                          $def_linker_port, `
                                           $etl_jar `
                             -WindowStyle Normal `
                             -WorkingDirectory $etl_folder `
@@ -127,6 +146,10 @@ $controller_handle = Start-Process -FilePath java `
                                                  $def_controller_kafka_application_id, `
                                                  $def_controller_kafka_client_id, `
                                                  $def_controller_http_server_port, `
+                                                 $def_etl_ip, `
+                                                 $def_etl_port, `
+                                                 $def_controller_ip, `
+                                                 $def_controller_port, `                                                 $def_linker_ip, `                                                 $def_linker_port, `
                                                  $controller_jar `
                                    -WindowStyle Normal `
                                    -WorkingDirectory $controller_folder `
@@ -162,6 +185,10 @@ $linker_handle = Start-Process -FilePath java `
                                              $def_linker_http_server_port, `
                                              $def_linker_match_threshold, `
                                              $def_linker_match_threshold_margin, `
+                                             $def_etl_ip, `
+                                             $def_etl_port, `
+                                             $def_controller_ip, `
+                                             $def_controller_port, `                                             $def_linker_ip, `                                             $def_linker_port, `
                                              $def_api_ip, `
                                              $def_api_port, `
                                              $linker_jar `
@@ -194,6 +221,11 @@ $api_handle = Start-Process -FilePath java `
                                           $def_api_kafka_application_id, `
                                           $def_dgraph_hosts, `
                                           $def_dgraph_ports, `
+                                          $def_etl_ip, `
+                                          $def_etl_port, `
+                                          $def_controller_ip, `
+                                          $def_controller_port, `                                          $def_linker_ip, `                                          $def_linker_port, `
+                                          $def_api_ip, `
                                           $def_api_port, `
                                           '--enable-preview', `
                                           $api_jar `
