@@ -1,6 +1,5 @@
 import {
   DataGridProps,
-  GridActionsCellItem,
   GridCellParams,
   GridColDef,
   GridRenderCellParams,
@@ -11,7 +10,7 @@ import { FieldGroup } from 'types/Fields'
 import { AnyRecord, ValueOf } from 'types/PatientRecord'
 import { useAppConfig } from '../../hooks/useAppConfig'
 import getCellComponent from 'components/shared/getCellComponent'
-import { sortColumns } from 'utils/helpers'
+import { useMemo } from 'react'
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
@@ -66,24 +65,30 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
     })
   )
 
-  const columns: GridColDef[] = [
-    ...fieldColumns,
-    {
-      field: 'action',
-      type: 'action',
-      headerName: 'Action',
-      flex: 1,
-      sortable: false,
-      filterable: false,
-      align: 'center',
-      headerAlign: 'center',
-      headerClassName: 'super-app-theme--linkHeader',
-      renderCell: (params: GridRenderCellParams) =>
-        getCellComponent('actions', params, () => {
-          if (action) action(params.row.uid)
-        })
-    }
-  ]
+  const columns: GridColDef[] = useMemo(
+    () =>
+      action
+        ? [
+            ...fieldColumns,
+            {
+              field: 'action',
+              type: 'action',
+              headerName: 'Action',
+              flex: 1,
+              sortable: false,
+              filterable: false,
+              align: 'center',
+              headerAlign: 'center',
+              headerClassName: 'super-app-theme--linkHeader',
+              renderCell: (params: GridRenderCellParams) =>
+                getCellComponent('actions', params, () => {
+                  if (action) action(params.row.uid)
+                })
+            }
+          ]
+        : fieldColumns,
+    [action, fieldColumns]
+  )
 
   return (
     <MuiDataGrid

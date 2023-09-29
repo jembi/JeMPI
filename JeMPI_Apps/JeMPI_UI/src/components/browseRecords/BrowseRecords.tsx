@@ -25,7 +25,7 @@ import {
   FilterQuery,
   SearchParameter
 } from 'types/SimpleSearch'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -36,7 +36,7 @@ import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import getCellComponent from 'components/shared/getCellComponent'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -50,19 +50,36 @@ const Records = () => {
   const navigate = useNavigate()
   const { getFieldsByGroup } = useAppConfig()
 
-  const [isFetchingInteractions, setIsFetchingInteractions] = useState(false)
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
 
   const [dateFilter, setDateFilter] = useState(dayjs())
 
   const [dateSearch, setDateSearch] = useState(dayjs())
 
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const [isFetchingInteractions, setIsFetchingInteractions] = useState(
+    searchParams.get('isFetchingInteractions')
+      ? JSON.parse(searchParams.get('isFetchingInteractions') as string)
+      : false
+  )
+
   const [filterPayload, setFilterPayload] = useState<FilterQuery>({
-    parameters: [],
-    limit: 10,
-    offset: 0,
-    sortAsc: false,
-    sortBy: 'auxDateCreated'
+    parameters: searchParams.get('parameters')
+      ? JSON.parse(searchParams.get('parameters') as string)
+      : [],
+    limit: searchParams.get('limit')
+      ? JSON.parse(searchParams.get('limit') as string)
+      : 10,
+    offset: searchParams.get('offset')
+      ? JSON.parse(searchParams.get('offset') as string)
+      : 0,
+    sortAsc: searchParams.get('')
+      ? JSON.parse(searchParams.get('sortAsc') as string)
+      : 0,
+    sortBy: searchParams.get('sortBy')
+      ? JSON.parse(searchParams.get('sortBy') as string)
+      : 'auxDateCreated'
   })
 
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
@@ -91,19 +108,21 @@ const Records = () => {
     AxiosError
   >({
     queryKey: [
-      'golden-records-ids',
-      ...filterPayload.parameters,
-      filterPayload.createdAt,
+      'golden-records',
+      JSON.stringify(filterPayload.parameters),
       filterPayload.offset,
       filterPayload.limit,
-      isFetchingInteractions
+      filterPayload.sortAsc,
+      filterPayload.sortBy
     ],
     queryFn: async () =>
       (await ApiClient.searchQuery(
         filterPayload,
         true
       )) as ApiSearchResult<GoldenRecord>,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    staleTime: 1000 * 60
   })
 
   const rows = useMemo(() => {
@@ -117,6 +136,20 @@ const Records = () => {
           return acc
         }, [])
   }, [isFetchingInteractions, data])
+
+  useEffect(() => {
+    setSearchParams(
+      Object.entries(filterPayload).reduce(
+        (acc, [k, v]) => {
+          acc[k] = JSON.stringify(v)
+          return acc
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        },
+        { isFetchingInteractions: isFetchingInteractions } as any
+      )
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterPayload])
 
   if (isError) {
     return <ApiErrorMessage error={error} />
@@ -203,6 +236,7 @@ const Records = () => {
                 />
               </Stack>
               <FilterTable
+                defaultParameters={filterPayload.parameters}
                 searchButtonLabel="Filter"
                 onSubmit={onFilter}
                 onCancel={() =>

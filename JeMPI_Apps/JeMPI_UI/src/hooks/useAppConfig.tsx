@@ -41,7 +41,6 @@ export const AppConfigProvider = ({
     return (fields || [])
       .filter(({ scope }) =>
         scope.some(path => {
-          console.log(location.pathname, path)
           return matchPath(
             {
               path: path
