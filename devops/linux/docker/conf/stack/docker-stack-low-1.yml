@@ -337,7 +337,11 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-ctrl
       KAFKA_CLIENT_ID: client-id-ctrl
-      HTTP_SERVER_PORT: 50000
+      HTTP_SERVER_PORT: ${CONTROLLER_PORT}
+      API_IP: ${API_IP}
+      API_PORT: ${API_PORT}
+      LINKER_IP: ${LINKER_IP}
+      LINKER_PORT: ${LINKER_PORT}
     networks:
     - backend
     volumes:
@@ -446,6 +450,8 @@ services:
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
       API_PORT: ${API_PORT}
+      LINKER_IP: ${LINKER_IP}
+      LINKER_PORT: ${LINKER_PORT}
     networks:
     - backend
     volumes:

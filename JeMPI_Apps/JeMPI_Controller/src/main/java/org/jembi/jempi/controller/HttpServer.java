@@ -17,6 +17,7 @@ import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
 import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 
 public final class HttpServer extends AllDirectives {
@@ -44,7 +45,11 @@ public final class HttpServer extends AllDirectives {
    private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  AppConfig.LINKER_IP,
+                                  AppConfig.LINKER_PORT,
+                                  GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -53,7 +58,11 @@ public final class HttpServer extends AllDirectives {
 
    private CompletionStage<HttpResponse> postLinkInteractionToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  AppConfig.LINKER_IP,
+                                  AppConfig.LINKER_PORT,
+                                  GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -62,7 +71,7 @@ public final class HttpServer extends AllDirectives {
 
    private CompletionStage<HttpResponse> getMU() {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/mu")
+            .create(String.format(Locale.ROOT, "http://%s:%d/JeMPI/mu", AppConfig.LINKER_IP, AppConfig.LINKER_PORT))
             .withMethod(HttpMethods.GET);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
@@ -113,7 +122,8 @@ public final class HttpServer extends AllDirectives {
                         () -> concat(
                               post(() -> concat(
                                     path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION, this::routeLinkInteraction),
-                                    path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID, this::routeLinkInteractionToGid))),
+                                    path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
+                                         this::routeLinkInteractionToGid))),
                               get(() -> path("mu", this::routeMU))));
    }
 

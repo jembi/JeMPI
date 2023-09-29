@@ -37,6 +37,9 @@ public final class AppConfig {
          return Integer.MIN_VALUE;
       }
    }).toArray();
+
+   public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
+   public static final Integer LINKER_PORT = CONFIG.getInt("LINKER_PORT");
    public static final Integer API_PORT = CONFIG.getInt("API_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
    public static String[] getDGraphHosts() {

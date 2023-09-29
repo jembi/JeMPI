@@ -38,17 +38,20 @@ public final class AppConfig {
       }
    }).toArray();
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
+   public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
+   public static final Integer LINKER_PORT = CONFIG.getInt("LINKER_PORT");
    public static final String SESSION_SECRET = CONFIG.getString("JEMPI_SESSION_SECRET");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+
+   private AppConfig() {
+   }
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
    }
+
    public static int[] getDGraphPorts() {
       return DGRAPH_ALPHA_PORTS;
-   }
-
-   private AppConfig() {
    }
 
    private static class Builder {

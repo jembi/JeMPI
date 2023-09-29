@@ -13,6 +13,15 @@ export STACK_NAME=jempi
 export API_IP=api
 export API_PORT=50000
 
+export LINKER_IP=linker
+export LINKER_PORT=50000
+
+export CONTROLER_IP=controller
+export CONTROLLER_PORT=50000
+
+export ETL_IP=etl
+export ETL_PORT=50000
+
 export PROJECT_DEVOPS_DIR=${PROJECT_DIR}
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps

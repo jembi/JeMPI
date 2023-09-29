@@ -17,6 +17,7 @@ import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
@@ -440,21 +441,32 @@ public final class Routes {
    }
 
    public static CompletionStage<HttpResponse> proxyPostCalculateScores(
+         final String linkerIP,
+         final Integer linkerPort,
          final Http http,
          final ApiModels.ApiCalculateScoresRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
 
-   public static Route proxyPostCalculateScores(final Http http) {
+   public static Route proxyPostCalculateScores(
+         final String linkerIp,
+         final Integer linkerPort,
+         final Http http) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class),
                     obj -> {
                        try {
-                          return onComplete(proxyPostCalculateScores(http, obj),
+                          return onComplete(proxyPostCalculateScores(linkerIp,
+                                                                     linkerPort,
+                                                                     http, obj),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -467,21 +479,30 @@ public final class Routes {
 
 
    private static CompletionStage<HttpResponse> proxyGetCandidatesWithScore(
+         final String linkerIP,
+         final Integer linkerPort,
          final Http http,
          final String iid) throws JsonProcessingException {
       final var uri = Uri
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES))
             .query(Query.create(Pair.create("iid", iid)));
       final var request = HttpRequest.GET(uri.path());
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
 
-   public static Route proxyGetCandidatesWithScore(final Http http) {
+   public static Route proxyGetCandidatesWithScore(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return parameter("iid",
                        iid -> {
                           try {
-                             return onComplete(proxyGetCandidatesWithScore(http, iid),
+                             return onComplete(proxyGetCandidatesWithScore(linkerIP, linkerPort, http, iid),
                                                response -> response.isSuccess()
                                                      ? complete(response.get())
                                                      : complete(StatusCodes.IM_A_TEAPOT));
@@ -493,10 +514,16 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> patchCrUpdateFieldsProxy(
+         final String linkerIP,
+         final Integer linkerPort,
          final Http http,
          final ApiModels.ApiCrUpdateFieldsRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS))
             .withMethod(HttpMethods.PATCH)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -504,10 +531,16 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
+         final String linkerIP,
+         final Integer linkerPort,
          final Http http,
          final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_REGISTER)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_CR_REGISTER))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -515,10 +548,16 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrCandidatesProxy(
+         final String linkerIP,
+         final Integer linkerPort,
          final Http http,
          final ApiModels.ApiCrCandidatesRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -529,10 +568,16 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrFindProxy(
+         final String linkerIP,
+         final Integer linkerPort,
          final Http http,
          final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_FIND)
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_CR_FIND))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -542,12 +587,15 @@ public final class Routes {
       });
    }
 
-   public static Route patchCrUpdateFields(final Http http) {
+   public static Route patchCrUpdateFields(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
                     apiCrUpdateFields -> {
                        LOGGER.debug("{}", apiCrUpdateFields);
                        try {
-                          return onComplete(patchCrUpdateFieldsProxy(http, apiCrUpdateFields),
+                          return onComplete(patchCrUpdateFieldsProxy(linkerIP, linkerPort, http, apiCrUpdateFields),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -558,13 +606,16 @@ public final class Routes {
                     });
    }
 
-   public static Route postCrFind(final Http http) {
+   public static Route postCrFind(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return entity(
             Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
             apiCrFind -> {
                LOGGER.debug("{}", apiCrFind);
                try {
-                  return onComplete(postCrFindProxy(http, apiCrFind),
+                  return onComplete(postCrFindProxy(linkerIP, linkerPort, http, apiCrFind),
                                     response -> response.isSuccess()
                                           ? complete(response.get())
                                           : complete(StatusCodes.IM_A_TEAPOT));
@@ -575,12 +626,15 @@ public final class Routes {
             });
    }
 
-   public static Route postCrCandidates(final Http http) {
+   public static Route postCrCandidates(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
                     apiCrCandidates -> {
                        LOGGER.debug("{}", apiCrCandidates);
                        try {
-                          return onComplete(postCrCandidatesProxy(http, apiCrCandidates),
+                          return onComplete(postCrCandidatesProxy(linkerIP, linkerPort, http, apiCrCandidates),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -591,12 +645,15 @@ public final class Routes {
                     });
    }
 
-   public static Route postCrRegister(final Http http) {
+   public static Route postCrRegister(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     apiCrRegister -> {
                        LOGGER.debug("{}", apiCrRegister);
                        try {
-                          return onComplete(postCrRegisterProxy(http, apiCrRegister),
+                          return onComplete(postCrRegisterProxy(linkerIP, linkerPort, http, apiCrRegister),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));

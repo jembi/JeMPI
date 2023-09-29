@@ -297,7 +297,7 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                                : RecordType.Interaction;
                                          return this.routeCustomSearch(actorSystem, backEnd, t);
                                       }),
-                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES, () -> Routes.proxyGetCandidatesWithScore(http)),
+                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES, () -> Routes.proxyGetCandidatesWithScore(AppConfig.LINKER_IP, AppConfig.LINKER_PORT, http)),
                                       path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                            () -> this.postUploadCsvFile(actorSystem, backEnd)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
@@ -325,7 +325,7 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
                                () -> Routes.getNotifications(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                               () -> Routes.proxyGetCandidatesWithScore(http)),
+                               () -> Routes.proxyGetCandidatesWithScore(AppConfig.LINKER_IP, AppConfig.LINKER_PORT, http)),
                           path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                iid -> this.getInteraction(actorSystem, backEnd, iid)),
                           path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(
