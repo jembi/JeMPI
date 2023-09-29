@@ -1,8 +1,11 @@
-export default interface AuditTrailRecord {
-  process: string
-  actionTaken: string
-  links: string[]
-  when: string
-  changedBy: string
-  comment: string
+export interface AuditTrail {
+  inserted_at: string
+  created_at: string
+  interaction_id: string
+  golden_id: string
+  entry: string
+}
+
+export interface AuditTrailEntries {
+  entries: Array<AuditTrail>
 }

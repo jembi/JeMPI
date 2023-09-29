@@ -1,6 +1,6 @@
 export default interface Notification {
   id: string
-  type: string
+  type: NotificationType
   reason?: string | null
   created: Date
   names: string
@@ -8,11 +8,11 @@ export default interface Notification {
   status: NotificationState
   golden_id: string
   score: number
-  linkedTo?: GoldenRecord
-  candidates?: GoldenRecord[]
+  linkedTo?: GoldenRecordCandidate
+  candidates?: GoldenRecordCandidate[]
 }
 
-export interface GoldenRecord {
+export interface GoldenRecordCandidate {
   golden_id: string
   score: number
 }
@@ -23,4 +23,13 @@ export enum NotificationState {
   Actioned = 'Actioned',
   Pending = 'Pending',
   Accepted = 'Accepted'
+}
+
+export type NotificationType = 'THRESHOLD' | 'MARGIN' | 'UPDATE'
+
+export type Notifications = {
+  records: Notification[]
+  pagination: {
+    total: number
+  }
 }

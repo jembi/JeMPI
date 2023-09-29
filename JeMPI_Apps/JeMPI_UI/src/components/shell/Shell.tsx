@@ -1,19 +1,19 @@
 import { Box, Toolbar } from '@mui/material'
 
-import { Outlet, useLocation } from '@tanstack/react-location'
 import ErrorBoundary from '../error/ErrorBoundary'
 import NavigationBar from './NavigationBar'
+import { Outlet, useLocation } from 'react-router-dom'
 
 const Shell = () => {
   const location = useLocation()
 
-  return location.current.pathname === '/login' ? (
+  return location.pathname === '/login' ? (
     <ErrorBoundary>
       <Outlet />
     </ErrorBoundary>
   ) : (
     <Box sx={{ display: 'flex' }}>
-      {location.current.pathname !== '/notifications/match-details' && (
+      {!new RegExp(/match-details|relink/).test(location.pathname) && (
         <NavigationBar />
       )}
       <Box

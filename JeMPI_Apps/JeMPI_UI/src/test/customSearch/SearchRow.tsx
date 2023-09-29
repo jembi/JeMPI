@@ -1,4 +1,3 @@
-import { ReactLocation, Router } from '@tanstack/react-location'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FieldArray, Form, Formik } from 'formik'
 import FieldGroup from '../../components/customSearch/FieldGroup'
@@ -15,7 +14,6 @@ const queryClient = new QueryClient({
     queries: {}
   }
 })
-const location = new ReactLocation()
 
 const initialSearchParameter: SearchParameter = {
   fieldName: '',
@@ -38,41 +36,39 @@ const initialValues: CustomSearchQuery = {
 const SearchRowTest: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router location={location} routes={routes}>
-        <AppConfigProvider>
-          <Formik
-            initialValues={initialValues}
-            onSubmit={() => console.log('submitted')}
-          >
-            {({ values, handleChange, setFieldValue }) => (
-              <Form>
-                <FieldArray name="$or">
-                  {({ push, remove }) => (
-                    <>
-                      {values.$or.map(
-                        (parameters: SimpleSearchQuery, index: number) => {
-                          return (
-                            <FieldGroup
-                              values={parameters}
-                              initialCustomSearchValues={initialSearchParameter}
-                              handleChange={handleChange}
-                              fieldGroupIndex={index}
-                              removeFieldGroup={remove}
-                              setFieldValue={setFieldValue}
-                              push={push}
-                              key={index}
-                            />
-                          )
-                        }
-                      )}
-                    </>
-                  )}
-                </FieldArray>
-              </Form>
-            )}
-          </Formik>
-        </AppConfigProvider>
-      </Router>
+      <AppConfigProvider>
+        <Formik
+          initialValues={initialValues}
+          onSubmit={() => console.log('submitted')}
+        >
+          {({ values, handleChange, setFieldValue }) => (
+            <Form>
+              <FieldArray name="$or">
+                {({ push, remove }) => (
+                  <>
+                    {values.$or.map(
+                      (parameters: SimpleSearchQuery, index: number) => {
+                        return (
+                          <FieldGroup
+                            values={parameters}
+                            initialCustomSearchValues={initialSearchParameter}
+                            handleChange={handleChange}
+                            fieldGroupIndex={index}
+                            removeFieldGroup={remove}
+                            setFieldValue={setFieldValue}
+                            push={push}
+                            key={index}
+                          />
+                        )
+                      }
+                    )}
+                  </>
+                )}
+              </FieldArray>
+            </Form>
+          )}
+        </Formik>
+      </AppConfigProvider>
     </QueryClientProvider>
   )
 }

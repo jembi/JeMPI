@@ -6,9 +6,7 @@ import { ToggleButtonOptions } from 'types/SimpleSearch'
 
 interface SearchTypeToggleProps {
   options: ToggleButtonOptions[]
-  onChange: (
-    searchType: SearchType.CUSTOM_SEARCH | SearchType.SIMPLE_SEARCH
-  ) => void
+  onChange: (searchType: SearchType.CUSTOM_SEARCH | SearchType.SEARCH) => void
 }
 
 const SearchTypeToggle: React.FC<SearchTypeToggleProps> = ({

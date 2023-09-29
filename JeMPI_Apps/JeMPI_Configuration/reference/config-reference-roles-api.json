@@ -11,9 +11,10 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/search/custom"
       ],
+      "readOnly": true,
       "accessLevel": []
     },
     {
@@ -29,13 +30,18 @@
       ],
       "scope": [
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/browse-records"
       ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
       "accessLevel": []
     },
     {
@@ -50,14 +56,19 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
         "/browse-records"
       ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
       "accessLevel": []
     },
     {
@@ -72,11 +83,17 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/custom",
         "/browse-records"
       ],
+      "validation": {
+        "required": true,
+        "regex": "^(male|female)$",
+        "onErrorMessage": "The Gender cannot be empty and should either be male, female or neutral"
+      },
       "accessLevel": []
     },
     {
@@ -91,15 +108,20 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
         "/browse-records"
       ],
-      "accessLevel": []
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "Date of birth cannot be empty"
+      }
     },
     {
       "fieldName": "city",
@@ -112,12 +134,17 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/custom",
         "/browse-records"
       ],
-      "accessLevel": []
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "Date of birth cannot be empty"
+      }
     },
     {
       "fieldName": "phone_number",
@@ -130,8 +157,9 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/custom",
         "/browse-records"
       ],
@@ -147,15 +175,21 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
         "/browse-records"
       ],
-      "accessLevel": []
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The national Id cannot be empty"
+      }
     }
   ],
   "systemFields": [
@@ -167,7 +201,8 @@
         "none"
       ],
       "scope": [
-        "/notifications/match-details"
+        "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink"
       ],
       "accessLevel": []
     },
@@ -184,9 +219,10 @@
       ],
       "scope": [
         "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink",
         "/search-results/golden",
         "/search-results/patient",
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/browse-records"
       ],
       "accessLevel": []
@@ -201,8 +237,21 @@
         "audit_trail"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "actions",
+      "fieldType": "",
+      "fieldLabel": "Actions",
+      "groups": [
+        "linked_records"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink"
       ],
       "accessLevel": []
     },
@@ -216,7 +265,7 @@
         "record_details"
       ],
       "scope": [
-        "/record-details/:uid",
+        "/browse-records/record-details/:uid",
         "/browse-records"
       ],
       "accessLevel": []
@@ -232,8 +281,9 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/record-details/:uid",
-        "/notifications/match-details"
+        "/browse-records/record-details/:uid",
+        "/notifications/match-details",
+        "/browse-records/record-details/:uid/relink"
       ],
       "accessLevel": []
     }

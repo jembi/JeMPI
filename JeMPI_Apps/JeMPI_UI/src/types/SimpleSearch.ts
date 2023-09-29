@@ -1,4 +1,10 @@
-import { AnyRecord, SourceId } from './PatientRecord'
+import { ExpandedGoldenRecordResponse, Interaction } from './BackendResponse'
+import {
+  AnyRecord,
+  GoldenRecord,
+  PatientRecord,
+  SourceId
+} from './PatientRecord'
 
 export interface SearchParameter {
   fieldName: string
@@ -40,32 +46,20 @@ export interface ToggleButtonOptions {
   label: string
 }
 
-export interface JempiGoldenRecord {
-  goldenRecord: {
-    demographicData: Omit<AnyRecord, 'uid' | 'sourceId'>
-    sourceId?: SourceId[]
-    uid: unknown
-  }
-  mpiPatientRecords: Array<{
-    patientRecord: {
-      demographicData: Omit<AnyRecord, 'uid' | 'sourceId'>
-      sourceId?: SourceId[]
-      uid: unknown
-    }
-  }>
+export interface Pagination {
+  total: number
 }
 
-export interface JempiPatientRecord {
-  demographicData: Omit<AnyRecord, 'uid' | 'sourceId'>
-  sourceId?: SourceId[]
-  uid: unknown
+export interface ApiSearchResponse<
+  T = ExpandedGoldenRecordResponse | Interaction
+> {
+  data: T[]
+  pagination: Pagination
 }
 
-export type ApiSearchResult = {
+export interface ApiSearchResult<T = GoldenRecord | PatientRecord> {
   records: {
-    data: Array<JempiGoldenRecord | JempiPatientRecord>
-    pagination: {
-      total: number
-    }
+    data: T[]
+    pagination: Pagination
   }
 }

@@ -11,6 +11,19 @@ interface SelectMatchLevelMenuProps {
   onChange: (value: string) => void
 }
 
+const levenshteinValues: Array<{ key: string; value: number }> = [
+  {
+    value: 0,
+    key: 'Exact'
+  },
+  {
+    value: 1,
+    key: 'Levenshtein 1'
+  },
+  { value: 2, key: 'Levenshtein 2' },
+  { value: 3, key: 'Levenshtein 3' }
+]
+
 const SelectMatchLevelMenu: FC<SelectMatchLevelMenuProps> = ({ onChange }) => {
   const [selectedValue, setSelectedValue] = useState('0')
   const onSelectChange = (event: SelectChangeEvent<string>) => {
@@ -33,10 +46,11 @@ const SelectMatchLevelMenu: FC<SelectMatchLevelMenuProps> = ({ onChange }) => {
         <MenuItem disabled value={-1}>
           <em>Select Match Level</em>
         </MenuItem>
-        <MenuItem value={0}>Exact</MenuItem>
-        <MenuItem value={1}>Levenshtein 1</MenuItem>
-        <MenuItem value={2}>Levenshtein 2</MenuItem>
-        <MenuItem value={3}>Levenshtein 3</MenuItem>
+        {levenshteinValues.map(({ key, value }) => (
+          <MenuItem key={key} value={value}>
+            {key}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   )

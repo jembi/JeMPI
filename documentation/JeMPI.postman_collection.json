@@ -1,0 +1,665 @@
+{
+	"info": {
+		"_postman_id": "9b43aae8-4211-4c87-9ffb-16172fa35034",
+		"name": "JeMPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20481676"
+	},
+	"item": [
+		{
+			"name": "Get Fields Configuration",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/config",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"config"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Notifications",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/MatchesForReview?limit=100&offset=0&date=2023-09-05&state=Actioned",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"MatchesForReview"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "100"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "date",
+							"value": "2023-09-05"
+						},
+						{
+							"key": "state",
+							"value": "Actioned"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Interaction",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/interaction/0x4d0b",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"interaction",
+						"0x4d0b"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Golden Record",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/expanded-golden-record/0x4d03",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expanded-golden-record",
+						"0x4d03"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Golden Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/expanded-golden-records?uidList=0x4d03,0x3a07,0x42b2",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expanded-golden-records"
+					],
+					"query": [
+						{
+							"key": "uidList",
+							"value": "0x4d03,0x3a07,0x42b2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Golden Records Using CSV",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/expanded-golden-records-csv?uidList",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expanded-golden-records-csv"
+					],
+					"query": [
+						{
+							"key": "uidList",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Golden Ids",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/gids-all",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"gids-all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Golden Ids Paginated",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/gids-paged?offset=0&length=10",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"gids-paged"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "length",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Golden Record Audit Trail",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/golden-record-audit-trail?gid=0x4d",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"golden-record-audit-trail"
+					],
+					"query": [
+						{
+							"key": "gid",
+							"value": "0x4d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Interaction Audit Trail",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/interaction-audit-trail?iid=0x4c",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"interaction-audit-trail"
+					],
+					"query": [
+						{
+							"key": "iid",
+							"value": "0x4c"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count Golden Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/count-golden-records",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"count-golden-records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count Interactions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/count-interactions",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"count-interactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/count-records",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"count-records"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Candidate Golden Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/candidate-golden-records?iid=0x42b1",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"candidate-golden-records"
+					],
+					"query": [
+						{
+							"key": "iid",
+							"value": "0x42b1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Notification State",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"notificationId\": \"5a712096-54cd-4c5e-beeb-c54ed1fcad56\",\n    \"state\": \"Actioned\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/NotificationRequest",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"NotificationRequest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Golden Records/Interactions",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"john\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
+				},
+				"url": {
+					"raw": "{{LocalApi}}/search/golden",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"search",
+						"golden"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Custom search on Golden Records/interactions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"$or\": [\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"dob\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"nationalId\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                }\n            ]\n        },\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"John\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"Doe\",\n                    \"distance\": 3\n                }\n            ]\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/custom-search/golden",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"custom-search",
+						"golden"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload CSV file",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{LocalApi}}/Upload",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"Upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Calculate Scores",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-length": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/calculate-scores",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"calculate-scores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Golden Ids",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"John\",\n            \"distance\": 0\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"Doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/filter-gids",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"filter-gids"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/cr-register",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"cr-register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find Record",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/cr-find",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"cr-find"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Candidates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"candidateThreshold\": 0.1,\n    \"demographicData\": {\n        \"givenName\": \"peggy\",\n        \"familyName\": \"mphanude\",\n        \"dob\": \"19750622\",\n        \"gender\": \"female\",\n        \"phoneNumber\": \"0113404355\",\n        \"city\": \"kitwe\",\n        \"nationalId\": \"197506225001098\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/cr-candidates",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"cr-candidates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Gids with Interaction count",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"parameters\": [],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/filter-gids-interaction",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"filter-gids-interaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Golden Record",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/golden-record",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"golden-record"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unlink and create new Golden Record",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/Unlink",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"Unlink"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link to Golden Record",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/Link",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"Link"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update fields",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/cr-find",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"cr-find"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "LocalApi",
+			"value": "http://localhost:50000/JeMPI",
+			"type": "string"
+		}
+	]
+}

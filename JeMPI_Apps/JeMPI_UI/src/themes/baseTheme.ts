@@ -23,7 +23,7 @@ declare module '@mui/material/Typography' {
   }
 }
 
-const overrides = createTheme({
+const baseTheme = createTheme({
   palette: {
     background: {
       default: '#FAFAFA'
@@ -88,6 +88,51 @@ const overrides = createTheme({
         })
       }
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          '& .super-app-theme--header': {
+            backgroundColor: '#274263',
+            color: 'white'
+          },
+          '& .super-app-theme--linkHeader': {
+            backgroundColor: '#274263',
+            color: 'white',
+            borderRadius: '0px'
+          },
+          '& .super-app-theme--searchable': {
+            backgroundColor: '#c5e1a5',
+            '&.MuiDataGrid-row:hover': {
+              backgroundColor: '#a2cf6e'
+            },
+            '&.MuiDataGrid-row.Mui-selected': {
+              backgroundColor: '#e2be1d',
+              '&.MuiDataGrid-row:hover': { backgroundColor: '#fff08d' }
+            }
+          },
+          '& .super-app-theme--SelectedPatient': {
+            backgroundColor: '#c5e1a5',
+            '&.MuiDataGrid-row:hover': {
+              backgroundColor: '#a2cf6e'
+            },
+            '&.MuiDataGrid-row.Mui-selected': {
+              backgroundColor: '#a2cf6e',
+              '&:hover': { backgroundColor: '#c5e1a5' }
+            }
+          },
+          '& .super-app-theme--Current': {
+            backgroundColor: '#f5df68',
+            '&.MuiDataGrid-row:hover': {
+              backgroundColor: '#fff08d'
+            },
+            '&.MuiDataGrid-row.Mui-selected': {
+              backgroundColor: '#e2be1d',
+              '&:hover': { backgroundColor: '#fff08d' }
+            }
+          }
+        }
+      }
+    },
     MuiToggleButton: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -119,4 +164,4 @@ const overrides = createTheme({
   }
 })
 
-export default overrides
+export default baseTheme
