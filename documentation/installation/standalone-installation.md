@@ -160,16 +160,24 @@ NB: The script will edit the access grants of the _/etc/docker/daemon.json_ file
 Now that you can use local Docker registries, run the `c-registry-1-create.sh` script to create a registry service. This service will host the docker images that we will use in our stack.
 
 ```bash
-./c-registry-1-create
-```
-
-**Push the images to the local registry**
-We will need to push the images that we pulled earlier. to so, run the `c-registry-1-create.sh` script.
-
-```bash
 ./c-registry-1-create.sh
 ```
 
+**Push the images to the local registry**
+We will need to pull images from docker hub then push them to the local registry :
+
+```bash
+./a-images-1-pull-from-hub.sh
+./c-registry-2-push-hub-images.sh
+```
+
+**Generate patient record fields configuration reference**
+The fields configuration reference is a json file that allows JeMPI to generate custom Java classes based on the fields but also the way we would to configure the matching algorithms.
+
+```bash
+cd JeMPI_Apps/JeMPI_Configuration/
+./create.sh reference/config-reference.json
+```
 **Run the stack**
 
 After pushing the images into the local registry, we are ready to run the app, we have several options, we can run the whole stack (UI + Backend) by running the `z-stack-3-build-all-reboot.sh`, Or run each of the backend (`z-stack-3-build-java-reboot.sh`) and the UI (`z-stack-3-build-ui-reboot`) seperatly.
