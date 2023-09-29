@@ -5,10 +5,11 @@ import SearchFormTable from './SearchFormTable'
 
 export const FilterTable: FC<{
   searchButtonLabel?: string
+  defaultParameters?: SearchParameter[]
   onSubmit: (query: SearchParameter[]) => void
   onCancel: () => void
-}> = ({ searchButtonLabel, onSubmit, onCancel }) => {
-  const [query, setQuery] = useState<SearchParameter[]>([])
+}> = ({ searchButtonLabel, onSubmit, onCancel, defaultParameters = [] }) => {
+  const [query, setQuery] = useState<SearchParameter[]>(defaultParameters)
   const handleCancel = () => {
     setQuery([])
     onCancel()
@@ -16,7 +17,10 @@ export const FilterTable: FC<{
 
   return (
     <TableContainer component={Paper}>
-      <SearchFormTable onChange={setQuery} />
+      <SearchFormTable
+        defaultParameters={defaultParameters}
+        onChange={setQuery}
+      />
       <Box p={3} display={'flex'} justifyContent={'flex-end'} gap={'10px'}>
         <Button onClick={() => handleCancel()}>Cancel</Button>
         <Button onClick={() => onSubmit(query)}>

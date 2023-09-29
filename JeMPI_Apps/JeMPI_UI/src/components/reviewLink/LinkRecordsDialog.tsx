@@ -21,7 +21,7 @@ const LinkRecordsDialog: React.FC<{
         <DialogTitle>Link these records?</DialogTitle>
         <DialogContent>
           <Typography>This action will link the following records: </Typography>
-          <DataGrid rows={data} />
+          <DataGrid rows={data} action={undefined} />
           <DialogActions>
             <Button onClick={onClose}>Cancel</Button>
             <Button onClick={onConfirm}>Confirm</Button>

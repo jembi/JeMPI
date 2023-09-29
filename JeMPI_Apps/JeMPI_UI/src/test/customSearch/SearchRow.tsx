@@ -39,7 +39,9 @@ const SearchRowTest: React.FC = () => {
       <AppConfigProvider>
         <Formik
           initialValues={initialValues}
-          onSubmit={() => console.log('submitted')}
+          onSubmit={() => {
+            /*noop*/
+          }}
         >
           {({ values, handleChange, setFieldValue }) => (
             <Form>

@@ -186,7 +186,9 @@ const ReviewLink = () => {
     : []
 
   const handleOpenLinkedRecordDialog = (uid: string) => {
-    const tableDataTemp = candidateGoldenRecords?.filter(d => d.uid === uid)
+    const tableDataTemp: AnyRecord[] | undefined = payload?.notificationId
+      ? candidateGoldenRecords?.filter(d => d.uid === uid)
+      : thresholdCandidates?.filter(d => d.uid === uid)
 
     if (patientRecord && tableDataTemp)
       setTableData([patientRecord, ...tableDataTemp])
@@ -245,32 +247,36 @@ const ReviewLink = () => {
         <Typography flex={1} variant="dgSubTitle">
           OTHER GOLDEN RECORDS
         </Typography>
-        {sliderThreshold !== candidateThreshold && (
-          <Button
-            sx={{ p: 0, minWidth: 0 }}
-            onClick={() => setCandidateThreshold(sliderThreshold)}
-          >
-            <Refresh />
-          </Button>
+        {!payload.notificationId && (
+          <>
+            {sliderThreshold !== candidateThreshold && (
+              <Button
+                sx={{ p: 0, minWidth: 0 }}
+                onClick={() => setCandidateThreshold(sliderThreshold)}
+              >
+                <Refresh />
+              </Button>
+            )}
+            <Stack
+              direction="row"
+              sx={{ width: 250 }}
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={2}
+            >
+              <Typography variant="dgSubTitle">THRESHOLD: </Typography>
+              <Slider
+                valueLabelDisplay="auto"
+                step={0.05}
+                size="small"
+                min={0}
+                max={1}
+                value={sliderThreshold}
+                onChange={handleThresholdChange}
+              />
+            </Stack>
+          </>
         )}
-        <Stack
-          direction="row"
-          sx={{ width: 250 }}
-          justifyContent="space-between"
-          alignItems="center"
-          spacing={2}
-        >
-          <Typography variant="dgSubTitle">THRESHOLD: </Typography>
-          <Slider
-            valueLabelDisplay="auto"
-            step={0.05}
-            size="small"
-            min={0}
-            max={1}
-            value={sliderThreshold}
-            onChange={handleThresholdChange}
-          />
-        </Stack>
       </Stack>
       <Paper>
         <CustomDataGrid

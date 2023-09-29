@@ -7,12 +7,16 @@ import { useAppConfig } from 'hooks/useAppConfig'
 import { SearchParameter } from 'types/SimpleSearch'
 
 interface SearchTableFormProps {
+  defaultParameters?: SearchParameter[]
   onChange: (values: SearchParameter[]) => void
 }
 
-const SearchFormTable: React.FC<SearchTableFormProps> = ({ onChange }) => {
+const SearchFormTable: React.FC<SearchTableFormProps> = ({
+  defaultParameters = [],
+  onChange
+}) => {
   const { getFieldsByGroup } = useAppConfig()
-  const [query, setQuery] = useState<SearchParameter[]>([])
+  const [query, setQuery] = useState<SearchParameter[]>(defaultParameters)
 
   const columns: GridColDef[] = getFieldsByGroup('filter').map(
     ({ fieldName, fieldLabel }) => {
