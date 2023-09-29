@@ -2,7 +2,6 @@ import { MoreHorizOutlined } from '@mui/icons-material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Card, Container, Grid } from '@mui/material'
 import Divider from '@mui/material/Divider'
-import { Link as LocationLink } from '@tanstack/react-location'
 import { useState } from 'react'
 import {
   FlagLabel,
@@ -14,10 +13,11 @@ import PageHeader from '../shell/PageHeader'
 import SearchFlags from './SearchFlags'
 import SimpleSearchForm from './SimpleSearchForm'
 import SimpleSearchHeader from './SimpleSearchHeader'
+import { useNavigate } from 'react-router-dom'
 
 const SimpleSearch: React.FC = () => {
   const [isGoldenOnly, setIsGoldenOnly] = useState<boolean>(true)
-  const [simpleSearchQuerry, setSimpleSearchQuerry] = useState<
+  const [simpleSearchQuery, setSimpleSearchQuery] = useState<
     SearchQuery | undefined
   >(undefined)
 
@@ -26,6 +26,7 @@ const SimpleSearch: React.FC = () => {
     { value: 1, label: FlagLabel.PATIENT_ONLY }
   ]
 
+  const navigate = useNavigate()
   return (
     <Container maxWidth={false}>
       <PageHeader
@@ -66,15 +67,19 @@ const SimpleSearch: React.FC = () => {
           padding="30px"
         >
           <SimpleSearchHeader isGoldenOnly={isGoldenOnly} />
-          <SimpleSearchForm onChange={setSimpleSearchQuerry} />
+          <SimpleSearchForm onChange={setSimpleSearchQuery} />
           <Grid item>
-            <LocationLink
-              to={`/search-results/${isGoldenOnly ? 'golden' : 'patient'}`}
-              search={{ payload: simpleSearchQuerry }}
-              style={{ textDecoration: 'none' }}
+            <Button
+              onClick={() =>
+                navigate(
+                  `/search-results/${isGoldenOnly ? 'golden' : 'patient'}`,
+                  { state: { payload: simpleSearchQuery } }
+                )
+              }
+              variant="contained"
             >
-              <Button variant="contained">Search</Button>
-            </LocationLink>
+              Search
+            </Button>
           </Grid>
         </Grid>
       </Card>

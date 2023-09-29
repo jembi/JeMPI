@@ -7,7 +7,6 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { MakeGenerics, useNavigate, useSearch } from '@tanstack/react-location'
 import { useMutation } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useLinkReview } from 'hooks/useLinkReview'
@@ -28,18 +27,7 @@ import useRelink from 'hooks/useRelink'
 import LinkRecordsDialog from './LinkRecordsDialog'
 import CloseNotificationDialog from './CloseNotificationDialog'
 import UnlinkingDialog from './UnlinkingDialog'
-
-export type ReviewLinkParams = MakeGenerics<{
-  Search: {
-    payload: {
-      notificationId: string
-      patient_id: string
-      golden_id: string
-      score: number
-      candidates: { golden_id: string; score: number }[]
-    }
-  }
-}>
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const getRowClassName = (type: string) => {
   switch (type) {
@@ -51,7 +39,9 @@ const getRowClassName = (type: string) => {
 }
 
 const ReviewLink = () => {
-  const { payload } = useSearch<ReviewLinkParams>()
+  const {
+    state: { payload }
+  } = useLocation()
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -104,7 +94,7 @@ const ReviewLink = () => {
                 variant: 'warning'
               }
             )
-            navigate({ to: '/notifications' })
+            navigate('/notifications')
           }
         }
       }
@@ -126,7 +116,7 @@ const ReviewLink = () => {
           enqueueSnackbar('New record linked', {
             variant: 'success'
           })
-          navigate({ to: `/browse-records/record-details/${data.goldenUID}` })
+          navigate(`/record-details/${data.goldenUID}`)
         },
         onError: (error: AxiosError) => {
           enqueueSnackbar(
@@ -152,9 +142,9 @@ const ReviewLink = () => {
         onSuccess: () => {
           if (payload?.notificationId) {
             updateNotification(status ?? NotificationState.Actioned)
-            navigate({ to: '/notifications' })
+            navigate('/notifications')
           } else {
-            navigate({ to: `/record-details/${id}` })
+            navigate(`/record-details/${id}`)
           }
         }
       }
@@ -209,7 +199,7 @@ const ReviewLink = () => {
     if (payload?.notificationId) {
       updateNotification(NotificationState.Pending)
     } else {
-      navigate({ to: `/browse-records/record-details/${goldenRecord?.uid}` })
+      navigate(`/record-details/${goldenRecord?.uid}`)
     }
   }
 

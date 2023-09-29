@@ -11,7 +11,7 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/search/custom"
       ],
       "readOnly": true,
@@ -30,12 +30,12 @@
       ],
       "scope": [
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
         "/search-results/patient",
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/browse-records"
       ],
       "validation": {
@@ -56,9 +56,9 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
@@ -83,9 +83,9 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/custom",
         "/browse-records"
       ],
@@ -108,9 +108,9 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
@@ -134,9 +134,9 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/custom",
         "/browse-records"
       ],
@@ -157,9 +157,9 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/custom",
         "/browse-records"
       ],
@@ -175,9 +175,9 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search/simple",
         "/search/custom",
         "/search-results/golden",
@@ -202,7 +202,7 @@
       ],
       "scope": [
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink"
+        "/record-details/:uid/relink"
       ],
       "accessLevel": []
     },
@@ -219,10 +219,10 @@
       ],
       "scope": [
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink",
+        "/record-details/:uid/relink",
         "/search-results/golden",
         "/search-results/patient",
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/browse-records"
       ],
       "accessLevel": []
@@ -237,7 +237,7 @@
         "audit_trail"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/browse-records"
       ],
       "accessLevel": []
@@ -252,7 +252,7 @@
         "record_details"
       ],
       "scope": [
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/browse-records"
       ],
       "accessLevel": []
@@ -268,9 +268,9 @@
       "scope": [
         "/patient-record/:uid",
         "/golden-record/:uid",
-        "/browse-records/record-details/:uid",
+        "/record-details/:uid",
         "/notifications/match-details",
-        "/browse-records/record-details/:uid/relink"
+        "/record-details/:uid/relink"
       ],
       "accessLevel": []
     }

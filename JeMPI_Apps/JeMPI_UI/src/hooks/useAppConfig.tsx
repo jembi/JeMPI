@@ -1,4 +1,3 @@
-import { matchByPath, useLocation } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import React, { useCallback, useMemo } from 'react'
@@ -9,6 +8,7 @@ import { DisplayField, FieldGroup, Fields } from '../types/Fields'
 import { AnyRecord } from '../types/PatientRecord'
 import { getFieldValueFormatter, valueGetter } from '../utils/formatters'
 import { isInputValid } from '../utils/helpers'
+import { matchPath, useLocation } from 'react-router-dom'
 
 export interface AppConfigContextValue {
   availableFields: DisplayField[]
@@ -41,7 +41,13 @@ export const AppConfigProvider = ({
     return (fields || [])
       .filter(({ scope }) =>
         scope.some(path => {
-          return matchByPath(location.current, { to: path })
+          console.log(location.pathname, path)
+          return matchPath(
+            {
+              path: path
+            },
+            location.pathname
+          )
         })
       )
       .map(field => {
@@ -53,7 +59,7 @@ export const AppConfigProvider = ({
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields, location.current])
+  }, [fields, location])
 
   const getFieldsByGroup = useCallback(
     (groupName: FieldGroup) => {

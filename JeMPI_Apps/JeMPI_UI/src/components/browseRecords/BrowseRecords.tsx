@@ -30,13 +30,13 @@ import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ApiClient from 'services/ApiClient'
-import { useNavigate } from '@tanstack/react-location'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import getCellComponent from 'components/shared/getCellComponent'
+import { useNavigate } from 'react-router-dom'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -264,11 +264,13 @@ const Records = () => {
             columns={columns}
             rows={rows}
             pageSizeOptions={[10, 25, 50, 100]}
-            onRowDoubleClick={params =>
-              navigate({
-                to: `record-details/${params.row.uid}`
-              })
-            }
+            onRowDoubleClick={params => {
+              if ('linkRecords' in params.row) {
+                navigate({
+                  pathname: `/record-details/${params.row.uid}`
+                })
+              }
+            }}
             getRowClassName={params =>
               `${
                 params.row.type === 'Current' && isFetchingInteractions

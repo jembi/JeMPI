@@ -14,7 +14,6 @@ import {
   GridRowSelectionModel,
   GridValueSetterParams
 } from '@mui/x-data-grid'
-import { useMatch, useNavigate } from '@tanstack/react-location'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
@@ -33,15 +32,14 @@ import { sortColumns } from 'utils/helpers'
 import getCellComponent from 'components/shared/getCellComponent'
 import { AUDIT_TRAIL_COLUMNS } from 'utils/constants'
 import { AuditTrail } from 'types/AuditTrail'
+import { useLoaderData, useNavigate } from 'react-router-dom'
 
 export interface UpdatedFields {
   [fieldName: string]: { oldValue: unknown; newValue: unknown }
 }
 
 const RecordDetails = () => {
-  const {
-    data: { uid }
-  } = useMatch()
+  const uid = useLoaderData()
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar()
   const { availableFields } = useAppConfig()
@@ -301,10 +299,8 @@ const RecordDetails = () => {
               ) : (
                 <Button
                   onClick={() =>
-                    navigate({
-                      fromCurrent: true,
-                      to: 'relink',
-                      search: {
+                    navigate(`/record-details/${data[0].uid}/relink`, {
+                      state: {
                         payload: {
                           patient_id: record.uid,
                           golden_id: data[0].uid,

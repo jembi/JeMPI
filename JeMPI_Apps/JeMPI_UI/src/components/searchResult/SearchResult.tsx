@@ -8,10 +8,9 @@ import {
   GridRenderCellParams,
   GridSortModel
 } from '@mui/x-data-grid'
-import { MakeGenerics, useSearch } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useAppConfig } from '../../hooks/useAppConfig'
 import ApiClient from '../../services/ApiClient'
 import {
@@ -20,12 +19,7 @@ import {
   SearchQuery
 } from '../../types/SimpleSearch'
 import PageHeader from '../shell/PageHeader'
-
-type UrlQueryParams = MakeGenerics<{
-  Search: {
-    payload: SearchQuery | CustomSearchQuery
-  }
-}>
+import { useLocation } from 'react-router-dom'
 
 type SearchResultProps = {
   isGoldenRecord: boolean
@@ -36,8 +30,10 @@ const SearchResult: React.FC<SearchResultProps> = ({
   isGoldenRecord,
   title
 }) => {
-  const { payload: searchPayload } = useSearch<UrlQueryParams>()
-  const [payload, setPayLoad] = React.useState<SearchQuery | CustomSearchQuery>(
+  const {
+    state: { payload: searchPayload }
+  } = useLocation()
+  const [payload, setPayLoad] = useState<SearchQuery | CustomSearchQuery>(
     searchPayload || ({} as CustomSearchQuery)
   )
   const { availableFields } = useAppConfig()
