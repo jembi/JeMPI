@@ -41,7 +41,7 @@ export const isPatientCorresponding = (
       {
         if (
           !isTermsSimilar(
-            patient[param.fieldName] as string,
+            patient.demographicData[param.fieldName] as string,
             param.value as string,
             param.distance
           )

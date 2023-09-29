@@ -7,7 +7,7 @@ import ApiErrorMessage from '../components/error/ApiErrorMessage'
 import ApiClient from '../services/ApiClient'
 import { DisplayField, FieldGroup, Fields } from '../types/Fields'
 import { AnyRecord } from '../types/PatientRecord'
-import { getFieldValueFormatter } from '../utils/formatters'
+import { getFieldValueFormatter, valueGetter } from '../utils/formatters'
 import { isInputValid } from '../utils/helpers'
 
 export interface AppConfigContextValue {
@@ -48,7 +48,8 @@ export const AppConfigProvider = ({
         return {
           ...field,
           formatValue: getFieldValueFormatter(field.fieldType),
-          isValid: (value: unknown) => isInputValid(value, field?.validation)
+          isValid: (value: unknown) => isInputValid(value, field?.validation),
+          getValue: valueGetter
         }
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,7 +66,9 @@ export const AppConfigProvider = ({
     (patient: AnyRecord) => {
       return getFieldsByGroup('name')
         .map(({ fieldName }) => {
-          return fieldName in patient ? patient[fieldName] : null
+          return fieldName in patient.demographicData
+            ? patient.demographicData[fieldName]
+            : null
         })
         .filter(v => !!v)
         .join(' ')

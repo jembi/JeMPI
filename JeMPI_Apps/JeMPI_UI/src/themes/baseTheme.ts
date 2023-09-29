@@ -120,7 +120,7 @@ const baseTheme = createTheme({
               '&:hover': { backgroundColor: '#c5e1a5' }
             }
           },
-          '& .super-app-theme--Golden': {
+          '& .super-app-theme--Current': {
             backgroundColor: '#f5df68',
             '&.MuiDataGrid-row:hover': {
               backgroundColor: '#fff08d'

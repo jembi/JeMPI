@@ -1,5 +1,6 @@
 import {
   DataGridProps,
+  GridActionsCellItem,
   GridCellParams,
   GridColDef,
   GridRenderCellParams,
@@ -7,7 +8,7 @@ import {
   DataGrid as MuiDataGrid
 } from '@mui/x-data-grid'
 import { FieldGroup } from 'types/Fields'
-import { AnyRecord } from 'types/PatientRecord'
+import { AnyRecord, ValueOf } from 'types/PatientRecord'
 import { useAppConfig } from '../../hooks/useAppConfig'
 import getCellComponent from 'components/shared/getCellComponent'
 import { sortColumns } from 'utils/helpers'
@@ -20,7 +21,7 @@ interface CustomDataGridProps extends PartialBy<DataGridProps, 'columns'> {
 }
 
 const getRecordTypeClassName = (params: GridCellParams) => {
-  return params.row.type === 'Golden' ? 'record-type' : ''
+  return params.row.type === 'Current' ? 'record-type' : ''
 }
 
 const getCellClassName = (
@@ -29,7 +30,9 @@ const getCellClassName = (
   data: AnyRecord
 ) => {
   if (groups.includes('demographics')) {
-    return params.value === data[params.field] ? 'matching-cell' : ''
+    return params.value === data.demographicData[params.field]
+      ? 'matching-cell'
+      : ''
   } else return ''
 }
 
@@ -41,43 +44,46 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
 }) => {
   const { availableFields } = useAppConfig()
 
-  const columns: GridColDef[] = availableFields.map(
-    ({ fieldName, fieldLabel, groups, formatValue }) => ({
+  const fieldColumns: GridColDef[] = availableFields.map(
+    ({ fieldName, fieldLabel, groups, formatValue, getValue }) => ({
       field: fieldName,
       headerName: fieldLabel,
       flex: fieldName === 'sourceId' ? 2 : 1,
-      sortable: fieldName !== 'actions',
-      filterable: fieldName !== 'actions',
-      align: fieldName === 'actions' ? 'center' : 'left',
-      headerAlign: fieldName === 'actions' ? 'center' : 'left',
+      sortable: true,
+      filterable: true,
+      align: 'left',
+      headerAlign: 'left',
       headerClassName: 'super-app-theme--linkHeader',
-      valueFormatter: (
-        params: GridValueFormatterParams<number | string | Date>
-      ) => formatValue(params.value),
+      valueGetter: getValue,
+      valueFormatter: (params: GridValueFormatterParams<ValueOf<AnyRecord>>) =>
+        formatValue(params.value),
       cellClassName: (params: GridCellParams) =>
         fieldName === 'recordType'
           ? getRecordTypeClassName(params)
           : getCellClassName(params, groups, rows[0]),
       renderCell: (params: GridRenderCellParams) =>
-        getCellComponent(fieldName, params, () => {
-          if (action) action(params.row.uid)
-        })
+        getCellComponent(fieldName, params)
     })
   )
 
-  const sortedColumns = sortColumns(columns, [
-    'recordType',
-    'uid',
-    'score',
-    'givenName',
-    'familyName',
-    'gender',
-    'dob',
-    'city',
-    'phoneNumber',
-    'nationalId',
-    'actions'
-  ])
+  const columns: GridColDef[] = [
+    ...fieldColumns,
+    {
+      field: 'action',
+      type: 'action',
+      headerName: 'Action',
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      headerClassName: 'super-app-theme--linkHeader',
+      renderCell: (params: GridRenderCellParams) =>
+        getCellComponent('actions', params, () => {
+          if (action) action(params.row.uid)
+        })
+    }
+  ]
 
   return (
     <MuiDataGrid
@@ -102,7 +108,7 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
           }
         }
       }}
-      {...{ ...props, columns: sortedColumns }}
+      {...{ ...props, columns: columns }}
     />
   )
 }

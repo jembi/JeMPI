@@ -11,24 +11,22 @@ const RecordTypeCellComponent: React.FC<RecordTypeCellComponentProps> = ({
   switch (params.row.type) {
     case 'Current':
       return (
-        <>
-          <Typography>Patient</Typography>
-        </>
-      )
-    case 'Golden':
-      return (
         <Typography color="#D79B01" fontWeight={700}>
           Golden
         </Typography>
       )
-    case 'Candidate':
-      if (params.row.searched) {
-        return <Typography>Searched</Typography>
-      } else {
-        return <Typography>Blocked</Typography>
-      }
+    case 'Searched':
+      return <Typography>Searched</Typography>
+
+    case 'Blocked':
+      return <Typography>Blocked</Typography>
+
     default:
-      return <></>
+      return (
+        <>
+          <Typography>Patient</Typography>
+        </>
+      )
   }
 }
 

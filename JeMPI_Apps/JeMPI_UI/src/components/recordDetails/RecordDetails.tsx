@@ -11,7 +11,8 @@ import {
   DataGrid,
   GridColDef,
   GridRenderCellParams,
-  GridRowSelectionModel
+  GridRowSelectionModel,
+  GridValueSetterParams
 } from '@mui/x-data-grid'
 import { useMatch, useNavigate } from '@tanstack/react-location'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -27,7 +28,7 @@ import { useSnackbar } from 'notistack'
 import { useState } from 'react'
 import ApiClient from 'services/ApiClient'
 import { DisplayField, FieldChangeReq, FieldType } from 'types/Fields'
-import { PatientRecord, GoldenRecord } from 'types/PatientRecord'
+import { PatientRecord, GoldenRecord, AnyRecord } from 'types/PatientRecord'
 import { sortColumns } from 'utils/helpers'
 import getCellComponent from 'components/shared/getCellComponent'
 import { AUDIT_TRAIL_COLUMNS } from 'utils/constants'
@@ -49,7 +50,7 @@ const RecordDetails = () => {
   const [records, setRecords] = useState<Array<GoldenRecord | PatientRecord>>(
     []
   )
-  const [patientRecord, setPatientRecord] = useState<
+  const [record, setPatientRecord] = useState<
     PatientRecord | GoldenRecord | undefined
   >(undefined)
   const [rowSelectionModel, setRowSelectionModel] =
@@ -63,7 +64,8 @@ const RecordDetails = () => {
       readOnly,
       validation,
       isValid,
-      formatValue
+      formatValue,
+      getValue
     }) => ({
       field: fieldName,
       headerName: fieldLabel,
@@ -71,12 +73,22 @@ const RecordDetails = () => {
       valueFormatter: ({ value }) => formatValue(value),
       sortable: false,
       disableColumnMenu: true,
-      editable: !readOnly && isEditMode && patientRecord?.type === 'Golden',
+      editable: !readOnly && isEditMode && record && 'linkRecords' in record,
       // a Callback used to validate the user's input
       preProcessEditCellProps: ({ props }) => ({
         ...props,
         error: isValid(props.value)
       }),
+      valueGetter: getValue,
+      valueSetter: (params: GridValueSetterParams) => {
+        return {
+          ...params.row,
+          demographicData: {
+            ...params.row.demographicData,
+            [fieldName]: params.value
+          }
+        }
+      },
       renderEditCell: props => (
         <DataGridCellInput
           {...{ ...props, message: validation?.onErrorMessage }}
@@ -104,16 +116,13 @@ const RecordDetails = () => {
   ])
 
   const { data, error, isLoading, isError } = useQuery<
-    Array<GoldenRecord>,
+    Array<AnyRecord>,
     AxiosError
   >({
     queryKey: ['record-details', uid],
     queryFn: async () => {
       const recordId = uid as string
-      return (await ApiClient.getExpandedGoldenRecords(
-        [recordId],
-        true
-      )) as Array<GoldenRecord>
+      return await ApiClient.getFlatExpandedGoldenRecords([recordId])
     },
     onSuccess: data => {
       setPatientRecord(data[0])
@@ -128,29 +137,25 @@ const RecordDetails = () => {
     isLoading: isAuditTrailLoading,
     isFetching
   } = useQuery<Array<AuditTrail>, AxiosError>({
-    queryKey: ['audit-trail', patientRecord?.uid],
+    queryKey: ['audit-trail', record?.uid],
     queryFn: async () => {
-      if (patientRecord?.type === 'Golden') {
-        return await ApiClient.getGoldenRecordAuditTrail(
-          patientRecord?.uid || ''
-        )
-      } else {
-        return await ApiClient.getInteractionAuditTrail(
-          patientRecord?.uid || ''
-        )
+      if (record) {
+        if ('linkRecords' in record) {
+          return await ApiClient.getGoldenRecordAuditTrail(record.uid || '')
+        } else {
+          return await ApiClient.getInteractionAuditTrail(record.uid || '')
+        }
       }
+      throw new Error('Empty record')
     },
-    enabled: !!patientRecord,
+    enabled: !!record,
     refetchOnWindowFocus: false
   })
 
   const updateRecord = useMutation({
-    mutationKey: ['golden-record', patientRecord?.uid],
+    mutationKey: ['golden-record', record?.uid],
     mutationFn: async (req: FieldChangeReq) => {
-      return await ApiClient.updatedGoldenRecord(
-        patientRecord?.uid as string,
-        req
-      )
+      return await ApiClient.updatedGoldenRecord(record?.uid as string, req)
     },
     onSuccess: () => {
       enqueueSnackbar(`Successfully saved patient records`, {
@@ -167,10 +172,14 @@ const RecordDetails = () => {
   const onDataChange = (newRow: PatientRecord | GoldenRecord) => {
     const newlyUpdatedFields: UpdatedFields = availableFields.reduce(
       (acc: UpdatedFields, curr: DisplayField) => {
-        if (data && data[0][curr.fieldName] !== newRow[curr.fieldName]) {
+        if (
+          data &&
+          data[0].demographicData[curr.fieldName] !==
+            newRow.demographicData[curr.fieldName]
+        ) {
           acc[curr.fieldLabel] = {
-            oldValue: data[0][curr.fieldName],
-            newValue: newRow[curr.fieldName]
+            oldValue: data[0].demographicData[curr.fieldName],
+            newValue: newRow.demographicData[curr.fieldName]
           }
         }
         return acc
@@ -195,17 +204,20 @@ const RecordDetails = () => {
   }
 
   const onConfirm = () => {
-    if (patientRecord) {
-      const fields = Object.keys(patientRecord).reduce(
+    if (record) {
+      const fields = Object.keys(record.demographicData).reduce(
         (
           acc: { name: string; oldValue: FieldType; newValue: FieldType }[],
           curr: string
         ) => {
-          if (patientRecord && data[0][curr] !== patientRecord[curr]) {
+          if (
+            record &&
+            data[0].demographicData[curr] !== record.demographicData[curr]
+          ) {
             acc.push({
               name: curr,
-              oldValue: data[0][curr] as FieldType,
-              newValue: patientRecord[curr] as FieldType
+              oldValue: data[0].demographicData[curr] as FieldType,
+              newValue: record.demographicData[curr] as FieldType
             })
           }
           return acc
@@ -264,13 +276,28 @@ const RecordDetails = () => {
           <Stack p={1} flexDirection={'row'} justifyContent={'space-between'}>
             <Typography variant="h6">Records</Typography>
             <Stack display={'flex'} flexDirection={'row'}>
-              {!patientRecord || patientRecord?.type === 'Golden' ? (
-                <Button
-                  onClick={() => setIsEditMode(true)}
-                  disabled={isEditMode === true}
-                >
-                  Edit
-                </Button>
+              {!record || 'linkRecords' in record ? (
+                <>
+                  <Button
+                    onClick={() => setIsEditMode(true)}
+                    disabled={isEditMode === true}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    onClick={() => setIsModalVisible(true)}
+                    disabled={!isEditMode}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    disabled={!isEditMode}
+                    onClick={() => onCancelEditing()}
+                  >
+                    Cancel
+                  </Button>
+                </>
               ) : (
                 <Button
                   onClick={() =>
@@ -279,9 +306,9 @@ const RecordDetails = () => {
                       to: 'relink',
                       search: {
                         payload: {
-                          patient_id: patientRecord.uid,
+                          patient_id: record.uid,
                           golden_id: data[0].uid,
-                          score: patientRecord.score
+                          score: record.score
                         }
                       }
                     })
@@ -290,22 +317,6 @@ const RecordDetails = () => {
                   Relink
                 </Button>
               )}
-              <Button
-                onClick={() => setIsModalVisible(true)}
-                disabled={
-                  isEditMode !== true || patientRecord?.type !== 'Golden'
-                }
-              >
-                Save
-              </Button>
-              <Button
-                disabled={
-                  isEditMode !== true || patientRecord?.type !== 'Golden'
-                }
-                onClick={() => onCancelEditing()}
-              >
-                Cancel
-              </Button>
             </Stack>
           </Stack>
           <DataGrid
@@ -316,7 +327,7 @@ const RecordDetails = () => {
             rowSelectionModel={rowSelectionModel}
             disableRowSelectionOnClick={isEditMode}
             editMode="row"
-            isCellEditable={params => params.row.type === 'Golden'}
+            isCellEditable={params => params.row.type === 'Current'}
             rows={records}
             autoHeight={true}
             hideFooter={true}

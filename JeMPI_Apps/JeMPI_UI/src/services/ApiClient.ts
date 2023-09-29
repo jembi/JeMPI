@@ -3,6 +3,7 @@ import { config } from '../config'
 import { AuditTrailEntries } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
+  ApiSearchResponse,
   ApiSearchResult,
   CustomSearchQuery,
   FilterQuery,
@@ -15,14 +16,19 @@ import moxios from './mockBackend'
 import {
   NotificationResponse,
   Interaction,
-  ExpandedGoldenRecord,
+  ExpandedGoldenRecordResponse,
   InteractionWithScore,
   NotificationRequest,
   LinkRequest,
-  DemographicsData,
-  CustomGoldenRecord
+  GoldenRecordCandidatesResponse
 } from 'types/BackendResponse'
-import { GoldenRecord, PatientRecord, AnyRecord } from 'types/PatientRecord'
+import {
+  GoldenRecord,
+  AnyRecord,
+  DemographicData,
+  PatientRecord
+} from 'types/PatientRecord'
+import { Notifications } from 'types/Notification'
 
 const client = config.shouldMockBackend ? moxios : axiosInstance
 
@@ -38,7 +44,7 @@ class ApiClient {
     offset: number,
     created: string,
     state: string
-  ) {
+  ): Promise<Notifications> {
     return await client
       .get<NotificationResponse>(
         `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
@@ -57,77 +63,62 @@ class ApiClient {
 
   async getInteraction(uid: string) {
     return await client
-      .get<PatientRecord, AxiosResponse<Interaction>>(
-        `${ROUTES.GET_INTERACTION}/${uid}`
-      )
+      .get<Interaction>(`${ROUTES.GET_INTERACTION}/${uid}`)
       .then(res => res.data)
-      .then((interaction: Interaction) => {
-        return {
-          uid: interaction.uid,
-          sourceId: interaction.sourceId,
-          ...interaction.demographicData
-        }
-      })
   }
 
-  async getGoldenRecord(uid: string) {
+  async getGoldenRecord(uid: string): Promise<GoldenRecord> {
     return await client
-      .get<GoldenRecord, AxiosResponse<ExpandedGoldenRecord>>(
-        `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
-      )
+      .get<ExpandedGoldenRecordResponse>(`${ROUTES.GET_GOLDEN_RECORD}/${uid}`)
       .then(res => res.data)
-      .then(({ goldenRecord, interactionsWithScore }: ExpandedGoldenRecord) => {
-        return {
-          ...goldenRecord.demographicData,
-          uid: goldenRecord.uid,
-          sourceId: goldenRecord.sourceId,
-          createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
-          auxId: goldenRecord.uniqueGoldenRecordData.auxId,
-          linkRecords: interactionsWithScore?.map(
-            ({ interaction, score }: InteractionWithScore) => {
-              return {
-                uid: interaction.uid,
-                sourceId: interaction.sourceId,
-                createdAt: interaction.uniqueInteractionData.auxDateCreated,
-                auxId: interaction.uniqueInteractionData.auxId,
-                score,
-                ...interaction?.demographicData
+      .then(
+        ({
+          goldenRecord,
+          interactionsWithScore
+        }: ExpandedGoldenRecordResponse) => {
+          return {
+            uid: goldenRecord.uid,
+            demographicData: goldenRecord.demographicData,
+            sourceId: goldenRecord.sourceId,
+            type: 'Current',
+            createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
+            auxId: goldenRecord.uniqueGoldenRecordData.auxId,
+            linkRecords: interactionsWithScore.map(
+              ({ interaction, score }: InteractionWithScore) => {
+                return {
+                  uid: interaction.uid,
+                  sourceId: interaction.sourceId,
+                  createdAt: interaction.uniqueInteractionData.auxDateCreated,
+                  auxId: interaction.uniqueInteractionData.auxId,
+                  score,
+                  demographicData: interaction?.demographicData
+                }
               }
-            }
-          )
+            )
+          }
         }
-      })
+      )
   }
 
   //TODO Move this logic to the backend and just get match details by notification ID
-  async getMatchDetails(uid: string, goldenId: string, candidates: string[]) {
-    if (uid === null || uid === '' || typeof uid === 'undefined') {
-      return [] as AnyRecord[]
-    }
-    const patientRecord = this.getInteraction(uid)
+  async getMatchDetails(
+    goldenId: string,
+    candidateIds: string[]
+  ): Promise<[GoldenRecord, GoldenRecord[]]> {
     const goldenRecord = this.getGoldenRecord(goldenId)
-    const candidateRecords = this.getExpandedGoldenRecords(candidates, false)
-    return await axios
-      .all<any>([patientRecord, goldenRecord, candidateRecords])
-      .then(response => {
-        const interactions = response[1].linkRecords.map(
-          (record: PatientRecord) => ({
-            ...record,
-            type: 'Current'
-          })
-        )
-        return [...interactions]
-          .concat({
-            ...response[1],
-            type: 'Golden'
-          })
-          .concat(
-            response[2].map((r: AnyRecord) => ({
-              ...r,
-              type: 'Candidate'
-            }))
-          )
-      })
+    const candidateRecords = this.getExpandedGoldenRecords(candidateIds)
+    const [gr, candidates] = await Promise.all([goldenRecord, candidateRecords])
+
+    return [
+      {
+        ...gr,
+        type: 'Current'
+      },
+      candidates.map(r => ({
+        ...r,
+        type: 'Blocked'
+      }))
+    ]
   }
 
   async updateNotification(request: NotificationRequest) {
@@ -157,30 +148,38 @@ class ApiClient {
   async searchQuery(
     request: CustomSearchQuery | SearchQuery,
     isGoldenOnly: boolean
-  ) {
+  ): Promise<ApiSearchResult<AnyRecord>> {
     const isCustomSearch = '$or' in request
     const endpoint = `${
       isCustomSearch ? ROUTES.POST_CUSTOM_SEARCH : ROUTES.POST_SIMPLE_SEARCH
     }/${isGoldenOnly ? 'golden' : 'patient'}`
     return await client.post(endpoint, request).then(res => {
       if (isGoldenOnly) {
-        const { pagination, data } = res.data
-        const result: ApiSearchResult = {
+        const { pagination, data } =
+          res.data as ApiSearchResponse<ExpandedGoldenRecordResponse>
+        const result: ApiSearchResult<GoldenRecord> = {
           records: {
             data: data.map(
               ({
                 goldenRecord,
                 interactionsWithScore
-              }: ExpandedGoldenRecord) => {
+              }: ExpandedGoldenRecordResponse) => {
                 return {
-                  ...goldenRecord,
-                  ...goldenRecord.demographicData,
+                  uid: goldenRecord.uid,
+                  demographicData: goldenRecord.demographicData,
+                  sourceId: goldenRecord.sourceId,
+                  createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
+                  auxId: goldenRecord.uniqueGoldenRecordData.auxId,
                   linkRecords: interactionsWithScore.map(
-                    ({ interaction }: InteractionWithScore) => {
+                    ({ interaction, score }: InteractionWithScore) => {
                       return {
                         uid: interaction.uid,
                         sourceId: interaction.sourceId,
-                        ...interaction.demographicData
+                        createdAt:
+                          interaction.uniqueInteractionData.auxDateCreated,
+                        auxId: interaction.uniqueInteractionData.auxId,
+                        score,
+                        demographicData: interaction?.demographicData
                       }
                     }
                   )
@@ -194,13 +193,16 @@ class ApiClient {
         }
         return result
       } else {
-        const { pagination, data } = res.data
-        const result: ApiSearchResult = {
+        const { pagination, data } = res.data as ApiSearchResponse<Interaction>
+        const result: ApiSearchResult<PatientRecord> = {
           records: {
-            data: data.map((patientRecord: Interaction) => {
+            data: data.map((interaction: Interaction) => {
               return {
-                ...patientRecord,
-                ...patientRecord.demographicData
+                uid: interaction.uid,
+                sourceId: interaction.sourceId,
+                createdAt: interaction.uniqueInteractionData.auxDateCreated,
+                auxId: interaction.uniqueInteractionData.auxId,
+                demographicData: interaction?.demographicData
               }
             }),
             pagination: {
@@ -239,11 +241,10 @@ class ApiClient {
   }
 
   async getExpandedGoldenRecords(
-    goldenIds: Array<string> | undefined,
-    getInteractions: boolean
-  ) {
+    goldenIds: Array<string> | undefined
+  ): Promise<GoldenRecord[]> {
     return await client
-      .get<Array<AnyRecord>, AxiosResponse<ExpandedGoldenRecord[]>>(
+      .get<Array<ExpandedGoldenRecordResponse>>(
         ROUTES.GET_EXPANDED_GOLDEN_RECORDS,
         {
           params: { uidList: goldenIds?.toString() }
@@ -251,59 +252,62 @@ class ApiClient {
       )
       .then(res => res.data)
       .then(data =>
-        data.reduce((acc: Array<AnyRecord>, curr: ExpandedGoldenRecord) => {
-          const record = {
-            ...curr.goldenRecord.demographicData,
-            uid: curr.goldenRecord.uid,
-            createdAt: curr.goldenRecord.uniqueGoldenRecordData.auxDateCreated,
-            sourceId: curr.goldenRecord.sourceId,
-            type: 'Golden'
-          }
-          if (getInteractions) {
-            const linkedRecords = curr.interactionsWithScore.map(
-              ({ interaction, score }: InteractionWithScore) => ({
-                ...interaction.demographicData,
+        data.map(({ goldenRecord, interactionsWithScore }) => {
+          const record: GoldenRecord = {
+            demographicData: goldenRecord.demographicData,
+            uid: goldenRecord.uid,
+            createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
+            sourceId: goldenRecord.sourceId,
+            type: 'Current',
+            auxId: goldenRecord.uniqueGoldenRecordData.auxId,
+            linkRecords: interactionsWithScore
+              .map(({ interaction, score }: InteractionWithScore) => ({
+                demographicData: interaction.demographicData,
                 uid: interaction.uid,
                 sourceId: interaction.sourceId,
                 createdAt: interaction.uniqueInteractionData.auxDateCreated,
                 auxId: interaction.uniqueInteractionData.auxId,
-                score: score,
-                type: 'Current'
-              })
-            )
-            acc.push(
-              record,
-              ...linkedRecords.sort(
+                score: score
+              }))
+              .sort(
                 (objA, objB) => Number(objA.createdAt) - Number(objB.createdAt)
               )
-            )
-          } else {
-            acc.push(record)
           }
-          return acc
-        }, [])
+          return record
+        })
       )
   }
 
+  async getFlatExpandedGoldenRecords(
+    goldenIds: Array<string> | undefined
+  ): Promise<AnyRecord[]> {
+    const goldrenRecords = await this.getExpandedGoldenRecords(goldenIds)
+    return goldrenRecords.reduce((acc: Array<AnyRecord>, record) => {
+      acc.push(record, ...record.linkRecords)
+      return acc
+    }, [])
+  }
+
   async getCandidates(
-    demographicData: DemographicsData,
+    demographicData: DemographicData,
     candidateThreshold: number
-  ) {
+  ): Promise<GoldenRecord[]> {
     return await client
-      .post(ROUTES.POST_CR_CANDIDATES, {
+      .post<GoldenRecordCandidatesResponse>(ROUTES.POST_CR_CANDIDATES, {
         demographicData,
         candidateThreshold
       })
       .then(res =>
         // records needs typing
-        res.data.goldenRecords?.map((record: CustomGoldenRecord) => ({
-          ...record.demographicData,
+        res.data.goldenRecords?.map(record => ({
+          demographicData: record.demographicData,
           uid: record.goldenId,
           sourceId: record.sourceId,
           createdAt: record.customUniqueGoldenRecordData.auxDateCreated,
           auxId: record.customUniqueGoldenRecordData.auxId,
           score: candidateThreshold,
-          type: 'Candidate'
+          type: 'Blocked',
+          linkRecords: []
         }))
       )
   }

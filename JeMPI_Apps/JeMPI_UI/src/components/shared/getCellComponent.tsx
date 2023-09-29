@@ -12,7 +12,8 @@ const getCellComponent = (
   switch (fieldName) {
     case 'actions':
       switch (params.row.type) {
-        case 'Candidate':
+        case 'Blocked':
+        case 'Searched':
           return (
             <Link
               sx={{ ':hover': { cursor: 'pointer' } }}

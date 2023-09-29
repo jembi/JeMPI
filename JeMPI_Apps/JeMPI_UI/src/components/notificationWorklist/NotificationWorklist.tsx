@@ -8,7 +8,7 @@ import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
 import ApiClient from '../../services/ApiClient'
-import Notification from '../../types/Notification'
+import Notification, { Notifications } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import React, { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
@@ -31,12 +31,7 @@ const NotificationWorklist = () => {
     items: [{ field: 'state', value: 'New', operator: 'contains' }]
   })
   const { data, error, isLoading, isFetching } = useQuery<
-    {
-      records: Notification[]
-      pagination: {
-        total: number
-      }
-    },
+    Notifications,
     AxiosError
   >({
     queryKey: [

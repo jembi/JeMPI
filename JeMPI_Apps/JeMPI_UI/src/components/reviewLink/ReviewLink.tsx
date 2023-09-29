@@ -43,8 +43,8 @@ export type ReviewLinkParams = MakeGenerics<{
 
 const getRowClassName = (type: string) => {
   switch (type) {
-    case 'Golden':
-      return 'super-app-theme--Golden'
+    case 'Current':
+      return 'super-app-theme--Current'
     default:
       return ''
   }
@@ -69,11 +69,10 @@ const ReviewLink = () => {
   >(undefined)
 
   const {
-    goldenRecord,
     patientRecord,
+    goldenRecord,
     thresholdCandidates,
     candidateGoldenRecords,
-    matchDetails,
     error,
     isLoading,
     isError
@@ -115,7 +114,7 @@ const ReviewLink = () => {
   const createGoldenRecord = (id: string) => {
     createNewGoldenRecord.mutate(
       {
-        patientID: patientRecord ? patientRecord.uid : '',
+        patientID: payload?.patient_id || '',
         goldenID: goldenRecord ? goldenRecord.uid : '',
         newGoldenID: id
       },
@@ -127,7 +126,7 @@ const ReviewLink = () => {
           enqueueSnackbar('New record linked', {
             variant: 'success'
           })
-          navigate({ to: `/record-details/${data.goldenUID}` })
+          navigate({ to: `/browse-records/record-details/${data.goldenUID}` })
         },
         onError: (error: AxiosError) => {
           enqueueSnackbar(
@@ -145,7 +144,7 @@ const ReviewLink = () => {
   const linkToCandidateRecord = (id: string, status?: NotificationState) => {
     linkRecords.mutate(
       {
-        patientID: patientRecord ? patientRecord.uid : '',
+        patientID: payload?.patient_id || '',
         goldenID: goldenRecord ? goldenRecord.uid : '',
         newGoldenID: id
       },
@@ -182,24 +181,25 @@ const ReviewLink = () => {
     return <ApiErrorMessage error={error} />
   }
 
-  if (!matchDetails) {
+  if (!goldenRecord) {
     return <NotFound />
   }
 
-  const matches = matchDetails
-    .filter(record => record.type === 'Golden' || record.type === 'Current')
-    .reduce(
-      (acc: Array<AnyRecord>, curr: AnyRecord) =>
-        curr.uid === payload?.patient_id || curr.type === 'Golden'
-          ? [...acc, curr]
-          : [curr, ...acc],
-      []
-    )
+  const matches = goldenRecord
+    ? [
+        ...goldenRecord.linkRecords.filter(
+          record => record.uid !== patientRecord?.uid
+        ),
+        patientRecord,
+        goldenRecord
+      ]
+    : []
 
   const handleOpenLinkedRecordDialog = (uid: string) => {
-    const tableDataTemp = candidateGoldenRecords.filter(d => d.uid === uid)
+    const tableDataTemp = candidateGoldenRecords?.filter(d => d.uid === uid)
 
-    if (patientRecord) setTableData([patientRecord, ...tableDataTemp])
+    if (patientRecord && tableDataTemp)
+      setTableData([patientRecord, ...tableDataTemp])
 
     setIsLinkRecordDialogOpen(true)
     setCandidateUID(uid)
@@ -286,7 +286,7 @@ const ReviewLink = () => {
         <CustomDataGrid
           rows={
             payload?.notificationId
-              ? candidateGoldenRecords
+              ? candidateGoldenRecords || []
               : thresholdCandidates?.filter(
                   record => record.uid !== payload?.golden_id
                 ) || []
@@ -343,7 +343,9 @@ const ReviewLink = () => {
         isOpen={isLinkRecordDialogOpen}
         data={tableData}
         onClose={handleModalCancel}
-        onConfirm={handleCancel}
+        onConfirm={() =>
+          linkToCandidateRecord(canditateUID, NotificationState.Actioned)
+        }
       />
     </Container>
   )
