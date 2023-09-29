@@ -1,7 +1,6 @@
 import { People } from '@mui/icons-material'
 import { Container, Divider, Paper, debounce } from '@mui/material'
 import { DataGrid, GridFilterModel } from '@mui/x-data-grid'
-import { useNavigate } from '@tanstack/react-location'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
@@ -16,6 +15,8 @@ import locale from 'dayjs/locale/uk'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
+import { useNavigate } from 'react-router-dom'
+import { encodeQueryString } from 'utils/helpers'
 
 const NotificationWorklist = () => {
   const navigate = useNavigate()
@@ -124,18 +125,22 @@ const NotificationWorklist = () => {
           filterModel={filterModel}
           onFilterModelChange={debounce(onFilterChange, 3000)}
           onRowDoubleClick={params =>
-            navigate({
-              to: '/notifications/match-details',
-              search: {
-                payload: {
-                  notificationId: params.row.id,
-                  patient_id: params.row.patient_id,
-                  golden_id: params.row.golden_id,
-                  score: params.row.score,
-                  candidates: params.row.candidates
+            navigate(
+              {
+                pathname: 'match-details'
+              },
+              {
+                state: {
+                  payload: {
+                    notificationId: params.row.id,
+                    patient_id: params.row.patient_id,
+                    golden_id: params.row.golden_id,
+                    score: params.row.score,
+                    candidates: params.row.candidates
+                  }
                 }
               }
-            })
+            )
           }
         />
       </Paper>

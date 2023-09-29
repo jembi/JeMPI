@@ -7,7 +7,7 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import { useNavigate } from '@tanstack/react-location'
+import { useNavigate } from 'react-router-dom'
 
 interface PageHeaderProps {
   breadcrumbs?: Array<{ icon?: JSX.Element; title?: string; link?: string }>
@@ -39,7 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   <Link
                     underline="hover"
                     color="inherit"
-                    onClick={() => Navigate({ to: link })}
+                    onClick={() => Navigate(link || '')}
                     key={idx}
                   >
                     <Stack direction={'row'} spacing={1}>

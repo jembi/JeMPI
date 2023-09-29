@@ -16,7 +16,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import JembiLogo from './JembiLogo'
 import NavigationMenu from './NavigationMenu'
-import { Link } from '@tanstack/react-location'
+import { Link } from 'react-router-dom'
 
 const LabeledIconBox = ({
   icon,
