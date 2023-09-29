@@ -10,18 +10,22 @@ import {
   Switch,
   Typography
 } from '@mui/material'
-import {
-  DataGrid,
-  GridColDef,
-  GridPaginationModel,
-  GridRenderCellParams
-} from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
-import { AnyRecord, PatientRecord, ValueOf } from 'types/PatientRecord'
+import {
+  AnyRecord,
+  GoldenRecord,
+  PatientRecord,
+  ValueOf
+} from 'types/PatientRecord'
 import { FilterTable } from './FilterTable'
-import { FilterQuery, SearchParameter } from 'types/SimpleSearch'
-import { useState } from 'react'
+import {
+  ApiSearchResult,
+  FilterQuery,
+  SearchParameter
+} from 'types/SimpleSearch'
+import { useMemo, useState } from 'react'
 import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -48,10 +52,6 @@ const Records = () => {
 
   const [isFetchingInteractions, setIsFetchingInteractions] = useState(false)
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 10
-  })
 
   const [dateFilter, setDateFilter] = useState(dayjs())
 
@@ -59,13 +59,11 @@ const Records = () => {
 
   const [filterPayload, setFilterPayload] = useState<FilterQuery>({
     parameters: [],
-    limit: 1000,
+    limit: 10,
     offset: 0,
     sortAsc: false,
     sortBy: 'auxDateCreated'
   })
-
-  const [goldenIds, setGoldenIds] = useState<Array<string>>([])
 
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
     ({ fieldName, fieldLabel, formatValue, getValue }) => {
@@ -88,8 +86,8 @@ const Records = () => {
     }
   )
 
-  const goldenIdsQuery = useQuery<
-    { data: Array<string>; pagination: { total: number } },
+  const { data, isError, error, isLoading } = useQuery<
+    ApiSearchResult<GoldenRecord>,
     AxiosError
   >({
     queryKey: [
@@ -101,56 +99,27 @@ const Records = () => {
       isFetchingInteractions
     ],
     queryFn: async () =>
-      isFetchingInteractions
-        ? await ApiClient.getFilteredGoldenIdsWithInteractionCount(
-            filterPayload
-          )
-        : await ApiClient.getFilteredGoldenIds(filterPayload),
-    onSuccess: data => {
-      if (filterPayload.offset > 0) {
-        setGoldenIds([...goldenIds, ...data.data])
-      } else {
-        setGoldenIds([...data.data])
-      }
-    },
+      (await ApiClient.searchQuery(
+        filterPayload,
+        true
+      )) as ApiSearchResult<GoldenRecord>,
     refetchOnWindowFocus: false
   })
 
-  const expandeGoldenRecordsQuery = useQuery<Array<AnyRecord>, AxiosError>({
-    queryKey: [
-      'expanded-golden-records',
-      paginationModel.page,
-      paginationModel.pageSize,
-      ...filterPayload.parameters,
-      goldenIds?.slice(
-        paginationModel.page * paginationModel.pageSize,
-        paginationModel.page * paginationModel.pageSize +
-          paginationModel.pageSize
-      ),
-      isFetchingInteractions
-    ],
-    queryFn: async () =>
-      isFetchingInteractions
-        ? await ApiClient.getFlatExpandedGoldenRecords(
-            goldenIds?.slice(
-              paginationModel.page * paginationModel.pageSize,
-              paginationModel.page * paginationModel.pageSize +
-                paginationModel.pageSize
-            )
-          )
-        : await ApiClient.getExpandedGoldenRecords(
-            goldenIds?.slice(
-              paginationModel.page * paginationModel.pageSize,
-              paginationModel.page * paginationModel.pageSize +
-                paginationModel.pageSize
-            )
-          ),
-    enabled: goldenIds.length > 0,
-    refetchOnWindowFocus: false
-  })
+  const rows = useMemo(() => {
+    if (!data) {
+      return []
+    }
+    return !isFetchingInteractions
+      ? data.records.data
+      : data.records.data.reduce((acc: Array<AnyRecord>, record) => {
+          acc.push({ ...record, type: 'Current' }, ...record.linkRecords)
+          return acc
+        }, [])
+  }, [isFetchingInteractions, data])
 
-  if (expandeGoldenRecordsQuery.isError) {
-    return <ApiErrorMessage error={expandeGoldenRecordsQuery.error} />
+  if (isError) {
+    return <ApiErrorMessage error={error} />
   }
 
   const onSearch = (query: SearchParameter[]) => {
@@ -160,37 +129,15 @@ const Records = () => {
   const onFilter = (query: SearchParameter[]) => {
     setFilterPayload({
       ...filterPayload,
-      parameters: [...query],
-      createdAt: dateFilter.toJSON()
+      parameters: [
+        {
+          value: dateFilter.toJSON(),
+          distance: -1,
+          fieldName: 'auxDateCreated'
+        },
+        ...query
+      ]
     })
-  }
-
-  // This funciton needs to be removed when the @mui/x-data-grid is
-  // replaced with the the Material react table (https://www.material-react-table.com/)
-  const handlePagination = (model: GridPaginationModel) => {
-    setPaginationModel(model)
-    if (
-      filterPayload.offset === 0 &&
-      paginationModel.pageSize * paginationModel.page +
-        paginationModel.pageSize >=
-        filterPayload.limit
-    ) {
-      setFilterPayload({
-        ...filterPayload,
-        offset: filterPayload.offset + filterPayload.limit
-      })
-    }
-    if (
-      filterPayload.offset !== 0 &&
-      paginationModel.pageSize * paginationModel.page +
-        paginationModel.pageSize <
-        filterPayload.limit
-    ) {
-      setFilterPayload({
-        ...filterPayload,
-        offset: filterPayload.offset - filterPayload.limit
-      })
-    }
   }
 
   const getClassName = (patient: PatientRecord) => {
@@ -261,8 +208,7 @@ const Records = () => {
                 onCancel={() =>
                   setFilterPayload({
                     ...filterPayload,
-                    parameters: [],
-                    createdAt: dayjs(new Date()).format('YYYY-MM-DD')
+                    parameters: []
                   })
                 }
               />
@@ -311,9 +257,12 @@ const Records = () => {
               }
             }}
             getRowId={({ uid }) => uid}
-            paginationModel={paginationModel}
+            paginationModel={{
+              page: filterPayload.offset / filterPayload.limit,
+              pageSize: filterPayload.limit
+            }}
             columns={columns}
-            rows={expandeGoldenRecordsQuery?.data || []}
+            rows={rows}
             pageSizeOptions={[10, 25, 50, 100]}
             onRowDoubleClick={params =>
               navigate({
@@ -327,10 +276,16 @@ const Records = () => {
                   : getClassName(params.row)
               }`
             }
-            onPaginationModelChange={handlePagination}
+            onPaginationModelChange={({ page, pageSize }) =>
+              setFilterPayload({
+                ...filterPayload,
+                offset: page * filterPayload.limit,
+                limit: pageSize
+              })
+            }
             paginationMode="server"
-            loading={expandeGoldenRecordsQuery.isLoading}
-            rowCount={goldenIdsQuery?.data?.pagination?.total || 0}
+            loading={isLoading}
+            rowCount={data?.records.pagination?.total || 0}
           />
         </Paper>
       </Stack>
