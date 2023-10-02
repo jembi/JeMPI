@@ -36,6 +36,8 @@ COPY package.json ./
 
 COPY yarn.lock ./
 
+RUN yarn global add serve 
+
 RUN yarn install --silent --prod --frozen-lockfile
 
 COPY --chown=node:node --from=development-stage /app/build ./build
