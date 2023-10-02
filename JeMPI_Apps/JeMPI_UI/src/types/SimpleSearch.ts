@@ -1,10 +1,5 @@
 import { ExpandedGoldenRecordResponse, Interaction } from './BackendResponse'
-import {
-  AnyRecord,
-  GoldenRecord,
-  PatientRecord,
-  SourceId
-} from './PatientRecord'
+import { GoldenRecord, PatientRecord } from './PatientRecord'
 
 export interface SearchParameter {
   fieldName: string
