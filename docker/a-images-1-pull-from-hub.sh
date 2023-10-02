@@ -16,3 +16,4 @@ docker pull $KAFKA_IMAGE
 docker pull $DGRAPH_IMAGE
 docker pull $RATEL_IMAGE
 docker pull $POSTGRESQL_IMAGE
+docker pull $JAVASCRIPT_RUNTIME

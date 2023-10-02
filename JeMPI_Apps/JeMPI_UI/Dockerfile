@@ -1,4 +1,4 @@
-# FROM node:16-alpine
+# FROM node:18-alpine
 
 # WORKDIR /app
 
@@ -14,7 +14,7 @@
 
 
 # Build 
-FROM node:16-alpine as development-stage
+FROM node:18-alpine as development-stage
 
 WORKDIR /app
 
@@ -22,16 +22,16 @@ COPY package.json ./
 
 COPY yarn.lock ./
 
-RUN yarn
+RUN yarn install
 
 COPY . .
 
 RUN yarn build
 
-CMD ["yarn","start"]
+CMD ["yarn", "start"]
 
-# Production 
-FROM node:16-alpine as production-stage
+# Production
+FROM node:18-alpine as production-stage
 
 WORKDIR /app
 
@@ -39,12 +39,10 @@ COPY package.json ./
 
 COPY yarn.lock ./
 
-RUN yarn global add serve
-
-RUN yarn install --production=true
+RUN yarn install --silent --prod --frozen-lockfile
 
 COPY --chown=node:node --from=development-stage /app/build ./build
 
 ENV NODE_ENV=production
 
-CMD ["serve" ,"-s", "build"]
+CMD ["serve" , "-s", "build"]
