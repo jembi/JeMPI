@@ -7,12 +7,16 @@ import { useAppConfig } from 'hooks/useAppConfig'
 import { SearchParameter } from 'types/SimpleSearch'
 
 interface SearchTableFormProps {
+  defaultParameters?: SearchParameter[]
   onChange: (values: SearchParameter[]) => void
 }
 
-const SearchFormTable: React.FC<SearchTableFormProps> = ({ onChange }) => {
+const SearchFormTable: React.FC<SearchTableFormProps> = ({
+  defaultParameters = [],
+  onChange
+}) => {
   const { getFieldsByGroup } = useAppConfig()
-  const [query, setQuery] = useState<SearchParameter[]>([])
+  const [query, setQuery] = useState<SearchParameter[]>(defaultParameters)
 
   const columns: GridColDef[] = getFieldsByGroup('filter').map(
     ({ fieldName, fieldLabel }) => {
@@ -72,7 +76,9 @@ const SearchFormTable: React.FC<SearchTableFormProps> = ({ onChange }) => {
         <TableRow>
           <TableCell></TableCell>
           {columns.map(column => (
-            <TableCell align={column.align}>{column.headerName}</TableCell>
+            <TableCell key={column.field} align={column.align}>
+              {column.headerName}
+            </TableCell>
           ))}
         </TableRow>
       </TableHead>
@@ -80,7 +86,7 @@ const SearchFormTable: React.FC<SearchTableFormProps> = ({ onChange }) => {
         <TableRow>
           <TableCell>Type</TableCell>
           {columns.map(column => (
-            <TableCell align="left">
+            <TableCell key={column.field} align="left">
               <SelectMatchLevelMenu onChange={onDistanceChange(column.field)} />
             </TableCell>
           ))}
@@ -88,7 +94,7 @@ const SearchFormTable: React.FC<SearchTableFormProps> = ({ onChange }) => {
         <TableRow>
           <TableCell>Value</TableCell>
           {columns.map(column => (
-            <TableCell align="left">
+            <TableCell key={column.field} align="left">
               <TableCellInput
                 value={getFieldValue(column.field) || ''}
                 onChange={onValueChange(column.field)}

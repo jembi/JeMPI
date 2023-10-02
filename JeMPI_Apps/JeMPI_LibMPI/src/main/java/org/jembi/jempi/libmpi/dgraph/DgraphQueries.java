@@ -375,7 +375,9 @@ final class DgraphQueries {
             String fieldName = camelToSnake(param.fieldName());
             Integer distance = param.distance();
             String value = param.value();
-            if (distance == 0) {
+            if (distance == -1) {
+               gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+            } else if (distance == 0) {
                gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
             } else {
                gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");

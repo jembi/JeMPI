@@ -1,8 +1,9 @@
 import Notification, { NotificationState } from './Notification'
 import {
-  GoldenRecord as GR,
   PatientRecord as PR,
-  AnyRecord
+  AnyRecord,
+  DemographicData,
+  SourceId
 } from '../types/PatientRecord'
 
 export interface NotificationRequest {
@@ -23,16 +24,24 @@ export interface NotificationResponse {
 }
 
 export interface GoldenRecordResponse {
-  expandedGoldenRecords: ExpandedGoldenRecord[]
+  expandedGoldenRecords: ExpandedGoldenRecordResponse[]
 }
 
-export interface GoldenRecord extends Pick<GR, 'sourceId' | 'uid'> {
-  demographicData: Omit<GR, 'sourceId' | 'uid'>
-  uniqueGoldenRecordData: Omit<AnyRecord, 'sourceId' | 'PatienRecord'>
+export interface UniqueGoldenRecordData {
+  auxDateCreated: string
+  auxAutoUpdateEnabled: boolean
+  auxId: string
 }
 
-export interface ExpandedGoldenRecord {
-  goldenRecord: GoldenRecord
+export interface GoldenRecordResponse {
+  uid: string
+  sourceId: SourceId[]
+  demographicData: DemographicData
+  uniqueGoldenRecordData: UniqueGoldenRecordData
+}
+
+export interface ExpandedGoldenRecordResponse {
+  goldenRecord: GoldenRecordResponse
   interactionsWithScore: Array<InteractionWithScore>
 }
 
@@ -41,7 +50,24 @@ export interface InteractionWithScore {
   score: number
 }
 
-export interface Interaction extends Pick<PR, 'sourceId' | 'uid'> {
-  demographicData: Omit<PR, 'sourceId' | 'uid'>
-  uniqueInteractionData: Omit<AnyRecord, 'sourceId' | 'PatienRecord'>
+export interface UniqueInteractionData {
+  auxDateCreated: string
+  auxId: string
+  auxClinicalData: string
+}
+
+export interface Interaction {
+  uid: string
+  sourceId: SourceId
+  demographicData: DemographicData
+  uniqueInteractionData: UniqueInteractionData
+}
+
+export interface GoldenRecordCandidatesResponse {
+  goldenRecords: {
+    goldenId: string
+    sourceId: SourceId[]
+    customUniqueGoldenRecordData: UniqueGoldenRecordData
+    demographicData: DemographicData
+  }[]
 }

@@ -7,6 +7,7 @@ import {
   Stack,
   Typography
 } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 interface PageHeaderProps {
   breadcrumbs?: Array<{ icon?: JSX.Element; title?: string; link?: string }>
@@ -23,6 +24,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   description,
   color = 'rgba(0, 0, 0, 0.87)'
 }) => {
+  const Navigate = useNavigate()
   return (
     <Grid container justifyContent="space-between">
       <Grid item container direction="column" xs="auto">
@@ -37,7 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
                   <Link
                     underline="hover"
                     color="inherit"
-                    href={link || '#'}
+                    onClick={() => Navigate(link || '')}
                     key={idx}
                   >
                     <Stack direction={'row'} spacing={1}>

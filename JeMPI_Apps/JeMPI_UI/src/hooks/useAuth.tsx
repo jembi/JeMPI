@@ -1,4 +1,3 @@
-import { useLocation, useNavigate } from '@tanstack/react-location'
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -17,6 +16,7 @@ import ApiClient from '../services/ApiClient'
 import keycloak from '../services/keycloak'
 import { OAuthParams, User } from '../types/User'
 import { parseQuery } from '../utils/misc'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export interface AuthContextValue {
   user: User | undefined
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const oauthRef = useRef<OAuthParams | null>(null)
   const key = 'auth-user'
   const currentUrl = window.location.href
-  const isLoginPage = location.current.pathname === '/login'
+  const isLoginPage = location.pathname === '/login'
 
   const {
     data: user,
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     },
     onSuccess() {
       queryClient.clear()
-      navigate({ to: '/login' })
+      navigate({ pathname: '/login' })
     },
     refetchOnWindowFocus: false,
     enabled: false
@@ -82,13 +82,12 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
         variant: 'success'
       })
       setUser(response)
-      navigate({ to: '/' })
+      navigate({ pathname: '/' })
     },
-    onError(err) {
+    onError() {
       enqueueSnackbar(`Unable to login using KeyCloak`, {
         variant: 'error'
       })
-      console.error('Unable to validate OAuth params', err)
     }
   })
 
@@ -104,7 +103,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   }
 
   useEffect(() => {
-    const currentLocation = location.current
+    const currentLocation = location
     if (
       config.useSso &&
       !oauthRef.current &&
@@ -123,9 +122,9 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
       if (config.useSso) {
         if (!isLoading) {
           if (!user && !isLoginPage) {
-            navigate({ to: '/login' })
+            navigate({ pathname: '/login' })
           } else if (user && isLoginPage) {
-            navigate({ to: '/' })
+            navigate({ pathname: '/' })
           }
         }
       }

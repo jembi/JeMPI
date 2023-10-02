@@ -2,20 +2,15 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Container,
   Divider,
   FormControlLabel,
   Paper,
+  Stack,
   Switch,
   Typography
 } from '@mui/material'
-import {
-  DataGrid,
-  GridColDef,
-  GridPaginationModel,
-  GridRenderCellParams
-} from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
 import {
@@ -25,19 +20,23 @@ import {
   ValueOf
 } from 'types/PatientRecord'
 import { FilterTable } from './FilterTable'
-import { FilterQuery, SearchParameter } from 'types/SimpleSearch'
-import { useState } from 'react'
+import {
+  ApiSearchResult,
+  FilterQuery,
+  SearchParameter
+} from 'types/SimpleSearch'
+import { useEffect, useMemo, useState } from 'react'
 import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ApiClient from 'services/ApiClient'
-import { useNavigate } from '@tanstack/react-location'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
-import SourceIdComponent from './SourceIdComponent'
+import getCellComponent from 'components/shared/getCellComponent'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -45,37 +44,46 @@ const getAlignment = (fieldName: string) =>
   fieldName === 'city' ||
   fieldName === 'gender'
     ? 'left'
-    : fieldName === 'dob'
-    ? 'right'
     : 'center'
 
 const Records = () => {
   const navigate = useNavigate()
   const { getFieldsByGroup } = useAppConfig()
 
-  const [isFetchingInteractions, setIsFetchingInteractions] = useState(false)
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 10
-  })
 
   const [dateFilter, setDateFilter] = useState(dayjs())
 
   const [dateSearch, setDateSearch] = useState(dayjs())
 
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const [isFetchingInteractions, setIsFetchingInteractions] = useState(
+    searchParams.get('isFetchingInteractions')
+      ? JSON.parse(searchParams.get('isFetchingInteractions') as string)
+      : false
+  )
+
   const [filterPayload, setFilterPayload] = useState<FilterQuery>({
-    parameters: [],
-    limit: 1000,
-    offset: 0,
-    sortAsc: false,
-    sortBy: 'auxDateCreated'
+    parameters: searchParams.get('parameters')
+      ? JSON.parse(searchParams.get('parameters') as string)
+      : [],
+    limit: searchParams.get('limit')
+      ? JSON.parse(searchParams.get('limit') as string)
+      : 10,
+    offset: searchParams.get('offset')
+      ? JSON.parse(searchParams.get('offset') as string)
+      : 0,
+    sortAsc: searchParams.get('')
+      ? JSON.parse(searchParams.get('sortAsc') as string)
+      : 0,
+    sortBy: searchParams.get('sortBy')
+      ? JSON.parse(searchParams.get('sortBy') as string)
+      : 'auxDateCreated'
   })
 
-  const [goldenIds, setGoldenIds] = useState<Array<string>>([])
-
   const columns: GridColDef[] = getFieldsByGroup('linked_records').map(
-    ({ fieldName, fieldLabel, formatValue }) => {
+    ({ fieldName, fieldLabel, formatValue, getValue }) => {
       return {
         field: fieldName,
         headerName: fieldLabel,
@@ -83,103 +91,68 @@ const Records = () => {
         valueFormatter: ({ value }: { value: ValueOf<AnyRecord> }) =>
           formatValue(value),
         sortable: false,
+        valueGetter: getValue,
         disableColumnMenu: true,
         align: getAlignment(fieldName),
         headerAlign: getAlignment(fieldName),
         filterable: false,
         headerClassName: 'super-app-theme--header',
-        renderCell: (params: GridRenderCellParams) => {
-          if (fieldName === 'sourceId') {
-            return <SourceIdComponent content={params.row.sourceId} />
-          }
-          if (fieldName === 'createdAt') {
-            return (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}
-              >
-                <Typography fontSize={'1em'}>{`${dayjs(
-                  params.row.createdAt as Date
-                ).format('YYYY/MM/DD')}`}</Typography>
-
-                <Typography fontSize={'1em'}>{`${dayjs(
-                  params.row.createdAt as Date
-                ).format('HH:MM:ss')}`}</Typography>
-              </Box>
-            )
-          }
-        }
+        renderCell: (params: GridRenderCellParams) =>
+          getCellComponent(fieldName, params)
       }
     }
   )
 
-  const goldenIdsQuery = useQuery<
-    { data: Array<string>; pagination: { total: number } },
+  const { data, isError, error, isLoading } = useQuery<
+    ApiSearchResult<GoldenRecord>,
     AxiosError
   >({
     queryKey: [
-      'golden-records-ids',
-      ...filterPayload.parameters,
-      filterPayload.createdAt,
+      'golden-records',
+      JSON.stringify(filterPayload.parameters),
       filterPayload.offset,
       filterPayload.limit,
-      isFetchingInteractions
+      filterPayload.sortAsc,
+      filterPayload.sortBy
     ],
     queryFn: async () =>
-      isFetchingInteractions
-        ? await ApiClient.getFilteredGoldenIdsWithInteractionCount(
-            filterPayload
-          )
-        : await ApiClient.getFilteredGoldenIds(filterPayload),
-    onSuccess: data => {
-      if (filterPayload.offset > 0) {
-        setGoldenIds([...goldenIds, ...data.data])
-      } else {
-        setGoldenIds([...data.data])
-      }
-    },
-    refetchOnWindowFocus: false
+      (await ApiClient.searchQuery(
+        filterPayload,
+        true
+      )) as ApiSearchResult<GoldenRecord>,
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    staleTime: 1000 * 60
   })
 
-  const expandeGoldenRecordsQuery = useQuery<Array<GoldenRecord>, AxiosError>({
-    queryKey: [
-      'expanded-golden-records',
-      paginationModel.page,
-      paginationModel.pageSize,
-      ...filterPayload.parameters,
-      goldenIds?.slice(
-        paginationModel.page * paginationModel.pageSize,
-        paginationModel.page * paginationModel.pageSize +
-          paginationModel.pageSize
-      ),
-      isFetchingInteractions
-    ],
-    queryFn: async () =>
-      (await ApiClient.getExpandedGoldenRecords(
-        goldenIds?.slice(
-          paginationModel.page * paginationModel.pageSize,
-          paginationModel.page * paginationModel.pageSize +
-            paginationModel.pageSize
-        ),
-        isFetchingInteractions
-      )) as Array<GoldenRecord>,
-    enabled: goldenIds.length > 0,
-    onSuccess: data =>
-      data?.sort(
-        (a: AnyRecord, b: AnyRecord) =>
-          Number(dateSearch.toDate()) -
-          Number(a.createdAt) -
-          Number(dateSearch.toDate()) -
-          Number(b.createdAt)
-      ),
-    refetchOnWindowFocus: false
-  })
+  const rows = useMemo(() => {
+    if (!data) {
+      return []
+    }
+    return !isFetchingInteractions
+      ? data.records.data
+      : data.records.data.reduce((acc: Array<AnyRecord>, record) => {
+          acc.push({ ...record, type: 'Current' }, ...record.linkRecords)
+          return acc
+        }, [])
+  }, [isFetchingInteractions, data])
 
-  if (expandeGoldenRecordsQuery.isError) {
-    return <ApiErrorMessage error={expandeGoldenRecordsQuery.error} />
+  useEffect(() => {
+    setSearchParams(
+      Object.entries(filterPayload).reduce(
+        (acc, [k, v]) => {
+          acc[k] = JSON.stringify(v)
+          return acc
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        },
+        { isFetchingInteractions: isFetchingInteractions } as any
+      )
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterPayload])
+
+  if (isError) {
+    return <ApiErrorMessage error={error} />
   }
 
   const onSearch = (query: SearchParameter[]) => {
@@ -189,35 +162,15 @@ const Records = () => {
   const onFilter = (query: SearchParameter[]) => {
     setFilterPayload({
       ...filterPayload,
-      parameters: [...query],
-      createdAt: dateFilter.toJSON()
+      parameters: [
+        {
+          value: dateFilter.toJSON(),
+          distance: -1,
+          fieldName: 'auxDateCreated'
+        },
+        ...query
+      ]
     })
-  }
-
-  const handlePagination = (model: GridPaginationModel) => {
-    setPaginationModel(model)
-    if (
-      filterPayload.offset === 0 &&
-      paginationModel.pageSize * paginationModel.page +
-        paginationModel.pageSize >=
-        filterPayload.limit
-    ) {
-      setFilterPayload({
-        ...filterPayload,
-        offset: filterPayload.offset + filterPayload.limit
-      })
-    }
-    if (
-      filterPayload.offset !== 0 &&
-      paginationModel.pageSize * paginationModel.page +
-        paginationModel.pageSize <
-        filterPayload.limit
-    ) {
-      setFilterPayload({
-        ...filterPayload,
-        offset: filterPayload.offset - filterPayload.limit
-      })
-    }
   }
 
   const getClassName = (patient: PatientRecord) => {
@@ -245,14 +198,7 @@ const Records = () => {
         description={'browse through golden records'}
       />
       <Divider />
-      <Box
-        sx={{
-          mt: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px'
-        }}
-      >
+      <Stack mt="20px" gap="10px" flexDirection="column">
         <Accordion>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -262,49 +208,45 @@ const Records = () => {
             <Typography variant="h6">Filter by</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box
-              sx={{
-                p: 1,
-                display: 'flex',
-                gap: '20px',
-                alignItems: 'center'
-              }}
-            >
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  value={dateFilter}
-                  format="YYYY/MM/DD"
-                  onChange={value => changeSelectedFileterDate(value)}
-                  slotProps={{
-                    textField: {
-                      variant: 'outlined',
-                      label: 'We are looking to name this'
-                    }
-                  }}
-                />
-              </LocalizationProvider>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isFetchingInteractions}
-                    onChange={(e, checked) =>
-                      setIsFetchingInteractions(checked)
-                    }
+            <Stack gap="10px">
+              <Stack gap="20px" flexDirection="row">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    value={dateFilter}
+                    format="YYYY/MM/DD"
+                    onChange={value => changeSelectedFileterDate(value)}
+                    slotProps={{
+                      textField: {
+                        variant: 'outlined',
+                        label: 'Date'
+                      }
+                    }}
                   />
+                </LocalizationProvider>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isFetchingInteractions}
+                      onChange={(_e, checked) =>
+                        setIsFetchingInteractions(checked)
+                      }
+                    />
+                  }
+                  label="Get Interactions"
+                />
+              </Stack>
+              <FilterTable
+                defaultParameters={filterPayload.parameters}
+                searchButtonLabel="Filter"
+                onSubmit={onFilter}
+                onCancel={() =>
+                  setFilterPayload({
+                    ...filterPayload,
+                    parameters: []
+                  })
                 }
-                label="Get Interactions"
               />
-            </Box>
-            <FilterTable
-              onSubmit={onFilter}
-              onCancel={() =>
-                setFilterPayload({
-                  ...filterPayload,
-                  parameters: [],
-                  createdAt: dayjs(new Date()).format('YYYY-MM-DD')
-                })
-              }
-            />
+            </Stack>
           </AccordionDetails>
         </Accordion>
         <Accordion>
@@ -316,7 +258,7 @@ const Records = () => {
             <Typography variant="h6">Search within filtered results</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box sx={{ p: 1, display: 'flex', gap: '10px' }}>
+            <Stack gap="10px" alignItems="flex-start">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DesktopDatePicker
                   value={dateSearch}
@@ -325,72 +267,64 @@ const Records = () => {
                   slotProps={{
                     textField: {
                       variant: 'outlined',
-                      label: 'We are looking to name this'
+                      label: 'Date'
                     }
                   }}
                 />
               </LocalizationProvider>
-            </Box>
-            <FilterTable
-              onSubmit={onSearch}
-              onCancel={() => setSearchQuery([])}
-            />
+
+              <FilterTable
+                onSubmit={onSearch}
+                onCancel={() => setSearchQuery([])}
+              />
+            </Stack>
           </AccordionDetails>
         </Accordion>
-
         <Paper sx={{ p: 1 }}>
           <Typography p={1} variant="h6">
             Search result
           </Typography>
           <DataGrid
             sx={{
-              '& .super-app-theme--searchable': {
-                backgroundColor: '#c5e1a5',
-                '&:hover': {
-                  backgroundColor: '#a2cf6e'
-                }
-              },
-
               '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
                 outline: 'none'
-              },
-              '& .super-app-theme--header': {
-                backgroundColor: '#274263',
-                color: 'white'
-              },
-              '& .super-app-theme--Golden': {
-                backgroundColor: '#f5df68',
-                '&:hover': {
-                  backgroundColor: '#fff08d'
-                },
-                '&.Mui-selected': {
-                  backgroundColor: '#e2be1d',
-                  '&:hover': { backgroundColor: '#fff08d' }
-                }
               }
             }}
             getRowId={({ uid }) => uid}
-            paginationModel={paginationModel}
+            paginationModel={{
+              page: filterPayload.offset / filterPayload.limit,
+              pageSize: filterPayload.limit
+            }}
             columns={columns}
-            rows={expandeGoldenRecordsQuery?.data || []}
+            rows={rows}
             pageSizeOptions={[10, 25, 50, 100]}
-            onRowDoubleClick={params =>
-              navigate({ to: `/record-details/${params.row.uid}` })
-            }
+            onRowDoubleClick={params => {
+              if ('linkRecords' in params.row) {
+                navigate({
+                  pathname: `/record-details/${params.row.uid}`
+                })
+              }
+            }}
             getRowClassName={params =>
               `${
-                params.row.type === 'Golden' && isFetchingInteractions
-                  ? 'super-app-theme--Golden'
+                params.row.type === 'Current' && isFetchingInteractions
+                  ? 'super-app-theme--Current'
                   : getClassName(params.row)
               }`
             }
-            onPaginationModelChange={handlePagination}
+            onPaginationModelChange={({ page, pageSize }) =>
+              setFilterPayload({
+                ...filterPayload,
+                offset: page * filterPayload.limit,
+                limit: pageSize
+              })
+            }
             paginationMode="server"
-            loading={expandeGoldenRecordsQuery.isLoading}
-            rowCount={goldenIdsQuery?.data?.pagination.total || 0}
+            loading={isLoading}
+            rowCount={data?.records.pagination?.total || 0}
           />
         </Paper>
-      </Box>
+      </Stack>
     </Container>
   )
 }

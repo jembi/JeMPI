@@ -1,4 +1,5 @@
-import { AnyRecord, ValueOf } from './PatientRecord'
+import { GridValueGetterParams, GridTreeNodeWithRender } from '@mui/x-data-grid'
+import { AnyRecord, DemographicData, SourceId, ValueOf } from './PatientRecord'
 
 export type FieldGroup =
   | 'none'
@@ -24,7 +25,7 @@ export interface Field {
   scope: string[]
   accessLevel: string[]
   readOnly?: boolean
-  rules?: { required: boolean; regex: string }
+  validation?: { required: boolean; regex?: string; onErrorMessage: string }
 }
 
 export interface FieldChangeReq {
@@ -38,6 +39,9 @@ export interface FieldChangeReq {
 export interface DisplayField extends Field {
   formatValue: (v: ValueOf<AnyRecord>) => string | number | undefined
   isValid: (value: ValueOf<AnyRecord>) => boolean
+  getValue: (
+    params: GridValueGetterParams<AnyRecord, any, GridTreeNodeWithRender>
+  ) => string | number | SourceId | SourceId[] | DemographicData | undefined
 }
 
 export type Fields = Field[]

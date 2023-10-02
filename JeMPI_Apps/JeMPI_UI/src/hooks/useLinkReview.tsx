@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useSnackbar } from 'notistack'
-import { useState } from 'react'
+import { useMemo } from 'react'
 import ApiClient from 'services/ApiClient'
-import { AnyRecord } from 'types/PatientRecord'
+import { AnyRecord, GoldenRecord } from 'types/PatientRecord'
 import {
   ApiSearchResult,
   CustomSearchQuery,
@@ -18,76 +18,36 @@ interface ReviewLinkParams {
   candidates: { golden_id: string; score: number }[]
 }
 
-const getRecordByType = (
-  type: 'Golden' | 'Current' | 'Candidate',
-  data: AnyRecord[]
-) =>
-  data.find((r: AnyRecord) => {
-    if (r.type === type) {
-      return r
-    }
-  })
-
-const mapDataToScores = (
-  data?: AnyRecord[],
-  candidates?: { golden_id: string; score: number }[]
-): AnyRecord[] => {
-  if (!data?.length) {
-    return []
-  }
-  return data.map(d => ({
-    ...d,
-    score: candidates?.find(c => c.golden_id === d.uid)?.score || 0
-  }))
-}
-
 export const useLinkReview = (
   payload: ReviewLinkParams | undefined,
-  refineSearchQuery: SearchQuery | CustomSearchQuery | undefined
+  refineSearchQuery: SearchQuery | CustomSearchQuery | undefined,
+  matchThreshold?: number
 ) => {
   const { enqueueSnackbar } = useSnackbar()
-  const [candidateGoldenRecords, setCandidateGoldenRecords] = useState<
-    AnyRecord[]
-  >([])
-  const [goldenRecord, setGoldenRecord] = useState<AnyRecord | undefined>(
-    undefined
-  )
-  const [patientRecord, setPatientRecord] = useState<AnyRecord | undefined>(
-    undefined
-  )
 
   const {
     data: matchDetails,
     error,
     isLoading,
     isError
-  } = useQuery<AnyRecord[], AxiosError>({
+  } = useQuery<[GoldenRecord, GoldenRecord[]], AxiosError>({
     queryKey: ['matchDetails', payload],
     queryFn: () => {
       return ApiClient.getMatchDetails(
-        payload?.patient_id || '',
         payload?.golden_id || '',
         payload?.candidates?.map(c => c.golden_id) || []
       )
     },
-    onSuccess: data => {
-      setCandidateGoldenRecords(
-        mapDataToScores(
-          data.filter((r: AnyRecord) => {
-            if (r.type === 'Candidate') {
-              return r
-            }
-          }),
-          payload?.candidates
-        )
-      )
-      setGoldenRecord(getRecordByType('Golden', data))
-      setPatientRecord(getRecordByType('Current', data))
-    },
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    enabled: !!payload
   })
 
-  useQuery<ApiSearchResult, AxiosError>({
+  const [goldenRecord, blockedGoldenRecords] = matchDetails || [
+    undefined,
+    undefined
+  ]
+
+  const { data: refineSearchData } = useQuery<ApiSearchResult, AxiosError>({
     queryKey: ['search', refineSearchQuery],
     queryFn: () => {
       return ApiClient.searchQuery(
@@ -96,36 +56,47 @@ export const useLinkReview = (
       )
     },
     enabled: !!refineSearchQuery,
-    onSuccess: data => {
-      const refineSearchResult = data.records.data.map(record => ({
-        ...record,
-        searched: true,
-        type: 'Candidate'
-      }))
-      if (candidateGoldenRecords) {
-        setCandidateGoldenRecords([
-          ...mapDataToScores(
-            matchDetails?.filter((r: AnyRecord) => {
-              if (r.type === 'Candidate') {
-                return r
-              }
-            }),
-            payload?.candidates
-          ),
-          ...(refineSearchResult as unknown as AnyRecord[])
-        ])
-        enqueueSnackbar(`Refined search results`, {
-          variant: 'default'
-        })
-      }
+    onSuccess: () => {
+      enqueueSnackbar(`Refined search results`, {
+        variant: 'default'
+      })
     },
     refetchOnWindowFocus: false
+  })
+
+  const searchedCandidates: GoldenRecord[] = useMemo(
+    () =>
+      ((refineSearchData?.records.data || []) as GoldenRecord[]).map(
+        record => ({
+          ...record,
+          type: 'Searched'
+        })
+      ),
+    [refineSearchData?.records.data]
+  )
+
+  const patientRecord = useMemo(() => {
+    return goldenRecord?.linkRecords.find(
+      (record: AnyRecord) => record.uid === payload?.patient_id
+    )
+  }, [goldenRecord?.linkRecords, payload?.patient_id])
+
+  const thresholdCandidates = useQuery<AnyRecord[]>({
+    queryKey: ['candidates', patientRecord?.uid, matchThreshold],
+    queryFn: () =>
+      ApiClient.getCandidates(
+        patientRecord?.demographicData || {},
+        matchThreshold || 0
+      ),
+    refetchOnWindowFocus: false,
+    enabled: !!patientRecord
   })
 
   return {
     patientRecord,
     goldenRecord,
-    candidateGoldenRecords,
+    candidateGoldenRecords: blockedGoldenRecords?.concat(searchedCandidates),
+    thresholdCandidates: thresholdCandidates.data?.concat(searchedCandidates),
     matchDetails,
     error,
     isLoading,

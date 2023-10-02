@@ -6,10 +6,12 @@ description: Useful for development or custom implementations
 
 ## Prerequisites <a href="#_4a1yqprqttyw" id="_4a1yqprqttyw"></a>
 
+In the following, we will introduce the software prerequisites to be able to run the JeMPI client registry on your machine.
+
 ### Docker <a href="#_rglemv3fug4d" id="_rglemv3fug4d"></a>
 
-Docker should be installed in the machine.\
-It is best to grant docker sudo access.
+Please refer to the [official installation guide](https://docs.docker.com/engine/install/ubuntu/) in order to install docker on your machine.
+It is best to follow the post installation process so that you grant docker sudo access.
 
 ### \[for Windows users] WSL2 <a href="#_ku1gqbfaemlj" id="_ku1gqbfaemlj"></a>
 
@@ -18,7 +20,7 @@ It is recommended to limit the memory usage of WSL2.
 
 ### Build Utilities <a href="#_ruowqnawk4n7" id="_ruowqnawk4n7"></a>
 
-We need to download [sdkmanager](https://sdkman.io/), check if you already have it by running _sdk_.\
+Follow the steps to install sdk [sdkmanager](https://sdkman.io/), check if you already have it by running _sdk_.\
 To install it, run the two following commands:
 
 ```bash
@@ -30,120 +32,115 @@ To check the installation, you can check the version by running: _sdk version_
 
 We should install the following:
 
-* Maven: Command: _sdk install maven_\
+- Maven: Command: _sdk install maven_\
   Version: 3.8.6
-* Scala Build Tool: Command: _sdk install sbt_
-* Java: Command: _sdk install java 17.0.6-tem_\
-  Version: Temerin 17.0.6-tem (See list by running: _sdk list java_)
+- Scala Build Tool: Command: _sdk install sbt_
+- Java: Command: _sdk install java 17.0.6-tem_\
+  Version: Temerin 17.0.8-tem (See list by running: _sdk list java_)
 
-Check the version of java by running: _java --version_. We should get: Temurin-17.0.6+10.
+Check the version of java by running: _java --version_. We should get: Temurin-17.0.8+7.
 
 ## Starting JeMPI <a href="#_1yk2dvaqt5h9" id="_1yk2dvaqt5h9"></a>
 
-### #1 Run without local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+In the following section, we will discuss the steps for running JeMPI on you machine, start by cloning the JeMPI repository on your machine and navigate to JeMPI by running the following command in you terminal of choice
+
+```bash
+git clone https://github.com/jembi/JeMPI.git && cd JeMPI/
+```
+
+When the execution of the command is complete, you can choose between running JeMPI without a local registry, or run it with a local registry.
+
+### #1 Run JeMPI without local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+
 Run in the terminal _./launch-local.sh_
 
-[//]: # (You can **run** the script in [**this link**]&#40;https://github.com/jembi/JeMPI/pull/15/files&#41; **OR** follow these steps below:)
+```bash
+./launch-local.sh
 
-### #2 Alternatively run with a local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+# or
 
-**Initialize the environment variables**
+bash launch-local.sh
+```
 
-Go to: _docker/conf/env/_.
+[//]: # "You can **run** the script in [**this link**](https://github.com/jembi/JeMPI/pull/15/files) **OR** follow these steps below:"
 
-Run in the terminal _./create-env-linux-1.sh_, it is going to create a file _conf.env_ that we will need.
+### #2 Run JeMPI with a local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+
+**Setup an IP address**\
+Before starting the process of running JeMPI, you will need to setup an IP address for your machine.
+
+On your terminal of choice, run the `ip a` command and retrieve the ip address from your wi-fi or ethernet interfaces
+
+```bash
+skunk@skunks-server:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:bf:f5:e2 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.137/24 metric 100 brd 192.168.1.255 scope global dynamic enp0s3
+       valid_lft 86346sec preferred_lft 86346sec
+    inet6 fdc2:75c1:449e:9200:a00:27ff:febf:f5e2/64 scope global dynamic mngtmpaddr noprefixroute
+       valid_lft 7145sec preferred_lft 3545sec
+    inet6 fe80::a00:27ff:febf:f5e2/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+In our case, we are using the `enp0s3` interface, the IP address that we will need is `192.168.1.137`.
+
+Next, you will need to setup the hostname for your machine. to do so, run the command bellow, it will open the `hosts` file under `/etc/` directory using the `nano` text editor (you can use any other editor e.g. `VIM`, `VI`, `Emacs`, `Helix`, etc.) :
+
+```bash
+sudo vim /etc/hosts
+```
+
+Keep the localhost IP and Comment any other IP address, follow the screenshot bellow.
+
+<figure><img src="../.gitbook/assets/12" alt=""><figcaption></figcaption></figure>
+
+**Initialize the environment variables**\
+In the JeMPI directory, navigate to: _docker/conf/env/_ directory.
+
+```bash
+cd /docker/conf/env
+```
+
+if you have less than 32Gbs of ram run the _./create-env-linux-low-1.sh_. If you have 32Gb or more, run the _./create-env-linux-high-1.sh_. both those script will create _conf.env_ file that we will need.
+
+```bash
+# If you have less than 32Gb ram, run the follwing script
+
+./create-env-linux-low-1.sh
+
+# If you have 32Gb ram or more, run the follwing script
+
+./create-env-linux-high-1.sh
+```
+
+**Pull the latest images**
+
+Pull the latest image versions form docker hub using the `a-images-1-pull-from-hub.sh`
 
 **Make sure you have a clean docker swarm**
 
 It is fine to keep the images, you can either remove all the services, containers, volumes, configs and secrets.
 
-Or it is much easier to run: _docker swarm leave --force_ and then _docker swarm init._
-
-**Run bash scripts**
-
-Go to: _docker/_, and run in the terminal with the same order the following bash scripts:
-
-**1-** _a-images-1-pull-from-hub.sh_: This script is going to pull the needed images
-
-![](../.gitbook/assets/6)
-
-**2-** Make some changes to the _JeMPI\_Apps/build-all.sh_: before running _build-all.sh_ script, you need to **comment the lines where there is a “push”** and keep only the script that will build the images.\
-Then you can cd to _JeMPI\_Apps_/ and run: _./build-all.sh_.
-
-Example:
-
-You should keep these:
+Run the `b-swarm-3-leave.sh` to leave your current swarm
 
 ```bash
-pushd JeMPI_Controller
-  ./build.sh || exit 1
-popd
+./b-swarm-3-leave.sh
 ```
 
-These should be removed/commented:
+After runing the previous script, initialize a new swarm by running the `b-swarm-1-init-node1.sh` script locacted in the _JeMPI/docker/_ directory.
 
 ```bash
-# pushd JeMPI_Controller
-# ./push.sh
-# popd
+./b-swarm-1-init-node1.sh
 ```
 
-**3-** Edit _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_: The images now does exit in the local docker hub, the name convention is same except it will not start with the hostname and a “/”, you can select the first part _“${REGISTRY\_NODE\_IP}/”_ and remove it in all the two files.
-
-As an example, this is the old version of _docker-stack-0.yml_:
-
-```yaml
-services:
-jempi-kafka-01:
-    image: ${REGISTRY_NODE_IP}/$KAFKA_IMAGE
-    user: root
-    networks:
-        - backend-kafka
-```
-
-An this is after the changes:
-
-```yaml
-services:
-jempi-kafka-01:
-    image: $KAFKA_IMAGE
-    user: root
-    networks:
-        - backend-kafka
-```
-
-**NB:** Don’t forget to update both _docker/conf/stack/docker-stack-0.yml_ and _docker/conf/stack/docker-stack-1.yml_ files.
-
-**5-** _z-stack-2-reboot.sh_: The script will deploy the stack and scale the containers up in order after removing everything.
-
-That's it 🚀
-
-### Running with local docker registry <a href="#_haqbu95umwhz" id="_haqbu95umwhz"></a>
-
-**IP address**
-
-In this case, we are using the local docker registry now. Follow these steps to set the correct ip address to use it.
-
-\[CLUSTER] Run _ip addr_ and get the address of the wifi interface.\
-\[ONE NODE] The ip address 127.0.0.1 can be used.
-
-Run _sudo gedit /etc/hosts_ (gedit, vim, vi, any file editor), and comment the line out of the local ip address.
-
-Add the address that we get from the above step with the hostname (hostname in this case in the machine name).
-
-After these changes, ping the hostname and should respond.
-
-Example of the resulted file:
-
-127.0.0.1 localhost\
-\#127.0.1.1 \<MACHINE\_NAME> //commented line\
-127.0.0.1 \<MACHINE\_NAME> //127.0.0.1 or the other ip address
-
-**Set a local registry**
-
-Go to: _docker/conf/env/_.
-
-Run in the terminal _./create-env-linux-1.sh_, it is going to create a file _conf.env_ that we will need.
+**Add the ability to use local regestries**
 
 Now, we need to tell docker that it is okay to run on the local registry because it is http and not https \[not secure].
 
@@ -155,60 +152,52 @@ Run _./x-swarm-o-set-insecure-registries.sh_ (you need to grant it executable ac
 
 NB: The script will edit the access grants of the _/etc/docker/daemon.json_ file.
 
-**Make sure you have a clean docker swarm**
-
-It is fine to keep the images, you can either remove all the services, containers, volumes, configs and secrets.
-
-Or it is much easier to run: _docker swarm leave --force_.
-
-**Run bash scripts**
-
-Go to: _docker/_, and run in the terminal with the same order the following bash scripts:
-
-**1-** _a-images-1-pull-from-hub.sh_: This script is going to pull the needed images
-
-![](../.gitbook/assets/7)
-
-**2-** _b-swarm-1-init-node1.sh_: This script will initialize swarm with “--advertise-addr”, if you get any error about the address, you may skip the first step.\
-You can run the provided tokens in the other nodes if you are running a cluster.\
-
-
-<figure><img src="../.gitbook/assets/8" alt=""><figcaption></figcaption></figure>
-
-**3-** _c-registry-1-create.sh_: It will create the registry service.
-
-Docker Registry is also an application that we can run with docker, running it that way we can specify the path where to store data and set other configs.
-
-Command to start up the registry service:
-
-```shell
-docker service create \
---name registry \
---limit-memory=64M \
---publish published=5000,target=5000,protocol=tcp,mode=host \
---mount type=bind,source=${PWD}/data-registry,destination=/var/lib/registry,readonly=false\
---constraint node.hostname==${PLACEMENT_REGISTRY} \
-$REGISTRY_IMAGE
+```bash
+./x-swarm-o-set-insecure-registries.sh
 ```
 
-PWD, PLACEMENT\_REGISTRY and REGISTRY\_IMAGE are environment variables populated dynamically.
+**Create a local registry**
+Now that you can use local Docker registries, run the `c-registry-1-create.sh` script to create a registry service. This service will host the docker images that we will use in our stack.
 
-You can check that the service is running: _docker service ls_\
+```bash
+./c-registry-1-create.sh
+```
 
+**Push the images to the local registry**
+We will need to pull images from docker hub then push them to the local registry :
 
-<figure><img src="../.gitbook/assets/9" alt=""><figcaption></figcaption></figure>
+```bash
+./a-images-1-pull-from-hub.sh
+./c-registry-2-push-hub-images.sh
+```
 
-**4-** _c-registry-2-push-hub-images-sh_: The external images do not exist in the local registry yet, this script will push these images there.
+**Generate patient record fields configuration reference**
+The fields configuration reference is a json file that allows JeMPI to generate custom Java classes based on the fields but also the way we would to configure the matching algorithms.
 
-**5-** _z-stack-3-build-reboot.sh_: The images will be built locally and pushed to the local registry, the script will deploy the stack and scale the containers up in order.
+```bash
+cd JeMPI_Apps/JeMPI_Configuration/
+./create.sh reference/config-reference.json
+```
+**Run the stack**
 
-**NB:** Make sure you use a new terminal after the installation of JAVA.
+After pushing the images into the local registry, we are ready to run the app, we have several options, we can run the whole stack (UI + Backend) by running the `z-stack-3-build-all-reboot.sh`, Or run each of the backend (`z-stack-3-build-java-reboot.sh`) and the UI (`z-stack-3-build-ui-reboot`) seperatly.
+
+```bash 
+# build, push and run the whole stack (backend + ui)
+./z-stack-3-build-all-reboot
+
+# build, push and run the backend services only
+./z-stack-3-build-java-reboot
+
+# build, push and run the UI
+./z-stack-3-build-ui-reboot
+```
 
 **Other scripts**
 
-* _z-stack-3-build-reboot.sh_: first, it will remove everything and then this will build and push and create needed directories such as logs and configurations (conf) and it will start everything again.
-* _z-stack-2-reboot.sh_: This script will only remove everything and start again.
-* _z-stack-1-build.sh_: This script will build and push everything to the local docker registry.
+- _z-stack-1-build-java.sh_: This script will build and push the backend services to the local docker registry.
+- _z-stack-1-build-ui.sh_: This script will build and push the UI service to the local docker registry.
+- _z-stack-2-reboot.sh_: This script will only remove everything and start again.
 
 That's it 🚀
 
@@ -221,7 +210,7 @@ To check for running services you can run: _docker service ls_\
 To list all the containers you can run: _docker ps -a_
 
 Or you can go to docker/helper/scripts and run _d-stack-07-ps.sh_ and it will run:\
-_docker stack ps \<NAME\_STACK>_
+_docker stack ps \<NAME_STACK>_
 
 Example of the stack when running with local docker registry: _(docker stack ps JeMPI)_
 

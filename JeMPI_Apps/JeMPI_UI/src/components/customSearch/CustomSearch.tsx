@@ -2,7 +2,6 @@ import { MoreHorizOutlined } from '@mui/icons-material'
 import SearchIcon from '@mui/icons-material/Search'
 import { Button, Card, Container, Grid, Stack } from '@mui/material'
 import Divider from '@mui/material/Divider'
-import { Link as LocationLink } from '@tanstack/react-location'
 import { useState } from 'react'
 import {
   CustomSearchQuery,
@@ -13,10 +12,13 @@ import SearchFlags from '../search/SearchFlags'
 import PageHeader from '../shell/PageHeader'
 import CustomSearchForm from './CustomSearchForm'
 import CustomSearchHeader from './CustomSearchHeader'
+import { Link, useNavigate } from 'react-router-dom'
+import { encodeQueryString } from 'utils/helpers'
 
 const CustomSearch: React.FC = () => {
+  const navigate = useNavigate()
   const [isGoldenOnly, setIsGoldenOnly] = useState<boolean>(true)
-  const [customSearchQuerry, setCustomSearchQuerry] = useState<
+  const [customSearchQuery, setCustomSearchQuery] = useState<
     CustomSearchQuery | undefined
   >(undefined)
   const options: ToggleButtonOptions[] = [
@@ -69,15 +71,22 @@ const CustomSearch: React.FC = () => {
               padding="20px"
             >
               <CustomSearchHeader />
-              <CustomSearchForm onChange={setCustomSearchQuerry} />
+              <CustomSearchForm onChange={setCustomSearchQuery} />
               <Stack direction={'row'} spacing={1} sx={{ flexGrow: 1 }}>
-                <LocationLink
+                <Link
+                  onClick={() =>
+                    navigate({
+                      pathname: `/search-results/${
+                        isGoldenOnly ? 'golden' : 'patient'
+                      }`,
+                      search: `?${encodeQueryString(customSearchQuery)}`
+                    })
+                  }
                   to={`/search-results/${isGoldenOnly ? 'golden' : 'patient'}`}
-                  search={{ payload: customSearchQuerry }}
                   style={{ textDecoration: 'none' }}
                 >
                   <Button variant="contained">Search</Button>
-                </LocationLink>
+                </Link>
                 <Button variant="outlined" href="/search/simple">
                   Cancel
                 </Button>

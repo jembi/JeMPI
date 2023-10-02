@@ -15,19 +15,12 @@
 
 # Build 
 FROM node:16-alpine as development-stage
-
 WORKDIR /app
-
 COPY package.json ./
-
 COPY yarn.lock ./
-
 RUN yarn
-
 COPY . .
-
 RUN yarn build
-
 CMD ["yarn","start"]
 
 # Production 

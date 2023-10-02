@@ -1,4 +1,4 @@
-import AuditTrailRecord from '../types/AuditTrail'
+import { AuditTrail } from 'types/AuditTrail'
 import Notification, { NotificationState } from '../types/Notification'
 import { PatientRecord } from '../types/PatientRecord'
 import { User } from '../types/User'
@@ -7,7 +7,7 @@ import { User } from '../types/User'
 const notifications: Notification[] = [
   {
     id: '123',
-    type: 'Review threshold',
+    type: 'THRESHOLD',
     created: new Date('05-03-2023'),
     names: 'Bob Smith',
     patient_id: '0x5a',
@@ -23,7 +23,7 @@ const notifications: Notification[] = [
   },
   {
     id: '345',
-    type: 'Review threshold',
+    type: 'THRESHOLD',
     created: new Date('02-03-2023'),
     names: 'Jane Doe',
     patient_id: '0x7j',
@@ -39,7 +39,7 @@ const notifications: Notification[] = [
   },
   {
     id: '758',
-    type: 'Golden record changed',
+    type: 'MARGIN',
     created: new Date('02-03-2023'),
     names: 'Jane Smith',
     patient_id: '0x1a',
@@ -55,7 +55,7 @@ const notifications: Notification[] = [
   },
   {
     id: '541',
-    type: 'Review threshold range',
+    type: 'UPDATE',
     created: new Date('02-03-2023'),
     names: 'John Themba',
     patient_id: '0x9a',
@@ -181,38 +181,27 @@ const searchPatientRecordResult = {
   }
 }
 
-const auditTrail: AuditTrailRecord[] = [
+const auditTrail: AuditTrail[] = [
   {
-    process: 'Create user',
-    actionTaken: 'newUserCreated',
-    links: [],
-    when: '10/09/2022 8:16',
-    changedBy: 'User Id 12345',
-    comment: ''
+    inserted_at: '2023-09-05 14:46:51.000991',
+    created_at: '2023-09-05 14:46:51.000988',
+    interaction_id: '0x1627',
+    golden_id: '0x1628',
+    entry: 'Interaction -> New GoldenRecord (1.000000)'
   },
   {
-    process: 'Auto-update golden record field',
-    actionTaken: 'grUpdate',
-    links: ['G543'],
-    when: '11/09/2022 10:07',
-    changedBy: 'System',
-    comment: 'Golden ID (G543) updated field values (name, cell number)'
+    inserted_at: '2023-09-05 14:46:51.000991',
+    created_at: '2023-09-05 14:46:51.000988',
+    interaction_id: '0x1627',
+    golden_id: '0x1628',
+    entry: 'Interaction -> New GoldenRecord (1.000000)'
   },
   {
-    process: 'Autolink',
-    actionTaken: 'grAndPatientRecordLinked',
-    links: ['G543', 'P09833'],
-    when: '12/09/2022 9:00',
-    changedBy: 'System',
-    comment: 'Golden ID (G543) linked with Patient ID (P09833)'
-  },
-  {
-    process: 'Approve link',
-    actionTaken: 'grAndPatientRecordLinkApproved',
-    links: ['G543', 'P09833'],
-    when: '12/09/2022 10:35',
-    changedBy: 'User ID 12345',
-    comment: 'Golden ID (G543) linked with Patient ID (P09833) approved'
+    inserted_at: '2023-09-05 14:46:51.000991',
+    created_at: '2023-09-05 14:46:51.000988',
+    interaction_id: '0x1627',
+    golden_id: '0x1628',
+    entry: 'Interaction -> New GoldenRecord (1.000000)'
   }
 ]
 
@@ -241,37 +230,38 @@ const patientRecord = {
 const linkedRecords: PatientRecord[] = [
   {
     auxId: '0x66',
-    type: 'Current',
-    source: 'clinic A',
     score: 0,
     uid: '0x9832',
-    nationalId: '123456',
-    givenName: 'Christopher',
-    familyName: 'Moltisanti',
-    gender: 'Male',
-    dob: new Date(1605522215666),
-    phoneNumber: '085145855',
-    city: 'Welkom',
-    updatedBy: 'Dr Anthony Soprano',
+    demographicData: {
+      nationalId: '123456',
+      givenName: 'Christopher',
+      familyName: 'Moltisanti',
+      gender: 'Male',
+      dob: new Date(1605522215666).toISOString(),
+      phoneNumber: '085145855',
+      city: 'Welkom'
+    },
     sourceId: {
       facility: 'Facility One',
       uid: '0x3289',
       patient: 'xxx'
-    }
+    },
+    createdAt: new Date(1605522215666).toISOString()
   },
   {
     auxId: '0x66',
-    type: 'Current',
     score: 0,
     uid: '0x9833',
-    nationalId: '123456',
-    givenName: 'Chris',
-    familyName: 'Moltisanti',
-    gender: 'Male',
-    dob: new Date(1605522215666),
-    phoneNumber: '085145855',
-    city: 'Jersey',
-    updatedBy: 'Dr Carmela DeAngelis',
+    demographicData: {
+      nationalId: '123456',
+      givenName: 'Chris',
+      familyName: 'Moltisanti',
+      gender: 'Male',
+      dob: new Date(1605522215666).toISOString(),
+      phoneNumber: '085145855',
+      city: 'Jersey'
+    },
+    createdAt: new Date(1605522215666).toISOString(),
     sourceId: {
       facility: 'Facility Two',
       uid: '0x3288',
