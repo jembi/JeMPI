@@ -78,26 +78,10 @@ $serveUIPort = 3000
 # 
 # build UI apps
 #
-
-
-# Check if Chocolatey is already installed
-if (-not (Test-Path -Path $chocoExePath)) {
-  Write-Host "Installing Chocolatey..."
-  Invoke-WebRequest -Uri "https://chocolatey.org/install.ps1" -OutFile "$env:TEMP\chocolatey.ps1"
-  powershell.exe -ExecutionPolicy Bypass -File "$env:TEMP\chocolatey.ps1"
-  Remove-Item -Path "$env:TEMP\chocolatey.ps1"
-}
-
-# Check if Node.js is already installed
-if (!(choco list nodejs-lts)) {
-  Write-Host "Installing Node.js..."
-  choco install nodejs-lts -y
-}
-
-yarn global add serve
+npm install -g yarn
 
 Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
-
+yarn global add serve
 yarn install --frozen-lockfile
 yarn build
 
