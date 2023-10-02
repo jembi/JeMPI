@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosRequestConfig } from 'axios'
 import { config } from '../config'
 import { AuditTrailEntries } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
