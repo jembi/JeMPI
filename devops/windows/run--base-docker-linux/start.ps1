@@ -71,6 +71,43 @@ $scriptpath = $MyInvocation.MyCommand.Path
 $dir = Split-Path $scriptpath
 Set-Location $dir
 
+$chocoExePath = "C:\ProgramData\chocolatey\choco.exe"
+$serveUIPort = 3000
+
+
+# 
+# build UI apps
+#
+
+
+# Check if Chocolatey is already installed
+if (-not (Test-Path -Path $chocoExePath)) {
+  Write-Host "Installing Chocolatey..."
+  Invoke-WebRequest -Uri "https://chocolatey.org/install.ps1" -OutFile "$env:TEMP\chocolatey.ps1"
+  powershell.exe -ExecutionPolicy Bypass -File "$env:TEMP\chocolatey.ps1"
+  Remove-Item -Path "$env:TEMP\chocolatey.ps1"
+}
+
+# Check if Node.js is already installed
+if (!(choco list nodejs-lts)) {
+  Write-Host "Installing Node.js..."
+  choco install nodejs-lts -y
+}
+
+yarn global add serve
+
+Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
+
+yarn install --frozen-lockfile
+yarn build
+
+# Serve the built project
+$serveCommand = "serve -s build -l $serveUIPort"
+Invoke-Expression -Command $serveCommand
+
+Pop-Location
+
+
 # 
 # build apps
 #
@@ -117,7 +154,9 @@ $etl_handle = Start-Process -FilePath java `
                                           $def_etl_ip, `
                                           $def_etl_port, `
                                           $def_controller_ip, `
-                                          $def_controller_port, `                                          $def_linker_ip, `                                          $def_linker_port, `
+                                          $def_controller_port, `
+                                          $def_linker_ip, `
+                                          $def_linker_port, `
                                           $etl_jar `
                             -WindowStyle Normal `
                             -WorkingDirectory $etl_folder `
@@ -149,7 +188,9 @@ $controller_handle = Start-Process -FilePath java `
                                                  $def_etl_ip, `
                                                  $def_etl_port, `
                                                  $def_controller_ip, `
-                                                 $def_controller_port, `                                                 $def_linker_ip, `                                                 $def_linker_port, `
+                                                 $def_controller_port, `
+                                                 $def_linker_ip, `
+                                                 $def_linker_port, `
                                                  $controller_jar `
                                    -WindowStyle Normal `
                                    -WorkingDirectory $controller_folder `
@@ -188,7 +229,9 @@ $linker_handle = Start-Process -FilePath java `
                                              $def_etl_ip, `
                                              $def_etl_port, `
                                              $def_controller_ip, `
-                                             $def_controller_port, `                                             $def_linker_ip, `                                             $def_linker_port, `
+                                             $def_controller_port, `
+                                             $def_linker_ip, `
+                                             $def_linker_port, `
                                              $def_api_ip, `
                                              $def_api_port, `
                                              $linker_jar `
@@ -224,7 +267,9 @@ $api_handle = Start-Process -FilePath java `
                                           $def_etl_ip, `
                                           $def_etl_port, `
                                           $def_controller_ip, `
-                                          $def_controller_port, `                                          $def_linker_ip, `                                          $def_linker_port, `
+                                          $def_controller_port, `
+                                          $def_linker_ip, `
+                                          $def_linker_port, `
                                           $def_api_ip, `
                                           $def_api_port, `
                                           '--enable-preview', `
