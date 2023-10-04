@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .unset-decoration {
   text-decoration: none;
   color: #000;
