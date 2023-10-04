@@ -111,14 +111,16 @@ $async_handle = Start-Process -FilePath java `
                               -ArgumentList $def_async_reveiver_log4j_level, `
                                             $def_kafka_bootstrap_servers, `
                                             $def_async_receiver_kafka_client_id, `
+                                            '-server', `
+                                            '--enable-preview', `
                                             $async_receiver_jar `
                               -WindowStyle Normal `
                               -WorkingDirectory $async_receiver_folder `
                               -Debug `
                               -Verbose `
                               -PassThru `
-                              -RedirectStandardError 'async-stderr.txt'
-#                              -RedirectStandardOutput 'async-stdout.txt'
+                              -RedirectStandardError 'async-stderr.txt' 
+#                             -RedirectStandardOutput 'async-stdout.txt'
 $async_handle | Export-Clixml -Path (Join-Path './' 'async_handle.xml')
 
 #
@@ -140,6 +142,8 @@ $etl_handle = Start-Process -FilePath java `
                                           $def_controller_http_port, `
                                           $def_linker_ip, `
                                           $def_linker_http_port, `
+                                          '-server', `
+                                          '--enable-preview', `
                                           $etl_jar `
                             -WindowStyle Normal `
                             -WorkingDirectory $etl_folder `
@@ -176,6 +180,8 @@ $controller_handle = Start-Process -FilePath java `
                                                  $def_controller_http_port, `
                                                  $def_linker_ip, `
                                                  $def_linker_http_port, `
+                                                 '-server', `
+                                                 '--enable-preview', `
                                                  $controller_jar `
                                    -WindowStyle Normal `
                                    -WorkingDirectory $controller_folder `
@@ -220,6 +226,8 @@ $linker_handle = Start-Process -FilePath java `
                                              $def_linker_http_port, `
                                              $def_api_ip, `
                                              $def_api_http_port, `
+                                             '-server', `
+                                             '--enable-preview', `
                                              $linker_jar `
                                -WindowStyle Normal `
                                -WorkingDirectory $linker_folder `
@@ -259,6 +267,7 @@ $api_handle = Start-Process -FilePath java `
                                           $def_linker_http_port, `
                                           $def_api_ip, `
                                           $def_api_http_port, `
+                                          '-server', `
                                           '--enable-preview', `
                                           $api_jar `
                             -WindowStyle Normal `
