@@ -8,7 +8,10 @@ import java.sql.*;
 
 final class PsqlQueries {
    private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
-   private static final String URL = String.format("jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE);
+   private static final String URL = String.format("jdbc:postgresql://%s:%d/%s",
+                                                   AppConfig.POSTGRESQL_IP,
+                                                   AppConfig.POSTGRESQL_PORT,
+                                                   AppConfig.POSTGRESQL_DATABASE);
 
    private PsqlQueries() {
    }

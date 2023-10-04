@@ -9,7 +9,7 @@ import java.util.Locale;
 final class PsqlClient {
 
    private static final Logger LOGGER = LogManager.getLogger(PsqlClient.class);
-   private final String dbServer;
+   private final String dbIP;
    private final int dbPort;
    private final String database;
    private final String user;
@@ -18,12 +18,12 @@ final class PsqlClient {
    private Connection connection;
 
    PsqlClient(
-         final String pgServer,
+         final String pgIP,
          final int pgPort,
          final String pgDatabase,
          final String pgUser,
          final String pgPassword) {
-      dbServer = pgServer;
+      dbIP = pgIP;
       dbPort = pgPort;
       connection = null;
       database = pgDatabase;
@@ -33,7 +33,7 @@ final class PsqlClient {
 
    boolean connect() {
       if (connection == null) {
-         final var url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", dbServer, dbPort, database);
+         final var url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", dbIP, dbPort, database);
          try {
             connection = DriverManager.getConnection(url, user, password);
             return connection.isValid(5);
@@ -47,7 +47,7 @@ final class PsqlClient {
          try {
             if (!connection.isValid(5)) {
                connection.close();
-               final var url = String.format(Locale.ROOT, "jdbc:postgresql://postgresql:5432/%s", database);
+               final var url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", dbIP, dbPort, database);
                connection = DriverManager.getConnection(url, user, password);
             }
          } catch (SQLException e) {
