@@ -1,6 +1,6 @@
 $kafka1_ip                                    = '192.168.0.7'
 $postgresql_ip                                = '192.168.0.7'
-$postgresql_port                              = '5432'
+$postgresql_port                              = 5432
 $dgraph_hosts                                 = '192.168.0.7'
 $dgraph_ports                                 = '9080'
 
