@@ -37,7 +37,8 @@ public final class APIKC {
          final ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
                                                                               AppConfig.getDGraphHosts(),
                                                                               AppConfig.getDGraphPorts(),
-                                                                              AppConfig.POSTGRESQL_SERVER,
+                                                                              AppConfig.POSTGRESQL_IP,
+                                                                              AppConfig.POSTGRESQL_PORT,
                                                                               AppConfig.POSTGRESQL_USER,
                                                                               AppConfig.POSTGRESQL_PASSWORD,
                                                                               AppConfig.POSTGRESQL_DATABASE,
@@ -54,7 +55,7 @@ public final class APIKC {
          final MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
          httpServer = new HttpServer(dispatcher);
          httpServer.open("0.0.0.0",
-                         AppConfig.HTTP_SERVER_PORT,
+                         AppConfig.API_KC_HTTP_PORT,
                          context.getSystem(),
                          backEnd,
                          jsonFieldsConfig.jsonFields);
@@ -66,7 +67,7 @@ public final class APIKC {
    }
 
    private void run() {
-      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.API_KC_HTTP_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);

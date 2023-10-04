@@ -92,7 +92,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://postgresql:5432/%s", AppConfig.POSTGRESQL_DATABASE),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
                              AppConfig.POSTGRESQL_USER,
                              AppConfig.POSTGRESQL_PASSWORD,
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,

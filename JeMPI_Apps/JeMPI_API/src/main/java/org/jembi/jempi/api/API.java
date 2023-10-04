@@ -39,7 +39,8 @@ public final class API {
                context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
                                             AppConfig.getDGraphHosts(),
                                             AppConfig.getDGraphPorts(),
-                                            AppConfig.POSTGRESQL_SERVER,
+                                            AppConfig.POSTGRESQL_IP,
+                                            AppConfig.POSTGRESQL_PORT,
                                             AppConfig.POSTGRESQL_USER,
                                             AppConfig.POSTGRESQL_PASSWORD,
                                             AppConfig.POSTGRESQL_DATABASE,
@@ -49,7 +50,7 @@ public final class API {
          context.watch(backEnd);
          httpServer = HttpServer.create();
          httpServer.open("0.0.0.0",
-                         AppConfig.API_PORT,
+                         AppConfig.API_HTTP_PORT,
                          context.getSystem(),
                          backEnd,
                          jsonFieldsConfig.jsonFields);
@@ -61,7 +62,7 @@ public final class API {
    }
 
    private void run() {
-      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.API_PORT);
+      LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.API_HTTP_PORT);
       try {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);

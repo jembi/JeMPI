@@ -20,10 +20,12 @@ final class PsqlNotifications {
    private final PsqlClient psqlClient;
 
    PsqlNotifications(
+         final String pgServer,
+         final int pgPort,
          final String pgDatabase,
          final String pgUser,
          final String pgPassword) {
-      psqlClient = new PsqlClient(pgDatabase, pgUser, pgPassword);
+      psqlClient = new PsqlClient(pgServer, pgPort, pgDatabase, pgUser, pgPassword);
    }
 
    /**

@@ -24,6 +24,8 @@ public final class AppConfig {
          .withResource("application.conf")
          .build();
 
+   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
@@ -39,9 +41,9 @@ public final class AppConfig {
          return Integer.MIN_VALUE;
       }
    }).toArray();
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
+   public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
    public static final String API_IP = CONFIG.getString("API_IP");
-   public static final String API_PORT = CONFIG.getString("API_PORT");
+   public static final String API_HTTP_PORT = CONFIG.getString("API_HTTP_PORT");
    public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
    public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
 

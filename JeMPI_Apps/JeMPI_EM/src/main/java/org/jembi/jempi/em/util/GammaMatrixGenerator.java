@@ -31,7 +31,7 @@ public class GammaMatrixGenerator {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_EM-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s/notifications", AppConfig.POSTGRES_SERVER),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/notifications", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT),
                              "postgres",
                              null,
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,

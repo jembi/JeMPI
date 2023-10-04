@@ -38,7 +38,8 @@ public final class AppConfig {
          return Integer.MIN_VALUE;
       }
    }).toArray();
-   public static final String POSTGRES_SERVER = CONFIG.getString("postgres.server");
+   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
    private AppConfig() {

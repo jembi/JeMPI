@@ -25,13 +25,14 @@ public final class AppConfig {
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
-   public static final String POSTGRESQL_SERVER = CONFIG.getString("POSTGRESQL_SERVER");
+   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
    public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
-   public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
+   public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
-   public static final Integer LINKER_PORT = CONFIG.getInt("LINKER_PORT");
+   public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
    private AppConfig() {

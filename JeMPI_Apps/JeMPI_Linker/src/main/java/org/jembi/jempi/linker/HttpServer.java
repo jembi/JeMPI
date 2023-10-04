@@ -35,8 +35,8 @@ final class HttpServer extends AllDirectives {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd) {
       final Http http = Http.get(system);
-      binding = http.newServerAt("0.0.0.0", AppConfig.HTTP_SERVER_PORT).bind(this.createRoute(system, backEnd));
-      LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
+      binding = http.newServerAt("0.0.0.0", AppConfig.LINKER_HTTP_PORT).bind(this.createRoute(system, backEnd));
+      LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.LINKER_HTTP_PORT);
    }
 
    private Route createRoute(

@@ -37,9 +37,9 @@ public final class HttpServer extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd) {
       http = Http.get(system);
       binding = http.newServerAt("0.0.0.0",
-                                 AppConfig.HTTP_SERVER_PORT)
+                                 AppConfig.CONTROLLER_HTTP_PORT)
                     .bind(this.createRoute(system, backEnd));
-      LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.HTTP_SERVER_PORT);
+      LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.CONTROLLER_HTTP_PORT);
    }
 
    private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
@@ -48,7 +48,7 @@ public final class HttpServer extends AllDirectives {
             .create(String.format(Locale.ROOT,
                                   "http://%s:%d/JeMPI/%s",
                                   AppConfig.LINKER_IP,
-                                  AppConfig.LINKER_PORT,
+                                  AppConfig.LINKER_HTTP_PORT,
                                   GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
@@ -61,7 +61,7 @@ public final class HttpServer extends AllDirectives {
             .create(String.format(Locale.ROOT,
                                   "http://%s:%d/JeMPI/%s",
                                   AppConfig.LINKER_IP,
-                                  AppConfig.LINKER_PORT,
+                                  AppConfig.LINKER_HTTP_PORT,
                                   GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
@@ -71,7 +71,7 @@ public final class HttpServer extends AllDirectives {
 
    private CompletionStage<HttpResponse> getMU() {
       final var request = HttpRequest
-            .create(String.format(Locale.ROOT, "http://%s:%d/JeMPI/mu", AppConfig.LINKER_IP, AppConfig.LINKER_PORT))
+            .create(String.format(Locale.ROOT, "http://%s:%d/JeMPI/mu", AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT))
             .withMethod(HttpMethods.GET);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);

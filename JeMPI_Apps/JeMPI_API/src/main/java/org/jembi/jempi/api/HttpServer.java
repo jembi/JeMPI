@@ -80,16 +80,16 @@ public final class HttpServer extends AllDirectives {
                                            () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
                                            () -> Routes.proxyPostCalculateScores(AppConfig.LINKER_IP,
-                                                                                 AppConfig.LINKER_PORT,
+                                                                                 AppConfig.LINKER_HTTP_PORT,
                                                                                  http)),
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
                                            () -> Routes.postFilterGids(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_PROXY_CR_REGISTER,
-                                           () -> Routes.postCrRegister(AppConfig.LINKER_IP, AppConfig.LINKER_PORT, http)),
+                                           () -> Routes.postCrRegister(AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT, http)),
                                       path(GlobalConstants.SEGMENT_PROXY_CR_FIND,
-                                           () -> Routes.postCrFind(AppConfig.LINKER_IP, AppConfig.LINKER_PORT, http)),
+                                           () -> Routes.postCrFind(AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT, http)),
                                       path(GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES,
-                                           () -> Routes.postCrCandidates(AppConfig.LINKER_IP, AppConfig.LINKER_PORT, http)),
+                                           () -> Routes.postCrCandidates(AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT, http)),
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                            () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
@@ -99,7 +99,7 @@ public final class HttpServer extends AllDirectives {
                                        path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
                                             () -> Routes.patchIidGidLink(actorSystem, backEnd)),
                                        path(GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS,
-                                            () -> Routes.patchCrUpdateFields(AppConfig.LINKER_IP, AppConfig.LINKER_PORT, http)))),
+                                            () -> Routes.patchCrUpdateFields(AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT, http)))),
                     get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
                                           () -> Routes.countGoldenRecords(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
@@ -133,7 +133,7 @@ public final class HttpServer extends AllDirectives {
                                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                           () -> Routes.proxyGetCandidatesWithScore(AppConfig.LINKER_IP,
-                                                                                   AppConfig.LINKER_PORT,
+                                                                                   AppConfig.LINKER_HTTP_PORT,
                                                                                    http)))));
    }
 

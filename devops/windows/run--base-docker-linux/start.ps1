@@ -1,19 +1,22 @@
 $kafka1_ip                                    = '192.168.0.7'
-$postgresql_server                            = '192.168.0.7:5432'
+$postgresql_ip                                = '192.168.0.7'
+$postgresql_port                              = '5432'
 $dgraph_hosts                                 = '192.168.0.7'
 $dgraph_ports                                 = '9080'
 
+$serveUIPort                                  = 3000
+
 $api_ip                                       = 'localhost'
-$api_port                                     = '50004'
-
-$linker_ip                                    = 'localhost'
-$linker_port                                  = '50003'
-
-$controller_ip                                = 'localhost'
-$controller_port                              = '50002'
+$api_http_port                                = '50000'
 
 $etl_ip                                       = 'localhost'
-$etl_port                                     = '50001'
+$etl_http_port                                = '50001'
+
+$controller_ip                                = 'localhost'
+$controller_http_port                         = '50002'
+
+$linker_ip                                    = 'localhost'
+$linker_http_port                             = '50003'
 
 $jempi_apps_dir                               = "..\..\..\..\..\JeMPI_Apps"
 
@@ -24,20 +27,21 @@ $linker_folder                                = '.\app_data\linker'
 $api_folder                                   = '.\app_data\api'
 
 $def_kafka_bootstrap_servers                  = "-DKAFKA_BOOTSTRAP_SERVERS=" + $kafka1_ip + ":9094"
-$def_postgresql_server                        = "-DPOSTGRESQL_SERVER=" + $postgresql_server
+$def_postgresql_ip                            = "-DPOSTGRESQL_IP=" + $postgresql_ip
+$def_postgresql_port                          = "-DPOSTGRESQL_PORT=" + $postgresql_port 
 $def_postgresql_user                          = "-DPOSTGRESQL_USER=`"postgres`""
 $def_postgresql_password                      = "-DPOSTGRESQL_PASSWORD=`"postgres`""
 $def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notifications`""
 $def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
 $def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
 $def_etl_ip                                   = "-DETL_IP=" + $etl_ip
-$def_etl_port                                 = "-DETL_PORT="+ $etl_port
+$def_etl_http_port                            = "-DETL_HTTP_PORT=" + $etl_port
 $def_controller_ip                            = "-DCONTROLLER_IP=" + $controller_ip
-$def_controller_port                          = "-DCONTROLLER_PORT="+ $controller_port
+$def_controller_http_port                     = "-DCONTROLLER_HTTP_PORT=" + $controller_port
 $def_linker_ip                                = "-DLINKER_IP=" + $linker_ip
-$def_linker_port                              = "-DLINKER_PORT="+ $linker_port
+$def_linker_http_port                         = "-DLINKER_HTTP_PORT=" + $linker_port
 $def_api_ip                                   = "-DAPI_IP=" + $api_ip
-$def_api_port                                 = "-DAPI_PORT="+ $api_port
+$def_api_http_port                            = "-DAPI_HTTP_PORT=" + $api_port
 
 $async_receiver_jar                           = "-jar " + $jempi_apps_dir + "\JeMPI_AsyncReceiver\target\AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar"
 $def_async_reveiver_log4j_level               = "-DLOG4J2_LEVEL=DEBUG"
@@ -51,14 +55,12 @@ $controller_jar                               = "-jar " + $jempi_apps_dir + "\Je
 $def_controller_log4j_level                   = "-DLOG4J2_LEVEL=DEBUG"
 $def_controller_kafka_application_id          = "-DKAFKA_APPLICATION_ID=app-id-ctrl"
 $def_controller_kafka_client_id               = "-DKAFKA_CLIENT_ID=client-id-ctrl"
-$def_controller_http_server_port              = "-DHTTP_SERVER_PORT=50000"
 
 $linker_jar                                   = "-jar " + $jempi_apps_dir + "\JeMPI_Linker\target\Linker-1.0-SNAPSHOT-spring-boot.jar"
 $def_linker_log4j_level                       = "-DLOG4J2_LEVEL=TRACE" 
 $def_linker_kafka_application_id_interactions = "-DKAFKA_APPLICATION_ID_INTERACTIONS=app-id-lnk1"
 $def_linker_kafka_application_id_mu           = "-DKAFKA_APPLICATION_ID_MU=app-id-lnk2"
 $def_linker_kafka_client_id_notifications     = "-DKAFKA_CLIENT_ID_NOTIFICATIONS=client-id-lnk3"
-$def_linker_http_server_port                  = "-DHTTP_SERVER_PORT=50001"
 $def_linker_match_threshold                   = "-DLINKER_MATCH_THRESHOLD=0.65"
 $def_linker_match_threshold_margin            = "-DLINKER_MATCH_THRESHOLD_MARGIN=0.1"
 
@@ -67,11 +69,10 @@ $def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE"
 $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
 
-$scriptpath = $MyInvocation.MyCommand.Path
-$dir = Split-Path $scriptpath
-Set-Location $dir
+$script_path = $MyInvocation.MyCommand.Path
+$script_dir = Split-Path $script_path
+Set-Location $script_dir
 
-$chocoExePath = "C:\ProgramData\chocolatey\choco.exe"
 $serveUIPort = 3000
 
 
@@ -80,32 +81,12 @@ $serveUIPort = 3000
 #
 
 
-# Check if Chocolatey is already installed
-if (-not (Test-Path -Path $chocoExePath)) {
-  Write-Host "Installing Chocolatey..."
-  Invoke-WebRequest -Uri "https://chocolatey.org/install.ps1" -OutFile "$env:TEMP\chocolatey.ps1"
-  powershell.exe -ExecutionPolicy Bypass -File "$env:TEMP\chocolatey.ps1"
-  Remove-Item -Path "$env:TEMP\chocolatey.ps1"
-}
-
-# Check if Node.js is already installed
-if (!(choco list nodejs-lts)) {
-  Write-Host "Installing Node.js..."
-  choco install nodejs-lts -y
-}
-
-yarn global add serve
-
-Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
-
-yarn install --frozen-lockfile
-yarn build
-
-# Serve the built project
-$serveCommand = "serve -s build -l $serveUIPort"
-Invoke-Expression -Command $serveCommand
-
-Pop-Location
+# BUILD UI
+#npm install -g yarn serve 
+#Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
+#  yarn install --frozen-lockfile
+#  yarn build
+#Pop-Location
 
 
 # 
@@ -135,7 +116,9 @@ $async_handle = Start-Process -FilePath java `
                               -WorkingDirectory $async_receiver_folder `
                               -Debug `
                               -Verbose `
-                              -PassThru
+                              -PassThru `
+                              -RedirectStandardError 'async-stderr.txt'
+#                              -RedirectStandardOutput 'async-stdout.txt'
 $async_handle | Export-Clixml -Path (Join-Path './' 'async_handle.xml')
 
 #
@@ -152,17 +135,18 @@ $etl_handle = Start-Process -FilePath java `
                                           $def_kafka_bootstrap_servers, `
                                           $def_etl_kafka_application_id, `
                                           $def_etl_ip, `
-                                          $def_etl_port, `
+                                          $def_etl_http_port, `
                                           $def_controller_ip, `
-                                          $def_controller_port, `
+                                          $def_controller_http_port, `
                                           $def_linker_ip, `
-                                          $def_linker_port, `
+                                          $def_linker_http_port, `
                                           $etl_jar `
                             -WindowStyle Normal `
                             -WorkingDirectory $etl_folder `
                             -Debug `
                             -Verbose `
-                            -PassThru
+                            -PassThru `                            -RedirectStandardError 'etl-stderr.txt'
+#                            -RedirectStandardOutput 'etl-stdout.txt'
 $etl_handle | Export-Clixml -Path (Join-Path './' 'etl_handle.xml')
 
 
@@ -177,28 +161,29 @@ if (Test-path $controller_folder) {
 }
 $controller_handle = Start-Process -FilePath java `
                                    -ArgumentList $def_controller_log4j_level, `
-                                                 $def_postgresql_server, `
+                                                 $def_postgresql_ip, `
+                                                 $def_postgresql_port, `
                                                  $def_postgresql_user, `
                                                  $def_postgresql_password, `
                                                  $def_postgresql_notifications_db, `
                                                  $def_kafka_bootstrap_servers, `
                                                  $def_controller_kafka_application_id, `
                                                  $def_controller_kafka_client_id, `
-                                                 $def_controller_http_server_port, `
+                                                 $def_controller_http_port, `
                                                  $def_etl_ip, `
-                                                 $def_etl_port, `
+                                                 $def_etl_http_port, `
                                                  $def_controller_ip, `
                                                  $def_controller_port, `
                                                  $def_linker_ip, `
-                                                 $def_linker_port, `
+                                                 $def_linker_http_port, `
                                                  $controller_jar `
                                    -WindowStyle Normal `
                                    -WorkingDirectory $controller_folder `
                                    -Debug `
                                    -Verbose `
-                                   -PassThru
-#                                  -RedirectStandardError 'controller-stderr.txt' `
-#                                  -RedirectStandardOutput 'controller-stdout.txt'
+                                   -PassThru `
+                                   -RedirectStandardError 'controller-stderr.txt'
+#                                   -RedirectStandardOutput 'controller-stdout.txt'
 $controller_handle | Export-Clixml -Path (Join-Path './' 'controller_handle.xml')
 
 
@@ -213,7 +198,8 @@ if (Test-path $linker_folder) {
 }
 $linker_handle = Start-Process -FilePath java `
                                -ArgumentList $def_linker_log4j_level, `
-                                             $def_postgresql_server, `
+                                             $def_postgresql_ip, `
+                                             $def_postgresql_port, `
                                              $def_postgresql_user, `
                                              $def_postgresql_password, `
                                              $def_postgresql_notifications_db, `
@@ -223,24 +209,24 @@ $linker_handle = Start-Process -FilePath java `
                                              $def_linker_kafka_client_id_notifications, `
                                              $def_dgraph_hosts, `
                                              $def_dgraph_ports, `
-                                             $def_linker_http_server_port, `
+                                             $def_linker_http_port, `
                                              $def_linker_match_threshold, `
                                              $def_linker_match_threshold_margin, `
                                              $def_etl_ip, `
-                                             $def_etl_port, `
+                                             $def_etl_http_port, `
                                              $def_controller_ip, `
-                                             $def_controller_port, `
+                                             $def_controller_http_port, `
                                              $def_linker_ip, `
-                                             $def_linker_port, `
+                                             $def_linker_http_port, `
                                              $def_api_ip, `
-                                             $def_api_port, `
+                                             $def_api_http_port, `
                                              $linker_jar `
                                -WindowStyle Normal `
                                -WorkingDirectory $linker_folder `
                                -Debug `
                                -Verbose `
-                               -PassThru
-#                               -RedirectStandardError 'linker-stderr.txt' `
+                               -PassThru `
+                               -RedirectStandardError 'linker-stderr.txt'
 #                               -RedirectStandardOutput 'linker-stdout.txt'
 $linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
 
@@ -256,7 +242,8 @@ if (Test-path $api_folder) {
 }
 $api_handle = Start-Process -FilePath java `
                             -ArgumentList $def_api_log4j_level, `
-                                          $def_postgresql_server, `
+                                          $def_postgresql_ip, `
+                                          $def_postgresql_port, `
                                           $def_postgresql_user, `
                                           $def_postgresql_password, `
                                           $def_postgresql_notifications_db, `
@@ -265,20 +252,26 @@ $api_handle = Start-Process -FilePath java `
                                           $def_dgraph_hosts, `
                                           $def_dgraph_ports, `
                                           $def_etl_ip, `
-                                          $def_etl_port, `
+                                          $def_etl_http_port, `
                                           $def_controller_ip, `
-                                          $def_controller_port, `
+                                          $def_controller_http_port, `
                                           $def_linker_ip, `
-                                          $def_linker_port, `
+                                          $def_linker_http_port, `
                                           $def_api_ip, `
-                                          $def_api_port, `
+                                          $def_api_http_port, `
                                           '--enable-preview', `
                                           $api_jar `
                             -WindowStyle Normal `
                             -WorkingDirectory $linker_folder `
                             -Debug `
                             -Verbose `
-                            -PassThru
-#                            -RedirectStandardError 'api-stderr.txt' `
-#                            -RedirectStandardOutput 'api-stdout.txt'
-$api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')
+                            -PassThru `
+                            -RedirectStandardError 'api_stderr.txt'
+#                           -RedirectStandardOutput 'api_stdout.txt'
+
+# PRODUCTION SERVE
+#Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
+#  # Serve the built project
+#  $serveCommand = "serve -s build -l $serveUIPort"
+#  Invoke-Expression -Command $serveCommand
+#Pop-Location
