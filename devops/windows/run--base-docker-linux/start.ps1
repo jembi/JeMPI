@@ -7,16 +7,16 @@ $dgraph_ports                                 = '9080'
 $serveUIPort                                  = 3000
 
 $api_ip                                       = 'localhost'
-$api_http_port                                = '50000'
+$api_http_port                                = 50000
 
 $etl_ip                                       = 'localhost'
-$etl_http_port                                = '50001'
+$etl_http_port                                = 50001
 
 $controller_ip                                = 'localhost'
-$controller_http_port                         = '50002'
+$controller_http_port                         = 50002
 
 $linker_ip                                    = 'localhost'
-$linker_http_port                             = '50003'
+$linker_http_port                             = 50003
 
 $jempi_apps_dir                               = "..\..\..\..\..\JeMPI_Apps"
 
@@ -35,13 +35,13 @@ $def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notific
 $def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
 $def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
 $def_etl_ip                                   = "-DETL_IP=" + $etl_ip
-$def_etl_http_port                            = "-DETL_HTTP_PORT=" + $etl_port
+$def_etl_http_port                            = "-DETL_HTTP_PORT=" + $etl_http_port
 $def_controller_ip                            = "-DCONTROLLER_IP=" + $controller_ip
-$def_controller_http_port                     = "-DCONTROLLER_HTTP_PORT=" + $controller_port
+$def_controller_http_port                     = "-DCONTROLLER_HTTP_PORT=" + $controller_http_port
 $def_linker_ip                                = "-DLINKER_IP=" + $linker_ip
-$def_linker_http_port                         = "-DLINKER_HTTP_PORT=" + $linker_port
+$def_linker_http_port                         = "-DLINKER_HTTP_PORT=" + $linker_http_port
 $def_api_ip                                   = "-DAPI_IP=" + $api_ip
-$def_api_http_port                            = "-DAPI_HTTP_PORT=" + $api_port
+$def_api_http_port                            = "-DAPI_HTTP_PORT=" + $api_http_port
 
 $async_receiver_jar                           = "-jar " + $jempi_apps_dir + "\JeMPI_AsyncReceiver\target\AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar"
 $def_async_reveiver_log4j_level               = "-DLOG4J2_LEVEL=DEBUG"
@@ -173,7 +173,7 @@ $controller_handle = Start-Process -FilePath java `
                                                  $def_etl_ip, `
                                                  $def_etl_http_port, `
                                                  $def_controller_ip, `
-                                                 $def_controller_port, `
+                                                 $def_controller_http_port, `
                                                  $def_linker_ip, `
                                                  $def_linker_http_port, `
                                                  $controller_jar `
@@ -266,8 +266,8 @@ $api_handle = Start-Process -FilePath java `
                             -Debug `
                             -Verbose `
                             -PassThru `
-                            -RedirectStandardError 'api_stderr.txt'
-#                           -RedirectStandardOutput 'api_stdout.txt'
+                            -RedirectStandardError 'api_stderr.txt' 
+#                            -RedirectStandardOutput 'api_stdout.txt'
 
 # PRODUCTION SERVE
 #Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
