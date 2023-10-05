@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 public final class HttpServer extends AllDirectives {
 
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
-
+   private static final String LINKER_HOST = AppConfig.LINKER_HOST;
    private CompletionStage<ServerBinding> binding = null;
    private Http http = null;
 
@@ -42,9 +42,10 @@ public final class HttpServer extends AllDirectives {
    }
 
    private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", LINKER_HOST, GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION);
       final HttpRequest request;
       request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION)
+            .create(url)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -52,8 +53,10 @@ public final class HttpServer extends AllDirectives {
    }
 
    private CompletionStage<HttpResponse> postLinkInteractionToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s",
+                                       LINKER_HOST, GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID)
+            .create(url)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -61,8 +64,9 @@ public final class HttpServer extends AllDirectives {
    }
 
    private CompletionStage<HttpResponse> getMU() {
+      final String url = String.format("http://%s/JeMPI/mu", LINKER_HOST);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/mu")
+            .create(url)
             .withMethod(HttpMethods.GET);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);

@@ -549,7 +549,7 @@ public final class Routes {
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> {
-         LOGGER.debug("{}", response);y
+         LOGGER.debug("{}", response);
          return response;
       });
    }

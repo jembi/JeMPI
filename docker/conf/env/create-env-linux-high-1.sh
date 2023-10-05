@@ -33,6 +33,7 @@ export SCALE_POSTGRESQL=1
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
 export POSTGRESQL_DATABASE="notifications"
+export POSTGRESQL_HOST="postgresql:5432"
 
 export KAFKA_SERVERS="kafka-01:9092,kafka-02:9092,kafka-03:9092"
 export DGRAPH_HOSTS="alpha-01,alpha-02,alpha-03"
