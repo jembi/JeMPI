@@ -38,6 +38,7 @@ public final class AppConfig {
    }).toArray();
    public static final Integer HTTP_SERVER_PORT = CONFIG.getInt("HTTP_SERVER_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+   public static final String LINKER_HOST = CONFIG.getString("LINKER_HOST");
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
    }

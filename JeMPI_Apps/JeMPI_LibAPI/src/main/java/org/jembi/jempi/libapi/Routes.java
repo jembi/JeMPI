@@ -441,20 +441,22 @@ public final class Routes {
 
    public static CompletionStage<HttpResponse> proxyPostCalculateScores(
          final Http http,
-         final ApiModels.ApiCalculateScoresRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCalculateScoresRequest body,
+         final String linkerHost) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", linkerHost, GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES)
+            .create(url)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
 
-   public static Route proxyPostCalculateScores(final Http http) {
+   public static Route proxyPostCalculateScores(final Http http, final String linkerHost) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class),
                     obj -> {
                        try {
-                          return onComplete(proxyPostCalculateScores(http, obj),
+                          return onComplete(proxyPostCalculateScores(http, obj, linkerHost),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -468,20 +470,22 @@ public final class Routes {
 
    private static CompletionStage<HttpResponse> proxyGetCandidatesWithScore(
          final Http http,
-         final String iid) throws JsonProcessingException {
+         final String iid,
+         final String linkerHost) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", linkerHost, GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES);
       final var uri = Uri
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES)
+            .create(url)
             .query(Query.create(Pair.create("iid", iid)));
       final var request = HttpRequest.GET(uri.path());
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
 
-   public static Route proxyGetCandidatesWithScore(final Http http) {
+   public static Route proxyGetCandidatesWithScore(final Http http, final String linkerHost) {
       return parameter("iid",
                        iid -> {
                           try {
-                             return onComplete(proxyGetCandidatesWithScore(http, iid),
+                             return onComplete(proxyGetCandidatesWithScore(http, iid, linkerHost),
                                                response -> response.isSuccess()
                                                      ? complete(response.get())
                                                      : complete(StatusCodes.IM_A_TEAPOT));
@@ -494,9 +498,11 @@ public final class Routes {
 
    private static CompletionStage<HttpResponse> patchCrUpdateFieldsProxy(
          final Http http,
-         final ApiModels.ApiCrUpdateFieldsRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrUpdateFieldsRequest body,
+         final String linkerHost) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", linkerHost, GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS)
+            .create(url)
             .withMethod(HttpMethods.PATCH)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -505,9 +511,11 @@ public final class Routes {
 
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
          final Http http,
-         final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrRegisterRequest body,
+         final String linkerHost) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", linkerHost, GlobalConstants.SEGMENT_PROXY_CR_REGISTER);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_REGISTER)
+            .create(url)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -516,9 +524,11 @@ public final class Routes {
 
    private static CompletionStage<HttpResponse> postCrCandidatesProxy(
          final Http http,
-         final ApiModels.ApiCrCandidatesRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrCandidatesRequest body,
+         final String linkerHost) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", linkerHost, GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES)
+            .create(url)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -530,24 +540,26 @@ public final class Routes {
 
    private static CompletionStage<HttpResponse> postCrFindProxy(
          final Http http,
-         final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrFindRequest body,
+         final String linkerHost) throws JsonProcessingException {
+      final String url = String.format("http://%s/JeMPI/%s", linkerHost, GlobalConstants.SEGMENT_PROXY_CR_FIND);
       final var request = HttpRequest
-            .create("http://linker:50000/JeMPI/" + GlobalConstants.SEGMENT_PROXY_CR_FIND)
+            .create(url)
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> {
-         LOGGER.debug("{}", response);
+         LOGGER.debug("{}", response);y
          return response;
       });
    }
 
-   public static Route patchCrUpdateFields(final Http http) {
+   public static Route patchCrUpdateFields(final Http http, final String linkerHost) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
                     apiCrUpdateFields -> {
                        LOGGER.debug("{}", apiCrUpdateFields);
                        try {
-                          return onComplete(patchCrUpdateFieldsProxy(http, apiCrUpdateFields),
+                          return onComplete(patchCrUpdateFieldsProxy(http, apiCrUpdateFields, linkerHost),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -558,13 +570,13 @@ public final class Routes {
                     });
    }
 
-   public static Route postCrFind(final Http http) {
+   public static Route postCrFind(final Http http, final String linkerHost) {
       return entity(
             Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
             apiCrFind -> {
                LOGGER.debug("{}", apiCrFind);
                try {
-                  return onComplete(postCrFindProxy(http, apiCrFind),
+                  return onComplete(postCrFindProxy(http, apiCrFind, linkerHost),
                                     response -> response.isSuccess()
                                           ? complete(response.get())
                                           : complete(StatusCodes.IM_A_TEAPOT));
@@ -575,12 +587,12 @@ public final class Routes {
             });
    }
 
-   public static Route postCrCandidates(final Http http) {
+   public static Route postCrCandidates(final Http http, final String linkerHost) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
                     apiCrCandidates -> {
                        LOGGER.debug("{}", apiCrCandidates);
                        try {
-                          return onComplete(postCrCandidatesProxy(http, apiCrCandidates),
+                          return onComplete(postCrCandidatesProxy(http, apiCrCandidates, linkerHost),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
@@ -591,12 +603,12 @@ public final class Routes {
                     });
    }
 
-   public static Route postCrRegister(final Http http) {
+   public static Route postCrRegister(final Http http, final String linkerHost) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     apiCrRegister -> {
                        LOGGER.debug("{}", apiCrRegister);
                        try {
-                          return onComplete(postCrRegisterProxy(http, apiCrRegister),
+                          return onComplete(postCrRegisterProxy(http, apiCrRegister, linkerHost),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
                                                   : complete(StatusCodes.IM_A_TEAPOT));
