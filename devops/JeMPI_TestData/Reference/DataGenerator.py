@@ -10,9 +10,9 @@ from src import helper, basefunctions
 def generate_dataset():
     config = \
         {"BaseDate": "2022-01-01",
-         "NumberOfPatients": 5_000,
-         "AverageNumberOfClinicalRecordsPerPatient": 2,
-         "PercentageOfCorruptedRecords": 0.8,
+         "NumberOfPatients": 2_000,
+         "AverageNumberOfClinicalRecordsPerPatient": 10,
+         "PercentageOfCorruptedRecords": 0.2,
          "fields": [
              {"name": "given_name",
               "weight": 0.2,
