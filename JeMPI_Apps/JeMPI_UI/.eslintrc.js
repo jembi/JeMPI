@@ -35,6 +35,7 @@ module.exports = {
   },
   rules: {
     'no-console': ['warn'],
+    'prettier/prettier': 'warn',
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/jsx-key': 'off'
