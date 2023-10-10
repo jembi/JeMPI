@@ -248,19 +248,13 @@ const RecordDetails = () => {
   }
 
   return (
-    <Container
-      maxWidth={false}
-      sx={{
-        '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
-          outline: 'none'
-        }
-      }}
-    >
+    <Container maxWidth={false}>
       <PageHeader
         breadcrumbs={[
           { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
         ]}
-        title={`Patient interactions for GID ${uid}`}
+        title={`Patient interactions`}
+        description={`Browse patient interactions for GID ${uid}`}
       />
       <Divider />
       <ConfirmEditingDialog
@@ -269,7 +263,7 @@ const RecordDetails = () => {
         updatedFields={updatedFields}
         onConfirm={onConfirm}
       />
-      <Stack mt="20px" direction="column" gap="20px">
+      <Stack padding={'2rem 1rem 1rem 1rem'} direction="column" gap="20px">
         <Paper sx={{ p: 1 }}>
           <Stack p={1} flexDirection={'row'} justifyContent={'space-between'}>
             <Typography variant="h6">Records</Typography>
