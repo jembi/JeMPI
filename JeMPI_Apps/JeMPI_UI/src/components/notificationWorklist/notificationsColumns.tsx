@@ -14,7 +14,7 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     headerName: 'Status',
     flex: 1,
     align: 'center',
-    headerAlign: 'center',
+    headerClassName: 'super-app-theme--header',
     renderCell: (params: GridRenderCellParams) => {
       return <NotificationState value={params.value || ''} />
     }
@@ -26,9 +26,8 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     flex: 1,
     sortable: true,
     sortingOrder: ['desc'],
-    align: 'center',
-    headerAlign: 'center',
     filterable: false,
+    headerClassName: 'super-app-theme--header',
     renderCell: (params: GridRenderCellParams) =>
       getCellComponent('createdAt', params)
   },
@@ -37,8 +36,7 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     headerName: 'Interaction ID',
     type: 'number',
     flex: 1,
-    align: 'center',
-    headerAlign: 'center',
+    headerClassName: 'super-app-theme--header',
     filterable: false
   },
   {
@@ -46,8 +44,7 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     headerName: 'Golden ID',
     type: 'number',
     flex: 1,
-    align: 'center',
-    headerAlign: 'center',
+    headerClassName: 'super-app-theme--header',
     filterable: false
   },
   {
@@ -55,8 +52,7 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     headerName: 'Score',
     type: 'number',
     flex: 1,
-    align: 'center',
-    headerAlign: 'center',
+    headerClassName: 'super-app-theme--header',
     valueGetter: (params: GridValueGetterParams) => params.row.score,
     valueFormatter: params => formatNumber(params.value),
     filterable: false
@@ -65,12 +61,13 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     field: 'type',
     headerName: 'Notification Reason',
     flex: 1,
-    align: 'center',
+    headerClassName: 'super-app-theme--header',
     filterable: false
   },
   {
     field: 'names',
     headerName: 'Patient',
+    headerClassName: 'super-app-theme--header',
     flex: 2,
     valueFormatter: (params: GridValueFormatterParams<string>) =>
       formatName(params.value),

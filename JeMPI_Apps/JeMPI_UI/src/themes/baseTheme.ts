@@ -146,6 +146,17 @@ const baseTheme = createTheme({
           }
         })
       }
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.secondary.contrastText,
+          backgroundColor: '#274263',
+          '&:hover': {
+            backgroundColor: '#305982'
+          }
+        })
+      }
     }
   },
   typography: {
