@@ -64,6 +64,21 @@
       }
     },
     {
+      "fieldName": "middle_name",
+      "fieldType": "String",
+      "csvCol": 2,
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
+      "linkMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8806329,
+        "u": 0.0026558
+      }
+    },
+    {
       "fieldName": "family_name",
       "fieldType": "String",
       "csvCol": 2,
