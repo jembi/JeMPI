@@ -6,6 +6,8 @@ import baseTheme from './themes/baseTheme'
 import baseRouter from 'router/BaseRouter'
 import { ReactQueryDevtools } from 'DevTools'
 import { RouterProvider } from 'react-router-dom'
+import { AuthProvider } from 'hooks/useAuth'
+import { SnackbarProvider } from 'notistack'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,10 +19,14 @@ const App = () => {
   return (
     <ThemeProvider theme={baseTheme}>
       <CssBaseline />
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={baseRouter} />
-        <ReactQueryDevtools />
-      </QueryClientProvider>
+      <SnackbarProvider anchorOrigin={{ horizontal: 'right', vertical: 'top' }}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <RouterProvider router={baseRouter} />
+          </AuthProvider>
+          <ReactQueryDevtools />
+        </QueryClientProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   )
 }

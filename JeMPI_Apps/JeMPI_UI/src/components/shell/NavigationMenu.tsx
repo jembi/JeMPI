@@ -5,9 +5,11 @@ import MenuItem from '@mui/material/MenuItem'
 import { config } from 'config'
 import * as React from 'react'
 import { useAuth } from '../../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 const NavigationMenu: React.FC = () => {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const isOpen = Boolean(anchorEl)
@@ -19,7 +21,7 @@ const NavigationMenu: React.FC = () => {
   }
   const handleLogout = () => {
     close()
-    logout()
+    logout(navigate)
   }
 
   if (!user) {
