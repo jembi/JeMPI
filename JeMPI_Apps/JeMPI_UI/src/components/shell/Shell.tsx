@@ -19,7 +19,7 @@ const Shell = () => {
       <Box
         component="main"
         sx={{
-          p: 6,
+          p: { xs: '2rem 0 0 0', lg: 6 },
           width: '100%'
         }}
       >
