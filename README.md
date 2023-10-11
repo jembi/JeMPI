@@ -7,9 +7,15 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
 ## Requirements
 - linux (bash >= 4.x)
   - docker (non-root)
+    - https://docs.docker.com/engine/install/ubuntu/
+    - https://docs.docker.com/engine/install/linux-postinstall/
+  - sdk manager (https://sdkman.io/)
   - maven
+    - sdk install maven 3.8.6
   - sbt
-  - java 17.0.6
+    - sdk install sbt 1.8.0
+  - java
+    - sdk install java 17.0.8.1-tem
   - python 3.7
     - wxpython
     - requests
@@ -18,7 +24,6 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
 - Directory structure
   - \<base>
     - JeMPI           - ```git@github.com:jembi/JeMPI.git```
-    - JeMPI_TestData  - ```git@github.com:jembi/JeMPI_TestData.git```
 - Requirements
   - ```ping `hostname` ``` must ping a LAN IP address (not 127.x.x.x) 
 - Run
@@ -32,7 +37,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
      2. ```./b-swarm-1-init-node1.sh```
      3. ```./c-registry-1-create.sh```
      4. ```./c-registry-2-push-hub-images.sh```
-     5. ```./z-stack-3-build-reboot.sh```
+     5. ```./z-stack-3-build-all-reboot.sh```
 
 ## Development
 It's possible to run the whole stack local without having to use a local registry using the command : 
