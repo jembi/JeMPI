@@ -1,4 +1,4 @@
-import { Refresh, SearchOutlined } from '@mui/icons-material'
+import { Refresh, Search, SearchOutlined } from '@mui/icons-material'
 import {
   Container,
   Divider,
@@ -209,6 +209,9 @@ const ReviewLink = () => {
     <Container maxWidth={false}>
       <PageHeader
         title={'Review Linked Patient Record'}
+        breadcrumbs={[
+          { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
+        ]}
         description="Review the patient record and possible matches in detail."
         buttons={[
           <Button
@@ -222,127 +225,129 @@ const ReviewLink = () => {
         ]}
       />
       <Divider />
-      <Paper sx={{ mb: 2, mt: 3 }}>
-        <Typography pl={1} variant="dgSubTitle">
-          PATIENT LINKED TO GOLDEN RECORD
-        </Typography>
-        <CustomDataGrid
-          rows={matches}
-          sx={{
-            borderRadius: '0px'
-          }}
-          getRowClassName={params =>
-            params.row.uid === payload?.patient_id
-              ? 'super-app-theme--SelectedPatient'
-              : getRowClassName(params.row.type)
-          }
-        />
-      </Paper>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={1}
-      >
-        <Typography flex={1} variant="dgSubTitle">
-          OTHER GOLDEN RECORDS
-        </Typography>
-        {!payload.notificationId && (
-          <>
-            {sliderThreshold !== candidateThreshold && (
-              <Button
-                sx={{ p: 0, minWidth: 0 }}
-                onClick={() => setCandidateThreshold(sliderThreshold)}
+      <Stack padding={'2rem 1rem 1rem 1rem'}>
+        <Paper sx={{ mb: 2, mt: 3 }}>
+          <Typography pl={1} variant="dgSubTitle">
+            PATIENT LINKED TO GOLDEN RECORD
+          </Typography>
+          <CustomDataGrid
+            rows={matches}
+            sx={{
+              borderRadius: '0px'
+            }}
+            getRowClassName={params =>
+              params.row.uid === payload?.patient_id
+                ? 'super-app-theme--SelectedPatient'
+                : getRowClassName(params.row.type)
+            }
+          />
+        </Paper>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={1}
+        >
+          <Typography flex={1} variant="dgSubTitle">
+            OTHER GOLDEN RECORDS
+          </Typography>
+          {!payload.notificationId && (
+            <>
+              {sliderThreshold !== candidateThreshold && (
+                <Button
+                  sx={{ p: 0, minWidth: 0 }}
+                  onClick={() => setCandidateThreshold(sliderThreshold)}
+                >
+                  <Refresh />
+                </Button>
+              )}
+              <Stack
+                direction="row"
+                sx={{ width: 250 }}
+                justifyContent="space-between"
+                alignItems="center"
+                spacing={2}
               >
-                <Refresh />
-              </Button>
-            )}
-            <Stack
-              direction="row"
-              sx={{ width: 250 }}
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={2}
-            >
-              <Typography variant="dgSubTitle">THRESHOLD: </Typography>
-              <Slider
-                valueLabelDisplay="auto"
-                step={0.05}
-                size="small"
-                min={0}
-                max={1}
-                value={sliderThreshold}
-                onChange={handleThresholdChange}
-              />
-            </Stack>
-          </>
-        )}
-      </Stack>
-      <Paper>
-        <CustomDataGrid
-          rows={
-            payload?.notificationId
-              ? candidateGoldenRecords || []
-              : thresholdCandidates?.filter(
-                  record => record.uid !== payload?.golden_id
-                ) || []
-          }
-          action={handleOpenLinkedRecordDialog}
-          sx={{
-            '& .MuiDataGrid-columnHeaders': { display: 'none' },
-            '& .MuiDataGrid-virtualScroller': { marginTop: '0!important' }
-          }}
-        />
-      </Paper>
-      <Stack direction="row" sx={{ mt: 3 }} justifyContent={'space-between'}>
-        <Stack direction="row" spacing={1}>
-          <Button variant="outlined" onClick={handleCancel}>
-            Cancel
-          </Button>
-          {payload?.notificationId && (
-            <Button
-              variant="contained"
-              onClick={() => setIsAcceptLinkDialogOpen(true)}
-            >
-              Close
-            </Button>
+                <Typography variant="dgSubTitle">THRESHOLD: </Typography>
+                <Slider
+                  valueLabelDisplay="auto"
+                  step={0.05}
+                  size="small"
+                  min={0}
+                  max={1}
+                  value={sliderThreshold}
+                  onChange={handleThresholdChange}
+                />
+              </Stack>
+            </>
           )}
         </Stack>
-        <Button
-          variant="outlined"
-          onClick={() => setIsNewGoldenRecordDialogOpen(true)}
-        >
-          Create new golden record
-        </Button>
+        <Paper>
+          <CustomDataGrid
+            rows={
+              payload?.notificationId
+                ? candidateGoldenRecords || []
+                : thresholdCandidates?.filter(
+                    record => record.uid !== payload?.golden_id
+                  ) || []
+            }
+            action={handleOpenLinkedRecordDialog}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': { display: 'none' },
+              '& .MuiDataGrid-virtualScroller': { marginTop: '0!important' }
+            }}
+          />
+        </Paper>
+        <Stack direction="row" sx={{ mt: 3 }} justifyContent={'space-between'}>
+          <Stack direction="row" spacing={1}>
+            <Button variant="outlined" onClick={handleCancel}>
+              Cancel
+            </Button>
+            {payload?.notificationId && (
+              <Button
+                variant="contained"
+                onClick={() => setIsAcceptLinkDialogOpen(true)}
+              >
+                Close
+              </Button>
+            )}
+          </Stack>
+          <Button
+            variant="outlined"
+            onClick={() => setIsNewGoldenRecordDialogOpen(true)}
+          >
+            Create new golden record
+          </Button>
+        </Stack>
+        <SearchDialog
+          isOpen={isSearchDialogVisible}
+          onClose={() => setIsSearchDialogVisible(false)}
+          onChange={setRefineSearchQuery}
+        />
+        <UnlinkingDialog
+          isOpen={isNewGoldenRecordDialogOpen}
+          onClose={() => handleModalCancel()}
+          onConfirm={() => createGoldenRecord(canditateUID)}
+        />
+        <CloseNotificationDialog
+          isOpen={isAcceptLinkDialogOpen}
+          onClose={handleModalCancel}
+          onConfirm={() =>
+            linkToCandidateRecord(
+              goldenRecord?.uid || '',
+              NotificationState.Accepted
+            )
+          }
+        />
+        <LinkRecordsDialog
+          isOpen={isLinkRecordDialogOpen}
+          data={tableData}
+          onClose={handleModalCancel}
+          onConfirm={() =>
+            linkToCandidateRecord(canditateUID, NotificationState.Actioned)
+          }
+        />
       </Stack>
-      <SearchDialog
-        isOpen={isSearchDialogVisible}
-        onClose={() => setIsSearchDialogVisible(false)}
-        onChange={setRefineSearchQuery}
-      />
-      <UnlinkingDialog
-        isOpen={isNewGoldenRecordDialogOpen}
-        onClose={() => handleModalCancel()}
-        onConfirm={() => createGoldenRecord(canditateUID)}
-      />
-      <CloseNotificationDialog
-        isOpen={isAcceptLinkDialogOpen}
-        onClose={handleModalCancel}
-        onConfirm={() =>
-          linkToCandidateRecord(
-            goldenRecord?.uid || '',
-            NotificationState.Accepted
-          )
-        }
-      />
-      <LinkRecordsDialog
-        isOpen={isLinkRecordDialogOpen}
-        data={tableData}
-        onClose={handleModalCancel}
-        onConfirm={() =>
-          linkToCandidateRecord(canditateUID, NotificationState.Actioned)
-        }
-      />
     </Container>
   )
 }
