@@ -1,7 +1,13 @@
-$kafka1_ip                                    = '192.168.0.7'
-$postgresql_ip                                = '192.168.0.7'
+$script_path = $MyInvocation.MyCommand.Path
+$script_dir = Split-Path $script_path
+Set-Location $script_dir
+
+. $script_dir\local.ps1
+
+$kafka1_ip                                    = $linux_server_ip
+$postgresql_ip                                = $linux_server_ip
 $postgresql_port                              = 5432
-$dgraph_hosts                                 = '192.168.0.7'
+$dgraph_hosts                                 = $linux_server_ip
 $dgraph_ports                                 = '9080'
 
 $serveUIPort                                  = 3000
@@ -68,10 +74,6 @@ $api_jar                                      = "-jar " + $jempi_apps_dir + "\Je
 $def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE" 
 $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
-
-$script_path = $MyInvocation.MyCommand.Path
-$script_dir = Split-Path $script_path
-Set-Location $script_dir
 
 $serveUIPort = 3000
 
