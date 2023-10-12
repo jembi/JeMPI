@@ -273,12 +273,13 @@ $api_handle = Start-Process -FilePath java `
                                           '--enable-preview', `
                                           $api_jar `
                             -WindowStyle Normal `
-                            -WorkingDirectory $linker_folder `
+                            -WorkingDirectory $api_folder `
                             -Debug `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'api_stderr.txt' 
 #                            -RedirectStandardOutput 'api_stdout.txt'
+$api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')
 
 # PRODUCTION SERVE
 #Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
