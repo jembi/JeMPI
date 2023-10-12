@@ -55,3 +55,5 @@ export const formatBytesSize = (maxSizeInBytes: number) => {
   const unit = units[unitIndex]
   return `${convertedSize} ${unit}`
 }
+
+export const megabytesToBytes = (mb: number) => mb * 1024 * 1024
