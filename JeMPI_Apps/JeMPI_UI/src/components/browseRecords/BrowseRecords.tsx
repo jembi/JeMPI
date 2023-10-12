@@ -37,6 +37,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import getCellComponent from 'components/shared/getCellComponent'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Search } from '@mui/icons-material'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -194,11 +195,19 @@ const Records = () => {
   return (
     <Container maxWidth={false}>
       <PageHeader
-        title={`Browse Patients`}
+        title={'Browse Patients'}
         description={'browse through golden records'}
+        breadcrumbs={[
+          {
+            link: '/browse-records/',
+            title: 'Browse',
+            icon: <Search />
+          }
+        ]}
       />
       <Divider />
-      <Stack mt="20px" gap="10px" flexDirection="column">
+
+      <Stack padding={'2rem 1rem 1rem 1rem'} gap="10px" flexDirection="column">
         <Accordion>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}

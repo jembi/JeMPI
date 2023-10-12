@@ -7,6 +7,7 @@ import { Box, Grid, LinearProgress, Typography } from '@mui/material'
 import { FC } from 'react'
 import { FileObj, UploadStatus } from '../../types/FileUpload'
 import './Import.css'
+import { truncateString } from 'utils/formatters'
 
 interface FileObjProps {
   fileObj: FileObj
@@ -38,14 +39,21 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
         justifyContent="center"
         alignItems="center"
         textAlign="center"
+        padding={'0.5rem'}
       >
         <Box className="import__upload-icon">
           <UploadFileIcon />
         </Box>
       </Grid>
-      <Grid item xs={10} justifyContent="center" alignItems="center">
-        <Typography color="primary.disabled" fontSize="16px">
-          {props.fileObj.file.name}
+      <Grid
+        item
+        padding={'1.5rem'}
+        xs={10}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Typography color="primary.disabled" fontSize="16px" noWrap>
+          {truncateString(props.fileObj.file.name, 30)}
         </Typography>
         <Typography
           color="#00000099"
@@ -53,9 +61,7 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
           className={`import__upload-list-item ${addStatusClass}`}
         >
           {Math.round(props.fileObj.file.size / 1000)}kb
-          {'  '}
           <CircleIcon sx={{ fontSize: '5px', alignItems: 'center' }} />
-          {'  '}
           {UploadStatus[props.fileObj.status]}
         </Typography>
       </Grid>
@@ -67,6 +73,7 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
         textAlign="center"
       >
         <Box
+          display={props.fileObj.status !== 'Loading' ? 'block' : 'none'}
           className="import__close-icon"
           onClick={() => props.handleRemoveFile(props.fileObj)}
         >

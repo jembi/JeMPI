@@ -62,7 +62,7 @@ const NavigationBar = () => {
   }
   const drawer = (
     <>
-      <div
+      {/* <div
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -70,7 +70,7 @@ const NavigationBar = () => {
         }}
       >
         <JembiLogo />
-      </div>
+      </div> */}
       <Divider />
       <Box
         sx={{
@@ -140,7 +140,7 @@ const NavigationBar = () => {
               width: { xs: '100%', md: 'auto' }
             }}
           >
-            <JembiLogo />
+            {/* <JembiLogo /> */}
           </Box>
           <Box
             sx={{

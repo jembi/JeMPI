@@ -1,5 +1,5 @@
 import { People } from '@mui/icons-material'
-import { Container, Divider, Paper, debounce } from '@mui/material'
+import { Box, Container, Divider, Paper, Stack, debounce } from '@mui/material'
 import { DataGrid, GridFilterModel } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -76,37 +76,33 @@ const NotificationWorklist = () => {
     <Container maxWidth={false}>
       <PageHeader
         title={'Notification Worklist'}
+        description={'browse through notifications'}
         breadcrumbs={[
           {
-            link: '/review-matches/',
+            link: '/notifications/',
             title: 'Notifications',
             icon: <People />
           }
         ]}
       />
       <Divider />
-      <Paper
-        sx={{
-          p: 1,
-          pt: 2,
-          mt: 3,
-          gap: '10px'
-        }}
-      >
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DesktopDatePicker
-            sx={{ mb: '10px' }}
-            value={date}
-            format="YYYY/MM/DD"
-            onChange={value => changeSelectedDate(value)}
-            slotProps={{
-              textField: {
-                variant: 'outlined',
-                label: 'Date'
-              }
-            }}
-          />
-        </LocalizationProvider>
+      <Stack padding={'2rem 1rem 1rem 1rem'}>
+        <Box>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DesktopDatePicker
+              sx={{ mb: '10px' }}
+              value={date}
+              format="YYYY/MM/DD"
+              onChange={value => changeSelectedDate(value)}
+              slotProps={{
+                textField: {
+                  variant: 'outlined',
+                  label: 'Date'
+                }
+              }}
+            />
+          </LocalizationProvider>
+        </Box>
         <DataGrid
           sx={{
             '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
@@ -142,7 +138,7 @@ const NotificationWorklist = () => {
             )
           }
         />
-      </Paper>
+      </Stack>
     </Container>
   )
 }
