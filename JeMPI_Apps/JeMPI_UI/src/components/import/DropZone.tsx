@@ -21,9 +21,11 @@ import { FileObj, UploadStatus } from '../../types/FileUpload'
 import Button from '../shared/Button'
 import './Import.css'
 import UploadFileListItem from './UploadFileListItem'
+import { formatBytesSize } from 'utils/formatters'
 
+// default max upload file size is 128 MO => '128 * 1024 * 1024'
 const MAX_UPLOAD_FILE_SIZE_IN_BYTES =
-  process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_BYTES ?? 128 * 1024 * 1024
+  process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_BYTES ?? '128 * 1024 * 1024'
 const DropZone: FC = () => {
   const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
   const abortControllerRef = useRef<AbortController>(new AbortController())
@@ -192,7 +194,7 @@ const DropZone: FC = () => {
             <a>Click to upload</a> or drag and drop
           </Typography>
           <Typography color="#00000099" fontSize="1rem">
-            CSV (max. 128MB)
+            CSV (max. {formatBytesSize(+eval(MAX_UPLOAD_FILE_SIZE_IN_BYTES))})
           </Typography>
         </div>
       </Box>
