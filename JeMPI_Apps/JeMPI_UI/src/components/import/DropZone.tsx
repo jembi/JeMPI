@@ -66,7 +66,7 @@ const DropZone: FC = () => {
     accept: { 'text/csv': ['.csv'] },
     onDrop,
     multiple: false,
-    maxSize: Number(MAX_UPLOAD_FILE_SIZE_IN_BYTES)
+    maxSize: eval(MAX_UPLOAD_FILE_SIZE_IN_BYTES)
   })
 
   const uploadFile = async (fileObj: FileObj) => {
@@ -194,7 +194,7 @@ const DropZone: FC = () => {
             <a>Click to upload</a> or drag and drop
           </Typography>
           <Typography color="#00000099" fontSize="1rem">
-            CSV (max. {formatBytesSize(+eval(MAX_UPLOAD_FILE_SIZE_IN_BYTES))})
+            CSV (max. {formatBytesSize(eval(MAX_UPLOAD_FILE_SIZE_IN_BYTES))})
           </Typography>
         </div>
       </Box>

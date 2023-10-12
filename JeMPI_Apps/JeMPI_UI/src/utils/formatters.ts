@@ -43,9 +43,9 @@ export const truncateString = (value: string, maxLength: number) => {
   return value
 }
 
-export const formatBytesSize = (maxSizeInBytes: number | string) => {
+export const formatBytesSize = (maxSizeInBytes: number) => {
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  let size = Number(maxSizeInBytes)
+  let size = maxSizeInBytes
   let unitIndex = 0
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024
