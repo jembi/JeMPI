@@ -6,8 +6,7 @@ set -u
 source ./conf.env
 source ./conf/images/conf-hub-images.sh
 
-declare -a IMAGES=("$HAPROXY_IMAGE"
-                   "$KAFKA_IMAGE"
+declare -a IMAGES=("$KAFKA_IMAGE"
                    "$DGRAPH_IMAGE"
                    "$RATEL_IMAGE"
                    "$POSTGRESQL_IMAGE")
