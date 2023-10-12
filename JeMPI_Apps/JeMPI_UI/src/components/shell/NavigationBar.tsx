@@ -18,6 +18,8 @@ import JembiLogo from './JembiLogo'
 import NavigationMenu from './NavigationMenu'
 import { Link } from 'react-router-dom'
 
+const showBrand =
+  process.env.REACT_APP_SHOW_BRAND_LOGO === 'false' ? false : true
 const LabeledIconBox = ({
   icon,
   label,
@@ -62,15 +64,17 @@ const NavigationBar = () => {
   }
   const drawer = (
     <>
-      {/* <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
-        <JembiLogo />
-      </div> */}
+      {showBrand && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <JembiLogo />
+        </div>
+      )}
       <Divider />
       <Box
         sx={{
@@ -140,7 +144,7 @@ const NavigationBar = () => {
               width: { xs: '100%', md: 'auto' }
             }}
           >
-            {/* <JembiLogo /> */}
+            {showBrand && <JembiLogo />}
           </Box>
           <Box
             sx={{
