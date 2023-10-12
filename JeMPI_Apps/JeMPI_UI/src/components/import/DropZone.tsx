@@ -21,10 +21,11 @@ import { FileObj, UploadStatus } from '../../types/FileUpload'
 import Button from '../shared/Button'
 import './Import.css'
 import UploadFileListItem from './UploadFileListItem'
-import { megabytesToBytes } from 'utils/formatters'
+import { formatBytesSize, megabytesToBytes } from 'utils/formatters'
 
-const MAX_UPLOAD_FILE_SIZE_IN_MEGABYTES =
-  process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES ?? '128'
+const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
+  +(process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES ?? 128)
+)
 const DropZone: FC = () => {
   const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
   const abortControllerRef = useRef<AbortController>(new AbortController())
@@ -65,7 +66,7 @@ const DropZone: FC = () => {
     accept: { 'text/csv': ['.csv'] },
     onDrop,
     multiple: false,
-    maxSize: megabytesToBytes(+MAX_UPLOAD_FILE_SIZE_IN_MEGABYTES)
+    maxSize: MAX_UPLOAD_FILE_SIZE_IN_BYTES
   })
 
   const uploadFile = async (fileObj: FileObj) => {
@@ -193,7 +194,7 @@ const DropZone: FC = () => {
             <a>Click to upload</a> or drag and drop
           </Typography>
           <Typography color="#00000099" fontSize="1rem">
-            CSV (max. {MAX_UPLOAD_FILE_SIZE_IN_MEGABYTES} MB)
+            CSV (max. {formatBytesSize(MAX_UPLOAD_FILE_SIZE_IN_BYTES)})
           </Typography>
         </div>
       </Box>
