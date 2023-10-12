@@ -6,17 +6,9 @@ export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
-if [ $USE_LOCAL_REGISTRY == 'true' ]; then
-    # In cluster mode, we set the network ip address
-    export NODE1=$(hostname)
+export NODE1=$(hostname)
 #   export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
-    export NODE1_IP=$(hostname -i)
-
-else
-    # For local deployments (single mode), we set localhost IP
-    export NODE1="node-1"
-    export NODE1_IP="127.0.0.1"
-fi
+export NODE1_IP=$(hostname -i)
 
 export SCALE_NGINX=1
 export SCALE_KEYCLOAK_TEST_SERVER=1
@@ -66,11 +58,11 @@ export API_RAM_LIMIT="16G"
 export UI_RAM_LIMIT="16G"
 
 #UI env vars
+export NODE_ENV="developement"
 export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
 export REACT_APP_MOCK_BACKEND="false"
 export REACT_APP_ENABLE_SSO="false"
-export REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_BYTES= 128 * 1024 * 1024
-
+export REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_BYTES=`echo "128*1024*1024" | bc`
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2

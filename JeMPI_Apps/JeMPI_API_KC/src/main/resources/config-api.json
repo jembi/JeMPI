@@ -20,7 +20,7 @@
     {
       "fieldName": "given_name",
       "fieldType": "String",
-      "fieldLabel": "Given Name",
+      "fieldLabel": "First Name",
       "groups": [
         "name",
         "demographics",
@@ -45,90 +45,9 @@
       "accessLevel": []
     },
     {
-      "fieldName": "father",
+      "fieldName": "family_name",
       "fieldType": "String",
-      "fieldLabel": "Father's Name",
-      "groups": [
-        "name",
-        "demographics",
-        "filter",
-        "linked_records",
-        "record_details"
-      ],
-      "scope": [
-        "/record-details/:uid",
-        "/notifications/match-details",
-        "/record-details/:uid/relink",
-        "/search/simple",
-        "/search/custom",
-        "/search-results/golden",
-        "/search-results/patient",
-        "/browse-records"
-      ],
-      "validation": {
-        "required": true,
-        "onErrorMessage": "The family name cannot be empty"
-      },
-      "accessLevel": []
-    },
-    {
-      "fieldName": "fathers_father",
-      "fieldType": "String",
-      "fieldLabel": "Father's Fathers's Name",
-      "groups": [
-        "name",
-        "demographics",
-        "filter",
-        "linked_records",
-        "record_details"
-      ],
-      "scope": [
-        "/record-details/:uid",
-        "/notifications/match-details",
-        "/record-details/:uid/relink",
-        "/search/simple",
-        "/search/custom",
-        "/search-results/golden",
-        "/search-results/patient",
-        "/browse-records"
-      ],
-      "validation": {
-        "required": true,
-        "onErrorMessage": "The family name cannot be empty"
-      },
-      "accessLevel": []
-    },
-    {
-      "fieldName": "mother",
-      "fieldType": "String",
-      "fieldLabel": "Mothers's Name",
-      "groups": [
-        "name",
-        "demographics",
-        "filter",
-        "linked_records",
-        "record_details"
-      ],
-      "scope": [
-        "/record-details/:uid",
-        "/notifications/match-details",
-        "/record-details/:uid/relink",
-        "/search/simple",
-        "/search/custom",
-        "/search-results/golden",
-        "/search-results/patient",
-        "/browse-records"
-      ],
-      "validation": {
-        "required": true,
-        "onErrorMessage": "The family name cannot be empty"
-      },
-      "accessLevel": []
-    },
-    {
-      "fieldName": "mothers_father",
-      "fieldType": "String",
-      "fieldLabel": "Mother's Father's Name",
+      "fieldLabel": "Last Name",
       "groups": [
         "name",
         "demographics",
@@ -245,6 +164,32 @@
         "/browse-records"
       ],
       "accessLevel": []
+    },
+    {
+      "fieldName": "national_id",
+      "fieldType": "String",
+      "fieldLabel": "National ID",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The national Id cannot be empty"
+      }
     }
   ],
   "systemFields": [
