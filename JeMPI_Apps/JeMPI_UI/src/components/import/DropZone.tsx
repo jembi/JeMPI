@@ -1,13 +1,13 @@
 import { UploadFile as UploadFileIcon } from '@mui/icons-material'
 import {
+  Avatar,
   Box,
+  Card,
   CardActions,
+  CardContent,
   Checkbox,
-  Container,
-  FormControl,
   FormControlLabel,
-  Radio,
-  RadioGroup,
+  Grid,
   TextField,
   Typography
 } from '@mui/material'
@@ -19,7 +19,6 @@ import { FileRejection, useDropzone } from 'react-dropzone'
 import ApiClient from '../../services/ApiClient'
 import { FileObj, UploadStatus } from '../../types/FileUpload'
 import Button from '../shared/Button'
-import './Import.css'
 import UploadFileListItem from './UploadFileListItem'
 import { formatBytesSize, megabytesToBytes } from 'utils/formatters'
 
@@ -85,54 +84,27 @@ const DropZone: FC = () => {
       },
       data: formData,
       onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-        if (progressEvent.total) {
-          const progress = (progressEvent.loaded / progressEvent.total) * 100
-          updateFileUploadProgress(fileObj, progress)
-        }
+        setFilesObj((prev: FileObj | undefined) => {
+          if (prev?.file.name === fileObj.file.name && progressEvent.total) {
+            return {
+              ...prev,
+              progress: Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              ),
+              status: UploadStatus.Loading
+            }
+          }
+        })
       }
-    }
-  }
-
-  const updateFileUploadProgress = (
-    fileUploadObj: FileObj,
-    progress: number
-  ) => {
-    if (fileObjs)
-      setFilesObj((prev: FileObj | undefined) => {
-        if (prev?.file.name === fileUploadObj.file.name) {
-          return { ...prev, progress, status: getFileUploadStatus(fileObjs) }
-        }
-      })
-  }
-
-  const setUploadStatus = (fileUploadObj: FileObj, status: UploadStatus) => {
-    setFilesObj((prev: FileObj | undefined) => {
-      if (prev?.file.name === fileUploadObj.file.name) {
-        prev.status = status
-        if (status === UploadStatus.Failed) {
-          prev.progress = 0
-        }
-      }
-      return prev
-    })
-  }
-
-  const getFileUploadStatus = (fileObj: FileObj) => {
-    if (fileObj.progress === 0) {
-      return UploadStatus.Pending
-    } else if (fileObj.progress > 0 && fileObj.progress < 100) {
-      return UploadStatus.Loading
-    } else if (fileObj.progress === 100) {
-      return UploadStatus.Complete
-    } else {
-      return UploadStatus.Failed
     }
   }
 
   const uploadFileMutation = useMutation({
     mutationFn: uploadFile,
-    onSuccess: (data, fileObj) => {
-      setUploadStatus(fileObj, UploadStatus.Complete)
+    onSuccess: (_, fileObj) => {
+      setFilesObj((prev: FileObj | undefined) =>
+        prev ? { ...prev, status: UploadStatus.Complete } : undefined
+      )
       enqueueSnackbar(`${fileObj.file.name} file imported`, {
         variant: 'success'
       })
@@ -145,7 +117,9 @@ const DropZone: FC = () => {
           variant: 'error'
         }
       )
-      setUploadStatus(data, UploadStatus.Failed)
+      setFilesObj((prev: FileObj | undefined) =>
+        prev ? { ...prev, status: UploadStatus.Failed } : undefined
+      )
     }
   })
 
@@ -183,98 +157,145 @@ const DropZone: FC = () => {
   )
 
   return (
-    <Container>
-      <Box className="dropzone" {...getRootProps()}>
-        <div className="dropzone-inner">
-          <input {...getInputProps()} />
-          <Box className="import__upload-icon">
-            <UploadFileIcon />
-          </Box>
-          <Typography fontSize="16px">
-            <a>Click to upload</a> or drag and drop
-          </Typography>
-          <Typography color="#00000099" fontSize="1rem">
-            CSV (max. {formatBytesSize(MAX_UPLOAD_FILE_SIZE_IN_BYTES)})
-          </Typography>
-        </div>
-      </Box>
-      {uploadList}
-      <Box
-        display={'flex'}
-        justifyContent="start"
-        gap={'0.5rem'}
-        alignItems="center"
-        padding={'0.5rem'}
-      >
-        <Typography fontWeight={'bold'} fontSize={'1.2rem'}>
-          TB 1
-        </Typography>
-        <TextField placeholder="TB 1" size="small" />
-      </Box>
-      <Box
-        display={'flex'}
-        justifyContent="start"
-        gap={'0.5rem'}
-        alignItems={'center '}
-        padding={'0.5rem'}
-      >
-        <Typography fontWeight={'bold'} fontSize={'1.2rem'}>
-          CB
-        </Typography>
-        <FormControlLabel
-          value="CB2"
-          control={<Checkbox />}
-          label="CB1"
-          labelPlacement="start"
-        />
-        <FormControlLabel
-          value="CB2"
-          control={<Checkbox />}
-          label="CB2"
-          labelPlacement="start"
-        />
-      </Box>
-      <Box
-        display={'flex'}
-        gap={'1.3rem'}
-        alignItems={'center'}
-        padding={'0.5rem'}
-      >
-        <Typography fontWeight={'bold'} fontSize={'1.2rem'}>
-          RB
-        </Typography>
-        <FormControl>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="Opt1"
-            name="radio-buttons-group"
+    <>
+      <Card>
+        <CardContent sx={{ width: { xs: '100%', lg: '40%' } }}>
+          {!fileObjs?.file ? (
+            <Box
+              sx={{
+                padding: '2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignContent: 'center',
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
+              {...getRootProps()}
+              border={'2px dashed #305982 '}
+              borderRadius={'1rem'}
+            >
+              <input {...getInputProps()} />
+              <Avatar sx={{ bgcolor: '#305982' }}>
+                <UploadFileIcon />
+              </Avatar>
+              <Typography fontSize="1rem">
+                Click to upload or drag and drop
+              </Typography>
+              <Typography color="#00000099" fontSize="1rem">
+                CSV (max. {formatBytesSize(MAX_UPLOAD_FILE_SIZE_IN_BYTES)})
+              </Typography>
+            </Box>
+          ) : (
+            uploadList
+          )}
+          <Grid
+            container
+            spacing={2}
+            sx={{ marginTop: '1rem' }}
+            alignItems="center"
           >
-            <FormControlLabel value="Opt1" control={<Radio />} label="Opt1" />
-            <FormControlLabel value="Opt2" control={<Radio />} label="Opt2" />
-            <FormControlLabel value="Opt3" control={<Radio />} label="Opt3" />
-          </RadioGroup>
-        </FormControl>
-      </Box>
-      <CardActions
-        sx={{ display: 'block', textAlign: 'center', marginTop: '5%' }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleUpload}
-          disabled={
-            uploadFileMutation.isLoading ||
-            uploadFileMutation.isError ||
-            !fileObjs ||
-            fileObjs?.status === 'Failed'
-          }
-        >
-          Upload
-        </Button>
-        <Button variant="outlined" onClick={handleCancel} disabled={!fileObjs}>
-          Cancel
-        </Button>
-      </CardActions>
-    </Container>
+            <Grid item xs={9}>
+              <Typography fontWeight="bold" fontSize="1rem">
+                Generate Report:
+              </Typography>
+            </Grid>
+            <Grid item xs={3}>
+              <FormControlLabel
+                value="false"
+                control={<Checkbox />}
+                label=""
+                labelPlacement="start"
+              />
+            </Grid>
+            <Grid item xs={9}>
+              <Typography fontWeight="bold" fontSize="1rem">
+                Compute M&U before linking:
+              </Typography>
+            </Grid>
+            <Grid item xs={3}>
+              <FormControlLabel
+                value="true"
+                control={<Checkbox />}
+                label=""
+                labelPlacement="start"
+                checked={true}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography fontWeight="bold" fontSize="1rem">
+                Linking:
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                type="number"
+                size="small"
+                variant="outlined"
+                label="Notification Left margin"
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                type="number"
+                size="small"
+                variant="outlined"
+                label="Threshold"
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                type="number"
+                size="small"
+                variant="outlined"
+                label="Notification right margin"
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography fontWeight="bold" fontSize="1rem">
+                Notification for similar Candidates:
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                type="number"
+                size="small"
+                variant="outlined"
+                label="Window size"
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+        <CardActions sx={{ display: 'block', textAlign: 'center' }}>
+          <Button
+            variant="contained"
+            onClick={handleUpload}
+            disabled={
+              uploadFileMutation.isLoading ||
+              uploadFileMutation.isError ||
+              !fileObjs ||
+              fileObjs?.status === 'Failed'
+            }
+          >
+            Upload
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={handleCancel}
+            disabled={!fileObjs}
+          >
+            Cancel
+          </Button>
+        </CardActions>
+      </Card>
+    </>
   )
 }
 export default DropZone
