@@ -47,7 +47,7 @@ describe("useAuth", () => {
             jest.spyOn<typeof keycloakInstance, any>(keycloakInstance, methodName).mockImplementation(mockMethod)
         }  
     }
-    describe.skip("Auth Provider tests", () => {
+    describe("Auth Provider tests", () => {
 
         const getAuthProviderComponent = (ChildComponent: ReactNode) => {
             const queryClient = new QueryClient({
@@ -148,92 +148,98 @@ describe("useAuth", () => {
             </SnackbarProvider>)
         }
 
-        // it("Shows loading if use details are still loading", async () => {
-        //     mockApiClient({
-        //         getCurrentUser: getMockUserDetails
-        //     })
-
-        //     let renderComponent:any = null
-        //     await act(() => {
-        //         renderComponent = render(getAuthCheckerComponent())
-        //     })
-
-        //     expect(renderComponent.container.querySelector("#user-loading-spinner")).toBeTruthy()
-        // })
-
-        // it("Navigates user to login page if not logged in", async () => {
-        //     mockApiClient({
-        //         getCurrentUser:  () => null
-        //     })
-
-
-        //     await act(() => {
-        //        render(getAuthCheckerComponent())
-        //     })
-
-        //     await waitFor(() => {
-        //         expect(location.pathname).toEqual("/login")
-        //         expect(screen.getByText("Sign-In with KeyCloak")).toBeTruthy()
-                
-        //     })
-
-        // })
-    
-        it("Navigates to home if on login page, and there is a successfully login", async () => {
-
+        it("Shows loading if use details are still loading", async () => {
             mockApiClient({
-                getCurrentUser: () => {console.log(">>>>"); return null},
-                validateOAuth: () => Promise.resolve(getMockUserDetails())
+                getCurrentUser: getMockUserDetails
             })
 
-            mockKeyClock({
-                init: (props:any) => {
-                    baseRouter.navigate( {
-                        pathname: "/login",
-                        hash: "code=200&state=OK&session_state=12345"
-                    })
-                }
+            let renderComponent:any = null
+            await act(() => {
+                renderComponent = render(getAuthCheckerComponent())
             })
+
+            expect(renderComponent.container.querySelector("#user-loading-spinner")).toBeTruthy()
+        })
+
+        it("Navigates user to login page if not logged in", async () => {
+            mockApiClient({
+                getCurrentUser:  () => null
+            })
+
 
             await act(() => {
-                render(getAuthCheckerComponent())
+               render(getAuthCheckerComponent())
             })
 
-
-             await waitFor(() => {
-                 expect(location.pathname).toEqual("/login")
-                 expect(screen.getByText("Sign-In with KeyCloak")).toBeTruthy()
-             })
-
-             await act(() => {
-                fireEvent.click(screen.getByText('Sign-In with KeyCloak'));
-            })
-            
-            await act(() => {
-                render(getAuthCheckerComponent())
+            await waitFor(() => {
+                expect(location.pathname).toEqual("/login")
+                expect(screen.getByText("Sign-In with KeyCloak")).toBeTruthy()
+                
             })
 
-             await waitFor(() => {
-                expect(location.pathname).toEqual("/")
-                //TODO
-            })
-
-        }, 60000)
+        })
     
-        // it("Renders page directly, if user is logged in", async () => {
+        // it("Navigates to home if on login page, and there is a successfully login", async () => {
+
+
+
         //     mockApiClient({
-        //         getCurrentUser: getMockUserDetails
+        //         getCurrentUser: () => {console.log(">>>>"); return null},
+        //         validateOAuth: () => Promise.resolve(getMockUserDetails())
         //     })
 
+        //     mockKeyClock({
+        //         init: (props:any) => {
+        //             baseRouter.state.location.hash = "code=200&state=OK&session_state=12345"
+        //             //baseRouter.navigate(0)
+        //             // baseRouter.navigate( {
+        //             //     pathname: "/login",
+        //             //     hash: "code=200&state=OK&session_state=12345",
+        //             //     search: "test=true"
+        //             // })
+        //         }
+        //     })
+
+        //     // await act(() => {
+               
+        //     // })
+        //     const compo = render(getAuthCheckerComponent())
+
+        //      await waitFor(() => {
+        //          expect(location.pathname).toEqual("/login")
+        //          expect(screen.getByText("Sign-In with KeyCloak")).toBeTruthy()
+        //      })
+
+        //      await act(() => {
+        //         fireEvent.click(screen.getByText('Sign-In with KeyCloak'));
+        //     })
+            
         //     await act(() => {
-        //        render(getAuthCheckerComponent())
+
+        //         render(getAuthCheckerComponent())
         //     })
 
-        //     await waitFor(() => {
+        //      await waitFor(() => {
         //         expect(location.pathname).toEqual("/")
         //         //TODO
         //     })
-        // })
+
+        // }, 60000)
+    
+        it("Renders page directly, if user is logged in", async () => {
+            mockApiClient({
+                getCurrentUser: getMockUserDetails
+            })
+
+            await act(() => {
+               render(getAuthCheckerComponent())
+            })
+
+            await waitFor(() => {
+                expect(location.pathname).toEqual("/")
+                //TODO
+            })
+        })
     })
     
 })

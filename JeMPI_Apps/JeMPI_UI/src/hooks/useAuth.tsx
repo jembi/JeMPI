@@ -97,7 +97,11 @@ export const AuthChecker =  ({ children }: AuthProviderProps): JSX.Element => {
 
 
   if (config.useSso && authContext.isLoading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner id = "user-loading-spinner"/>
+  }
+
+  if (config.useSso && !authContext.isLoading && !authContext.isAuthenticated && !isLoginPage){
+    return <div>TODO</div>
   }
 
   return (
@@ -144,9 +148,9 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     }
   })
 
-
-  const setUser = (data: User | undefined) =>
+  const setUser = (data: User | undefined) => {
     queryClient.setQueryData([key], data)
+  }   
 
   const signInWithKeyCloak = () => {
     keycloak.init({

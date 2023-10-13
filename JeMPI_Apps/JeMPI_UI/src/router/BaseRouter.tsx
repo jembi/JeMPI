@@ -1,4 +1,4 @@
-import { Login } from '@mui/icons-material'
+
 import BrowseRecords from 'components/browseRecords/BrowseRecords'
 import NotFound from 'components/error/NotFound'
 import Import from 'components/import/Import'
@@ -10,6 +10,7 @@ import Root from 'components/shell/Root'
 import CustomSearch from 'components/customSearch/CustomSearch'
 import SimpleSearch from 'components/search/SimpleSearch'
 import SearchResult from 'components/searchResult/SearchResult'
+import Login from 'components/user/Login'
 
 const baseRouter = createBrowserRouter([
   { path: 'login', element: <Login /> },
