@@ -12,7 +12,7 @@
     "lint:fix": "eslint ./src/ --ext ts,js,tsx,jsx --fix",
     "format": "prettier 'src/**/*.{js,jsx,ts,tsx,json,css}' --write",
     "type-check": "tsc",
-    "mock:startJeMPIServer": "npx ts-node ./tests/test.utils/mocks/enviroments/MockJeMPI_API/MockJeMPI_API.ts",
+    "mock:startJeMPIServer": "npx ts-node  --compilerOptions '{\"module\":\"commonjs\"}' ./tests/test.utils/mocks/enviroments/MockJeMPI_API/MockJeMPI_API.ts",
     "mock:startKeyclockServer": "echo 'startKeyclockServer'",
     "mock:enviroments": "npm run mock:startKeyclockServer && npm run mock:startJeMPIServer"
   },
