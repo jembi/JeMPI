@@ -160,11 +160,23 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     })
   }
   
+  // No need to display this, as we redirect user to the login page, if that is the case
+  const filterForbiddenErrors = (error:any) => {
+    if (!error){
+      return null
+    }
+    if (error instanceof AxiosError){
+      if (error.response?.status == 403){
+        return null
+      }
+    }
+    return error
+  }
 
   const authContextValue: AuthContextValue = {
     user,
     isAuthenticated: !!user,
-    error,
+    error: filterForbiddenErrors(error),
     setUser,
     refetchUser: refetch,
     logout: (navigate:NavigateFunction) => { logout(navigate) } ,

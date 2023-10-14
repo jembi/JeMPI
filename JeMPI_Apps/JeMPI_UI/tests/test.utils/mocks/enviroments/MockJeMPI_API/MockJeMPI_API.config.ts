@@ -6,7 +6,7 @@ export const SERVER_MEMORY = {}
 const endpoints:IMockEndpointConfig = {
     [ROUTES.CURRENT_USER]: {
         GET:  (req:any) => { return {
-            status: 200,
+            status: 403,
             data: {}
         }}
     },

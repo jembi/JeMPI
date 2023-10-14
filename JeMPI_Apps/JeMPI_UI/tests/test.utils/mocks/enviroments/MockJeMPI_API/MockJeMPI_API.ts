@@ -20,11 +20,13 @@ class MockJeMPIAPIServer {
     server:Server 
     serverPort:number
     serverBase:string
+    appUrl:string
 
-    constructor(extendingConfig:IMockEndpointConfig){
+    constructor(extendingConfig:IMockEndpointConfig, appPort:number){
         this.server =this.CreateMockServer(extendingConfig)
         const parsedUrl = new URL(config.apiUrl);
         this.serverPort = parseInt(parsedUrl.port)
+        this.appUrl = `http://localhost:${appPort}`
         this.serverBase = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
     }
 
@@ -34,7 +36,7 @@ class MockJeMPIAPIServer {
                 "access-control-allow-credentials": "true",
                 "access-control-allow-headers": 'x-xsrf-token',
                 "access-control-allow-methods": 'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-                "access-control-allow-origin": 'http://localhost:8081'
+                "access-control-allow-origin": this.appUrl
             }
         }
 
@@ -130,95 +132,50 @@ class MockJeMPIAPIServer {
 
     StartServer(){
         this.server.listen(this.serverPort, () => {
-            console.log(`Proxy server is running on port ${this.serverPort}`);
+            console.log(`Proxy server is running on port ${this.serverPort}. Accepting requesting from ${this.appUrl}`);
           });
     }
 }
 
-let fullPath:string = ""
-if (process.argv.length > 2 ){
-    const potentialPath:string = process.argv[2]
-    let potentialFullPath:string = path.isAbsolute(potentialPath) ? potentialPath : path.resolve(__dirname, potentialPath )
 
-    if (!fs.existsSync(potentialFullPath)){
-        console.error(`The file path ${potentialFullPath} does not exist`)
+let fullPath:string = ""
+let appPort:number
+
+const loadConfigFile = () => {
+    if(process.argv.length > 3 ){
+        const potentialPath:string = process.argv[3]
+        let potentialFullPath:string = path.isAbsolute(potentialPath) ? potentialPath : path.resolve(__dirname, potentialPath )
+    
+        if (!fs.existsSync(potentialFullPath)){
+            console.error(`The file path ${potentialFullPath} does not exist`)
+        }
+        else{
+            fullPath = potentialFullPath
+        }
     }
     else{
-        fullPath = potentialFullPath
+        fullPath = path.resolve(__dirname, "./MockJeMPI_API.config")
     }
 }
-else{
-    fullPath = path.resolve(__dirname, "./MockJeMPI_API.config")
+const startServer = () => {
+    new MockJeMPIAPIServer(require(fullPath).default, appPort).StartServer()
 }
 
-new MockJeMPIAPIServer(require(fullPath).default).StartServer()
-
-// const config:IMockEndpointConfig = require(fullPath).default
-
-// const server = http.createServer(async (req:any, res:any) => {
-//     try {
-
-//         if (req.method === "OPTIONS") {
-//             res.writeHead(204, {
-//                 'Access-Control-Allow-Credentials': true,
-//                 'Access-Control-Allow-Origin': 'http://localhost:8081',
-//                 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-//                 'Access-Control-Max-Age': 2592000,
-//                 'Access-Control-Allow-Headers': 'x-xsrf-token'
-//             });
-//             res.end();
-//             return
-//           }
-
-//        console.log(req.url)
-//        console.log(req)
-//        let response:any =null
-//        if (req.url in config){
-//         if (req.method in config[req.url]){
-//           const responseToUse = config[req.url][req.method]
-//           response = {
-//             status: responseToUse.status || 200,
-//             headers: responseToUse.headers || {},
-//             data: responseToUse.func(req)
-//           }
-//         }
-//        }
-
-//        if (!response){
-//           response = await moxios({
-//             method: req.method,
-//             url: req.url,
-//             headers: req.headers,
-//             data: req.method === 'POST' || req.method === 'PUT' ? req.body : null,
-//           });
-//        }
-
-       
-//        res.writeHead(response.status, 
-//                     {...response.headers,
-//                         'Access-Control-Allow-Credentials': true,
-//                         'Access-Control-Allow-Origin': 'http://localhost:8081',
-//                         'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-//                         'Access-Control-Max-Age': 2592000,
-//                         'Access-Control-Allow-Headers': 'x-xsrf-token'
-//                     });
-
-        
-//         res.end(JSON.stringify(response.data));
-//       } catch (error:any) {
-//         res.writeHead(500, {'Content-Type': 'text/json',
-//         'Access-Control-Allow-Credentials': true,
-//         'Access-Control-Allow-Origin': 'http://localhost:8081',
-//         'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
-//         'Access-Control-Max-Age': 2592000,
-//         'Access-Control-Allow-Headers': 'x-xsrf-token'});
-//         res.end(JSON.stringify({ error: 'Internal Server Error'+error.message }));
-//       }
-// });
-
-// const PORT = 50000;
-
-// server.listen(PORT, () => {
-//   console.log(`Proxy server is running on port ${PORT}`);
-// });
-
+if (process.argv.length > 2){
+    appPort = parseInt(process.argv[2])
+    loadConfigFile()
+    startServer()
+}
+else{
+    const readline = require('readline').createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+      
+    readline.question('What port is JeMPI app running on? ', port => {
+        appPort = parseInt(port)
+        readline.close();
+        loadConfigFile()
+        startServer()
+    });
+}

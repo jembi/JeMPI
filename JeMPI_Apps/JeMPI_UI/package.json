@@ -11,7 +11,10 @@
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "lint:fix": "eslint ./src/ --ext ts,js,tsx,jsx --fix",
     "format": "prettier 'src/**/*.{js,jsx,ts,tsx,json,css}' --write",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "mock:startJeMPIServer": "npx ts-node ./tests/test.utils/mocks/enviroments/MockJeMPI_API/MockJeMPI_API.ts",
+    "mock:startKeyclockServer": "echo 'startKeyclockServer'",
+    "mock:enviroments": "npm run mock:startKeyclockServer && npm run mock:startJeMPIServer"
   },
   "dependencies": {
     "axios": "^1.1.3",
@@ -60,10 +63,12 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "jest-fetch-mock": "^3.0.3",
     "lint-staged": "^13.1.1",
     "prettier": "^2.8.4",
+    "process": "^0.11.10",
     "ts-jest": "^29.1.1",
-    "jest-fetch-mock": "^3.0.3"
+    "ts-node": "^10.9.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
