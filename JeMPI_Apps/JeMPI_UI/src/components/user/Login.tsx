@@ -93,7 +93,7 @@ const LoginPage = () => {
   )
 }
 
-export default () => {
+const login = () => {
   return (
     <AuthChecker>
       <LoginPage></LoginPage>
@@ -101,3 +101,5 @@ export default () => {
     
   )
 } 
+
+export default login
