@@ -1,0 +1,1 @@
+docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -v $(pwd)/realm-config:/realm-config  -e KEYCLOAK_ADMIN_PASSWORD=admin  -e KEYCLOAK_IMPORT=/realm-config/sample-realm.json quay.io/keycloak/keycloak:22.0.4 start-dev

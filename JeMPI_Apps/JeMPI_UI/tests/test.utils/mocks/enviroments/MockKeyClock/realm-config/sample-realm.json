@@ -1,0 +1,31 @@
+{
+    "realm": "platform-realm",
+    "clients": [
+      {
+        "clientId": "jempi-oauth",
+        "enabled": true,
+        "publicClient": false,
+        "directAccessGrantsEnabled": true,
+        "redirectUris": [],
+        "webOrigins": [],
+        "defaultRoles": ["user"]
+      }
+    ],
+    "users": [
+      {
+        "username": "test",
+        "enabled": true,
+        "credentials": [
+          {
+            "type": "password",
+            "value": "test",
+            "temporary": false
+          }
+        ]
+      }
+    ]
+  }
+  
+  
+  
+  
