@@ -11,10 +11,12 @@ const endpoints:IMockEndpointConfig = {
         }}
     },
     [ROUTES.VALIDATE_OAUTH]: {
-        POST: (req:any) => { return {
-            status: 200,
-            data: {}
-        }}
+        POST: (req:any) => { 
+            return {
+                status: 200,
+                data: {}
+            }
+        }
     }
 }
 

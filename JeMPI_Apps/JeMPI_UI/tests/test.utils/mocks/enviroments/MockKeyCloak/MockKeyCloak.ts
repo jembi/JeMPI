@@ -47,7 +47,7 @@ class MockKeyCloack {
     }
 
     GetUsers(){
-        return  [{username: "admin", password: "password"}, ...this.addtionalUser].map(v => {
+        return  [{username: "admin", password: "admin"}, ...this.addtionalUser].map(v => {
             return {
                 username: v.username,
                 enabled: true,
