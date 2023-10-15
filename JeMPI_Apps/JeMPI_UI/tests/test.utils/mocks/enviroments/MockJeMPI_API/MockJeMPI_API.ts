@@ -34,7 +34,7 @@ class MockJeMPIAPIServer {
         const getCorsHeader = () =>{
             return {
                 "access-control-allow-credentials": "true",
-                "access-control-allow-headers": 'x-xsrf-token',
+                "access-control-allow-headers": 'origin, x-requested-with, content-type, accept, authorization, if-match, if-none-match, if-modified-since, if-unmodified-since, cache-control, x-xsrf-token',
                 "access-control-allow-methods": 'GET, POST, PUT, PATCH, POST, DELETE, OPTIONS',
                 "access-control-allow-origin": this.appUrl
             }
