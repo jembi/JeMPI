@@ -10,15 +10,12 @@ const axiosInstance = axios.create({
 })
 
 // Add a request interceptor to set CSRF and update loading state
-axiosInstance.interceptors.request.use(request => {
+axiosInstance.interceptors.request.use((request )=> {
   const { method } = request
   if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
     const csrfToken = getCookie('XSRF-TOKEN')
     if (csrfToken) {
-      request.headers = {
-        ...request.headers,
-        ['X-XSRF-TOKEN']: csrfToken
-      }
+      request.headers['X-XSRF-TOKEN'] = csrfToken
     }
   }
   return request
