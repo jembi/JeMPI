@@ -4,7 +4,7 @@ Mock Keycloak Server
 **Please note: The mock server requires docker to run**
 
 This mock server mock keycloak, running its in memeory database (`KEYCLOAK_DATABASE_VENDOR=dev-mem`)
-By default it adds the user `admin`, with the password `admin`, but you can add additional user by passing a 
+By default it adds the user `user1`, with the password `user1`, but you can add additional user by passing a 
 user config file (example of this is below).
 By default it uses the config file `./keycloakUsers.json` found in this directory
 

@@ -90,6 +90,12 @@ class MockJeMPIAPIServer {
             res.end(JSON.stringify(response.data));
         }
 
+        const sendErrorResponse = (res:ServerResponse, err:any) => {
+            res.writeHead(httpsStatusCodes.HTTP_STATUS_INTERNAL_SERVER_ERROR, http.STATUS_CODES[httpsStatusCodes.HTTP_STATUS_INTERNAL_SERVER_ERROR], this.GetBaseHeaders())
+            res.end(JSON.stringify({ error: 'Internal Server Error', 
+                                     message: err }));
+        }
+
         return http.createServer(async (req:IncomingMessage | any , res:ServerResponse ) => {
             try{
                 console.log(`Processing url '${req.url}'. Method '${req.method}'`)
@@ -111,20 +117,24 @@ class MockJeMPIAPIServer {
                     const updatedUrl = getUpdatedUrl(req.url)
                     console.log(`-> Parsed url '${updatedUrl}'.`)
     
-                    let response = await getResponseFromEndpointConfig(req, updatedUrl)
-                    if (!response){
-                        response = await getResponseFromMoxios(req, updatedUrl)
+                    try{
+                        let response = await getResponseFromEndpointConfig(req, updatedUrl)
+                        if (!response){
+                            response = await getResponseFromMoxios(req, updatedUrl)
+                        }
+                        sendResponse(res, response)
+                    }
+                    catch(err:any){
+                        sendErrorResponse(res, err)
                     }
         
-                    sendResponse(res, response)
+                    
                 });
     
                 
             }
             catch(err:any){
-                res.writeHead(httpsStatusCodes.HTTP_STATUS_INTERNAL_SERVER_ERROR, http.STATUS_CODES[httpsStatusCodes.HTTP_STATUS_INTERNAL_SERVER_ERROR], this.GetBaseHeaders())
-                res.end(JSON.stringify({ error: 'Internal Server Error', 
-                                         message: err }));
+                sendErrorResponse(res, err)
             }
             
         })
