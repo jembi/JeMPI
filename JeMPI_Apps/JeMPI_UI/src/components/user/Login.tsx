@@ -98,8 +98,7 @@ const login = () => {
     <AuthChecker>
       <LoginPage></LoginPage>
     </AuthChecker>
-    
   )
-} 
+}
 
 export default login

@@ -22,7 +22,7 @@ export interface AuthContextValue {
   user: User | undefined
   isAuthenticated: boolean
   setUser: (data: User | undefined) => void
-  logout: (navigate:NavigateFunction) => void
+  logout: (navigate: NavigateFunction) => void
   signInWithKeyCloak: () => void
   refetchUser: (
     options?: RefetchOptions | undefined
@@ -38,9 +38,7 @@ export interface AuthProviderProps {
   children: React.ReactNode
 }
 
-
-export const AuthChecker =  ({ children }: AuthProviderProps): JSX.Element => {
-
+export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
   const authContext = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -95,12 +93,16 @@ export const AuthChecker =  ({ children }: AuthProviderProps): JSX.Element => {
     [authContext.isLoading] //TODO: Check
   )
 
-
   if (config.useSso && authContext.isLoading) {
-    return <LoadingSpinner id = "user-loading-spinner"/>
+    return <LoadingSpinner id="user-loading-spinner" />
   }
 
-  if (config.useSso && !authContext.isLoading && !authContext.isAuthenticated && !isLoginPage){
+  if (
+    config.useSso &&
+    !authContext.isLoading &&
+    !authContext.isAuthenticated &&
+    !isLoginPage
+  ) {
     return <div>TODO</div>
   }
 
@@ -112,13 +114,10 @@ export const AuthChecker =  ({ children }: AuthProviderProps): JSX.Element => {
   )
 }
 
-
 export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const queryClient = useQueryClient()
   const { enqueueSnackbar } = useSnackbar()
   const key = 'auth-user'
-  const currentUrl = window.location.href
-
 
   const {
     data: user,
@@ -137,7 +136,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 
   const { mutate: logout } = useMutation({
     mutationFn: ApiClient.logout,
-    onSuccess(data:any, navigate:any) {
+    onSuccess(data: any, navigate: any) {
       queryClient.clear()
       navigate({ pathname: '/login' })
     },
@@ -150,23 +149,23 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 
   const setUser = (data: User | undefined) => {
     queryClient.setQueryData([key], data)
-  }   
+  }
 
   const signInWithKeyCloak = () => {
     keycloak.init({
       onLoad: 'login-required',
-      redirectUri: currentUrl,
+      redirectUri: window.location.href,
       checkLoginIframe: false
     })
   }
-  
+
   // No need to display this, as we redirect user to the login page, if that is the case
-  const filterForbiddenErrors = (error:any) => {
-    if (!error){
+  const filterForbiddenErrors = (error: any) => {
+    if (!error) {
       return null
     }
-    if (error instanceof AxiosError){
-      if (error.response?.status == 403){
+    if (error instanceof AxiosError) {
+      if (error.response?.status == 403) {
         return null
       }
     }
@@ -179,9 +178,11 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     error: filterForbiddenErrors(error),
     setUser,
     refetchUser: refetch,
-    logout: (navigate:NavigateFunction) => { logout(navigate) } ,
+    logout: (navigate: NavigateFunction) => {
+      logout(navigate)
+    },
     signInWithKeyCloak,
-    isLoading,
+    isLoading
   }
 
   return (
