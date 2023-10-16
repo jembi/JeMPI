@@ -103,7 +103,10 @@ export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
     !authContext.isAuthenticated &&
     !isLoginPage
   ) {
-    return <div>TODO</div>
+    return (<React.Fragment>
+            {authContext.error && <ApiErrorMessage error={authContext.error} />}
+            <LoadingSpinner id="user-loading-spinner" />
+          </React.Fragment>)
   }
 
   return (
