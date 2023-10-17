@@ -22,7 +22,8 @@ final class CustomLinkerDeterministic {
    static boolean canApplyLinking(
          final CustomDemographicData interaction) {
       return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
-             || StringUtils.isNotBlank(interaction.nationalId)
+             || StringUtils.isNotBlank(interaction.phn)
+             || StringUtils.isNotBlank(interaction.nic)
              || StringUtils.isNotBlank(interaction.givenName)
              && StringUtils.isNotBlank(interaction.familyName)
              && StringUtils.isNotBlank(interaction.phoneNumber);
@@ -31,9 +32,14 @@ final class CustomLinkerDeterministic {
    static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
-      final var nationalIdL = goldenRecord.nationalId;
-      final var nationalIdR = interaction.nationalId;
-      if (isMatch(nationalIdL, nationalIdR)) {
+      final var phnL = goldenRecord.phn;
+      final var phnR = interaction.phn;
+      if (isMatch(phnL, phnR)) {
+         return true;
+      }
+      final var nicL = goldenRecord.nic;
+      final var nicR = interaction.nic;
+      if (isMatch(nicL, nicR)) {
          return true;
       }
       final var givenNameL = goldenRecord.givenName;

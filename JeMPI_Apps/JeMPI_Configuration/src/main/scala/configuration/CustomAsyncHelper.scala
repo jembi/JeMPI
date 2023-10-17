@@ -72,15 +72,20 @@ private object CustomAsyncHelper {
         +
         config
           .demographicFields
+          .filter(f => f.source.isDefined && f.source.get.csvCol.isDefined)
           .map(f =>
-            s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get};""")
+            s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.source.get.csvCol.get};""")
           .mkString("\n")
     end columnIndices
 
     def demographicFields(): String =
       config
         .demographicFields
-        .map(f => s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),""")
+        .map(f => if (f.source.isDefined && f.source.get.generate.isDefined) {
+          s"""${" " * 9}null,"""
+        } else {
+          s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),"""
+        })
         .mkString("\n")
         .dropRight(1)
     end demographicFields

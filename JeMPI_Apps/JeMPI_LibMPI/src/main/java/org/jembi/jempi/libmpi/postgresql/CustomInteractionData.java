@@ -11,7 +11,10 @@ final class CustomInteractionData extends CustomDemographicData implements NodeD
             customDemographicData.dob,
             customDemographicData.city,
             customDemographicData.phoneNumber,
-            customDemographicData.nationalId);
+            customDemographicData.phn,
+            customDemographicData.nic,
+            customDemographicData.myGoldenIdA,
+            customDemographicData.myGoldenIdB);
    }
 
 }

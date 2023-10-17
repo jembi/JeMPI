@@ -30,7 +30,10 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.dob>                           %s                    .
                            _:%s  <Interaction.city>                          %s                    .
                            _:%s  <Interaction.phone_number>                  %s                    .
-                           _:%s  <Interaction.national_id>                   %s                    .
+                           _:%s  <Interaction.phn>                           %s                    .
+                           _:%s  <Interaction.nic>                           %s                    .
+                           _:%s  <Interaction.my_golden_id_a>                %s                    .
+                           _:%s  <Interaction.my_golden_id_b>                %s                    .
                            _:%s  <dgraph.type>                               "Interaction"         .
                            """,
                            uuid, sourceUID,
@@ -43,7 +46,10 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.dob),
                            uuid, AppUtils.quotedValue(demographicData.city),
                            uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.phn),
+                           uuid, AppUtils.quotedValue(demographicData.nic),
+                           uuid, AppUtils.quotedValue(demographicData.myGoldenIdA),
+                           uuid, AppUtils.quotedValue(demographicData.myGoldenIdB),
                            uuid);
    }
 
@@ -66,7 +72,10 @@ final class CustomDgraphMutations {
                            _:%s  <GoldenRecord.dob>                           %s                    .
                            _:%s  <GoldenRecord.city>                          %s                    .
                            _:%s  <GoldenRecord.phone_number>                  %s                    .
-                           _:%s  <GoldenRecord.national_id>                   %s                    .
+                           _:%s  <GoldenRecord.phn>                           %s                    .
+                           _:%s  <GoldenRecord.nic>                           %s                    .
+                           _:%s  <GoldenRecord.my_golden_id_a>                %s                    .
+                           _:%s  <GoldenRecord.my_golden_id_b>                %s                    .
                            _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
                            _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
@@ -80,7 +89,10 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.dob),
                            uuid, AppUtils.quotedValue(demographicData.city),
                            uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.phn),
+                           uuid, AppUtils.quotedValue(demographicData.nic),
+                           uuid, AppUtils.quotedValue(demographicData.myGoldenIdA),
+                           uuid, AppUtils.quotedValue(demographicData.myGoldenIdB),
                            uuid, interactionUID, score,
                            uuid);
    }
