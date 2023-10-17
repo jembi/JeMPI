@@ -68,7 +68,7 @@ export API_RAM_LIMIT="16G"
 export UI_RAM_LIMIT="16G"
 
 #UI env vars
-export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
+export REACT_APP_JEMPI_BASE_URL=http://localhost:50000/JeMPI
 export REACT_APP_MOCK_BACKEND="false"
 export REACT_APP_ENABLE_SSO="false"
 
