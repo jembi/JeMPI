@@ -343,7 +343,7 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
             settings,
             () -> randomTokenCsrfProtection(
                   checkHeader,
-                  () -> pathPrefix("JeMPI",
+                  () -> pathPrefix("jempi",
                                    () -> concat(
                                          createJeMPIRoutes(actorSystem, backEnd),
                                          post(() -> path(GlobalConstants.SEGMENT_VALIDATE_OAUTH,

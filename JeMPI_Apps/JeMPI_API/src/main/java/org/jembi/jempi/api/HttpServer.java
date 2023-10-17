@@ -142,7 +142,7 @@ public final class HttpServer extends AllDirectives {
          final ActorRef<BackEnd.Event> backEnd,
          final String jsonFields) {
       final var settings = CorsSettings.create(AppConfig.CONFIG);
-      return cors(settings, () -> pathPrefix("JeMPI", () -> createJeMPIRoutes(actorSystem, backEnd, jsonFields)));
+      return cors(settings, () -> pathPrefix("jempi", () -> createJeMPIRoutes(actorSystem, backEnd, jsonFields)));
    }
 
 }
