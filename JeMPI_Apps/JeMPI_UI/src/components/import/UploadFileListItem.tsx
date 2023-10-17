@@ -81,7 +81,7 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
           variant="buffer"
           value={props.fileObj.progress}
           valueBuffer={100}
-        />{' '}
+        />
       </Grid>
     </Grid>
   )

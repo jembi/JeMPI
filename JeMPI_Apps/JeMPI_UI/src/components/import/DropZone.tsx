@@ -7,6 +7,7 @@ import {
   CardContent,
   Checkbox,
   Grid,
+  Slider,
   TextField,
   Typography
 } from '@mui/material'
@@ -31,6 +32,10 @@ const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
 )
 
 const DropZone: FC = () => {
+  const { enqueueSnackbar } = useSnackbar()
+  const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
+  const abortControllerRef = useRef<AbortController>(new AbortController())
+
   const {
     handleChange,
     handleSubmit,
@@ -45,15 +50,11 @@ const DropZone: FC = () => {
       windowSize: 0
     },
     onSubmit: () => {
-      if (fileObjs) {
+      if (fileObjs?.file) {
         uploadFileMutation.mutate(fileObjs)
       }
     }
   })
-
-  const { enqueueSnackbar } = useSnackbar()
-  const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
-  const abortControllerRef = useRef<AbortController>(new AbortController())
 
   const onDrop = (
     acceptedFiles: File[],
@@ -156,7 +157,7 @@ const DropZone: FC = () => {
     setFilesObj(undefined)
   }
 
-  const uploadList = (
+  const uploadList: JSX.Element = (
     <>
       {fileObjs && (
         <UploadFileListItem
@@ -209,19 +210,6 @@ const DropZone: FC = () => {
             >
               <Grid item xs={9}>
                 <Typography fontWeight="bold" fontSize="1rem">
-                  Generate Report:
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Checkbox
-                  name="reporting"
-                  checked={FormValues.reporting}
-                  value={FormValues.reporting}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={9}>
-                <Typography fontWeight="bold" fontSize="1rem">
                   Compute M&U before linking:
                 </Typography>
               </Grid>
@@ -238,7 +226,18 @@ const DropZone: FC = () => {
                   Linking:
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                <Slider
+                  value={FormValues.leftMargin}
+                  onChange={handleChange}
+                  getAriaValueText={(e: number) => e.toString()}
+                  valueLabelDisplay="auto"
+                  name="leftMargin"
+                  step={0.1}
+                  marks
+                  min={0}
+                  max={1}
+                />
                 <TextField
                   name="leftMargin"
                   type="number"
@@ -251,7 +250,18 @@ const DropZone: FC = () => {
                   fullWidth
                 />
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                <Slider
+                  value={FormValues.threshold}
+                  onChange={handleChange}
+                  getAriaValueText={(e: number) => e.toString()}
+                  valueLabelDisplay="auto"
+                  name="threshold"
+                  step={0.1}
+                  marks
+                  min={0}
+                  max={1}
+                />
                 <TextField
                   name="threshold"
                   type="number"
@@ -260,11 +270,22 @@ const DropZone: FC = () => {
                   label="Threshold"
                   value={FormValues.threshold}
                   onChange={handleChange}
-                  inputProps={{ min: 0, max: 100, step: 0.01 }}
+                  inputProps={{ min: 0, max: 1, step: 0.01 }}
                   fullWidth
                 />
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                <Slider
+                  value={FormValues.rightMargin}
+                  getAriaValueText={(e: number) => e.toString()}
+                  valueLabelDisplay="auto"
+                  onChange={handleChange}
+                  name="rightMargin"
+                  step={0.1}
+                  marks
+                  min={0}
+                  max={1}
+                />
                 <TextField
                   name="rightMargin"
                   type="number"
@@ -273,7 +294,7 @@ const DropZone: FC = () => {
                   label="Notification right margin"
                   value={FormValues.rightMargin}
                   onChange={handleChange}
-                  inputProps={{ min: 0, max: 100, step: 0.01 }}
+                  inputProps={{ min: 0, max: 1, step: 0.01 }}
                   fullWidth
                 />
               </Grid>
@@ -283,6 +304,17 @@ const DropZone: FC = () => {
                 </Typography>
               </Grid>
               <Grid item xs={12} md={4}>
+                <Slider
+                  value={FormValues.windowSize}
+                  getAriaValueText={(e: number) => e.toString()}
+                  valueLabelDisplay="auto"
+                  onChange={handleChange}
+                  name="windowSize"
+                  step={0.1}
+                  marks
+                  min={0}
+                  max={1}
+                />
                 <TextField
                   name="windowSize"
                   type="number"
@@ -293,6 +325,19 @@ const DropZone: FC = () => {
                   onChange={handleChange}
                   inputProps={{ min: 0, max: 100, step: 0.01 }}
                   fullWidth
+                />
+              </Grid>
+              <Grid item xs={9}>
+                <Typography fontWeight="bold" fontSize="1rem">
+                  Generate Report:
+                </Typography>
+              </Grid>
+              <Grid item xs={3}>
+                <Checkbox
+                  name="reporting"
+                  checked={FormValues.reporting}
+                  value={FormValues.reporting}
+                  onChange={handleChange}
                 />
               </Grid>
             </Grid>
