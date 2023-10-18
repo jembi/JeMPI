@@ -6,6 +6,7 @@ target
 deprecated
 *.json
 kenya
+!srilanka/*
 !openmrs/*
 !reference/*
 

@@ -1,0 +1,194 @@
+{
+  "uniqueInteractionFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "csvCol": 0
+    },
+    {
+      "fieldName": "aux_clinical_data",
+      "fieldType": "String",
+      "csvCol": 15
+    }
+  ],
+  "uniqueGoldenRecordFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_auto_update_enabled",
+      "fieldType": "Bool",
+      "default": "true"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String"
+    }
+  ],
+  "additionalNodes": [
+    {
+      "nodeName": "SourceId",
+      "fields": [
+        {
+          "fieldName": "facility",
+          "fieldType": "String",
+          "csvCol": 13
+        },
+        {
+          "fieldName": "patient",
+          "fieldType": "String",
+          "csvCol": 14
+        }
+      ]
+    }
+  ],
+  "demographicFields": [
+    {
+      "fieldName": "given_name",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 1
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    },
+    {
+      "fieldName": "family_name",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 2
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 3
+      },
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 4
+      }
+    },
+    {
+      "fieldName": "city",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 5
+      },
+      "indexGoldenRecord": "@index(trigram)"
+    },
+    {
+      "fieldName": "phone_number_home",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 6
+      },
+      "indexGoldenRecord": "@index(exact,trigram)"
+    },
+    {
+      "fieldName": "phone_number_mobile",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 7
+      },
+      "indexGoldenRecord": "@index(exact,trigram)"
+    },
+    {
+      "fieldName": "phn",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 8
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    },
+    {
+      "fieldName": "nic",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 9
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    },
+    {
+      "fieldName": "ppn",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 10
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    },
+    
+    {
+      "fieldName": "scn",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 11
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    },    
+    {
+      "fieldName": "dl",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 12
+      },
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
+    }
+  ],
+  "rules": {
+    "link": {
+      "deterministic": {
+        "QUERY_LINK_DETERMINISTIC_A": {
+          "vars": [
+            "phn"
+          ],
+          "text": "eq(phn)"
+        },
+        "QUERY_LINK_DETERMINISTIC_B": {
+          "vars": [
+            "nic"
+          ],
+          "text": "eq(nic)"
+        },
+        "QUERY_LINK_DETERMINISTIC_C": {
+          "vars": [
+            "ppn"
+          ],
+          "text": "eq(ppn)"
+        },
+        "QUERY_LINK_DETERMINISTIC_D": {
+          "vars": [
+            "scn"
+          ],
+          "text": "eq(scn)"
+        },
+        "QUERY_LINK_DETERMINISTIC_E": {
+          "vars": [
+            "given_name",
+            "family_name",
+            "phone_number_mobile",
+            "phone_number_home"
+          ],
+          "text": "eq(given_name) and eq(family_name) and (eq(phone_number_mobile) or eq(phone_number_home))"
+        }
+      }
+    }
+  }
+}
