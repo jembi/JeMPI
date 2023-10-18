@@ -2,12 +2,30 @@ package org.jembi.jempi.linker.backend;
 
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public final class CustomLinkerBackEnd {
 
    private CustomLinkerBackEnd() {
+   }
+
+
+
+   public static Interaction applyAutoCreateFunctions(final Interaction interaction) {
+      return new Interaction(interaction.interactionId(),
+                             interaction.sourceId(),
+                             interaction.uniqueInteractionData(),
+                             new CustomDemographicData(interaction.demographicData().givenName,
+                                                       interaction.demographicData().familyName,
+                                                       interaction.demographicData().gender,
+                                                       interaction.demographicData().dob,
+                                                       interaction.demographicData().city,
+                                                       interaction.demographicData().phoneNumber,
+                                                       interaction.demographicData().nationalId));
    }
 
    static void updateGoldenRecordFields(

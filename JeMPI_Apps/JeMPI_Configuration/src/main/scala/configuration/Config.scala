@@ -16,13 +16,18 @@ case class AdditionalNodeField(fieldName: String,
 
 case class DemographicField(fieldName: String,
                             fieldType: String,
-                            csvCol: Option[Int],
                             isList: Option[Boolean],
+                            source: Option[Source],
                             indexGoldenRecord: Option[String],
                             indexInteraction: Option[String],
                             linkMetaData: Option[ProbabilisticMetaData],
                             validateMetaData: Option[ProbabilisticMetaData],
                             matchMetaData: Option[ProbabilisticMetaData])
+
+case class Source(generate: Option[Generate],
+                  csvCol: Option[Int])
+
+case class Generate(func: String)
 
 case class ProbabilisticMetaData(comparison: String,
                                  comparisonLevels: List[Double],
