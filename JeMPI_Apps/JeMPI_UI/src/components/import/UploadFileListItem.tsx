@@ -35,7 +35,7 @@ const UploadFileListItem: FC<FileObjProps> = (props: FileObjProps) => {
       </Grid>
       <Grid
         item
-        padding={'0.5rem'}
+        padding={'1.5rem'}
         xs={10}
         justifyContent="center"
         alignItems="center"

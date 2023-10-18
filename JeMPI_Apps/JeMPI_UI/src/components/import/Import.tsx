@@ -18,7 +18,7 @@ const Import = () => {
         description={'Import or submit Patient records to MPI'}
       />
       <Divider />
-      <Stack padding={{ lg: '1rem 1rem 1rem 1rem' }} sx={{ width: '100%' }}>
+      <Stack padding={{ lg: '0rem 1rem 1rem 1rem' }} sx={{ width: '100%' }}>
         <DropZone />
       </Stack>
     </Container>

@@ -6,7 +6,10 @@ import {
   CardActions,
   CardContent,
   Checkbox,
+  FormControlLabel,
   Grid,
+  Radio,
+  RadioGroup,
   Slider,
   TextField,
   Typography
@@ -39,15 +42,16 @@ const DropZone: FC = () => {
   const {
     handleChange,
     handleSubmit,
-    values: FormValues
+    values: FormValues,
+    setFieldValue
   } = useFormik({
     initialValues: {
       reporting: false,
       computing: false,
-      leftMargin: 0,
-      rightMargin: 0,
-      threshold: 0,
-      windowSize: 0
+      leftMargin: 0.2,
+      rightMargin: 0.6,
+      threshold: 0.9,
+      windowSize: 0.1
     },
     onSubmit: () => {
       if (fileObjs?.file) {
@@ -170,202 +174,297 @@ const DropZone: FC = () => {
   )
 
   return (
-    <>
-      <Card>
-        <CardContent sx={{ width: { xs: '100%', lg: '40%' } }}>
-          {!fileObjs?.file ? (
-            <Box
-              sx={{
-                padding: '2rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer'
-              }}
-              {...getRootProps()}
+    <Card>
+      <CardContent>
+        <Grid container direction="row" padding={3}>
+          <Grid item xs={12} lg={6}>
+            <form>
+              <Grid container alignItems="center">
+                <Grid item xs={9}>
+                  <Typography fontWeight="bold" fontSize="1rem" padding={1}>
+                    Machine Learning Configuration:
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    value="female"
+                    control={
+                      <Radio
+                        name="computing"
+                        checked={FormValues.computing}
+                        value={FormValues.computing}
+                        onChange={handleChange}
+                      />
+                    }
+                    label="Use current M & U's (computed periodically, only using the Client Registry)."
+                  />
+                  <FormControlLabel
+                    value="female"
+                    control={
+                      <Radio
+                        name="computing"
+                        checked={FormValues.computing}
+                        value={FormValues.computing}
+                        onChange={handleChange}
+                      />
+                    }
+                    label="Compute M & U values before linking, using the interactions from the input file."
+                  />
+                  <FormControlLabel
+                    value="female"
+                    control={
+                      <Radio
+                        name="computing"
+                        checked={FormValues.computing}
+                        value={FormValues.computing}
+                        onChange={handleChange}
+                      />
+                    }
+                    label="Compute M & U values before linking, using the interactions from the input file and the Client Registry."
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography fontWeight="bold" fontSize="1rem">
+                    Threshold:
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sx={{ padding: '1rem' }}>
+                  <Slider
+                    onChange={(e: any) => {
+                      const [a, b, c] = [...e.target.value]
+                      if (0 < b && b < 1) {
+                        setFieldValue('threshold', b)
+                      }
+                      if (b > a) setFieldValue('leftMargin', a)
+
+                      if (b < c) setFieldValue('rightMargin', c)
+                    }}
+                    getAriaValueText={(e: number) => e.toString()}
+                    valueLabelDisplay="auto"
+                    step={0.05}
+                    marks
+                    min={0}
+                    max={1}
+                    value={[
+                      FormValues.leftMargin,
+                      FormValues.threshold,
+                      FormValues.rightMargin
+                    ]}
+                    defaultValue={[
+                      FormValues.leftMargin,
+                      FormValues.threshold,
+                      FormValues.rightMargin
+                    ]}
+                    sx={{
+                      '& .MuiSlider-thumb': {
+                        "&[data-index='0']": {
+                          backgroundColor: 'red'
+                        },
+                        "&[data-index='1']": {
+                          backgroundColor: 'green'
+                        }
+                      }
+                    }}
+                    track={false}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                  <TextField
+                    name="leftMargin"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Review Threshold Minimum"
+                    value={FormValues.leftMargin}
+                    onChange={e => {
+                      if (+e.target.value < FormValues.threshold) {
+                        handleChange(e)
+                      }
+                    }}
+                    inputProps={{
+                      min: 0,
+                      max: FormValues.threshold,
+                      step: 0.01
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'red' }
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                  <TextField
+                    name="threshold"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Link Threshold"
+                    value={FormValues.threshold}
+                    onChange={handleChange}
+                    inputProps={{ min: 0.1, max: 1, step: 0.01 }}
+                    InputLabelProps={{
+                      style: { color: 'green' }
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                  <TextField
+                    name="rightMargin"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Review Threshold Maximum"
+                    value={FormValues.rightMargin}
+                    onChange={e => {
+                      if (+e.target.value > FormValues.threshold) {
+                        handleChange(e)
+                      }
+                    }}
+                    inputProps={{ min: 0, max: 1, step: 0.01 }}
+                    InputLabelProps={{
+                      style: { color: '#1976D2' }
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Slider
+                    value={FormValues.windowSize}
+                    getAriaValueText={(e: number) => e.toString()}
+                    valueLabelDisplay="auto"
+                    onChange={handleChange}
+                    name="windowSize"
+                    step={0.01}
+                    marks
+                    min={0}
+                    max={0.2}
+                  />
+                  <TextField
+                    name="windowSize"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Margin Window size"
+                    value={FormValues.windowSize}
+                    onChange={handleChange}
+                    inputProps={{ min: 0, max: 100, step: 0.01 }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    fontWeight="bold"
+                    fontSize="1rem"
+                    id="import-report-radio"
+                  >
+                    Reports:
+                  </Typography>
+                  <RadioGroup
+                    aria-labelledby="import-report-radio"
+                    defaultValue="false"
+                    name="reporting"
+                  >
+                    <FormControlLabel
+                      value="false"
+                      control={<Radio />}
+                      label="Do not generate report, link records only"
+                    />
+                    <FormControlLabel
+                      value="true"
+                      control={<Radio />}
+                      label="Generate report"
+                    />
+                  </RadioGroup>
+                </Grid>
+              </Grid>
+            </form>
+          </Grid>
+          <Grid
+            item
+            container
+            xs={12}
+            lg={6}
+            padding={1}
+            direction={'column'}
+            gap={8}
+            sx={{
+              display: 'flex',
+              justifyContent: ' center',
+              alignItems: 'center'
+            }}
+          >
+            <Grid
+              item
+              xs={8}
               border={'2px dashed #305982 '}
               borderRadius={'1rem'}
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
             >
-              <input {...getInputProps()} />
-              <Avatar sx={{ bgcolor: '#305982' }}>
-                <UploadFileIcon />
-              </Avatar>
-              <Typography fontSize="1rem">
-                Click to upload or drag and drop
-              </Typography>
-              <Typography color="#00000099" fontSize="1rem">
-                CSV (max. {formatBytesSize(MAX_UPLOAD_FILE_SIZE_IN_BYTES)})
-              </Typography>
-            </Box>
-          ) : (
-            uploadList
-          )}
-          <form>
-            <Grid
-              container
-              spacing={2}
-              sx={{ marginTop: '1rem' }}
-              alignItems="center"
-            >
-              <Grid item xs={9}>
-                <Typography fontWeight="bold" fontSize="1rem">
-                  Compute M&U before linking:
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Checkbox
-                  name="computing"
-                  checked={FormValues.computing}
-                  value={FormValues.computing}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography fontWeight="bold" fontSize="1rem">
-                  Linking:
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
-                <Slider
-                  value={FormValues.leftMargin}
-                  onChange={handleChange}
-                  getAriaValueText={(e: number) => e.toString()}
-                  valueLabelDisplay="auto"
-                  name="leftMargin"
-                  step={0.1}
-                  marks
-                  min={0}
-                  max={1}
-                />
-                <TextField
-                  name="leftMargin"
-                  type="number"
-                  size="small"
-                  variant="outlined"
-                  label="Notification Left margin"
-                  value={FormValues.leftMargin}
-                  onChange={handleChange}
-                  inputProps={{ min: 0, max: 100, step: 0.01 }}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
-                <Slider
-                  value={FormValues.threshold}
-                  onChange={handleChange}
-                  getAriaValueText={(e: number) => e.toString()}
-                  valueLabelDisplay="auto"
-                  name="threshold"
-                  step={0.1}
-                  marks
-                  min={0}
-                  max={1}
-                />
-                <TextField
-                  name="threshold"
-                  type="number"
-                  size="small"
-                  variant="outlined"
-                  label="Threshold"
-                  value={FormValues.threshold}
-                  onChange={handleChange}
-                  inputProps={{ min: 0, max: 1, step: 0.01 }}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
-                <Slider
-                  value={FormValues.rightMargin}
-                  getAriaValueText={(e: number) => e.toString()}
-                  valueLabelDisplay="auto"
-                  onChange={handleChange}
-                  name="rightMargin"
-                  step={0.1}
-                  marks
-                  min={0}
-                  max={1}
-                />
-                <TextField
-                  name="rightMargin"
-                  type="number"
-                  size="small"
-                  variant="outlined"
-                  label="Notification right margin"
-                  value={FormValues.rightMargin}
-                  onChange={handleChange}
-                  inputProps={{ min: 0, max: 1, step: 0.01 }}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography fontWeight="bold" fontSize="1rem">
-                  Notification for similar Candidates:
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Slider
-                  value={FormValues.windowSize}
-                  getAriaValueText={(e: number) => e.toString()}
-                  valueLabelDisplay="auto"
-                  onChange={handleChange}
-                  name="windowSize"
-                  step={0.1}
-                  marks
-                  min={0}
-                  max={1}
-                />
-                <TextField
-                  name="windowSize"
-                  type="number"
-                  size="small"
-                  variant="outlined"
-                  label="Window size"
-                  value={FormValues.windowSize}
-                  onChange={handleChange}
-                  inputProps={{ min: 0, max: 100, step: 0.01 }}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={9}>
-                <Typography fontWeight="bold" fontSize="1rem">
-                  Generate Report:
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Checkbox
-                  name="reporting"
-                  checked={FormValues.reporting}
-                  value={FormValues.reporting}
-                  onChange={handleChange}
-                />
-              </Grid>
+              {!fileObjs?.file ? (
+                <Box
+                  sx={{
+                    padding: '3rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                  {...getRootProps()}
+                >
+                  <input {...getInputProps()} />
+                  <Avatar sx={{ bgcolor: '#305982' }}>
+                    <UploadFileIcon />
+                  </Avatar>
+                  <Typography fontSize="1rem">
+                    Click to upload or drag and drop
+                  </Typography>
+                  <Typography color="#00000099" fontSize="1rem">
+                    CSV (max. {formatBytesSize(MAX_UPLOAD_FILE_SIZE_IN_BYTES)})
+                  </Typography>
+                </Box>
+              ) : (
+                uploadList
+              )}
             </Grid>
-          </form>
-        </CardContent>
-        <CardActions sx={{ display: 'block', textAlign: 'center' }}>
-          <Button
-            variant="contained"
-            onClick={() => handleSubmit()}
-            disabled={
-              uploadFileMutation.isLoading ||
-              uploadFileMutation.isError ||
-              !fileObjs ||
-              fileObjs?.status === 'Failed'
-            }
-          >
-            Upload
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={handleCancel}
-            disabled={!fileObjs}
-          >
-            Cancel
-          </Button>
-        </CardActions>
-      </Card>
-    </>
+            <Grid item>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '2rem'
+                }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => handleSubmit()}
+                  disabled={
+                    uploadFileMutation.isLoading ||
+                    uploadFileMutation.isError ||
+                    !fileObjs ||
+                    fileObjs?.status === 'Failed'
+                  }
+                >
+                  Upload
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={handleCancel}
+                  disabled={!fileObjs}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </CardContent>
+      u
+    </Card>
   )
 }
 export default DropZone
