@@ -10,8 +10,13 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_GOLDEN_RECORD_GENDER = "GoldenRecord.gender";
    public static final String PREDICATE_GOLDEN_RECORD_DOB = "GoldenRecord.dob";
    public static final String PREDICATE_GOLDEN_RECORD_CITY = "GoldenRecord.city";
-   public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER = "GoldenRecord.phone_number";
-   public static final String PREDICATE_GOLDEN_RECORD_NATIONAL_ID = "GoldenRecord.national_id";
+   public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER_HOME = "GoldenRecord.phone_number_home";
+   public static final String PREDICATE_GOLDEN_RECORD_PHONE_NUMBER_MOBILE = "GoldenRecord.phone_number_mobile";
+   public static final String PREDICATE_GOLDEN_RECORD_PHN = "GoldenRecord.phn";
+   public static final String PREDICATE_GOLDEN_RECORD_NIC = "GoldenRecord.nic";
+   public static final String PREDICATE_GOLDEN_RECORD_PPN = "GoldenRecord.ppn";
+   public static final String PREDICATE_GOLDEN_RECORD_SCN = "GoldenRecord.scn";
+   public static final String PREDICATE_GOLDEN_RECORD_DL = "GoldenRecord.dl";
    public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
    public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
    public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
@@ -21,8 +26,13 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_INTERACTION_GENDER = "Interaction.gender";
    public static final String PREDICATE_INTERACTION_DOB = "Interaction.dob";
    public static final String PREDICATE_INTERACTION_CITY = "Interaction.city";
-   public static final String PREDICATE_INTERACTION_PHONE_NUMBER = "Interaction.phone_number";
-   public static final String PREDICATE_INTERACTION_NATIONAL_ID = "Interaction.national_id";
+   public static final String PREDICATE_INTERACTION_PHONE_NUMBER_HOME = "Interaction.phone_number_home";
+   public static final String PREDICATE_INTERACTION_PHONE_NUMBER_MOBILE = "Interaction.phone_number_mobile";
+   public static final String PREDICATE_INTERACTION_PHN = "Interaction.phn";
+   public static final String PREDICATE_INTERACTION_NIC = "Interaction.nic";
+   public static final String PREDICATE_INTERACTION_PPN = "Interaction.ppn";
+   public static final String PREDICATE_INTERACTION_SCN = "Interaction.scn";
+   public static final String PREDICATE_INTERACTION_DL = "Interaction.dl";
 
    static final String GOLDEN_RECORD_FIELD_NAMES =
          """
@@ -40,8 +50,13 @@ public final class CustomDgraphConstants {
          GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.city
-         GoldenRecord.phone_number
-         GoldenRecord.national_id
+         GoldenRecord.phone_number_home
+         GoldenRecord.phone_number_mobile
+         GoldenRecord.phn
+         GoldenRecord.nic
+         GoldenRecord.ppn
+         GoldenRecord.scn
+         GoldenRecord.dl
          """;
 
    static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
@@ -60,8 +75,13 @@ public final class CustomDgraphConstants {
          GoldenRecord.gender
          GoldenRecord.dob
          GoldenRecord.city
-         GoldenRecord.phone_number
-         GoldenRecord.national_id
+         GoldenRecord.phone_number_home
+         GoldenRecord.phone_number_mobile
+         GoldenRecord.phn
+         GoldenRecord.nic
+         GoldenRecord.ppn
+         GoldenRecord.scn
+         GoldenRecord.dl
          GoldenRecord.interactions @facets(score) {
             uid
             Interaction.source_id {
@@ -77,8 +97,13 @@ public final class CustomDgraphConstants {
             Interaction.gender
             Interaction.dob
             Interaction.city
-            Interaction.phone_number
-            Interaction.national_id
+            Interaction.phone_number_home
+            Interaction.phone_number_mobile
+            Interaction.phn
+            Interaction.nic
+            Interaction.ppn
+            Interaction.scn
+            Interaction.dl
          }
          """;
    static final String INTERACTION_FIELD_NAMES =
@@ -97,8 +122,13 @@ public final class CustomDgraphConstants {
          Interaction.gender
          Interaction.dob
          Interaction.city
-         Interaction.phone_number
-         Interaction.national_id
+         Interaction.phone_number_home
+         Interaction.phone_number_mobile
+         Interaction.phn
+         Interaction.nic
+         Interaction.ppn
+         Interaction.scn
+         Interaction.dl
          """;
 
    static final String EXPANDED_INTERACTION_FIELD_NAMES =
@@ -117,8 +147,13 @@ public final class CustomDgraphConstants {
          Interaction.gender
          Interaction.dob
          Interaction.city
-         Interaction.phone_number
-         Interaction.national_id
+         Interaction.phone_number_home
+         Interaction.phone_number_mobile
+         Interaction.phn
+         Interaction.nic
+         Interaction.ppn
+         Interaction.scn
+         Interaction.dl
          ~GoldenRecord.interactions @facets(score) {
             uid
             GoldenRecord.source_id {
@@ -134,8 +169,13 @@ public final class CustomDgraphConstants {
             GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.city
-            GoldenRecord.phone_number
-            GoldenRecord.national_id
+            GoldenRecord.phone_number_home
+            GoldenRecord.phone_number_mobile
+            GoldenRecord.phn
+            GoldenRecord.nic
+            GoldenRecord.ppn
+            GoldenRecord.scn
+            GoldenRecord.dl
          }
          """;
 
@@ -157,8 +197,13 @@ public final class CustomDgraphConstants {
                Interaction.gender
                Interaction.dob
                Interaction.city
-               Interaction.phone_number
-               Interaction.national_id
+               Interaction.phone_number_home
+               Interaction.phone_number_mobile
+               Interaction.phn
+               Interaction.nic
+               Interaction.ppn
+               Interaction.scn
+               Interaction.dl
             }
          }
          """;
@@ -181,8 +226,13 @@ public final class CustomDgraphConstants {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.phone_number_home
+               GoldenRecord.phone_number_mobile
+               GoldenRecord.phn
+               GoldenRecord.nic
+               GoldenRecord.ppn
+               GoldenRecord.scn
+               GoldenRecord.dl
             }
          }
          """;
@@ -205,8 +255,13 @@ public final class CustomDgraphConstants {
                Interaction.gender
                Interaction.dob
                Interaction.city
-               Interaction.phone_number
-               Interaction.national_id
+               Interaction.phone_number_home
+               Interaction.phone_number_mobile
+               Interaction.phn
+               Interaction.nic
+               Interaction.ppn
+               Interaction.scn
+               Interaction.dl
                ~GoldenRecord.interactions @facets(score) {
                   uid
                   GoldenRecord.source_id {
@@ -222,8 +277,13 @@ public final class CustomDgraphConstants {
                   GoldenRecord.gender
                   GoldenRecord.dob
                   GoldenRecord.city
-                  GoldenRecord.phone_number
-                  GoldenRecord.national_id
+                  GoldenRecord.phone_number_home
+                  GoldenRecord.phone_number_mobile
+                  GoldenRecord.phn
+                  GoldenRecord.nic
+                  GoldenRecord.ppn
+                  GoldenRecord.scn
+                  GoldenRecord.dl
                }
             }
          }
@@ -247,8 +307,13 @@ public final class CustomDgraphConstants {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.phone_number_home
+               GoldenRecord.phone_number_mobile
+               GoldenRecord.phn
+               GoldenRecord.nic
+               GoldenRecord.ppn
+               GoldenRecord.scn
+               GoldenRecord.dl
             }
          }
          """;
@@ -271,8 +336,13 @@ public final class CustomDgraphConstants {
                GoldenRecord.gender
                GoldenRecord.dob
                GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.phone_number_home
+               GoldenRecord.phone_number_mobile
+               GoldenRecord.phn
+               GoldenRecord.nic
+               GoldenRecord.ppn
+               GoldenRecord.scn
+               GoldenRecord.dl
                GoldenRecord.interactions @facets(score) {
                   uid
                   Interaction.source_id {
@@ -288,8 +358,13 @@ public final class CustomDgraphConstants {
                   Interaction.gender
                   Interaction.dob
                   Interaction.city
-                  Interaction.phone_number
-                  Interaction.national_id
+                  Interaction.phone_number_home
+                  Interaction.phone_number_mobile
+                  Interaction.phn
+                  Interaction.nic
+                  Interaction.ppn
+                  Interaction.scn
+                  Interaction.dl
                }
             }
          }
@@ -322,8 +397,13 @@ public final class CustomDgraphConstants {
             GoldenRecord.gender
             GoldenRecord.dob
             GoldenRecord.city
-            GoldenRecord.phone_number
-            GoldenRecord.national_id
+            GoldenRecord.phone_number_home
+            GoldenRecord.phone_number_mobile
+            GoldenRecord.phn
+            GoldenRecord.nic
+            GoldenRecord.ppn
+            GoldenRecord.scn
+            GoldenRecord.dl
             GoldenRecord.interactions:              [Interaction]
          }
          """;
@@ -336,11 +416,16 @@ public final class CustomDgraphConstants {
          GoldenRecord.aux_id:                   string                                       .
          GoldenRecord.given_name:               string    @index(exact,trigram)              .
          GoldenRecord.family_name:              string    @index(exact,trigram)              .
-         GoldenRecord.gender:                   string    @index(exact,trigram)              .
+         GoldenRecord.gender:                   string    @index(exact)                      .
          GoldenRecord.dob:                      string                                       .
          GoldenRecord.city:                     string    @index(trigram)                    .
-         GoldenRecord.phone_number:             string    @index(exact,trigram)              .
-         GoldenRecord.national_id:              string    @index(exact,trigram)              .
+         GoldenRecord.phone_number_home:        string    @index(exact,trigram)              .
+         GoldenRecord.phone_number_mobile:      string    @index(exact,trigram)              .
+         GoldenRecord.phn:                      string    @index(exact,trigram)              .
+         GoldenRecord.nic:                      string    @index(exact,trigram)              .
+         GoldenRecord.ppn:                      string    @index(exact,trigram)              .
+         GoldenRecord.scn:                      string    @index(exact,trigram)              .
+         GoldenRecord.dl:                       string    @index(exact,trigram)              .
          GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
@@ -357,8 +442,13 @@ public final class CustomDgraphConstants {
             Interaction.gender
             Interaction.dob
             Interaction.city
-            Interaction.phone_number
-            Interaction.national_id
+            Interaction.phone_number_home
+            Interaction.phone_number_mobile
+            Interaction.phn
+            Interaction.nic
+            Interaction.ppn
+            Interaction.scn
+            Interaction.dl
          }
          """;
 
@@ -373,8 +463,13 @@ public final class CustomDgraphConstants {
          Interaction.gender:                       string                                       .
          Interaction.dob:                          string                                       .
          Interaction.city:                         string                                       .
-         Interaction.phone_number:                 string                                       .
-         Interaction.national_id:                  string    @index(exact,trigram)              .
+         Interaction.phone_number_home:            string                                       .
+         Interaction.phone_number_mobile:          string                                       .
+         Interaction.phn:                          string    @index(exact,trigram)              .
+         Interaction.nic:                          string    @index(exact,trigram)              .
+         Interaction.ppn:                          string    @index(exact,trigram)              .
+         Interaction.scn:                          string    @index(exact,trigram)              .
+         Interaction.dl:                           string    @index(exact,trigram)              .
          """;
 
    private CustomDgraphConstants() {}

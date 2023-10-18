@@ -10,8 +10,13 @@ final class CustomGoldenRecordData extends CustomDemographicData implements Node
             customDemographicData.gender,
             customDemographicData.dob,
             customDemographicData.city,
-            customDemographicData.phoneNumber,
-            customDemographicData.nationalId);
+            customDemographicData.phoneNumberHome,
+            customDemographicData.phoneNumberMobile,
+            customDemographicData.phn,
+            customDemographicData.nic,
+            customDemographicData.ppn,
+            customDemographicData.scn,
+            customDemographicData.dl);
    }
 
 }

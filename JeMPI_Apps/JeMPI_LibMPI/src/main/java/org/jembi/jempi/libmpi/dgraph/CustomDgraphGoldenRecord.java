@@ -20,8 +20,13 @@ record CustomDgraphGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_GENDER) String gender,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CITY) String city,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId) {
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER_HOME) String phoneNumberHome,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER_MOBILE) String phoneNumberMobile,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHN) String phn,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NIC) String nic,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PPN) String ppn,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_SCN) String scn,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DL) String dl) {
 
    GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
@@ -36,8 +41,13 @@ record CustomDgraphGoldenRecord(
                                                         this.gender(),
                                                         this.dob(),
                                                         this.city(),
-                                                        this.phoneNumber(),
-                                                        this.nationalId()));
+                                                        this.phoneNumberHome(),
+                                                        this.phoneNumberMobile(),
+                                                        this.phn(),
+                                                        this.nic(),
+                                                        this.ppn(),
+                                                        this.scn(),
+                                                        this.dl()));
    }
 
 }

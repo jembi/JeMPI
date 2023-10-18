@@ -24,8 +24,13 @@ public final class CustomLinkerBackEnd {
                                                        interaction.demographicData().gender,
                                                        interaction.demographicData().dob,
                                                        interaction.demographicData().city,
-                                                       interaction.demographicData().phoneNumber,
-                                                       interaction.demographicData().nationalId));
+                                                       interaction.demographicData().phoneNumberHome,
+                                                       interaction.demographicData().phoneNumberMobile,
+                                                       interaction.demographicData().phn,
+                                                       interaction.demographicData().nic,
+                                                       interaction.demographicData().ppn,
+                                                       interaction.demographicData().scn,
+                                                       interaction.demographicData().dl));
    }
 
    static void updateGoldenRecordFields(
@@ -59,11 +64,31 @@ public final class CustomLinkerBackEnd {
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "phoneNumber", demographicData.phoneNumber, CustomDemographicData::getPhoneNumber)
+                                                  "phoneNumberHome", demographicData.phoneNumberHome, CustomDemographicData::getPhoneNumberHome)
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "nationalId", demographicData.nationalId, CustomDemographicData::getNationalId)
+                                                  "phoneNumberMobile", demographicData.phoneNumberMobile, CustomDemographicData::getPhoneNumberMobile)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "phn", demographicData.phn, CustomDemographicData::getPhn)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "nic", demographicData.nic, CustomDemographicData::getNic)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "ppn", demographicData.ppn, CustomDemographicData::getPpn)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "scn", demographicData.scn, CustomDemographicData::getScn)
+            ? 1
+            : 0;
+      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                  "dl", demographicData.dl, CustomDemographicData::getDl)
             ? 1
             : 0;
 

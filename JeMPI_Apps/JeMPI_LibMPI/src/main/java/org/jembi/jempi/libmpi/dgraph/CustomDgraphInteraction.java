@@ -19,8 +19,13 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CITY) String city,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER_HOME) String phoneNumberHome,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER_MOBILE) String phoneNumberMobile,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHN) String phn,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NIC) String nic,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PPN) String ppn,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_SCN) String scn,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DL) String dl,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
 
    CustomDgraphInteraction(
@@ -36,8 +41,13 @@ record CustomDgraphInteraction(
            interaction.demographicData().gender,
            interaction.demographicData().dob,
            interaction.demographicData().city,
-           interaction.demographicData().phoneNumber,
-           interaction.demographicData().nationalId,
+           interaction.demographicData().phoneNumberHome,
+           interaction.demographicData().phoneNumberMobile,
+           interaction.demographicData().phn,
+           interaction.demographicData().nic,
+           interaction.demographicData().ppn,
+           interaction.demographicData().scn,
+           interaction.demographicData().dl,
            score);
    }
 
@@ -54,8 +64,13 @@ record CustomDgraphInteraction(
                                                        this.gender,
                                                        this.dob,
                                                        this.city,
-                                                       this.phoneNumber,
-                                                       this.nationalId));
+                                                       this.phoneNumberHome,
+                                                       this.phoneNumberMobile,
+                                                       this.phn,
+                                                       this.nic,
+                                                       this.ppn,
+                                                       this.scn,
+                                                       this.dl));
    }
 
    InteractionWithScore toInteractionWithScore() {

@@ -147,9 +147,9 @@
       }
     },
     {
-      "fieldName": "phone_number",
+      "fieldName": "phone_number_home",
       "fieldType": "String",
-      "fieldLabel": "Phone No",
+      "fieldLabel": "Phone No. Home",
       "groups": [
         "demographics",
         "filter",
@@ -166,9 +166,28 @@
       "accessLevel": []
     },
     {
-      "fieldName": "national_id",
+      "fieldName": "phone_number_mobile",
       "fieldType": "String",
-      "fieldLabel": "National ID",
+      "fieldLabel": "Phone No. Mobile",
+      "groups": [
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/custom",
+        "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "phn",
+      "fieldType": "String",
+      "fieldLabel": "PHN",
       "groups": [
         "identifiers",
         "linked_records",
@@ -188,7 +207,111 @@
       "validation": {
         "required": true,
         "regex": "",
-        "onErrorMessage": "The national Id cannot be empty"
+        "onErrorMessage": "The PHN cannot be empty"
+      }
+    },
+    {
+      "fieldName": "nic",
+      "fieldType": "String",
+      "fieldLabel": "NIC",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The NIC cannot be empty"
+      }
+    },
+    {
+      "fieldName": "ppn",
+      "fieldType": "String",
+      "fieldLabel": "PPN",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The PPN cannot be empty"
+      }
+    },
+    {
+      "fieldName": "scn",
+      "fieldType": "String",
+      "fieldLabel": "SCN",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The SCN cannot be empty"
+      }
+    },
+    {
+      "fieldName": "dl",
+      "fieldType": "String",
+      "fieldLabel": "DL",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The DL cannot be empty"
       }
     }
   ],
@@ -282,9 +405,10 @@
           "given_name",
           "family_name",
           "phone_number",
-          "national_id"
+          "phn",
+          "nic"
         ],
-        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
+        "text": "eq(phn) or eq(nic) or (eq(given_name) and eq(family_name) and eq(phone_number))"
       }
     },
     "probabilistic": {
@@ -302,11 +426,18 @@
         ],
         "text": "match(phone_number,3)"
       },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHN": {
         "vars": [
-          "national_id"
+          "phn"
         ],
-        "text": "match(national_id,3)"
+        "text": "match(phn,3)"
+      }
+      ,
+      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NIC": {
+        "vars": [
+          "nic"
+        ],
+        "text": "match(nic,3)"
       }
     }
   }

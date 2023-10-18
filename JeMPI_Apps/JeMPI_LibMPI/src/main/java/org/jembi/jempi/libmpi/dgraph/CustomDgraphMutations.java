@@ -29,8 +29,13 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.gender>                        %s                    .
                            _:%s  <Interaction.dob>                           %s                    .
                            _:%s  <Interaction.city>                          %s                    .
-                           _:%s  <Interaction.phone_number>                  %s                    .
-                           _:%s  <Interaction.national_id>                   %s                    .
+                           _:%s  <Interaction.phone_number_home>             %s                    .
+                           _:%s  <Interaction.phone_number_mobile>           %s                    .
+                           _:%s  <Interaction.phn>                           %s                    .
+                           _:%s  <Interaction.nic>                           %s                    .
+                           _:%s  <Interaction.ppn>                           %s                    .
+                           _:%s  <Interaction.scn>                           %s                    .
+                           _:%s  <Interaction.dl>                            %s                    .
                            _:%s  <dgraph.type>                               "Interaction"         .
                            """,
                            uuid, sourceUID,
@@ -42,8 +47,13 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.gender),
                            uuid, AppUtils.quotedValue(demographicData.dob),
                            uuid, AppUtils.quotedValue(demographicData.city),
-                           uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.phoneNumberHome),
+                           uuid, AppUtils.quotedValue(demographicData.phoneNumberMobile),
+                           uuid, AppUtils.quotedValue(demographicData.phn),
+                           uuid, AppUtils.quotedValue(demographicData.nic),
+                           uuid, AppUtils.quotedValue(demographicData.ppn),
+                           uuid, AppUtils.quotedValue(demographicData.scn),
+                           uuid, AppUtils.quotedValue(demographicData.dl),
                            uuid);
    }
 
@@ -65,8 +75,13 @@ final class CustomDgraphMutations {
                            _:%s  <GoldenRecord.gender>                        %s                    .
                            _:%s  <GoldenRecord.dob>                           %s                    .
                            _:%s  <GoldenRecord.city>                          %s                    .
-                           _:%s  <GoldenRecord.phone_number>                  %s                    .
-                           _:%s  <GoldenRecord.national_id>                   %s                    .
+                           _:%s  <GoldenRecord.phone_number_home>             %s                    .
+                           _:%s  <GoldenRecord.phone_number_mobile>           %s                    .
+                           _:%s  <GoldenRecord.phn>                           %s                    .
+                           _:%s  <GoldenRecord.nic>                           %s                    .
+                           _:%s  <GoldenRecord.ppn>                           %s                    .
+                           _:%s  <GoldenRecord.scn>                           %s                    .
+                           _:%s  <GoldenRecord.dl>                            %s                    .
                            _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
                            _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
@@ -79,8 +94,13 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(demographicData.gender),
                            uuid, AppUtils.quotedValue(demographicData.dob),
                            uuid, AppUtils.quotedValue(demographicData.city),
-                           uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.phoneNumberHome),
+                           uuid, AppUtils.quotedValue(demographicData.phoneNumberMobile),
+                           uuid, AppUtils.quotedValue(demographicData.phn),
+                           uuid, AppUtils.quotedValue(demographicData.nic),
+                           uuid, AppUtils.quotedValue(demographicData.ppn),
+                           uuid, AppUtils.quotedValue(demographicData.scn),
+                           uuid, AppUtils.quotedValue(demographicData.dl),
                            uuid, interactionUID, score,
                            uuid);
    }
