@@ -679,6 +679,8 @@ services:
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
+    environment:
+      REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
     networks:
       - frontend
     deploy:

@@ -42,4 +42,7 @@ RUN yarn global add serve
 
 COPY --chown=node:node --from=build-stage /app/build ./build
 
+ENV NODE_ENV=production
+ENV REACT_APP_JEMPI_BASE_URL=$REACT_APP_JEMPI_BASE_URL
+
 CMD ["serve" , "-s", "build"]
