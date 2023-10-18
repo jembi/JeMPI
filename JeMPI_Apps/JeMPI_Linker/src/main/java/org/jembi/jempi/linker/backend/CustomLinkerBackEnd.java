@@ -13,8 +13,7 @@ public final class CustomLinkerBackEnd {
    private CustomLinkerBackEnd() {
    }
 
-   public static final Supplier<String> GENERATE_MY_GOLDEN_ID_A = AppUtils::autoGenerateId;
-   public static final Supplier<String> GENERATE_MY_GOLDEN_ID_B = AppUtils::autoGenerateId;
+
 
    public static Interaction applyAutoCreateFunctions(final Interaction interaction) {
       return new Interaction(interaction.interactionId(),
@@ -26,10 +25,7 @@ public final class CustomLinkerBackEnd {
                                                        interaction.demographicData().dob,
                                                        interaction.demographicData().city,
                                                        interaction.demographicData().phoneNumber,
-                                                       interaction.demographicData().phn,
-                                                       interaction.demographicData().nic,
-                                                       GENERATE_MY_GOLDEN_ID_A.get(),
-                                                       GENERATE_MY_GOLDEN_ID_B.get()));
+                                                       interaction.demographicData().nationalId));
    }
 
    static void updateGoldenRecordFields(
@@ -67,19 +63,7 @@ public final class CustomLinkerBackEnd {
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "phn", demographicData.phn, CustomDemographicData::getPhn)
-            ? 1
-            : 0;
-      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "nic", demographicData.nic, CustomDemographicData::getNic)
-            ? 1
-            : 0;
-      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "myGoldenIdA", demographicData.myGoldenIdA, CustomDemographicData::getMyGoldenIdA)
-            ? 1
-            : 0;
-      k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "myGoldenIdB", demographicData.myGoldenIdB, CustomDemographicData::getMyGoldenIdB)
+                                                  "nationalId", demographicData.nationalId, CustomDemographicData::getNationalId)
             ? 1
             : 0;
 

@@ -20,10 +20,7 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CITY) String city,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHN) String phn,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NIC) String nic,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_MY_GOLDEN_ID_A) String myGoldenIdA,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_MY_GOLDEN_ID_B) String myGoldenIdB,
+      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
 
    CustomDgraphInteraction(
@@ -40,10 +37,7 @@ record CustomDgraphInteraction(
            interaction.demographicData().dob,
            interaction.demographicData().city,
            interaction.demographicData().phoneNumber,
-           interaction.demographicData().phn,
-           interaction.demographicData().nic,
-           interaction.demographicData().myGoldenIdA,
-           interaction.demographicData().myGoldenIdB,
+           interaction.demographicData().nationalId,
            score);
    }
 
@@ -61,10 +55,7 @@ record CustomDgraphInteraction(
                                                        this.dob,
                                                        this.city,
                                                        this.phoneNumber,
-                                                       this.phn,
-                                                       this.nic,
-                                                       this.myGoldenIdA,
-                                                       this.myGoldenIdB));
+                                                       this.nationalId));
    }
 
    InteractionWithScore toInteractionWithScore() {

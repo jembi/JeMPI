@@ -21,10 +21,7 @@ record CustomDgraphGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_DOB) String dob,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_CITY) String city,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHN) String phn,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NIC) String nic,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_MY_GOLDEN_ID_A) String myGoldenIdA,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_MY_GOLDEN_ID_B) String myGoldenIdB) {
+      @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId) {
 
    GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
@@ -40,10 +37,7 @@ record CustomDgraphGoldenRecord(
                                                         this.dob(),
                                                         this.city(),
                                                         this.phoneNumber(),
-                                                        this.phn(),
-                                                        this.nic(),
-                                                        this.myGoldenIdA(),
-                                                        this.myGoldenIdB()));
+                                                        this.nationalId()));
    }
 
 }

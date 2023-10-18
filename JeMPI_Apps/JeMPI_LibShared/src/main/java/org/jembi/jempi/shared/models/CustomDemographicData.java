@@ -10,10 +10,7 @@ public class CustomDemographicData {
    public final String dob;
    public final String city;
    public final String phoneNumber;
-   public final String phn;
-   public final String nic;
-   public final String myGoldenIdA;
-   public final String myGoldenIdB;
+   public final String nationalId;
 
    public final String getGivenName() {
       return givenName;
@@ -39,24 +36,12 @@ public class CustomDemographicData {
       return phoneNumber;
    }
 
-   public final String getPhn() {
-      return phn;
-   }
-
-   public final String getNic() {
-      return nic;
-   }
-
-   public final String getMyGoldenIdA() {
-      return myGoldenIdA;
-   }
-
-   public final String getMyGoldenIdB() {
-      return myGoldenIdB;
+   public final String getNationalId() {
+      return nationalId;
    }
 
    public CustomDemographicData() {
-      this(null, null, null, null, null, null, null, null, null, null);
+      this(null, null, null, null, null, null, null);
    }
 
    public CustomDemographicData(
@@ -66,20 +51,14 @@ public class CustomDemographicData {
       final String dob,
       final String city,
       final String phoneNumber,
-      final String phn,
-      final String nic,
-      final String myGoldenIdA,
-      final String myGoldenIdB) {
+      final String nationalId) {
          this.givenName = givenName;
          this.familyName = familyName;
          this.gender = gender;
          this.dob = dob;
          this.city = city;
          this.phoneNumber = phoneNumber;
-         this.phn = phn;
-         this.nic = nic;
-         this.myGoldenIdA = myGoldenIdA;
-         this.myGoldenIdB = myGoldenIdB;
+         this.nationalId = nationalId;
    }
 
    public CustomDemographicData clean() {
@@ -89,10 +68,7 @@ public class CustomDemographicData {
                                        this.dob.toLowerCase().replaceAll("\\W", ""),
                                        this.city.toLowerCase().replaceAll("\\W", ""),
                                        this.phoneNumber.toLowerCase().replaceAll("\\W", ""),
-                                       this.phn.toLowerCase().replaceAll("\\W", ""),
-                                       this.nic.toLowerCase().replaceAll("\\W", ""),
-                                       this.myGoldenIdA.toLowerCase().replaceAll("\\W", ""),
-                                       this.myGoldenIdB.toLowerCase().replaceAll("\\W", ""));
+                                       this.nationalId.toLowerCase().replaceAll("\\W", ""));
    }
 
 }

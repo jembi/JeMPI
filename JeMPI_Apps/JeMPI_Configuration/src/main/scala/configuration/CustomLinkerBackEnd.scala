@@ -22,7 +22,6 @@ object CustomLinkerBackEnd {
         .filter(f => f.source.isDefined && f.source.get.generate.isDefined)
         .map(f => s"""   public static final Supplier<String> GENERATE_${Utils.camelCaseToSnakeCase(Utils.snakeCaseToCamelCase(f.fieldName)).toUpperCase} = ${f.source.get.generate.get.func};""".stripMargin)
         .mkString("\n")
-        .trim
     }
 
     def createApplyFunctions() : String = {
@@ -77,7 +76,7 @@ object CustomLinkerBackEnd {
          |   private $custom_className() {
          |   }
          |
-         |   ${createGenerateFunctions()}
+         |${createGenerateFunctions()}
          |
          |   ${createApplyFunctions()}
          |

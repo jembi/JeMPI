@@ -17,8 +17,7 @@ final class CustomAsyncHelper {
    private static final int DOB_COL_NUM = 4;
    private static final int CITY_COL_NUM = 5;
    private static final int PHONE_NUMBER_COL_NUM = 6;
-   private static final int PHN_COL_NUM = 7;
-   private static final int NIC_COL_NUM = 8;
+   private static final int NATIONAL_ID_COL_NUM = 7;
 
    private CustomAsyncHelper() {
    }
@@ -37,10 +36,7 @@ final class CustomAsyncHelper {
          csvRecord.get(DOB_COL_NUM),
          csvRecord.get(CITY_COL_NUM),
          csvRecord.get(PHONE_NUMBER_COL_NUM),
-         csvRecord.get(PHN_COL_NUM),
-         csvRecord.get(NIC_COL_NUM),
-         null,
-         null);
+         csvRecord.get(NATIONAL_ID_COL_NUM));
    }
 
    static CustomSourceId customSourceId(final CSVRecord csvRecord) {
