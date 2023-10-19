@@ -189,7 +189,13 @@ const DropZone: FC = () => {
                     Machine Learning Configuration
                   </Typography>
                 </Grid>
-                <Grid item xs={12} paddingX={{ lg: '1rem', xs: '0.5rem' }}>
+                <Grid
+                  item
+                  xs={12}
+                  paddingX={{ lg: '1rem', xs: '0.5rem' }}
+                  border={'1px solid grey'}
+                  borderRadius={'5px'}
+                >
                   <FormControlLabel
                     control={
                       <Radio
@@ -203,7 +209,13 @@ const DropZone: FC = () => {
                         checked={FormValues.computing === 0}
                       />
                     }
-                    label="Use current M & U's (computed periodically, only using the Client Registry)."
+                    label={
+                      <Typography fontSize={'0.9rem'}>
+                        {
+                          " Use current M & U's (computed periodically, only using the Client Registry)."
+                        }
+                      </Typography>
+                    }
                   />
                   <FormControlLabel
                     control={
@@ -218,7 +230,13 @@ const DropZone: FC = () => {
                         checked={FormValues.computing === 1}
                       />
                     }
-                    label="Compute M & U values before linking, using the interactions from the input file."
+                    label={
+                      <Typography fontSize={'0.9rem'}>
+                        {
+                          ' Before linking, compute M & U values using the interactions from the CSV file.'
+                        }
+                      </Typography>
+                    }
                   />
                   <FormControlLabel
                     control={
@@ -233,12 +251,18 @@ const DropZone: FC = () => {
                         checked={FormValues.computing === 2}
                       />
                     }
-                    label="Compute M & U values before linking, using the interactions from the input file and the Client Registry."
+                    label={
+                      <Typography fontSize={'0.9rem'}>
+                        {
+                          " Before linking, Compute M & U values using the interactions from the CSV file & the CR's golden records."
+                        }
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} paddingY={{ lg: '1rem', xs: '0.5rem' }}>
                   <Typography fontWeight="bold" fontSize="1rem">
-                    Threshold:
+                    Threshold
                   </Typography>
                 </Grid>
                 <Grid item xs={12} paddingX={{ lg: '1rem', xs: '0.5rem' }}>
@@ -284,12 +308,7 @@ const DropZone: FC = () => {
                     track={false}
                   />
                 </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  sx={{ padding: { lg: '1rem', xs: '0.5rem' } }}
-                >
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <TextField
                     name="leftMargin"
                     type="number"
@@ -313,12 +332,7 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  sx={{ padding: { lg: '1rem', xs: '0.5rem' } }}
-                >
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <TextField
                     name="threshold"
                     type="number"
@@ -334,12 +348,7 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  sx={{ padding: { lg: '1rem', xs: '0.5rem' } }}
-                >
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <TextField
                     name="rightMargin"
                     type="number"
@@ -359,7 +368,7 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12} md={4} paddingX={'1rem'}>
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <Slider
                     value={FormValues.windowSize}
                     getAriaValueText={(e: number) => e.toString()}
@@ -371,17 +380,19 @@ const DropZone: FC = () => {
                     min={0}
                     max={0.2}
                   />
-                  <TextField
-                    name="windowSize"
-                    type="number"
-                    size="small"
-                    variant="outlined"
-                    label="Margin Window size"
-                    value={FormValues.windowSize}
-                    onChange={handleChange}
-                    inputProps={{ min: 0, max: 100, step: 0.01 }}
-                    fullWidth
-                  />
+                  <Box sx={{ paddingY: { xs: '0.5rem' } }}>
+                    <TextField
+                      name="windowSize"
+                      type="number"
+                      size="small"
+                      variant="outlined"
+                      label="Margin Window size"
+                      value={FormValues.windowSize}
+                      onChange={handleChange}
+                      inputProps={{ min: 0, max: 100, step: 0.01 }}
+                      fullWidth
+                    />
+                  </Box>
                 </Grid>
                 <Grid item xs={12} paddingY={'1rem'}>
                   <Typography
@@ -389,10 +400,16 @@ const DropZone: FC = () => {
                     fontSize="1rem"
                     id="import-report-radio"
                   >
-                    Reports:
+                    Reports
                   </Typography>
                 </Grid>
-                <Grid item xs={12} paddingX={'1rem'}>
+                <Grid
+                  item
+                  xs={12}
+                  paddingX={'1rem'}
+                  border={'1px solid grey'}
+                  borderRadius={'5px'}
+                >
                   <RadioGroup
                     aria-labelledby="import-report-radio"
                     defaultValue="false"
@@ -401,12 +418,22 @@ const DropZone: FC = () => {
                     <FormControlLabel
                       value="false"
                       control={<Radio />}
-                      label="Do not generate report, link records only"
+                      label={
+                        <Typography fontSize={'0.9rem'}>
+                          {' Link records only (do not generate report).'}
+                        </Typography>
+                      }
                     />
                     <FormControlLabel
                       value="true"
                       control={<Radio />}
-                      label="Generate report"
+                      label={
+                        <Typography fontSize={'0.9rem'}>
+                          {
+                            ' Create CSV report and send notification when input file is created.'
+                          }
+                        </Typography>
+                      }
                     />
                   </RadioGroup>
                 </Grid>
@@ -473,6 +500,13 @@ const DropZone: FC = () => {
                 }}
               >
                 <Button
+                  variant="outlined"
+                  onClick={handleCancel}
+                  disabled={!fileObjs}
+                >
+                  Cancel
+                </Button>
+                <Button
                   variant="contained"
                   onClick={() => handleSubmit()}
                   disabled={
@@ -482,14 +516,7 @@ const DropZone: FC = () => {
                     fileObjs?.status === 'Failed'
                   }
                 >
-                  Upload
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleCancel}
-                  disabled={!fileObjs}
-                >
-                  Cancel
+                  Submit
                 </Button>
               </Box>
             </Grid>
