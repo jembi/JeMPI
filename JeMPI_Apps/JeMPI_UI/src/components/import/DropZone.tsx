@@ -47,7 +47,7 @@ const DropZone: FC = () => {
   } = useFormik({
     initialValues: {
       reporting: false,
-      computing: false,
+      computing: 0,
       leftMargin: 0.2,
       rightMargin: 0.6,
       threshold: 0.9,
@@ -176,68 +176,84 @@ const DropZone: FC = () => {
   return (
     <Card>
       <CardContent>
-        <Grid container direction="row" padding={3}>
+        <Grid container direction="row" paddingX={{ lg: '1rem', xs: '0.5rem' }}>
           <Grid item xs={12} lg={6}>
             <form>
               <Grid container alignItems="center">
                 <Grid item xs={9}>
-                  <Typography fontWeight="bold" fontSize="1rem" padding={1}>
-                    Machine Learning Configuration:
+                  <Typography
+                    fontWeight="bold"
+                    fontSize="1rem"
+                    paddingY={{ lg: '0.5rem' }}
+                  >
+                    Machine Learning Configuration
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} paddingX={{ lg: '1rem', xs: '0.5rem' }}>
                   <FormControlLabel
-                    value="female"
                     control={
                       <Radio
                         name="computing"
-                        checked={FormValues.computing}
-                        value={FormValues.computing}
-                        onChange={handleChange}
+                        value={0}
+                        onChange={() => {
+                          handleChange({
+                            target: { name: 'computing', value: 0 }
+                          })
+                        }}
+                        checked={FormValues.computing === 0}
                       />
                     }
                     label="Use current M & U's (computed periodically, only using the Client Registry)."
                   />
                   <FormControlLabel
-                    value="female"
                     control={
                       <Radio
                         name="computing"
-                        checked={FormValues.computing}
-                        value={FormValues.computing}
-                        onChange={handleChange}
+                        value={1}
+                        onChange={() =>
+                          handleChange({
+                            target: { name: 'computing', value: 1 }
+                          })
+                        }
+                        checked={FormValues.computing === 1}
                       />
                     }
                     label="Compute M & U values before linking, using the interactions from the input file."
                   />
                   <FormControlLabel
-                    value="female"
                     control={
                       <Radio
                         name="computing"
-                        checked={FormValues.computing}
-                        value={FormValues.computing}
-                        onChange={handleChange}
+                        value={2}
+                        onChange={() => {
+                          handleChange({
+                            target: { name: 'computing', value: 2 }
+                          })
+                        }}
+                        checked={FormValues.computing === 2}
                       />
                     }
                     label="Compute M & U values before linking, using the interactions from the input file and the Client Registry."
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} paddingY={{ lg: '1rem', xs: '0.5rem' }}>
                   <Typography fontWeight="bold" fontSize="1rem">
                     Threshold:
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sx={{ padding: '1rem' }}>
+                <Grid item xs={12} paddingX={{ lg: '1rem', xs: '0.5rem' }}>
                   <Slider
-                    onChange={(e: any) => {
-                      const [a, b, c] = [...e.target.value]
-                      if (0 < b && b < 1) {
-                        setFieldValue('threshold', b)
+                    onChange={(_: Event, value: number | number[]) => {
+                      if (!Array.isArray(value)) return
+                      const [leftMargin, threshold, rightMargin] = value
+                      if (0 < threshold && threshold < 1) {
+                        setFieldValue('threshold', threshold)
                       }
-                      if (b > a) setFieldValue('leftMargin', a)
+                      if (threshold > leftMargin)
+                        setFieldValue('leftMargin', leftMargin)
 
-                      if (b < c) setFieldValue('rightMargin', c)
+                      if (threshold < rightMargin)
+                        setFieldValue('rightMargin', rightMargin)
                     }}
                     getAriaValueText={(e: number) => e.toString()}
                     valueLabelDisplay="auto"
@@ -268,7 +284,12 @@ const DropZone: FC = () => {
                     track={false}
                   />
                 </Grid>
-                <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={4}
+                  sx={{ padding: { lg: '1rem', xs: '0.5rem' } }}
+                >
                   <TextField
                     name="leftMargin"
                     type="number"
@@ -292,7 +313,12 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={4}
+                  sx={{ padding: { lg: '1rem', xs: '0.5rem' } }}
+                >
                   <TextField
                     name="threshold"
                     type="number"
@@ -308,7 +334,12 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12} md={4} sx={{ padding: '1rem' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={4}
+                  sx={{ padding: { lg: '1rem', xs: '0.5rem' } }}
+                >
                   <TextField
                     name="rightMargin"
                     type="number"
@@ -328,7 +359,7 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={4} paddingX={'1rem'}>
                   <Slider
                     value={FormValues.windowSize}
                     getAriaValueText={(e: number) => e.toString()}
@@ -352,7 +383,7 @@ const DropZone: FC = () => {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} paddingY={'1rem'}>
                   <Typography
                     fontWeight="bold"
                     fontSize="1rem"
@@ -360,6 +391,8 @@ const DropZone: FC = () => {
                   >
                     Reports:
                   </Typography>
+                </Grid>
+                <Grid item xs={12} paddingX={'1rem'}>
                   <RadioGroup
                     aria-labelledby="import-report-radio"
                     defaultValue="false"
@@ -463,7 +496,6 @@ const DropZone: FC = () => {
           </Grid>
         </Grid>
       </CardContent>
-      u
     </Card>
   )
 }

@@ -13,7 +13,7 @@ export enum UploadStatus {
 
 export type importQueriesType = {
   reporting: boolean
-  computing: boolean
+  computing: number
   leftMargin: number
   rightMargin: number
   threshold: number
