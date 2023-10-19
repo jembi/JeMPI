@@ -17,6 +17,14 @@
     "mock:enviroments": "(start npm run mock:startKeycloakServer && start npm run mock:startJeMPIAPIServer -- 3000) || (npm run mock:startKeycloakServer & npm run mock:startJeMPIAPIServer -- 3000)"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.10.9",
+    "@mui/material": "^5.13.4",
+    "@mui/x-data-grid": "^6.6.0",
+    "@mui/x-date-pickers": "^6.6.0",
+    "@tanstack/react-query": "^4.16.1",
     "axios": "^1.1.3",
     "axios-mock-adapter": "^1.21.2",
     "cross-env": "^7.0.3",
@@ -34,14 +42,6 @@
     "web-vitals": "^2.1.0"
   },
   "devDependencies": {
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@fontsource/roboto": "^4.5.8",
-    "@mui/icons-material": "^5.10.9",
-    "@mui/material": "^5.13.4",
-    "@mui/x-data-grid": "^6.6.0",
-    "@mui/x-date-pickers": "^6.6.0",
-    "@tanstack/react-query": "^4.16.1",
     "@tanstack/react-query-devtools": "^4.16.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.4.0",
@@ -69,8 +69,7 @@
     "lint-staged": "^13.1.1",
     "prettier": "^2.8.4",
     "process": "^0.11.10",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1"
+    "ts-jest": "^29.1.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

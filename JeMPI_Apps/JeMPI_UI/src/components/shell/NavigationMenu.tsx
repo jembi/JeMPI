@@ -8,7 +8,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 
 const NavigationMenu: React.FC = () => {
-  const { user, logout } = useAuth()
+  const { currentUser, logout } = useAuth()
   const navigate = useNavigate()
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -24,7 +24,7 @@ const NavigationMenu: React.FC = () => {
     logout(navigate)
   }
 
-  if (!user) {
+  if (!currentUser) {
     return null
   }
 
@@ -52,10 +52,10 @@ const NavigationMenu: React.FC = () => {
         <MenuItem>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography fontWeight={400} fontSize={'16px'}>
-              {`${user?.givenName} ${user?.familyName}`}
+              {`${currentUser?.givenName} ${currentUser?.familyName}`}
             </Typography>
             <Typography fontWeight={400} fontSize={'14px'}>
-              {user?.email}
+              {currentUser?.email}
             </Typography>
           </Box>
         </MenuItem>

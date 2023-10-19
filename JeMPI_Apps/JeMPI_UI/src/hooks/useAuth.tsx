@@ -19,7 +19,7 @@ import { parseQuery } from '../utils/misc'
 import { useLocation, useNavigate, NavigateFunction } from 'react-router-dom'
 
 export interface AuthContextValue {
-  user: User | undefined
+  currentUser: User | undefined
   isAuthenticated: boolean
   setUser: (data: User | undefined) => void
   logout: (navigate: NavigateFunction) => void
@@ -79,13 +79,11 @@ export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
 
   useEffect(
     () => {
-      if (config.useSso) {
-        if (!authContext.isLoading) {
-          if (!authContext.user && !isLoginPage) {
-            navigate({ pathname: '/login' })
-          } else if (authContext.user && isLoginPage) {
-            navigate({ pathname: '/' })
-          }
+      if (config.useSso && !authContext.isLoading) {
+        if (!authContext.currentUser && !isLoginPage) {
+          navigate({ pathname: '/login' });
+        } else if (authContext.currentUser && isLoginPage) {
+          navigate({ pathname: '/' });
         }
       }
     },
@@ -103,32 +101,31 @@ export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
     !authContext.isAuthenticated &&
     !isLoginPage
   ) {
-    return (<React.Fragment>
-            {authContext.error && <ApiErrorMessage error={authContext.error} />}
-            <LoadingSpinner id="user-loading-spinner" />
-          </React.Fragment>)
+    return (<>
+      {authContext.error && <ApiErrorMessage error={authContext.error} />}
+      <LoadingSpinner id="user-loading-spinner" />
+    </>)
   }
 
-  return (
-    <React.Fragment>
-      {authContext.error && <ApiErrorMessage error={authContext.error} />}
-      {children}
-    </React.Fragment>
-  )
+  return (<>
+    {authContext.error && <ApiErrorMessage error={authContext.error} />}
+    {children}
+  </>)
 }
+
+const currentUserOueryClientKey = 'auth-user'
 
 export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const queryClient = useQueryClient()
   const { enqueueSnackbar } = useSnackbar()
-  const key = 'auth-user'
 
   const {
-    data: user,
+    data: currentUser,
     isLoading,
     error,
     refetch
   } = useQuery<User, AxiosError<unknown, User>>({
-    queryKey: [key],
+    queryKey: [currentUserOueryClientKey],
     queryFn: async () => {
       return await ApiClient.getCurrentUser()
     },
@@ -139,7 +136,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 
   const { mutate: logout } = useMutation({
     mutationFn: ApiClient.logout,
-    onSuccess(data: any, navigate: any) {
+    onSuccess(data: any, navigate: NavigateFunction) {
       queryClient.clear()
       navigate({ pathname: '/login' })
     },
@@ -151,7 +148,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   })
 
   const setUser = (data: User | undefined) => {
-    queryClient.setQueryData([key], data)
+    queryClient.setQueryData([currentUserOueryClientKey], data)
   }
 
   const signInWithKeyCloak = () => {
@@ -176,8 +173,8 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   }
 
   const authContextValue: AuthContextValue = {
-    user,
-    isAuthenticated: !!user,
+    currentUser,
+    isAuthenticated: !!currentUser,
     error: filterForbiddenErrors(error),
     setUser,
     refetchUser: refetch,
