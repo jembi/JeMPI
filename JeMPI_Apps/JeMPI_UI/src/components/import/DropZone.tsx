@@ -3,9 +3,7 @@ import {
   Avatar,
   Box,
   Card,
-  CardActions,
   CardContent,
-  Checkbox,
   FormControlLabel,
   Grid,
   Radio,
@@ -40,7 +38,7 @@ const DropZone: FC = () => {
   const abortControllerRef = useRef<AbortController>(new AbortController())
 
   const {
-    handleChange,
+    handleChange: handleImportFormChange,
     handleSubmit,
     values: FormValues,
     setFieldValue
@@ -202,7 +200,7 @@ const DropZone: FC = () => {
                         name="computing"
                         value={0}
                         onChange={() => {
-                          handleChange({
+                          handleImportFormChange({
                             target: { name: 'computing', value: 0 }
                           })
                         }}
@@ -223,7 +221,7 @@ const DropZone: FC = () => {
                         name="computing"
                         value={1}
                         onChange={() =>
-                          handleChange({
+                          handleImportFormChange({
                             target: { name: 'computing', value: 1 }
                           })
                         }
@@ -244,7 +242,7 @@ const DropZone: FC = () => {
                         name="computing"
                         value={2}
                         onChange={() => {
-                          handleChange({
+                          handleImportFormChange({
                             target: { name: 'computing', value: 2 }
                           })
                         }}
@@ -270,7 +268,12 @@ const DropZone: FC = () => {
                     onChange={(_: Event, value: number | number[]) => {
                       if (!Array.isArray(value)) return
                       const [leftMargin, threshold, rightMargin] = value
-                      if (0 < threshold && threshold < 1) {
+                      if (
+                        0 < threshold &&
+                        threshold < 1 &&
+                        threshold > leftMargin &&
+                        threshold < rightMargin
+                      ) {
                         setFieldValue('threshold', threshold)
                       }
                       if (threshold > leftMargin)
@@ -283,8 +286,8 @@ const DropZone: FC = () => {
                     valueLabelDisplay="auto"
                     step={0.05}
                     marks
-                    min={0}
-                    max={1}
+                    min={0.19}
+                    max={0.96}
                     value={[
                       FormValues.leftMargin,
                       FormValues.threshold,
@@ -314,15 +317,15 @@ const DropZone: FC = () => {
                     type="number"
                     size="small"
                     variant="outlined"
-                    label="Review Threshold Minimum"
+                    label="Minimum Threshold  Review"
                     value={FormValues.leftMargin}
                     onChange={e => {
                       if (+e.target.value < FormValues.threshold) {
-                        handleChange(e)
+                        handleImportFormChange(e)
                       }
                     }}
                     inputProps={{
-                      min: 0,
+                      min: 0.19,
                       max: FormValues.threshold,
                       step: 0.01
                     }}
@@ -340,8 +343,15 @@ const DropZone: FC = () => {
                     variant="outlined"
                     label="Link Threshold"
                     value={FormValues.threshold}
-                    onChange={handleChange}
-                    inputProps={{ min: 0.1, max: 1, step: 0.01 }}
+                    onChange={e => {
+                      if (
+                        +e.target.value > FormValues.leftMargin &&
+                        +e.target.value < FormValues.rightMargin
+                      ) {
+                        handleImportFormChange(e)
+                      }
+                    }}
+                    inputProps={{ min: 0.2, max: 0.95, step: 0.01 }}
                     InputLabelProps={{
                       style: { color: 'green' }
                     }}
@@ -354,14 +364,18 @@ const DropZone: FC = () => {
                     type="number"
                     size="small"
                     variant="outlined"
-                    label="Review Threshold Maximum"
+                    label="Maximum Review Threshold "
                     value={FormValues.rightMargin}
                     onChange={e => {
                       if (+e.target.value > FormValues.threshold) {
-                        handleChange(e)
+                        handleImportFormChange(e)
                       }
                     }}
-                    inputProps={{ min: 0, max: 1, step: 0.01 }}
+                    inputProps={{
+                      min: FormValues.threshold,
+                      max: 0.96,
+                      step: 0.01
+                    }}
                     InputLabelProps={{
                       style: { color: '#1976D2' }
                     }}
@@ -373,7 +387,7 @@ const DropZone: FC = () => {
                     value={FormValues.windowSize}
                     getAriaValueText={(e: number) => e.toString()}
                     valueLabelDisplay="auto"
-                    onChange={handleChange}
+                    onChange={handleImportFormChange}
                     name="windowSize"
                     step={0.01}
                     marks
@@ -388,8 +402,8 @@ const DropZone: FC = () => {
                       variant="outlined"
                       label="Margin Window size"
                       value={FormValues.windowSize}
-                      onChange={handleChange}
-                      inputProps={{ min: 0, max: 100, step: 0.01 }}
+                      onChange={handleImportFormChange}
+                      inputProps={{ min: 0, max: 0.2, step: 0.01 }}
                       fullWidth
                     />
                   </Box>
