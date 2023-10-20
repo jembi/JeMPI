@@ -6,10 +6,12 @@
 *.c text
 *.h text
 *.java text
+*.scala text
+*.sbt text
 *.sh text
 *.template text
 *.yml text
-*.py
+*.py text
 
 
 # Declare files that will always have CRLF line endings on checkout.
