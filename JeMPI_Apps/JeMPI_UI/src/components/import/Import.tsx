@@ -15,7 +15,6 @@ const Import = () => {
             title: 'Import'
           }
         ]}
-        description={'Import or submit Patient records to MPI'}
       />
       <Divider />
       <Stack padding={{ lg: '0rem 1rem 1rem 1rem' }} sx={{ width: '100%' }}>
