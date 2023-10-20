@@ -2,7 +2,7 @@ $script_path = $MyInvocation.MyCommand.Path
 $script_dir = Split-Path $script_path
 Set-Location $script_dir
 
-. $script_dir\local.ps1
+$linux_server_ip =  ((wsl hostname -I) -split " ")[0]
 
 $kafka1_ip                                    = $linux_server_ip
 $postgresql_ip                                = $linux_server_ip
@@ -73,6 +73,7 @@ $def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE"
 $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
 
+
 # 
 # build UI apps
 #
@@ -90,6 +91,7 @@ $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-a
 # build apps
 #
 Push-Location ..\..\..\JeMPI_Apps
+  Copy-Item JeMPI_Configuration\config-api.json JeMPI_API\src\main\resources\.
   mvn clean  
   mvn package
 Pop-Location
@@ -274,5 +276,5 @@ $api_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'api_stderr.txt'
-#                            -RedirectStandardOutput 'api_stdout.txt'
+#                           -RedirectStandardOutput 'api_stdout.txt'
 $api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')
