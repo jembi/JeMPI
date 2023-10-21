@@ -6,6 +6,7 @@ import akka.dispatch.MessageDispatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.api.httpServer.HttpServer;
 import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.JsonFieldsConfig;
 

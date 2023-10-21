@@ -1,4 +1,4 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.api.keyCloak;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -18,7 +18,7 @@ import java.util.TreeMap;
                     "register-node-period", "token-store", "adapter-state-cookie-path", "principal-attribute", "proxy-url",
                     "turn-off-change-session-id-on-login", "token-minimum-time-to-live", "min-time-between-jwks-requests",
                     "public-key-cache-ttl", "policy-enforcer", "ignore-oauth-query-parameter", "verify-token-audience"})
-final class AkkaAdapterConfig extends AdapterConfig {
+final public class AkkaAdapterConfig extends AdapterConfig {
    @JsonProperty("redirect-uri")
    private String redirectUri;
 
