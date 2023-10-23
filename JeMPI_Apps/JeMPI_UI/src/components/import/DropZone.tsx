@@ -252,7 +252,7 @@ const DropZone: FC = () => {
                     label={
                       <Typography fontSize={'0.9rem'}>
                         {
-                          " Before linking, Compute M & U values using the interactions from the CSV file & the CR's golden records."
+                          " Before linking, compute M & U values using the interactions from the CSV file & the CR's golden records."
                         }
                       </Typography>
                     }
@@ -408,7 +408,7 @@ const DropZone: FC = () => {
                     />
                   </Box>
                 </Grid>
-                <Grid item xs={12} paddingY={'1rem'}>
+                <Grid item xs={12} paddingY={'0.5rem'}>
                   <Typography
                     fontWeight="bold"
                     fontSize="1rem"
