@@ -5,7 +5,10 @@ import akka.actor.typed.ActorSystem;
 import akka.dispatch.MessageDispatcher;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
+import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import akka.http.javadsl.server.RejectionHandler;
+import akka.http.javadsl.server.ExceptionHandler;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
 import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
@@ -66,11 +69,18 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    }
 
    Route createCorsRoutes() {
+      final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler();
+      final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder()
+              .match(Exception.class, x -> {
+                 LOGGER.error("An exception occurred while executing the Route", x);
+                 return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred. Please see server logs for details");
+              }).build();
+
       return cors(
                     CorsSettings.create(AppConfig.CONFIG),
                     () -> randomTokenCsrfProtection(new CheckHeader<>(getSessionManager()),
                     () -> pathPrefix("JeMPI", () -> new RoutesEntries(this).getRouteEntries()))
-                  );
+                  ).seal(rejectionHandler, exceptionHandler);
    }
 
 }

@@ -25,7 +25,7 @@ public class KeyCloakAuthenticator {
     private final UserQueries userQueries;
     public KeyCloakAuthenticator(){
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream keycloakConfigStream = classLoader.getResourceAsStream("/keycloak.json");
+        InputStream keycloakConfigStream = classLoader.getResourceAsStream("keycloak.json");
         keycloakConfig = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfigStream);
         keycloak = AkkaKeycloakDeploymentBuilder.build(keycloakConfig);
         userQueries = new UserQueries();

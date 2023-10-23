@@ -12,7 +12,7 @@ public class UserQueries extends QueryRunner {
 
     private static final Logger LOGGER = LogManager.getLogger(UserQueries.class);
     public User getUserByEmail(final String email) {
-        try{
+        try {
             QueryRunner.Executor executor = getPreparedStatement("SELECT * FROM users where email = ?");
             executor.preparedStatement.setString(1, email);
 

@@ -15,7 +15,7 @@ import java.util.UUID;
 public final class APIKC {
 
    private static final Logger LOGGER = LogManager.getLogger(APIKC.class);
-   private static final String CONFIG_RESOURCE_FILE_NAME = "/config-api.json";
+   private static final String CONFIG_RESOURCE_FILE_NAME = "config-api.json";
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
@@ -61,6 +61,7 @@ public final class APIKC {
                          backEnd,
                          jsonFieldsConfig.jsonFields);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
+            LOGGER.info("API Server Terminated. Reason {}", sig);
             httpServer.close(context.getSystem());
             return Behaviors.stopped();
          }).build();

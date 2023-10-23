@@ -14,27 +14,27 @@ public  class QueryRunner {
             AppConfig.POSTGRESQL_DATABASE);
 
 
-    public Connection establishConnection() throws SQLException {
+    protected final Connection establishConnection() throws SQLException {
         return DriverManager.getConnection(URL, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
     }
 
-    public class Executor{
+    public final class Executor {
         public final Connection connection;
         public final PreparedStatement preparedStatement;
 
-        public Executor(Connection connection , PreparedStatement preparedStatement){
+        public Executor(final Connection connection, final PreparedStatement preparedStatement) {
             this.connection = connection;
             this.preparedStatement = preparedStatement;
         }
 
-        public ResultSet run() throws SQLException{
+        public ResultSet run() throws SQLException {
             return preparedStatement.executeQuery();
         }
     }
-    public Executor getPreparedStatement(String sqlQuery) throws SQLException{
-        try(
+    public Executor getPreparedStatement(final String sqlQuery) throws SQLException {
+        try (
             Connection connection = establishConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)){
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
                 return new Executor(connection, preparedStatement);
             }
     }
