@@ -103,41 +103,43 @@ const NotificationWorklist = () => {
             />
           </LocalizationProvider>
         </Box>
-        <DataGrid
-          sx={{
-            '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
-              outline: 'none'
-            }
-          }}
-          columns={NOTIFICATIONS_COLUMNS}
-          rows={data.records as Notification[]}
-          pageSizeOptions={[10, 25, 50]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={model => setPaginationModel(model)}
-          paginationMode="server"
-          rowCount={data.pagination.total || 0}
-          filterMode="server"
-          filterModel={filterModel}
-          onFilterModelChange={debounce(onFilterChange, 3000)}
-          onRowDoubleClick={params =>
-            navigate(
-              {
-                pathname: 'match-details'
-              },
-              {
-                state: {
-                  payload: {
-                    notificationId: params.row.id,
-                    patient_id: params.row.patient_id,
-                    golden_id: params.row.golden_id,
-                    score: params.row.score,
-                    candidates: params.row.candidates
+        <Paper sx={{ p: 1 }}>
+          <DataGrid
+            sx={{
+              '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
+                outline: 'none'
+              }
+            }}
+            columns={NOTIFICATIONS_COLUMNS}
+            rows={data.records as Notification[]}
+            pageSizeOptions={[10, 25, 50]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={model => setPaginationModel(model)}
+            paginationMode="server"
+            rowCount={data.pagination.total || 0}
+            filterMode="server"
+            filterModel={filterModel}
+            onFilterModelChange={debounce(onFilterChange, 3000)}
+            onRowDoubleClick={params =>
+              navigate(
+                {
+                  pathname: 'match-details'
+                },
+                {
+                  state: {
+                    payload: {
+                      notificationId: params.row.id,
+                      patient_id: params.row.patient_id,
+                      golden_id: params.row.golden_id,
+                      score: params.row.score,
+                      candidates: params.row.candidates
+                    }
                   }
                 }
-              }
-            )
-          }
-        />
+              )
+            }
+          />
+        </Paper>
       </Stack>
     </Container>
   )

@@ -77,7 +77,9 @@ final class LinkerCR {
                                                     crRegister.sourceId(),
                                                     crRegister.uniqueInteractionData(),
                                                     crRegister.demographicData());
-            final var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+            final var linkInfo =
+                  libMPI.createInteractionAndLinkToClonedGoldenRecord(CustomLinkerBackEnd.applyAutoCreateFunctions(interaction),
+                                                                      1.0F);
             return Either.right(linkInfo);
          } else {
             return Either.left(new MpiServiceError.CRClientExistsError(matchedCandidates.stream()

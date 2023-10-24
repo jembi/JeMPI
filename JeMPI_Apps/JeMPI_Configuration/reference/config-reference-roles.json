@@ -51,7 +51,9 @@
     {
       "fieldName": "given_name",
       "fieldType": "String",
-      "csvCol": 1,
+      "source": {
+        "csvCol": 1
+      },
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
       "validateMetaData": {
@@ -74,7 +76,9 @@
     {
       "fieldName": "family_name",
       "fieldType": "String",
-      "csvCol": 2,
+      "source": {
+        "csvCol": 2
+      },
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)",
       "validateMetaData": {
@@ -97,7 +101,9 @@
     {
       "fieldName": "gender",
       "fieldType": "String",
-      "csvCol": 3,
+      "source": {
+        "csvCol": 3
+      },
       "indexGoldenRecord": "@index(exact,trigram)",
       "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
@@ -119,7 +125,9 @@
     {
       "fieldName": "dob",
       "fieldType": "String",
-      "csvCol": 4,
+      "source": {
+        "csvCol": 4
+      },
       "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -140,7 +148,9 @@
     {
       "fieldName": "city",
       "fieldType": "String",
-      "csvCol": 5,
+      "source": {
+        "csvCol": 5
+      },
       "indexGoldenRecord": "@index(exact,trigram)",
       "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
@@ -162,7 +172,9 @@
     {
       "fieldName": "phone_number",
       "fieldType": "String",
-      "csvCol": 6,
+      "source": {
+        "csvCol": 6
+      },
       "indexGoldenRecord": "@index(exact,trigram)",
       "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
@@ -184,7 +196,9 @@
     {
       "fieldName": "national_id",
       "fieldType": "String",
-      "csvCol": 7,
+      "source": {
+        "csvCol": 7
+      },
       "indexGoldenRecord": "@index(exact,trigram)",
       "indexInteraction": "@index(exact,trigram)"
     }
