@@ -17,6 +17,6 @@ module.exports = {
     },
     modulePaths: [compilerOptions.baseUrl],
     moduleNameMapper: { ...pathsToModuleNameMapper(compilerOptions.paths),
-        ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "identity-obj-proxy"
+        ".+\\.(css|styl|less|sass|scss|ttf|woff|woff2)$": "identity-obj-proxy"
     },
   };

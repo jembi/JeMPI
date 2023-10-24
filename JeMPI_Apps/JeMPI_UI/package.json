@@ -35,7 +35,6 @@
     "dayjs": "^1.11.8",
     "formik": "^2.2.9",
     "keycloak-js": "^20.0.2",
-    "lodash": "^4.17.21",
     "notistack": "^2.0.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -48,7 +47,6 @@
   "devDependencies": {
     "@types/dockerode": "^3.3.20",
     "@types/jest": "^29.5.5",
-    "@types/lodash": "^4.14.199",
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
