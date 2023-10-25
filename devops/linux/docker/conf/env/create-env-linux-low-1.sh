@@ -53,13 +53,6 @@ export LINKER_RAM_LIMIT="8G"
 export API_RAM_LIMIT="8G"
 export UI_RAM_LIMIT="8G"
 
-#UI env vars
-export NODE_ENV="developement"
-export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
-export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
-export REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES="128"
-
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2
 

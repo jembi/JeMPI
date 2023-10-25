@@ -6,7 +6,6 @@ import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import ApiClient from '../../services/ApiClient'
 import Notification, { Notifications } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import React, { useCallback, useState } from 'react'
@@ -16,8 +15,11 @@ import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
 
 const NotificationWorklist = () => {
+  const { apiClient } = useConfig()
+
   const navigate = useNavigate()
   const selectedDate = dayjs().locale({
     ...locale
@@ -42,7 +44,7 @@ const NotificationWorklist = () => {
       filterModel
     ],
     queryFn: () =>
-      ApiClient.getMatches(
+      apiClient.getMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
         date.format('YYYY-MM-DD'),

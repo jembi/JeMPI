@@ -16,20 +16,21 @@ import { AxiosError, AxiosProgressEvent, AxiosRequestConfig } from 'axios'
 import { useSnackbar } from 'notistack'
 import { FC, useRef, useState } from 'react'
 import { FileRejection, useDropzone } from 'react-dropzone'
-import ApiClient from '../../services/ApiClient'
 import { FileObj, UploadStatus } from '../../types/FileUpload'
 import Button from '../shared/Button'
 import './Import.css'
 import UploadFileListItem from './UploadFileListItem'
 import { formatBytesSize, megabytesToBytes } from 'utils/formatters'
-
-const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
-  +(process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES ?? 128)
-)
+import { useConfig } from 'hooks/useConfig'
 const DropZone: FC = () => {
   const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
   const abortControllerRef = useRef<AbortController>(new AbortController())
   const { enqueueSnackbar } = useSnackbar()
+  const { apiClient, config } = useConfig()
+
+  const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
+    config.maxUploadCsvSize
+  )
 
   const onDrop = (
     acceptedFiles: File[],
@@ -70,7 +71,7 @@ const DropZone: FC = () => {
   })
 
   const uploadFile = async (fileObj: FileObj) => {
-    return await ApiClient.uploadFile(createFileUploadAxiosConfig(fileObj))
+    return await apiClient.uploadFile(createFileUploadAxiosConfig(fileObj))
   }
 
   const createFileUploadAxiosConfig = (
