@@ -8,6 +8,8 @@ import {
   Person
 } from '@mui/icons-material'
 import { pink } from '@mui/material/colors'
+import MandU from './widgets/MandU'
+import BetaFscore from './widgets/BetaFscore'
 
 const Dashboard = () => {
   return (
@@ -24,7 +26,7 @@ const Dashboard = () => {
       />
       <Divider />
       <Stack padding={'2rem 1rem 1rem 1rem'}>
-        <Grid container spacing={2}>
+        <Grid container spacing={{ xs: 2, md: 5 }}>
           <Grid item xs={12} lg={6}>
             <Box component="fieldset">
               <legend>Records</legend>
@@ -70,6 +72,12 @@ const Dashboard = () => {
                 </Grid>
               </Grid>
             </Box>
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <MandU />
+          </Grid>
+          <Grid item xs={12} lg={12}>
+            <BetaFscore />
           </Grid>
         </Grid>
       </Stack>

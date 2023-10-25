@@ -31,7 +31,7 @@ function CountWidget({
         variant="rounded"
         sx={{
           boxShadow: 3,
-          backgroundColor: iconBackgroundColor || 'primary.main',
+          backgroundColor: iconBackgroundColor,
           width: 75,
           height: 75
         }}
