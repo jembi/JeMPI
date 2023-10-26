@@ -10,6 +10,7 @@ import {
 import { pink } from '@mui/material/colors'
 import MandU from './widgets/MandU'
 import BetaFscore from './widgets/BetaFscore'
+import ConfusionMatrix from './widgets/ConfusionMatrix'
 
 const Dashboard = () => {
   return (
@@ -75,6 +76,12 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} lg={6}>
             <MandU />
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <Box component="fieldset" >
+              <legend>Confusion Matrix</legend>
+              <ConfusionMatrix />
+            </Box>
           </Grid>
           <Grid item xs={12} lg={12}>
             <BetaFscore />
