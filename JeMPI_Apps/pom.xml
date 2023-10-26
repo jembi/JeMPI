@@ -480,6 +480,7 @@
         <module>JeMPI_EM</module>
         <module>JeMPI_Linker</module>
         <module>JeMPI_GUI</module>
+        <module>JeMPI_Monitor</module>
     </modules>
 
 </project>

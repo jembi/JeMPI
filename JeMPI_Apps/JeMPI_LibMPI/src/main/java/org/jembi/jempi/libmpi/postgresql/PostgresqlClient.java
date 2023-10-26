@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 
-final class PostgresqlClient {
+public final class PostgresqlClient {
 
    private static final Logger LOGGER = LogManager.getLogger(PostgresqlClient.class);
    private Connection connection;
@@ -18,11 +18,11 @@ final class PostgresqlClient {
       connection = null;
    }
 
-   static PostgresqlClient getInstance() {
+   public static PostgresqlClient getInstance() {
       return ClientHolder.INSTANCE;
    }
 
-   void config(
+   public void config(
          final String url,
          final String usr,
          final String psw) {
@@ -31,7 +31,7 @@ final class PostgresqlClient {
       this.psw = psw;
    }
 
-   void startTransaction() {
+   public void startTransaction() {
       if (connection == null) {
          try {
             connection = DriverManager.getConnection(url, usr, psw);
@@ -42,10 +42,10 @@ final class PostgresqlClient {
       }
    }
 
-   void closeTransaction() {
+   public void closeTransaction() {
    }
 
-   void zapTransaction() {
+   public void zapTransaction() {
       try {
          if (connection != null) {
             connection.close();
@@ -56,15 +56,15 @@ final class PostgresqlClient {
       }
    }
 
-   Statement createStatement() throws SQLException {
+   public Statement createStatement() throws SQLException {
       return connection.createStatement();
    }
 
-   PreparedStatement prepareStatement(final String sql) throws SQLException {
+   public PreparedStatement prepareStatement(final String sql) throws SQLException {
       return connection.prepareStatement(sql);
    }
 
-   PreparedStatement prepareStatement(
+   public PreparedStatement prepareStatement(
          final String sql,
          final int resultSetType) throws SQLException {
       return connection.prepareStatement(sql, resultSetType);
