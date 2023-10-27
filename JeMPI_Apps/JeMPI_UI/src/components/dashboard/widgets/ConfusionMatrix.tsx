@@ -103,14 +103,16 @@ const ConfusionMatrix = () => {
             <Grid item lg={6}>
               <Grid container alignItems={'center'}>
                 <Grid item lg={6} textAlign={'center'}>
-                  Precesion
+                  <Typography variant="button">Precesion</Typography>
                 </Grid>
                 <Grid item lg={6}>
                   <Box
                     sx={{
-                      width: '40px',
+                      width: '30px',
                       height: '40px',
-                      backgroundColor: '#9FD383'
+                      marginLeft: '5px',
+                      backgroundColor: '#9FD383',
+                      boxShadow: 3
                     }}
                   ></Box>
                 </Grid>
@@ -138,14 +140,73 @@ const ConfusionMatrix = () => {
                     sx={{
                       width: '40px',
                       height: '40px',
-                      background: 'linear-gradient(to right, #9FD383 50%, #EC7974 50%)'
+                      background:
+                        'linear-gradient(to right, #9FD383 50%, #EC7974 50%)',
+                      boxShadow: 3
                     }}
                   ></Box>
                 </Grid>
               </Grid>
             </Grid>
             <Grid item lg={6}>
-              1
+              <Grid container alignItems={'center'}>
+                <Grid item lg={6} textAlign={'center'}>
+                  <Typography variant="button">Recall</Typography>
+                </Grid>
+                <Grid item lg={6}>
+                  <Box
+                    sx={{
+                      width: '30px',
+                      height: '40px',
+                      marginLeft: '5px',
+                      backgroundColor: '#9FD383',
+                      boxShadow: 3
+                    }}
+                  ></Box>
+                </Grid>
+                <Grid item lg={6} textAlign={'center'}>
+                  (5000 / 5050) =
+                </Grid>
+                <Grid
+                  item
+                  lg={6}
+                  minHeight={'50px'}
+                  textAlign={'start'}
+                  justifyContent={'center'}
+                  display={'flex'}
+                  flexDirection={'column'}
+                  alignItems={'start'}
+                  justifyItems={'start'}
+                >
+                  <Divider component={'button'} sx={{ width: '40px' }} />
+                </Grid>
+                <Grid item lg={6} textAlign={'center'}>
+                  0,99
+                </Grid>
+                <Grid item lg={6} textAlign={'center'}>
+                  <Box
+                    sx={{
+                      width: '40px',
+                      height: '40px',
+                      background: '#D5E8D4',
+                      display: 'flex',
+                      justifyContent: 'end',
+                      alignItems: 'center',
+                      paddingY: '3px',
+                      paddingRight: '3px'
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: '25px',
+                        height: '32px',
+                        background: '#9FD383',
+                        boxShadow: 3
+                      }}
+                    ></Box>
+                  </Box>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

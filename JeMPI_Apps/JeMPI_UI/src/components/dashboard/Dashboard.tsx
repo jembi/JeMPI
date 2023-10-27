@@ -23,7 +23,6 @@ const Dashboard = () => {
             title: 'Dashboard'
           }
         ]}
-        description={''}
       />
       <Divider />
       <Stack padding={'2rem 1rem 1rem 1rem'}>

@@ -15,13 +15,16 @@ const rows = [
   createData('Given Name', 75, 6.0),
   createData('Family Name', 237, 9.0),
   createData('Gender', 0.5, 0.7),
-  createData('Birthdate', 305, 3.7)
+  createData('Birthdate', 305, 3.7),
+  createData('Phone', 305, 3.7),
+  createData('National Id ', 305, 3.7),
+  createData('City ', 305, 3.7)
 ]
 function MandU() {
   return (
     <Box component={'fieldset'}>
       <legend>M & U Values</legend>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ minHeight: '450px' }}>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
