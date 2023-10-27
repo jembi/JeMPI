@@ -16,7 +16,9 @@ export default async function getConfig() {
     const conf = (await res.json()) as any
     return {
       isDev: conf.nodeEnv !== 'production',
-      apiUrl: conf.apiUrl,
+      apiUrl: conf.apiHost
+        ? `${conf.apiHost}:${conf.apiPort}`
+        : `${window.location.protocol}//${window.location.hostname}:${conf.apiPort}`,
       shouldMockBackend: conf.shouldMockBackend,
       KeyCloakUrl: conf.KeyCloakUrl,
       KeyCloakRealm: conf.KeyCloakRealm,
@@ -31,8 +33,9 @@ export default async function getConfig() {
     )
     return {
       isDev: process.env.NODE_ENV !== 'production',
-      apiUrl:
-        process.env.REACT_APP_JEMPI_BASE_URL || 'http://localhost:50000/JeMPI',
+      apiUrl: process.env.REACT_APP_JEMPI_BASE_API_HOST
+        ? `${process.env.REACT_APP_JEMPI_BASE_API_HOST}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`
+        : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`,
       shouldMockBackend: process.env.REACT_APP_MOCK_BACKEND === 'true',
       KeyCloakUrl: process.env.KC_FRONTEND_URL || 'http://localhost:9088',
       KeyCloakRealm: process.env.KC_REALM_NAME || 'platform-realm',

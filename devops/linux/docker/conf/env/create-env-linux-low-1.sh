@@ -27,6 +27,7 @@ export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
 # API related env vars
+export API_PORT=50000
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"

@@ -42,7 +42,7 @@ export class ApiClient {
         withCredentials: true,
         baseURL: config.apiUrl
           ? `${config.apiUrl}/JeMPI`
-          : 'http://localhost:50000/JeMPI',
+          : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}/JeMPI`,
         headers: { 'Content-Type': 'application/json' },
         responseType: 'json'
       })
