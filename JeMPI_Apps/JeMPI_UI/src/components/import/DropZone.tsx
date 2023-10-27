@@ -62,22 +62,24 @@ const DropZone: FC = () => {
     acceptedFiles: File[],
     fileRejections: FileRejection[]
   ): void => {
-    validate(fileRejections)
-    setFilesObj({
-      file: acceptedFiles[0],
-      progress: 0,
-      status: UploadStatus.Pending
-    })
+    if (validate(fileRejections)) {
+      setFilesObj({
+        file: acceptedFiles[0],
+        progress: 0,
+        status: UploadStatus.Pending
+      });
+    }
   }
-
-  const validate = (fileRejections: FileRejection[]): void => {
+  
+  const validate = (fileRejections: FileRejection[]): boolean => {
     if (fileRejections.length > 0) {
       enqueueSnackbar(fileRejections[0].errors[0].message, {
         variant: 'error'
-      })
-      return
+      });
+      return false;
     }
-  }
+    return true;
+  };
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { 'text/csv': ['.csv'] },
