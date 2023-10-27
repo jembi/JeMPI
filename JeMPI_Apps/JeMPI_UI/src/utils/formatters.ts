@@ -38,11 +38,6 @@ export const formatName = (value: string) => {
   return `${fullName[0] ? fullName[0] : ''} ${fullName[1] ? fullName[1] : ''}`
 }
 
-export const truncateString = (value: string, maxLength: number) => {
-  if (value.length > maxLength) return `${value.substring(0, maxLength)}...`
-  return value
-}
-
 export const formatBytesSize = (maxSizeInBytes: number) => {
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
   let size = maxSizeInBytes
