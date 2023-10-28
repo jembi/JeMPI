@@ -10,14 +10,6 @@ pushd .
   source ./conf.env
 
   declare -a SERVICES=(
-    async-receiver
-    sync-receiver
-    etl
-    controller
-    em
-    linker
-    api
-    api-kc
     ratel
     alpha-03
     alpha-02
@@ -26,7 +18,6 @@ pushd .
     kafka-03
     kafka-02
     kafka-01
-    ui
   )
 
   for SERVICE in ${SERVICES[@]}; do
