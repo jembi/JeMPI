@@ -30,7 +30,6 @@ const SimpleSearch: React.FC = () => {
   return (
     <Container maxWidth={false}>
       <PageHeader
-        description="Quickly access the information you need with our powerful search."
         title="Simple Search"
         breadcrumbs={[
           {

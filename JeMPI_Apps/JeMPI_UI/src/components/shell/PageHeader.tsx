@@ -13,7 +13,6 @@ interface PageHeaderProps {
   breadcrumbs?: Array<{ icon?: JSX.Element; title?: string; link?: string }>
   buttons?: JSX.Element[]
   title: string
-  description?: string | JSX.Element
   color?: string
 }
 
@@ -21,7 +20,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   breadcrumbs,
   buttons,
   title,
-  description,
   color = 'rgba(0, 0, 0, 0.87)'
 }) => {
   const Navigate = useNavigate()
@@ -63,19 +61,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           >
             {title}
           </Typography>
-          {typeof description === 'string' ? (
-            <Typography
-              sx={{
-                fontSize: '16px',
-                fontWeight: 400,
-                color: 'rgba(0, 0, 0, 0.6)'
-              }}
-            >
-              {description}
-            </Typography>
-          ) : (
-            description
-          )}
         </Grid>
       </Grid>
       <Grid item container spacing={1} xs="auto">

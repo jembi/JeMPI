@@ -10,3 +10,12 @@ export enum UploadStatus {
   Complete = 'Complete',
   Failed = 'Failed'
 }
+
+export type importQueriesType = {
+  reporting: boolean
+  computing: number
+  leftMargin: number
+  rightMargin: number
+  threshold: number
+  windowSize: number
+}
