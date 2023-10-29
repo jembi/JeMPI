@@ -10,8 +10,6 @@ $postgresql_port                              = 5432
 $dgraph_hosts                                 = $linux_server_ip
 $dgraph_ports                                 = '9080'
 
-$serveUIPort                                  = 3000
-
 $api_ip                                       = 'localhost'
 $api_http_port                                = 50000
 
@@ -75,9 +73,6 @@ $def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE"
 $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
 
-$serveUIPort = 3000
-
-
 # 
 # build UI apps
 #
@@ -121,8 +116,8 @@ $async_handle = Start-Process -FilePath java `
                               -Debug `
                               -Verbose `
                               -PassThru `
-                              -RedirectStandardError 'async-stderr.txt' 
-#                             -RedirectStandardOutput 'async-stdout.txt'
+                              -RedirectStandardError 'async_stderr.txt'
+#                             -RedirectStandardOutput 'async_stdout.txt'
 $async_handle | Export-Clixml -Path (Join-Path './' 'async_handle.xml')
 
 #
@@ -151,8 +146,9 @@ $etl_handle = Start-Process -FilePath java `
                             -WorkingDirectory $etl_folder `
                             -Debug `
                             -Verbose `
-                            -PassThru `                            -RedirectStandardError 'etl-stderr.txt'
-#                            -RedirectStandardOutput 'etl-stdout.txt'
+                            -PassThru `
+                            -RedirectStandardError 'etl_stderr.txt'
+#                           -RedirectStandardOutput 'etl_stdout.txt'
 $etl_handle | Export-Clixml -Path (Join-Path './' 'etl_handle.xml')
 
 
@@ -190,8 +186,8 @@ $controller_handle = Start-Process -FilePath java `
                                    -Debug `
                                    -Verbose `
                                    -PassThru `
-                                   -RedirectStandardError 'controller-stderr.txt'
-#                                   -RedirectStandardOutput 'controller-stdout.txt'
+                                   -RedirectStandardError 'controller_stderr.txt'
+#                                  -RedirectStandardOutput 'controller_stdout.txt'
 $controller_handle | Export-Clixml -Path (Join-Path './' 'controller_handle.xml')
 
 
@@ -236,8 +232,8 @@ $linker_handle = Start-Process -FilePath java `
                                -Debug `
                                -Verbose `
                                -PassThru `
-                               -RedirectStandardError 'linker-stderr.txt'
-#                               -RedirectStandardOutput 'linker-stdout.txt'
+                               -RedirectStandardError 'linker_stderr.txt'
+#                              -RedirectStandardOutput 'linker_stdout.txt'
 $linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
 
 
@@ -277,13 +273,6 @@ $api_handle = Start-Process -FilePath java `
                             -Debug `
                             -Verbose `
                             -PassThru `
-                            -RedirectStandardError 'api_stderr.txt' 
+                            -RedirectStandardError 'api_stderr.txt'
 #                            -RedirectStandardOutput 'api_stdout.txt'
 $api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')
-
-# PRODUCTION SERVE
-#Push-Location ..\..\..\JeMPI_Apps\JeMPI_UI
-#  # Serve the built project
-#  $serveCommand = "serve -s build -l $serveUIPort"
-#  Invoke-Expression -Command $serveCommand
-#Pop-Location

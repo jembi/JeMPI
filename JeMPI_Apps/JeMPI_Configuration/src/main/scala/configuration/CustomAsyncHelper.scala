@@ -68,14 +68,14 @@ private object CustomAsyncHelper {
         uniqueInteractionFields(config.uniqueInteractionFields.get))
         +
         (if (config.additionalNodes.isEmpty) "" else
-          config.additionalNodes.get.map(x => s"""${additionalNodeFields(x)};""").mkString("\n")) + "\n"
+          config.additionalNodes.get.map(x => s"""${additionalNodeFields(x)};""").mkString(sys.props("line.separator"))) + sys.props("line.separator")
         +
         config
           .demographicFields
           .filter(f => f.source.isDefined && f.source.get.csvCol.isDefined)
           .map(f =>
             s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.source.get.csvCol.get};""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
     end columnIndices
 
     def demographicFields(): String =
@@ -86,7 +86,7 @@ private object CustomAsyncHelper {
         } else {
           s"""${" " * 9}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM),"""
         })
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
         .dropRight(1)
     end demographicFields
 
@@ -112,7 +112,7 @@ private object CustomAsyncHelper {
     def customNodeConstructor(additionalNode: AdditionalNode): String =
 
       def arguments(fields: Array[AdditionalNodeField]): String =
-        fields.map(f => s"""         csvRecord.get(${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase()}_COL_NUM)""").mkString(",\n")
+        fields.map(f => s"""         csvRecord.get(${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase()}_COL_NUM)""").mkString(s",${sys.props("line.separator")}")
       end arguments
 
       s"""   static Custom${additionalNode.nodeName} custom${additionalNode.nodeName}(final CSVRecord csvRecord) {
