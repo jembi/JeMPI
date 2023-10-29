@@ -67,12 +67,12 @@ private object CustomDgraphInteraction {
           .uniqueInteractionFields
           .get
           .map(f => mapField(f.fieldName, f.fieldType))
-          .mkString("\n") + "\n"
+          .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
     end interactionFields
@@ -83,12 +83,12 @@ private object CustomDgraphInteraction {
           .uniqueInteractionFields
           .get
           .map(f => s"""${" " * 11}interaction.uniqueInteractionData().${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-          .mkString("\n") + "\n"
+          .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f => s"""${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
     end interactionConstructorArguments
@@ -101,7 +101,7 @@ private object CustomDgraphInteraction {
           .uniqueInteractionFields
           .get
           .map(f => s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
       end if
@@ -111,7 +111,7 @@ private object CustomDgraphInteraction {
       config
         .demographicFields
         .map(f => s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
     end demographicArguments

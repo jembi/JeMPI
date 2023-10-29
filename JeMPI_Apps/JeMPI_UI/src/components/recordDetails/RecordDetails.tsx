@@ -254,7 +254,6 @@ const RecordDetails = () => {
           { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
         ]}
         title={`Patient interactions`}
-        description={`Browse patient interactions for GID ${uid}`}
       />
       <Divider />
       <ConfirmEditingDialog

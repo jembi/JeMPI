@@ -27,7 +27,7 @@ object CustomLinkerDeterministic {
           s"""
              |             || """.stripMargin)
         rule._2.vars.zipWithIndex.foreach((field, var_idx) =>
-          writer.print(s"StringUtils.isNotBlank(interaction.${Utils.snakeCaseToCamelCase(field)})${if (var_idx + 1 < rule._2.vars.length) s"\n${" " * 13}&& " else ""}")
+          writer.print(s"StringUtils.isNotBlank(interaction.${Utils.snakeCaseToCamelCase(field)})${if (var_idx + 1 < rule._2.vars.length) s"${sys.props("line.separator")}${" " * 13}&& " else ""}")
         )
       })
       writer.println(
