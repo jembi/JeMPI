@@ -36,10 +36,10 @@ public class DataOperator extends BaseOperation<Void, DataEndPointProcessor> {
     @Override
     public Route GetEndpoints() {
 
-        // /data/delete/(postgres|dgraph)/table<string>|all)/:force
+        // /data/delete/^(postgres|dgraph)$/(__all|[a-zA-Z][a-zA-Z0-9_]*)/?\?force
         return concat(get(() -> concat(this.GetOperationsEndpoints(EndPointPaths.DELETE ,
                                     () -> pathPrefix(segment(Pattern.compile("^(postgres|dgraph)$")),
-                                            dbType -> path(segment(Pattern.compile("^.*$")),
+                                            dbType -> path(segment(Pattern.compile("(__all|[a-zA-Z][a-zA-Z0-9_]*)")),
                                                     tableName -> parameterOptional("force", force ->
                                                              this.endPointProcessor.deleteAll(dbType, tableName, force.isPresent()
 

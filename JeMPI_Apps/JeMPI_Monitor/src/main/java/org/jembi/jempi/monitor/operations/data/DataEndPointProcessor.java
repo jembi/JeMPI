@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.monitor.BaseResponse;
 import org.jembi.jempi.monitor.lib.LibRegistry;
 import org.jembi.jempi.monitor.operations.BaseProcessor;
+import org.jembi.jempi.monitor.lib.dal.IDAL;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -19,6 +20,17 @@ public class DataEndPointProcessor extends BaseProcessor {
     public DataEndPointProcessor(LibRegistry libRegistry) {
         super(libRegistry);
     }
+
+    private IDAL GetDAL(String dbType) throws ClassNotFoundException{
+        if (dbType.equals("postgres")){
+            return this.libRegistry.postgres;
+        }
+        else if (dbType.equals("dgraph")){
+            return this.libRegistry.dGraph;
+        }
+        throw new ClassNotFoundException(String.format("Unknown dbType %s", dbType));
+    }
+
     public Route deleteAll(String dbType, String tableName, Boolean force){
         if (this.libRegistry.runnerChecker.IsJeMPIRunning() && !force){
            return complete(StatusCodes.FORBIDDEN,
@@ -29,10 +41,10 @@ public class DataEndPointProcessor extends BaseProcessor {
         try {
             Callable<Boolean> runFunc;
             if (!Objects.equals(tableName, "__all")){
-                runFunc = () -> this.libRegistry.postgres.deleteTableData(tableName);
+                runFunc = () -> this.GetDAL(dbType).deleteTableData(tableName);
             }
             else{
-                runFunc = () -> this.libRegistry.postgres.deleteAllData();
+                runFunc = () -> this.GetDAL(dbType).deleteAllData();
             }
 
             if (runFunc.call()){

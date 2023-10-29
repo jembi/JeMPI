@@ -1,13 +1,14 @@
 package org.jembi.jempi.monitor.lib;
 
 import org.apache.logging.log4j.Level;
+import org.jembi.jempi.monitor.lib.dal.dgraph.LibDGraph;
 import org.jembi.jempi.monitor.lib.dal.postgres.LibPostgres;
 import org.jembi.jempi.monitor.lib.runnerChecker.RunnerChecker;
 
 import java.util.Locale;
 
 public class LibRegistry {
-
+     public final LibDGraph dGraph;
      public final LibPostgres postgres;
      public final RunnerChecker runnerChecker;
      public LibRegistry( final Level level,
@@ -22,6 +23,8 @@ public class LibRegistry {
 
           //TODO:Add try catch
           this.postgres = new LibPostgres(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);
+          this.dGraph = new LibDGraph(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);
+
           this.runnerChecker = new RunnerChecker(apiPort);
      }
 
