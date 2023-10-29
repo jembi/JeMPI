@@ -54,7 +54,7 @@ public class DataEndPointProcessor extends BaseProcessor {
 
         } catch (Exception e){
             LOGGER.error("An error occurred whilst try to delete the data", e);
-            return complete(StatusCodes.INTERNAL_SERVER_ERROR, new BaseResponse(String.format("An error occurred whilst try to delete the data. %s", e.getMessage()), true), JSON_MARSHALLER);
+            return complete(StatusCodes.INTERNAL_SERVER_ERROR, new BaseResponse(String.format("An error occurred whilst try to delete the data. Error Message: %s", e.getMessage()), true), JSON_MARSHALLER);
         }
 
     }

@@ -23,8 +23,11 @@ public class LibRegistry {
 
           //TODO:Add try catch
           this.postgres = new LibPostgres(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);
-          this.dGraph = new LibDGraph(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);
 
+          if (dgraphHosts.length != dgraphPorts.length){
+               throw new ArrayIndexOutOfBoundsException("The length of dgraph hosts should match that of ports");
+          }
+          this.dGraph = dgraphHosts.length > 0 ? new LibDGraph(dgraphHosts, dgraphPorts) : null;
           this.runnerChecker = new RunnerChecker(apiPort);
      }
 
