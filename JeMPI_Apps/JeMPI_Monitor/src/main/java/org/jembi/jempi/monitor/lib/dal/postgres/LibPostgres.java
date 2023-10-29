@@ -21,11 +21,11 @@ public class LibPostgres implements IDAL {
     private final String url;
     private final String usr;
     private final String psw;
-    public LibPostgres(String URL, String USR, String PSW) {
+    public LibPostgres(String url, String usr, String psw) {
         LOGGER.info("{}", "LibPostgresql Constructor");
-        this.url = URL;
-        this.usr = USR;
-        this.psw = PSW;
+        this.url = url;
+        this.usr = usr;
+        this.psw = psw;
     }
 
     private Connection GetConnection() throws SQLException{
