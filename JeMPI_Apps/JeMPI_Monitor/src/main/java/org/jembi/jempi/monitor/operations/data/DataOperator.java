@@ -7,9 +7,13 @@ import org.jembi.jempi.monitor.operations.BaseOperation;
 
 import akka.http.javadsl.server.Route;
 import static akka.http.javadsl.server.Directives.*;
+import static akka.http.javadsl.server.PathMatchers.segment;
+
 import akka.actor.typed.javadsl.ActorContext;
 
-public class DataOperator extends BaseOperation<Void, DataEndPontProcessor> {
+import java.util.regex.Pattern;
+
+public class DataOperator extends BaseOperation<Void, DataEndPointProcessor> {
 
     static class EndPointPaths{
         public static final String DELETE = "delete";
@@ -21,8 +25,8 @@ public class DataOperator extends BaseOperation<Void, DataEndPontProcessor> {
     }
 
     @Override
-    protected DataEndPontProcessor GetEndPointOperatorProcessor(LibRegistry libRegistry) {
-        return new DataEndPontProcessor();
+    protected DataEndPointProcessor GetEndPointOperatorProcessor(LibRegistry libRegistry) {
+        return new DataEndPointProcessor(libRegistry);
     }
 
     public DataOperator(ActorContext<Void> actorContext, LibRegistry libRegistry) {
@@ -32,12 +36,16 @@ public class DataOperator extends BaseOperation<Void, DataEndPontProcessor> {
     @Override
     public Route GetEndpoints() {
 
-        return concat(get(() -> concat(
-                                        path(this.GetOperationsEndpoints(EndPointPaths.DELETE),
-                                                () -> {
-                                                    this.endPointProcessor.deleteAll();
-                                                    return complete("ssss");
-                                                }))));
+        // /data/delete/(postgres|dgraph)/table<string>|all)/:force
+        return concat(get(() -> concat(this.GetOperationsEndpoints(EndPointPaths.DELETE ,
+                                    () -> pathPrefix(segment(Pattern.compile("^(postgres|dgraph)$")),
+                                            dbType -> path(segment(Pattern.compile("^.*$")),
+                                                    tableName -> parameterOptional("force", force ->
+                                                             this.endPointProcessor.deleteAll(dbType, tableName, force.isPresent()
+
+
+        ))))))));
+
     }
 
     @Override
@@ -45,3 +53,4 @@ public class DataOperator extends BaseOperation<Void, DataEndPontProcessor> {
         return "data";
     }
 }
+

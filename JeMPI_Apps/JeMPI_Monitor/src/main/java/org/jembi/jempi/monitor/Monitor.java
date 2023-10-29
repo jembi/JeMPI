@@ -7,7 +7,6 @@ import akka.actor.typed.Terminated;
 import akka.actor.typed.javadsl.Behaviors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.monitor.lib.LibRegistry;
 
@@ -40,7 +39,8 @@ public class Monitor {
                             AppConfig.POSTGRESQL_PORT,
                             AppConfig.POSTGRESQL_USER,
                             AppConfig.POSTGRESQL_PASSWORD,
-                            AppConfig.POSTGRESQL_DATABASE);
+                            AppConfig.POSTGRESQL_DATABASE,
+                            AppConfig.API_HTTP_PORT);
 
                     restServer = RestHttpServer.create();
                     restServer.open("0.0.0.0",

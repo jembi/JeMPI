@@ -5,6 +5,9 @@ import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
+import akka.http.javadsl.model.StatusCodes;
+import akka.http.javadsl.server.ExceptionHandler;
+import akka.http.javadsl.server.RejectionHandler;
 import akka.http.javadsl.server.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +20,7 @@ import org.jembi.jempi.monitor.operations.OperationsRegistry;
 
 import java.util.concurrent.CompletionStage;
 
+import static akka.http.javadsl.server.Directives.complete;
 import static akka.http.javadsl.server.Directives.concat;
 
 public class RestHttpServer {
@@ -40,7 +44,15 @@ public class RestHttpServer {
 
         monitorOperators =  OperationsRegistry.getRegistry(actorContext, libRegistry);
         Http http = Http.get(actorContext.getSystem());
-        binding = http.newServerAt(httpServerHost, httpPort).bind(this.createMonitorEndPoints());
+
+        final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler();
+        final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder()
+                .match(Exception.class, x -> {
+                    LOGGER.error("An exception occurred while executing the Route", x);
+                    return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred. Please see server logs for details");
+                }).build();
+
+        binding = http.newServerAt(httpServerHost, httpPort).bind(this.createMonitorEndPoints().seal(rejectionHandler, exceptionHandler));
         LOGGER.info("Monitoring server running at http://{}:{}", httpServerHost, httpPort);
     }
 

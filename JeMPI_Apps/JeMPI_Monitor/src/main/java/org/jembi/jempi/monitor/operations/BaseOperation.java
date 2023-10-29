@@ -3,15 +3,18 @@ package org.jembi.jempi.monitor.operations;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
-import akka.http.javadsl.server.PathMatcher0;
+import akka.http.javadsl.server.Route;
 import org.jembi.jempi.monitor.lib.LibRegistry;
 
+import java.util.function.Supplier;
+
+import static akka.http.javadsl.server.Directives.pathPrefix;
 import static akka.http.javadsl.server.PathMatchers.segment;
 
 public abstract class BaseOperation<T, E> implements IMonitorOperator {
 
-    protected PathMatcher0 GetOperationsEndpoints(final String prefix){
-        return  segment(this.GetBaseBasePrefix()).slash(segment((prefix)));
+    protected Route GetOperationsEndpoints(final String prefix, final Supplier<Route> pathFunc){
+        return  pathPrefix(segment(this.GetBaseBasePrefix()).slash(segment((prefix))), pathFunc);
     }
     abstract protected Behavior<T> GetActorOperatorProcessor(LibRegistry libRegistry);
     abstract protected E GetEndPointOperatorProcessor(LibRegistry libRegistry);
@@ -25,7 +28,5 @@ public abstract class BaseOperation<T, E> implements IMonitorOperator {
             this.actorProcessor = actorContext.spawn(actorBehavior, String.format("%s-Processor",  this.GetBaseBasePrefix())); //TODO: Maybe change
             actorContext.watch(this.actorProcessor);
         }
-
-
     }
 }

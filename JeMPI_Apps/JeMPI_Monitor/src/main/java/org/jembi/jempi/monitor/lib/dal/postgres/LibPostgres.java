@@ -11,4 +11,12 @@ public class LibPostgres  {
         LOGGER.info("{}", "LibPostgresql Constructor");
         PostgresqlClient.getInstance().config(URL, USR, PSW);
     }
+
+    public boolean deleteAllData(){
+        return false;
+    }
+
+    public boolean deleteTableData(String tableName){
+        return  false;
+    }
 }
