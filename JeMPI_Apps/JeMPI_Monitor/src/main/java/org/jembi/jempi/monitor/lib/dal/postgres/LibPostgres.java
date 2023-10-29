@@ -2,10 +2,12 @@ package org.jembi.jempi.monitor.lib.dal.postgres;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.monitor.RestHttpServer;
 import org.jembi.jempi.monitor.lib.dal.IDAL;
 
 import java.sql.*;
+import java.util.Locale;
 
 @FunctionalInterface
 interface ThrowingFunction<T, R, E extends Exception> {
@@ -61,7 +63,6 @@ public class LibPostgres implements IDAL {
 
         });
     }
-
     public boolean deleteTableData(String tableName){
         return  false;
     }
