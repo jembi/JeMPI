@@ -53,6 +53,7 @@ public class DataEndPointProcessor extends BaseProcessor {
             return complete(StatusCodes.INTERNAL_SERVER_ERROR, new BaseResponse("Was unable to delete table data", true), JSON_MARSHALLER);
 
         } catch (Exception e){
+            LOGGER.error("An error occurred whilst try to delete the data", e);
             return complete(StatusCodes.INTERNAL_SERVER_ERROR, new BaseResponse("An error occurred whilst try to delete the data. See server logs for more details", true), JSON_MARSHALLER);
         }
 
