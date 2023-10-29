@@ -31,6 +31,7 @@ public class LibDGraph implements IDAL {
     private static DgraphClient dGraphClient = null;
     private final String[] host;
     private final int[] port;
+    private final int[] httpPorts;
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class PostResponse{
         @JsonIgnoreProperties(ignoreUnknown = true)
@@ -79,10 +80,11 @@ public class LibDGraph implements IDAL {
         return dGraphClient;
 
     }
-    public LibDGraph(String[] host, int[] port) {
+    public LibDGraph(String[] host, int[] port, int[] httpPorts) {
         LOGGER.info("{}", "LibDGraph Constructor");
         this.host = host;
         this.port = port;
+        this.httpPorts = httpPorts;
     }
 
     private <T> Boolean RunQuery(ThrowingFunction<Transaction, T, Exception> getStatement) throws Exception{
@@ -102,7 +104,7 @@ public class LibDGraph implements IDAL {
     private Boolean PostRequest(final String urlSuffix, Supplier<String> postContent) throws Exception{
         // Ensuring that client connect
         getDGraphClient();
-        URL url = new URL(String.format("http://%s:%d/%s", host[0], 8081, urlSuffix)); //TODO: Port
+        URL url = new URL(String.format("http://%s:%d/%s", host[0], httpPorts[0] , urlSuffix));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
         con.setRequestMethod("POST");

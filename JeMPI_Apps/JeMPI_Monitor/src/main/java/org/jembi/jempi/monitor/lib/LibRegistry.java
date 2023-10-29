@@ -14,6 +14,7 @@ public class LibRegistry {
      public LibRegistry( final Level level,
                          final String[] dgraphHosts,
                          final int[] dgraphPorts,
+                         final int[] dgraphHttpPorts,
                          final String sqlIP,
                          final int sqlPort,
                          final String sqlUser,
@@ -24,10 +25,10 @@ public class LibRegistry {
           //TODO:Add try catch
           this.postgres = new LibPostgres(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);
 
-          if (dgraphHosts.length != dgraphPorts.length){
-               throw new ArrayIndexOutOfBoundsException("The length of dgraph hosts should match that of ports");
+          if (dgraphHosts.length != dgraphPorts.length || dgraphHttpPorts.length == 0){
+               throw new ArrayIndexOutOfBoundsException("The length of dgraph hosts should match that of ports, and one host has to expose its http port");
           }
-          this.dGraph = dgraphHosts.length > 0 ? new LibDGraph(dgraphHosts, dgraphPorts) : null;
+          this.dGraph = dgraphHosts.length > 0 ? new LibDGraph(dgraphHosts, dgraphPorts, dgraphHttpPorts) : null;
           this.runnerChecker = new RunnerChecker(apiPort);
      }
 

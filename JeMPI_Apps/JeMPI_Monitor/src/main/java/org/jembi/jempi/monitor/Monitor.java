@@ -35,6 +35,7 @@ public class Monitor {
                     LibRegistry libRegistry = new LibRegistry(AppConfig.GET_LOG_LEVEL,
                             AppConfig.getDGraphHosts(),
                             AppConfig.getDGraphPorts(),
+                            AppConfig.getDGraphHttpPorts(),
                             AppConfig.POSTGRESQL_IP,
                             AppConfig.POSTGRESQL_PORT,
                             AppConfig.POSTGRESQL_USER,

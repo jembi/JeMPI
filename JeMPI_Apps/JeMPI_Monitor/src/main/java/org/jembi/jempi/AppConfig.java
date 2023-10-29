@@ -29,6 +29,13 @@ public final class AppConfig {
     public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
     public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
     private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
+    private static final int[] DGRAPH_ALPHA_HTTP_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_HTTP_PORTS").split(",")).mapToInt(s -> {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ex) {
+            return Integer.MIN_VALUE;
+        }
+    }).toArray();
     private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
         try {
             return Integer.parseInt(s);
@@ -46,6 +53,9 @@ public final class AppConfig {
     }
     public static int[] getDGraphPorts() {
         return DGRAPH_ALPHA_PORTS;
+    }
+    public static int[] getDGraphHttpPorts() {
+        return DGRAPH_ALPHA_HTTP_PORTS;
     }
 
     private AppConfig() {
