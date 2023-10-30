@@ -7,6 +7,7 @@ export type Config = {
   KeyCloakClientId: string
   useSso: boolean
   maxUploadCsvSize: number
+  showBrandLogo: boolean
 }
 
 export default async function getConfig() {
@@ -24,7 +25,8 @@ export default async function getConfig() {
       KeyCloakRealm: conf.KeyCloakRealm,
       KeyCloakClientId: conf.KeyCloakClientId,
       useSso: conf.useSso,
-      maxUploadCsvSize: conf.maxUploadCsvSize
+      maxUploadCsvSize: conf.maxUploadCsvSize,
+      showBrandLogo: conf.showBrandLogo
     } as Config
   } catch {
     // eslint-disable-next-line no-console
@@ -43,7 +45,8 @@ export default async function getConfig() {
       useSso: process.env.REACT_APP_ENABLE_SSO === 'true',
       maxUploadCsvSize: +(
         process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES || 128
-      )
+      ),
+      showBrandLogo: process.env.REACT_APP_SHOW_BRAND_LOGO === 'true'
     }
   }
 }
