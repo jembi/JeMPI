@@ -2,13 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { useSnackbar } from 'notistack'
 import { useMemo } from 'react'
-import ApiClient from 'services/ApiClient'
 import { AnyRecord, GoldenRecord } from 'types/PatientRecord'
 import {
   ApiSearchResult,
   CustomSearchQuery,
   SearchQuery
 } from 'types/SimpleSearch'
+import { useConfig } from './useConfig'
 
 interface ReviewLinkParams {
   notificationId: string
@@ -24,7 +24,7 @@ export const useLinkReview = (
   matchThreshold?: number
 ) => {
   const { enqueueSnackbar } = useSnackbar()
-
+  const { apiClient } = useConfig()
   const {
     data: matchDetails,
     error,
@@ -33,7 +33,7 @@ export const useLinkReview = (
   } = useQuery<[GoldenRecord, GoldenRecord[]], AxiosError>({
     queryKey: ['matchDetails', payload],
     queryFn: () => {
-      return ApiClient.getMatchDetails(
+      return apiClient.getMatchDetails(
         payload?.golden_id || '',
         payload?.candidates?.map(c => c.golden_id) || []
       )
@@ -50,7 +50,7 @@ export const useLinkReview = (
   const { data: refineSearchData } = useQuery<ApiSearchResult, AxiosError>({
     queryKey: ['search', refineSearchQuery],
     queryFn: () => {
-      return ApiClient.searchQuery(
+      return apiClient.searchQuery(
         refineSearchQuery ? refineSearchQuery : ({} as SearchQuery),
         true
       )
@@ -84,7 +84,7 @@ export const useLinkReview = (
   const thresholdCandidates = useQuery<AnyRecord[]>({
     queryKey: ['candidates', patientRecord?.uid, matchThreshold],
     queryFn: () =>
-      ApiClient.getCandidates(
+      apiClient.getCandidates(
         patientRecord?.demographicData || {},
         matchThreshold || 0
       ),

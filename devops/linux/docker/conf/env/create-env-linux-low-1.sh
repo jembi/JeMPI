@@ -27,6 +27,7 @@ export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
 # API related env vars
+export API_PORT=50000
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
@@ -52,13 +53,6 @@ export EM_RAM_LIMIT="8G"
 export LINKER_RAM_LIMIT="8G"
 export API_RAM_LIMIT="8G"
 export UI_RAM_LIMIT="8G"
-
-#UI env vars
-export NODE_ENV="developement"
-export REACT_APP_JEMPI_BASE_URL=http://${NODE1_IP}:50000/JeMPI
-export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
-export REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES="128"
 
 # DON'T CHANGE
 export REGISTRY_NODE_IP=${NODE1}:5000/v2

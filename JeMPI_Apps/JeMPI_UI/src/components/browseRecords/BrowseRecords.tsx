@@ -29,7 +29,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { isPatientCorresponding } from 'hooks/useSearch'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import ApiClient from 'services/ApiClient'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
 import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
@@ -38,6 +37,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import getCellComponent from 'components/shared/getCellComponent'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search } from '@mui/icons-material'
+import { useConfig } from 'hooks/useConfig'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -49,6 +49,7 @@ const getAlignment = (fieldName: string) =>
 
 const Records = () => {
   const navigate = useNavigate()
+  const { apiClient } = useConfig()
   const { getFieldsByGroup } = useAppConfig()
 
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
@@ -117,7 +118,7 @@ const Records = () => {
       filterPayload.sortBy
     ],
     queryFn: async () =>
-      (await ApiClient.searchQuery(
+      (await apiClient.searchQuery(
         filterPayload,
         true
       )) as ApiSearchResult<GoldenRecord>,
