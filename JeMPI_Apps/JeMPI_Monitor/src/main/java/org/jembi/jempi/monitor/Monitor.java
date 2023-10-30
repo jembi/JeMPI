@@ -41,7 +41,8 @@ public class Monitor {
                             AppConfig.POSTGRESQL_USER,
                             AppConfig.POSTGRESQL_PASSWORD,
                             AppConfig.POSTGRESQL_DATABASE,
-                            AppConfig.API_HTTP_PORT);
+                            AppConfig.API_HTTP_PORT,
+                            AppConfig.API_IP);
 
                     restServer = RestHttpServer.create();
                     restServer.open("0.0.0.0",

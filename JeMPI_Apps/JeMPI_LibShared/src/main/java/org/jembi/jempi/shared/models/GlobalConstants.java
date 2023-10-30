@@ -67,6 +67,7 @@ public final class GlobalConstants {
    //                         SEGMENT_CURRENT_USER: '/current-user',
 
 
+   public static final String SEGMENT_HEALTH = "health";
    private GlobalConstants() {
    }
 

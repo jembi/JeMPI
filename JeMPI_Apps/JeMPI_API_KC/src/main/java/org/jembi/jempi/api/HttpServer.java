@@ -307,6 +307,7 @@ final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
                                        path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
                                             () -> Routes.patchIidGidLink(actorSystem, backEnd)))),
                     get(() -> concat(
+                          path(GlobalConstants.SEGMENT_HEALTH, () -> complete(StatusCodes.OK)),
                           path(GlobalConstants.SEGMENT_CURRENT_USER, this::routeCurrentUser),
                           path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout),
                           path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,

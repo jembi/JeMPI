@@ -32,13 +32,13 @@ public class DataEndPointProcessor extends BaseProcessor {
     }
 
     public Route deleteAll(String dbType, String tableName, Boolean force) {
-        if (this.libRegistry.runnerChecker.IsJeMPIRunning() && !force){
-           return complete(StatusCodes.FORBIDDEN,
-                   new BaseResponse("Cannot delete data whilst JeMPI is running. Please stop jempi services first (or append the url with /force) ", true),
-                   JSON_MARSHALLER);
-        }
-
         try {
+            if (this.libRegistry.runnerChecker.IsJeMPIRunning() && !force){
+                return complete(StatusCodes.FORBIDDEN,
+                        new BaseResponse("Cannot delete data whilst JeMPI is running. Please stop jempi services first (or append the url with /force) ", true),
+                        JSON_MARSHALLER);
+            }
+
             Callable<Boolean> runFunc;
             if (!Objects.equals(tableName, "__all")){
                 runFunc = () -> this.GetDAL(dbType).deleteTableData(tableName);

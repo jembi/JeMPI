@@ -42,6 +42,7 @@ public final class AppConfig {
         }
     }).toArray();
     public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
+    public static final String API_IP = CONFIG.getString("API_IP");
     public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
     public static String[] getDGraphHosts() {
         return DGRAPH_ALPHA_HOSTS;
