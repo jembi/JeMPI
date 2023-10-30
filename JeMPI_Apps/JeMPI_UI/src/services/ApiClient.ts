@@ -55,7 +55,7 @@ export class ApiClient {
           if (csrfToken) {
             request.headers = {
               ...request.headers,
-              ['X-XSRF-TOKEN']: csrfToken
+              'X-XSRF-TOKEN': csrfToken
             }
           }
         }
