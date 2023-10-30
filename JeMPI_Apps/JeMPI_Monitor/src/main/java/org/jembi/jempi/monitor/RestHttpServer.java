@@ -57,8 +57,8 @@ public class RestHttpServer {
     }
 
     public void close(final ActorSystem<Void> actorSystem) {
-        binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
-                .thenAccept(unbound -> actorSystem.terminate()); // and shutdown when done
+        binding.thenCompose(ServerBinding::unbind)
+                .thenAccept(unbound -> actorSystem.terminate());
     }
 
 

@@ -22,7 +22,6 @@ public class LibRegistry {
                          final String sqlDatabase,
                          final int apiPort) {
 
-          //TODO:Add try catch
           this.postgres = new LibPostgres(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);
 
           if (dgraphHosts.length != dgraphPorts.length || dgraphHttpPorts.length == 0){

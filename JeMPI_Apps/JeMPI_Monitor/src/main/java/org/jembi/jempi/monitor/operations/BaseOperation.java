@@ -25,7 +25,7 @@ public abstract class BaseOperation<T, E> implements IMonitorOperator {
         this.endPointProcessor = this.GetEndPointOperatorProcessor(libRegistry);
 
         if (this.actorProcessor != null){
-            this.actorProcessor = actorContext.spawn(actorBehavior, String.format("%s-Processor", this.GetBaseBasePrefix())); //TODO: Maybe change
+            this.actorProcessor = actorContext.spawn(actorBehavior, String.format("%s-Monitor-Processor", this.GetBaseBasePrefix()));
             actorContext.watch(this.actorProcessor);
         }
     }
