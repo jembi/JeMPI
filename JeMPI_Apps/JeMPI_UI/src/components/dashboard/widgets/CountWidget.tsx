@@ -5,7 +5,7 @@ import React from 'react'
 type countWidgetType = {
   label: string
   value: number
-  icon: React.ReactElement
+  icon?: React.ReactElement
   iconBackgroundColor?: string
 }
 function CountWidget({
@@ -27,17 +27,19 @@ function CountWidget({
         boxShadow: 3
       }}
     >
-      <Avatar
-        variant="rounded"
-        sx={{
-          boxShadow: 3,
-          backgroundColor: iconBackgroundColor,
-          width: 75,
-          height: 75
-        }}
-      >
-        {icon}
-      </Avatar>
+      {icon && (
+        <Avatar
+          variant="rounded"
+          sx={{
+            boxShadow: 3,
+            backgroundColor: iconBackgroundColor,
+            width: 75,
+            height: 75
+          }}
+        >
+          {icon}
+        </Avatar>
+      )}
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         <Typography variant="subtitle2">{label}</Typography>
         <Typography variant="h4">
