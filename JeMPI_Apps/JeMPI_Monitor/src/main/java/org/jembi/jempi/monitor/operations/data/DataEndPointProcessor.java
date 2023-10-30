@@ -21,17 +21,17 @@ public class DataEndPointProcessor extends BaseProcessor {
         super(libRegistry);
     }
 
-    private IDAL GetDAL(String dbType) throws ClassNotFoundException{
-        if (dbType.equals("postgres")){
+    private IDAL GetDAL(String dbType) throws ClassNotFoundException {
+        if ("postgres".equals(dbType)){
             return this.libRegistry.postgres;
         }
-        else if (dbType.equals("dgraph")){
+        else if ("dgraph".equals(dbType)){
             return this.libRegistry.dGraph;
         }
         throw new ClassNotFoundException(String.format("Unknown dbType %s", dbType));
     }
 
-    public Route deleteAll(String dbType, String tableName, Boolean force){
+    public Route deleteAll(String dbType, String tableName, Boolean force) {
         if (this.libRegistry.runnerChecker.IsJeMPIRunning() && !force){
            return complete(StatusCodes.FORBIDDEN,
                    new BaseResponse("Cannot delete data whilst JeMPI is running. Please stop jempi services first (or append the url with /force) ", true),

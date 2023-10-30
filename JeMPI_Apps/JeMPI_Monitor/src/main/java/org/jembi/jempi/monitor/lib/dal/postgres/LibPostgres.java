@@ -24,11 +24,11 @@ public class LibPostgres implements IDAL {
         this.psw = psw;
     }
 
-    private Connection GetConnection() throws SQLException{
+    private Connection GetConnection() throws SQLException {
         return DriverManager.getConnection(this.url, this.usr, this.psw);
     }
 
-    private <T extends PreparedStatement> Boolean RunQuery(ThrowingFunction<Connection, T, SQLException> getStatement) throws SQLException{
+    private <T extends PreparedStatement> Boolean RunQuery(ThrowingFunction<Connection, T, SQLException> getStatement) throws SQLException {
         try (Connection connection = this.GetConnection()){
             connection.setAutoCommit(false);
 
@@ -46,11 +46,11 @@ public class LibPostgres implements IDAL {
         }
     }
 
-    public boolean deleteAllData() throws SQLException{
+    public boolean deleteAllData() throws SQLException {
 
         return this.RunQuery(connection -> {
             String deleteQuery = "SET session_replication_role = replica;"
-                    +"DO $$ "
+                    + "DO $$ "
                     + "DECLARE "
                     + "    table_name text; "
                     + "BEGIN "
@@ -64,7 +64,7 @@ public class LibPostgres implements IDAL {
             return connection.prepareStatement(deleteQuery);
         });
     }
-    public boolean deleteTableData(String tableName) throws SQLException{
+    public boolean deleteTableData(String tableName) throws SQLException {
         return this.RunQuery(connection -> connection.prepareStatement(String.format("DELETE FROM %s;", tableName)));
     }
 }

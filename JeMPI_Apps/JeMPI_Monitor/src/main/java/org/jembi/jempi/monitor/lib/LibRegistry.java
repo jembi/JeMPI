@@ -11,7 +11,7 @@ public class LibRegistry {
      public final LibDGraph dGraph;
      public final LibPostgres postgres;
      public final RunnerChecker runnerChecker;
-     public LibRegistry( final Level level,
+     public LibRegistry(final Level level,
                          final String[] dgraphHosts,
                          final int[] dgraphPorts,
                          final int[] dgraphHttpPorts,
@@ -20,7 +20,7 @@ public class LibRegistry {
                          final String sqlUser,
                          final String sqlPassword,
                          final String sqlDatabase,
-                         final int apiPort){
+                         final int apiPort) {
 
           //TODO:Add try catch
           this.postgres = new LibPostgres(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", sqlIP, sqlPort, sqlDatabase), sqlUser, sqlPassword);

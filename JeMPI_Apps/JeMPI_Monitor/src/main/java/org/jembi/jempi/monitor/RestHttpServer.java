@@ -26,8 +26,8 @@ import static akka.http.javadsl.server.Directives.concat;
 public class RestHttpServer {
 
     private static final Logger LOGGER = LogManager.getLogger(RestHttpServer.class);
-    private CompletionStage<ServerBinding> binding = null;
-    private IMonitorOperator[] monitorOperators = null;
+    private CompletionStage<ServerBinding> binding;
+    private IMonitorOperator[] monitorOperators;
     private RestHttpServer() {
         Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
     }

@@ -31,7 +31,7 @@ public class Monitor {
     public Behavior<Void> create() {
         return Behaviors.setup(context -> {
             ActorRef<Void> starter = context.spawn(Behaviors.setup(starterContext -> {
-                try{
+                try {
                     LibRegistry libRegistry = new LibRegistry(AppConfig.GET_LOG_LEVEL,
                             AppConfig.getDGraphHosts(),
                             AppConfig.getDGraphPorts(),
@@ -50,7 +50,7 @@ public class Monitor {
                             libRegistry);
 
                 }
-                catch (Exception e){
+                catch (Exception e) {
                     LOGGER.error("Monitoring Server encountered an error", e);
                     throw e;
                 }

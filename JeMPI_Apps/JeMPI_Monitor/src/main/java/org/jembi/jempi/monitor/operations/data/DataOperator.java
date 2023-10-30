@@ -17,6 +17,9 @@ public class DataOperator extends BaseOperation<Void, DataEndPointProcessor> {
 
     static class EndPointPaths{
         public static final String DELETE = "delete";
+
+        private EndPointPaths() {
+        }
     }
 
     @Override
@@ -37,7 +40,7 @@ public class DataOperator extends BaseOperation<Void, DataEndPointProcessor> {
     public Route GetEndpoints() {
 
         // /data/delete/^(postgres|dgraph)$/(__all|[a-zA-Z][a-zA-Z0-9_]*)/?\?force
-        return concat(get(() -> concat(this.GetOperationsEndpoints(EndPointPaths.DELETE ,
+        return concat(get(() -> concat(this.GetOperationsEndpoints(EndPointPaths.DELETE,
                                     () -> pathPrefix(segment(Pattern.compile("^(postgres|dgraph)$")),
                                             dbType -> path(segment(Pattern.compile("(__all|[a-zA-Z][a-zA-Z0-9_]*)")),
                                                     tableName -> parameterOptional("force", force ->
@@ -53,4 +56,3 @@ public class DataOperator extends BaseOperation<Void, DataEndPointProcessor> {
         return "data";
     }
 }
-

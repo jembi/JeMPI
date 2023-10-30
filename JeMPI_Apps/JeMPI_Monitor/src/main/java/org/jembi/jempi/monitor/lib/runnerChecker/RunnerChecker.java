@@ -1,11 +1,11 @@
 package org.jembi.jempi.monitor.lib.runnerChecker;
 
 public class RunnerChecker {
-    public RunnerChecker(final int apiPort){
+    public RunnerChecker(final int apiPort) {
 
     }
 
-    public boolean IsJeMPIRunning(){
+    public boolean IsJeMPIRunning() {
         //TODO
         return true;
     }

@@ -28,7 +28,7 @@ interface ThrowingFunction<T, R, E extends Exception> {
 }
 public class LibDGraph implements IDAL {
     private static final Logger LOGGER = LogManager.getLogger(RestHttpServer.class);
-    private static DgraphClient dGraphClient = null;
+    private static DgraphClient dGraphClient;
     private final String[] host;
     private final int[] port;
     private final int[] httpPorts;
@@ -70,7 +70,7 @@ public class LibDGraph implements IDAL {
                         .usePlaintext()
                         .build());
             }
-            DgraphClient dgraphClient = new io.dgraph.DgraphClient(dgraphStubs);
+            DgraphClient dgraphClient = new DgraphClient(dgraphStubs);
             var version = dgraphClient.checkVersion().getTag();
             if (StringUtils.isBlank(version)) {
                 throw new Exception("Could not create dgraph clients");
@@ -87,7 +87,7 @@ public class LibDGraph implements IDAL {
         this.httpPorts = httpPorts;
     }
 
-    private <T> Boolean RunQuery(ThrowingFunction<Transaction, T, Exception> getStatement) throws Exception{
+    private <T> Boolean RunQuery(ThrowingFunction<Transaction, T, Exception> getStatement) throws Exception {
         DgraphClient client = getDGraphClient();
         Transaction transaction = client.newTransaction();
 
@@ -101,8 +101,8 @@ public class LibDGraph implements IDAL {
         }
     }
 
-    private Boolean PostRequest(final String urlSuffix, Supplier<String> postContent) throws Exception{
-        URL url = new URL(String.format("http://%s:%d/%s", host[0], httpPorts[0] , urlSuffix));
+    private Boolean PostRequest(final String urlSuffix, Supplier<String> postContent) throws Exception {
+        URL url = new URL(String.format("http://%s:%d/%s", host[0], httpPorts[0], urlSuffix));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
         con.setRequestMethod("POST");
@@ -136,11 +136,11 @@ public class LibDGraph implements IDAL {
         }
         throw new Exception(response.toString());
     }
-    public boolean deleteAllData() throws Exception{
-        return this.PostRequest("alter", () -> "{\"drop_op\": \"DATA\"}" );
+    public boolean deleteAllData() throws Exception {
+        return this.PostRequest("alter", () -> "{\"drop_op\": \"DATA\"}");
     }
 
-    public boolean deleteTableData(String tableName){
+    public boolean deleteTableData(String tableName) {
         throw new NotImplementedException("Dgraph does not support delete table");
     }
 }

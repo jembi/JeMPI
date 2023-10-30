@@ -9,7 +9,7 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 public class BaseProcessor {
     protected static final Marshaller<Object, RequestEntity> JSON_MARSHALLER = Jackson.marshaller(OBJECT_MAPPER);
     protected LibRegistry libRegistry;
-    public BaseProcessor(final LibRegistry libRegistry){
+    public BaseProcessor(final LibRegistry libRegistry) {
         this.libRegistry = libRegistry;
     }
 }
