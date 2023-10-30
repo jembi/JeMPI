@@ -25,7 +25,7 @@ const Dashboard = () => {
         ]}
       />
       <Divider />
-      <Stack padding={'2rem 1rem 1rem 1rem'}>
+      <Stack padding={{ lg: '2rem 1rem 1rem 1rem', xs: '1rem 0rem 0rem 0rem' }}>
         <Grid container spacing={{ xs: 2, md: 5 }}>
           <Grid item xs={12} lg={6}>
             <Box component="fieldset">
@@ -77,7 +77,7 @@ const Dashboard = () => {
             <MandU />
           </Grid>
           <Grid item xs={12} lg={6}>
-            <Box component="fieldset" >
+            <Box component="fieldset">
               <legend>Confusion Matrix</legend>
               <ConfusionMatrix />
             </Box>

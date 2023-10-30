@@ -1,27 +1,6 @@
 import { Box, Divider, Grid, Typography } from '@mui/material'
 import React from 'react'
 
-function Item(props: any) {
-  const { sx, ...other } = props
-  return (
-    <Box
-      sx={{
-        bgcolor: theme => (theme.palette.mode === 'dark' ? '#101010' : '#fff'),
-        color: theme =>
-          theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
-        border: '1px solid',
-        borderColor: theme =>
-          theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
-        p: 1,
-        borderRadius: 2,
-        fontSize: '0.875rem',
-        fontWeight: '700',
-        ...sx
-      }}
-      {...other}
-    />
-  )
-}
 const ConfusionMatrix = () => {
   return (
     <>
@@ -29,10 +8,11 @@ const ConfusionMatrix = () => {
         <Grid
           item
           lg={6}
+          xs={12}
           sx={{
             backgroundColor: '#D5E8D4',
-            borderBottomLeftRadius: '2rem',
-            borderTopLeftRadius: '2rem',
+            borderBottomLeftRadius: { lg: '2rem' },
+            borderTopLeftRadius: { lg: '2rem' },
             textAlign: 'center',
             boxShadow: 3
           }}
@@ -65,10 +45,11 @@ const ConfusionMatrix = () => {
         <Grid
           item
           lg={6}
+          xs={12}
           sx={{
             backgroundColor: '#F8CECC',
-            borderBottomRightRadius: '2rem',
-            borderTopRightRadius: '2rem',
+            borderBottomRightRadius: { lg: '2rem' },
+            borderTopRightRadius: { lg: '2rem' },
             textAlign: 'center',
             boxShadow: 3
           }}
@@ -98,14 +79,14 @@ const ConfusionMatrix = () => {
             </Box>
           </Box>
         </Grid>
-        <Grid item lg={12}>
-          <Grid container padding={2}>
-            <Grid item lg={6}>
+        <Grid item xs={12}>
+          <Grid container padding={{ lg: '2rem', xs: '0.5rem' }}>
+            <Grid item xs={6}>
               <Grid container alignItems={'center'}>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   <Typography variant="button">Precesion</Typography>
                 </Grid>
-                <Grid item lg={6}>
+                <Grid item xs={6}>
                   <Box
                     sx={{
                       width: '30px',
@@ -116,7 +97,7 @@ const ConfusionMatrix = () => {
                     }}
                   ></Box>
                 </Grid>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   (5000 / 5100) =
                 </Grid>
                 <Grid
@@ -132,10 +113,10 @@ const ConfusionMatrix = () => {
                 >
                   <Divider component={'button'} sx={{ width: '40px' }} />
                 </Grid>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   0,98
                 </Grid>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   <Box
                     sx={{
                       width: '40px',
@@ -148,12 +129,12 @@ const ConfusionMatrix = () => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item lg={6}>
+            <Grid item xs={6}>
               <Grid container alignItems={'center'}>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   <Typography variant="button">Recall</Typography>
                 </Grid>
-                <Grid item lg={6}>
+                <Grid item xs={6}>
                   <Box
                     sx={{
                       width: '30px',
@@ -164,12 +145,12 @@ const ConfusionMatrix = () => {
                     }}
                   ></Box>
                 </Grid>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   (5000 / 5050) =
                 </Grid>
                 <Grid
                   item
-                  lg={6}
+                  xs={6}
                   minHeight={'50px'}
                   textAlign={'start'}
                   justifyContent={'center'}
@@ -180,10 +161,10 @@ const ConfusionMatrix = () => {
                 >
                   <Divider component={'button'} sx={{ width: '40px' }} />
                 </Grid>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   0,99
                 </Grid>
-                <Grid item lg={6} textAlign={'center'}>
+                <Grid item xs={6} textAlign={'center'}>
                   <Box
                     sx={{
                       width: '40px',
