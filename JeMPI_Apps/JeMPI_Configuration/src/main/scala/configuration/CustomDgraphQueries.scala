@@ -92,7 +92,7 @@ object CustomDgraphQueries {
     def getDeterministicFunctions(allRules: AllRules): String = {
       allRules.deterministic.get
         .map((name, _) => s"""${" " * 14}CustomDgraphQueries::${Utils.snakeCaseToCamelCase(name.toLowerCase)},""".stripMargin)
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
     }

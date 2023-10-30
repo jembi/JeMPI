@@ -121,7 +121,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
   return (
     <Container maxWidth={false}>
       <PageHeader
-        description={title}
         title="Search Results"
         breadcrumbs={[
           {

@@ -95,12 +95,12 @@ private object CustomDgraphMutations {
           .uniqueInteractionFields
           .get
           .map(f => mapField(f.fieldName, f.fieldType))
-          .mkString("\n") + "\n"
+          .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
     end interactionFields
@@ -120,12 +120,12 @@ private object CustomDgraphMutations {
           .uniqueInteractionFields
           .get
           .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
-          .mkString("\n") + "\n"
+          .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f => s"""${" " * 27}uuid, ${mapCommonField(f)},""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 
@@ -143,12 +143,12 @@ private object CustomDgraphMutations {
           .uniqueGoldenRecordFields
           .get
           .map(f => mapField(f.fieldName, f.fieldType))
-          .mkString("\n") + "\n"
+          .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 
@@ -170,13 +170,13 @@ private object CustomDgraphMutations {
           .get
           .map(f =>
             s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
-          .mkString("\n") + "\n"
+          .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f =>
           s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 

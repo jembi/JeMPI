@@ -213,7 +213,6 @@ const ReviewLink = () => {
         breadcrumbs={[
           { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
         ]}
-        description="Review the patient record and possible matches in detail."
         buttons={[
           <Button
             startIcon={<SearchOutlined />}

@@ -78,7 +78,6 @@ const NotificationWorklist = () => {
     <Container maxWidth={false}>
       <PageHeader
         title={'Notification Worklist'}
-        description={'browse through notifications'}
         breadcrumbs={[
           {
             link: '/notifications/',

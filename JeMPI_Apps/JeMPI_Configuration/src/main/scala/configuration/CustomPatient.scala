@@ -30,7 +30,7 @@ private object CustomPatient {
         .demographicFields
         .map(f =>
           s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
     end cleanedFields
@@ -107,7 +107,7 @@ private object CustomPatient {
           .get
           .map(f =>
             s"""${" " * 43}${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
     end fields
@@ -137,7 +137,7 @@ private object CustomPatient {
           .get
           .map(f =>
             s"""${" " * 42}${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
     end fields

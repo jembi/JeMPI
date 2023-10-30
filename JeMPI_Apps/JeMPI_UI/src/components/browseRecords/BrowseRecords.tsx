@@ -197,7 +197,6 @@ const Records = () => {
     <Container maxWidth={false}>
       <PageHeader
         title={'Browse Patients'}
-        description={'browse through golden records'}
         breadcrumbs={[
           {
             link: '/browse-records/',
