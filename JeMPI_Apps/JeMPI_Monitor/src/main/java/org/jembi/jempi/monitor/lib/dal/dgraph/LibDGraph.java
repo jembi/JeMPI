@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.monitor.RestHttpServer;
 import org.jembi.jempi.monitor.lib.dal.IDAL;
+import org.jembi.jempi.monitor.utils.HttpRequestor;
 
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -102,29 +103,12 @@ public class LibDGraph implements IDAL {
     }
 
     private Boolean PostRequest(final String urlSuffix, Supplier<String> postContent) throws Exception {
-        URL url = new URL(String.format("http://%s:%d/%s", host[0], httpPorts[0], urlSuffix));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        HttpRequestor.HttpRequestorResponse requestResponse = HttpRequestor.PostRequest(String.format("http://%s:%d/%s", host[0], httpPorts[0], urlSuffix), postContent);
 
-        con.setRequestMethod("POST");
-        con.setDoOutput(true);
-
-        OutputStream os = con.getOutputStream();
-        byte[] input = postContent.get().getBytes(StandardCharsets.UTF_8);
-        os.write(input, 0, input.length);
-        int responseCode = con.getResponseCode();
-
-        StringBuilder response = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
-
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-        }
-        if (responseCode >= 200 && responseCode < 300){
+        if (requestResponse.responseCode() >= 200 && requestResponse.responseCode()  < 300){
             ObjectMapper objectMapper = new ObjectMapper();
 
-            PostResponse responseObject = objectMapper.readValue(response.toString(), PostResponse.class);
+            PostResponse responseObject = objectMapper.readValue(requestResponse.response(), PostResponse.class);
             if (responseObject != null && responseObject.getErrors() != null && responseObject.getErrors().length > 0){
                 StringJoiner joiner = new StringJoiner(" ");
                 for (PostResponse.ErrorMessage error : responseObject.getErrors()) {
@@ -134,7 +118,7 @@ public class LibDGraph implements IDAL {
             }
             return true;
         }
-        throw new Exception(response.toString());
+        throw new Exception(requestResponse.response());
     }
     public boolean deleteAllData() throws Exception {
         return this.PostRequest("alter", () -> "{\"drop_op\": \"DATA\"}");
