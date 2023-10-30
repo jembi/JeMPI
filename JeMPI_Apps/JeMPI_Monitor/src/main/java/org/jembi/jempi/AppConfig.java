@@ -26,8 +26,6 @@ public final class AppConfig {
     public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
     public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
     public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
-    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
-    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
     private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
     private static final int[] DGRAPH_ALPHA_HTTP_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_HTTP_PORTS").split(",")).mapToInt(s -> {
         try {
@@ -43,9 +41,6 @@ public final class AppConfig {
             return Integer.MIN_VALUE;
         }
     }).toArray();
-
-    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
-    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
     public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
     public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
     public static String[] getDGraphHosts() {

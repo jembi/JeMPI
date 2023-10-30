@@ -697,3 +697,45 @@ services:
       placement:
         constraints:
           - node.labels.name == ${PLACEMENT_UI}
+
+  monitor:
+    image: ${IMAGE_REGISTRY}${MONITOR_IMAGE}
+    ports:
+      - published: ${MONITOR_HTTP_PORT}
+        target: ${MONITOR_HTTP_PORT}
+        protocol: tcp
+        mode: host
+    environment:
+      LOG4J2_LEVEL: "DEBUG"
+      POSTGRESQL_IP: postgresql
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      API_IP: api
+      API_HTTP_PORT: 50000
+      MONITOR_HTTP_PORT: ${MONITOR_HTTP_PORT}
+      MONITOR_MODE: "docker"
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      DGRAPH_HTTP_PORTS: ${DGRAPH_HTTP_PORTS}
+    networks:
+      - backend
+    volumes:
+      - type: bind
+        source: $DATA_DIR_MONITOR/conf
+        target: /app/conf
+        read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+          - node.labels.name == ${PLACEMENT_CONTROLLER}

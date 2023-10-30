@@ -29,6 +29,10 @@ export POSTGRESQL_DATABASE="notifications"
 export KAFKA_SERVERS="kafka-01:9092,kafka-02:9092,kafka-03:9092"
 export DGRAPH_HOSTS="alpha-01,alpha-02,alpha-03"
 export DGRAPH_PORTS="9080,9081,9082"
+export DGRAPH_HTTP_PORTS="8081"
+
+export MONITOR_HTTP_PORT=7070
+export MONITOR_UI_HTTP_PORT=7071
 
 # API related env vars
 export KC_REALM_NAME="jempi-dev"

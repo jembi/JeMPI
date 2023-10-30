@@ -102,8 +102,6 @@ public class LibDGraph implements IDAL {
     }
 
     private Boolean PostRequest(final String urlSuffix, Supplier<String> postContent) throws Exception{
-        // Ensuring that client connect
-        getDGraphClient();
         URL url = new URL(String.format("http://%s:%d/%s", host[0], httpPorts[0] , urlSuffix));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
