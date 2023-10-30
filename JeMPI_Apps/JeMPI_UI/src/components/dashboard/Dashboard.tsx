@@ -15,16 +15,6 @@ import ConfusionMatrix from './widgets/ConfusionMatrix'
 const Dashboard = () => {
   return (
     <Container maxWidth={false}>
-      <PageHeader
-        title={'Dashboard'}
-        breadcrumbs={[
-          {
-            link: '/',
-            title: 'Dashboard'
-          }
-        ]}
-      />
-      <Divider />
       <Stack padding={{ lg: '2rem 1rem 1rem 1rem', xs: '1rem 0rem 0rem 0rem' }}>
         <Grid container spacing={{ xs: 2, md: 5 }}>
           <Grid item xs={12} lg={6}>
