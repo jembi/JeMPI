@@ -7,7 +7,7 @@ import {
   Tabs,
   Typography
 } from '@mui/material'
-import CountWidget from './widgets/CountWidget'
+import CountWidget from './widgets/CountWidgetWidget'
 import {
   Layers,
   NotificationAdd,
@@ -15,9 +15,9 @@ import {
   Person
 } from '@mui/icons-material'
 import { pink } from '@mui/material/colors'
-import MandU from './widgets/MandU'
+import MandU from './widgets/MandUWidget'
 import BetaFscore from './widgets/BetaFscoreWidget'
-import ConfusionMatrix from './widgets/ConfusionMatrix'
+import ConfusionMatrix from './widgets/ConfusionMatrixWidget'
 import { useState } from 'react'
 
 interface TabPanelProps {
@@ -42,7 +42,7 @@ const CustomTabPanel = (props: TabPanelProps) => {
   )
 }
 
-function a11yProps(index: number) {
+const tabProps = (index: number) => {
   return {
     id: `dashboard-tab-${index}`,
     'aria-controls': `dashboard-tabpanel-${index}`
@@ -70,11 +70,11 @@ const Dashboard = () => {
         >
           <Tab
             label={<Typography variant="h5">Confusion Matrix</Typography>}
-            {...a11yProps(0)}
+            {...tabProps(0)}
           />
           <Tab
             label={<Typography variant="h5">M & U Values</Typography>}
-            {...a11yProps(1)}
+            {...tabProps(1)}
           />
         </Tabs>
         <CustomTabPanel value={currentTabIndex} index={0}>

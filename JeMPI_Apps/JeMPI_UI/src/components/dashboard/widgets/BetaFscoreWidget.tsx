@@ -1,6 +1,5 @@
 import { Box, Grid } from '@mui/material'
-import CountWidget from './CountWidget'
-import { red } from '@mui/material/colors'
+import CountWidget from './CountWidgetWidget'
 
 function BetaFscoreWidget() {
   return (
