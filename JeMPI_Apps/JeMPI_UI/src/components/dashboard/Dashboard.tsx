@@ -56,7 +56,14 @@ const Dashboard = () => {
   }
   return (
     <Container maxWidth={false}>
-      <Stack padding={{ lg: '0rem 1rem 1rem 1rem', xs: '1rem 0rem 0rem 0rem' }}>
+      <Stack
+        padding={{
+          lg: '0rem 1rem 1rem 1rem',
+          xs: '1rem 0rem 0rem 0rem',
+          backgroundColor: '#fff',
+          borderRadius: '1rem'
+        }}
+      >
         <Tabs
           value={currentTabIndex}
           onChange={handleChangeTab}
