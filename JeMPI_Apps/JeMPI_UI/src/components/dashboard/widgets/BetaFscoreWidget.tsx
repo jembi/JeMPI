@@ -7,22 +7,21 @@ function BetaFscoreWidget() {
     <Box component={'fieldset'}>
       <legend>Beta F-scores</legend>
       <Grid container spacing={2} columns={16}>
-        <Grid item lg={6}>
+        <Grid item lg={6} xs={16}>
           <CountWidget
             label="Weighs precision higher than recall"
             value={75}
-            // green color
-            iconBackgroundColor="#76ff03"
+            secondValue={75}
           />
         </Grid>
-        <Grid item lg={4}>
-          <CountWidget label="Neutral" value={75} />
+        <Grid item lg={4} xs={16}>
+          <CountWidget label="Neutral" value={75} secondValue={75} />
         </Grid>
-        <Grid item lg={6}>
+        <Grid item lg={6} xs={16}>
           <CountWidget
             label="Weighs recall higher than precision"
             value={75}
-            iconBackgroundColor={red[500]}
+            secondValue={75}
           />
         </Grid>
       </Grid>

@@ -1,5 +1,12 @@
-import { Box, Container, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
-import PageHeader from 'components/shell/PageHeader'
+import {
+  Box,
+  Container,
+  Grid,
+  Stack,
+  Tab,
+  Tabs,
+  Typography
+} from '@mui/material'
 import CountWidget from './widgets/CountWidget'
 import {
   Layers,
@@ -19,55 +26,66 @@ interface TabPanelProps {
   value: number
 }
 
-function CustomTabPanel(props: TabPanelProps) {
+const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props
-
   return (
-    <div
+    <Box
+      component={'div'}
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`dashboard-tabpanel-${index}`}
+      aria-labelledby={`dashboard-tab-${index}`}
       {...other}
     >
       {value === index && children}
-    </div>
+    </Box>
   )
 }
 
 function a11yProps(index: number) {
   return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`
+    id: `dashboard-tab-${index}`,
+    'aria-controls': `dashboard-tabpanel-${index}`
   }
 }
 
 const Dashboard = () => {
-  const [value, setValue] = useState(0)
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue)
+  const [currentTabIndex, setCurrentTabIndex] = useState(0)
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
+    setCurrentTabIndex(newValue)
   }
   return (
     <Container maxWidth={false}>
-      <Stack padding={{ lg: '2rem 1rem 1rem 1rem', xs: '1rem 0rem 0rem 0rem' }}>
+      <Stack padding={{ lg: '0rem 1rem 1rem 1rem', xs: '1rem 0rem 0rem 0rem' }}>
         <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="basic tabs example"
+          value={currentTabIndex}
+          onChange={handleChangeTab}
+          sx={{
+            paddingY: { lg: '2rem', xs: ' 0.5rem' }
+          }}
+          aria-label="dashboard tabs"
+          variant="scrollable"
+          scrollButtons
+          allowScrollButtonsMobile
         >
-          <Tab label="Confusion Matrix" {...a11yProps(0)} />
-          <Tab label="M & U Values" {...a11yProps(1)} />
+          <Tab
+            label={<Typography variant="h5">Confusion Matrix</Typography>}
+            {...a11yProps(0)}
+          />
+          <Tab
+            label={<Typography variant="h5">M & U Values</Typography>}
+            {...a11yProps(1)}
+          />
         </Tabs>
-        <CustomTabPanel value={value} index={0}>
+        <CustomTabPanel value={currentTabIndex} index={0}>
           <Grid container spacing={{ xs: 2, md: 5 }}>
             <Grid item xs={12} lg={6}>
-              <Grid container>
+              <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Box component="fieldset">
                     <legend>Records</legend>
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                      <Grid item xs={12} lg={6}>
                         <CountWidget
                           label="Golden Record"
                           value={10000}
@@ -75,7 +93,7 @@ const Dashboard = () => {
                           iconBackgroundColor={'#FFD700'}
                         />
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid item xs={12} lg={6}>
                         <CountWidget
                           label="Interactions "
                           value={20000}
@@ -83,57 +101,53 @@ const Dashboard = () => {
                           iconBackgroundColor={'primary.main'}
                         />
                       </Grid>
-                      <Grid item xs={12}>
-                        <Box component="fieldset">
-                          <legend> Notifications </legend>
-                          <Grid container spacing={2}>
-                            <Grid item xs={6}>
-                              <CountWidget
-                                label="New/Open"
-                                value={10000}
-                                icon={
-                                  <NotificationAdd
-                                    sx={{ fontSize: '3.5rem' }}
-                                  />
-                                }
-                                iconBackgroundColor={'#76ff03'}
-                              />
-                            </Grid>
-                            <Grid item xs={6}>
-                              <CountWidget
-                                label="Closed"
-                                value={20000}
-                                icon={
-                                  <NotificationsOff
-                                    sx={{ fontSize: '3.5rem' }}
-                                  />
-                                }
-                                iconBackgroundColor={pink[600]}
-                              />
-                            </Grid>
-                          </Grid>
-                        </Box>
+                    </Grid>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Box component="fieldset">
+                    <legend> Notifications </legend>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} lg={6}>
+                        <CountWidget
+                          label="New/Open"
+                          value={10000}
+                          icon={<NotificationAdd sx={{ fontSize: '3.5rem' }} />}
+                          iconBackgroundColor={'#76ff03'}
+                        />
                       </Grid>
-                      <Grid item xs={12}>
-                        <BetaFscore />
+                      <Grid item xs={12} lg={6}>
+                        <CountWidget
+                          label="Closed"
+                          value={20000}
+                          icon={
+                            <NotificationsOff sx={{ fontSize: '3.5rem' }} />
+                          }
+                          iconBackgroundColor={pink[600]}
+                        />
                       </Grid>
                     </Grid>
                   </Box>
                 </Grid>
+                <Grid item xs={12}>
+                  <BetaFscore />
+                </Grid>
               </Grid>
             </Grid>
             <Grid item xs={12} lg={6}>
-              <Box component="fieldset">
+              <Box component="fieldset" minHeight={'550px'}>
                 <legend>Confusion Matrix</legend>
                 <ConfusionMatrix />
               </Box>
             </Grid>
           </Grid>
         </CustomTabPanel>
-
-        <CustomTabPanel value={value} index={1}>
-          <Grid item xs={12} lg={6}>
-            <MandU />
+        <CustomTabPanel value={currentTabIndex} index={1}>
+          <Grid container sx={{ minHeight: { lg: '450px' } }}>
+            <Grid item xs={6}>
+              <MandU />
+            </Grid>
           </Grid>
         </CustomTabPanel>
       </Stack>

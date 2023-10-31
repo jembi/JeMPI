@@ -80,7 +80,7 @@ const ConfusionMatrix = () => {
           </Box>
         </Grid>
         <Grid item xs={12}>
-          <Grid container padding={{ lg: '2rem', xs: '0.5rem' }}>
+          <Grid container padding={{ lg: '2rem 1rem 1rem 1rem', xs: '0.5rem' }}>
             <Grid item xs={6}>
               <Grid container alignItems={'center'}>
                 <Grid item xs={6} textAlign={'center'}>

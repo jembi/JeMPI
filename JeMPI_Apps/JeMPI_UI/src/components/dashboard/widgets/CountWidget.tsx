@@ -7,12 +7,14 @@ type countWidgetType = {
   value: number
   icon?: React.ReactElement
   iconBackgroundColor?: string
+  secondValue?: number
 }
 function CountWidget({
   label,
   value,
   icon,
-  iconBackgroundColor
+  iconBackgroundColor,
+  secondValue
 }: countWidgetType) {
   return (
     <Box
@@ -40,11 +42,24 @@ function CountWidget({
           {icon}
         </Avatar>
       )}
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <Typography variant="subtitle2">{label}</Typography>
-        <Typography variant="h4">
-          <CountUp end={value} duration={1000} />
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          <Typography variant="h4">
+            <CountUp end={value} duration={1000} />
+          </Typography>
+          {!!secondValue && (
+            <Typography variant="h4">
+              <CountUp end={secondValue} duration={1000} />
+            </Typography>
+          )}
+        </Box>
       </Box>
     </Box>
   )
