@@ -18,7 +18,6 @@ import { useConfig } from 'hooks/useConfig'
 
 const NotificationWorklist = () => {
   const { apiClient } = useConfig()
-
   const navigate = useNavigate()
   const selectedDate = dayjs().locale({
     ...locale
