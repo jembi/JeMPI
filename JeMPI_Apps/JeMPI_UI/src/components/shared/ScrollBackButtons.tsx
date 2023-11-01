@@ -16,35 +16,49 @@ const scrollToTop = () => {
 }
 const ScrollBackButtons = () => {
   const [scrollPosition, setScrollPosition] = useState(0)
+  const [isScrollable, setIsScrollable] = useState(false)
   const handleScroll = () => {
     setScrollPosition(window.scrollY)
   }
+
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+  useEffect(() => {
+    setIsScrollable(
+      document.documentElement.scrollHeight >
+        document.documentElement.clientHeight
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [document.documentElement.scrollHeight])
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1,
-        position: 'fixed',
-        bottom: 16,
-        right: 16
-      }}
-    >
-      {scrollPosition > 0 && (
-        <Fab size="small" onClick={scrollToTop} color="secondary">
-          <ExpandLess />
-        </Fab>
+    <>
+      {isScrollable && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            position: 'fixed',
+            bottom: 16,
+            right: 16
+          }}
+        >
+          {scrollPosition > 0 && (
+            <Fab size="small" onClick={scrollToTop} color="secondary">
+              <ExpandLess />
+            </Fab>
+          )}
+          {scrollPosition === 0 && (
+            <Fab size="small" onClick={scrollToBottom} color="primary">
+              <ExpandMore />
+            </Fab>
+          )}
+        </Box>
       )}
-      {scrollPosition === 0 && (
-        <Fab size="small" onClick={scrollToBottom} color="primary">
-          <ExpandMore />
-        </Fab>
-      )}
-    </Box>
+    </>
   )
 }
 

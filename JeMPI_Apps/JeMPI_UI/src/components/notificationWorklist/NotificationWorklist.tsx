@@ -15,6 +15,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
+import ScrollBackButtons from 'components/shared/ScrollBackButtons'
 
 const NotificationWorklist = () => {
   const { apiClient } = useConfig()
@@ -107,7 +108,7 @@ const NotificationWorklist = () => {
               }}
               columns={NOTIFICATIONS_COLUMNS}
               rows={data.records as Notification[]}
-              pageSizeOptions={[25, 50, 100]}
+              pageSizeOptions={[5, 10, 25, 50, 100]}
               paginationModel={paginationModel}
               onPaginationModelChange={model => setPaginationModel(model)}
               paginationMode="server"
@@ -138,6 +139,7 @@ const NotificationWorklist = () => {
           )}
         </Paper>
       </Stack>
+      <ScrollBackButtons />
     </Container>
   )
 }
