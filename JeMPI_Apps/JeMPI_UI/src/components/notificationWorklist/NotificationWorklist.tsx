@@ -94,7 +94,7 @@ const NotificationWorklist = () => {
         </Box>
         <Paper sx={{ p: 1 }}>
           {error && <ApiErrorMessage error={error} />}
-          {!data && <NotFound />}
+          {!data && !isLoading && !isFetching && <NotFound />}
           {data && (
             <DataGrid
               sx={{
@@ -112,7 +112,6 @@ const NotificationWorklist = () => {
               filterMode="server"
               filterModel={filterModel}
               loading={isLoading || isFetching}
-
               onFilterModelChange={debounce(onFilterChange, 3000)}
               onRowDoubleClick={params =>
                 navigate(
