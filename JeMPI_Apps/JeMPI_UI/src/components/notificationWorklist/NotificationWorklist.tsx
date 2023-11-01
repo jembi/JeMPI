@@ -3,7 +3,6 @@ import { Box, Container, Divider, Paper, Stack, debounce } from '@mui/material'
 import { DataGrid, GridFilterModel } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
 import Notification, { Notifications } from '../../types/Notification'
@@ -27,7 +26,7 @@ const NotificationWorklist = () => {
   const [date, setDate] = React.useState(selectedDate)
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10
+    pageSize: 25
   })
   const [filterModel, setFilterModel] = useState<GridFilterModel>({
     items: [{ field: 'state', value: 'New', operator: 'contains' }]
@@ -102,9 +101,14 @@ const NotificationWorklist = () => {
                   outline: 'none'
                 }
               }}
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'created', sort: 'desc' }]
+                }
+              }}
               columns={NOTIFICATIONS_COLUMNS}
               rows={data.records as Notification[]}
-              pageSizeOptions={[10, 25, 50]}
+              pageSizeOptions={[25, 50, 100]}
               paginationModel={paginationModel}
               onPaginationModelChange={model => setPaginationModel(model)}
               paginationMode="server"
