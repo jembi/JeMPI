@@ -1,5 +1,6 @@
 import { ExpandLess, ExpandMore } from '@mui/icons-material'
 import { Box, Fab } from '@mui/material'
+import useElementSizeById from 'hooks/useEleSize'
 import { useEffect, useState } from 'react'
 
 const scrollToBottom = () => {
@@ -14,28 +15,22 @@ const scrollToTop = () => {
     behavior: 'smooth'
   })
 }
+
 const ScrollBackButtons = () => {
+  const { size } = useElementSizeById('root')
   const [scrollPosition, setScrollPosition] = useState(0)
-  const [isScrollable, setIsScrollable] = useState(false)
-  const handleScroll = () => {
-    setScrollPosition(window.scrollY)
-  }
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', () => setScrollPosition(window.scrollY))
+    return () =>
+      window.removeEventListener('scroll', () =>
+        setScrollPosition(window.scrollY)
+      )
   }, [])
-  useEffect(() => {
-    setIsScrollable(
-      document.documentElement.scrollHeight >
-        document.documentElement.clientHeight
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [document.documentElement.scrollHeight])
 
   return (
     <>
-      {isScrollable && (
+      {size.height > window.innerHeight && (
         <Box
           sx={{
             display: 'flex',

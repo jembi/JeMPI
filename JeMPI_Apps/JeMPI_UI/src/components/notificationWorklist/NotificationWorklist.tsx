@@ -15,7 +15,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
-import ScrollBackButtons from 'components/shared/ScrollBackButtons'
 
 const NotificationWorklist = () => {
   const { apiClient } = useConfig()
@@ -139,7 +138,6 @@ const NotificationWorklist = () => {
           )}
         </Paper>
       </Stack>
-      <ScrollBackButtons />
     </Container>
   )
 }
