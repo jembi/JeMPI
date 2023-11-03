@@ -1,5 +1,6 @@
 package org.jembi.jempi.bootstrapper.data.stream.kafka.cli;
 
+import org.jembi.jempi.bootstrapper.data.stream.kafka.KafkaDataBootstrapper;
 import picocli.CommandLine;
 import picocli.CommandLine.ScopeType;
 
@@ -13,6 +14,6 @@ public class KafkaResetAllCommand implements Callable {
 
     @Override
     public Object call() throws Exception {
-        return null;
+        return new KafkaDataBootstrapper(this.config).resetAll() ? 0 : 1;
     }
 }

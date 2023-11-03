@@ -1,0 +1,53 @@
+{
+  "topics": {
+    "JeMPI-async-etl": {
+      "topicName": "JeMPI-async-etl",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-interaction-controller": {
+      "topicName": "JeMPI-interaction-controller",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-interaction-em": {
+      "topicName": "JeMPI-interaction-em",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-interaction-linker": {
+      "topicName": "JeMPI-interaction-linker",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-mu-linker": {
+      "topicName": "eMPI-mu-linker",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-notifications": {
+      "topicName": "JeMPI-notifications",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-audit-trail": {
+      "topicName": "JeMPI-audit-trail",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 600000,
+      "segments_bytes": 1048576
+    }
+  }
+}
