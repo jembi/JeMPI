@@ -37,12 +37,13 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
     }
 
     private void awaitOperationComplete(Function<Collection<TopicListing>, Boolean> CheckFunc){
-        Boolean isComplete = false;
-        // TODO: Timeout
+        boolean isComplete = false;
+        int count = 0;
         while(!isComplete){
             try{
                 Thread.sleep(1000);
-                isComplete = CheckFunc.apply(kafkaTopicManager.getAllTopics());
+                isComplete = CheckFunc.apply(kafkaTopicManager.getAllTopics()) || count > 30000;
+                count += 1000;
             } catch (ExecutionException | InterruptedException e){
                 isComplete = true;
             }

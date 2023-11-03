@@ -23,7 +23,7 @@ public class KafkaDataBootstrapperTest {
         Properties properties = new Properties();
         properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         kafkaAdminClient = AdminClient.create(properties);
-        kafkaDataBootstrapper = new KafkaDataBootstrapper("aFile");
+        kafkaDataBootstrapper = new KafkaDataBootstrapper(null);
 
     }
     @Test
