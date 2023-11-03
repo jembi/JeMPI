@@ -12,8 +12,8 @@
 *.py text
 
 # Declare files that will always have CR line endings on checkout
-*.sh text eol=cr
-*.template text eol=cr
+*.sh text eol=lf
+*.template text eol=lf
 
 # Declare files that will always have CRLF line endings on checkout.
 *.sln text eol=crlf
