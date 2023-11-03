@@ -26,8 +26,9 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         this.LoadKafkaTopicManager();
     }
     protected void LoadKafkaTopicManager(){
-        kafkaTopicManager = new KafkaTopicManager("localhost:9092");
-    } //TODO: Remove this
+        LOGGER.info(String.format("Connecting to the kafka bootstrap server '%s'", this.loadedConfig.KAFKA_BOOTSTRAP_SERVERS ));
+        kafkaTopicManager = new KafkaTopicManager(this.loadedConfig.KAFKA_BOOTSTRAP_SERVERS);
+    }
     protected void LoadKafkaConfig() throws IOException {
         InputStream keycloakConfigStream = this.getClass().getResourceAsStream(DataBootstraperConsts.JSON_CONFIG_FILE_NAME);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -50,7 +51,6 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
     @Override
     public Boolean createSchema() throws ExecutionException, InterruptedException {
         LOGGER.info("Loading Kafka schema data.");
-
         for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails : this.kafkaBootstrapConfig.topics.entrySet()) {
             KafkaBootstrapConfig.BootstrapperTopicConfig topic = topicDetails.getValue();
 
