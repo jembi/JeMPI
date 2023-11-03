@@ -15,6 +15,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
+import CustomPagination from 'components/shared/CustomDataGridPagination'
 
 const NotificationWorklist = () => {
   const { apiClient } = useConfig()
@@ -48,7 +49,9 @@ const NotificationWorklist = () => {
         date.format('YYYY-MM-DD'),
         filterModel.items[0].value ? filterModel.items[0].value : ''
       ),
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 10
   })
 
   const onFilterChange = useCallback((filterModel: GridFilterModel) => {
@@ -107,14 +110,15 @@ const NotificationWorklist = () => {
               }}
               columns={NOTIFICATIONS_COLUMNS}
               rows={data.records as Notification[]}
-              pageSizeOptions={[5, 10, 25, 50, 100]}
+              slots={{ pagination: CustomPagination }}
+              pageSizeOptions={[25, 50, 100]}
               paginationModel={paginationModel}
               onPaginationModelChange={model => setPaginationModel(model)}
               paginationMode="server"
               rowCount={data.pagination.total || 0}
               filterMode="server"
               filterModel={filterModel}
-              loading={isLoading || isFetching}
+              loading={isLoading}
               onFilterModelChange={debounce(onFilterChange, 3000)}
               onRowDoubleClick={params =>
                 navigate(
