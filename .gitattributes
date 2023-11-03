@@ -8,11 +8,13 @@
 *.java text
 *.scala text
 *.sbt text
-*.sh text
-*.template text
-*.yml text
 *.py text
 
+# Declare files that will always have CR line endings on checkout
+*.sh text eol=lf
+*.template text eol=lf
+*.yml text eol=lf
+*.sql text eol=lf
 
 # Declare files that will always have CRLF line endings on checkout.
 *.sln text eol=crlf
