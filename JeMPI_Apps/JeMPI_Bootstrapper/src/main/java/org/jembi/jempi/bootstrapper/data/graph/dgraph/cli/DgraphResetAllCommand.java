@@ -1,5 +1,6 @@
 package org.jembi.jempi.bootstrapper.data.graph.dgraph.cli;
 
+import org.jembi.jempi.bootstrapper.data.graph.dgraph.DgraphDataBootstrapper;
 import picocli.CommandLine;
 import picocli.CommandLine.ScopeType;
 
@@ -13,6 +14,7 @@ public class DgraphResetAllCommand implements Callable {
 
     @Override
     public Object call() throws Exception {
-        return null;
+        // TODO: Share
+        return new DgraphDataBootstrapper(this.config).resetAll() ? 0 : 1;
     }
 }
