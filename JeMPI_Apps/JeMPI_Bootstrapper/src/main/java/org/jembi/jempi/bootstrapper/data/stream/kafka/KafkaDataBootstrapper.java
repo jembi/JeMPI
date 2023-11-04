@@ -91,6 +91,7 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
     @Override
     public Boolean resetAll() throws ExecutionException, InterruptedException {
         LOGGER.info("Resetting kafka data and schemas.");
+        //TODO: Conisder adding this to the main
         return this.deleteData() && this.createSchema();
     }
 }
