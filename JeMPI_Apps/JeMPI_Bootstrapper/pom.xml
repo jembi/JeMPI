@@ -24,6 +24,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.6.1</version>

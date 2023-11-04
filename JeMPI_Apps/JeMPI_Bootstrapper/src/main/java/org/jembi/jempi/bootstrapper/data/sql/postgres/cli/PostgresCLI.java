@@ -8,6 +8,7 @@ import picocli.CommandLine.Command;
         subcommands = {
                 PostgresResetAllCommand.class,
                 PostgresDeleteAllDataCommand.class,
+                PostgresDeleteAllDataAndSchemaCommand.class,
                 PostgresCreateAllSchemasCommand.class
         })
 
