@@ -1,19 +1,14 @@
 package org.jembi.jempi.bootstrapper.data.sql.postgres.cli;
 
-import org.jembi.jempi.bootstrapper.data.sql.postgres.PostgresDataBootstrapper;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "deleteAllDataAndSchemas")
-public class PostgresDeleteAllDataAndSchemaCommand implements Callable {
-    @CommandLine.Option(names = "config", scope = CommandLine.ScopeType.INHERIT)
-    private String config;
-
+public class PostgresDeleteAllDataAndSchemaCommand extends BasePostgresCommand implements Callable<Integer> {
     @Override
-    public Object call() throws Exception {
-        //TODO: Share
-        PostgresDataBootstrapper pgDataBootstrapper = new PostgresDataBootstrapper(this.config);
-        return pgDataBootstrapper.deleteData() && pgDataBootstrapper.deleteTables();
+    public Integer call() throws Exception {
+        this.init();
+        return this.Execute(() -> this.bootstrapper.deleteData() && this.bootstrapper.deleteTables() ? 0 : 1);
     }
 }

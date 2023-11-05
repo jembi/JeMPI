@@ -6,11 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Locale;
 
-@FunctionalInterface
-interface ThrowingFunction<T, R, E extends Exception> {
-    R apply(T t) throws E;
-}
+
 public class PostgresDALLib {
+
+    @FunctionalInterface
+    interface ThrowingFunction<T, R, E extends Exception> {
+        R apply(T t) throws E;
+    }
     private final String url;
     private final String usr;
     private final String psw;

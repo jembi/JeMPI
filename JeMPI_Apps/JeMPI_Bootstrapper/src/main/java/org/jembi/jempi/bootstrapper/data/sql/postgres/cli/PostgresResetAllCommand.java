@@ -1,21 +1,13 @@
 package org.jembi.jempi.bootstrapper.data.sql.postgres.cli;
 
-import org.jembi.jempi.bootstrapper.data.graph.dgraph.DgraphDataBootstrapper;
-import org.jembi.jempi.bootstrapper.data.sql.postgres.PostgresDataBootstrapper;
 import picocli.CommandLine;
-import picocli.CommandLine.ScopeType;
-
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "resetAll")
-public class PostgresResetAllCommand implements Callable {
-
-    @CommandLine.Option(names = "config", scope = ScopeType.INHERIT)
-    private String config;
-
+public class PostgresResetAllCommand extends BasePostgresCommand implements Callable<Integer> {
     @Override
-    public Object call() throws Exception {
-        //TODO: Share
-        return new PostgresDataBootstrapper(this.config).resetAll();
+    public Integer call() throws Exception {
+        this.init();
+        return this.Execute(() -> this.bootstrapper.resetAll()  ? 0 : 1);
     }
 }
