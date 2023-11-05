@@ -4,8 +4,8 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "deleteAllData")
-public class DgraphDeleteAllDataCommand extends BaseDgraphCommand implements Callable<Integer>{
+@CommandLine.Command(name = "deleteAll", mixinStandardHelpOptions = true, description = "Delete all the data and schema used by JeMPI Dgraph instance.")
+public class DgraphDeleteAllCommand extends BaseDgraphCommand implements Callable<Integer>{
     @Override
     public Integer call() throws Exception {
         this.init();

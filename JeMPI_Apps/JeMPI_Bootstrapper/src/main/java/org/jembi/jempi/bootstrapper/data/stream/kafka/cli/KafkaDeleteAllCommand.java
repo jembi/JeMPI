@@ -3,8 +3,8 @@ package org.jembi.jempi.bootstrapper.data.stream.kafka.cli;
 import picocli.CommandLine;
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "deleteAllData")
-public class KafkaDeleteAllDataCommand extends BaseKafkaCommand implements Callable<Integer>{
+@CommandLine.Command(name = "deleteAll", mixinStandardHelpOptions = true, description = "Delete all the data and schema used by JeMPI kafka instance.")
+public class KafkaDeleteAllCommand extends BaseKafkaCommand implements Callable<Integer>{
     @Override
     public Integer call() throws Exception {
         this.init();

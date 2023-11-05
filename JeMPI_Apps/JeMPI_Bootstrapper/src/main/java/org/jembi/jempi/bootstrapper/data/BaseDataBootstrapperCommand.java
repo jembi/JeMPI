@@ -1,6 +1,12 @@
 package org.jembi.jempi.bootstrapper.data;
 
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.bootstrapper.data.cli.CreateAllSchemaDataCommand;
+import org.jembi.jempi.bootstrapper.data.cli.DeleteAllSchemaDataCommand;
+import org.jembi.jempi.bootstrapper.data.cli.ResetAllCommand;
+import org.jembi.jempi.bootstrapper.data.graph.dgraph.cli.DgraphCLI;
+import org.jembi.jempi.bootstrapper.data.sql.postgres.cli.PostgresCLI;
+import org.jembi.jempi.bootstrapper.data.stream.kafka.cli.KafkaCLI;
 import org.jembi.jempi.bootstrapper.utils.BootstrapperLogger;
 import picocli.CommandLine;
 

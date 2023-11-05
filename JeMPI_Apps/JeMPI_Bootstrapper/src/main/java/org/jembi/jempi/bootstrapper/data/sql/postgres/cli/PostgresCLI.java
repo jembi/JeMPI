@@ -7,9 +7,9 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true,
         subcommands = {
                 PostgresResetAllCommand.class,
-                PostgresDeleteAllDataCommand.class,
-                PostgresDeleteAllDataAndSchemaCommand.class,
-                PostgresCreateAllSchemasCommand.class
+                PostgresDeleteDataOnlyCommand.class,
+                PostgresDeleteAllCommand.class,
+                PostgresCreateAllSchemaDataCommand.class
         })
 
 public class PostgresCLI { }

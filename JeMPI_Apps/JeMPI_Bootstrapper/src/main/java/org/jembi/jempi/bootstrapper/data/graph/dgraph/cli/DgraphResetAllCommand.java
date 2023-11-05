@@ -1,12 +1,9 @@
 package org.jembi.jempi.bootstrapper.data.graph.dgraph.cli;
 
-import org.jembi.jempi.bootstrapper.data.graph.dgraph.DgraphDataBootstrapper;
 import picocli.CommandLine;
-import picocli.CommandLine.ScopeType;
-
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "resetAll")
+@CommandLine.Command(name = "resetAll", mixinStandardHelpOptions = true, description = "Deletes all data and schemas associated with JeMPI Dgraph instance, then recreated schemas, and add initial data.")
 public class DgraphResetAllCommand extends BaseDgraphCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {

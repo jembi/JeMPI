@@ -1,11 +1,10 @@
 package org.jembi.jempi.bootstrapper.data.sql.postgres.cli;
 
 import picocli.CommandLine;
-
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "deleteAllDataAndSchemas")
-public class PostgresDeleteAllDataAndSchemaCommand extends BasePostgresCommand implements Callable<Integer> {
+@CommandLine.Command(name = "deleteAll",  mixinStandardHelpOptions = true, description = "Delete all the data and schema used by JeMPI Postgres instance.")
+public class PostgresDeleteAllCommand extends BasePostgresCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         this.init();

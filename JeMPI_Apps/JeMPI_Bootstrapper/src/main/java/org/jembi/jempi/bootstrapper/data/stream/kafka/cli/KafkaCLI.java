@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true,
         subcommands = {
                 KafkaResetAllCommand.class,
-                KafkaDeleteAllDataCommand.class,
-                KafkaCreateAllSchemasCommand.class
+                KafkaDeleteAllCommand.class,
+                KafkaCreateAllSchemaDataCommand.class
         })
 public class KafkaCLI { }

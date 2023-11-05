@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true,
         subcommands = {
                 DgraphResetAllCommand.class,
-                DgraphDeleteAllDataCommand.class,
-                DgraphCreateAllSchemasCommand.class
+                DgraphDeleteAllCommand.class,
+                DgraphCreateAllSchemaDataCommand.class
         })
 public class DgraphCLI { }
