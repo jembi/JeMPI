@@ -6,12 +6,10 @@ import picocli.CommandLine;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "createAllSchemaData")
-public class KafkaCreateAllSchemasCommand<T> implements Callable<Integer> {
-
-    @CommandLine.Option(names = "config", scope = CommandLine.ScopeType.INHERIT)
-    private String config;
+public class KafkaCreateAllSchemasCommand extends BaseKafkaCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
-        return new KafkaDataBootstrapper(this.config).createSchema() ? 0 : 1;
+        this.init();
+        return this.Execute(() -> this.bootstrapper.createSchema()  ? 0 : 1 );
     }
 }

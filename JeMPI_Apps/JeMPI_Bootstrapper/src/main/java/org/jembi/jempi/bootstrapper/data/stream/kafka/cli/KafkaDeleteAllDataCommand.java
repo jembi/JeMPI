@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "deleteAllData")
 public class KafkaDeleteAllDataCommand extends BaseKafkaCommand implements Callable<Integer>{
-
     @Override
     public Integer call() throws Exception {
         this.init();

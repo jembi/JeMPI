@@ -7,13 +7,10 @@ import picocli.CommandLine.ScopeType;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "resetAll")
-public class KafkaResetAllCommand implements Callable {
-
-    @CommandLine.Option(names = "config", scope = ScopeType.INHERIT)
-    private String config;
-
+public class KafkaResetAllCommand extends BaseKafkaCommand implements Callable<Integer> {
     @Override
-    public Object call() throws Exception {
-        return new KafkaDataBootstrapper(this.config).resetAll() ? 0 : 1;
+    public Integer call() throws Exception {
+        this.init();
+        return this.Execute(() -> this.bootstrapper.resetAll()  ? 0 : 1);
     }
 }
