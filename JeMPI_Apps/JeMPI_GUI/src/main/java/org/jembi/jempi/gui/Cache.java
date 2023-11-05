@@ -55,7 +55,7 @@ public final class Cache {
       private static String[] getGoldenRecordVector(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
          final var demographicFields = CustomDemographicData.class.getDeclaredFields();
          final String[] vector = new String[3 + demographicFields.length + 1];
-         vector[0] = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
+         vector[0] = ""; // expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
          vector[1] = expandedGoldenRecord.goldenRecord().uid();
          vector[2] = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxDateCreated().toString();
          for (int i = 0; i < demographicFields.length; i++) {
@@ -72,7 +72,7 @@ public final class Cache {
       private static String[] getInteractionVector(final ApiModels.ApiInteractionWithScore interactionWithScore) {
          final var demographicFields = CustomDemographicData.class.getDeclaredFields();
          final String[] vector = new String[3 + demographicFields.length + 1];
-         vector[0] = interactionWithScore.interaction().uniqueInteractionData().auxId();
+         vector[0] = ""; // interactionWithScore.interaction().uniqueInteractionData().auxId();
          vector[1] = interactionWithScore.interaction().uid();
          vector[2] = interactionWithScore.interaction().uniqueInteractionData().auxDateCreated().toString();
          for (int i = 0; i < demographicFields.length; i++) {

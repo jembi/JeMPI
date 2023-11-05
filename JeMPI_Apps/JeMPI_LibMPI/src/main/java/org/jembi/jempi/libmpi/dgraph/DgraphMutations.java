@@ -15,7 +15,6 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,10 +38,7 @@ final class DgraphMutations {
                                                          result.interactionUID,
                                                          result.sourceUID,
                                                          1.0F,
-                                                         new CustomUniqueGoldenRecordData(LocalDateTime.now(),
-                                                                                          true,
-                                                                                          interaction.uniqueInteractionData()
-                                                                                                     .auxId()));
+                                                         new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()));
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
@@ -309,7 +305,7 @@ final class DgraphMutations {
       final var newGoldenID = cloneGoldenRecordFromInteraction(
             interaction.demographicData(), interaction.interactionId(),
             interaction.sourceId().uid(),
-            score, new CustomUniqueGoldenRecordData(LocalDateTime.now(), true, interaction.uniqueInteractionData().auxId()));
+            score, new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()));
       return Either.right(new LinkInfo(newGoldenID, interactionId, score));
    }
 

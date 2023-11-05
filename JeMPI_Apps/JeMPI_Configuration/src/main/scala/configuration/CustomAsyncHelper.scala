@@ -48,10 +48,11 @@ private object CustomAsyncHelper {
 
       def additionalNodeFields(additionalNode: AdditionalNode): String =
         additionalNode.fields
-          .map(f => s"""${" " * 3}private static final int ${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get}""")
-          .mkString(
-            s""";
+          .map(f => if (f.csvCol.isEmpty) "" else
+            s"""   private static final int ${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase}_COL_NUM = ${f.csvCol.get};
                |""".stripMargin)
+          .mkString("")
+          .stripMargin
           .stripTrailing()
       end additionalNodeFields
 
@@ -67,8 +68,8 @@ private object CustomAsyncHelper {
       (if (config.uniqueInteractionFields.isEmpty) "" else
         uniqueInteractionFields(config.uniqueInteractionFields.get))
         +
-        (if (config.additionalNodes.isEmpty) "" else
-          config.additionalNodes.get.map(x => s"""${additionalNodeFields(x)};""").mkString(sys.props("line.separator"))) + sys.props("line.separator")
+        (if (config.additionalNodes.isEmpty || config.additionalNodes.get.isEmpty) "" else
+          config.additionalNodes.get.map(x => s"""${additionalNodeFields(x)}""").mkString(sys.props("line.separator"))) + sys.props("line.separator")
         +
         config
           .demographicFields
@@ -112,7 +113,10 @@ private object CustomAsyncHelper {
     def customNodeConstructor(additionalNode: AdditionalNode): String =
 
       def arguments(fields: Array[AdditionalNodeField]): String =
-        fields.map(f => s"""         csvRecord.get(${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase()}_COL_NUM)""").mkString(s",${sys.props("line.separator")}")
+        fields.map(f => if (f.csvCol.isEmpty)
+          s"""${" " * 9}null"""
+        else
+          s"""${" " * 9}csvRecord.get(${additionalNode.nodeName.toUpperCase}_${f.fieldName.toUpperCase()}_COL_NUM)""").mkString(s",${sys.props("line.separator")}")
       end arguments
 
       s"""   static Custom${additionalNode.nodeName} custom${additionalNode.nodeName}(final CSVRecord csvRecord) {

@@ -5,6 +5,7 @@ case class UniqueField(fieldName: String,
                        csvCol: Option[Int],
                        index: Option[String],
                        isList: Option[Boolean],
+                       source: Option[String],
                        default: Option[String])
 
 case class AdditionalNode(nodeName: String,
