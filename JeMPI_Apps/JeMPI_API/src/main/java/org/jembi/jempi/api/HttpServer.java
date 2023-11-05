@@ -102,8 +102,6 @@ public final class HttpServer extends AllDirectives {
                                             () -> Routes.patchCrUpdateFields(AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT, http)))),
                     get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
                                           () -> Routes.countGoldenRecords(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_HEALTH,
-                                          () -> complete(StatusCodes.OK)),
                                      path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
                                           () -> Routes.countInteractions(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_COUNT_RECORDS,
