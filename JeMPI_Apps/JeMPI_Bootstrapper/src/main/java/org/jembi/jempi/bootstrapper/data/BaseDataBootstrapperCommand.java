@@ -32,7 +32,6 @@ public abstract class BaseDataBootstrapperCommand<T extends DataBootstrapper> im
             return CommandLine.ExitCode.SOFTWARE;
         }
     }
-
     protected abstract T getBootstrapper(String configPath) throws Exception;
     public BaseDataBootstrapperCommand<T> setConfigPath(String config){
         this.config = config;
