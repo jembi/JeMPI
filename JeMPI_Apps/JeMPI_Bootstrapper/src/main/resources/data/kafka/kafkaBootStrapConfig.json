@@ -29,7 +29,7 @@
       "segments_bytes": 4194304
     },
     "JeMPI-mu-linker": {
-      "topicName": "eMPI-mu-linker",
+      "topicName": "JeMPI-mu-linker",
       "partition": 1,
       "replications": 1,
       "retention_ms": 86400000,

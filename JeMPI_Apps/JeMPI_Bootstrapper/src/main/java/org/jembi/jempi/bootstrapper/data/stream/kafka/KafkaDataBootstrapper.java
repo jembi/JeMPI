@@ -30,7 +30,7 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         kafkaTopicManager = new KafkaTopicManager(this.loadedConfig.KAFKA_BOOTSTRAP_SERVERS);
     }
     protected void LoadKafkaConfig() throws IOException {
-        InputStream keycloakConfigStream = this.getClass().getResourceAsStream(DataBootstraperConsts.JSON_CONFIG_FILE_NAME);
+        InputStream keycloakConfigStream = this.getClass().getResourceAsStream(DataBootstraperConsts.KAFKA_BOOT_STRAP_CONFIG_JSON);
         ObjectMapper objectMapper = new ObjectMapper();
 
         this.kafkaBootstrapConfig =  objectMapper.readValue(keycloakConfigStream, KafkaBootstrapConfig.class);
