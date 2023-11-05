@@ -1,6 +1,7 @@
 package org.jembi.jempi.bootstrapper.data.stream.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.bootstrapper.data.DataBootstrapper;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
@@ -50,7 +52,7 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         }
     }
     @Override
-    public Boolean createSchema() throws ExecutionException, InterruptedException {
+    public Boolean createSchema() throws InterruptedException {
         LOGGER.info("Loading Kafka schema data.");
         for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails : this.kafkaBootstrapConfig.topics.entrySet()) {
             KafkaBootstrapConfig.BootstrapperTopicConfig topic = topicDetails.getValue();
@@ -70,6 +72,19 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         return true;
     }
 
+    public Boolean listTopics() throws ExecutionException, InterruptedException {
+        for (TopicListing t: kafkaTopicManager.getAllTopics()){
+            System.out.println(t.toString());
+        };
+        return true;
+    }
+
+    public Boolean describeTopic(String topicName) throws ExecutionException, InterruptedException {
+        for (Map.Entry<String, TopicDescription> t: kafkaTopicManager.describeTopic(topicName).entrySet()){
+            System.out.println(t.getValue().toString());
+        };
+        return true;
+    }
     @Override
     public Boolean deleteData() throws InterruptedException {
         LOGGER.info("Deleting kafka topics.");

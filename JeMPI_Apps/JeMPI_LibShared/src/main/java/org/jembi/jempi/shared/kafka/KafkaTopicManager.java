@@ -1,9 +1,6 @@
 package org.jembi.jempi.shared.kafka;
 
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.DeleteTopicsOptions;
-import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.clients.admin.TopicListing;
+import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.streams.StreamsConfig;
@@ -21,7 +18,11 @@ public final class KafkaTopicManager {
    }
 
    public Collection<TopicListing> getAllTopics() throws ExecutionException, InterruptedException {
-      return adminClient.listTopics().listings().get();
+      return adminClient.listTopics(new ListTopicsOptions().listInternal(false)).listings().get();
+   }
+
+   public Map<String, TopicDescription> describeTopic(final String topic) throws ExecutionException, InterruptedException {
+      return adminClient.describeTopics(Arrays.asList(topic)).allTopicNames().get();
    }
 
    public void createTopic(
