@@ -6,6 +6,8 @@ import org.jembi.jempi.bootstrapper.data.DataBootstrapper;
 import org.jembi.jempi.bootstrapper.utils.BootstrapperLogger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 
+import java.util.concurrent.Callable;
+
 
 public class DgraphDataBootstrapper extends DataBootstrapper {
     protected static final Logger LOGGER = BootstrapperLogger.getChildLogger(DataBootstrapper.LOGGER, "DGraph");
@@ -31,7 +33,6 @@ public class DgraphDataBootstrapper extends DataBootstrapper {
     @Override
     public Boolean deleteData() {
         LOGGER.info("Deleting DGraph data and schemas.");
-        // TODO: Dont repear
         libDgraph.startTransaction();
         libDgraph.dropAll();
         return true;
