@@ -11,7 +11,7 @@ Commands:
   dgraph
   postgres
   resetAll             Deletes all data and schemas associated with JeMPI, then
-                         recreated schemas, and add initial data.
+                         recreates schemas, and add initial data.
   deleteAllSchemaData  Delete all the data and schema used by JeMPI.
   createAllSchemaData  Create all the required schema's and data for JeMPI.
 ```
@@ -23,7 +23,7 @@ Usage: <main class> data kafka [-hV] [COMMAND]
   -V, --version   Print version information and exit.
 Commands:
   resetAll             Deletes all data and schemas associated with JeMPI kafka
-                         instance, then recreated schemas, and add initial data.
+                         instance, then recreates schemas, and add initial data.
   deleteAll            Delete all the data and schema used by JeMPI kafka
                          instance.
   createAllSchemaData  Create all the required schema's and data for JeMPI
@@ -39,7 +39,7 @@ Usage: <main class> data postgres [-hV] [COMMAND]
   -V, --version   Print version information and exit.
 Commands:
   resetAll             Deletes all data and schemas associated with JeMPI
-                         Postgres instance, then recreated schemas, and add
+                         Postgres instance, then recreates schemas, and add
                          initial data.
   deleteDataOnly       Delete all the data (only) used by JeMPI Postgres
                          instance.
@@ -56,7 +56,7 @@ Usage: <main class> data dgraph [-hV] [COMMAND]
   -V, --version   Print version information and exit.
 Commands:
   resetAll             Deletes all data and schemas associated with JeMPI
-                         Dgraph instance, then recreated schemas, and add
+                         Dgraph instance, then recreates schemas, and add
                          initial data.
   deleteAll            Delete all the data and schema used by JeMPI Dgraph
                          instance.
