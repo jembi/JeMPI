@@ -1,6 +1,6 @@
 import { People } from '@mui/icons-material'
 import { Box, Container, Divider, Paper, Stack, debounce } from '@mui/material'
-import { DataGrid, GridFilterModel } from '@mui/x-data-grid'
+import { DataGrid, GridFilterModel, gridClasses } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
@@ -96,50 +96,70 @@ const NotificationWorklist = () => {
         <Paper sx={{ p: 1 }}>
           {error && <ApiErrorMessage error={error} />}
           {!data && !isLoading && !isFetching && <NotFound />}
-          {data && (
-            <DataGrid
-              sx={{
-                '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
-                  outline: 'none'
-                }
-              }}
-              initialState={{
-                sorting: {
-                  sortModel: [{ field: 'created', sort: 'desc' }]
-                }
-              }}
-              columns={NOTIFICATIONS_COLUMNS}
-              rows={data.records as Notification[]}
-              slots={{ pagination: CustomPagination }}
-              pageSizeOptions={[25, 50, 100]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={model => setPaginationModel(model)}
-              paginationMode="server"
-              rowCount={data.pagination.total || 0}
-              filterMode="server"
-              filterModel={filterModel}
-              loading={isLoading}
-              onFilterModelChange={debounce(onFilterChange, 3000)}
-              onRowDoubleClick={params =>
-                navigate(
-                  {
-                    pathname: 'match-details'
+          <Box
+            component={'div'}
+            sx={{
+              position: 'relative'
+            }}
+          >
+            {data && (
+              <DataGrid
+                sx={{
+                  overflow: 'visible',
+                  '& .MuiDataGrid-columnSeparator': {
+                    visibility: 'visible'
                   },
-                  {
-                    state: {
-                      payload: {
-                        notificationId: params.row.id,
-                        patient_id: params.row.patient_id,
-                        golden_id: params.row.golden_id,
-                        score: params.row.score,
-                        candidates: params.row.candidates
+                  '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus':
+                    {
+                      outline: 'none'
+                    },
+                  [`.${gridClasses.main}`]: {
+                    overflow: 'visible'
+                  },
+                  [`.${gridClasses.columnHeaders}`]: {
+                    position: 'sticky',
+                    top: 65,
+                    zIndex: 1
+                  }
+                }}
+                initialState={{
+                  sorting: {
+                    sortModel: [{ field: 'created', sort: 'desc' }]
+                  }
+                }}
+                columns={NOTIFICATIONS_COLUMNS}
+                rows={data.records as Notification[]}
+                slots={{ pagination: CustomPagination }}
+                pageSizeOptions={[25, 50, 100]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={model => setPaginationModel(model)}
+                paginationMode="server"
+                rowCount={data.pagination.total || 0}
+                filterMode="server"
+                filterModel={filterModel}
+                loading={isLoading}
+                onFilterModelChange={debounce(onFilterChange, 3000)}
+                onRowDoubleClick={params =>
+                  navigate(
+                    {
+                      pathname: 'match-details'
+                    },
+                    {
+                      state: {
+                        payload: {
+                          notificationId: params.row.id,
+                          patient_id: params.row.patient_id,
+                          golden_id: params.row.golden_id,
+                          score: params.row.score,
+                          candidates: params.row.candidates
+                        }
                       }
                     }
-                  }
-                )
-              }
-            />
-          )}
+                  )
+                }
+              />
+            )}
+          </Box>
         </Paper>
       </Stack>
     </Container>
