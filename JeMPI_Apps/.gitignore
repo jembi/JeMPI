@@ -2,3 +2,4 @@
 .vscode
 *.csv
 target
+/JeMPI_Bootstrapper/boostrap.conf
