@@ -44,7 +44,7 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         while (!isComplete) {
             try {
                 Thread.sleep(1000);
-                isComplete = checkFunc.apply(kafkaTopicManager.getAllTopics()) || count > 30000;
+                isComplete = checkFunc.apply(kafkaTopicManager.getAllTopics()) || count > 5000;
                 count += 1000;
             } catch (ExecutionException | InterruptedException e) {
                 isComplete = true;
