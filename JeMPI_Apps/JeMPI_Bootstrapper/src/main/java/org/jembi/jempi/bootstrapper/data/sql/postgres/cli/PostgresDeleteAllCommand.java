@@ -8,6 +8,6 @@ public class PostgresDeleteAllCommand extends BasePostgresCommand implements Cal
     @Override
     public Integer call() throws Exception {
         this.init();
-        return this.Execute(() -> this.bootstrapper.deleteData() && this.bootstrapper.deleteTables() ? 0 : 1);
+        return this.execute(() -> this.bootstrapper.deleteData() && this.bootstrapper.deleteTables() ? 0 : 1);
     }
 }

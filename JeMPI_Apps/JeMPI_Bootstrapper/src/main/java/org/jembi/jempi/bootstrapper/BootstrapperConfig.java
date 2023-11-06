@@ -35,7 +35,7 @@ public class BootstrapperConfig {
             }
         }).toArray();
     }
-    public static BootstrapperConfig create(String filepath, Logger LOGGER){
+    public static BootstrapperConfig create(String filepath, Logger LOGGER) {
         return new BootstrapperConfig(new Builder(LOGGER)
                 .withOptionalFile(filepath)
                 .withSystemEnvironment()
@@ -76,7 +76,7 @@ public class BootstrapperConfig {
             }
             File secureConfFile = new File(path);
 
-            if (!secureConfFile.isAbsolute()){
+            if (!secureConfFile.isAbsolute()) {
                 secureConfFile = new File(getExecutionDirectory() + path);
             }
             if (secureConfFile.exists()) {

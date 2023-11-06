@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 public abstract class BaseKafkaCommand extends BaseDataBootstrapperCommand<KafkaDataBootstrapper> implements Callable<Integer> {
     @Override
-    protected KafkaDataBootstrapper getBootstrapper(String configPath) throws IOException {
+    protected KafkaDataBootstrapper getBootstrapper(final String configPath) throws IOException {
         return new KafkaDataBootstrapper(configPath);
     }
 }

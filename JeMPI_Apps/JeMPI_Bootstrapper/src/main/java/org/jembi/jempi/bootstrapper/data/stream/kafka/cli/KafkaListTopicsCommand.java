@@ -9,6 +9,6 @@ public class KafkaListTopicsCommand extends BaseKafkaCommand implements Callable
     @Override
     public Integer call() throws Exception {
         this.init();
-        return this.Execute(() -> this.bootstrapper.listTopics()  ? 0 : 1);
+        return this.execute(() -> this.bootstrapper.listTopics()  ? 0 : 1);
     }
 }

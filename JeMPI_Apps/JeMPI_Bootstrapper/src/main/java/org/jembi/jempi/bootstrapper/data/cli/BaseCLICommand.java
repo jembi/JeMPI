@@ -18,7 +18,7 @@ public abstract class BaseCLICommand extends BaseDataBootstrapperCommand<DataBoo
         return null;
     }
 
-    protected Integer CallMultiple(BaseDataBootstrapperCommand<DataBootstrapper> [] bootstrapperCommands) throws Exception{
+    protected Integer callMultiple(BaseDataBootstrapperCommand<DataBootstrapper> [] bootstrapperCommands) throws Exception{
         Integer execResult = 0;
         for (BaseDataBootstrapperCommand<DataBootstrapper> b : bootstrapperCommands) {
             execResult += b.setConfigPath(this.config).init().call();

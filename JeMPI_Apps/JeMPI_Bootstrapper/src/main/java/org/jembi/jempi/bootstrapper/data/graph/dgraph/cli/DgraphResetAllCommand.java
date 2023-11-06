@@ -8,6 +8,6 @@ public class DgraphResetAllCommand extends BaseDgraphCommand implements Callable
     @Override
     public Integer call() throws Exception {
         this.init();
-        return this.Execute(() -> this.bootstrapper.resetAll()  ? 0 : 1 );
+        return this.execute(() -> this.bootstrapper.resetAll()  ? 0 : 1);
     }
 }

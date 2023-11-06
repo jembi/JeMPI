@@ -6,7 +6,7 @@ import org.jembi.jempi.bootstrapper.utils.BootstrapperLogger;
 
 public abstract class DataBootstrapper extends Bootstrapper implements IDataBootstrapper {
     protected static final Logger LOGGER = BootstrapperLogger.getChildLogger(Bootstrapper.LOGGER, "Data");
-    public DataBootstrapper(String configFilePath) {
+    public DataBootstrapper(final String configFilePath) {
         super(configFilePath);
     }
 }

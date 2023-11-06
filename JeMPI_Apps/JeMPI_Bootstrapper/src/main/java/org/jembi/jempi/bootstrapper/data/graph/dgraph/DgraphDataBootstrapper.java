@@ -6,18 +6,15 @@ import org.jembi.jempi.bootstrapper.data.DataBootstrapper;
 import org.jembi.jempi.bootstrapper.utils.BootstrapperLogger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 
-import java.util.concurrent.Callable;
-
-
 public class DgraphDataBootstrapper extends DataBootstrapper {
     protected static final Logger LOGGER = BootstrapperLogger.getChildLogger(DataBootstrapper.LOGGER, "DGraph");
-    protected LibDgraph libDgraph;
-    public DgraphDataBootstrapper(String configFilePath) {
+    private LibDgraph libDgraph;
+    public DgraphDataBootstrapper(final String configFilePath) {
         super(configFilePath);
-        this.LoadDgraphLib();
+        this.loadDgraphLib();
     }
 
-    public void LoadDgraphLib(){
+    public void loadDgraphLib() {
         libDgraph = new LibDgraph(Level.INFO,
                                     this.loadedConfig.DGRAPH_ALPHA_HOSTS,
                                     this.loadedConfig.DGRAPH_ALPHA_PORTS);

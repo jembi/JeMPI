@@ -12,6 +12,6 @@ public class KafkaDescribeTopicCommand extends BaseKafkaCommand implements Calla
     @Override
     public Integer call() throws Exception {
         this.init();
-        return this.Execute(() -> this.bootstrapper.describeTopic(topicName)  ? 0 : 1);
+        return this.execute(() -> this.bootstrapper.describeTopic(topicName)  ? 0 : 1);
     }
 }

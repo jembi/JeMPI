@@ -9,6 +9,6 @@ public class DgraphDeleteAllCommand extends BaseDgraphCommand implements Callabl
     @Override
     public Integer call() throws Exception {
         this.init();
-        return this.Execute(() -> this.bootstrapper.deleteData()  ? 0 : 1);
+        return this.execute(() -> this.bootstrapper.deleteData()  ? 0 : 1);
     }
 }

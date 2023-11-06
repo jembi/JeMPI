@@ -9,6 +9,6 @@ public class DgraphCreateAllSchemaDataCommand extends BaseDgraphCommand implemen
     @Override
     public Integer call() throws Exception {
         this.init();
-        return this.Execute(() -> this.bootstrapper.createSchema()  ? 0 : 1);
+        return this.execute(() -> this.bootstrapper.createSchema()  ? 0 : 1);
     }
 }

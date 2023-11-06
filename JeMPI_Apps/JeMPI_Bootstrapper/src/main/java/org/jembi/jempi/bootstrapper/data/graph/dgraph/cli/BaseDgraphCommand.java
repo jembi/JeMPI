@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
 
 public abstract class BaseDgraphCommand extends BaseDataBootstrapperCommand<DgraphDataBootstrapper> implements Callable<Integer> {
     @Override
-    protected DgraphDataBootstrapper getBootstrapper(String configPath){
+    protected DgraphDataBootstrapper getBootstrapper(String configPath) {
         return new DgraphDataBootstrapper(configPath);
     }
 }
