@@ -4,6 +4,9 @@ Set-Location $script_dir
 
 $linux_server_ip =  ((wsl hostname -I) -split " ")[0]
 
+Copy-Item ..\..\..\JeMPI_Apps\JeMPI_Configuration\config-api.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
+Copy-Item ..\..\..\JeMPI_Apps\JeMPI_Configuration\config-api.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
+
 $kafka1_ip                                    = $linux_server_ip
 $postgresql_ip                                = $linux_server_ip
 $postgresql_port                              = 5432
@@ -189,7 +192,7 @@ $controller_handle = Start-Process -FilePath java `
                                    -Verbose `
                                    -PassThru `
                                    -RedirectStandardError 'controller_stderr.txt'
-#                                  -RedirectStandardOutput 'controller_stdout.txt'
+#                                   -RedirectStandardOutput 'controller_stdout.txt'
 $controller_handle | Export-Clixml -Path (Join-Path './' 'controller_handle.xml')
 
 

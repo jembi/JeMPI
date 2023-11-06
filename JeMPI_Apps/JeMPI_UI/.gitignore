@@ -31,3 +31,5 @@ platform.exe
 instant-linux
 instant-macos
 instant.exe
+
+public/config.json

@@ -10,13 +10,12 @@ import { useSnackbar } from 'notistack'
 import React, { useEffect, useRef } from 'react'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 
-import { config } from 'config'
 import ApiErrorMessage from '../components/error/ApiErrorMessage'
-import ApiClient from '../services/ApiClient'
-import keycloak from '../services/keycloak'
+import getKeycloak from '../services/keycloak'
 import { OAuthParams, User } from '../types/User'
 import { parseQuery } from '../utils/misc'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useConfig } from './useConfig'
 
 export interface AuthContextValue {
   user: User | undefined
@@ -46,6 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const key = 'auth-user'
   const currentUrl = window.location.href
   const isLoginPage = location.pathname === '/login'
+  const { config, apiClient } = useConfig()
 
   const {
     data: user,
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   } = useQuery<User, AxiosError<unknown, User>>({
     queryKey: [key],
     queryFn: async () => {
-      return await ApiClient.getCurrentUser()
+      return await apiClient.getCurrentUser()
     },
     retry: false,
     refetchOnWindowFocus: false,
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const { refetch: logout } = useQuery({
     queryKey: ['logout'],
     queryFn: async () => {
-      return await ApiClient.logout()
+      return await apiClient.logout()
     },
     onSuccess() {
       queryClient.clear()
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   })
 
   const { mutate: validateOAuth } = useMutation({
-    mutationFn: ApiClient.validateOAuth,
+    mutationFn: apiClient.validateOAuth,
     onSuccess(response) {
       enqueueSnackbar(`Successfully logged in using KeyCloak`, {
         variant: 'success'
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     queryClient.setQueryData([key], data)
 
   const signInWithKeyCloak = () => {
-    keycloak.init({
+    getKeycloak(config).init({
       onLoad: 'login-required',
       redirectUri: currentUrl,
       checkLoginIframe: false

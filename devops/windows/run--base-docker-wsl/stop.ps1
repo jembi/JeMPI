@@ -1,4 +1,8 @@
-﻿$async_handle = Import-Clixml -Path (Join-Path './' 'async_handle.xml')
+﻿$script_path = $MyInvocation.MyCommand.Path
+$script_dir = Split-Path $script_path
+Set-Location $script_dir
+
+$async_handle = Import-Clixml -Path (Join-Path './' 'async_handle.xml')
 $async_handle | Stop-Process
 
 $etl_handle = Import-Clixml -Path (Join-Path './' 'etl_handle.xml')

@@ -17,7 +17,6 @@ import { AxiosError, AxiosProgressEvent, AxiosRequestConfig } from 'axios'
 import { useSnackbar } from 'notistack'
 import { FC, useRef, useState } from 'react'
 import { FileRejection, useDropzone } from 'react-dropzone'
-import ApiClient from '../../services/ApiClient'
 import {
   FileObj,
   UploadStatus,
@@ -26,17 +25,17 @@ import {
 import Button from '../shared/Button'
 import UploadFileListItem from './UploadFileListItem'
 import { formatBytesSize, megabytesToBytes } from 'utils/formatters'
+import { useConfig } from 'hooks/useConfig'
 import { useFormik } from 'formik'
-
-const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
-  +(process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES ?? 128)
-)
 
 const DropZone: FC = () => {
   const { enqueueSnackbar } = useSnackbar()
   const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
   const abortControllerRef = useRef<AbortController>(new AbortController())
-
+  const { apiClient, config } = useConfig()
+  const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
+    config.maxUploadCsvSize
+  )
   const {
     handleChange: handleImportFormChange,
     handleSubmit,
@@ -67,19 +66,19 @@ const DropZone: FC = () => {
         file: acceptedFiles[0],
         progress: 0,
         status: UploadStatus.Pending
-      });
+      })
     }
   }
-  
+
   const validate = (fileRejections: FileRejection[]): boolean => {
     if (fileRejections.length > 0) {
       enqueueSnackbar(fileRejections[0].errors[0].message, {
         variant: 'error'
-      });
-      return false;
+      })
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { 'text/csv': ['.csv'] },
@@ -92,7 +91,7 @@ const DropZone: FC = () => {
     fileObj: FileObj,
     importQueries: importQueriesType
   ) => {
-    return await ApiClient.uploadFile(
+    return await apiClient.uploadFile(
       createFileUploadAxiosConfig(fileObj, importQueries)
     )
   }
