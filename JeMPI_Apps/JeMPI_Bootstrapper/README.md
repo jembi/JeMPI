@@ -65,7 +65,7 @@ Commands:
 ```
 
 
-**In addition to this, this pull request also**
+**Other notes**
 
 - This application can be run directly (as a java app), or via the script found at devops/linux/bootstrapper.sh (i.e `devops/linux/bootstrapper.sh -h`)
 
