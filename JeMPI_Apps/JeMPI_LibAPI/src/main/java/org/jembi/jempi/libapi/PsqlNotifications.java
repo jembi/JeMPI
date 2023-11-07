@@ -5,14 +5,13 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.MatchesForReviewResult;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.*;
 
 final class PsqlNotifications {
    private static final String QUERY = """
                                        SELECT patient_id, id, names, created, state,type, score, golden_id
                                        FROM notification
-                                       WHERE created <= ? AND state = ?
+                                       WHERE created BETWEEN ? AND ? AND state = ?
                                        ORDER BY created
                                        LIMIT ? OFFSET ?
                                        """;
@@ -40,7 +39,8 @@ final class PsqlNotifications {
    MatchesForReviewResult getMatchesForReview(
          final int limit,
          final int offset,
-         final LocalDate date,
+         final Timestamp startDate,
+         final Timestamp endDate,
          final String state) {
       final var list = new ArrayList<HashMap<String, Object>>();
       MatchesForReviewResult result = new MatchesForReviewResult();
@@ -51,11 +51,11 @@ final class PsqlNotifications {
          ResultSet countRs = countStatement.executeQuery();
          countRs.next();
          int totalCount = countRs.getInt(1);
-
-         preparedStatement.setDate(1, java.sql.Date.valueOf(date));
-         preparedStatement.setString(2, state);
-         preparedStatement.setInt(3, limit);
-         preparedStatement.setInt(4, offset);
+         preparedStatement.setTimestamp(1, startDate);
+         preparedStatement.setTimestamp(2, endDate);
+         preparedStatement.setString(3, state);
+         preparedStatement.setInt(4, limit);
+         preparedStatement.setInt(5, offset);
          LOGGER.debug("{}", preparedStatement);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();

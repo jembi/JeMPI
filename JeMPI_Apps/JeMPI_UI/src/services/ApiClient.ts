@@ -73,10 +73,11 @@ export class ApiClient {
   async getMatches(
     limit: number,
     offset: number,
-    created: string,
+    startDay: string,
+    endDay: string,
     state: string
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&state=${state}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 

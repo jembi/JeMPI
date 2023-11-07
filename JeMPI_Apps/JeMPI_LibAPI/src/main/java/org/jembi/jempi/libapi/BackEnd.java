@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -229,7 +229,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
       MatchesForReviewResult result =
-            psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date(), request.state);
+            psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.startDate(), request.endDate(), request.state);
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
                                                         result.getSkippedRecords(),
                                                         result.getNotifications()));
@@ -542,7 +542,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          ActorRef<GetNotificationsResponse> replyTo,
          int limit,
          int offset,
-         LocalDate date,
+         Timestamp startDate,
+         Timestamp endDate,
          String state) implements Event {
    }
 

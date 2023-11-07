@@ -1,5 +1,13 @@
 import { People } from '@mui/icons-material'
-import { Box, Container, Divider, Paper, Stack, debounce } from '@mui/material'
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Paper,
+  Stack,
+  debounce
+} from '@mui/material'
 import { DataGrid, GridFilterModel, gridClasses } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -7,23 +15,26 @@ import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
 import Notification, { Notifications } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import locale from 'dayjs/locale/uk'
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
 import CustomPagination from 'components/shared/CustomDataGridPagination'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 const NotificationWorklist = () => {
   const { apiClient } = useConfig()
   const navigate = useNavigate()
-  const selectedDate = dayjs().locale({
-    ...locale
-  })
-  const [date, setDate] = React.useState(selectedDate)
+  const [startDateFilter, setStartDateFilter] = useState<Dayjs | null>(
+    dayjs(new Date())
+  )
+  const [endDateFilter, setEndDateFilter] = useState<Dayjs | null>(
+    dayjs(new Date())
+  )
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 25
@@ -31,22 +42,18 @@ const NotificationWorklist = () => {
   const [filterModel, setFilterModel] = useState<GridFilterModel>({
     items: [{ field: 'state', value: 'New', operator: 'contains' }]
   })
-  const { data, error, isLoading, isFetching } = useQuery<
+
+  const { data, error, isLoading, isFetching, refetch } = useQuery<
     Notifications,
     AxiosError
   >({
-    queryKey: [
-      'notifications',
-      date.format('YYYY-MM-DD'),
-      paginationModel.page,
-      paginationModel.pageSize,
-      filterModel
-    ],
+    queryKey: ['notificationsMatches'],
     queryFn: () =>
       apiClient.getMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
-        date.format('YYYY-MM-DD'),
+        dayjs(startDateFilter).format('YYYY-MM-DD HH:mm:ss'),
+        dayjs(endDateFilter).format('YYYY-MM-DD HH:mm:ss'),
         filterModel.items[0].value ? filterModel.items[0].value : ''
       ),
     refetchOnWindowFocus: false,
@@ -58,11 +65,6 @@ const NotificationWorklist = () => {
     setFilterModel({ ...filterModel })
   }, [])
 
-  const changeSelectedDate = (date: Dayjs | null) => {
-    if (date) {
-      setDate(date)
-    }
-  }
   return (
     <Container maxWidth={false}>
       <PageHeader
@@ -77,13 +79,18 @@ const NotificationWorklist = () => {
       />
       <Divider />
       <Stack padding={'2rem 1rem 1rem 1rem'}>
-        <Box>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DesktopDatePicker
-              sx={{ mb: '10px' }}
-              value={date}
-              format="YYYY/MM/DD"
-              onChange={value => changeSelectedDate(value)}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Box
+            display={'flex'}
+            gap={'2rem'}
+            alignItems={'center'}
+            paddingY={'1rem'}
+          >
+            <DateTimePicker
+              value={startDateFilter}
+              format="YYYY/MM/DD HH:mm:ss"
+              defaultValue={dayjs('2022-04-17T15:30')}
+              onChange={value => setStartDateFilter(dayjs(value))}
               slotProps={{
                 textField: {
                   variant: 'outlined',
@@ -91,8 +98,24 @@ const NotificationWorklist = () => {
                 }
               }}
             />
-          </LocalizationProvider>
-        </Box>
+            <DateTimePicker
+              value={endDateFilter}
+              format="YYYY/MM/DD HH:mm:ss"
+              defaultValue={dayjs('2022-04-17T15:30')}
+              onChange={value => setEndDateFilter(dayjs(value))}
+              slotProps={{
+                textField: {
+                  variant: 'outlined',
+                  label: 'Date'
+                }
+              }}
+            />
+
+            <Button variant="contained" onClick={() => refetch()} size="large">
+              Filter
+            </Button>
+          </Box>
+        </LocalizationProvider>
         <Paper sx={{ p: 1 }}>
           {error && <ApiErrorMessage error={error} />}
           {!data && !isLoading && !isFetching && <NotFound />}
