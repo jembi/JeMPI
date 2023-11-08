@@ -28,6 +28,7 @@ import CloseNotificationDialog from './CloseNotificationDialog'
 import UnlinkingDialog from './UnlinkingDialog'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
+import { NotificationRequest } from 'types/BackendResponse'
 
 const getRowClassName = (type: string) => {
   switch (type) {
@@ -71,7 +72,7 @@ const ReviewLink = () => {
   const { linkRecords, createNewGoldenRecord } = useRelink()
 
   const mutateNotification = useMutation({
-    mutationFn: apiClient.updateNotification,
+    mutationFn: (request: NotificationRequest) =>  apiClient.updateNotification(request),
     onError: (error: AxiosError) => {
       enqueueSnackbar(`Error updating notification: ${error.message}`, {
         variant: 'error'
