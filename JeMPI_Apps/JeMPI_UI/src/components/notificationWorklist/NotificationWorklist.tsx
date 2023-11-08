@@ -15,9 +15,8 @@ import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
 import Notification, { Notifications } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
-import locale from 'dayjs/locale/uk'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
@@ -29,11 +28,11 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 const NotificationWorklist = () => {
   const { apiClient } = useConfig()
   const navigate = useNavigate()
-  const [startDateFilter, setStartDateFilter] = useState<Dayjs | null>(
-    dayjs(new Date())
+  const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
+    dayjs().startOf('day')
   )
-  const [endDateFilter, setEndDateFilter] = useState<Dayjs | null>(
-    dayjs(new Date())
+  const [endDateFilter, setEndDateFilter] = useState<Dayjs>(
+    dayjs().endOf('day')
   )
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
@@ -47,16 +46,22 @@ const NotificationWorklist = () => {
     Notifications,
     AxiosError
   >({
-    queryKey: ['notificationsMatches'],
+    queryKey: [
+      'notifications',
+      paginationModel.page,
+      paginationModel.pageSize,
+      filterModel
+    ],
     queryFn: () =>
       apiClient.getMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
-        dayjs(startDateFilter).format('YYYY-MM-DD HH:mm:ss'),
-        dayjs(endDateFilter).format('YYYY-MM-DD HH:mm:ss'),
+        startDateFilter.format('YYYY-MM-DD HH:mm:ss'),
+        endDateFilter.format('YYYY-MM-DD HH:mm:ss'),
         filterModel.items[0].value ? filterModel.items[0].value : ''
       ),
     refetchOnWindowFocus: false,
+    cacheTime: 1000 * 60 * 10,
     keepPreviousData: true,
     staleTime: 1000 * 60 * 10
   })
@@ -85,28 +90,27 @@ const NotificationWorklist = () => {
             gap={'2rem'}
             alignItems={'center'}
             paddingY={'1rem'}
+            flexDirection={{ xs: 'column', md: 'row' }}
           >
             <DateTimePicker
               value={startDateFilter}
               format="YYYY/MM/DD HH:mm:ss"
-              defaultValue={dayjs('2022-04-17T15:30')}
-              onChange={value => setStartDateFilter(dayjs(value))}
+              onChange={value => value && setStartDateFilter(value)}
               slotProps={{
                 textField: {
                   variant: 'outlined',
-                  label: 'Date'
+                  label: 'Start Date'
                 }
               }}
             />
             <DateTimePicker
               value={endDateFilter}
               format="YYYY/MM/DD HH:mm:ss"
-              defaultValue={dayjs('2022-04-17T15:30')}
-              onChange={value => setEndDateFilter(dayjs(value))}
+              onChange={value => value && setEndDateFilter(value)}
               slotProps={{
                 textField: {
                   variant: 'outlined',
-                  label: 'Date'
+                  label: 'End Date'
                 }
               }}
             />
