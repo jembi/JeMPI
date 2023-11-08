@@ -45,9 +45,9 @@ const DropZone: FC = () => {
     initialValues: {
       reporting: false,
       computing: 0,
-      leftMargin: 0.2,
-      rightMargin: 0.6,
-      threshold: 0.9,
+      leftMargin: 0.65,
+      threshold: 0.7,
+      rightMargin: 0.75,
       windowSize: 0.1
     },
     onSubmit: () => {
@@ -253,7 +253,7 @@ const DropZone: FC = () => {
                     label={
                       <Typography fontSize={'0.9rem'}>
                         {
-                          " Before linking, compute M & U values using the interactions from the CSV file & the CR's golden records."
+                          " Before linking, compute M & U values using the interactions from the CSV file & the client registry's golden records."
                         }
                       </Typography>
                     }
