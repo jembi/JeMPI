@@ -75,9 +75,9 @@ export class ApiClient {
     offset: number,
     startDay: string,
     endDay: string,
-    state: string
+    states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&state=${state}`
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 

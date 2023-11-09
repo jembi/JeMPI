@@ -24,10 +24,14 @@ import { useConfig } from 'hooks/useConfig'
 import CustomPagination from 'components/shared/CustomDataGridPagination'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import MultiSelect from 'components/shared/MultiSelect'
+
+const states = ['New', 'Accepted', 'Closed', 'Pending']
 
 const NotificationWorklist = () => {
-  const { apiClient } = useConfig()
   const navigate = useNavigate()
+  const { apiClient } = useConfig()
+  const [selectedStates, setSelectedStates] = useState<string[]>([])
   const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
     dayjs().startOf('day')
   )
@@ -58,7 +62,7 @@ const NotificationWorklist = () => {
         paginationModel.page * paginationModel.pageSize,
         startDateFilter.format('YYYY-MM-DD HH:mm:ss'),
         endDateFilter.format('YYYY-MM-DD HH:mm:ss'),
-        filterModel.items[0].value ? filterModel.items[0].value : ''
+        selectedStates
       ),
     refetchOnWindowFocus: false,
     cacheTime: 1000 * 60 * 10,
@@ -114,7 +118,11 @@ const NotificationWorklist = () => {
                 }
               }}
             />
-
+            <MultiSelect
+              listValues={states}
+              label="States"
+              setSelectedValues={setSelectedStates}
+            />
             <Button variant="contained" onClick={() => refetch()} size="large">
               Filter
             </Button>
