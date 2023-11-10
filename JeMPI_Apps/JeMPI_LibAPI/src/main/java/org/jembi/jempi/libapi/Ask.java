@@ -72,10 +72,10 @@ public final class Ask {
          final int offset,
          final Timestamp startDate,
          final Timestamp endDate,
-         final String state) {
+         final List<String> states) {
       CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, startDate, endDate, state),
+                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, startDate, endDate, states),
                  java.time.Duration.ofSeconds(30),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

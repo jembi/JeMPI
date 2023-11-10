@@ -9,12 +9,12 @@ import java.util.*;
 
 final class PsqlNotifications {
    private static final String QUERY = """
-                                       SELECT patient_id, id, names, created, state,type, score, golden_id
-                                       FROM notification
-                                       WHERE created BETWEEN ? AND ? AND state = ?
-                                       ORDER BY created
-                                       LIMIT ? OFFSET ?
-                                       """;
+         SELECT patient_id, id, names, created, state,type, score, golden_id
+         FROM notification
+         WHERE created BETWEEN ? AND ? AND state IN (?, ?, ?, ?)
+         ORDER BY created
+         LIMIT ? OFFSET ?
+         """;
    private static final Logger LOGGER = LogManager.getLogger(PsqlNotifications.class);
    private final PsqlClient psqlClient;
 
@@ -33,7 +33,7 @@ final class PsqlNotifications {
     * @param limit  The maximum number of matches to retrieve.
     * @param offset The number of matches to skip from the beginning.
     * @param date   The date threshold for match creation.
-    * @param state   The state of notification.
+    * @param states   The state of notification.
     * @return A {@link MatchesForReviewResult} object containing the matches and related information.
     */
    MatchesForReviewResult getMatchesForReview(
@@ -41,7 +41,7 @@ final class PsqlNotifications {
          final int offset,
          final Timestamp startDate,
          final Timestamp endDate,
-         final String state) {
+         final List<String> states) {
       final var list = new ArrayList<HashMap<String, Object>>();
       MatchesForReviewResult result = new MatchesForReviewResult();
       int skippedRows = 0;
@@ -53,9 +53,12 @@ final class PsqlNotifications {
          int totalCount = countRs.getInt(1);
          preparedStatement.setTimestamp(1, startDate);
          preparedStatement.setTimestamp(2, endDate);
-         preparedStatement.setString(3, state);
-         preparedStatement.setInt(4, limit);
-         preparedStatement.setInt(5, offset);
+         preparedStatement.setString(3, extractState(0, states));
+         preparedStatement.setString(4, extractState(1, states));
+         preparedStatement.setString(5, extractState(2, states));
+         preparedStatement.setString(6, extractState(3, states));
+         preparedStatement.setInt(7, limit);
+         preparedStatement.setInt(8, offset);
          LOGGER.debug("{}", preparedStatement);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
@@ -81,6 +84,15 @@ final class PsqlNotifications {
       result.setNotifications(list);
       return result;
    }
+
+   String extractState(
+         final int index,
+         final List<String> states) {
+      if (index + 1 > states.size()) {
+         return null;
+      }
+      return states.get(index);
+   };
 
    List<HashMap<String, Object>> getCandidates(final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();

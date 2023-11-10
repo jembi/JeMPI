@@ -228,8 +228,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
-      MatchesForReviewResult result =
-            psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.startDate(), request.endDate(), request.state);
+      MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(), request.offset(),
+            request.startDate(), request.endDate(), request.states());
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
                                                         result.getSkippedRecords(),
                                                         result.getNotifications()));
@@ -544,7 +544,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          int offset,
          Timestamp startDate,
          Timestamp endDate,
-         String state) implements Event {
+         List<String> states) implements Event {
    }
 
    public record GetNotificationsResponse(

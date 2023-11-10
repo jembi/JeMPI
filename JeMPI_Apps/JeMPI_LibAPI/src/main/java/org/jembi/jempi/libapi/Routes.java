@@ -217,14 +217,14 @@ public final class Routes {
                   parameter("offset", offset ->
                         parameter("startDate", startDate ->
                               parameter("endDate", endDate ->
-                                    parameter("state", state ->
+                                    parameter("states", states ->
                                           onComplete(Ask.getNotifications(actorSystem,
                                                                     backEnd,
                                                                     Integer.parseInt(limit),
                                                                     Integer.parseInt(offset),
                                                                     Timestamp.valueOf(startDate),
                                                                     Timestamp.valueOf(endDate),
-                                                                    state),
+                                                                    Stream.of(states.split(",")).map(String::trim).toList()),
                                                result -> result.isSuccess()
                                                      ? complete(StatusCodes.OK,
                                                                 result.get(),
