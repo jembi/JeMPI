@@ -47,7 +47,13 @@ final class PsqlNotifications {
       int skippedRows = 0;
       psqlClient.connect();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY);
-           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification")) {
+           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification WHERE created BETWEEN ? AND ? AND state IN (?, ?, ?, ?)")) {
+         countStatement.setTimestamp(1, startDate);
+         countStatement.setTimestamp(2, endDate);
+         countStatement.setString(3, extractState(0, states));
+         countStatement.setString(4, extractState(1, states));
+         countStatement.setString(5, extractState(2, states));
+         countStatement.setString(6, extractState(3, states));
          ResultSet countRs = countStatement.executeQuery();
          countRs.next();
          int totalCount = countRs.getInt(1);
