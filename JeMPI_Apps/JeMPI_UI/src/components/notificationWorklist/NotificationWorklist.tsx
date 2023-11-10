@@ -31,7 +31,7 @@ const states = ['New', 'Accepted', 'Closed', 'Pending']
 const NotificationWorklist = () => {
   const navigate = useNavigate()
   const { apiClient } = useConfig()
-  const [selectedStates, setSelectedStates] = useState<string[]>([])
+  const [selectedStates, setSelectedStates] = useState<string[]>(['New'])
   const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
     dayjs().startOf('day')
   )
@@ -122,6 +122,7 @@ const NotificationWorklist = () => {
               listValues={states}
               label="States"
               setSelectedValues={setSelectedStates}
+              defaultSelectedValues={['New']}
             />
             <Button variant="contained" onClick={() => refetch()} size="large">
               Filter

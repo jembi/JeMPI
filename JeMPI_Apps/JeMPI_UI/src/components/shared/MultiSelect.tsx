@@ -32,14 +32,18 @@ function getStyles(value: string, personName: readonly string[], theme: Theme) {
 const MultiSelect = ({
   listValues,
   label,
+  defaultSelectedValues,
   setSelectedValues
 }: {
   listValues: string[]
   label: string
+  defaultSelectedValues: string[]
   setSelectedValues: React.Dispatch<React.SetStateAction<string[]>>
 }) => {
   const theme = useTheme()
-  const [selectedValuesList, setSelectedValuesList] = useState<string[]>([])
+  const [selectedValuesList, setSelectedValuesList] = useState<string[]>(
+    defaultSelectedValues
+  )
   const handleChange = (
     event: SelectChangeEvent<typeof selectedValuesList>
   ) => {
