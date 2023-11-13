@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 INSERT INTO Notification_State(State)
-VALUES ('New'), ('Seen'), ('Actioned'), ('Accepted'), ('Pending');
+VALUES ('OPEN'), ('CLOSED');
 
 INSERT INTO Notification_Type(Type)
 VALUES ('THRESHOLD'), ('MARGIN'), ('UPDATE');

@@ -13,7 +13,10 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import Notification, { Notifications } from '../../types/Notification'
+import Notification, {
+  NotificationState,
+  Notifications
+} from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
@@ -26,12 +29,10 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import MultiSelect from 'components/shared/MultiSelect'
 
-const states = ['New', 'Accepted', 'Closed', 'Pending']
-
 const NotificationWorklist = () => {
   const navigate = useNavigate()
   const { apiClient } = useConfig()
-  const [selectedStates, setSelectedStates] = useState<string[]>(['New'])
+  const [selectedStates, setSelectedStates] = useState([NotificationState.OPEN])
   const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
     dayjs().startOf('day')
   )
@@ -43,7 +44,7 @@ const NotificationWorklist = () => {
     pageSize: 25
   })
   const [filterModel, setFilterModel] = useState<GridFilterModel>({
-    items: [{ field: 'state', value: 'New', operator: 'contains' }]
+    items: [{ field: 'state', value: 'OPEN', operator: 'contains' }]
   })
 
   const { data, error, isLoading, isFetching, refetch } = useQuery<
@@ -119,10 +120,10 @@ const NotificationWorklist = () => {
               }}
             />
             <MultiSelect
-              listValues={states}
+              listValues={[NotificationState.OPEN, NotificationState.CLOSED]}
               label="States"
               setSelectedValues={setSelectedStates}
-              defaultSelectedValues={['New']}
+              defaultSelectedValues={[NotificationState.OPEN]}
             />
             <Button variant="contained" onClick={() => refetch()} size="large">
               Filter

@@ -33,8 +33,7 @@ final class PsqlNotifications {
          psqlClient.setAutoCommit(false);
          Date date = new Date();
          Timestamp res = new Timestamp(date.getTime());
-         String state = "New";
-
+         String state = "OPEN";
          String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) "
                       + "VALUES ('" + id + "','" + type + "','" + state + "','" + patientNames + "', '" + res + "', '" + dID
                       + "', '" + gID + "', '" + score + "')";
