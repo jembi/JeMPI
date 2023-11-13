@@ -8,6 +8,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Chip from '@mui/material/Chip'
 import { useEffect, useState } from 'react'
 import { Box } from '@mui/material'
+import { Dispatch, SetStateAction } from 'react'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -29,19 +30,20 @@ function getStyles(value: string, personName: readonly string[], theme: Theme) {
   }
 }
 
-const MultiSelect = ({
+type MultiSelectProps<T extends string> = {
+  listValues: T[]
+  label: string
+  defaultSelectedValues: T[]
+  setSelectedValues: Dispatch<SetStateAction<T[]>>
+}
+const MultiSelect = <T extends string>({
   listValues,
   label,
   defaultSelectedValues,
   setSelectedValues
-}: {
-  listValues: string[]
-  label: string
-  defaultSelectedValues: string[]
-  setSelectedValues: React.Dispatch<React.SetStateAction<string[]>>
-}) => {
+}: MultiSelectProps<T>) => {
   const theme = useTheme()
-  const [selectedValuesList, setSelectedValuesList] = useState<string[]>(
+  const [selectedValuesList, setSelectedValuesList] = useState(
     defaultSelectedValues
   )
   const handleChange = (
@@ -50,7 +52,7 @@ const MultiSelect = ({
     const {
       target: { value }
     } = event
-    setSelectedValuesList(typeof value === 'string' ? value.split(',') : value)
+    setSelectedValuesList(value as T[])
   }
   useEffect(() => {
     setSelectedValues(selectedValuesList)
