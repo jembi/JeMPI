@@ -545,6 +545,7 @@ services:
       KC_FRONTEND_URL: ${KC_FRONTEND_URL}
       KC_REALM_NAME: ${KC_REALM_NAME}
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      REACT_APP_SHOW_BRAND_LOGO: "${REACT_APP_SHOW_BRAND_LOGO}"
     networks:
       - frontend
     deploy:

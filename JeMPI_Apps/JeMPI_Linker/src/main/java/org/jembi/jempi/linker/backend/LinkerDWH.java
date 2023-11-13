@@ -84,16 +84,6 @@ final class LinkerDWH {
          final LibMPI libMPI,
          final float threshold,
          final ExpandedGoldenRecord expandedGoldenRecord) {
-      if (LOGGER.isTraceEnabled()) {
-         expandedGoldenRecord.interactionsWithScore().forEach(interactionWithScore -> LOGGER.trace("{} -> {} : {}",
-                                                                                                   interactionWithScore.interaction()
-                                                                                                                       .uniqueInteractionData()
-                                                                                                                       .auxId(),
-                                                                                                   expandedGoldenRecord.goldenRecord()
-                                                                                                                       .customUniqueGoldenRecordData()
-                                                                                                                       .auxId(),
-                                                                                                   interactionWithScore.score()));
-      }
       expandedGoldenRecord.interactionsWithScore().forEach(interactionWithScore -> {
          final var interaction = interactionWithScore.interaction();
          final var score =

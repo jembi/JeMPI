@@ -7,5 +7,6 @@
   "maxUploadCsvSize": ${REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES},
   "KeyCloakUrl": "${KC_FRONTEND_URL}",
   "KeyCloakRealm": "${KC_REALM_NAME}",
-  "KeyCloakClientId": "${KC_JEMPI_CLIENT_ID}"
+  "KeyCloakClientId": "${KC_JEMPI_CLIENT_ID}",
+  "showBrandLogo": ${REACT_APP_SHOW_BRAND_LOGO}
 }

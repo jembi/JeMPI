@@ -112,6 +112,18 @@ private object CustomPatient {
           .dropRight(1)
     end fields
 
+    def fromInteraction(): String =
+      if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f => if (f.source.isEmpty) "" else
+            s""",
+               |${" " * 9}uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.source.get)}()""".stripMargin)
+          .mkString(sys.props("line.separator"))
+          .trim
+    end fromInteraction
+
     println("Creating " + classCustomUniqueGoldenRecordDataFile)
     val file: File = new File(classCustomUniqueGoldenRecordDataFile)
     val writer: PrintWriter = new PrintWriter(file)
@@ -120,8 +132,17 @@ private object CustomPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
+         |import java.time.LocalDateTime;
+         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public record $customClassNameCustomUniqueGoldenRecordData(${fields(config)}) {
+         |
+         |  public CustomUniqueGoldenRecordData(final CustomUniqueInteractionData uniqueInteractionData) {
+         |    this(LocalDateTime.now(),
+         |         true${fromInteraction()}
+         |    );
+         |  }
+         |
          |}
          |""".stripMargin)
     writer.flush()
