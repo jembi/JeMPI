@@ -24,7 +24,9 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
+   // TODO: [Cq] - Why LinkerDWH
 
+   // TODO: [Cc] DataWarehouse
    private LinkerDWH() {
    }
 
@@ -122,15 +124,17 @@ final class LinkerDWH {
          }
       });
    }
-
+// +
    static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
+         // TODO: [Cc]: Only on http request
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_) {
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
+            // TODO: [Cq] - Why to we find candidates if we do nothing with results except to print
             final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
             LOGGER.debug("Match Candidates {} ", candidates.size());
             if (candidates.isEmpty()) {
@@ -162,6 +166,9 @@ final class LinkerDWH {
                         MATCH NOTIFICATION
                         {}
                         {}""";
+                  // TODO: [Cc]
+                  //  HttpRequest: 404 (or interaction, make this auditable
+                  //  StreamProcess: make this auditable.
                   LOGGER.info(f, i, g);
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
@@ -178,6 +185,10 @@ final class LinkerDWH {
                : matchThreshold_;
          try {
             libMPI.startTransaction();
+            // TODO: [Cq] - What it this suppose to do (checkUpdatedMU) ? Current does nothing
+
+            // TODO: [Cc] - Get from global state
+            // TODO: With multiple m-u values
             LinkerProbabilistic.checkUpdatedMU();
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
             if (candidateGoldenRecords.isEmpty()) {
@@ -192,6 +203,7 @@ final class LinkerDWH {
                                            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                            .collect(Collectors.toCollection(ArrayList::new));
 
+               // TODO: [Cq] - External link range
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
                      ? new ArrayList<WorkCandidate>()
@@ -298,6 +310,8 @@ final class LinkerDWH {
          final List<Notification.MatchData> candidates) {
       final var notification = new Notification(System.currentTimeMillis(), type, dID, names, linkedTo, candidates);
       try {
+         // TODO: [Cq] - Is this working
+         // TODO: Have a static key
          BackEnd.topicNotifications.produceSync("dummy", notification);
       } catch (ExecutionException | InterruptedException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
