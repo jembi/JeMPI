@@ -31,7 +31,7 @@ public class GlobalKTableWrapper {
         if (!GlobalKTableWrapper.tables.containsKey(name)){
             GlobalKTableWrapperInstance<T> instance;
             try{
-                instance = new GlobalKTableWrapperInstance<T>(name, bootStrapServers);
+                instance = new GlobalKTableWrapperInstance<T>(bootStrapServers, name);
             } catch (Exception e){
                 LOGGER.error(String.format("Failed to create global kTable with the name %s", name), e);
                 throw e;

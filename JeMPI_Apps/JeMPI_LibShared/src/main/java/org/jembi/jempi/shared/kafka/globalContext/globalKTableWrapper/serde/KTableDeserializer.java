@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper;
+package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.kafka.common.errors.SerializationException;
