@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper;
+package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde;
 
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
