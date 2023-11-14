@@ -7,7 +7,11 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.errors.InvalidStateStoreException;
+import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.GlobalKTable;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.state.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +24,10 @@ import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde.KTab
 import java.time.Duration;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 
@@ -32,29 +39,70 @@ public class GlobalKTableWrapperInstance<T> {
     private final ReadOnlyKeyValueStore<String, T> keyValueStore;
     private final MyKafkaProducer<String, T> updater;
     private final GlobalKTable<String, T> globalTable;
+    private final Class<T> serializeCls;
+    KafkaStreams streams;
+    GlobalKTableWrapperInstance(final String bootStrapServers, final String topicName,  Class<T> serializeCls) throws InterruptedException, ExecutionException {
 
-    GlobalKTableWrapperInstance(final String bootStrapServers, final String topicName){
-
+        this.serializeCls = serializeCls;
         this.topicName = topicName;
         this.uniqueId = getUniqueId(topicName);
 
         StreamsBuilder builder = new StreamsBuilder();
-        globalTable = builder.globalTable(topicName);
-        builder.addStateStore(Stores.keyValueStoreBuilder(
-                Stores.persistentKeyValueStore(String.format("%s-store", uniqueId)),
-                Serdes.String(),
-                new KTableSerde<T>()
-        ));
 
-        KafkaStreams streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId));
+        globalTable = builder.globalTable(topicName,
+                                          Consumed.with(Serdes.String(),  new KTableSerde<T>(this.serializeCls)),
+                                          Materialized.as(String.format("%s-store", topicName)));
+
+        streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId));
+
+        streams.setUncaughtExceptionHandler(( exception) -> {
+            LOGGER.error(String.format("A error occurred on the global KTable stream %s", topicName), exception);
+            return StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_CLIENT;
+        });
+
         streams.start();
 
-        keyValueStore = streams.store(StoreQueryParameters.fromNameAndType(String.format("%s-store", uniqueId), QueryableStoreTypes.keyValueStore()));
+
+        keyValueStore = streams.store(StoreQueryParameters.fromNameAndType(String.format("%s-store", topicName),
+                                        QueryableStoreTypes.keyValueStore()));
+        waitUntilStoreIsQueryable(streams).get();
+
+
         updater = new MyKafkaProducer(bootStrapServers,
                                         topicName,
                                         new StringSerializer(),
                                         new KTableSerializer<T>(),
-                                        String.format("%s-producer", uniqueId));
+                                        String.format("%s-producer", getUniqueId(topicName)));
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+    }
+
+    private CompletableFuture<Boolean> waitUntilStoreIsQueryable(KafkaStreams streams) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        CompletableFuture.runAsync(() -> {
+            while (true) {
+                try {
+                    getValue();
+                    future.complete(true);
+                    break;
+                } catch (InvalidStateStoreException ignored) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        future.completeExceptionally(e);
+                    }
+                }
+            }
+        });
+
+        future.orTimeout(5000, TimeUnit.MILLISECONDS)
+                .exceptionally(throwable -> {
+                    future.completeExceptionally(new TimeoutException("Timeout waiting for the store to become Queryable ."));
+                    return null;
+                });
+
+        return future;
     }
 
     private String getUniqueId(final String topicName){
@@ -65,7 +113,7 @@ public class GlobalKTableWrapperInstance<T> {
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, String.format("%s-app.id", uniqueName));
         properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);
         properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, new KTableSerde<T>().getClass());
+        properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, new KTableSerde<T>(this.serializeCls).getClass());
 
         return properties;
     }
@@ -88,12 +136,13 @@ public class GlobalKTableWrapperInstance<T> {
                                         final String groupId,
                                         final TableUpdaterProcessor<T, T, T> processor){
 
-        // maybe listen on global store/all patitions
+        // TODO maybe listen on global store/all patitions
+        // TODO: maybe use the process api that listen to all table and update, it wont change
         MyKafkaConsumerByPartition<String, T> p = new MyKafkaConsumerByPartition<String, T>(
                 bootstrapServers,
                 topic,
                 new StringDeserializer(),
-                new KTableDeserializer<T>(),
+                new KTableDeserializer<T>(this.serializeCls),
                 clientId,
                 groupId,
                 500,

@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 
 public class GlobalKTableWrapper {
     private static final Logger LOGGER = LogManager.getLogger(GlobalKTableWrapper.class);
-    private static final HashMap<String, GlobalKTableWrapperInstance> tables = new HashMap<>();
+    private final HashMap<String, GlobalKTableWrapperInstance> tables = new HashMap<>();
     private final KafkaTopicManager topicManager;
     private final String bootStrapServers;
 
@@ -27,8 +27,8 @@ public class GlobalKTableWrapper {
         }
         return get(name, serializeCls);
     }
-    public <T> GlobalKTableWrapperInstance<T> get(final String name, Class<T> serializeCls){
-        if (!GlobalKTableWrapper.tables.containsKey(name)){
+    public <T> GlobalKTableWrapperInstance<T> get(final String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
+        if (!tables.containsKey(name)){
             GlobalKTableWrapperInstance<T> instance;
             try{
                 instance = new GlobalKTableWrapperInstance<T>(bootStrapServers, name, serializeCls);
@@ -36,8 +36,8 @@ public class GlobalKTableWrapper {
                 LOGGER.error(String.format("Failed to create global kTable with the name %s", name), e);
                 throw e;
             }
-            GlobalKTableWrapper.tables.put(name, instance);
+            tables.put(name, instance);
         }
-        return GlobalKTableWrapper.tables.get(name);
+        return tables.get(name);
     }
 }
