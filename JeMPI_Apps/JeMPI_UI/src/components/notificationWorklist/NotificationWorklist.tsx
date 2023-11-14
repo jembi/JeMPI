@@ -66,9 +66,7 @@ const NotificationWorklist = () => {
         selectedStates
       ),
     refetchOnWindowFocus: false,
-    cacheTime: 1000 * 60 * 10,
-    keepPreviousData: true,
-    staleTime: 1000 * 60 * 10
+    keepPreviousData: true
   })
 
   const onFilterChange = useCallback((filterModel: GridFilterModel) => {
