@@ -17,21 +17,21 @@ public class GlobalKTableWrapper {
         topicManager = new KafkaTopicManager(bootStrapServers);
         this.bootStrapServers = bootStrapServers;
     }
-    public <T> GlobalKTableWrapperInstance<T> getCreate(final String name) throws ExecutionException, InterruptedException {
+    public <T> GlobalKTableWrapperInstance<T> getCreate(final String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
         if (!topicManager.hasTopic(name)){
             topicManager.createTopic(name,
                             1,
-                                    (short) 1,
-                        86400000,
-                        4194304);
+                            (short) 1,
+                            86400000,
+                            4194304);
         }
-        return get(name);
+        return get(name, serializeCls);
     }
-    public <T> GlobalKTableWrapperInstance<T> get(final String name){
+    public <T> GlobalKTableWrapperInstance<T> get(final String name, Class<T> serializeCls){
         if (!GlobalKTableWrapper.tables.containsKey(name)){
             GlobalKTableWrapperInstance<T> instance;
             try{
-                instance = new GlobalKTableWrapperInstance<T>(bootStrapServers, name);
+                instance = new GlobalKTableWrapperInstance<T>(bootStrapServers, name, serializeCls);
             } catch (Exception e){
                 LOGGER.error(String.format("Failed to create global kTable with the name %s", name), e);
                 throw e;

@@ -1,6 +1,5 @@
 package org.jembi.jempi.shared.kafka.globalContext;
 
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DeleteTopicsOptions;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.TopicListing;
@@ -8,10 +7,7 @@ import org.apache.kafka.streams.errors.StreamsException;
 import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapper;
 import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapperInstance;
 
-import org.apache.kafka.streams.StreamsConfig;
-
 import java.util.Collection;
-import java.util.Properties;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -25,59 +21,44 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GlobalKTableWrapperTest {
 
-    class MockTableData{
-        private int count;
-
-        public int getCount() {
-            return count;
-        }
-    }
-
-    private AdminClient kafkaAdminClient;
-    private String bootStrapServer;
+    TestUtils testUtils;
 
     @BeforeAll
-    void resetKafkaData(){
-        bootStrapServer = "localhost:9092";
-        Properties properties = new Properties();
-        properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
-        kafkaAdminClient = AdminClient.create(properties);
+    void prepareForTests(){
+        testUtils = new TestUtils("localhost:9092");
     }
 
-    String getTestTopicName(final String topicName){
-        return String.format("testTopic-%s", topicName);
-    }
     GlobalKTableWrapper getGlobalKTableWrapperInstance(Boolean restAll) throws ExecutionException, InterruptedException {
         if (restAll){
-            Collection<String> collection = kafkaAdminClient.listTopics(new ListTopicsOptions().listInternal(false)).listings().get().stream()
+            Collection<String> collection = testUtils.kafkaAdminClient.listTopics(new ListTopicsOptions().listInternal(false)).listings().get().stream()
                     .map(TopicListing::name)
                     .filter(name -> name.startsWith("testTopic"))
                     .collect(Collectors.toCollection(ArrayList::new));
 
 
-            kafkaAdminClient.deleteTopics(collection, new DeleteTopicsOptions()).all().get();
+            testUtils.kafkaAdminClient.deleteTopics(collection, new DeleteTopicsOptions()).all().get();
             Thread.sleep(1000);
         }
-        return new GlobalKTableWrapper(bootStrapServer);
+        return new GlobalKTableWrapper(testUtils.bootStrapServer);
     }
     @Test
     void testCanCreateNewInstance() throws ExecutionException, InterruptedException {
-        GlobalKTableWrapperInstance<MockTableData> sampleInstance = getGlobalKTableWrapperInstance(true).getCreate(getTestTopicName("sample-table"));
+        GlobalKTableWrapperInstance<TestUtils.MockTableData> sampleInstance = getGlobalKTableWrapperInstance(true).getCreate(testUtils.getTestTopicName("sample-table"), TestUtils.MockTableData.class);
         assertInstanceOf(GlobalKTableWrapperInstance.class, sampleInstance);
     }
     @Test
     void testItErrorsOutWhenGlobalKTableDoesNotExists() throws ExecutionException, InterruptedException {
         assertThrows(StreamsException.class, () -> {
-            getGlobalKTableWrapperInstance(true).get(getTestTopicName("sample-table"));
+            getGlobalKTableWrapperInstance(true).get(testUtils.getTestTopicName("sample-table"), TestUtils.MockTableData.class);
         });
     }
     @Test
     void testDoesNotRecreateIfGlobalKTableAlreadyExists() throws ExecutionException, InterruptedException {
         GlobalKTableWrapper gktableWrapper = getGlobalKTableWrapperInstance(true);
-        GlobalKTableWrapperInstance<MockTableData> sampleInstance = gktableWrapper.getCreate(getTestTopicName("sample-table"));
+        GlobalKTableWrapperInstance<TestUtils.MockTableData> sampleInstance = gktableWrapper.getCreate(testUtils.getTestTopicName("sample-table"), TestUtils.MockTableData.class);
         assertInstanceOf(GlobalKTableWrapperInstance.class, sampleInstance);
 
-        assertEquals(sampleInstance.hashCode(), gktableWrapper.get(getTestTopicName("sample-table")).hashCode());
+        assertEquals(sampleInstance.hashCode(), gktableWrapper.get(testUtils.getTestTopicName("sample-table"), TestUtils.MockTableData.class).hashCode());
 
 
     }
