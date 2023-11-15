@@ -33,10 +33,10 @@
             <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.typesafe.akka</groupId>-->
-<!--            <artifactId>akka-stream_${scala.tools.version}</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_${scala.tools.version}</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>

@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
-                <version>1.4.2</version>
+                <version>1.4.3</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/io.vavr/vavr -->
@@ -198,7 +198,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.10.0</version>
+                <version>1.11.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
@@ -262,7 +262,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.11.0</version>
+                <version>4.12.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
