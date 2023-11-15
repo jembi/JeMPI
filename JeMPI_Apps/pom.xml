@@ -19,7 +19,7 @@
         <akka.version>2.6.21</akka.version>
         <akka.http.version>10.2.10</akka.http.version>
         <jackson.version>2.14.3</jackson.version>
-        <log4j.version>2.20.0</log4j.version>
+        <log4j.version>2.21.1</log4j.version>
         <slf4j.version>2.0.9</slf4j.version>
         <scala.tools.version>2.13</scala.tools.version>
         <scala.version>2.13.10</scala.version>
@@ -297,7 +297,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>5.10.0</version>
+                <version>5.10.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -305,14 +305,14 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>5.6.0</version>
+                <version>5.7.0</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.6.0</version>
+                <version>5.7.0</version>
                 <scope>test</scope>
             </dependency>
 
