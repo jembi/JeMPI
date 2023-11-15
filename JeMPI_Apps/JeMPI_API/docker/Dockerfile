@@ -6,7 +6,7 @@ ADD API-1.0-SNAPSHOT-spring-boot.jar /app/app.jar
 
 RUN printf "#!/bin/bash\n\
 cd /app\n\
-java -server --enable-preview -XX:MaxRAMPercentage=80 -XX:+UseZGC -jar /app/app.jar\n" > /entrypoint.sh
+java -server -XX:MaxRAMPercentage=80 -jar /app/app.jar\n" > /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 

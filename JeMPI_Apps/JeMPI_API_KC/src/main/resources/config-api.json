@@ -1,9 +1,9 @@
 {
   "fields": [
     {
-      "fieldName": "aux_id",
+      "fieldName": "record_id",
       "fieldType": "String",
-      "fieldLabel": "AUX ID",
+      "fieldLabel": "RECORD ID",
       "groups": [
         "identifiers",
         "record_details"
@@ -18,7 +18,34 @@
       "accessLevel": []
     },
     {
-      "fieldName": "given_name",
+      "fieldName": "ephi_cbs_id",
+      "fieldType": "String",
+      "fieldLabel": "EPHI CBS ID",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
+      "accessLevel": []
+    },
+    {
+      "fieldName": "first_name",
       "fieldType": "String",
       "fieldLabel": "First Name",
       "groups": [
@@ -45,9 +72,9 @@
       "accessLevel": []
     },
     {
-      "fieldName": "family_name",
+      "fieldName": "father_name",
       "fieldType": "String",
-      "fieldLabel": "Last Name",
+      "fieldLabel": "Father's Name",
       "groups": [
         "name",
         "demographics",
@@ -72,13 +99,13 @@
       "accessLevel": []
     },
     {
-      "fieldName": "gender",
+      "fieldName": "grandfather_name",
       "fieldType": "String",
-      "fieldLabel": "Gender",
+      "fieldLabel": "Grandfather's Name",
       "groups": [
+        "name",
         "demographics",
         "filter",
-        "sub_heading",
         "linked_records",
         "record_details"
       ],
@@ -86,18 +113,74 @@
         "/record-details/:uid",
         "/notifications/match-details",
         "/record-details/:uid/relink",
+        "/search/simple",
         "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
         "/browse-records"
       ],
       "validation": {
         "required": true,
-        "regex": "^(male|female)$",
-        "onErrorMessage": "The Gender cannot be empty and should either be male, female or neutral"
+        "onErrorMessage": "The family name cannot be empty"
       },
       "accessLevel": []
     },
     {
-      "fieldName": "dob",
+      "fieldName": "mother_name",
+      "fieldType": "String",
+      "fieldLabel": "Mothers's Name",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
+      "accessLevel": []
+    },
+    {
+      "fieldName": "mother_father_name",
+      "fieldType": "String",
+      "fieldLabel": "Mother's Father's Name",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
+      },
+      "accessLevel": []
+    },
+    {
+      "fieldName": "dob_dd",
       "fieldType": "Date",
       "fieldLabel": "Date of Birth",
       "groups": [
@@ -124,32 +207,9 @@
       }
     },
     {
-      "fieldName": "city",
+      "fieldName": "mob_number",
       "fieldType": "String",
-      "fieldLabel": "City",
-      "groups": [
-        "demographics",
-        "filter",
-        "linked_records",
-        "record_details"
-      ],
-      "scope": [
-        "/record-details/:uid",
-        "/notifications/match-details",
-        "/record-details/:uid/relink",
-        "/search/custom",
-        "/browse-records"
-      ],
-      "accessLevel": [],
-      "validation": {
-        "required": true,
-        "onErrorMessage": "Date of birth cannot be empty"
-      }
-    },
-    {
-      "fieldName": "phone_number",
-      "fieldType": "String",
-      "fieldLabel": "Phone No",
+      "fieldLabel": "Mobile No",
       "groups": [
         "demographics",
         "filter",
@@ -164,32 +224,6 @@
         "/browse-records"
       ],
       "accessLevel": []
-    },
-    {
-      "fieldName": "national_id",
-      "fieldType": "String",
-      "fieldLabel": "National ID",
-      "groups": [
-        "identifiers",
-        "linked_records",
-        "record_details"
-      ],
-      "scope": [
-        "/record-details/:uid",
-        "/notifications/match-details",
-        "/record-details/:uid/relink",
-        "/search/simple",
-        "/search/custom",
-        "/search-results/golden",
-        "/search-results/patient",
-        "/browse-records"
-      ],
-      "accessLevel": [],
-      "validation": {
-        "required": true,
-        "regex": "",
-        "onErrorMessage": "The national Id cannot be empty"
-      }
     }
   ],
   "systemFields": [
@@ -274,40 +308,5 @@
       ],
       "accessLevel": []
     }
-  ],
-  "rules": {
-    "deterministic": {
-      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
-        "vars": [
-          "given_name",
-          "family_name",
-          "phone_number",
-          "national_id"
-        ],
-        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
-      }
-    },
-    "probabilistic": {
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
-        "vars": [
-          "given_name",
-          "family_name",
-          "city"
-        ],
-        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
-        "vars": [
-          "phone_number"
-        ],
-        "text": "match(phone_number,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
-        "vars": [
-          "national_id"
-        ],
-        "text": "match(national_id,3)"
-      }
-    }
-  }
+  ]
 }
