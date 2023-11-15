@@ -10,7 +10,12 @@ import {
   Switch,
   Typography
 } from '@mui/material'
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  gridClasses
+} from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
 import {
@@ -38,6 +43,7 @@ import getCellComponent from 'components/shared/getCellComponent'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search } from '@mui/icons-material'
 import { useConfig } from 'hooks/useConfig'
+import CustomPagination from 'components/shared/CustomDataGridPagination'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -72,7 +78,7 @@ const Records = () => {
       : [],
     limit: searchParams.get('limit')
       ? JSON.parse(searchParams.get('limit') as string)
-      : 10,
+      : 25,
     offset: searchParams.get('offset')
       ? JSON.parse(searchParams.get('offset') as string)
       : 0,
@@ -295,8 +301,20 @@ const Records = () => {
           </Typography>
           <DataGrid
             sx={{
+              overflow: 'visible',
+              '& .MuiDataGrid-columnSeparator': {
+                visibility: 'visible'
+              },
               '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
                 outline: 'none'
+              },
+              [`.${gridClasses.main}`]: {
+                overflow: 'visible'
+              },
+              [`.${gridClasses.columnHeaders}`]: {
+                position: 'sticky',
+                top: 65,
+                zIndex: 1
               }
             }}
             getRowId={({ uid }) => uid}
@@ -304,9 +322,10 @@ const Records = () => {
               page: filterPayload.offset / filterPayload.limit,
               pageSize: filterPayload.limit
             }}
+            slots={{ pagination: CustomPagination }}
             columns={columns}
             rows={rows}
-            pageSizeOptions={[10, 25, 50, 100]}
+            pageSizeOptions={[25, 50, 100]}
             onRowDoubleClick={params => {
               if ('linkRecords' in params.row) {
                 navigate({
