@@ -23,7 +23,7 @@
         <slf4j.version>2.0.9</slf4j.version>
         <scala.tools.version>2.13</scala.tools.version>
         <scala.version>2.13.10</scala.version>
-        <javac.executable>javac</javac.executable>
+        <javac.executable>${env.JAVA_HOME}/bin/javac</javac.executable>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-enforcer-plugin -->
         <version.org.apache.maven.plugins.maven-enforcer-plugin>
