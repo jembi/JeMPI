@@ -11,7 +11,7 @@ public class GlobalKTableWrapper {
     private static final Logger LOGGER = LogManager.getLogger(GlobalKTableWrapper.class);
     private final HashMap<String, GlobalKTableWrapperInstance> tables = new HashMap<>();
     private final KafkaTopicManager topicManager;
-    private final String bootStrapServers;
+    protected final String bootStrapServers;
 
     public GlobalKTableWrapper(final String bootStrapServers) {
         topicManager = new KafkaTopicManager(bootStrapServers);
@@ -31,7 +31,7 @@ public class GlobalKTableWrapper {
         if (!tables.containsKey(name)){
             GlobalKTableWrapperInstance<T> instance;
             try{
-                instance = new GlobalKTableWrapperInstance<T>(bootStrapServers, name, serializeCls);
+                instance = getInstanceClass(name, serializeCls);
             } catch (Exception e){
                 LOGGER.error(String.format("Failed to create global kTable with the name %s", name), e);
                 throw e;
@@ -39,5 +39,9 @@ public class GlobalKTableWrapper {
             tables.put(name, instance);
         }
         return tables.get(name);
+    }
+
+    protected <T> GlobalKTableWrapperInstance<T> getInstanceClass(final String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
+        return new GlobalKTableWrapperInstance<T>(bootStrapServers, name, serializeCls);
     }
 }

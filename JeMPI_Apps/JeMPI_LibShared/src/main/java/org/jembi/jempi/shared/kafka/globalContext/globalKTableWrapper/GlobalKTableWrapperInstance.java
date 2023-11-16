@@ -22,8 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-
-
 public class GlobalKTableWrapperInstance<T> {
 
     private static final Logger LOGGER = LogManager.getLogger(GlobalKTableWrapper.class);
@@ -34,7 +32,7 @@ public class GlobalKTableWrapperInstance<T> {
     private final MyKafkaProducer<String, T> updater;
     private final Class<T> serializeCls;
     KafkaStreams streams;
-    GlobalKTableWrapperInstance(final String bootStrapServers, final String topicName,  Class<T> serializeCls) throws InterruptedException, ExecutionException {
+    public GlobalKTableWrapperInstance(final String bootStrapServers, final String topicName,  Class<T> serializeCls) throws InterruptedException, ExecutionException {
 
         this.serializeCls = serializeCls;
         this.topicName = topicName;
