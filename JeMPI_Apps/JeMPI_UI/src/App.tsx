@@ -7,10 +7,14 @@ import baseRouter from 'router/BaseRouter'
 import { RouterProvider } from 'react-router-dom'
 import { ConfigProvider } from 'hooks/useConfig'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import ScrollBackButtons from 'components/shared/ScrollBackButtons'
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {}
+    queries: {
+      staleTime: 5 * (60 * 1000),
+      cacheTime: 10 * (60 * 1000)  
+    }
   }
 })
 
@@ -20,6 +24,7 @@ const App = () => {
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <ConfigProvider>
+          <ScrollBackButtons />
           <RouterProvider router={baseRouter} />
           <ReactQueryDevtools initialIsOpen={false} />
         </ConfigProvider>

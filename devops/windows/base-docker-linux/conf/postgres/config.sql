@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Notification_State
 -- (
 --     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
 --     Type_Id uuid,
---     Created date,
+--     Created timestamp without time zone,
 --     Reviewd_By uuid,
 --     Reviewed_At timestamp without time zone,
 --     State_Id uuid,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Notification
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     Type VARCHAR(50),
-    Created date,
+    Created timestamp without time zone,
     Reviewd_By uuid,
     Reviewed_At timestamp without time zone,
     State VARCHAR(50),
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 INSERT INTO Notification_State(State)
-VALUES ('New'), ('Seen'), ('Actioned'), ('Accepted'), ('Pending');
+VALUES ('OPEN'), ('CLOSED');
 
 INSERT INTO Notification_Type(Type)
 VALUES ('THRESHOLD'), ('MARGIN'), ('UPDATE');
