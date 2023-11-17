@@ -2,14 +2,15 @@ import { AccountCircle as AccountCircleIcon } from '@mui/icons-material'
 import { Box, Divider, IconButton, Typography } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import { config } from 'config'
 import * as React from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
 
 const NavigationMenu: React.FC = () => {
   const { currentUser, logout } = useAuth()
   const navigate = useNavigate()
+  const { config } = useConfig()
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const isOpen = Boolean(anchorEl)

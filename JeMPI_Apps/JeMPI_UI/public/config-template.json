@@ -1,0 +1,12 @@
+{
+  "nodeEnv": "${REACT_APP_NODE_ENV}",
+  "shouldMockBackend": ${REACT_APP_MOCK_BACKEND},
+  "apiHost": "${REACT_APP_JEMPI_BASE_API_HOST}",
+  "apiPort": ${REACT_APP_JEMPI_BASE_API_PORT},
+  "useSso": ${REACT_APP_ENABLE_SSO},
+  "maxUploadCsvSize": ${REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES},
+  "KeyCloakUrl": "${KC_FRONTEND_URL}",
+  "KeyCloakRealm": "${KC_REALM_NAME}",
+  "KeyCloakClientId": "${KC_JEMPI_CLIENT_ID}",
+  "showBrandLogo": ${REACT_APP_SHOW_BRAND_LOGO}
+}

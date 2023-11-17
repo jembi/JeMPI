@@ -71,11 +71,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                                                                                                                x.data()
                                                                                                                 .patient()))
                                                                                                          .toList(),
-                                                                                        new CustomUniqueGoldenRecordData(
-                                                                                              LocalDateTime.now(),
-                                                                                              true,
-                                                                                              interaction.uniqueInteractionData()
-                                                                                                         .auxId()),
+                                                                                        new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()),
                                                                                         goldenRecord.data()),
                                                                        PostgresqlQueries.getScore(goldenRecord.uid(),
                                                                                                   UUID.fromString(eid)))));
@@ -92,7 +88,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                               sourceIds.stream()
                                        .map(x -> new CustomSourceId(x.id().toString(), x.data().facility(), x.data().patient()))
                                        .toList(),
-                              new CustomUniqueGoldenRecordData(LocalDateTime.now(), true, "AUX_ID"),
+                              new CustomUniqueGoldenRecordData(null),
                               goldenRecord.data());
    }
 

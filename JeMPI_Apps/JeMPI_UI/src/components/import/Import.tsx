@@ -1,12 +1,5 @@
 import { UploadFile as UploadFileIcon } from '@mui/icons-material'
-import {
-  Card,
-  CardContent,
-  Container,
-  Divider,
-  Stack,
-  Typography
-} from '@mui/material'
+import { Container, Divider, Stack } from '@mui/material'
 import PageHeader from '../shell/PageHeader'
 import DropZone from './DropZone'
 
@@ -22,18 +15,10 @@ const Import = () => {
             title: 'Import'
           }
         ]}
-        description={'Import or submit Patient records to MPI'}
       />
       <Divider />
-      <Stack padding={'2rem 1rem 1rem 1rem'}>
-        <Card variant="outlined" sx={{ minWidth: 360, paddingTop: '5px' }}>
-          <CardContent>
-            <Typography variant="h6" color="rgba(0, 0, 0, 0.6)">
-              Bulk Upload
-            </Typography>
-            <DropZone />
-          </CardContent>
-        </Card>
+      <Stack padding={{ lg: '0rem 1rem 1rem 1rem' }} sx={{ width: '100%' }}>
+        <DropZone />
       </Stack>
     </Container>
   )

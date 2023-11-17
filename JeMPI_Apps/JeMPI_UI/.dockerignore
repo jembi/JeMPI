@@ -5,6 +5,7 @@ node_modules/
 Dockerfile
 
 # Env
+.env
 .env.local
 .env.test
 

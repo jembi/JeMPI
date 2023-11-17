@@ -21,7 +21,7 @@ object CustomLinkerBackEnd {
       config.demographicFields
         .filter(f => f.source.isDefined && f.source.get.generate.isDefined)
         .map(f => s"""   public static final Supplier<String> GENERATE_${Utils.camelCaseToSnakeCase(Utils.snakeCaseToCamelCase(f.fieldName)).toUpperCase} = ${f.source.get.generate.get.func};""".stripMargin)
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
     }
 
     def createApplyFunctions() : String = {
@@ -37,7 +37,7 @@ object CustomLinkerBackEnd {
         }
 
         config.demographicFields.map(f => s"""${" " * 55}${applyFunction(f)},""".stripMargin)
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .drop(55)  // drop 55 spaces
           .dropRight(1);  // drop the comma
 

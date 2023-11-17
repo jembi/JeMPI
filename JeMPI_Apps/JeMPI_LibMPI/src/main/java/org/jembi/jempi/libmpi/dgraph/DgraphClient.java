@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-final class DgraphClient {
+public final class DgraphClient {
 
    private static final Logger LOGGER = LogManager.getLogger(DgraphClient.class);
    private io.dgraph.DgraphClient dgraphClient;
