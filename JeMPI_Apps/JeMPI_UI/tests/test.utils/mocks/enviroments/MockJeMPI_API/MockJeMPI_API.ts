@@ -4,7 +4,7 @@ import { constants as httpsStatusCodes } from 'http2';
 import path from 'path';
 import fs from 'fs';
 import moxios from '../../../../../src/services/mockBackend'
-import { config } from '../../../../../src/config'
+import { getTestEnvConfig } from '../Utils'
 
 type methods = 'POST' | 'GET' | 'PUT' | string
 export type IMockEndpointConfig = { [urlPath:string] : {
@@ -23,6 +23,7 @@ class MockJeMPIAPIServer {
     appUrl:string
 
     constructor(extendingConfig:IMockEndpointConfig, appPort:number){
+        const config = getTestEnvConfig();
         this.server =this.CreateMockServer(extendingConfig)
         const parsedUrl = new URL(config.apiUrl);
         this.serverPort = parseInt(parsedUrl.port)

@@ -47,12 +47,12 @@ export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
   const oauthRef = useRef<OAuthParams | null>(null)
 
   const { mutate: validateOAuth } = useMutation({
-    mutationFn: apiClient.validateOAuth,
+    mutationFn: apiClient.validateOAuth.bind(apiClient),
     onSuccess(response) {
       enqueueSnackbar(`Successfully logged in using KeyCloak`, {
         variant: 'success'
       })
-      authContext.setUser(response)
+      authContext.setUser(response as User)
       navigate({ pathname: '/' })
     },
     onError() {
@@ -117,6 +117,7 @@ const currentUserOueryClientKey = 'auth-user'
 
 export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   const { apiClient, config }  = useConfig()
+  const keycloack = getKeycloak(config)
   const queryClient = useQueryClient()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -136,7 +137,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   })
 
   const { mutate: logout } = useMutation({
-    mutationFn: apiClient.logout,
+    mutationFn: apiClient.logout.bind(apiClient),
     onSuccess(data: any, navigate: NavigateFunction) {
       queryClient.clear()
       navigate({ pathname: '/login' })
@@ -153,7 +154,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   }
 
   const signInWithKeyCloak = () => {
-    getKeycloak(config).init({
+    keycloack.init({
       onLoad: 'login-required',
       redirectUri: window.location.href,
       checkLoginIframe: false
