@@ -1,0 +1,4 @@
+conf.env
+docker_data
+data-registry
+docker-stack.yml

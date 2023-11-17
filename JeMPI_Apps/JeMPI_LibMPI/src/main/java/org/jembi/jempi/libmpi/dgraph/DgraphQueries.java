@@ -603,8 +603,10 @@ final class DgraphQueries {
 
       final var op = req.operand();
       StringBuilder queryBuilder = new StringBuilder("query query_1 ($").append(camelToSnake(op.name())).append(":string");
-      for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
-         queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
+            queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
+         }
       }
       queryBuilder.append(") {\n\n");
       char alias = 'A';
@@ -621,25 +623,29 @@ final class DgraphQueries {
                   .append(alias)
                   .append(" as uid\n  }\n\n");
 
-      for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
-         queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
-                     .append(o.operand().fn())
-                     .append("(GoldenRecord.")
-                     .append(camelToSnake(o.operand().name()))
-                     .append(", $")
-                     .append(camelToSnake(o.operand().name()))
-                     .append(o.operand().fn().equals("match")
-                                   ? String.format(Locale.ROOT, ", %d", o.operand().distance())
-                                   : "")
-                     .append(")) {\n    ")
-                     .append(++alias)
-                     .append(" as uid\n  }\n\n");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+            queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                        .append(o.operand().fn())
+                        .append("(GoldenRecord.")
+                        .append(camelToSnake(o.operand().name()))
+                        .append(", $")
+                        .append(camelToSnake(o.operand().name()))
+                        .append(o.operand().fn().equals("match")
+                                      ? String.format(Locale.ROOT, ", %d", o.operand().distance())
+                                      : "")
+                        .append(")) {\n    ")
+                        .append(++alias)
+                        .append(" as uid\n  }\n\n");
+         }
       }
 
       alias = 'A';
       queryBuilder.append("  all(func:type(GoldenRecord)) @filter(uid(A)");
-      for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
-         queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+            queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
+         }
       }
       queryBuilder.append(") {\n")
                   .append(GOLDEN_RECORD_FIELD_NAMES)

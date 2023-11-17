@@ -6,7 +6,6 @@ import { AxiosError } from 'axios'
 import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import ApiClient from '../../services/ApiClient'
 import Notification, { Notifications } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
 import React, { useCallback, useState } from 'react'
@@ -16,8 +15,11 @@ import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
 
 const NotificationWorklist = () => {
+  const { apiClient } = useConfig()
+
   const navigate = useNavigate()
   const selectedDate = dayjs().locale({
     ...locale
@@ -42,7 +44,7 @@ const NotificationWorklist = () => {
       filterModel
     ],
     queryFn: () =>
-      ApiClient.getMatches(
+      apiClient.getMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
         date.format('YYYY-MM-DD'),
@@ -76,7 +78,6 @@ const NotificationWorklist = () => {
     <Container maxWidth={false}>
       <PageHeader
         title={'Notification Worklist'}
-        description={'browse through notifications'}
         breadcrumbs={[
           {
             link: '/notifications/',
@@ -103,41 +104,43 @@ const NotificationWorklist = () => {
             />
           </LocalizationProvider>
         </Box>
-        <DataGrid
-          sx={{
-            '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
-              outline: 'none'
-            }
-          }}
-          columns={NOTIFICATIONS_COLUMNS}
-          rows={data.records as Notification[]}
-          pageSizeOptions={[10, 25, 50]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={model => setPaginationModel(model)}
-          paginationMode="server"
-          rowCount={data.pagination.total || 0}
-          filterMode="server"
-          filterModel={filterModel}
-          onFilterModelChange={debounce(onFilterChange, 3000)}
-          onRowDoubleClick={params =>
-            navigate(
-              {
-                pathname: 'match-details'
-              },
-              {
-                state: {
-                  payload: {
-                    notificationId: params.row.id,
-                    patient_id: params.row.patient_id,
-                    golden_id: params.row.golden_id,
-                    score: params.row.score,
-                    candidates: params.row.candidates
+        <Paper sx={{ p: 1 }}>
+          <DataGrid
+            sx={{
+              '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
+                outline: 'none'
+              }
+            }}
+            columns={NOTIFICATIONS_COLUMNS}
+            rows={data.records as Notification[]}
+            pageSizeOptions={[10, 25, 50]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={model => setPaginationModel(model)}
+            paginationMode="server"
+            rowCount={data.pagination.total || 0}
+            filterMode="server"
+            filterModel={filterModel}
+            onFilterModelChange={debounce(onFilterChange, 3000)}
+            onRowDoubleClick={params =>
+              navigate(
+                {
+                  pathname: 'match-details'
+                },
+                {
+                  state: {
+                    payload: {
+                      notificationId: params.row.id,
+                      patient_id: params.row.patient_id,
+                      golden_id: params.row.golden_id,
+                      score: params.row.score,
+                      candidates: params.row.candidates
+                    }
                   }
                 }
-              }
-            )
-          }
-        />
+              )
+            }
+          />
+        </Paper>
       </Stack>
     </Container>
   )

@@ -32,7 +32,6 @@ const CustomSearch: React.FC = () => {
         <Grid container direction={'column'}>
           <Grid item lg={6}>
             <PageHeader
-              description="Tailor your search to quickly find the information you need."
               title="Custom Search"
               breadcrumbs={[
                 {

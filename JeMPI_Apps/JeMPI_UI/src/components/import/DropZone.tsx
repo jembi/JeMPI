@@ -1,13 +1,14 @@
 import { UploadFile as UploadFileIcon } from '@mui/icons-material'
 import {
+  Avatar,
   Box,
-  CardActions,
-  Checkbox,
-  Container,
-  FormControl,
+  Card,
+  CardContent,
   FormControlLabel,
+  Grid,
   Radio,
   RadioGroup,
+  Slider,
   TextField,
   Typography
 } from '@mui/material'
@@ -16,66 +17,92 @@ import { AxiosError, AxiosProgressEvent, AxiosRequestConfig } from 'axios'
 import { useSnackbar } from 'notistack'
 import { FC, useRef, useState } from 'react'
 import { FileRejection, useDropzone } from 'react-dropzone'
-import ApiClient from '../../services/ApiClient'
-import { FileObj, UploadStatus } from '../../types/FileUpload'
+import {
+  FileObj,
+  UploadStatus,
+  importQueriesType
+} from '../../types/FileUpload'
 import Button from '../shared/Button'
-import './Import.css'
 import UploadFileListItem from './UploadFileListItem'
+import { formatBytesSize, megabytesToBytes } from 'utils/formatters'
+import { useConfig } from 'hooks/useConfig'
+import { useFormik } from 'formik'
 
-const MAX_UPLOAD_FILE_SIZE_IN_BYTES =
-  process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_BYTES ?? 128 * 1024 * 1024
 const DropZone: FC = () => {
+  const { enqueueSnackbar } = useSnackbar()
   const [fileObjs, setFilesObj] = useState<FileObj | undefined>()
   const abortControllerRef = useRef<AbortController>(new AbortController())
-  const { enqueueSnackbar } = useSnackbar()
+  const { apiClient, config } = useConfig()
+  const MAX_UPLOAD_FILE_SIZE_IN_BYTES = megabytesToBytes(
+    config.maxUploadCsvSize
+  )
+  const {
+    handleChange: handleImportFormChange,
+    handleSubmit,
+    values: FormValues,
+    setFieldValue
+  } = useFormik({
+    initialValues: {
+      reporting: false,
+      computing: 0,
+      leftMargin: 0.65,
+      threshold: 0.7,
+      rightMargin: 0.75,
+      windowSize: 0.1
+    },
+    onSubmit: () => {
+      if (fileObjs?.file) {
+        uploadFileMutation.mutate(fileObjs)
+      }
+    }
+  })
 
   const onDrop = (
     acceptedFiles: File[],
     fileRejections: FileRejection[]
   ): void => {
-    validate(acceptedFiles, fileRejections)
-    setFilesObj({
-      file: acceptedFiles[0],
-      progress: 0,
-      status: UploadStatus.Pending
-    })
+    if (validate(fileRejections)) {
+      setFilesObj({
+        file: acceptedFiles[0],
+        progress: 0,
+        status: UploadStatus.Pending
+      })
+    }
   }
 
-  const validate = (
-    acceptedFiles: File[],
-    fileRejections: FileRejection[]
-  ): void => {
+  const validate = (fileRejections: FileRejection[]): boolean => {
     if (fileRejections.length > 0) {
       enqueueSnackbar(fileRejections[0].errors[0].message, {
         variant: 'error'
       })
-      return
+      return false
     }
-
-    if (uploadFileMutation.isLoading) {
-      enqueueSnackbar('Please wait for current import to be completed', {
-        variant: 'warning'
-      })
-      return
-    }
+    return true
   }
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: { 'text/csv': ['.csv'] },
     onDrop,
     multiple: false,
-    maxSize: Number(MAX_UPLOAD_FILE_SIZE_IN_BYTES)
+    maxSize: MAX_UPLOAD_FILE_SIZE_IN_BYTES
   })
 
-  const uploadFile = async (fileObj: FileObj) => {
-    return await ApiClient.uploadFile(createFileUploadAxiosConfig(fileObj))
+  const uploadFile = async (
+    fileObj: FileObj,
+    importQueries: importQueriesType
+  ) => {
+    return await apiClient.uploadFile(
+      createFileUploadAxiosConfig(fileObj, importQueries)
+    )
   }
 
   const createFileUploadAxiosConfig = (
-    fileObj: FileObj
+    fileObj: FileObj,
+    importQueries: importQueriesType
   ): AxiosRequestConfig<FormData> => {
     const formData = new FormData()
     formData.set('csv', fileObj.file)
+    formData.set('queries', JSON.stringify(importQueries))
     return {
       signal: abortControllerRef.current.signal,
       headers: {
@@ -83,54 +110,27 @@ const DropZone: FC = () => {
       },
       data: formData,
       onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-        if (progressEvent.total) {
-          const progress = (progressEvent.loaded / progressEvent.total) * 100
-          updateFileUploadProgress(fileObj, progress)
-        }
+        setFilesObj((prev: FileObj | undefined) => {
+          if (prev?.file.name === fileObj.file.name && progressEvent.total) {
+            return {
+              ...prev,
+              progress: Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              ),
+              status: UploadStatus.Loading
+            }
+          }
+        })
       }
-    }
-  }
-
-  const updateFileUploadProgress = (
-    fileUploadObj: FileObj,
-    progress: number
-  ) => {
-    if (fileObjs)
-      setFilesObj((prev: FileObj | undefined) => {
-        if (prev?.file.name === fileUploadObj.file.name) {
-          return { ...prev, progress, status: getFileUploadStatus(fileObjs) }
-        }
-      })
-  }
-
-  const setUploadStatus = (fileUploadObj: FileObj, status: UploadStatus) => {
-    setFilesObj((prev: FileObj | undefined) => {
-      if (prev?.file.name === fileUploadObj.file.name) {
-        prev.status = status
-        if (status === UploadStatus.Failed) {
-          prev.progress = 0
-        }
-      }
-      return prev
-    })
-  }
-
-  const getFileUploadStatus = (fileObj: FileObj) => {
-    if (fileObj.progress === 0) {
-      return UploadStatus.Pending
-    } else if (fileObj.progress > 0 && fileObj.progress < 100) {
-      return UploadStatus.Loading
-    } else if (fileObj.progress === 100) {
-      return UploadStatus.Complete
-    } else {
-      return UploadStatus.Failed
     }
   }
 
   const uploadFileMutation = useMutation({
-    mutationFn: uploadFile,
-    onSuccess: (data, fileObj) => {
-      setUploadStatus(fileObj, UploadStatus.Complete)
+    mutationFn: (fileObjs: FileObj) => uploadFile(fileObjs, FormValues),
+    onSuccess: (_, fileObj) => {
+      setFilesObj((prev: FileObj | undefined) =>
+        prev ? { ...prev, status: UploadStatus.Complete } : undefined
+      )
       enqueueSnackbar(`${fileObj.file.name} file imported`, {
         variant: 'success'
       })
@@ -143,7 +143,9 @@ const DropZone: FC = () => {
           variant: 'error'
         }
       )
-      setUploadStatus(data, UploadStatus.Failed)
+      setFilesObj((prev: FileObj | undefined) =>
+        prev ? { ...prev, status: UploadStatus.Failed } : undefined
+      )
     }
   })
 
@@ -154,21 +156,11 @@ const DropZone: FC = () => {
     setFilesObj(undefined)
   }
 
-  const handleUpload = () => {
-    if (
-      fileObjs?.status === UploadStatus.Complete ||
-      fileObjs?.status === UploadStatus.Failed
-    ) {
-      return
-    }
-    if (fileObjs) uploadFileMutation.mutate(fileObjs)
-  }
-
   const handleRemoveFile = (): void => {
     setFilesObj(undefined)
   }
 
-  const uploadList = (
+  const uploadList: JSX.Element = (
     <>
       {fileObjs && (
         <UploadFileListItem
@@ -181,98 +173,372 @@ const DropZone: FC = () => {
   )
 
   return (
-    <Container>
-      <Box className="dropzone" {...getRootProps()}>
-        <div className="dropzone-inner">
-          <input {...getInputProps()} />
-          <Box className="import__upload-icon">
-            <UploadFileIcon />
-          </Box>
-          <Typography fontSize="16px">
-            <a>Click to upload</a> or drag and drop
-          </Typography>
-          <Typography color="#00000099" fontSize="1rem">
-            CSV (max. 128MB)
-          </Typography>
-        </div>
-      </Box>
-      {uploadList}
-      <Box
-        display={'flex'}
-        justifyContent="start"
-        gap={'0.5rem'}
-        alignItems="center"
-        padding={'0.5rem'}
-      >
-        <Typography fontWeight={'bold'} fontSize={'1.2rem'}>
-          TB 1
-        </Typography>
-        <TextField placeholder="TB 1" size="small" />
-      </Box>
-      <Box
-        display={'flex'}
-        justifyContent="start"
-        gap={'0.5rem'}
-        alignItems={'center '}
-        padding={'0.5rem'}
-      >
-        <Typography fontWeight={'bold'} fontSize={'1.2rem'}>
-          CB
-        </Typography>
-        <FormControlLabel
-          value="CB2"
-          control={<Checkbox />}
-          label="CB1"
-          labelPlacement="start"
-        />
-        <FormControlLabel
-          value="CB2"
-          control={<Checkbox />}
-          label="CB2"
-          labelPlacement="start"
-        />
-      </Box>
-      <Box
-        display={'flex'}
-        gap={'1.3rem'}
-        alignItems={'center'}
-        padding={'0.5rem'}
-      >
-        <Typography fontWeight={'bold'} fontSize={'1.2rem'}>
-          RB
-        </Typography>
-        <FormControl>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="Opt1"
-            name="radio-buttons-group"
+    <Card>
+      <CardContent>
+        <Grid container direction="row" paddingX={{ lg: '1rem', xs: '0.5rem' }}>
+          <Grid item xs={12} lg={6}>
+            <form>
+              <Grid container alignItems="center">
+                <Grid item xs={9}>
+                  <Typography
+                    fontWeight="bold"
+                    fontSize="1rem"
+                    paddingY={{ lg: '0.5rem' }}
+                  >
+                    Machine Learning Configuration
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  paddingX={{ lg: '1rem', xs: '0.5rem' }}
+                  border={'1px solid grey'}
+                  borderRadius={'5px'}
+                >
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        name="computing"
+                        value={0}
+                        onChange={() => {
+                          handleImportFormChange({
+                            target: { name: 'computing', value: 0 }
+                          })
+                        }}
+                        checked={FormValues.computing === 0}
+                      />
+                    }
+                    label={
+                      <Typography fontSize={'0.9rem'}>
+                        {
+                          " Use current M & U's (computed periodically, only using the Client Registry)."
+                        }
+                      </Typography>
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        name="computing"
+                        value={1}
+                        onChange={() =>
+                          handleImportFormChange({
+                            target: { name: 'computing', value: 1 }
+                          })
+                        }
+                        checked={FormValues.computing === 1}
+                      />
+                    }
+                    label={
+                      <Typography fontSize={'0.9rem'}>
+                        {
+                          ' Before linking, compute M & U values using the interactions from the CSV file.'
+                        }
+                      </Typography>
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        name="computing"
+                        value={2}
+                        onChange={() => {
+                          handleImportFormChange({
+                            target: { name: 'computing', value: 2 }
+                          })
+                        }}
+                        checked={FormValues.computing === 2}
+                      />
+                    }
+                    label={
+                      <Typography fontSize={'0.9rem'}>
+                        {
+                          " Before linking, compute M & U values using the interactions from the CSV file & the client registry's golden records."
+                        }
+                      </Typography>
+                    }
+                  />
+                </Grid>
+                <Grid item xs={12} paddingY={{ lg: '1rem', xs: '0.5rem' }}>
+                  <Typography fontWeight="bold" fontSize="1rem">
+                    Threshold
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} paddingX={{ lg: '1rem', xs: '0.5rem' }}>
+                  <Slider
+                    onChange={(_: Event, value: number | number[]) => {
+                      if (!Array.isArray(value)) return
+                      const [leftMargin, threshold, rightMargin] = value
+                      if (
+                        0 < threshold &&
+                        threshold < 1 &&
+                        threshold > leftMargin &&
+                        threshold < rightMargin
+                      ) {
+                        setFieldValue('threshold', threshold)
+                      }
+                      if (threshold > leftMargin)
+                        setFieldValue('leftMargin', leftMargin)
+
+                      if (threshold < rightMargin)
+                        setFieldValue('rightMargin', rightMargin)
+                    }}
+                    getAriaValueText={(e: number) => e.toString()}
+                    valueLabelDisplay="auto"
+                    step={0.05}
+                    marks
+                    min={0.19}
+                    max={0.96}
+                    value={[
+                      FormValues.leftMargin,
+                      FormValues.threshold,
+                      FormValues.rightMargin
+                    ]}
+                    defaultValue={[
+                      FormValues.leftMargin,
+                      FormValues.threshold,
+                      FormValues.rightMargin
+                    ]}
+                    sx={{
+                      '& .MuiSlider-thumb': {
+                        "&[data-index='0']": {
+                          backgroundColor: 'red'
+                        },
+                        "&[data-index='1']": {
+                          backgroundColor: 'green'
+                        }
+                      }
+                    }}
+                    track={false}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
+                  <TextField
+                    name="leftMargin"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Minimum Threshold  Review"
+                    value={FormValues.leftMargin}
+                    onChange={e => {
+                      if (+e.target.value < FormValues.threshold) {
+                        handleImportFormChange(e)
+                      }
+                    }}
+                    inputProps={{
+                      min: 0.19,
+                      max: FormValues.threshold,
+                      step: 0.01
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'red' }
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
+                  <TextField
+                    name="threshold"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Link Threshold"
+                    value={FormValues.threshold}
+                    onChange={e => {
+                      if (
+                        +e.target.value > FormValues.leftMargin &&
+                        +e.target.value < FormValues.rightMargin
+                      ) {
+                        handleImportFormChange(e)
+                      }
+                    }}
+                    inputProps={{ min: 0.2, max: 0.95, step: 0.01 }}
+                    InputLabelProps={{
+                      style: { color: 'green' }
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
+                  <TextField
+                    name="rightMargin"
+                    type="number"
+                    size="small"
+                    variant="outlined"
+                    label="Maximum Review Threshold "
+                    value={FormValues.rightMargin}
+                    onChange={e => {
+                      if (+e.target.value > FormValues.threshold) {
+                        handleImportFormChange(e)
+                      }
+                    }}
+                    inputProps={{
+                      min: FormValues.threshold,
+                      max: 0.96,
+                      step: 0.01
+                    }}
+                    InputLabelProps={{
+                      style: { color: '#1976D2' }
+                    }}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
+                  <Slider
+                    value={FormValues.windowSize}
+                    getAriaValueText={(e: number) => e.toString()}
+                    valueLabelDisplay="auto"
+                    onChange={handleImportFormChange}
+                    name="windowSize"
+                    step={0.01}
+                    marks
+                    min={0}
+                    max={0.2}
+                  />
+                  <Box sx={{ paddingY: { xs: '0.5rem' } }}>
+                    <TextField
+                      name="windowSize"
+                      type="number"
+                      size="small"
+                      variant="outlined"
+                      label="Margin Window size"
+                      value={FormValues.windowSize}
+                      onChange={handleImportFormChange}
+                      inputProps={{ min: 0, max: 0.2, step: 0.01 }}
+                      fullWidth
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} paddingY={'0.5rem'}>
+                  <Typography
+                    fontWeight="bold"
+                    fontSize="1rem"
+                    id="import-report-radio"
+                  >
+                    Reports
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  paddingX={'1rem'}
+                  border={'1px solid grey'}
+                  borderRadius={'5px'}
+                >
+                  <RadioGroup
+                    aria-labelledby="import-report-radio"
+                    defaultValue="false"
+                    name="reporting"
+                  >
+                    <FormControlLabel
+                      value="false"
+                      control={<Radio />}
+                      label={
+                        <Typography fontSize={'0.9rem'}>
+                          {' Link records only (do not generate report).'}
+                        </Typography>
+                      }
+                    />
+                    <FormControlLabel
+                      value="true"
+                      control={<Radio />}
+                      label={
+                        <Typography fontSize={'0.9rem'}>
+                          {
+                            ' Create CSV report and send notification when input file is created.'
+                          }
+                        </Typography>
+                      }
+                    />
+                  </RadioGroup>
+                </Grid>
+              </Grid>
+            </form>
+          </Grid>
+          <Grid
+            item
+            container
+            xs={12}
+            lg={6}
+            padding={1}
+            direction={'column'}
+            gap={8}
+            sx={{
+              display: 'flex',
+              justifyContent: ' center',
+              alignItems: 'center'
+            }}
           >
-            <FormControlLabel value="Opt1" control={<Radio />} label="Opt1" />
-            <FormControlLabel value="Opt2" control={<Radio />} label="Opt2" />
-            <FormControlLabel value="Opt3" control={<Radio />} label="Opt3" />
-          </RadioGroup>
-        </FormControl>
-      </Box>
-      <CardActions
-        sx={{ display: 'block', textAlign: 'center', marginTop: '5%' }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleUpload}
-          disabled={
-            uploadFileMutation.isLoading ||
-            uploadFileMutation.isError ||
-            !fileObjs ||
-            fileObjs?.status === 'Failed'
-          }
-        >
-          Upload
-        </Button>
-        <Button variant="outlined" onClick={handleCancel} disabled={!fileObjs}>
-          Cancel
-        </Button>
-      </CardActions>
-    </Container>
+            <Grid
+              item
+              xs={8}
+              border={'2px dashed #305982 '}
+              borderRadius={'1rem'}
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              {!fileObjs?.file ? (
+                <Box
+                  sx={{
+                    padding: '3rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                  {...getRootProps()}
+                >
+                  <input {...getInputProps()} />
+                  <Avatar sx={{ bgcolor: '#305982' }}>
+                    <UploadFileIcon />
+                  </Avatar>
+                  <Typography fontSize="1rem">
+                    Click to upload or drag and drop
+                  </Typography>
+                  <Typography color="#00000099" fontSize="1rem">
+                    CSV (max. {formatBytesSize(MAX_UPLOAD_FILE_SIZE_IN_BYTES)})
+                  </Typography>
+                </Box>
+              ) : (
+                uploadList
+              )}
+            </Grid>
+            <Grid item>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '2rem'
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  onClick={handleCancel}
+                  disabled={!fileObjs}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => handleSubmit()}
+                  disabled={
+                    uploadFileMutation.isLoading ||
+                    uploadFileMutation.isError ||
+                    !fileObjs ||
+                    fileObjs?.status === 'Failed'
+                  }
+                >
+                  Submit
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   )
 }
 export default DropZone

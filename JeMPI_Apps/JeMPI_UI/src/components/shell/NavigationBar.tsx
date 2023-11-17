@@ -17,6 +17,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import JembiLogo from './JembiLogo'
 import NavigationMenu from './NavigationMenu'
 import { Link } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
 
 const LabeledIconBox = ({
   icon,
@@ -55,6 +56,7 @@ const navigationItems = [
 
 const NavigationBar = () => {
   const container = window?.document?.body
+  const { config } = useConfig()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleDrawerToggle = () => {
@@ -62,15 +64,17 @@ const NavigationBar = () => {
   }
   const drawer = (
     <>
-      {/* <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
-        <JembiLogo />
-      </div> */}
+      {config.showBrandLogo && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <JembiLogo />
+        </div>
+      )}
       <Divider />
       <Box
         sx={{
@@ -140,7 +144,7 @@ const NavigationBar = () => {
               width: { xs: '100%', md: 'auto' }
             }}
           >
-            {/* <JembiLogo /> */}
+            {config.showBrandLogo && <JembiLogo />}
           </Box>
           <Box
             sx={{

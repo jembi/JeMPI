@@ -13,7 +13,6 @@ import { useLinkReview } from 'hooks/useLinkReview'
 import { useSnackbar } from 'notistack'
 import { useState } from 'react'
 import { CustomSearchQuery, SearchQuery } from 'types/SimpleSearch'
-import ApiClient from '../../services/ApiClient'
 import { NotificationState } from '../../types/Notification'
 import { AnyRecord } from '../../types/PatientRecord'
 import Loading from '../common/Loading'
@@ -28,6 +27,8 @@ import LinkRecordsDialog from './LinkRecordsDialog'
 import CloseNotificationDialog from './CloseNotificationDialog'
 import UnlinkingDialog from './UnlinkingDialog'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
+import { NotificationRequest } from 'types/BackendResponse'
 
 const getRowClassName = (type: string) => {
   switch (type) {
@@ -57,6 +58,7 @@ const ReviewLink = () => {
   const [refineSearchQuery, setRefineSearchQuery] = useState<
     SearchQuery | CustomSearchQuery | undefined
   >(undefined)
+  const { apiClient } = useConfig()
 
   const {
     patientRecord,
@@ -70,7 +72,7 @@ const ReviewLink = () => {
   const { linkRecords, createNewGoldenRecord } = useRelink()
 
   const mutateNotification = useMutation({
-    mutationFn: ApiClient.updateNotification,
+    mutationFn: (request: NotificationRequest) =>  apiClient.updateNotification(request),
     onError: (error: AxiosError) => {
       enqueueSnackbar(`Error updating notification: ${error.message}`, {
         variant: 'error'
@@ -212,7 +214,6 @@ const ReviewLink = () => {
         breadcrumbs={[
           { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
         ]}
-        description="Review the patient record and possible matches in detail."
         buttons={[
           <Button
             startIcon={<SearchOutlined />}

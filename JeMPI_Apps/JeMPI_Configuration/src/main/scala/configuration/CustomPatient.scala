@@ -30,7 +30,7 @@ private object CustomPatient {
         .demographicFields
         .map(f =>
           s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(f.fieldName)}.toLowerCase().replaceAll("\\\\W", ""),""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
     end cleanedFields
@@ -107,10 +107,22 @@ private object CustomPatient {
           .get
           .map(f =>
             s"""${" " * 43}${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
     end fields
+
+    def fromInteraction(): String =
+      if (config.uniqueGoldenRecordFields.isEmpty) "" else
+        config
+          .uniqueGoldenRecordFields
+          .get
+          .map(f => if (f.source.isEmpty) "" else
+            s""",
+               |${" " * 9}uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.source.get)}()""".stripMargin)
+          .mkString(sys.props("line.separator"))
+          .trim
+    end fromInteraction
 
     println("Creating " + classCustomUniqueGoldenRecordDataFile)
     val file: File = new File(classCustomUniqueGoldenRecordDataFile)
@@ -120,8 +132,17 @@ private object CustomPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
+         |import java.time.LocalDateTime;
+         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public record $customClassNameCustomUniqueGoldenRecordData(${fields(config)}) {
+         |
+         |  public CustomUniqueGoldenRecordData(final CustomUniqueInteractionData uniqueInteractionData) {
+         |    this(LocalDateTime.now(),
+         |         true${fromInteraction()}
+         |    );
+         |  }
+         |
          |}
          |""".stripMargin)
     writer.flush()
@@ -137,7 +158,7 @@ private object CustomPatient {
           .get
           .map(f =>
             s"""${" " * 42}${Utils.javaType(f.fieldType)} ${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
     end fields

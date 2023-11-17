@@ -7,32 +7,38 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
 ## Requirements
 - linux (bash >= 4.x)
   - docker (non-root)
+    - https://docs.docker.com/engine/install/ubuntu/
+    - https://docs.docker.com/engine/install/linux-postinstall/
+  - sdk manager (https://sdkman.io/)
   - maven
+    - sdk install maven 3.8.6
   - sbt
-  - java 17.0.6
+    - sdk install sbt 1.8.0
+  - java
+    - sdk install java 17.0.8.1-tem
   - python 3.7
     - wxpython
     - requests
 
 ## Installation
+
 - Directory structure
   - \<base>
     - JeMPI           - ```git@github.com:jembi/JeMPI.git```
-    - JeMPI_TestData  - ```git@github.com:jembi/JeMPI_TestData.git```
 - Requirements
-  - ```ping `hostname` ``` must ping a LAN IP address (not 127.x.x.x) 
+  - ```ping `hostname` ``` must ping a LAN IP address (not 127.x.x.x)
 - Run
-  1. **_\<base>/JeMPI/docker/conf/env_**
+  1. **_\<base>/JeMPI/devops/linux/docker/conf/env_**
      1. if you have less than 32Gb of ram, run ```./create-env-linux-low-1-.sh```. If you have 32Gb of ram or more, run ```./create-env-linux-high-1-.sh``` 
-  2. **_\<base>/JeMPI/docker/helper/scripts_**
+  2. **_\<base>/JeMPI/devops/linux/docker/helper/scripts_**
      1. ```bash ./x-swarm-a-set-insecure-registries.sh```
         - this clobbers **_/etc/docker/daemon.json_**   
-  3. **_\<base>/JeMPI/docker_**
+  3. **_\<base>/JeMPI/devops/linux/docker_**
      1. ```./a-images-1-pull-from-hub.sh```
      2. ```./b-swarm-1-init-node1.sh```
      3. ```./c-registry-1-create.sh```
      4. ```./c-registry-2-push-hub-images.sh```
-     5. ```./z-stack-3-build-reboot.sh```
+     5. ```./z-stack-3-build-all-reboot.sh```
 
 ## Development
 It's possible to run the whole stack local without having to use a local registry using the command : 

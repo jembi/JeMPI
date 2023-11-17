@@ -59,12 +59,12 @@ private object CustomDgraphReverseGoldenRecord {
         .uniqueGoldenRecordFields
         .get
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n") + "\n"
+        .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 = config
         .demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 
@@ -90,7 +90,7 @@ private object CustomDgraphReverseGoldenRecord {
           .get
           .map(f =>
             s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-          .mkString("\n").trim.dropRight(1)
+          .mkString(sys.props("line.separator")).trim.dropRight(1)
     end uniqueArguments
 
     def demographicArguments(): String =
@@ -98,7 +98,7 @@ private object CustomDgraphReverseGoldenRecord {
         .demographicFields
         .map(f =>
           s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-        .mkString("\n").trim.dropRight(1)
+        .mkString(sys.props("line.separator")).trim.dropRight(1)
     end demographicArguments
 
   end generate
