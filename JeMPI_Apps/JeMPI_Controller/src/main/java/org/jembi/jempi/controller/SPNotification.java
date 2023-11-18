@@ -47,20 +47,20 @@ final class SPNotification {
                try {
                   UUID id = UUID.randomUUID();
                   psqlNotifications.insert(id,
-                                           value.notificationType().toString(),
-                                           value.patientNames(),
-                                           value.linkedTo().score(),
-                                           new Timestamp(value.timeStamp()),
-                                           value.linkedTo().gID(),
-                                           value.dID());
+                        value.notificationType().toString(),
+                        value.patientNames(),
+                        value.linkedTo().score(),
+                        new Timestamp(value.timeStamp()),
+                        value.linkedTo().gID(),
+                        value.dID());
 
                   for (int i = 0; i < value.candidates().size(); i++) {
                      psqlNotifications.insertCandidates(id,
-                                                        value.candidates().get(i).score(),
-                                                        value.candidates().get(i).gID());
+                           value.candidates().get(i).score(),
+                           value.candidates().get(i).gID());
                   }
                } catch (SQLException e) {
-                  LOGGER.debug(e.toString());
+                  LOGGER.debug("Error inserting notification", e.toString());
                }
             });
 
