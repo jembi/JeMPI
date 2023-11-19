@@ -11,7 +11,7 @@ final class PsqlNotifications {
    private static final String QUERY = """
          SELECT patient_id, id, names, created, state,type, score, golden_id
          FROM notification
-         WHERE created BETWEEN ? AND ? AND state IN (?, ?, ?, ?)
+         WHERE created BETWEEN ? AND ? AND state IN (?, ?)
          ORDER BY created
          LIMIT ? OFFSET ?
          """;
@@ -47,13 +47,11 @@ final class PsqlNotifications {
       int skippedRows = 0;
       psqlClient.connect();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY);
-           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification WHERE created BETWEEN ? AND ? AND state IN (?, ?, ?, ?)")) {
+           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification WHERE created BETWEEN ? AND ? AND state IN (?, ?)")) {
          countStatement.setTimestamp(1, startDate);
          countStatement.setTimestamp(2, endDate);
          countStatement.setString(3, extractState(0, states));
          countStatement.setString(4, extractState(1, states));
-         countStatement.setString(5, extractState(2, states));
-         countStatement.setString(6, extractState(3, states));
          ResultSet countRs = countStatement.executeQuery();
          countRs.next();
          int totalCount = countRs.getInt(1);
@@ -61,11 +59,8 @@ final class PsqlNotifications {
          preparedStatement.setTimestamp(2, endDate);
          preparedStatement.setString(3, extractState(0, states));
          preparedStatement.setString(4, extractState(1, states));
-         preparedStatement.setString(5, extractState(2, states));
-         preparedStatement.setString(6, extractState(3, states));
-         preparedStatement.setInt(7, limit);
-         preparedStatement.setInt(8, offset);
-         LOGGER.debug("{}", preparedStatement);
+         preparedStatement.setInt(5, limit);
+         preparedStatement.setInt(6, offset);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
