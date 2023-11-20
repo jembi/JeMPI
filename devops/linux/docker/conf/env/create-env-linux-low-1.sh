@@ -28,6 +28,7 @@ export DGRAPH_PORTS="9080"
 
 # API related env vars
 export API_PORT=50000
+export API_VARIANT="API" # For api that support keyclock, use API_KC
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
