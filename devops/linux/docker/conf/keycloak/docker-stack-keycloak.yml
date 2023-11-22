@@ -25,7 +25,7 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: "admin"
       DB_ADDR: postgresql
       DB_PORT: 5432
-      DB_DATABASE: ${POSTGRESQL_DATABASE}
+      DB_DATABASE: ${TEST_KEY_CLOCK_DB}
       DB_USER: ${POSTGRESQL_USERNAME}
       DB_PASSWORD: ${POSTGRESQL_PASSWORD}
     healthcheck: 

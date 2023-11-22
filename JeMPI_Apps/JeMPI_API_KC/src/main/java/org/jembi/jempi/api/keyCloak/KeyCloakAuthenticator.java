@@ -49,15 +49,15 @@ public class KeyCloakAuthenticator {
                 LOGGER.debug("Token Verification succeeded!");
                 AccessToken token = tokens.getAccessToken();
                 LOGGER.debug("Is user already registered?");
-                String email = token.getEmail();
-                User user = userQueries.getUserByEmail(email);
+                String username = token.getPreferredUsername();
+                User user = userQueries.getUser(username);
                 if (user == null) {
                     // Register new user
-                    LOGGER.debug("User registration ... {}", email);
+                    LOGGER.debug("User registration ... {}", username);
                     User newUser = User.buildUserFromToken(token);
                     user = userQueries.registerUser(newUser);
                 }
-                LOGGER.debug("User has signed in : {}", user.getEmail());
+                LOGGER.debug("User has signed in : {}", username);
                 return user;
             } catch (VerificationException e) {
                 LOGGER.error("failed verification of token: {}", e.getMessage());

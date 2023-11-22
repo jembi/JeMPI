@@ -5,6 +5,7 @@ import akka.actor.typed.ActorSystem;
 import akka.dispatch.MessageDispatcher;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
+import akka.http.javadsl.model.HttpEntity;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.server.RejectionHandler;
@@ -69,17 +70,23 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    }
 
    Route createCorsRoutes() {
-      final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler();
+      final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler().mapRejectionResponse(response -> {
+         if (response.entity() instanceof HttpEntity.Strict) {
+            String message = ((HttpEntity.Strict) response.entity()).getData().utf8String();
+            LOGGER.warn(String.format("Request was rejected. Reason: %s", message));
+         }
+
+         return response;
+      });;
       final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder()
               .match(Exception.class, x -> {
                  LOGGER.error("An exception occurred while executing the Route", x);
                  return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred. Please see server logs for details");
               }).build();
 
-      return cors(
-                    CorsSettings.create(AppConfig.CONFIG),
-                    () -> randomTokenCsrfProtection(new CheckHeader<>(getSessionManager()),
-                    () -> pathPrefix("JeMPI", () -> new RoutesEntries(this).getRouteEntries()))
+
+      return cors(CorsSettings.create(AppConfig.CONFIG),
+                    () -> pathPrefix("JeMPI", () -> new RoutesEntries(this).getRouteEntries())
                   ).seal(rejectionHandler, exceptionHandler);
    }
 

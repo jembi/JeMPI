@@ -11,12 +11,17 @@ import java.sql.*;
 public class UserQueries extends QueryRunner {
 
     private static final Logger LOGGER = LogManager.getLogger(UserQueries.class);
-    public User getUserByEmail(final String email) {
+    public User getUser(final String username) {
+        return this.getUser("username", username);
+    }
+    public User getUser(final String field, final String value) {
         try {
-            QueryRunner.Executor executor = getPreparedStatement("SELECT * FROM users where email = ?");
-            executor.preparedStatement.setString(1, email);
 
-            ResultSet rs = executor.run();
+            ResultSet rs = executeQuery(String.format("SELECT * FROM users where %s = ?", field),
+                    preparedStatement -> {
+                        preparedStatement.setString(1, value);
+                    }) ;
+
             if (rs.next()) {
                 return new User(
                         rs.getString("id"),
@@ -37,15 +42,21 @@ public class UserQueries extends QueryRunner {
     public User registerUser(final User user) {
 
         try{
-            QueryRunner.Executor executor = getPreparedStatement("INSERT INTO users (given_name, family_name, email, username) VALUES (?, ?, ?, ?)");
-            executor.preparedStatement.setString(1, user.getGivenName());
-            executor.preparedStatement.setString(2, user.getFamilyName());
-            executor.preparedStatement.setString(3, user.getEmail());
-            executor.preparedStatement.setString(4, user.getUsername());
+            executeUpdate("INSERT INTO users (given_name, family_name, email, username) VALUES (?, ?, ?, ?)",
+                        preparedStatement -> {
+                            String given_name =  user.getGivenName();
+                            String family_name =  user.getFamilyName();
+                            String email =  user.getEmail();
+                            String username =  user.getUsername();
 
-            executor.run();
+                            preparedStatement.setString(1, given_name == null ? "" : given_name);
+                            preparedStatement.setString(2, family_name == null ? "" : family_name);
+                            preparedStatement.setString(3, email == null ? "" : email);
+                            preparedStatement.setString(4, username == null ? "" : username);
+                        }) ;
+
             LOGGER.info("Registered a new user");
-            return getUserByEmail(user.getEmail());
+            return getUser(user.getUsername());
         }
         catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
