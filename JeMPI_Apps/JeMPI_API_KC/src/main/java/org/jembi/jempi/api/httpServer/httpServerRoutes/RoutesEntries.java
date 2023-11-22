@@ -6,7 +6,6 @@ import org.jembi.jempi.api.httpServer.httpServerRoutes.routes.AdminRoutes;
 import org.jembi.jempi.api.httpServer.httpServerRoutes.routes.PatientRoutes;
 import org.jembi.jempi.api.httpServer.httpServerRoutes.routes.UserRoutes;
 
-
 import static akka.http.javadsl.server.Directives.concat;
 
 public class RoutesEntries extends ApiHttpServerRouteEntries {
@@ -16,9 +15,10 @@ public class RoutesEntries extends ApiHttpServerRouteEntries {
 
     @Override
     public Route getRouteEntries() {
+
         return concat( new UserRoutes(this.httpServer).getRouteEntries(),
-                        new PatientRoutes(this.httpServer).getRouteEntries(),
-                        new AdminRoutes(this.httpServer).getRouteEntries());
+                requireSession(new PatientRoutes(this.httpServer).getRouteEntries()),
+                requireSession(new AdminRoutes(this.httpServer).getRouteEntries()));
 
     }
 }
