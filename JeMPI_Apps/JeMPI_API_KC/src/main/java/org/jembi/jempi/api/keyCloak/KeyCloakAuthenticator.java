@@ -17,13 +17,13 @@ import org.keycloak.representations.AccessTokenResponse;
 
 import org.jembi.jempi.api.user.User;
 
-public class KeyCloakAuthenticator {
+public final class KeyCloakAuthenticator {
 
     private static final Logger LOGGER = LogManager.getLogger(KeyCloakAuthenticator.class);
     private final KeycloakDeployment keycloak;
     private final AkkaAdapterConfig keycloakConfig;
     private final UserQueries userQueries;
-    public KeyCloakAuthenticator(){
+    public KeyCloakAuthenticator() {
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream keycloakConfigStream = classLoader.getResourceAsStream("keycloak.json");
         keycloakConfig = AkkaKeycloakDeploymentBuilder.loadAdapterConfig(keycloakConfigStream);

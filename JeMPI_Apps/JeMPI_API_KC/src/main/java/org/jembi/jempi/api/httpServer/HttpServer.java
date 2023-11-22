@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionStage;
 
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
-final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
+public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
    private CompletionStage<ServerBinding> binding = null;
 
@@ -63,7 +63,7 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return actorSystem;
    }
 
-   public Http getAkkaHttpServer(){
+   public Http getAkkaHttpServer() {
       return akkaHttpServer;
    }
    public String getJsonFields() {

@@ -13,13 +13,18 @@ import static akka.http.javadsl.server.Directives.complete;
 public abstract class ApiHttpServerRouteEntries extends HttpServerRouteEntries<Route, HttpServer> {
     protected HttpServerSessionManager sessionManager;
     protected CheckHeader<UserSession> checkHeader;
-    public ApiHttpServerRouteEntries(HttpServer ihttpServer) {
+    public ApiHttpServerRouteEntries(final HttpServer ihttpServer) {
         super(ihttpServer);
         sessionManager = (HttpServerSessionManager) this.httpServer.getSessionManager();
         checkHeader = new CheckHeader<>(sessionManager);
     }
 
-    protected Route requireSession(Route routes){
+    /**
+     *
+     * @param routes
+     * @return
+     */
+    protected Route requireSession(final Route routes) {
         return  this.httpServer.requiredSession(sessionManager.getRefreshable(), sessionManager.getSessionTransport(), session -> {
             if (session != null) {
                 return routes;

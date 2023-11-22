@@ -8,15 +8,15 @@ import org.jembi.jempi.libapi.Routes;
 
 import static akka.http.javadsl.server.Directives.concat;
 
-public class RoutesEntries extends ApiHttpServerRouteEntries {
-    public RoutesEntries(HttpServer ihttpServer) {
+public final class RoutesEntries extends ApiHttpServerRouteEntries {
+    public RoutesEntries(final HttpServer ihttpServer) {
         super(ihttpServer);
     }
 
     @Override
     public Route getRouteEntries() {
 
-        return concat( new UserRoutes(this.httpServer).getRouteEntries(),
+        return concat(new UserRoutes(this.httpServer).getRouteEntries(),
                 requireSession(Routes.createCoreAPIRoutes(
                         this.httpServer.getActorSystem(),
                         this.httpServer.getBackEnd(),

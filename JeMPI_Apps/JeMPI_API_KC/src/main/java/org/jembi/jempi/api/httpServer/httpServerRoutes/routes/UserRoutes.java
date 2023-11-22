@@ -18,10 +18,10 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static akka.http.javadsl.server.Directives.*;
 
-public class UserRoutes extends ApiHttpServerRouteEntries {
+public final class UserRoutes extends ApiHttpServerRouteEntries {
     private static final Logger LOGGER = LogManager.getLogger(UserRoutes.class);
     private final KeyCloakAuthenticator keyCloakAuthenticator;
-    public UserRoutes(HttpServer ihttpServer){
+    public UserRoutes(final HttpServer ihttpServer) {
         super(ihttpServer);
         keyCloakAuthenticator =  new KeyCloakAuthenticator();
     }

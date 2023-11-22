@@ -3,7 +3,7 @@ package org.jembi.jempi.api.persistance.postgres;
 import org.jembi.jempi.AppConfig;
 import java.sql.*;
 
-public  class QueryRunner {
+public class QueryRunner {
 
     @FunctionalInterface
     public interface ExceptionalConsumer<T, E extends Exception> {
@@ -24,7 +24,16 @@ public  class QueryRunner {
         return DriverManager.getConnection(URL, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
     }
 
-    public <T> T executor(final String sqlQuery, ExceptionalConsumer<PreparedStatement, SQLException> statementUpdater, ExceptionalFunction<PreparedStatement, T, SQLException> runner) throws SQLException {
+    /**
+     *
+     * @param sqlQuery
+     * @param statementUpdater
+     * @param runner
+     * @return
+     * @param <T>
+     * @throws SQLException
+     */
+    public <T> T executor(final String sqlQuery, final ExceptionalConsumer<PreparedStatement, SQLException> statementUpdater, final ExceptionalFunction<PreparedStatement, T, SQLException> runner) throws SQLException {
         try (Connection connection =  establishConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             statementUpdater.accept(preparedStatement);
@@ -32,11 +41,24 @@ public  class QueryRunner {
 
         }
     }
-    public ResultSet executeQuery(final String sqlQuery, ExceptionalConsumer<PreparedStatement, SQLException> statementUpdater) throws SQLException {
+
+    /**
+     * @param sqlQuery
+     * @param statementUpdater
+     * @return
+     * @throws SQLException
+     * */
+    public ResultSet executeQuery(final String sqlQuery, final ExceptionalConsumer<PreparedStatement, SQLException> statementUpdater) throws SQLException {
         return executor(sqlQuery, statementUpdater, PreparedStatement::executeQuery);
     }
 
-    public int executeUpdate(final String sqlQuery, ExceptionalConsumer<PreparedStatement, SQLException> statementUpdater) throws SQLException{
+    /**
+     * @param sqlQuery
+     * @param statementUpdater
+     * @return
+     * @throws SQLException
+     * */
+    public int executeUpdate(final String sqlQuery, final ExceptionalConsumer<PreparedStatement, SQLException> statementUpdater) throws SQLException {
         return executor(sqlQuery, statementUpdater, PreparedStatement::executeUpdate);
     }
 }

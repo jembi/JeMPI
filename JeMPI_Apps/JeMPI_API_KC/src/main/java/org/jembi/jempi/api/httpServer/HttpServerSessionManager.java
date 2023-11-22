@@ -2,7 +2,6 @@ package org.jembi.jempi.api.httpServer;
 
 import akka.dispatch.MessageDispatcher;
 import com.softwaremill.session.*;
-import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
 import com.softwaremill.session.javadsl.InMemoryRefreshTokenStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +10,7 @@ import org.jembi.jempi.api.user.UserSession;
 
 import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
 
-public class HttpServerSessionManager extends SessionManager<UserSession> {
+public final class HttpServerSessionManager extends SessionManager<UserSession> {
     private static final Logger LOGGER = LogManager.getLogger(HttpServerSessionManager.class);
     private static final SessionEncoder<UserSession> BASIC_ENCODER = new BasicSessionEncoder<>(UserSession.getSerializer());
     // in-memory refresh token storage

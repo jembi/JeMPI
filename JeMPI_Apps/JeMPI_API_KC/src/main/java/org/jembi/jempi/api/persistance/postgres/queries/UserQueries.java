@@ -8,7 +8,7 @@ import org.jembi.jempi.api.user.User;
 import java.sql.*;
 
 
-public class UserQueries extends QueryRunner {
+public final class UserQueries extends QueryRunner {
 
     private static final Logger LOGGER = LogManager.getLogger(UserQueries.class);
     public User getUser(final String username) {
@@ -20,7 +20,7 @@ public class UserQueries extends QueryRunner {
             ResultSet rs = executeQuery(String.format("SELECT * FROM users where %s = ?", field),
                     preparedStatement -> {
                         preparedStatement.setString(1, value);
-                    }) ;
+                    });
 
             if (rs.next()) {
                 return new User(
@@ -31,8 +31,7 @@ public class UserQueries extends QueryRunner {
                         rs.getString("given_name")
                 );
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
         }
 
@@ -41,24 +40,23 @@ public class UserQueries extends QueryRunner {
     }
     public User registerUser(final User user) {
 
-        try{
+        try {
             executeUpdate("INSERT INTO users (given_name, family_name, email, username) VALUES (?, ?, ?, ?)",
                         preparedStatement -> {
-                            String given_name =  user.getGivenName();
-                            String family_name =  user.getFamilyName();
+                            String givenName =  user.getGivenName();
+                            String familyName =  user.getFamilyName();
                             String email =  user.getEmail();
                             String username =  user.getUsername();
 
-                            preparedStatement.setString(1, given_name == null ? "" : given_name);
-                            preparedStatement.setString(2, family_name == null ? "" : family_name);
+                            preparedStatement.setString(1, givenName == null ? "" : givenName);
+                            preparedStatement.setString(2, familyName == null ? "" : familyName);
                             preparedStatement.setString(3, email == null ? "" : email);
                             preparedStatement.setString(4, username == null ? "" : username);
-                        }) ;
+                        });
 
             LOGGER.info("Registered a new user");
             return getUser(user.getUsername());
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
         }
 
