@@ -32,6 +32,7 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private ActorSystem<Void> actorSystem;
    private ActorRef<BackEnd.Event> backEnd;
    private  String jsonFields;
+   private Http akkaHttpServer = null;
    public HttpServer(final MessageDispatcher dispatcher) {
       super(new HttpServerSessionManager(dispatcher));
    }
@@ -53,7 +54,8 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       this.jsonFields = jsonFields;
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
 
-      binding = Http.get(actorSystem).newServerAt(httpServerHost, httpPort).bind(this.createCorsRoutes());
+      akkaHttpServer =  Http.get(actorSystem);
+      binding = akkaHttpServer.newServerAt(httpServerHost, httpPort).bind(this.createCorsRoutes());
       LOGGER.info("Server online at http://{}:{}", httpServerHost, httpPort);
    }
 
@@ -61,6 +63,9 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       return actorSystem;
    }
 
+   public Http getAkkaHttpServer(){
+      return akkaHttpServer;
+   }
    public String getJsonFields() {
       return jsonFields;
    }
@@ -77,7 +82,7 @@ final public class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          }
 
          return response;
-      });;
+      });
       final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder()
               .match(Exception.class, x -> {
                  LOGGER.error("An exception occurred while executing the Route", x);
