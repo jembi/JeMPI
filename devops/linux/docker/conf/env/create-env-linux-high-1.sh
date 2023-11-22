@@ -43,6 +43,12 @@ export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
 export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
+# UI env vars
+export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
+export REACT_APP_JEMPI_BASE_API_PORT=${API_PORT}
+export REACT_APP_MOCK_BACKEND="false"
+export REACT_APP_ENABLE_SSO="false"
+
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="16G"
 export NGINX_RAM_LIMIT="16G"
