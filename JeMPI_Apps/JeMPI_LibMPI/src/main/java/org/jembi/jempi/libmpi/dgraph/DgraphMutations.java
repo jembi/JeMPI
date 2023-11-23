@@ -43,7 +43,7 @@ final class DgraphMutations {
          LOGGER.error("Failed to insert golden record");
          return null;
       }
-      return new LinkInfo(grUID, result.interactionUID, 1.0F);
+      return new LinkInfo(grUID, result.interactionUID, result.sourceUID, 1.0F);
    }
 
    boolean updateGoldenRecordField(
@@ -306,7 +306,7 @@ final class DgraphMutations {
             interaction.demographicData(), interaction.interactionId(),
             interaction.sourceId().uid(),
             score, new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()));
-      return Either.right(new LinkInfo(newGoldenID, interactionId, score));
+      return Either.right(new LinkInfo(newGoldenID, interactionId, interaction.sourceId().uid(), score));
    }
 
    Either<MpiGeneralError, LinkInfo> updateLink(
@@ -330,7 +330,7 @@ final class DgraphMutations {
       final var scoreList = new ArrayList<DgraphPairWithScore>();
       scoreList.add(new DgraphPairWithScore(newGoldenId, interactionId, score));
       addScoreFacets(scoreList);
-      return Either.right(new LinkInfo(newGoldenId, interactionId, score));
+      return Either.right(new LinkInfo(newGoldenId, interactionId, null, score));  // FIX: need to return the source id
    }
 
    LinkInfo linkDGraphInteraction(
@@ -348,7 +348,7 @@ final class DgraphMutations {
       addSourceId(interactionScoreList.get(0).goldenUID(), result.sourceUID);
       final var grUID = interactionScoreList.get(0).goldenUID();
       final var theScore = interactionScoreList.get(0).score();
-      return new LinkInfo(grUID, result.interactionUID, theScore);
+      return new LinkInfo(grUID, result.interactionUID, result.sourceUID, theScore);
    }
 
    Option<MpiGeneralError> createSchema() {

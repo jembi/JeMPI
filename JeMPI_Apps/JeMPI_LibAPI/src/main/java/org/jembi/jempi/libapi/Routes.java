@@ -77,7 +77,7 @@ public final class Routes {
                                          new ApiModels.ApiNumberOfRecords(result.get().goldenRecords(),
                                                                           result.get().patientRecords()),
                                          JSON_MARSHALLER)
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                              : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route getGidsPaged(
@@ -93,7 +93,7 @@ public final class Routes {
                                                                       ? complete(StatusCodes.OK,
                                                                                  result.get(),
                                                                                  JSON_MARSHALLER)
-                                                                      : complete(StatusCodes.IM_A_TEAPOT))));
+                                                                      : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
    }
 
    public static Route getGoldenRecordAuditTrail(
@@ -105,7 +105,7 @@ public final class Routes {
                                                ? complete(StatusCodes.OK,
                                                           ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
                                                           JSON_MARSHALLER)
-                                               : complete(StatusCodes.IM_A_TEAPOT)));
+                                               : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
 
    public static Route getInteractionAuditTrail(
@@ -117,7 +117,7 @@ public final class Routes {
                                                ? complete(StatusCodes.OK,
                                                           ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
                                                           JSON_MARSHALLER)
-                                               : complete(StatusCodes.IM_A_TEAPOT)));
+                                               : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
 
    public static Route patchIidNewGidLink(
@@ -137,7 +137,7 @@ public final class Routes {
                                                                                                 linkInfo -> complete(StatusCodes.OK,
                                                                                                                      linkInfo,
                                                                                                                      JSON_MARSHALLER))
-                                                                                  : complete(StatusCodes.IM_A_TEAPOT))));
+                                                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
    }
 
    public static Route patchIidGidLink(
@@ -167,7 +167,7 @@ public final class Routes {
                                                                                                        StatusCodes.OK,
                                                                                                        linkInfo,
                                                                                                        JSON_MARSHALLER))
-                                                                                   : complete(StatusCodes.IM_A_TEAPOT))))));
+                                                                                   : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))))));
    }
 
    public static Route countGoldenRecords(
@@ -182,7 +182,7 @@ public final class Routes {
                                             count -> complete(StatusCodes.OK,
                                                               new ApiModels.ApiGoldenRecordCount(count),
                                                               JSON_MARSHALLER))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                              : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route countInteractions(
@@ -197,7 +197,7 @@ public final class Routes {
                                             count -> complete(StatusCodes.OK,
                                                               new ApiModels.ApiInteractionCount(count),
                                                               JSON_MARSHALLER))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                              : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route getGidsAll(
@@ -206,7 +206,7 @@ public final class Routes {
       return onComplete(Ask.getGidsAll(actorSystem, backEnd),
                         result -> result.isSuccess()
                               ? complete(StatusCodes.OK, result.get(), JSON_MARSHALLER)
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                              : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route getNotifications(
@@ -227,7 +227,7 @@ public final class Routes {
                                                      ? complete(StatusCodes.OK,
                                                                 result.get(),
                                                                 JSON_MARSHALLER)
-                                                     : complete(StatusCodes.IM_A_TEAPOT))))));
+                                                     : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))))));
    }
 
    public static Route getExpandedGoldenRecordsUsingParameterList(
@@ -246,7 +246,7 @@ public final class Routes {
                                                                                                       .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
                                                                                                       .toList(),
                                                                                  JSON_MARSHALLER))
-                                 : complete(StatusCodes.IM_A_TEAPOT));
+                                 : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
       });
    }
 
@@ -267,7 +267,7 @@ public final class Routes {
                                                                                           .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
                                                                                           .toList(),
                                                                      JSON_MARSHALLER))
-                     : complete(StatusCodes.IM_A_TEAPOT));
+                     : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
       });
    }
 
@@ -287,7 +287,7 @@ public final class Routes {
                                                                                                         .map(ApiModels.ApiExpandedInteraction::fromExpandedInteraction)
                                                                                                         .toList(),
                                                                                   JSON_MARSHALLER))
-                                 : complete(StatusCodes.IM_A_TEAPOT));
+                                 : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
       });
    }
 
@@ -305,7 +305,7 @@ public final class Routes {
                                                                      ApiModels.ApiExpandedGoldenRecord.fromExpandedGoldenRecord(
                                                                            goldenRecord),
                                                                      Jackson.marshaller(OBJECT_MAPPER)))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                              : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route getInteraction(
@@ -321,7 +321,7 @@ public final class Routes {
                                             patientRecord -> complete(StatusCodes.OK,
                                                                       ApiModels.ApiInteraction.fromInteraction(patientRecord),
                                                                       JSON_MARSHALLER))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                              : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
    }
 
    public static Route postUpdateNotification(
@@ -333,7 +333,7 @@ public final class Routes {
                           final var updateResponse = response.get();
                           return complete(StatusCodes.OK, updateResponse, JSON_MARSHALLER);
                        } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     }));
    }
@@ -355,7 +355,7 @@ public final class Routes {
                                     (info, file) -> onComplete(Ask.postUploadCsvFile(actorSystem, backEnd, info, file),
                                                                response -> response.isSuccess()
                                                                      ? complete(StatusCodes.OK)
-                                                                     : complete(StatusCodes.IM_A_TEAPOT))));
+                                                                     : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
    }
 
    public static Route postSimpleSearch(
@@ -377,7 +377,7 @@ public final class Routes {
                                 final var eventSearchRsp = response.get();
                                 return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
                              } else {
-                                return complete(StatusCodes.IM_A_TEAPOT);
+                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                              }
                           }));
    }
@@ -396,7 +396,7 @@ public final class Routes {
                                 final var eventSearchRsp = response.get();
                                 return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
                              } else {
-                                return complete(StatusCodes.IM_A_TEAPOT);
+                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                              }
                           }));
    }
@@ -415,7 +415,7 @@ public final class Routes {
                                 final var eventSearchRsp = response.get();
                                 return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
                              } else {
-                                return complete(StatusCodes.IM_A_TEAPOT);
+                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                              }
                           }));
    }
@@ -435,7 +435,7 @@ public final class Routes {
             final var eventSearchRsp = response.get();
             return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
          } else {
-            return complete(StatusCodes.IM_A_TEAPOT);
+            return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
          }
       }));
    }
@@ -469,10 +469,10 @@ public final class Routes {
                                                                      http, obj),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     });
    }
@@ -505,10 +505,10 @@ public final class Routes {
                              return onComplete(proxyGetCandidatesWithScore(linkerIP, linkerPort, http, iid),
                                                response -> response.isSuccess()
                                                      ? complete(response.get())
-                                                     : complete(StatusCodes.IM_A_TEAPOT));
+                                                     : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                           } catch (JsonProcessingException e) {
                              LOGGER.error(e.getLocalizedMessage(), e);
-                             return complete(StatusCodes.IM_A_TEAPOT);
+                             return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                           }
                        });
    }
@@ -523,7 +523,7 @@ public final class Routes {
                                   "http://%s:%d/JeMPI/%s",
                                   linkerIP,
                                   linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS))
+                                  GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS))
             .withMethod(HttpMethods.PATCH)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -540,12 +540,48 @@ public final class Routes {
                                   "http://%s:%d/JeMPI/%s",
                                   linkerIP,
                                   linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_REGISTER))
+                                  GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
+
+   private static CompletionStage<HttpResponse> postLinkInteractionProxy(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.LinkInteractionSyncBody body) throws JsonProcessingException {
+      final var request = HttpRequest
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION))
+            .withMethod(HttpMethods.POST)
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> response);
+   }
+
+   private static CompletionStage<HttpResponse> postLinkInteractionToGidProxy(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.LinkInteractionToGidSyncBody body) throws JsonProcessingException {
+      final var request = HttpRequest
+            .create(String.format(Locale.ROOT,
+                                  "http://%s:%d/JeMPI/%s",
+                                  linkerIP,
+                                  linkerPort,
+                                  GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID))
+            .withMethod(HttpMethods.POST)
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> response);
+   }
+
+
 
    private static CompletionStage<HttpResponse> postCrCandidatesProxy(
          final String linkerIP,
@@ -557,7 +593,7 @@ public final class Routes {
                                   "http://%s:%d/JeMPI/%s",
                                   linkerIP,
                                   linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES))
+                                  GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -577,7 +613,7 @@ public final class Routes {
                                   "http://%s:%d/JeMPI/%s",
                                   linkerIP,
                                   linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_FIND))
+                                  GlobalConstants.SEGMENT_PROXY_POST_CR_FIND))
             .withMethod(HttpMethods.POST)
             .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -598,10 +634,10 @@ public final class Routes {
                           return onComplete(patchCrUpdateFieldsProxy(linkerIP, linkerPort, http, apiCrUpdateFields),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     });
    }
@@ -618,7 +654,7 @@ public final class Routes {
                   return onComplete(postCrFindProxy(linkerIP, linkerPort, http, apiCrFind),
                                     response -> response.isSuccess()
                                           ? complete(response.get())
-                                          : complete(StatusCodes.IM_A_TEAPOT));
+                                          : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                   return complete(StatusCodes.IM_A_TEAPOT);
@@ -637,10 +673,10 @@ public final class Routes {
                           return onComplete(postCrCandidatesProxy(linkerIP, linkerPort, http, apiCrCandidates),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     });
    }
@@ -656,12 +692,49 @@ public final class Routes {
                           return onComplete(postCrRegisterProxy(linkerIP, linkerPort, http, apiCrRegister),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(StatusCodes.NO_CONTENT);
                        }
                     });
    }
+
+   public static Route postLinkInteraction(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionSyncBody.class),
+                    linkInteractionSyncBody ->  {
+                       try {
+                          return onComplete(postLinkInteractionProxy(linkerIP, linkerPort, http, linkInteractionSyncBody),
+                                            response -> response.isSuccess()
+                                                  ? complete(response.get())
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(StatusCodes.NO_CONTENT);
+                       }
+                    });
+   }
+
+   public static Route postLinkInteractionToGid(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionToGidSyncBody.class),
+                    apiLinkInteractionToGid -> {
+                       try {
+                          return onComplete(postLinkInteractionToGidProxy(linkerIP, linkerPort, http, apiLinkInteractionToGid),
+                                            response -> response.isSuccess()
+                                                  ? complete(response.get())
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(StatusCodes.NO_CONTENT);
+                       }
+                    });
+   }
+
 
 }

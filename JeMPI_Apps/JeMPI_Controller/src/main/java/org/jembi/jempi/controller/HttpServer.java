@@ -12,13 +12,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
-import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class HttpServer extends AllDirectives {
 
@@ -42,7 +42,7 @@ public final class HttpServer extends AllDirectives {
       LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.CONTROLLER_HTTP_PORT);
    }
 
-   private CompletionStage<HttpResponse> postLinkInteraction(final LinkInteractionSyncBody body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> postLinkInteraction(final ApiModels.LinkInteractionSyncBody body) throws JsonProcessingException {
       final HttpRequest request;
       request = HttpRequest
             .create(String.format(Locale.ROOT,
@@ -51,12 +51,12 @@ public final class HttpServer extends AllDirectives {
                                   AppConfig.LINKER_HTTP_PORT,
                                   GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION))
             .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
 
-   private CompletionStage<HttpResponse> postLinkInteractionToGid(final LinkInteractionToGidSyncBody body) throws JsonProcessingException {
+   private CompletionStage<HttpResponse> postLinkInteractionToGid(final ApiModels.LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest
             .create(String.format(Locale.ROOT,
                                   "http://%s:%d/JeMPI/%s",
@@ -64,7 +64,7 @@ public final class HttpServer extends AllDirectives {
                                   AppConfig.LINKER_HTTP_PORT,
                                   GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID))
             .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, AppUtils.OBJECT_MAPPER.writeValueAsBytes(body));
+            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
@@ -78,7 +78,7 @@ public final class HttpServer extends AllDirectives {
    }
 
    private Route routeLinkInteraction() {
-      return entity(Jackson.unmarshaller(LinkInteractionSyncBody.class),
+      return entity(Jackson.unmarshaller(ApiModels.LinkInteractionSyncBody.class),
                     obj -> {
                        try {
                           LOGGER.debug("{}", obj);
@@ -94,17 +94,17 @@ public final class HttpServer extends AllDirectives {
    }
 
    private Route routeLinkInteractionToGid() {
-      return entity(Jackson.unmarshaller(LinkInteractionToGidSyncBody.class),
+      return entity(Jackson.unmarshaller(ApiModels.LinkInteractionToGidSyncBody.class),
                     obj -> {
                        try {
                           return onComplete(postLinkInteractionToGid(obj),
                                             response -> response.isSuccess()
                                                   ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
+                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
                        } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
                        }
+                       return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                     });
    }
 

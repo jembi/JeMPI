@@ -1,6 +1,5 @@
 package org.jembi.jempi.linker.backend;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaccardSimilarity;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
@@ -8,7 +7,6 @@ import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -202,37 +200,21 @@ final class LinkerProbabilistic {
          if (n % 2 == 0) {
             final var k = n / 2;
             final var z = 1.0F / k;
-            final var w = IntStream.range(0, n)
-                                   .mapToDouble(i -> abs(1.0 - (z * i)))
-                                   .boxed()
-                                   .map(Double::floatValue)
-                                   .toList();
-            if (LOGGER.isDebugEnabled()) {
-               try {
-                  LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));
-               } catch (JsonProcessingException e) {
-                  LOGGER.error(e.getLocalizedMessage(), e);
-               }
-            }
-            return w;
+            return IntStream.range(0, n)
+                            .mapToDouble(i -> abs(1.0 - (z * i)))
+                            .boxed()
+                            .map(Double::floatValue)
+                            .toList();
          } else {
             final var k = (n + 1) / 2;
             final var z = 1.0F / k;
-            final var w = IntStream.range(0, n)
-                                   .mapToDouble(i -> abs(1.0 - (z * (i < k
-                                                                           ? i
-                                                                           : i + 1))))
-                                   .boxed()
-                                   .map(Double::floatValue)
-                                   .toList();
-            if (LOGGER.isDebugEnabled()) {
-               try {
-                  LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));
-               } catch (JsonProcessingException e) {
-                  LOGGER.error(e.getLocalizedMessage(), e);
-               }
-            }
-            return w;
+            return IntStream.range(0, n)
+                            .mapToDouble(i -> abs(1.0 - (z * (i < k
+                                                                    ? i
+                                                                    : i + 1))))
+                            .boxed()
+                            .map(Double::floatValue)
+                            .toList();
          }
       }
 

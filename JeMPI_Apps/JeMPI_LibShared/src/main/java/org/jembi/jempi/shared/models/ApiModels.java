@@ -1,18 +1,54 @@
 package org.jembi.jempi.shared.models;
 
+import akka.http.javadsl.model.HttpResponse;
+import akka.http.javadsl.model.StatusCode;
+import akka.http.javadsl.model.StatusCodes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+
 public abstract class ApiModels {
 
+   private static final Logger LOGGER = LogManager.getLogger(ApiModels.class);
    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
+   public static HttpResponse getHttpErrorResponse(final StatusCode statusCode) {
+      try {
+         var entity = OBJECT_MAPPER.writeValueAsBytes(new ApiError());
+         return HttpResponse.create()
+                            .withStatus(statusCode)
+                            .withEntity(entity);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         return HttpResponse.create().withStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+      }
+   }
+
    public interface ApiPaginatedResultSet {
+   }
+
+   public record ApiError(
+
+         @JsonProperty("module") String module,
+         @JsonProperty("class") String klass,
+         @JsonProperty("line_number") Integer lineNumber) {
+
+      public ApiError() {
+         this(Thread.currentThread().getStackTrace()[3].getModuleName(),
+              Thread.currentThread().getStackTrace()[3].getClassName(),
+              Thread.currentThread().getStackTrace()[3].getLineNumber());
+      }
+
+
    }
 
    public record ApiGoldenRecordCount(Long count) {
@@ -68,6 +104,27 @@ public abstract class ApiModels {
          CustomUniqueInteractionData uniqueInteractionData,
          CustomDemographicData demographicData) {
    }
+
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record LinkInteractionSyncBody(
+         String stan,
+         ExternalLinkRange externalLinkRange,
+         Float matchThreshold,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record LinkInteractionToGidSyncBody(
+         String stan,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData,
+         String gid) {
+   }
+
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterResponse(LinkInfo linkInfo) {
