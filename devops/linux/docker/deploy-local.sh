@@ -150,7 +150,7 @@ case $choice in
     5)
         echo "Destroy"
         cd $JEMPI_HOME/devops/linux/docker
-        source $JEMPI_HOME/devops/linux/docker/b-swarm-3-leave.sh
+        source $JEMPI_HOME/devops/linux/docker/b-swarm-2-leave.sh
 
         exit 0
         ;;
