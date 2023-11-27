@@ -1,20 +1,20 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.api.user;
 
 import org.keycloak.representations.AccessToken;
 
-class User {
+public class User {
    private String id;
    private String username;
    private String email;
    private String familyName;
    private String givenName;
 
-   User(
-         final String id,
-         final String username,
-         final String email,
-         final String familyName,
-         final String givenName) {
+   public User(
+           final String id,
+           final String username,
+           final String email,
+           final String familyName,
+           final String givenName) {
       this.setId(id);
       this.setUsername(username);
       this.setEmail(email);
@@ -22,7 +22,7 @@ class User {
       this.setGivenName(givenName);
    }
 
-   static User buildUserFromToken(final AccessToken token) {
+   public static User buildUserFromToken(final AccessToken token) {
       String familyName = token.getFamilyName();
       String givenName = token.getGivenName();
       return new User(
@@ -37,8 +37,7 @@ class User {
                   : ""
       );
    }
-
-   String getUsername() {
+   public String getUsername() {
       return username;
    }
 
@@ -54,7 +53,7 @@ class User {
       this.id = id;
    }
 
-   String getEmail() {
+   public String getEmail() {
       return email;
    }
 
@@ -62,7 +61,7 @@ class User {
       this.email = email;
    }
 
-   String getFamilyName() {
+   public String getFamilyName() {
       return familyName;
    }
 
@@ -70,7 +69,7 @@ class User {
       this.familyName = familyName;
    }
 
-   String getGivenName() {
+   public String getGivenName() {
       return givenName;
    }
 
