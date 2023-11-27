@@ -1,0 +1,53 @@
+version: '3.8'
+networks:
+  backend:
+    name: backend
+    external: true
+  frontend:
+    name: frontend
+    external: true
+
+services:
+  keycloak-test-server:
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    user: root
+    ports:
+    - published: 8080
+      target: 8080
+      protocol: tcp
+      mode: host   
+    networks:
+      - frontend
+      - backend
+    environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+      DB_ADDR: postgresql
+      DB_PORT: 5432
+      DB_DATABASE: ${TEST_KEY_CLOCK_DB}
+      DB_USER: ${POSTGRESQL_USERNAME}
+      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+    healthcheck: 
+      test: 
+      - "CMD"
+      - "curl"
+      - "-f"
+      - "http://localhost:8080"
+      interval: "20s"
+      timeout: "5s"
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: ${SCALE_KEYCLOAK_TEST_SERVER}
+      resources:
+        limits:
+          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
