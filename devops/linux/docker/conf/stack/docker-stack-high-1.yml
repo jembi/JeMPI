@@ -579,7 +579,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
       resources:
         limits:
           memory: ${API_RAM_LIMIT}
@@ -630,7 +630,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
       resources:
         limits:
           memory: ${API_RAM_LIMIT}

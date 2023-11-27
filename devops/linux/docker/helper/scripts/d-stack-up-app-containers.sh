@@ -17,6 +17,13 @@ pushd .
   envsubst < ./conf/stack/docker-stack-${SPEC_SETTINGS}-1.yml > ./0-docker-stack-1.yml
 
   docker stack deploy --prune --compose-file 0-docker-stack-1.yml ${STACK_NAME}
+
+  if [[ "$API_VARIANT" == "API" ]]; then
+     docker service scale ${STACK_NAME}_api=1
+  elif [[ "$API_VARIANT" == "API_KC" ]]; then
+     docker service scale ${STACK_NAME}_api-kc=1
+  fi
+
   echo
   sleep 5
   docker stack services ${STACK_NAME}
