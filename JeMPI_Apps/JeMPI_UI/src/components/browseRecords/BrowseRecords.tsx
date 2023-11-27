@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Container,
   Divider,
   FormControlLabel,
@@ -36,7 +37,11 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
+import {
+  LocalizationProvider,
+  DesktopDatePicker,
+  DateTimePicker
+} from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import getCellComponent from 'components/shared/getCellComponent'
@@ -57,15 +62,15 @@ const Records = () => {
   const navigate = useNavigate()
   const { apiClient } = useConfig()
   const { getFieldsByGroup } = useAppConfig()
-
+  const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
+    dayjs().startOf('day')
+  )
+  const [endDateFilter, setEndDateFilter] = useState<Dayjs>(
+    dayjs().endOf('day')
+  )
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
-
-  const [dateFilter, setDateFilter] = useState(dayjs())
-
   const [dateSearch, setDateSearch] = useState(dayjs())
-
   const [searchParams, setSearchParams] = useSearchParams()
-
   const [isFetchingInteractions, setIsFetchingInteractions] = useState(
     searchParams.get('isFetchingInteractions')
       ? JSON.parse(searchParams.get('isFetchingInteractions') as string)
@@ -115,22 +120,14 @@ const Records = () => {
     ApiSearchResult<GoldenRecord>,
     AxiosError
   >({
-    queryKey: [
-      'golden-records',
-      JSON.stringify(filterPayload.parameters),
-      filterPayload.offset,
-      filterPayload.limit,
-      filterPayload.sortAsc,
-      filterPayload.sortBy
-    ],
+    queryKey: ['golden-records', JSON.stringify(filterPayload)],
     queryFn: async () =>
       (await apiClient.searchQuery(
         filterPayload,
         true
       )) as ApiSearchResult<GoldenRecord>,
     refetchOnWindowFocus: false,
-    keepPreviousData: true,
-    staleTime: 1000 * 60
+    keepPreviousData: true
   })
 
   const rows = useMemo(() => {
@@ -144,7 +141,6 @@ const Records = () => {
           return acc
         }, [])
   }, [isFetchingInteractions, data])
-
   useEffect(() => {
     setSearchParams(
       Object.entries(filterPayload).reduce(
@@ -168,11 +164,13 @@ const Records = () => {
   }
 
   const onFilter = (query: SearchParameter[]) => {
+    const startDate = startDateFilter.toJSON()
+    const endDate = endDateFilter.toJSON()
     setFilterPayload({
       ...filterPayload,
       parameters: [
         {
-          value: dateFilter.toJSON(),
+          value: `${startDate}_${endDate}`,
           distance: -1,
           fieldName: 'auxDateCreated'
         },
@@ -185,12 +183,6 @@ const Records = () => {
     return isPatientCorresponding(patient, searchQuery)
       ? `super-app-theme--searchable`
       : ''
-  }
-
-  const changeSelectedFileterDate = (date: Dayjs | null) => {
-    if (date) {
-      setDateFilter(date)
-    }
   }
 
   const changeSelectedSearchDate = (date: Dayjs | null) => {
@@ -226,17 +218,36 @@ const Records = () => {
             <Stack gap="10px">
               <Stack gap="20px" flexDirection="row">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DesktopDatePicker
-                    value={dateFilter}
-                    format="YYYY/MM/DD"
-                    onChange={value => changeSelectedFileterDate(value)}
-                    slotProps={{
-                      textField: {
-                        variant: 'outlined',
-                        label: 'Date'
-                      }
-                    }}
-                  />
+                  <Box
+                    display={'flex'}
+                    gap={'2rem'}
+                    alignItems={'center'}
+                    paddingY={'1rem'}
+                    flexDirection={{ xs: 'column', md: 'row' }}
+                  >
+                    <DateTimePicker
+                      value={startDateFilter}
+                      format="YYYY/MM/DD HH:mm:ss"
+                      onChange={value => value && setStartDateFilter(value)}
+                      slotProps={{
+                        textField: {
+                          variant: 'outlined',
+                          label: 'Start Date'
+                        }
+                      }}
+                    />
+                    <DateTimePicker
+                      value={endDateFilter}
+                      format="YYYY/MM/DD HH:mm:ss"
+                      onChange={value => value && setEndDateFilter(value)}
+                      slotProps={{
+                        textField: {
+                          variant: 'outlined',
+                          label: 'End Date'
+                        }
+                      }}
+                    />
+                  </Box>
                 </LocalizationProvider>
                 <FormControlLabel
                   control={
