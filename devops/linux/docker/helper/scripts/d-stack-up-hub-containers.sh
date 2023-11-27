@@ -21,11 +21,6 @@ pushd .
   if [ ! -z ${SCALE_ALPHA_03+x} ] ; then docker service scale ${STACK_NAME}_alpha-03=${SCALE_ALPHA_03}; fi
   docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 
-  if [[ "$API_VARIANT" == "API" ]]; then
-     docker service scale ${STACK_NAME}_api=1
-  elif [[ "$API_VARIANT" == "API_KC" ]]; then
-     docker service scale ${STACK_NAME}_api-kc=1
-  fi
 
   pushd helper/topics
     source ./topics-create.sh
