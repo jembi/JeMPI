@@ -19,6 +19,9 @@ export CONTROLLER_JAR=Controller-1.0-SNAPSHOT-spring-boot.jar
 export EM_IMAGE=em:1.0-SNAPSHOT
 export EM_JAR=EM-1.0-SNAPSHOT-spring-boot.jar
 
+export EM_SCALA_IMAGE=em_scala:1.0-SNAPSHOT
+export EM_SCALA_JAR=em-scala-fatjar-1.0.jar
+
 export LINKER_IMAGE=linker:1.0-SNAPSHOT
 export LINKER_JAR=Linker-1.0-SNAPSHOT-spring-boot.jar
 

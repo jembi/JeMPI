@@ -11,10 +11,10 @@ pushd .
 
   declare -a SERVICES=(
     async-receiver
-    sync-receiver
     etl
     controller
     em
+    em-scala
     linker
     api
     api-kc

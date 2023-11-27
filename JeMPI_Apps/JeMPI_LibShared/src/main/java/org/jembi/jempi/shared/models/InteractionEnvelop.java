@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record InteractionEnvelop(
       ContentType contentType,
       String tag,
-      String /* System Trace Audit Number */ stan,
+      String stan, // System Trace Audit Number
       Interaction interaction) {
 
    public enum ContentType {

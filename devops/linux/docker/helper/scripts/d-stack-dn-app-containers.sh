@@ -15,6 +15,7 @@ pushd .
     etl
     controller
     em
+    em-scala
     linker
     api
     api_kc
