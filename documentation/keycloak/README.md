@@ -282,7 +282,7 @@ Instructions on how to do this are highlighted below.
 
 
 
-1. Restart JeMPI and the test keycloak server
+3. Restart JeMPI and the test keycloak server
 
 This test server has one user with the details below
 
