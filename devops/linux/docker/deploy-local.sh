@@ -4,8 +4,8 @@ cd ../../..
 export JEMPI_HOME=$(pwd)
 export JAVA_VERSION=17.0.8.1-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
-#JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/ethiopia/config-ethiopia-3.json
-JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
+JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/ethiopia/config-ethiopia-3.json
+# JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 
 # Display menu options
 echo "Select an option for local deployment:"
@@ -14,8 +14,6 @@ echo "2. Build and Reboot."
 echo "3. Restart JeMPI."
 echo "4. Down the JeMPI."
 echo "5. Destroy JeMPI (This process will wipe all data)."
-
-
 
 
 # Prompt user for choice
@@ -113,7 +111,7 @@ build_all_stack_and_reboot(){
     # Build and reboot the entire stack
     echo "Build and reboot the entire stack"
     cd $JEMPI_HOME/devops/linux/docker
-    yes | source $JEMPI_HOME/devops/linux/docker/z-stack-3-build-all-reboot.sh
+    yes | source $JEMPI_HOME/devops/linux/docker/d-stack-1-build-all-reboot.sh
 
 }
 
@@ -138,13 +136,13 @@ case $choice in
     3)
         echo "Restart JeMPI"
         cd $JEMPI_HOME/devops/linux/docker
-        source $JEMPI_HOME/devops/linux/docker/z-stack-2-reboot.sh
+        source $JEMPI_HOME/devops/linux/docker/d-stack-3-reboot.sh
         # Add your Option 3 logic here
         ;;
     4)
         echo "Down"
         cd $JEMPI_HOME/devops/linux/docker
-        source $JEMPI_HOME/devops/linux/docker/z-stack-4-down.sh
+        source $JEMPI_HOME/devops/linux/docker/d-stack-3-down.sh
         exit 0
         ;;
     5)
