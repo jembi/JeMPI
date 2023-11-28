@@ -17,7 +17,6 @@ pushd .
   envsubst < ./conf/stack/docker-stack-${SPEC_SETTINGS}-1.yml > ./0-docker-stack-1.yml
 
   docker stack deploy --prune --compose-file 0-docker-stack-1.yml ${STACK_NAME}
-
   echo
   sleep 5
   docker stack services ${STACK_NAME}

@@ -445,8 +445,6 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 0
-      labels:
-        api_variant: ${API_VARIANT}
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
@@ -501,8 +499,6 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 0
-      labels:
-        api_variant: ${API_VARIANT}
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_API_KC}
