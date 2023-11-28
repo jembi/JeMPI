@@ -19,6 +19,9 @@ import java.util.TreeMap;
                     "turn-off-change-session-id-on-login", "token-minimum-time-to-live", "min-time-between-jwks-requests",
                     "public-key-cache-ttl", "policy-enforcer", "ignore-oauth-query-parameter", "verify-token-audience"})
 public final class AkkaAdapterConfig extends AdapterConfig {
+   @JsonProperty("frontend-kc-url")
+   private String frontendKcUri;
+
    @JsonProperty("redirect-uri")
    private String redirectUri;
 
@@ -48,6 +51,10 @@ public final class AkkaAdapterConfig extends AdapterConfig {
          }
       }
       return credentials;
+   }
+
+   String getFrontendKcUri() {
+      return EnvUtil.replace(this.frontendKcUri);
    }
 
    String getRedirectUri() {
