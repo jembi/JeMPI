@@ -1,4 +1,4 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.api.keyCloak;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +10,7 @@ import org.keycloak.util.SystemPropertiesJsonParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-class AkkaKeycloakDeploymentBuilder extends KeycloakDeploymentBuilder {
+public class AkkaKeycloakDeploymentBuilder extends KeycloakDeploymentBuilder {
 
    protected AkkaKeycloakDeploymentBuilder() {
    }

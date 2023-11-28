@@ -4,7 +4,7 @@ export function range(startAt: number, size: number) {
 
 export function parseQuery(queryString: string) {
   const pairs = (
-    queryString[0] === '?' ? queryString.substr(1) : queryString
+    queryString[0] === '?' || queryString[0] === '#'  ? queryString.substr(1) : queryString
   ).split('&')
   return pairs.reduce((acc, curr) => {
     const [key, value] = curr.split('=')

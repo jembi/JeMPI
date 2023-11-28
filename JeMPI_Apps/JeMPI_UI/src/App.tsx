@@ -8,12 +8,15 @@ import { RouterProvider } from 'react-router-dom'
 import { ConfigProvider } from 'hooks/useConfig'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import ScrollBackButtons from 'components/shared/ScrollBackButtons'
+import { AuthProvider } from 'hooks/useAuth'
+import { SnackbarProvider } from 'notistack'
+import React from 'react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * (60 * 1000),
-      cacheTime: 10 * (60 * 1000)  
+      cacheTime: 10 * (60 * 1000)
     }
   }
 })
@@ -22,13 +25,17 @@ const App = () => {
   return (
     <ThemeProvider theme={baseTheme}>
       <CssBaseline />
-      <QueryClientProvider client={queryClient}>
-        <ConfigProvider>
-          <ScrollBackButtons />
-          <RouterProvider router={baseRouter} />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ConfigProvider>
-      </QueryClientProvider>
+      <SnackbarProvider anchorOrigin={{ horizontal: 'right', vertical: 'top' }}>
+        <QueryClientProvider client={queryClient}>
+          <ConfigProvider>
+            <AuthProvider>
+              <ScrollBackButtons />
+              <RouterProvider router={baseRouter} />
+            </AuthProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </ConfigProvider>
+        </QueryClientProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   )
 }

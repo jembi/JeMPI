@@ -1,4 +1,4 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.api.user;
 
 
 import com.softwaremill.session.MultiValueSessionSerializer;

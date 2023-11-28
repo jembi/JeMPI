@@ -4,10 +4,12 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import * as React from 'react'
 import { useAuth } from '../../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
 
 const NavigationMenu: React.FC = () => {
-  const { user, logout } = useAuth()
+  const { currentUser, logout } = useAuth()
+  const navigate = useNavigate()
   const { config } = useConfig()
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -20,10 +22,10 @@ const NavigationMenu: React.FC = () => {
   }
   const handleLogout = () => {
     close()
-    logout()
+    logout(navigate)
   }
 
-  if (!user) {
+  if (!currentUser) {
     return null
   }
 
@@ -51,10 +53,10 @@ const NavigationMenu: React.FC = () => {
         <MenuItem>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography fontWeight={400} fontSize={'16px'}>
-              {`${user?.givenName} ${user?.familyName}`}
+              {`${currentUser?.givenName} ${currentUser?.familyName}`}
             </Typography>
             <Typography fontWeight={400} fontSize={'14px'}>
-              {user?.email}
+              {currentUser?.email}
             </Typography>
           </Box>
         </MenuItem>

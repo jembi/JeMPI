@@ -53,17 +53,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       super(context);
-      this.libMPI = null;
-      this.dgraphHosts = dgraphHosts;
-      this.dgraphPorts = dgraphPorts;
-      this.pgIP = sqlIP;
-      this.pgPort = sqlPort;
-      this.pgUser = sqlUser;
-      this.pgPassword = sqlPassword;
-      this.pgDatabase = sqlDatabase;
-      psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
-      psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
-      openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
+      try {
+         this.libMPI = null;
+         this.dgraphHosts = dgraphHosts;
+         this.dgraphPorts = dgraphPorts;
+         this.pgIP = sqlIP;
+         this.pgPort = sqlPort;
+         this.pgUser = sqlUser;
+         this.pgPassword = sqlPassword;
+         this.pgDatabase = sqlDatabase;
+         psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
+         psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
+         openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
+      } catch (Exception e) {
+         LOGGER.error(e.getMessage(), e);
+         throw e;
+      }
+
    }
 
    public static Behavior<Event> create(
