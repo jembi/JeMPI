@@ -434,7 +434,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       resources:
         limits:
           memory: ${API_RAM_LIMIT}
@@ -463,6 +463,8 @@ services:
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
       JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
+      POSTGRESQL_IP: postgresql
+      POSTGRESQL_PORT: 5432
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -470,7 +472,9 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      HTTP_SERVER_PORT: 50000
+      API_KC_HTTP_PORT: 50000
+      LINKER_IP: linker
+      LINKER_HTTP_PORT: 50000
     networks:
     - frontend
     - backend
@@ -485,7 +489,7 @@ services:
       read_only: false
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       resources:
         limits:
           memory: ${API_RAM_LIMIT}
