@@ -512,7 +512,6 @@ services:
     networks:
       - frontend
       - backend
-      
     environment:
       KEYCLOAK_CREATE_ADMIN_USER: "true"
       KEYCLOAK_ADMIN_USER: "admin"
@@ -528,9 +527,9 @@ services:
       - "curl"
       - "-f"
       - "http://localhost:8080"
-      interval: "20s"
+      interval: "5s"
       timeout: "5s"
-      retries: 5
+      retries: 12
     deploy:
       mode: replicated
       replicas: 1

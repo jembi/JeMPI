@@ -25,4 +25,4 @@ pushd .
 popd
 
 # Adding realms
-./realms/import.sh
+./realms/import.sh || echo "Failed to import jempi-dev realm"
