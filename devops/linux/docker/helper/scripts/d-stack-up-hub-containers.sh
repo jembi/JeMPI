@@ -29,4 +29,9 @@ pushd .
   pushd helper/postgres
     source ./create-schema.sh
   popd
+    
+  pushd helper/keycloak
+    source ./start-keycloak-test-server.sh
+  popd
+
 popd

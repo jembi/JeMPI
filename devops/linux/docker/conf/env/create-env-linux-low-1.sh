@@ -33,6 +33,7 @@ export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
 export KC_JEMPI_CLIENT_SECRET="Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
+export KC_TEST_DB="key_clock_test_db"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
 # Deployment related env vars
