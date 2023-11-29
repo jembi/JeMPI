@@ -14,7 +14,11 @@ import { useSnackbar } from 'notistack'
 import { useState } from 'react'
 import { CustomSearchQuery, SearchQuery } from 'types/SimpleSearch'
 import { NotificationState } from '../../types/Notification'
-import { AnyRecord } from '../../types/PatientRecord'
+import {
+  AnyRecord,
+  GoldenRecord,
+  PatientRecord
+} from '../../types/PatientRecord'
 import Loading from '../common/Loading'
 import ApiErrorMessage from '../error/ApiErrorMessage'
 import NotFound from '../error/NotFound'
@@ -30,7 +34,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
 import { NotificationRequest } from 'types/BackendResponse'
 
-const getRowClassName = (type: string) => {
+const getRowClassName = (type?: string) => {
   switch (type) {
     case 'Current':
       return 'super-app-theme--Current'
@@ -72,7 +76,8 @@ const ReviewLink = () => {
   const { linkRecords, createNewGoldenRecord } = useRelink()
 
   const mutateNotification = useMutation({
-    mutationFn: (request: NotificationRequest) =>  apiClient.updateNotification(request),
+    mutationFn: (request: NotificationRequest) =>
+      apiClient.updateNotification(request),
     onError: (error: AxiosError) => {
       enqueueSnackbar(`Error updating notification: ${error.message}`, {
         variant: 'error'
@@ -182,7 +187,7 @@ const ReviewLink = () => {
         ...goldenRecord.linkRecords.filter(
           record => record.uid !== patientRecord?.uid
         ),
-        patientRecord,
+        ...(patientRecord ? [patientRecord] : []),
         goldenRecord
       ]
     : []
@@ -231,7 +236,7 @@ const ReviewLink = () => {
           <Typography pl={1} variant="dgSubTitle">
             PATIENT LINKED TO GOLDEN RECORD
           </Typography>
-          <CustomDataGrid
+          <CustomDataGrid<GoldenRecord | PatientRecord>
             rows={matches}
             sx={{
               borderRadius: '0px'
@@ -239,7 +244,9 @@ const ReviewLink = () => {
             getRowClassName={params =>
               params.row.uid === payload?.patient_id
                 ? 'super-app-theme--SelectedPatient'
-                : getRowClassName(params.row.type)
+                : 'type' in params.row
+                ? getRowClassName(params.row.type)
+                : ''
             }
           />
         </Paper>
@@ -284,7 +291,7 @@ const ReviewLink = () => {
           )}
         </Stack>
         <Paper>
-          <CustomDataGrid
+          <CustomDataGrid<AnyRecord>
             rows={
               payload?.notificationId
                 ? candidateGoldenRecords || []
