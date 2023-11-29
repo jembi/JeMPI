@@ -18,6 +18,9 @@ pushd .
 
   docker stack deploy --prune --compose-file 0-docker-stack-1.yml ${STACK_NAME}
   echo
+
+  source ./helper/keycloak/start-keycloak-test-server.sh
+
   sleep 5
   docker stack services ${STACK_NAME}
   echo

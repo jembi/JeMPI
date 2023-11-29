@@ -22,7 +22,9 @@ pushd .
   # Scaling services
   docker service scale ${STACK_NAME}_keycloak-test-server=${SCALE_KEYCLOAK_TEST_SERVER}
 
-popd
+  sleep 2
+  
+  # Adding realms
+  source ./helper/keycloak/realms/import.sh || echo "Failed to import jempi-dev realm"
 
-# Adding realms
-./realms/import.sh || echo "Failed to import jempi-dev realm"
+popd

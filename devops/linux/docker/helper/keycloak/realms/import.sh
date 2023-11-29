@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KEYCLOAK_URL=http://localhost:8080
+export KEYCLOAK_URL=http://${NODE1_IP}:8080
 
 # **************** Global variables
 
