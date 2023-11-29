@@ -10,9 +10,9 @@ from src import helper, basefunctions
 def generate_dataset():
     config = \
         {"BaseDate": "2022-01-01",
-         "NumberOfPatients": 2_000,
-         "AverageNumberOfClinicalRecordsPerPatient": 10,
-         "PercentageOfCorruptedRecords": 0.2,
+         "NumberOfPatients": 500,
+         "AverageNumberOfClinicalRecordsPerPatient": 4,
+         "PercentageOfCorruptedRecords": 0.3,
          "fields": [
              {"name": "given_name",
               "weight": 0.2,
@@ -164,10 +164,11 @@ def generate_dataset():
             df.at[row_to_corrupt, column_to_corrupt] = corrupter_value
         # print()
     df = df.drop('corrupted', axis=1)
-    df.to_csv('results/' + "test-data-{x:07d}-{y:02d}-{z:02d}.csv"
-              .format(x=number_of_patients,
-                      y=config['AverageNumberOfClinicalRecordsPerPatient'],
-                      z=int(config['PercentageOfCorruptedRecords'] * 100)),
+    df.to_csv('results/' + "test-data-{a:010d}-{b:07d}-{c:02d}-{d:02d}.csv"
+              .format(a=number_of_records,
+                      b=number_of_patients,
+                      c=config['AverageNumberOfClinicalRecordsPerPatient'],
+                      d=int(config['PercentageOfCorruptedRecords'] * 100)),
               index=False, encoding='utf-8')
 
 

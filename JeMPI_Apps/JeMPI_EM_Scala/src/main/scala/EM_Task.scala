@@ -10,13 +10,25 @@ object EM_Task extends LazyLogging {
 
   private val BASE: Double = 2.0
   private val LOG_BASE: Double = Math.log(BASE)
-  private val LAMBDA: Double = 1E-9
+//  private val LAMBDA: Double = 1E-9
+  private val LAMBDA: Double = 1E-6
   private val LOG_LAMBDA: Double = Math.log(LAMBDA / (1.0 - LAMBDA)) / LOG_BASE
   private val JARO_THRESHOLD: Double = 0.92
   private val JARO_THRESHOLD_EM: Double = 0.98
   private val N_ITERATIONS = 20
   private val COL_REC_NUM = 0
   private val MIN_M = 0.4
+
+  /*
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - 134712.529 ms
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - Given Name       ->  0.9488740, 0.0037669        7.976111      7.847374         101.641%
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - Family Name      ->  0.9558198, 0.0007727       10.268204     10.128947         101.375%
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - Gender           ->  0.9296447, 0.4471049        1.056079      0.995958         106.037%
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - Date of Birth    ->  0.9395011, 0.0003324       11.461950     11.263037         101.766%
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - City             ->  0.9737909, 0.0459856        4.404375      4.342447         101.426%
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - Mobile           ->  0.9958406, 0.0000090       16.036707     16.698457          96.037%
+  11:44:27.240 [Thread-1] INFO  EM_Task$ - National ID      ->  0.9743350, 0.0001855       12.336442     12.225451         100.908%
+   */
 
   def run(interactions: ParVector[Array[String]], useRecursion: Boolean): Unit = {
 

@@ -45,7 +45,6 @@ pushd .
   
   mkdir -p ${DATA_DIR_EM_SCALA}/conf
   mkdir -p ${DATA_DIR_EM_SCALA}/data
-  cp conf/test/*.csv ${DATA_DIR_EM_SCALA}/data/.
   
   mkdir -p ${DATA_DIR_LINKER}/conf
   
