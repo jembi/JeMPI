@@ -25,6 +25,6 @@ pushd .
   sleep 2
   
   # Adding realms
-  source ./helper/keycloak/realms/import.sh || echo "Failed to import jempi-dev realm"
+  ./helper/keycloak/realms/import.sh || echo "Failed to import jempi-dev realm"
 
 popd
