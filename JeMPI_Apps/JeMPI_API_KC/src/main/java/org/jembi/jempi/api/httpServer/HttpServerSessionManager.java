@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.api.user.UserSession;
 
-import static com.softwaremill.session.javadsl.SessionTransports.CookieST;
+import static com.softwaremill.session.javadsl.SessionTransports.HeaderST;
 
 public final class HttpServerSessionManager extends SessionManager<UserSession> {
     private static final Logger LOGGER = LogManager.getLogger(HttpServerSessionManager.class);
@@ -30,7 +30,7 @@ public final class HttpServerSessionManager extends SessionManager<UserSession> 
         refreshable = new Refreshable<>(this, REFRESH_TOKEN_STORAGE, dispatcher);
 
         // set the session transport - based on Cookies (or Headers)
-        sessionTransport = CookieST;
+        sessionTransport = HeaderST;
     }
 
     public Refreshable<UserSession> getRefreshable() {
