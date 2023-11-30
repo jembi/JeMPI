@@ -32,18 +32,18 @@ import axios from 'axios'
 import { getCookie } from '../utils/misc'
 
 const apiClientAuth = (() => {
-    const authKey = 'jempi-auth-key'
-    return {
-        clearAuthToken: async () => {
-          await localStorage.removeItem(authKey)
-        },
-        getAuthToken: async () => {
-          return await localStorage.getItem(authKey)
-        },
-        setAuthToken: async (token:string) => {
-          await localStorage.setItem(authKey, token)
-        }
+  const authKey = 'jempi-auth-key'
+  return {
+    clearAuthToken: async () => {
+      await localStorage.removeItem(authKey)
+    },
+    getAuthToken: async () => {
+      return await localStorage.getItem(authKey)
+    },
+    setAuthToken: async (token: string) => {
+      await localStorage.setItem(authKey, token)
     }
+  }
 })()
 
 export class ApiClient {
@@ -63,7 +63,6 @@ export class ApiClient {
 
       // Add a request interceptor to set CSRF and update loading state
       axiosInstance.interceptors.request.use(async request => {
-
         const { method } = request
         if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
           const csrfToken = getCookie('XSRF-TOKEN')
@@ -74,7 +73,7 @@ export class ApiClient {
 
         const authToken = await apiClientAuth.getAuthToken()
         if (authToken) {
-            request.headers['authorization'] = authToken
+          request.headers['authorization'] = authToken
         }
 
         return request
@@ -367,21 +366,27 @@ export class ApiClient {
 
   async validateOAuth(oauthParams: OAuthParams) {
     const response = await this.client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
-    if (response.status == 200 && response.data && "set-authorization" in response.headers){
-        await apiClientAuth.setAuthToken(response.headers["set-authorization"])
-        return response.data
+    if (
+      response.status == 200 &&
+      response.data &&
+      'set-authorization' in response.headers
+    ) {
+      await apiClientAuth.setAuthToken(response.headers['set-authorization'])
+      return response.data
     }
-    throw new Error(`Got response from server but not all authentication details were present. Failed to validate`)
+    throw new Error(
+      `Got response from server but not all authentication details were present. Failed to validate`
+    )
   }
 
   async getCurrentUser() {
     const { data } = await this.client.get(ROUTES.CURRENT_USER)
-    return typeof data === "string" && data.length === 0 ? null : data
+    return typeof data === 'string' && data.length === 0 ? null : data
   }
 
   async logout() {
     const response = await this.client.get(ROUTES.LOGOUT)
-    if (response.status == 200){
+    if (response.status == 200) {
       await apiClientAuth.clearAuthToken()
     }
     return response
