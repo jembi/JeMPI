@@ -48,13 +48,13 @@ public final class UserRoutes extends ApiHttpServerRouteEntries {
         }
 
         private Route routeCurrentUser() {
-            return this.httpServer.requiredSession(sessionManager.getRefreshable(), sessionManager.getSessionTransport(), session -> {
-                if (session != null) {
-                    LOGGER.info("Current session: {}", session.getEmail());
+            return this.httpServer.optionalSession(sessionManager.getRefreshable(), sessionManager.getSessionTransport(), session -> {
+                if (session.isPresent()) {
+                    LOGGER.info("Current session: {}", session.get().getUsername());
                     return complete(StatusCodes.OK, session, Jackson.marshaller());
                 }
                 LOGGER.info("No active session");
-                return complete(StatusCodes.FORBIDDEN);
+                return complete(StatusCodes.OK, "");
             });
         }
 

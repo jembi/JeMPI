@@ -87,6 +87,10 @@ services:
         target: 3000
         protocol: tcp
         mode: host
+      - published: 8080
+        target: 8080
+        protocol: tcp
+        mode: host
     volumes:
       - type: bind
         source: ${DATA_HAPROXY_DIR}
@@ -589,8 +593,6 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 0
-      labels:
-        api_variant: ${API_VARIANT}
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
@@ -604,9 +606,12 @@ services:
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
       KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      KC_FRONTEND_URL: ${KC_FRONTEND_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       JEMPI_SESSION_SECURE: "${JEMPI_SESSION_SECURE}"
       JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
+      POSTGRESQL_IP: postgresql
+      POSTGRESQL_PORT: 5432
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -614,7 +619,9 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      HTTP_SERVER_PORT: 50000
+      API_KC_HTTP_PORT: 50000
+      LINKER_IP: linker
+      LINKER_HTTP_PORT: 50000
     networks:
     - frontend
     - backend
@@ -640,11 +647,47 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 0
-      labels:
-        api_variant: ${API_VARIANT}
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_API}
+
+  keycloak-test-server:
+    image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
+    networks:
+      - frontend
+      - backend
+    environment:
+      KEYCLOAK_CREATE_ADMIN_USER: "true"
+      KEYCLOAK_ADMIN_USER: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+      DB_ADDR: postgresql
+      DB_PORT: 5432
+      DB_DATABASE: ${KC_TEST_DB}
+      DB_USER: ${POSTGRESQL_USERNAME}
+      DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+    healthcheck: 
+      test: 
+      - "CMD"
+      - "curl"
+      - "-f"
+      - "http://localhost:8080"
+      interval: "5s"
+      timeout: "5s"
+      retries: 12
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          memory: ${KEYCLOAK_TEST_SERVER_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
