@@ -376,7 +376,7 @@ export class ApiClient {
 
   async getCurrentUser() {
     const { data } = await this.client.get(ROUTES.CURRENT_USER)
-    return data
+    return typeof data === "string" && data.length === 0 ? null : data
   }
 
   async logout() {
