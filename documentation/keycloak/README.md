@@ -264,3 +264,11 @@ KC_REALM_NAME
 
 
     **Password:** admin
+
+
+**Notes:**
+
+* The keycloak server takes a minute to two to startup, and be ready
+* Once it starts up it import the jempi-dev realm (with setting matching the above) 
+* In the case that this fails, you can alway run the script `devops/linux/docker/helper/keycloak/realms/import.sh` directly
+* Also note, there is an export script as well (in case you want to keep a particular configuration). See `devops/linux/docker/helper/keycloak/realms/export.sh`
