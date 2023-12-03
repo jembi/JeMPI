@@ -7,13 +7,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeDetails;
+import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeFactory;
+import org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.StandardThresholdRangeProcessor;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static java.lang.Math.abs;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-final class LinkerDWH {
+final public class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
    // TODO: [Cq] - Why LinkerDWH
@@ -115,7 +115,7 @@ final class LinkerDWH {
       });
    }
 // +
-   static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
+   public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
          // TODO: [Cc]: Only on http request
@@ -173,6 +173,14 @@ final class LinkerDWH {
          final var matchThreshold = externalLinkRange != null
                ? externalLinkRange.high()
                : matchThreshold_;
+
+         StandardThresholdRangeProcessor thresholdProcessor
+                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor(interaction).SetRanges(
+                         new ArrayList<>(Arrays.asList(
+                                 RangeTypeFactory.StandardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
+                                 RangeTypeFactory.StandardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F ),
+                                 RangeTypeFactory.StandardThresholdAboveThreshold(matchThreshold, 1.0F ))));
+
          try {
             libMPI.startTransaction();
             // TODO: [Cq] - What it this suppose to do (checkUpdatedMU) ? Current does nothing
@@ -180,7 +188,10 @@ final class LinkerDWH {
             // TODO: [Cc] - Get from global state
             // TODO: With multiple m-u values
             LinkerProbabilistic.checkUpdatedMU();
+
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
+            thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
+
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
             } else {
@@ -208,6 +219,7 @@ final class LinkerDWH {
                      allCandidateScores
                            .stream()
                            .peek(v -> {
+                              // TODO: [Cq] - Why the 10% range
                               if (v.score() > matchThreshold - 0.1 && v.score() < matchThreshold) {
                                  belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(),
                                                                                             v.score()));
@@ -219,8 +231,11 @@ final class LinkerDWH {
                            .filter(v -> v.score() >= matchThreshold)
                            .collect(Collectors.toCollection(ArrayList::new));
 
+
+
                if (candidatesAboveMatchThreshold.isEmpty()) {
                   if (candidatesInExternalLinkRange.isEmpty()) {
+                     // TODO: <<<>>>>
                      linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                      if (!belowThresholdNotifications.isEmpty()) {
                         sendNotification(Notification.NotificationType.THRESHOLD,
