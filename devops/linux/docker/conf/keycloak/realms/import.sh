@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KEYCLOAK_URL=http://localhost:80
+export KEYCLOAK_URL=http://localhost:8080
 
 # **************** Global variables
 
@@ -42,6 +42,8 @@ function configureKeycloak() {
     echo "------------------------------------------------------------------------"
     echo ""
 
+    #curl --location --request DELETE  -H "Content-Type: application/x-www-form-urlencoded" -H "Authorization: Bearer $access_token" "$KEYCLOAK_URL/auth/admin/realms/$KC_REALM_NAME"
+
     result=$(curl -d @"$JEMPI_DEV_REALM" -H "Content-Type: application/json" -H "Authorization: bearer $access_token" "$KEYCLOAK_URL/admin/realms")
 
     if [ "$result" = "" ]; then
@@ -65,4 +67,10 @@ function configureKeycloak() {
 # Execution
 # **********************************************************************************
 
-configureKeycloak
+pushd .
+  SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+  cd ${SCRIPT_DIR}
+
+    configureKeycloak
+
+popd

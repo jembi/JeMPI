@@ -14,19 +14,20 @@ import ApiErrorMessage from '../components/error/ApiErrorMessage'
 import getKeycloak from '../services/keycloak'
 import { OAuthParams, User } from '../types/User'
 import { parseQuery } from '../utils/misc'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, NavigateFunction } from 'react-router-dom'
 import { useConfig } from './useConfig'
 
 export interface AuthContextValue {
-  user: User | undefined
+  currentUser: User | undefined
   isAuthenticated: boolean
   setUser: (data: User | undefined) => void
-  logout: () => void
+  logout: (navigate: NavigateFunction) => void
   signInWithKeyCloak: () => void
   refetchUser: (
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverResult<User, Error>>
-  error: Error | null
+  isLoading: boolean
+  error: AxiosError | null
 }
 
 const AuthContext = React.createContext<AuthContextValue | null>(null)
@@ -36,52 +37,22 @@ export interface AuthProviderProps {
   children: React.ReactNode
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
-  const queryClient = useQueryClient()
-  const location = useLocation()
+export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
+  const { apiClient, config }  = useConfig()
+  const authContext = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const isLoginPage = location.pathname === '/login'
   const { enqueueSnackbar } = useSnackbar()
   const oauthRef = useRef<OAuthParams | null>(null)
-  const key = 'auth-user'
-  const currentUrl = window.location.href
-  const isLoginPage = location.pathname === '/login'
-  const { config, apiClient } = useConfig()
-
-  const {
-    data: user,
-    isLoading,
-    error,
-    refetch
-  } = useQuery<User, AxiosError<unknown, User>>({
-    queryKey: [key],
-    queryFn: async () => {
-      return await apiClient.getCurrentUser()
-    },
-    retry: false,
-    refetchOnWindowFocus: false,
-    enabled: config.useSso
-  })
-
-  const { refetch: logout } = useQuery({
-    queryKey: ['logout'],
-    queryFn: async () => {
-      return await apiClient.logout()
-    },
-    onSuccess() {
-      queryClient.clear()
-      navigate({ pathname: '/login' })
-    },
-    refetchOnWindowFocus: false,
-    enabled: false
-  })
 
   const { mutate: validateOAuth } = useMutation({
-    mutationFn: apiClient.validateOAuth,
+    mutationFn: apiClient.validateOAuth.bind(apiClient),
     onSuccess(response) {
       enqueueSnackbar(`Successfully logged in using KeyCloak`, {
         variant: 'success'
       })
-      setUser(response)
+      authContext.setUser(response as User)
       navigate({ pathname: '/' })
     },
     onError() {
@@ -90,17 +61,6 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
       })
     }
   })
-
-  const setUser = (data: User | undefined) =>
-    queryClient.setQueryData([key], data)
-
-  const signInWithKeyCloak = () => {
-    getKeycloak(config).init({
-      onLoad: 'login-required',
-      redirectUri: currentUrl,
-      checkLoginIframe: false
-    })
-  }
 
   useEffect(() => {
     const currentLocation = location
@@ -119,37 +79,116 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 
   useEffect(
     () => {
-      if (config.useSso) {
-        if (!isLoading) {
-          if (!user && !isLoginPage) {
-            navigate({ pathname: '/login' })
-          } else if (user && isLoginPage) {
-            navigate({ pathname: '/' })
-          }
+      if (config.useSso && !authContext.isLoading) {
+        if (!authContext.currentUser && !isLoginPage) {
+          navigate({ pathname: '/login' });
+        } else if (authContext.currentUser && isLoginPage) {
+          navigate({ pathname: '/' });
         }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoading]
+    [authContext.isLoading] //TODO: Check
   )
 
-  if (config.useSso && isLoading) {
-    return <LoadingSpinner />
+  if (config.useSso && authContext.isLoading) {
+    return <LoadingSpinner id="user-loading-spinner" />
+  }
+
+  if (
+    config.useSso &&
+    !authContext.isLoading &&
+    !authContext.isAuthenticated &&
+    !isLoginPage
+  ) {
+    return (<>
+      {authContext.error && <ApiErrorMessage error={authContext.error} />}
+      <LoadingSpinner id="user-loading-spinner" />
+    </>)
+  }
+
+  return (<>
+    {authContext.error && <ApiErrorMessage error={authContext.error} />}
+    {children}
+  </>)
+}
+
+const currentUserOueryClientKey = 'auth-user'
+
+export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
+  const { apiClient, config }  = useConfig()
+  const keycloack = getKeycloak(config)
+  const queryClient = useQueryClient()
+  const { enqueueSnackbar } = useSnackbar()
+
+  const {
+    data: currentUser,
+    isLoading,
+    error,
+    refetch
+  } = useQuery<User, AxiosError<unknown, User>>({
+    queryKey: [currentUserOueryClientKey],
+    queryFn: async () => {
+      return await apiClient.getCurrentUser()
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: config.useSso
+  })
+
+  const { mutate: logout } = useMutation({
+    mutationFn: apiClient.logout.bind(apiClient),
+    onSuccess(data: any, navigate: NavigateFunction) {
+      queryClient.clear()
+      navigate({ pathname: '/login' })
+    },
+    onError() {
+      enqueueSnackbar(`Error occured logging out`, {
+        variant: 'error'
+      })
+    }
+  })
+
+  const setUser = (data: User | undefined) => {
+    queryClient.setQueryData([currentUserOueryClientKey], data)
+  }
+
+  const signInWithKeyCloak = () => {
+    keycloack.init({
+      onLoad: 'login-required',
+      redirectUri: window.location.href,
+      checkLoginIframe: false
+    })
+  }
+
+  // No need to display this, as we redirect user to the login page, if that is the case
+  const filterForbiddenErrors = (error: any) => {
+    if (!error) {
+      return null
+    }
+    if (error instanceof AxiosError) {
+      if (error.response?.status == 403) {
+        return null
+      }
+    }
+    return error
   }
 
   const authContextValue: AuthContextValue = {
-    user,
-    isAuthenticated: !!user,
-    error,
+    currentUser,
+    isAuthenticated: !!currentUser,
+    error: filterForbiddenErrors(error),
     setUser,
     refetchUser: refetch,
-    logout,
-    signInWithKeyCloak
+    logout: (navigate: NavigateFunction) => {
+      logout(navigate)
+    },
+    signInWithKeyCloak,
+    isLoading
   }
 
   return (
     <AuthContext.Provider value={authContextValue}>
-      {error && <ApiErrorMessage error={error} />}
       {children}
     </AuthContext.Provider>
   )
