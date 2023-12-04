@@ -2,6 +2,9 @@ package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CustomDemographicData {
    public final String givenName;
@@ -69,6 +72,18 @@ public class CustomDemographicData {
                                        this.city.toLowerCase().replaceAll("\\W", ""),
                                        this.phoneNumber.toLowerCase().replaceAll("\\W", ""),
                                        this.nationalId.toLowerCase().replaceAll("\\W", ""));
+   }
+
+   public Map<String, String> toMap(){
+      return Map.ofEntries(
+              Map.entry("givenName", this.familyName),
+              Map.entry("familyName", this.familyName),
+              Map.entry("gender", this.familyName),
+              Map.entry("dob", this.familyName),
+              Map.entry("city", this.familyName),
+              Map.entry("phoneNumber", this.familyName),
+              Map.entry("nationalId", this.familyName)
+      );
    }
 
 }

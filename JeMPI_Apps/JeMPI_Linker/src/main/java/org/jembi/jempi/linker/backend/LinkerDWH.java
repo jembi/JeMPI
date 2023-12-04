@@ -190,7 +190,7 @@ final public class LinkerDWH {
             LinkerProbabilistic.checkUpdatedMU();
 
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
-            thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
+            
 
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
@@ -203,6 +203,8 @@ final public class LinkerDWH {
                                                                                                                interaction.demographicData())))
                                            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                            .collect(Collectors.toCollection(ArrayList::new));
+                                           
+               thresholdProcessor.ProcessCandidates(allCandidateScores);
 
                // TODO: [Cq] - External link range
                // Get a list of candidates withing the supplied for external link range

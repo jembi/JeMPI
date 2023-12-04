@@ -17,8 +17,9 @@ import static java.lang.Math.abs;
 import static java.lang.Math.log;
 import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.*;
 
-final class LinkerProbabilistic {
+final public class LinkerProbabilistic {
 
+   public record FieldScoreInfo(Boolean isMatch, Float score){};
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
@@ -49,7 +50,7 @@ final class LinkerProbabilistic {
       return (float) (log((1.0 - m) / (1.0 - u)) / LOG2);
    }
 
-   private static float fieldScore(
+   public static float fieldScore(
          final String left,
          final String right,
          final Field field) {
@@ -62,6 +63,19 @@ final class LinkerProbabilistic {
       return fieldScore(false, field.m, field.u);
    }
 
+   public static FieldScoreInfo fieldScoreInfo(
+           final String left,
+           final String right,
+           final Field field){
+      final var score = field.similarityScore.apply(left, right);
+      for (int i = 0; i < field.weights.size(); i++) {
+         if (score >= field.comparisonLevels.get(i)) {
+            return new FieldScoreInfo(i <= field.comparisonLevels.size() / 2, fieldScore(i <= field.comparisonLevels.size() / 2, field.m, field.u) * field.weights.get(i));
+         }
+      }
+      return new FieldScoreInfo(false, fieldScore(false, field.m, field.u));
+
+   }
    static CustomMU.Probability getProbability(final Field field) {
       return new CustomMU.Probability(field.m(), field.u());
    }
@@ -174,7 +188,7 @@ final class LinkerProbabilistic {
    }
 
 
-   record Field(
+   public record Field(
          SimilarityScore<Double> similarityScore,
          List<Float> comparisonLevels,
          List<Float> weights,
@@ -182,7 +196,7 @@ final class LinkerProbabilistic {
          float u,
          float min,
          float max) {
-      Field {
+      public Field {
          m = limitProbability(m);
          u = limitProbability(u);
          min = fieldScore(false, m, u);
