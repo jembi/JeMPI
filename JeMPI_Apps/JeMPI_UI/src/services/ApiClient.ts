@@ -66,16 +66,13 @@ export class ApiClient {
         const { method } = request
         if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
           const csrfToken = getCookie('XSRF-TOKEN')
-          if (csrfToken) {
-            request.headers = {
-              ...request.headers,
-              'X-XSRF-TOKEN': csrfToken
-            }
+          if (csrfToken && request.headers) {
+            request.headers['X-XSRF-TOKEN'] = csrfToken
           }
         }
 
         const authToken = await apiClientAuth.getAuthToken()
-        if (authToken) {
+        if (authToken && request.headers) {
           request.headers['authorization'] = authToken
         }
 
@@ -375,7 +372,9 @@ export class ApiClient {
       response.data &&
       'set-authorization' in response.headers
     ) {
-      await apiClientAuth.setAuthToken(response.headers['set-authorization'])
+      await apiClientAuth.setAuthToken(
+        response.headers['set-authorization'] as string
+      )
       return response.data
     }
     throw new Error(
