@@ -67,22 +67,11 @@ To configure JeMPI you need to configure 4 main variable found in `_devops/linux
    <td>Default
    </td>
   </tr>
-  <tr>
-   <td>API_VARIANT
-   </td>
-   <td>This specifies what version of the JeMPI API you want to use. 
-<p>
-Currently there is a version which supports Keycloak, one which does not.
-<p>
-If you want to use Keycloak  set this to ‘API_KC’
-   </td>
-   <td>API
-   </td>
-  </tr>
+  
   <tr>
    <td>KC_API_URL 
    </td>
-   <td>The url of the keycloak server (including port). This should be accessible both form the computer running the JeMPI ui app and the JeMPI API server
+   <td>The url the API uses to access keycloak. When running in a docker swarm this could be the service host name (e.g http://keycloak-test-server:8080)
    </td>
    <td>
    </td>
@@ -168,6 +157,14 @@ Do note: If you are not running JeMPI UI within the docker swarm, you will need 
    <td>Should be set to ‘true’ for keycloak authentication 
    </td>
    <td>false
+   </td>
+  </tr>
+  <tr>
+   <td>KC_FRONTEND_URL 
+   </td>
+   <td>The url the ui will access keycloak from. In the case of keycloak running in docker with the port exposed it will be http://localhost:8080
+   </td>
+   <td>
    </td>
   </tr>
 </table>
@@ -270,6 +267,12 @@ Instructions on how to do this are highlighted below.
   </tr>
   <tr>
    <td>KC_API_URL
+   </td>
+   <td>http://keycloak-test-server:8080
+   </td>
+  </tr>
+  <tr>
+   <td>KC_FRONTEND_URL
    </td>
    <td>http://localhost:8080
    </td>

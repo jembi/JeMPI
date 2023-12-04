@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Container,
   Divider,
   FormControlLabel,
@@ -10,7 +11,12 @@ import {
   Switch,
   Typography
 } from '@mui/material'
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  gridClasses
+} from '@mui/x-data-grid'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import { useAppConfig } from 'hooks/useAppConfig'
 import {
@@ -31,13 +37,18 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import PageHeader from 'components/shell/PageHeader'
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
+import {
+  LocalizationProvider,
+  DesktopDatePicker,
+  DateTimePicker
+} from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import getCellComponent from 'components/shared/getCellComponent'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search } from '@mui/icons-material'
 import { useConfig } from 'hooks/useConfig'
+import CustomPagination from 'components/shared/CustomDataGridPagination'
 
 const getAlignment = (fieldName: string) =>
   fieldName === 'givenName' ||
@@ -51,15 +62,15 @@ const Records = () => {
   const navigate = useNavigate()
   const { apiClient } = useConfig()
   const { getFieldsByGroup } = useAppConfig()
-
+  const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
+    dayjs().startOf('day')
+  )
+  const [endDateFilter, setEndDateFilter] = useState<Dayjs>(
+    dayjs().endOf('day')
+  )
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
-
-  const [dateFilter, setDateFilter] = useState(dayjs())
-
   const [dateSearch, setDateSearch] = useState(dayjs())
-
   const [searchParams, setSearchParams] = useSearchParams()
-
   const [isFetchingInteractions, setIsFetchingInteractions] = useState(
     searchParams.get('isFetchingInteractions')
       ? JSON.parse(searchParams.get('isFetchingInteractions') as string)
@@ -72,7 +83,7 @@ const Records = () => {
       : [],
     limit: searchParams.get('limit')
       ? JSON.parse(searchParams.get('limit') as string)
-      : 10,
+      : 25,
     offset: searchParams.get('offset')
       ? JSON.parse(searchParams.get('offset') as string)
       : 0,
@@ -109,22 +120,14 @@ const Records = () => {
     ApiSearchResult<GoldenRecord>,
     AxiosError
   >({
-    queryKey: [
-      'golden-records',
-      JSON.stringify(filterPayload.parameters),
-      filterPayload.offset,
-      filterPayload.limit,
-      filterPayload.sortAsc,
-      filterPayload.sortBy
-    ],
+    queryKey: ['golden-records', JSON.stringify(filterPayload)],
     queryFn: async () =>
       (await apiClient.searchQuery(
         filterPayload,
         true
       )) as ApiSearchResult<GoldenRecord>,
     refetchOnWindowFocus: false,
-    keepPreviousData: true,
-    staleTime: 1000 * 60
+    keepPreviousData: true
   })
 
   const rows = useMemo(() => {
@@ -138,7 +141,6 @@ const Records = () => {
           return acc
         }, [])
   }, [isFetchingInteractions, data])
-
   useEffect(() => {
     setSearchParams(
       Object.entries(filterPayload).reduce(
@@ -162,11 +164,13 @@ const Records = () => {
   }
 
   const onFilter = (query: SearchParameter[]) => {
+    const startDate = startDateFilter.toJSON()
+    const endDate = endDateFilter.toJSON()
     setFilterPayload({
       ...filterPayload,
       parameters: [
         {
-          value: dateFilter.toJSON(),
+          value: `${startDate}_${endDate}`,
           distance: -1,
           fieldName: 'auxDateCreated'
         },
@@ -179,12 +183,6 @@ const Records = () => {
     return isPatientCorresponding(patient, searchQuery)
       ? `super-app-theme--searchable`
       : ''
-  }
-
-  const changeSelectedFileterDate = (date: Dayjs | null) => {
-    if (date) {
-      setDateFilter(date)
-    }
   }
 
   const changeSelectedSearchDate = (date: Dayjs | null) => {
@@ -220,17 +218,36 @@ const Records = () => {
             <Stack gap="10px">
               <Stack gap="20px" flexDirection="row">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DesktopDatePicker
-                    value={dateFilter}
-                    format="YYYY/MM/DD"
-                    onChange={value => changeSelectedFileterDate(value)}
-                    slotProps={{
-                      textField: {
-                        variant: 'outlined',
-                        label: 'Date'
-                      }
-                    }}
-                  />
+                  <Box
+                    display={'flex'}
+                    gap={'2rem'}
+                    alignItems={'center'}
+                    paddingY={'1rem'}
+                    flexDirection={{ xs: 'column', md: 'row' }}
+                  >
+                    <DateTimePicker
+                      value={startDateFilter}
+                      format="YYYY/MM/DD HH:mm:ss"
+                      onChange={value => value && setStartDateFilter(value)}
+                      slotProps={{
+                        textField: {
+                          variant: 'outlined',
+                          label: 'Start Date'
+                        }
+                      }}
+                    />
+                    <DateTimePicker
+                      value={endDateFilter}
+                      format="YYYY/MM/DD HH:mm:ss"
+                      onChange={value => value && setEndDateFilter(value)}
+                      slotProps={{
+                        textField: {
+                          variant: 'outlined',
+                          label: 'End Date'
+                        }
+                      }}
+                    />
+                  </Box>
                 </LocalizationProvider>
                 <FormControlLabel
                   control={
@@ -295,8 +312,20 @@ const Records = () => {
           </Typography>
           <DataGrid
             sx={{
+              overflow: 'visible',
+              '& .MuiDataGrid-columnSeparator': {
+                visibility: 'visible'
+              },
               '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
                 outline: 'none'
+              },
+              [`.${gridClasses.main}`]: {
+                overflow: 'visible'
+              },
+              [`.${gridClasses.columnHeaders}`]: {
+                position: 'sticky',
+                top: 65,
+                zIndex: 1
               }
             }}
             getRowId={({ uid }) => uid}
@@ -304,9 +333,10 @@ const Records = () => {
               page: filterPayload.offset / filterPayload.limit,
               pageSize: filterPayload.limit
             }}
+            slots={{ pagination: CustomPagination }}
             columns={columns}
             rows={rows}
-            pageSizeOptions={[10, 25, 50, 100]}
+            pageSizeOptions={[25, 50, 100]}
             onRowDoubleClick={params => {
               if ('linkRecords' in params.row) {
                 navigate({

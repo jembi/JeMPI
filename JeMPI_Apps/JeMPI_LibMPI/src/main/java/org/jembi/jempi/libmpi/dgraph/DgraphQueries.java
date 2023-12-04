@@ -376,9 +376,20 @@ final class DgraphQueries {
             Integer distance = param.distance();
             String value = param.value();
             if (distance == -1) {
-               gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               if (value.contains("_")) {
+                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
+                        + "\") AND le("
+                        + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
+               } else {
+                  gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               }
             } else if (distance == 0) {
-               gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               if (value.contains("_")) {
+                   gqlFilters.add(
+                     "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
+               } else {
+                  gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               }
             } else {
                gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
@@ -452,7 +463,6 @@ final class DgraphQueries {
          final Boolean sortAsc) {
       String gqlFunc = getSearchQueryFunc(RecordType.GoldenRecord, offset, limit, sortBy, sortAsc);
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
-
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
@@ -460,9 +470,6 @@ final class DgraphQueries {
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
-
-      LOGGER.debug("Search Golden Records Query {}", gql);
-      LOGGER.debug("Search Golden Records Variables {}", gqlVars);
       return runExpandedGoldenRecordsQuery(gql, gqlVars);
    }
 
@@ -472,7 +479,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Simple Search Golden Records Params {}", params);
       String gqlFilters = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
@@ -486,7 +492,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Custom Search Golden Records Params {}", payloads);
       String gqlFilters = getCustomSearchQueryFilters(RecordType.GoldenRecord, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
@@ -511,9 +516,6 @@ final class DgraphQueries {
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
-
-      LOGGER.debug("Simple Search Interactions Query {}", gql);
-      LOGGER.debug("Simple Search Interactions Variables {}", gqlVars);
       return runInteractionsQuery(gql, gqlVars);
    }
 
@@ -548,8 +550,6 @@ final class DgraphQueries {
       gql += gqlPagination;
       gql += "}";
 
-      LOGGER.debug("Filter Gids Query {}", gql);
-      LOGGER.debug("Filter Gids Variables {}", gqlVars);
       return Boolean.TRUE.equals(getInteractionCount)
             ? Either.right(runFilterGidsWithInteractionCountQuery(gql, gqlVars))
             : Either.left(runfilterGidsQuery(gql, gqlVars));
@@ -560,7 +560,6 @@ final class DgraphQueries {
          final LocalDateTime createdAt,
          final PaginationOptions paginationOptions,
          final Boolean getInteractionCount) {
-      LOGGER.debug("Filter Gids Params {}", params);
       String dateFilter = String.format(Locale.ROOT, "le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
       String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
       String gqlFilters = !filter.isEmpty()
@@ -577,7 +576,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Simple Search Interactions Params {}", params);
       String gqlFilters = getSimpleSearchQueryFilters(RecordType.Interaction, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
@@ -591,7 +589,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Simple Search Interactions Params {}", payloads);
       String gqlFilters = getCustomSearchQueryFilters(RecordType.Interaction, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
@@ -656,10 +653,7 @@ final class DgraphQueries {
       for (var o : req.operands()) {
          map.put("$" + camelToSnake(o.operand().name()), o.operand().value());
       }
-      LOGGER.debug("{}", "\n" + query);
-      LOGGER.debug("{}", map);
       final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
-      LOGGER.debug("{}", dgraphGoldenRecords);
       return dgraphGoldenRecords;
    }
 

@@ -13,10 +13,15 @@ pushd .
 
   rm -f ./0-docker-stack-0.yml
   rm -f ./0-docker-stack-1.yml
+  rm -f ./0-ui-volumes.yml
   envsubst < ./conf/stack/docker-stack-${SPEC_SETTINGS}-0.yml > ./0-docker-stack-0.yml
   envsubst < ./conf/stack/docker-stack-${SPEC_SETTINGS}-1.yml > ./0-docker-stack-1.yml
-
-  docker stack deploy --prune --compose-file 0-docker-stack-0.yml ${STACK_NAME}
+  if [ "$NODE_ENV" == "development" ]; then
+    envsubst < ./conf/ui/ui-volumes.yml > ./0-ui-volumes.yml
+    docker stack deploy --prune --compose-file 0-docker-stack-0.yml --compose-file 0-ui-volumes.yml $STACK_NAME
+  else
+    docker stack deploy --prune --compose-file 0-docker-stack-0.yml $STACK_NAME
+  fi
   echo
     
 popd
