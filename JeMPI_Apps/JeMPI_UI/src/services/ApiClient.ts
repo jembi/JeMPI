@@ -31,6 +31,21 @@ import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
 
+const apiClientAuth = (() => {
+  const authKey = 'jempi-auth-key'
+  return {
+    clearAuthToken: async () => {
+      await localStorage.removeItem(authKey)
+    },
+    getAuthToken: async () => {
+      return await localStorage.getItem(authKey)
+    },
+    setAuthToken: async (token: string) => {
+      await localStorage.setItem(authKey, token)
+    }
+  }
+})()
+
 export class ApiClient {
   client!: AxiosInstance
 
@@ -43,22 +58,24 @@ export class ApiClient {
         baseURL: config.apiUrl
           ? `${config.apiUrl}/JeMPI`
           : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}/JeMPI`,
-        headers: { 'Content-Type': 'application/json' },
         responseType: 'json'
       })
 
       // Add a request interceptor to set CSRF and update loading state
-      axiosInstance.interceptors.request.use(request => {
+      axiosInstance.interceptors.request.use(async request => {
         const { method } = request
         if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
           const csrfToken = getCookie('XSRF-TOKEN')
-          if (csrfToken) {
-            request.headers = {
-              ...request.headers,
-              'X-XSRF-TOKEN': csrfToken
-            }
+          if (csrfToken && request.headers) {
+            request.headers['X-XSRF-TOKEN'] = csrfToken
           }
         }
+
+        const authToken = await apiClientAuth.getAuthToken()
+        if (authToken && request.headers) {
+          request.headers['authorization'] = authToken
+        }
+
         return request
       })
       this.client = axiosInstance
@@ -349,17 +366,33 @@ export class ApiClient {
   }
 
   async validateOAuth(oauthParams: OAuthParams) {
-    const { data } = await this.client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
-    return data as User
+    const response = await this.client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
+    if (
+      response.status == 200 &&
+      response.data &&
+      'set-authorization' in response.headers
+    ) {
+      await apiClientAuth.setAuthToken(
+        response.headers['set-authorization'] as string
+      )
+      return response.data
+    }
+    throw new Error(
+      `Got response from server but not all authentication details were present. Failed to validate`
+    )
   }
 
   async getCurrentUser() {
     const { data } = await this.client.get(ROUTES.CURRENT_USER)
-    return data
+    return typeof data === 'string' && data.length === 0 ? null : data
   }
 
   async logout() {
-    return await this.client.get(ROUTES.LOGOUT)
+    const response = await this.client.get(ROUTES.LOGOUT)
+    if (response.status == 200) {
+      await apiClientAuth.clearAuthToken()
+    }
+    return response
   }
 
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {

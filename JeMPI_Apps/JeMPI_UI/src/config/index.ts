@@ -31,7 +31,7 @@ export default async function getConfig() {
   } catch {
     // eslint-disable-next-line no-console
     console.warn(
-      'Unable to fetch the config json file, either some env var are missing or Jempi UI is running in development mode (yarn start)'
+      'Unable to fetch the config json file, either some env var are missing or Jempi UI is running in development mode'
     )
     return {
       isDev: process.env.NODE_ENV !== 'production',
@@ -39,8 +39,8 @@ export default async function getConfig() {
         ? `${process.env.REACT_APP_JEMPI_BASE_API_HOST}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`
         : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`,
       shouldMockBackend: process.env.REACT_APP_MOCK_BACKEND === 'true',
-      KeyCloakUrl: process.env.KC_FRONTEND_URL || 'http://localhost:9088',
-      KeyCloakRealm: process.env.KC_REALM_NAME || 'platform-realm',
+      KeyCloakUrl: process.env.KC_FRONTEND_URL || 'http://localhost:8080',
+      KeyCloakRealm: process.env.KC_REALM_NAME || 'jempi-dev',
       KeyCloakClientId: process.env.KC_JEMPI_CLIENT_ID || 'jempi-oauth',
       useSso: process.env.REACT_APP_ENABLE_SSO === 'true',
       maxUploadCsvSize: +(
