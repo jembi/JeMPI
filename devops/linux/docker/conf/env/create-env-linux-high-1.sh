@@ -10,6 +10,7 @@ export NODE1=$(hostname)
 #   export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 export NODE1_IP=$(hostname -i)
 
+export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_NGINX=1
 export SCALE_KAFKA_01=1
 export SCALE_KAFKA_02=1
@@ -52,6 +53,7 @@ export KC_FRONTEND_URL="http://localhost:8080"
 
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="16G"
+export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
 export NGINX_RAM_LIMIT="16G"
 export HAPROXY_RAM_LIMIT="32G"
 export KAFKA_RAM_LIMIT="32G"
