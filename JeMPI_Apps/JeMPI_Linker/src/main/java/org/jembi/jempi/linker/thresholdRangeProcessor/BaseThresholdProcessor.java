@@ -9,14 +9,18 @@ import org.jembi.jempi.shared.models.Interaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor {
+
+    protected String linkerId;
     protected Interaction originalInteraction;
     protected List<RangeDetails> rangeDetails = new ArrayList<>();
     protected List<IThresholdRangeSubProcessor> subProcessors = new ArrayList<>();
 
-    public BaseThresholdProcessor(final Interaction originalInteraction){
+    public BaseThresholdProcessor(final String linkerId, final Interaction originalInteraction){
+        this.linkerId = linkerId;
         this.originalInteraction = originalInteraction;
         this.subProcessors = this.getSubProcessors();
     }
@@ -39,7 +43,7 @@ public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor
 
     }
 
-    protected void runProcessors(List<CategorisedCandidates> categorisedCandidates){
+    protected void runProcessors(List<CategorisedCandidates> categorisedCandidates) throws ExecutionException, InterruptedException {
         for (IThresholdRangeSubProcessor subProcessor: subProcessors){
             if (!subProcessor.ProcessCandidates(categorisedCandidates)){
                 break;

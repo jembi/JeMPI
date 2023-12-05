@@ -7,10 +7,10 @@ import java.util.concurrent.ExecutionException;
 public class MuModel {
 
     private HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
-    private MUKGlobalStoreInstance muGlobalKStore;
-    public MuModel(String linkerId, HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap) throws ExecutionException, InterruptedException {
+    private String linkerId;
+    public MuModel(String linkerId, HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap) {
+        this.linkerId = linkerId;
         this.fieldEqulityPairMatchMap = fieldEqulityPairMatchMap;
-        muGlobalKStore = (MUKGlobalStoreInstance) new MUKGlobalStoreFactory("").get(linkerId+"_mu", Object.class); // TODO:
     }
 
     public void updateFieldEqualityPairMatchMatrix(String field, Boolean fieldsEqual, Boolean pairMatch){
@@ -34,9 +34,9 @@ public class MuModel {
 
     }
     public void saveToKafka() throws ExecutionException, InterruptedException {
-        muGlobalKStore.updateValue(fieldEqulityPairMatchMap);
+        MuAccesor.GetKafkaMUUpdater(this.linkerId).updateValue(fieldEqulityPairMatchMap);
     }
-    public static MuModel fromDemographicData(String linkerId, Map<String, String> demographicData) throws ExecutionException, InterruptedException {
+    public static MuModel fromDemographicData(String linkerId, Map<String, String> demographicData) {
         HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
 
         for (String field: demographicData.keySet()){

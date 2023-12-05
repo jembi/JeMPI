@@ -23,9 +23,10 @@ public class FieldPairEqualityProcessor implements IThresholdRangeSubProcessor {
     protected MuModel muModel;
     public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) {}
 
-    protected String linkerId = "linker1"; //TODO
+    protected String linkerId;
 
-    public FieldPairEqualityProcessor(final Interaction originalInteraction) throws ExecutionException, InterruptedException {
+    public FieldPairEqualityProcessor(final String linkerId, final Interaction originalInteraction){
+        this.linkerId = linkerId;
         this.originalInteraction = originalInteraction;
         this.originalInteractionDemographicDataMap = this.originalInteraction.demographicData().toMap();
         this.muModel = MuModel.fromDemographicData(this.linkerId, originalInteractionDemographicDataMap);

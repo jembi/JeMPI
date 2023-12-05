@@ -175,7 +175,7 @@ final public class LinkerDWH {
                : matchThreshold_;
 
          StandardThresholdRangeProcessor thresholdProcessor
-                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor(interaction).SetRanges(
+                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker", interaction).SetRanges(
                          new ArrayList<>(Arrays.asList(
                                  RangeTypeFactory.StandardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
                                  RangeTypeFactory.StandardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F ),
@@ -190,7 +190,13 @@ final public class LinkerDWH {
             LinkerProbabilistic.checkUpdatedMU();
 
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
-            
+
+            try {
+               thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
+            } catch (Exception e){
+               // TODO: loh exception
+            }
+
 
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
@@ -203,8 +209,6 @@ final public class LinkerDWH {
                                                                                                                interaction.demographicData())))
                                            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                            .collect(Collectors.toCollection(ArrayList::new));
-                                           
-               thresholdProcessor.ProcessCandidates(allCandidateScores);
 
                // TODO: [Cq] - External link range
                // Get a list of candidates withing the supplied for external link range
