@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldPairEqualityProcessor;
+package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor;
 
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
 import org.jembi.jempi.linker.thresholdRangeProcessor.IThresholdRangeSubProcessor;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.currentLinkFieldsMap;
 
-public class FieldPairEqualityProcessor implements IThresholdRangeSubProcessor {
+public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor {
 
     protected Interaction originalInteraction;
     protected Map<String, String> originalInteractionDemographicDataMap;
@@ -25,14 +25,14 @@ public class FieldPairEqualityProcessor implements IThresholdRangeSubProcessor {
 
     protected String linkerId;
 
-    public FieldPairEqualityProcessor(final String linkerId, final Interaction originalInteraction){
+    public FieldEqualityPairMatchProcessor(final String linkerId, final Interaction originalInteraction){
         this.linkerId = linkerId;
         this.originalInteraction = originalInteraction;
         this.originalInteractionDemographicDataMap = this.originalInteraction.demographicData().toMap();
         this.muModel = MuModel.fromDemographicData(this.linkerId, originalInteractionDemographicDataMap);
     }
 
-    private List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(List<CategorisedCandidates> candidates){
+    List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(List<CategorisedCandidates> candidates){
          Boolean[] firstMatch = {true};
 
         return candidates.stream()
@@ -51,7 +51,7 @@ public class FieldPairEqualityProcessor implements IThresholdRangeSubProcessor {
 
     }
 
-    private void updateFieldEqualityPairMatchMatrix(List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
+    void updateFieldEqualityPairMatchMatrix(List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
         for (Map.Entry<String, LinkerProbabilistic.Field> field: currentLinkFieldsMap.entrySet()) {
 
             for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
