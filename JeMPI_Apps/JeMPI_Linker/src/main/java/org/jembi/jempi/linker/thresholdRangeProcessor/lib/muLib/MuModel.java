@@ -44,6 +44,8 @@ public class MuModel {
         }
         return new MuModel(linkerId, fieldEqulityPairMatchMap);
     }
-
+    public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){
+        return this.fieldEqulityPairMatchMap;
+    }
 
 }

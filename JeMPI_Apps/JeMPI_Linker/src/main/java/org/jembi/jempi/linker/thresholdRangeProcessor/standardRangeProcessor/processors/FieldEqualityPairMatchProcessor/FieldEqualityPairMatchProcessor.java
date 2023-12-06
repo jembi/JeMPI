@@ -3,11 +3,13 @@ package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.pr
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
 import org.jembi.jempi.linker.thresholdRangeProcessor.IThresholdRangeSubProcessor;
 import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.FieldEqualityPairMatchMatrix;
 import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.MuModel;
 import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeName;
 import org.jembi.jempi.shared.models.Interaction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -57,13 +59,20 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
             for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
                 var candidateDemographicData = pairMatchCandidate.candidates.getGoldenRecord().demographicData().toMap();
 
-                var fieldScoreInfo = LinkerProbabilistic.fieldScoreInfo(candidateDemographicData.get(field.getKey()), originalInteractionDemographicDataMap.get(field.getKey()), field.getValue());
+                var fieldScoreInfo = LinkerProbabilistic.fieldScoreInfo(originalInteractionDemographicDataMap.get(field.getKey()), candidateDemographicData.get(field.getKey()), field.getValue());
 
                 this.muModel.updateFieldEqualityPairMatchMatrix(field.getKey(), fieldScoreInfo.isMatch(), pairMatchCandidate.isPairMatch);
             }
         }
+        this.saveToKafka();
+    }
 
+    public void saveToKafka() throws ExecutionException, InterruptedException {
         this.muModel.saveToKafka();
+    }
+
+    public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){
+        return this.muModel.getFieldEqualityPairMatchMatrix();
     }
 
     @Override
