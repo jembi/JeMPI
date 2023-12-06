@@ -4,7 +4,6 @@ cd ../../..
 export JEMPI_HOME=$(pwd)
 export JAVA_VERSION=17.0.8.1-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
-# JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/ethiopia/config-ethiopia-3.json
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 
 # Display menu options
@@ -104,14 +103,6 @@ pull_docker_images_and_push_local(){
     cd $JEMPI_HOME/devops/linux/docker
     echo "Create Docker registry"
     source $JEMPI_HOME/devops/linux/docker/c-registry-1-create.sh
-
-    # Create Docker registry
-    if docker images registry | grep -q 'registry'; then
-        echo "Image exists."
-    else
-        echo "Image doesn't exist. Creating and pushing..."
-        # Your logic to create and push the image goes here
-    fi
     # Pull Docker images from hub
     echo "Pull Docker images from hub"
     source $JEMPI_HOME/devops/linux/docker/a-images-1-pull-from-hub.sh
