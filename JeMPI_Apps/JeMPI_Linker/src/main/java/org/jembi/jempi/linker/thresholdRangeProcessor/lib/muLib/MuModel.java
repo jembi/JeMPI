@@ -6,15 +6,15 @@ import java.util.concurrent.ExecutionException;
 
 public class MuModel {
 
-    private HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
+    private HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
     private String linkerId;
-    public MuModel(String linkerId, HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap) {
+    public MuModel(String linkerId, HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap) {
         this.linkerId = linkerId;
         this.fieldEqulityPairMatchMap = fieldEqulityPairMatchMap;
     }
 
     public void updateFieldEqualityPairMatchMatrix(String field, Boolean fieldsEqual, Boolean pairMatch){
-        FieldEqulityPairMatchMatrix matrix = this.fieldEqulityPairMatchMap.get(field);
+        FieldEqualityPairMatchMatrix matrix = this.fieldEqulityPairMatchMap.get(field);
         if (pairMatch){
             if (fieldsEqual){
                 matrix.updateFieldEqualPairMatch(1);
@@ -37,10 +37,10 @@ public class MuModel {
         MuAccesor.GetKafkaMUUpdater(this.linkerId).updateValue(fieldEqulityPairMatchMap);
     }
     public static MuModel fromDemographicData(String linkerId, Map<String, String> demographicData) {
-        HashMap<String, FieldEqulityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
+        HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
 
         for (String field: demographicData.keySet()){
-            fieldEqulityPairMatchMap.put(field, new FieldEqulityPairMatchMatrix());
+            fieldEqulityPairMatchMap.put(field, new FieldEqualityPairMatchMatrix());
         }
         return new MuModel(linkerId, fieldEqulityPairMatchMap);
     }

@@ -1,6 +1,6 @@
 package org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib;
 
-public class FieldEqulityPairMatchMatrix {
+public class FieldEqualityPairMatchMatrix {
     private int fieldEqualPairMatch = 0;
     private int fieldNotEqualPairMatch = 0;
     private int fieldEqualPairNoMatch = 0;
