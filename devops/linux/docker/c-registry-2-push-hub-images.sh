@@ -8,6 +8,7 @@ source ./conf/images/conf-hub-images.sh
 
 declare -a IMAGES=("$HAPROXY_IMAGE"
                    "$KAFKA_IMAGE"
+                   "$KEYCLOAK_IMAGE"
                    "$DGRAPH_IMAGE"
                    "$RATEL_IMAGE"
                    "$POSTGRESQL_IMAGE")

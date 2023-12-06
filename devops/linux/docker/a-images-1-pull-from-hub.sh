@@ -9,7 +9,7 @@ source ./conf/images/conf-app-images.sh
 
 docker pull $JAVA_BASE_IMAGE
 docker pull $REGISTRY_IMAGE
-#docker pull $KEYCLOAK_IMAGE
+docker pull $KEYCLOAK_IMAGE
 docker pull $HAPROXY_IMAGE
 docker pull $KAFKA_IMAGE
 docker pull $DGRAPH_IMAGE

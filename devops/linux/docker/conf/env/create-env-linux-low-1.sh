@@ -28,16 +28,25 @@ export DGRAPH_PORTS="9080"
 
 # API related env vars
 export API_PORT=50000
+export API_PORT_KC=50001
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
-export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
+export KC_JEMPI_CLIENT_SECRET="Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
+export KC_TEST_DB="key_clock_test_db"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
 # Deployment related env vars
 export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
+
+# UI env vars
+export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
+export REACT_APP_JEMPI_BASE_API_PORT=${API_PORT_KC}
+export REACT_APP_MOCK_BACKEND="false"
+export REACT_APP_ENABLE_SSO="true"
+export KC_FRONTEND_URL="http://localhost:8080"
 
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="8G"

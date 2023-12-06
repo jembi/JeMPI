@@ -2,6 +2,7 @@
   "realm" : "${env.KC_REALM_NAME}",
   "resource" : "${env.KC_JEMPI_CLIENT_ID}",
   "auth-server-url" : "${env.KC_API_URL}",
+  "frontend-kc-url": "${env.KC_FRONTEND_URL}",
   "redirect-uri": "${env.KC_JEMPI_ROOT_URL}/login",
   "ssl-required" : "none",
   "use-resource-role-mappings" : false,

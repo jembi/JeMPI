@@ -1,4 +1,4 @@
-package org.jembi.jempi.api;
+package org.jembi.jempi.api.user;
 
 import com.softwaremill.session.converters.MapConverters;
 import scala.collection.immutable.Map;
@@ -8,7 +8,7 @@ import scala.util.Try;
 
 import java.util.HashMap;
 
-class UserSession extends User {
+public class UserSession extends User {
 
    /**
     * This session serializer converts a session type into a value (always a String type). The first two arguments are just
@@ -38,11 +38,11 @@ class UserSession extends User {
                )))
    );
 
-   UserSession(final User user) {
+   public UserSession(final User user) {
       super(user.getId(), user.getUsername(), user.getEmail(), user.getFamilyName(), user.getGivenName());
    }
 
-   static UserSessionSerializer getSerializer() {
+   public static UserSessionSerializer getSerializer() {
       return SERIALIZER;
    }
 

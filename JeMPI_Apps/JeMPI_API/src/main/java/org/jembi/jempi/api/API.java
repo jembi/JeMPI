@@ -16,7 +16,7 @@ import java.util.UUID;
 public final class API {
 
    private static final Logger LOGGER = LogManager.getLogger(API.class);
-   private static final String CONFIG_RESOURCE_FILE_NAME = "/config-api.json";
+   private static final String CONFIG_RESOURCE_FILE_NAME = "config-api.json";
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 

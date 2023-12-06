@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KEYCLOAK_URL=http://localhost:80
+export KEYCLOAK_URL=http://${NODE1_IP}:8080
 
 # **************** Global variables
 
@@ -18,7 +18,7 @@ function configureKeycloak() {
     PASSWORD=admin
     GRANT_TYPE=password
     CLIENT_ID=admin-cli
-    JEMPI_DEV_REALM=./import-jempi-dev-realm.json
+    JEMPI_DEV_REALM=../../../conf/keycloak/import-jempi-dev-realm.json
 
     access_token=$( curl -d "client_id=$CLIENT_ID" -d "username=$USER" -d "password=$PASSWORD" -d "grant_type=$GRANT_TYPE" "$KEYCLOAK_URL/realms/master/protocol/openid-connect/token" | sed -n 's|.*"access_token":"\([^"]*\)".*|\1|p')
 
@@ -41,6 +41,8 @@ function configureKeycloak() {
     echo "Create the realm in Keycloak"
     echo "------------------------------------------------------------------------"
     echo ""
+
+    #curl --location --request DELETE  -H "Content-Type: application/x-www-form-urlencoded" -H "Authorization: Bearer $access_token" "$KEYCLOAK_URL/auth/admin/realms/$KC_REALM_NAME"
 
     result=$(curl -d @"$JEMPI_DEV_REALM" -H "Content-Type: application/json" -H "Authorization: bearer $access_token" "$KEYCLOAK_URL/admin/realms")
 
@@ -65,4 +67,10 @@ function configureKeycloak() {
 # Execution
 # **********************************************************************************
 
-configureKeycloak
+pushd .
+  SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+  cd ${SCRIPT_DIR}
+
+    configureKeycloak
+
+popd
