@@ -100,6 +100,8 @@ export UI_RAM_LIMIT=${UI_RAM_LIMIT}
 
 
 # API related env vars
+export API_PORT=${API_PORT}
+export API_PORT_KC=${API_PORT_KC}
 export KC_REALM_NAME=${KC_REALM_NAME}
 export KC_API_URL=${KC_API_URL}
 export KC_JEMPI_CLIENT_ID=${KC_JEMPI_CLIENT_ID}
