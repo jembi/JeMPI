@@ -8,7 +8,8 @@ const Pagination = ({
   onPageChange,
   boundaryCount,
   ...other
-}: any) => {
+}: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+any) => {
   const pagesCount = Math.ceil(count / rowsPerPage)
 
   return (
@@ -24,6 +25,7 @@ const Pagination = ({
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomPagination(props: any) {
   return <GridPagination ActionsComponent={Pagination} {...props} />
 }

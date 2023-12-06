@@ -147,8 +147,8 @@ const Records = () => {
         (acc, [k, v]) => {
           acc[k] = JSON.stringify(v)
           return acc
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { isFetchingInteractions: isFetchingInteractions } as any
       )
     )

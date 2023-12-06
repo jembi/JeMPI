@@ -8,7 +8,7 @@ import {
   FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
-import { OAuthParams, User } from '../types/User'
+import { OAuthParams } from '../types/User'
 import ROUTES from './apiRoutes'
 import moxios from './mockBackend'
 import {
