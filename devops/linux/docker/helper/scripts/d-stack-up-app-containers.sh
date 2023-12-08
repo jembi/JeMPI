@@ -18,6 +18,12 @@ pushd .
 
   docker stack deploy --prune --compose-file 0-docker-stack-1.yml ${STACK_NAME}
   echo
+
+
+  if [ "$REACT_APP_ENABLE_SSO" = "true" ]; then
+      source ./helper/keycloak/start-keycloak-test-server.sh
+  fi
+  
   sleep 5
   docker stack services ${STACK_NAME}
   echo

@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.api.persistance.postgres.queries.UserQueries;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.ServerRequest;
-import org.keycloak.adapters.rotation.AdapterTokenVerifier;
 import org.keycloak.common.VerificationException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.AccessTokenResponse;
@@ -44,8 +43,8 @@ public final class KeyCloakAuthenticator {
                 String tokenString = tokenResponse.getToken();
                 String idTokenString = tokenResponse.getIdToken();
 
-                AdapterTokenVerifier.VerifiedTokens tokens = AdapterTokenVerifier.verifyTokens(tokenString, idTokenString,
-                                                                                                keycloak);
+                KeyCloakAdapterTokenVerifier.VerifiedTokens tokens = KeyCloakAdapterTokenVerifier.verifyTokens(tokenString, idTokenString,
+                                                                                                                keycloak, keycloakConfig);
                 LOGGER.debug("Token Verification succeeded!");
                 AccessToken token = tokens.getAccessToken();
                 LOGGER.debug("Is user already registered?");
