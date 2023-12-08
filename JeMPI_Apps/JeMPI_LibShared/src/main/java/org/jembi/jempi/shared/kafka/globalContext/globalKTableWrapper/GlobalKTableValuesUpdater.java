@@ -25,7 +25,8 @@ public class GlobalKTableValuesUpdater<T> implements Processor<String, T, String
 
     @Override
     public void process(final Record<String, T> record) {
-        this.globalStore.put(record.key(), record.value());
+        T updatedValue = this.valuesUpdater.apply(this.globalStore.get(record.key()), record.value());
+        this.globalStore.put(record.key(), updatedValue);
         this.context.forward(record);
     }
 

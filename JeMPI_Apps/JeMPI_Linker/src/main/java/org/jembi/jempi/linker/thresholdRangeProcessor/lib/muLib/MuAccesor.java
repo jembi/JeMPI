@@ -8,13 +8,13 @@ public class MuAccesor {
 
     private static Map<String,MUKGlobalStoreInstance> accessorInstances = new HashMap<>() {};
 
-    static MUKGlobalStoreInstance GetKafkaMUUpdater(String linkerId) throws ExecutionException, InterruptedException {
+    static MUKGlobalStoreInstance GetKafkaMUUpdater(String linkerId, String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
         if (!accessorInstances.containsKey(linkerId)) {
-            accessorInstances.put(linkerId, (MUKGlobalStoreInstance) new MUKGlobalStoreFactory("").get(linkerId + "_mu", Object.class)); //TODO: Object.class
+            accessorInstances.put(linkerId, (MUKGlobalStoreInstance) new MUKGlobalStoreFactory(kafkaBootstrapServer).getCreate(String.format("linker_mu_tally_%s", linkerId), Object.class)); //TODO: Object.class <- change
         }
         return accessorInstances.get(linkerId);
     }
-    static Object GetKafkaMu(String linkerId) throws ExecutionException, InterruptedException {
-        return GetKafkaMUUpdater(linkerId).getValue();
+    static Object GetKafkaMu(String linkerId, String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
+        return GetKafkaMUUpdater(linkerId, kafkaBootstrapServer).getValue();
     }
 }

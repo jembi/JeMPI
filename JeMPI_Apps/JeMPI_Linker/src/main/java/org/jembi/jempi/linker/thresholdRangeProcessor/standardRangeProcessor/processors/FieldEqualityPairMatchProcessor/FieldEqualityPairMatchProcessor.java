@@ -1,5 +1,6 @@
 package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor;
 
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
 import org.jembi.jempi.linker.thresholdRangeProcessor.IThresholdRangeSubProcessor;
 import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
@@ -31,7 +32,7 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
         this.linkerId = linkerId;
         this.originalInteraction = originalInteraction;
         this.originalInteractionDemographicDataMap = this.originalInteraction.demographicData().toMap();
-        this.muModel = MuModel.fromDemographicData(this.linkerId, originalInteractionDemographicDataMap);
+        this.muModel = MuModel.fromDemographicData(this.linkerId, originalInteractionDemographicDataMap, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
     }
 
     List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(List<CategorisedCandidates> candidates){
@@ -54,8 +55,9 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     }
 
     void updateFieldEqualityPairMatchMatrix(List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
+        // TODO: Use LOGGER
+        System.out.println(String.format("Processing %s candidates", pairMatchUnmatchedCandidates.size() ));
         for (Map.Entry<String, LinkerProbabilistic.Field> field: currentLinkFieldsMap.entrySet()) {
-
             for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
                 var candidateDemographicData = pairMatchCandidate.candidates.getGoldenRecord().demographicData().toMap();
 
@@ -68,7 +70,9 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     }
 
     public void saveToKafka() throws ExecutionException, InterruptedException {
-        this.muModel.saveToKafka();
+        // TODO: Use LOGGER
+        System.out.println(this.muModel.toString());
+      //  this.muModel.saveToKafka();
     }
 
     public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){

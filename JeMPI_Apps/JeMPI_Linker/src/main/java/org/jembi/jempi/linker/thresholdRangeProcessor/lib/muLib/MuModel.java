@@ -8,9 +8,11 @@ public class MuModel {
 
     private HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
     private String linkerId;
-    public MuModel(String linkerId, HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap) {
+    private String kafkaBootstrapServer;
+    public MuModel(String linkerId, HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap, String kafkaBootstrapServer) {
         this.linkerId = linkerId;
         this.fieldEqulityPairMatchMap = fieldEqulityPairMatchMap;
+        this.kafkaBootstrapServer = kafkaBootstrapServer;
     }
 
     public void updateFieldEqualityPairMatchMatrix(String field, Boolean fieldsEqual, Boolean pairMatch){
@@ -31,21 +33,29 @@ public class MuModel {
                 matrix.updateFieldNotEqualPairNoMatch(1);
             }
         }
-
     }
     public void saveToKafka() throws ExecutionException, InterruptedException {
-        MuAccesor.GetKafkaMUUpdater(this.linkerId).updateValue(fieldEqulityPairMatchMap);
+        MuAccesor.GetKafkaMUUpdater(this.linkerId, this.kafkaBootstrapServer).updateValue(fieldEqulityPairMatchMap);
     }
-    public static MuModel fromDemographicData(String linkerId, Map<String, String> demographicData) {
+    public static MuModel fromDemographicData(String linkerId, Map<String, String> demographicData, String kafkaBootstrapServer) {
         HashMap<String, FieldEqualityPairMatchMatrix> fieldEqulityPairMatchMap = new HashMap<>();
 
         for (String field: demographicData.keySet()){
             fieldEqulityPairMatchMap.put(field, new FieldEqualityPairMatchMatrix());
         }
-        return new MuModel(linkerId, fieldEqulityPairMatchMap);
+        return new MuModel(linkerId, fieldEqulityPairMatchMap, kafkaBootstrapServer);
     }
     public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){
         return this.fieldEqulityPairMatchMap;
     }
 
+    @Override
+    public String toString(){
+        StringBuilder matrixData = new StringBuilder("----- Field Data -----");
+        for (Map.Entry<String, FieldEqualityPairMatchMatrix> fieldInfo: this.fieldEqulityPairMatchMap.entrySet()){
+            matrixData.append(String.format("\n-> %s", fieldInfo.getKey()));
+            matrixData.append(fieldInfo.getValue().toString());
+        }
+        return matrixData.toString();
+    }
 }

@@ -76,13 +76,13 @@ public class CustomDemographicData {
 
    public Map<String, String> toMap(){
       return Map.ofEntries(
-              Map.entry("givenName", this.familyName),
+              Map.entry("givenName", this.givenName),
               Map.entry("familyName", this.familyName),
-              Map.entry("gender", this.familyName),
-              Map.entry("dob", this.familyName),
-              Map.entry("city", this.familyName),
-              Map.entry("phoneNumber", this.familyName),
-              Map.entry("nationalId", this.familyName)
+              Map.entry("gender", this.gender),
+              Map.entry("dob", this.dob),
+              Map.entry("city", this.city),
+              Map.entry("phoneNumber", this.phoneNumber),
+              Map.entry("nationalId", this.nationalId)
       );
    }
 

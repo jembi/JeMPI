@@ -92,7 +92,7 @@ final public class CustomLinkerProbabilistic {
 
    }
 
-   static float validateProbabilisticScore(
+   public static float validateProbabilisticScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return 0.0F;

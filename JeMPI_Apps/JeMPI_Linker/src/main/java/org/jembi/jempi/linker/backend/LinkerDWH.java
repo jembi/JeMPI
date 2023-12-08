@@ -191,16 +191,16 @@ final public class LinkerDWH {
 
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
 
-            try {
-               thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
-            } catch (Exception e){
-               // TODO: loh exception
-            }
-
-
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
             } else {
+
+               try {
+                  thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
+               } catch (Exception e){
+                  // TODO: loh exception
+               }
+
                final var allCandidateScores =
                      candidateGoldenRecords.parallelStream()
                                            .unordered()
@@ -329,7 +329,7 @@ final public class LinkerDWH {
       }
    }
 
-   private record WorkCandidate(
+   public record WorkCandidate(
          GoldenRecord goldenRecord,
          float score) {
    }
