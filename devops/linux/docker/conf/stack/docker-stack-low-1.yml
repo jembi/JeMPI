@@ -105,6 +105,7 @@ services:
       resources:
         limits:
           memory: ${HAPROXY_RAM_LIMIT}
+    command: haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/extra-${HAPROXY_EXTENSION}.cfg
       
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
