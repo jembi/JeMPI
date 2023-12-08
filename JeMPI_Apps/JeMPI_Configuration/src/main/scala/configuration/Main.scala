@@ -8,7 +8,6 @@ import java.nio.file.Paths
 
 object Main {
 
-
   @main def configure(in_config_file_name: String): Any =
 
     val config_file_name = if (in_config_file_name.isBlank) {
@@ -19,8 +18,14 @@ object Main {
     }
     println(s"name =  $config_file_name")
 
-    val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
-    val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
+    val mapper = JsonMapper
+      .builder()
+      .addModule(DefaultScalaModule)
+      .build() :: ClassTagExtensions
+    val config = mapper.readValue(
+      Paths.get(config_file_name).toFile,
+      new TypeReference[Config] {}
+    )
 
     CustomMU.generate(config.demographicFields)
     CustomDgraphConstants.generate(config)
