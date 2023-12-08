@@ -118,6 +118,7 @@ final class LinkerDWH {
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_) {
+
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
