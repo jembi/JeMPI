@@ -1,2 +1,1 @@
-case class Field(val name: String,
-                 val csvCol: Int)
+case class Field(name: String, csvCol: Int)

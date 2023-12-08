@@ -1,218 +1,192 @@
 import Fields.FIELDS
 import Jaro.jaro
 import Profile.profile
+import Utils._
 import com.typesafe.scalalogging.LazyLogging
 
+import java.lang.Math.log
 import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 import scala.collection.parallel.immutable.ParVector
 
 object EM_Task extends LazyLogging {
 
-  private val BASE: Double = 2.0
-  private val LOG_BASE: Double = Math.log(BASE)
-//  private val LAMBDA: Double = 1E-9
-  private val LAMBDA: Double = 1E-6
-  private val LOG_LAMBDA: Double = Math.log(LAMBDA / (1.0 - LAMBDA)) / LOG_BASE
-  private val JARO_THRESHOLD: Double = 0.92
-  private val JARO_THRESHOLD_EM: Double = 0.98
-  private val N_ITERATIONS = 20
-  private val COL_REC_NUM = 0
-  private val MIN_M = 0.4
+  def run(interactions: ParVector[ArraySeq[String]]): ArraySeq[MU] = {
 
-  /*
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - 134712.529 ms
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - Given Name       ->  0.9488740, 0.0037669        7.976111      7.847374         101.641%
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - Family Name      ->  0.9558198, 0.0007727       10.268204     10.128947         101.375%
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - Gender           ->  0.9296447, 0.4471049        1.056079      0.995958         106.037%
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - Date of Birth    ->  0.9395011, 0.0003324       11.461950     11.263037         101.766%
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - City             ->  0.9737909, 0.0459856        4.404375      4.342447         101.426%
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - Mobile           ->  0.9958406, 0.0000090       16.036707     16.698457          96.037%
-  11:44:27.240 [Thread-1] INFO  EM_Task$ - National ID      ->  0.9743350, 0.0001855       12.336442     12.225451         100.908%
-   */
+    val interactions_ = interactions.map(i => i.tail)
 
-  def run(interactions: ParVector[Array[String]], useRecursion: Boolean): Unit = {
+    //    @tailrec
+    //    def randomlyChooseIndexes(size: Int, soFar: Set[Int], remaining: Int): Set[Int] = {
+    //      if (remaining == 0) soFar
+    //      else {
+    //        val nextValue = Random.nextInt(size)
+    //        if (soFar.contains(nextValue)) {
+    //          randomlyChooseIndexes(size, soFar, remaining)
+    //        } else {
+    //          randomlyChooseIndexes(size, soFar + nextValue, remaining - 1)
+    //        }
+    //      }
+    //    }
+    //
+    //    val randIndexes = randomlyChooseIndexes(interactions_.size, Set[Int](), (interactions_.size * 2) / 4)
+    //    val randInteractions: ParVector[ArraySeq[String]] = new ParVector(randIndexes.map(idx => interactions_(idx))
+    //                                                                                 .toVector)
+    //    val (tallies2, ms1) = profile(scan(Utils.isPairMatch2(0.92), randInteractions))
+    //    val lockedU = computeMU(tallies2)
+    //    FIELDS.zipWithIndex.foreach(x => Utils.printTalliesAndMU(x._1.name, tallies2.colTally(x._2), lockedU(x._2)))
+    //    logger.info(s"$ms1 ms")
 
-    logger.info("BASE:              {}", BASE)
-    logger.info("LOG_BASE:          {}", LOG_BASE)
-    logger.info("LAMBDA:            {}", LAMBDA)
-    logger.info("LOG_LAMBDA:        {}", LOG_LAMBDA)
-    logger.info("JARO_THRESHOLD:    {}", JARO_THRESHOLD)
-    logger.info("JARO_THRESHOLD_EM: {}", JARO_THRESHOLD_EM)
-    logger.info("N_ITERATIONS:      {}", N_ITERATIONS)
-    logger.info("COL_REC_NUM:       {}", COL_REC_NUM)
-
-    logger.info("Compute perfect knowledge")
-    val (tallies1, ms1) = profile(outerScan(isPairMatch1, interactions, useRecursion))
-    val muList1 = computeMU(tallies1)
-    FIELDS.zipWithIndex.foreach(x => printTalliesAndMU(x._1.name, tallies1.colTally(x._2), muList1(x._2)))
-    logger.info(s"$ms1 ms")
-
-    logger.info("Compute fields > 4")
-    val (tallies2, ms2) = profile(outerScan(isPairMatch2(JARO_THRESHOLD), interactions, useRecursion))
-    val muList2 = computeMU(tallies2)
-    FIELDS.zipWithIndex.foreach(x => printTalliesAndMU(x._1.name, tallies2.colTally(x._2), muList2(x._2)))
+    val (gamma, ms2) = profile(
+      Gamma.getGamma2(
+        Map[String, Long](),
+        interactions_.head,
+        interactions_.tail
+      )
+    )
     logger.info(s"$ms2 ms")
-
-    val emMuList = nextIter(N_ITERATIONS, muList1, interactions, muList2.map(mu => if (mu.m > MIN_M) mu else MU(MIN_M, mu.u)), useRecursion)
-    FIELDS.zipWithIndex.foreach(x => printMU(x._1.name, emMuList.apply(x._2), muList1.apply(x._2)))
-    logger.debug("done")
-
+    val initialMU = for {
+      _ <- FIELDS
+    } yield MU(m = 0.8, u = 0.0001)
+    runEM(0, initialMU, gamma)
   }
 
   @tailrec
-  private def nextIter(n: Int, muList: Array[MU], interactions: ParVector[Array[String]], lockedU: Array[MU], useRecursion: Boolean): Array[MU] = {
-    if (n == 0)
-      muList
-    else {
-      logger.info(s"Compute using MU for $n")
-      val (tallies, ms) = Profile.profile(outerScan(isPairMatch3(muList, JARO_THRESHOLD_EM),
-                                                    interactions,
-                                                    useRecursion))
-      val muListImproved: Array[MU] = mergeMU(computeMU(tallies), lockedU).map(mu => if (mu.m > MIN_M) mu else MU(MIN_M, mu.u))
-      Fields.FIELDS.zipWithIndex.foreach(x => printTalliesAndMU(x._1.name,
-                                                                tallies.colTally(x._2),
-                                                                muListImproved(x._2)))
-      logger.info(s"$ms ms")
-      nextIter(n - 1, muListImproved, interactions, lockedU, useRecursion)
+  private def runEM(
+      iterations: Int,
+      currentMU: ArraySeq[MU],
+      gamma: Map[String, Long]
+  ): ArraySeq[MU] = {
+
+    case class GammaMetrics(
+        matches: Array[Int],
+        count: Long,
+        weight: Double,
+        odds: Double,
+        probability: Double,
+        tallies: Tallies
+    ) {}
+
+    def computeGammaMetrics(matches: Array[Int], count: Long): GammaMetrics = {
+      val w = matches.zipWithIndex
+        .map(matchResult => {
+          val m = currentMU.apply(matchResult._2).m
+          val u = currentMU.apply(matchResult._2).u
+          matchResult._1 match {
+            case GAMMA_TAG_NOT_EQUAL => log((1.0 - m) / (1.0 - u)) / LOG_BASE
+            case GAMMA_TAG_EQUAL     => log(m / u) / LOG_BASE
+            case _                   => 0.0
+          }
+        })
+        .fold(LOG_LAMBDA)(_ + _)
+      val odds = Math.pow(BASE, w)
+      val probability = Math.max(1e-10, odds / (1.0 + odds))
+      val tallies: Tallies = Tallies(
+        ArraySeq.unsafeWrapArray(
+          matches.zipWithIndex.map(m =>
+            m._1 match {
+              case GAMMA_TAG_NOT_EQUAL =>
+                Tally(b = probability * count, d = (1.0 - probability) * count)
+              case GAMMA_TAG_EQUAL =>
+                Tally(a = probability * count, c = (1.0 - probability) * count)
+              case _ => Tally()
+            }
+          )
+        )
+      )
+      GammaMetrics(matches, count, w, odds, probability, tallies)
     }
-  }
 
-  private def mergeMU(mSource: Array[MU], uSource: Array[MU]): Array[MU] = {
-    mSource.zipWithIndex.map(x => MU(mSource.apply(x._2).m, uSource.apply(x._2).u))
-  }
+    def matchAsInts(x: String): Array[Int] = {
+      x.slice(1, x.length - 1)
+        .split(',')
+        .map(y =>
+          y.trim() match {
+            case GAMMA_TAG_EQUAL_STR     => GAMMA_TAG_EQUAL
+            case GAMMA_TAG_NOT_EQUAL_STR => GAMMA_TAG_NOT_EQUAL
+            case GAMMA_TAG_MISSING_STR   => GAMMA_TAG_MISSING
+          }
+        )
+    }
 
-  private def computeMU(tallies: Tallies): Array[MU] = {
-    tallies.colTally.map(tally => MU(tally.a / (tally.a + tally.b), tally.c / (tally.c + tally.d)))
-  }
-
-  private def printTalliesAndMU(label: String, tally: Tally, mu: MU): Unit = {
-    logger.info(f"$label%-15s ${tally.a}%15.1f ${tally.b}%15.1f ${tally.c}%15.1f ${tally.d}%15.1f ->  ${mu.m}%9.7f, ${mu.u}%9.7f")
-  }
-
-  private def printMU(label: String, mu1: MU, mu2: MU): Unit = {
-    val w1 = Math.log(mu1.m / mu1.u) / LOG_BASE
-    val w2 = Math.log(mu2.m / mu2.u) / LOG_BASE
-    logger.info(f"$label%-15s  ->  ${mu1.m}%9.7f, ${mu2.u}%9.7f    $w1%12.6f  $w2%12.6f       ${(w1 / w2) * 100.0}%9.3f%%")
-  }
-
-  private def isPairMatch1(left: Array[String], right: Array[String]): (Double, Double) = {
-    if (left.apply(COL_REC_NUM).regionMatches(true, 4, right.apply(COL_REC_NUM), 4, 10))
-      (1.0, 0.0)
-    else
-      (0.0, 1.0)
-  }
-
-  private def isPairMatch2(fieldThreshold: Double)(left: Array[String], right: Array[String]): (Double, Double) = {
-    if (Array.range(1, left.length).map(idx => if (jaro(left.apply(idx), right.apply(idx)) > fieldThreshold) 1 else 0).sum >= 4)
-      (1.0, 0.0)
-    else
-      (0.0, 1.0)
-  }
-
-  private def isPairMatch3(muList: Array[MU], fieldThreshold: Double)(left: Array[String], right: Array[String]): (Double, Double) = {
-
-    def getPartialWeight(idx: Int): Double = {
-
-      def getMU: (Double, Double) = {
-        val m = muList.apply(idx).m
-        val u = muList.apply(idx).u
-        if (jaro(left.apply(idx+1), right.apply(idx+1)) > fieldThreshold)
-          (m, u)
-        else
-          (1.0 - m, 1.0 - u)
+    logger.info(s"iteration: $iterations")
+    if (iterations >= MAX_EM_ITERATIONS) {
+      currentMU
+    } else {
+      if (iterations == 2) {
+        logger.info("break")
       }
-
-      val (m, u) = getMU
-      Math.log(m / u) / LOG_BASE
+      val gamma_ =
+        gamma.toVector.map(x => x._1 -> (matchAsInts(x._1), x._2)).toMap
+      val mapGammaMetrics =
+        gamma_.map(x => x._1 -> computeGammaMetrics(x._2._1, x._2._2))
+      val tallies = mapGammaMetrics.values
+        .map(x => x.tallies)
+        .fold(Tallies())((x, y) => addTallies(x, y))
+      val newMU = computeMU(tallies)
+      FIELDS.zipWithIndex.foreach(x =>
+        printTalliesAndMU(x._1.name, tallies.colTally(x._2), newMU(x._2))
+      )
+      runEM(iterations + 1, newMU /*mergeMU(newMU, currentMU)*/, gamma)
     }
-
-    val omega = LOG_LAMBDA + Array.range(0, muList.length)
-                                  .map(idx => getPartialWeight(idx))
-                                  .sum
-    val odds = Math.pow(BASE, omega) // anti log
-    val probability = odds / (1.0 + odds)
-    (probability, 1.0 - probability)
   }
 
-  private def outerScan(isMatch: (Array[String], Array[String]) => (Double, Double),
-                        interactions: ParVector[Array[String]],
-                        useRecursion: Boolean): Tallies = {
+  private def scan(
+      isMatch: (ArraySeq[String], ArraySeq[String]) => ContributionSplit,
+      interactions: ParVector[ArraySeq[String]]
+  ): Tallies = {
 
-    def addTally(x: Tally, y: Tally): Tally = {
-      Tally(x.a + y.a, x.b + y.b, x.c + y.c, x.d + y.d)
-    }
+    def tallyFieldsContribution(
+        left: ArraySeq[String],
+        right: ArraySeq[String]
+    ): Tallies = {
 
-    def addTallies(x: Tallies, y: Tallies): Tallies = {
-      Tallies(Array.range(0, x.colTally.length).map(idx => addTally(x.colTally(idx), y.colTally(idx))))
-    }
-
-    def fieldsTallyContribution(left: Array[String], right: Array[String]): Tallies = {
-
-      def fieldTallyContribution(matches: (Double, Double), col: Int): Tally = {
+      def tallyFieldContribution(split: ContributionSplit, col: Int): Tally = {
         if (left.apply(col).isEmpty || right.apply(col).isEmpty) {
-          // TODO: CHECK IF THIS LOGIC IS CORRECT
-
-          //  Tally(a=matches._1, c=matches._2)
-          Tally(b = matches._1, d = matches._2)
-          //  Tally(a = matches._1 / 2.0, b = matches._1 / 2.0, c = matches._2 / 2.0, d = matches._2 / 2.0)
+          Tally(b = split.matched, d = split.unmatched)
         } else {
           val score = jaro(left.apply(col), right.apply(col))
           if (score > JARO_THRESHOLD)
-            Tally(a = matches._1, c = matches._2)
+            Tally(a = split.matched, c = split.unmatched)
           else
-            Tally(b = matches._1, d = matches._2)
+            Tally(b = split.matched, d = split.unmatched)
         }
       }
 
-      val matches = isMatch(left, right)
-      Tallies(FIELDS.map(field => fieldTallyContribution(matches, field.csvCol)))
-    }
-
-    def outerLoop1(interactions: ParVector[Array[String]]): Tallies = {
-
-      def innerLoop1(left: Array[String]): Tallies = {
-        val recNumber = left.apply(COL_REC_NUM)
-        interactions
-          .filter(right => recNumber.compareTo(right.apply(COL_REC_NUM)) < 0) // exclude (A,A) and (B,A)  ie only (A,B)
-          .map(right => fieldsTallyContribution(left, right)) // Tallies for L,R pair
-          .fold(Tallies()) { (x, y) => addTallies(x, y) } // sum of Tallies
-      }
-
-      interactions
-        .map(left => innerLoop1(left))
-        .fold(new Tallies) { (x, y) => addTallies(x, y) }
+      val split = isMatch(left, right)
+      Tallies(
+        FIELDS.map(field => tallyFieldContribution(split, field.csvCol - 1))
+      )
     }
 
     @tailrec
-    def outerLoop2(acc: Tallies, left: Array[String], right: ParVector[Array[String]]): Tallies = {
+    def outerLoop(
+        acc: Tallies,
+        left: ArraySeq[String],
+        right: ParVector[ArraySeq[String]]
+    ): Tallies = {
 
-      def innerLoop2(left: Array[String], interactions: ParVector[Array[String]]): Tallies = {
-
+      def innerLoop(
+          left: ArraySeq[String],
+          interactions: ParVector[ArraySeq[String]]
+      ): Tallies = {
         interactions
-          .map(right => fieldsTallyContribution(left, right))
+          .map(right => tallyFieldsContribution(left, right))
           .fold(Tallies()) { (x, y) => addTallies(x, y) }
       }
 
       if (right.isEmpty) {
         acc
       } else {
-        outerLoop2(addTallies(acc, innerLoop2(left, right)), right.head, right.tail)
+        outerLoop(
+          addTallies(acc, innerLoop(left, right)),
+          right.head,
+          right.tail
+        )
       }
 
     }
 
-    if (useRecursion) {
-      // no filter required but cannot parallelize outer loop
-      outerLoop2(new Tallies, interactions.head, interactions.tail)
-    } else {
-      // requires a filter but outer loop parallelized so still faster than outerLoop2
-      outerLoop1(interactions)
-    }
-
+    outerLoop(new Tallies, interactions.head, interactions.tail)
   }
-
-  private case class Tally(a: Double = 0.0, b: Double = 0.0, c: Double = 0.0, d: Double = 0.0)
-
-  private case class Tallies(colTally: Array[Tally] = FIELDS.map(_ => Tally()))
 
 }

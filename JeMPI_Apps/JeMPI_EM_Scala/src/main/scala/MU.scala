@@ -1,1 +1,1 @@
-case class MU(val m: Double, val u: Double)
+case class MU(m: Double, u: Double)
