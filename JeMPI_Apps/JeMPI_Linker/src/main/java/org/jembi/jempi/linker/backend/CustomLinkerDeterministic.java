@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-final class CustomLinkerDeterministic {
+final public class CustomLinkerDeterministic {
 
    static final boolean DETERMINISTIC_DO_LINKING = true;
    static final boolean DETERMINISTIC_DO_VALIDATING = false;
@@ -45,13 +45,13 @@ final class CustomLinkerDeterministic {
       return (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(phoneNumberL, phoneNumberR));
    }
 
-   static boolean validateDeterministicMatch(
+   public static boolean validateDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return false;
    }
 
-   static boolean matchNotificationDeterministicMatch(
+   public static boolean matchNotificationDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return false;

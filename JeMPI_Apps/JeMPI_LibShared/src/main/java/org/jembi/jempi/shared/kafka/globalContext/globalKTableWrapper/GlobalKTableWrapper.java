@@ -1,5 +1,6 @@
 package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper;
 
+import org.apache.kafka.common.errors.TopicExistsException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.kafka.KafkaTopicManager;
@@ -17,7 +18,7 @@ public class GlobalKTableWrapper {
         topicManager = new KafkaTopicManager(bootStrapServers);
         this.bootStrapServers = bootStrapServers;
     }
-    public <T> GlobalKTableWrapperInstance<T> getCreate(final String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
+    public <T> GlobalKTableWrapperInstance<T> getCreate(final String name, Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {
         if (!topicManager.hasTopic(name)){
             topicManager.createTopic(name,
                             1,
@@ -27,7 +28,10 @@ public class GlobalKTableWrapper {
         }
         return get(name, serializeCls);
     }
-    public <T> GlobalKTableWrapperInstance<T> get(final String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
+    public <T> GlobalKTableWrapperInstance<T> get(final String name, Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {
+        if (!topicManager.hasTopic(name)){
+            throw new TopicExistsException(String.format("Could not find the global KTable with the name '%s'. Try running getCreate instead.", name));
+        }
         if (!tables.containsKey(name)){
             GlobalKTableWrapperInstance<T> instance;
             try{

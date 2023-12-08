@@ -49,7 +49,7 @@ public class GlobalKTableWrapperInstance<T> {
                 Consumed.with(Serdes.String(),  new KTableSerde<T>(this.serializeCls)),
                 new ProcessorSupplier<String, T, Void, Void>() {
                     public Processor<String, T, Void, Void> get() {
-                        return new GlobalKTableValuesUpdater(null, globalStoreName);
+                        return new GlobalKTableValuesUpdater(GetValueUpdater(), globalStoreName);
                     }
                 });
 
@@ -116,7 +116,9 @@ public class GlobalKTableWrapperInstance<T> {
 
         return properties;
     }
-
+    protected TableUpdaterProcessor<T, T, T> GetValueUpdater(){
+        return (T globalValue, T currentValue) -> currentValue;
+    }
     public T getValue(){
         return keyValueStore.get(topicName);
     }
