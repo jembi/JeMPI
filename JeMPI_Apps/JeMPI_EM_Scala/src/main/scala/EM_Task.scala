@@ -8,6 +8,7 @@ import java.lang.Math.log
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.parallel.immutable.ParVector
+import scala.util.Random
 
 object EM_Task extends LazyLogging {
 
@@ -15,39 +16,57 @@ object EM_Task extends LazyLogging {
 
     val interactions_ = interactions.map(i => i.tail)
 
-    //    @tailrec
-    //    def randomlyChooseIndexes(size: Int, soFar: Set[Int], remaining: Int): Set[Int] = {
-    //      if (remaining == 0) soFar
-    //      else {
-    //        val nextValue = Random.nextInt(size)
-    //        if (soFar.contains(nextValue)) {
-    //          randomlyChooseIndexes(size, soFar, remaining)
-    //        } else {
-    //          randomlyChooseIndexes(size, soFar + nextValue, remaining - 1)
-    //        }
-    //      }
-    //    }
-    //
-    //    val randIndexes = randomlyChooseIndexes(interactions_.size, Set[Int](), (interactions_.size * 2) / 4)
-    //    val randInteractions: ParVector[ArraySeq[String]] = new ParVector(randIndexes.map(idx => interactions_(idx))
-    //                                                                                 .toVector)
-    //    val (tallies2, ms1) = profile(scan(Utils.isPairMatch2(0.92), randInteractions))
-    //    val lockedU = computeMU(tallies2)
-    //    FIELDS.zipWithIndex.foreach(x => Utils.printTalliesAndMU(x._1.name, tallies2.colTally(x._2), lockedU(x._2)))
-    //    logger.info(s"$ms1 ms")
-
     val (gamma, ms2) = profile(
-      Gamma.getGamma2(
+      Gamma.getGamma(
         Map[String, Long](),
         interactions_.head,
         interactions_.tail
       )
     )
     logger.info(s"$ms2 ms")
-    val initialMU = for {
-      _ <- FIELDS
-    } yield MU(m = 0.8, u = 0.0001)
-    runEM(0, initialMU, gamma)
+
+    if (LOCK_U) {
+      @tailrec
+      def randomlyChooseIndexes(
+          size: Int,
+          soFar: Set[Int],
+          remaining: Int
+      ): Set[Int] = {
+        if (remaining == 0) soFar
+        else {
+          val nextValue = Random.nextInt(size)
+          if (soFar.contains(nextValue)) {
+            randomlyChooseIndexes(size, soFar, remaining)
+          } else {
+            randomlyChooseIndexes(size, soFar + nextValue, remaining - 1)
+          }
+        }
+      }
+
+      val randIndexes = randomlyChooseIndexes(
+        interactions_.size,
+        Set[Int](),
+        Math.min(20_000, (interactions_.size * 2) / 4)
+      )
+      val randInteractions: ParVector[ArraySeq[String]] = new ParVector(
+        randIndexes.map(idx => interactions_(idx)).toVector
+      )
+      val (tallies2, ms1) = profile(
+        scan(Utils.isPairMatch2(0.92), randInteractions)
+      )
+      val lockedU = computeMU(tallies2)
+      FIELDS.zipWithIndex.foreach(x =>
+        Utils.printTalliesAndMU(
+          x._1.name,
+          tallies2.colTally(x._2),
+          lockedU(x._2)
+        )
+      )
+      logger.info(s"$ms1 ms")
+      runEM(0, lockedU.map(x => MU(0.8, x.u)), gamma)
+    } else {
+      runEM(0, for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001), gamma)
+    }
   }
 
   @tailrec
@@ -126,7 +145,11 @@ object EM_Task extends LazyLogging {
       FIELDS.zipWithIndex.foreach(x =>
         printTalliesAndMU(x._1.name, tallies.colTally(x._2), newMU(x._2))
       )
-      runEM(iterations + 1, newMU /*mergeMU(newMU, currentMU)*/, gamma)
+      if (LOCK_U) {
+        runEM(iterations + 1, mergeMU(newMU, currentMU), gamma)
+      } else {
+        runEM(iterations + 1, newMU, gamma)
+      }
     }
   }
 

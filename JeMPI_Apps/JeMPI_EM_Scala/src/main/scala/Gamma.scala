@@ -7,7 +7,7 @@ import scala.collection.parallel.immutable.ParVector
 object Gamma {
 
   @tailrec
-  def getGamma2(
+  def getGamma(
       gamma: Map[String, Long],
       left: ArraySeq[String],
       right: ParVector[ArraySeq[String]]
@@ -39,7 +39,7 @@ object Gamma {
     if (right.isEmpty) {
       gamma
     } else {
-      getGamma2(
+      getGamma(
         gamma ++ innerLoop(left, right)
           .map { case (k: String, v: Long) =>
             k -> (v + gamma.getOrElse(k, 0L))
@@ -50,43 +50,11 @@ object Gamma {
     }
   }
 
-  @tailrec
-  def getGamma1(
-      gamma: Map[String, Long],
-      left: ArraySeq[String],
-      right: ParVector[ArraySeq[String]]
-  ): Map[String, Long] = {
-
-    def innerLoop(
-        left: ArraySeq[String],
-        interactions: Vector[ArraySeq[String]]
-    ): Map[String, Long] = {
-
-      val gamma: Vector[String] =
-        interactions.map(right => gammaKey(left, right))
-      gamma.groupMapReduce(k => k)(_ => 1L)(_ + _)
-    }
-
-    if (right.isEmpty) {
-      gamma
-    } else {
-      getGamma1(
-        gamma ++ innerLoop(left, right.toVector).map {
-          case (k: String, v: Long) => k -> (v + gamma.getOrElse(k, 0L))
-        },
-        right.head,
-        right.tail
-      )
-    }
-  }
-
   private def gammaKey(
       left: ArraySeq[String],
       right: ArraySeq[String]
   ): String = {
-    val key = (left zip right).map(tuple => {
-      val l = tuple._1
-      val r = tuple._2
+    val key: ArraySeq[Int] = (left zip right).map { case (l, r) =>
       if (l.isEmpty || r.isEmpty) {
         GAMMA_TAG_MISSING
       } else if (l.equals(r)) {
@@ -94,7 +62,7 @@ object Gamma {
       } else {
         GAMMA_TAG_NOT_EQUAL
       }
-    })
+    }
     key.mkString("<", ",", ">")
   }
 
