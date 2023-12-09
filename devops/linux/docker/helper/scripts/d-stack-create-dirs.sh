@@ -41,8 +41,6 @@ pushd .
   
   mkdir -p ${DATA_DIR_CONTROLLER}/conf
   
-  mkdir -p ${DATA_DIR_EM}/conf
-  
   mkdir -p ${DATA_DIR_EM_SCALA}/conf
   mkdir -p ${DATA_DIR_EM_SCALA}/data
   

@@ -7,11 +7,10 @@ export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
 export NODE1=$(hostname)
-#   export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
+# export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 export NODE1_IP=$(hostname -i)
 
 export SCALE_KEYCLOAK_TEST_SERVER=1
-export SCALE_NGINX=1
 export SCALE_KAFKA_01=1
 export SCALE_KAFKA_02=1
 export SCALE_KAFKA_03=1
@@ -62,7 +61,7 @@ export DGRAPH_RAM_LIMIT="32G"
 export ASYNC_RECEIVER_RAM_LIMIT="16G"
 export ETL_RAM_LIMIT="16G"
 export CONTROLLER_RAM_LIMIT="16G"
-export EM_RAM_LIMIT="16G"
+export EM_SCALA_RAM_LIMIT="32G"
 export LINKER_RAM_LIMIT="32G"
 export API_RAM_LIMIT="16G"
 export UI_RAM_LIMIT="16G"

@@ -20,9 +20,6 @@ popd
 pushd JeMPI_Controller
   ./build.sh || exit 1
 popd
-pushd JeMPI_EM
-  ./build.sh || exit 1
-popd
 pushd JeMPI_EM_Scala
   ./build.sh || exit 1
 popd
@@ -42,9 +39,6 @@ pushd JeMPI_ETL
   ./push.sh
 popd
 pushd JeMPI_Controller
-  ./push.sh
-popd
-pushd JeMPI_EM
   ./push.sh
 popd
 pushd JeMPI_EM_Scala

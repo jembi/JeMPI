@@ -48,26 +48,6 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
-
-  # nginx:
-  #   image: ${IMAGE_REGISTRY}$NGINX_IMAGE
-  #   networks:
-  #     - frontend
-  #   deploy:
-  #     mode: replicated
-  #     replicas: ${SCALE_NGINX}
-  #     resources:
-  #       limits:
-  #         memory: ${NGINX_RAM_LIMIT}
-  #     update_config:
-  #       parallelism: 1
-  #       delay: 10s
-  #     restart_policy:
-  #       condition: on-failure
-  #     placement:
-  #       constraints:
-  #         - node.labels.name == $PLACEMENT_NGINX
-
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
     dns:
@@ -485,9 +465,9 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_CONTROLLER}
-       
-  em:
-    image: ${IMAGE_REGISTRY}${EM_IMAGE}
+    
+  em-scala:
+    image: ${IMAGE_REGISTRY}${EM_SCALA_IMAGE}
     environment:
       LOG4J2_LEVEL: "DEBUG" 
       KAFKA_SERVERS: ${KAFKA_SERVERS}
@@ -495,15 +475,19 @@ services:
     - backend
     volumes:
     - type: bind
-      source: $DATA_DIR_EM/conf
+      source: $DATA_DIR_EM_SCALA/conf
       target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_EM_SCALA/data
+      target: /app/data
       read_only: true
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       resources:
         limits:
-          memory: ${EM_RAM_LIMIT}
+          memory: ${EM_SCALA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -513,7 +497,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_EM}
+        - node.labels.name == ${PLACEMENT_EM_SCALA}
 
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
@@ -694,7 +678,6 @@ services:
       placement:
         constraints:
           - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
-
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}

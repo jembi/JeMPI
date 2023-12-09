@@ -10,7 +10,6 @@ export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 export NODE1_IP=$(hostname -i)
 
-export SCALE_NGINX=1
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
 export SCALE_ZERO_01=1
@@ -58,7 +57,6 @@ export DGRAPH_RAM_LIMIT="16G"
 export ASYNC_RECEIVER_RAM_LIMIT="8G"
 export ETL_RAM_LIMIT="8G"
 export CONTROLLER_RAM_LIMIT="8G"
-export EM_RAM_LIMIT="8G"
 export EM_SCALA_RAM_LIMIT="16G"
 export LINKER_RAM_LIMIT="8G"
 export API_RAM_LIMIT="8G"

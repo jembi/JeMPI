@@ -13,7 +13,6 @@ pushd .
     async-receiver
     etl
     controller
-    em
     em-scala
     linker
     api
@@ -26,6 +25,7 @@ pushd .
     kafka-03
     kafka-02
     kafka-01
+    postgresql
     ui
   )
 

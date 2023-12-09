@@ -10,11 +10,9 @@ pushd .
   source ./conf.env
 
   declare -a APPS=(
-    sync-receiver
     async-receiver
     etl
     controller
-    em
     em-scala
     linker
     api
