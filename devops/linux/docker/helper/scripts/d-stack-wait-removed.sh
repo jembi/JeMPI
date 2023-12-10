@@ -10,6 +10,7 @@ pushd .
   source ./conf.env
 
   declare -a SERVICES=(
+    haproxy
     async-receiver
     etl
     controller

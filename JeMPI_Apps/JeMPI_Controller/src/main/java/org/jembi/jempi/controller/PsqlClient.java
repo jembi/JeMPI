@@ -16,10 +16,10 @@ final class PsqlClient {
       connection = null;
    }
 
-   boolean connect() {
+   boolean connect(final String database) {
       if (connection == null) {
          try {
-            final var url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE);
+            final var url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, database);
             connection = DriverManager.getConnection(url, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
             return connection.isValid(5);
          } catch (SQLException e) {
@@ -32,7 +32,7 @@ final class PsqlClient {
             if (!connection.isValid(5)) {
                connection.close();
                final var url =
-                     String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE);
+                     String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, database);
                connection = DriverManager.getConnection(url, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
             }
          } catch (SQLException e) {

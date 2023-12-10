@@ -43,7 +43,8 @@ public final class API {
                                             AppConfig.POSTGRESQL_PORT,
                                             AppConfig.POSTGRESQL_USER,
                                             AppConfig.POSTGRESQL_PASSWORD,
-                                            AppConfig.POSTGRESQL_DATABASE,
+                                            AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
+                                            AppConfig.POSTGRESQL_AUDIT_DB,
                                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                             "CLIENT_ID_API-" + UUID.randomUUID()),
                              "BackEnd");

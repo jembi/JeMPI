@@ -2,6 +2,7 @@ package org.jembi.jempi.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -25,7 +26,7 @@ final class PsqlNotifications {
          final String gID,
          final String dID) throws SQLException {
 
-      psqlClient.connect();
+      psqlClient.connect(AppConfig.POSTGRESQL_NOTIFICATIONS_DB);
       try (Statement stmt = psqlClient.createStatement()) {
 
          // Set auto-commit to false
@@ -46,7 +47,7 @@ final class PsqlNotifications {
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      psqlClient.connect();
+      psqlClient.connect(AppConfig.POSTGRESQL_NOTIFICATIONS_DB);
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =

@@ -24,11 +24,11 @@ public final class AppConfig {
          .withResource("application.conf")
          .build();
 
-   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
-   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
-   public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
-   public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
-   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+//   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+//   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
+//   public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
+//   public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
+//   public static final String POSTGRESQL_NOTIFICATIONS_DB = CONFIG.getString("POSTGRESQL_NOTIFICATIONS_DB");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID_INTERACTIONS = CONFIG.getString("KAFKA_APPLICATION_ID_INTERACTIONS");
    public static final String KAFKA_APPLICATION_ID_MU = CONFIG.getString("KAFKA_APPLICATION_ID_MU");

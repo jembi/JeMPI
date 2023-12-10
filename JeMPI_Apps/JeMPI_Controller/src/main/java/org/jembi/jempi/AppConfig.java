@@ -29,7 +29,8 @@ public final class AppConfig {
    public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
-   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+   public static final String POSTGRESQL_NOTIFICATIONS_DB = CONFIG.getString("POSTGRESQL_NOTIFICATIONS_DB");
+   public static final String POSTGRESQL_AUDIT_DB = CONFIG.getString("POSTGRESQL_AUDIT_DB");
    public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");

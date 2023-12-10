@@ -19,7 +19,10 @@ export SCALE_POSTGRESQL=1
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
-export POSTGRESQL_DATABASE="notifications"
+export POSTGRESQL_DATABASE="postgres"
+export POSTGRESQL_NOTIFICATIONS_DB="notifications_db"
+export POSTGRESQL_AUDIT_DB="audit_db"
+export POSTGRESQL_KC_TEST_DB="kc_test_db"
 
 export KAFKA_SERVERS="kafka-01:9092"
 export DGRAPH_HOSTS="alpha-01"
@@ -33,7 +36,6 @@ export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
 export KC_JEMPI_CLIENT_SECRET="Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
-export KC_TEST_DB="notifications"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
 # Deployment related env vars
@@ -50,7 +52,6 @@ export KC_FRONTEND_URL="http://localhost:8080"
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="8G"
 export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
-export NGINX_RAM_LIMIT="8G"
 export HAPROXY_RAM_LIMIT="8G"
 export KAFKA_RAM_LIMIT="8G"
 export DGRAPH_RAM_LIMIT="16G"

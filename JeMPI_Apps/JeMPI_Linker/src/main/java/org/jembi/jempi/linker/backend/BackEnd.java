@@ -25,7 +25,6 @@ import org.jembi.jempi.stats.StatsTask;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -92,11 +91,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
-                             AppConfig.POSTGRESQL_USER,
-                             AppConfig.POSTGRESQL_PASSWORD,
-                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
+         libMPI = null;
+//         new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig
+//         .POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
+//                             AppConfig.POSTGRESQL_USER,
+//                             AppConfig.POSTGRESQL_PASSWORD,
+//                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+//                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
       libMPI.startTransaction();
       if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
@@ -175,11 +176,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
-      final var listLinkInfo =
-            LinkerDWH.linkInteraction(libMPI,
-                                      request.link.interaction(),
-                                      request.link.externalLinkRange(),
-                                      request.link.matchThreshold());
+      final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
+                                                         request.link.interaction(),
+                                                         request.link.externalLinkRange(),
+                                                         request.link.matchThreshold());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isLeft()
                                                                  ? listLinkInfo.getLeft()
@@ -207,17 +207,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                LOGGER.error("Golden Record for GID {} is null", gid);
                linkInfo = null;
             } else {
-               final var validated1 =
-                     CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
-               final var validated2 =
-                     CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
+               final var validated1 = CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
+                                                                                           interaction.demographicData());
+               final var validated2 = CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
+                                                                                           interaction.demographicData());
 
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
                                                                                 new LibMPIClientInterface.GoldenIdScore(gid,
                                                                                                                         3.0F),
-                                                                                validated1, validated2);
+                                                                                validated1,
+                                                                                validated2);
                if (Boolean.TRUE.equals(goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                   CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, 0.0F, linkInfo.interactionUID(), gid);
                }
@@ -271,10 +270,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                                                                                    interaction.demographicData())))
                                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                       .collect(Collectors.toCollection(ArrayList::new));
-      request.replyTo.tell(
-            new CalculateScoresResponse(
-                  new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
-                                                           scores)));
+      request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
+                                                                                                scores)));
       return Behaviors.same();
    }
 

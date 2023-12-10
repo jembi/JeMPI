@@ -32,7 +32,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final Integer pgPort;
    private final String pgUser;
    private final String pgPassword;
-   private final String pgDatabase;
+   private final String pgNotificationsDb;
+   private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
@@ -49,7 +50,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final int sqlPort,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase,
+         final String sqlNotificationsDb,
+         final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       super(context);
@@ -61,9 +63,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPort = sqlPort;
          this.pgUser = sqlUser;
          this.pgPassword = sqlPassword;
-         this.pgDatabase = sqlDatabase;
-         psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
-         psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlDatabase, sqlUser, sqlPassword);
+         this.pgNotificationsDb = sqlNotificationsDb;
+         this.pgAuditDb = sqlAuditDb;
+         psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
+         psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
       } catch (Exception e) {
          LOGGER.error(e.getMessage(), e);
@@ -80,7 +83,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final int sqlPort,
          final String sqlUser,
          final String sqlPassword,
-         final String sqlDatabase,
+         final String sqlNotificationsDb,
+         final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       return Behaviors.setup(context -> new BackEnd(level,
@@ -91,7 +95,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlPort,
                                                     sqlUser,
                                                     sqlPassword,
-                                                    sqlDatabase,
+                                                    sqlNotificationsDb,
+                                                    sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
    }
@@ -103,7 +108,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
          libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", pgIP, pgPort, pgDatabase),
+         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", pgIP, pgPort, pgAuditDb),
                              pgUser,
                              pgPassword,
                              kafkaBootstrapServers,

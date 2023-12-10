@@ -30,7 +30,7 @@ pushd .
   if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}; fi
 
   mkdir -p ${DATA_POSTGRESQL_DIR}
-  cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
+  cp ./conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
 
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/conf
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/csv
