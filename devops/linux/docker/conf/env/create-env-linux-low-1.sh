@@ -28,7 +28,7 @@ export KAFKA_SERVERS="kafka-01:9092"
 export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
-# API related env vars
+# Ports
 export API_HTTP_PORT=50000
 export API_KC_HTTP_PORT=50001
 export ETL_HTTP_PORT=50000
