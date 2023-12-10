@@ -29,8 +29,12 @@ export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
 # API related env vars
-export API_PORT=50000
-export API_PORT_KC=50001
+export API_HTTP_PORT=50000
+export API_KC_HTTP_PORT=50001
+export ETL_HTTP_PORT=50000
+export CONTROLLER_HTTP_PORT=50000
+export LINKER_HTTP_PORT=50000
+
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
@@ -44,9 +48,9 @@ export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
 # UI env vars
 export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
-export REACT_APP_JEMPI_BASE_API_PORT=${API_PORT_KC}
+export REACT_APP_JEMPI_BASE_API_PORT=50001
 export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
+export REACT_APP_ENABLE_SSO="true"
 export KC_FRONTEND_URL="http://localhost:8080"
 
 # ram limit for linker

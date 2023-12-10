@@ -86,7 +86,7 @@ services:
       resources:
         limits:
           memory: ${HAPROXY_RAM_LIMIT}
-    command: haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/extra-${HAPROXY_EXTENSION}.cfg
+    command: haproxy -f /etc/haproxy/haproxy.cfg
       
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
@@ -322,7 +322,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_CONTROLLER}
-    
+
   em-scala:
     image: ${IMAGE_REGISTRY}${EM_SCALA_IMAGE}
     environment:
@@ -415,7 +415,7 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      API_HTTP_PORT: ${API_PORT}
+      API_HTTP_PORT: ${API_HTTP_PORT}
       LINKER_IP: linker
       LINKER_HTTP_PORT: 50000
     networks:
@@ -469,9 +469,9 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      API_KC_HTTP_PORT: ${API_PORT_KC}
+      API_KC_HTTP_PORT: ${API_KC_HTTP_PORT}
       LINKER_IP: linker
-      LINKER_HTTP_PORT: 50000
+      LINKER_HTTP_PORT: ${LINKER_HTTP_PORT}
     networks:
     - frontend
     - backend
