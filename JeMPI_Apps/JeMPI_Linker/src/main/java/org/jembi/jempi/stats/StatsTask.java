@@ -157,7 +157,6 @@ public final class StatsTask {
             LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
          }
 
-/*
          int fromIdx;
          int toIdx;
          for (long i = 0; i < subLists; i++) {
@@ -210,7 +209,6 @@ public final class StatsTask {
                precision,
                recall,
                fScore);
-*/
       } catch (IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

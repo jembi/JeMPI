@@ -1,3 +1,5 @@
+package org.jembi.jempi.em
+
 object Jaro {
 
   def jaro(s1: String, s2: String): Double = {

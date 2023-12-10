@@ -46,7 +46,7 @@ public final class CustomSourceRecordStream {
             interactionEnvelopDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> sourceKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+            GlobalConstants.TOPIC_INTERACTION_ETL,
             Consumed.with(stringSerde,
                   interactionEnvelopSerde));
       sourceKStream

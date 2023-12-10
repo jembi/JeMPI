@@ -1,0 +1,177 @@
+2023.12.10 18:06:51 INFO  Started: Metals version 1.1.0 in folders '/home/whayes/projects/jempi/JeMPI' for client Visual Studio Code 1.85.0.
+2023.12.10 18:06:51 WARN  Build server is not auto-connectable.
+2023.12.10 18:06:51 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/InteractionEnvelop.scala
+2023.12.10 18:06:55 INFO  no build target found for /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/InteractionEnvelop.scala. Using presentation compiler with project's scala-library version: 3.3.1
+2023.12.10 18:06:56 INFO  time: code lens generation in 4.41s
+2023.12.10 18:07:06 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/InteractionEnvelop.scala
+2023.12.10 18:07:08 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/MU.scala
+2023.12.10 18:07:14 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/MU.scala
+2023.12.10 18:07:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/ContributionSplit.scala
+2023.12.10 18:07:18 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:07:22 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:07:24 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Field.scala
+2023.12.10 18:07:25 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Fields.scala
+2023.12.10 18:07:27 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/InteractionEnvelop.scala
+2023.12.10 18:07:33 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/InteractionEnvelop.scala
+2023.12.10 18:07:34 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/InteractionEnvelop.scala
+2023.12.10 18:07:36 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Jaro.scala
+2023.12.10 18:07:39 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/MU.scala
+2023.12.10 18:07:45 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/MU.scala
+2023.12.10 18:07:46 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/MU.scala
+2023.12.10 18:07:47 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Profile.scala
+2023.12.10 18:07:58 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Profile.scala
+2023.12.10 18:07:59 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Profile.scala
+2023.12.10 18:08:01 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:08:05 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:08:08 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:08:09 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:08:11 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:08:13 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tally.scala
+2023.12.10 18:08:20 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tally.scala
+2023.12.10 18:08:23 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tally.scala
+2023.12.10 18:08:24 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:08:29 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:08:30 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:08:30 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:15:10 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:11 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:12 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:18 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:19 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:20 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Tallies.scala
+2023.12.10 18:15:38 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:15:43 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:15:50 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:15:50 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+Dec 10, 2023 6:15:54 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 420
+Dec 10, 2023 6:15:58 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 425
+2023.12.10 18:16:07 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Jaro.scala
+2023.12.10 18:16:12 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:16:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Fields.scala
+2023.12.10 18:16:19 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Field.scala
+2023.12.10 18:16:21 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:16:25 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:16:41 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/ContributionSplit.scala
+2023.12.10 18:16:43 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/ContributionSplit.scala
+2023.12.10 18:18:04 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Utils.scala
+2023.12.10 18:18:33 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:18:52 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:18:55 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:18:58 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:01 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:04 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:07 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:09 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:13 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:23 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:25 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:27 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:30 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:32 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:36 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:38 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:19:38 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:26 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:29 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:33 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:37 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:37 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/Gamma.scala
+2023.12.10 18:20:55 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:21:23 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:21:36 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:21:41 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:21:41 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:22:01 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:22:11 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:22:48 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:04 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:07 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:09 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:11 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:25 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:30 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:31 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:34 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:36 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:57 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:23:57 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:24:30 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:24:30 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:24:53 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:24:57 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:24:59 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+Dec 10, 2023 6:25:14 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1484
+2023.12.10 18:25:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:25:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:25:18 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:25:50 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:25:51 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:26:11 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+Dec 10, 2023 6:26:11 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 1551
+2023.12.10 18:26:15 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:26:34 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:26:50 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:26:52 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:26:56 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:26:57 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:27:00 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:27:00 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:27:49 WARN  Using indexes to guess the definition of BASE
+2023.12.10 18:27:50 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:28:01 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:28:02 WARN  Using indexes to guess the definition of LOG_BASE
+2023.12.10 18:28:03 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:28:12 WARN  Using indexes to guess the definition of MU
+2023.12.10 18:28:12 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:28:36 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:28:46 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:28:46 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:29:09 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:29:12 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:29:41 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:29:55 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:30:43 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Task.scala
+2023.12.10 18:31:02 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:31:17 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:31:18 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:31:22 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:31:22 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 18:31:29 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 19:09:17 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 19:09:20 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 19:09:24 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 19:09:25 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 19:09:39 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/EM_Scala.scala
+2023.12.10 20:26:56 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em/kafka/Config.scala
+2023.12.10 20:27:31 WARN  no build target for: /home/whayes/projects/jempi/JeMPI/JeMPI_Apps/JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/models/GlobalConstants.java
+Dec 10, 2023 8:27:31 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-31-948.md
+Dec 10, 2023 8:27:33 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-33-093.md
+Dec 10, 2023 8:27:33 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-33-183.md
+Dec 10, 2023 8:27:34 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-34-228.md
+Dec 10, 2023 8:27:34 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-34-382.md
+Dec 10, 2023 8:27:37 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-37-639.md
+Dec 10, 2023 8:27:38 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-38-329.md
+Dec 10, 2023 8:27:40 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-40-598.md
+Dec 10, 2023 8:27:41 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-41-402.md
+Dec 10, 2023 8:27:41 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-41-994.md
+Dec 10, 2023 8:27:45 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-45-736.md
+Dec 10, 2023 8:27:45 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: A severe compiler error occurred, full details of the error can be found in the error report /home/whayes/projects/jempi/JeMPI/.metals/.reports/metals-full/2023-12-10/r_compiler-error_20-27-45-915.md

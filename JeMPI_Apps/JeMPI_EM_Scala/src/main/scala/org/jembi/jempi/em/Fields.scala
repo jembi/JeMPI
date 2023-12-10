@@ -1,3 +1,5 @@
+package org.jembi.jempi.em
+
 import scala.collection.immutable.ArraySeq
 
 object Fields {

@@ -1,15 +1,15 @@
-import Fields.FIELDS
-import Profile.profile
-import Utils.printMU
+package org.jembi.jempi.em
+
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.{
-  ClassTagExtensions,
-  DefaultScalaModule
-}
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.scalalogging.LazyLogging
+import org.apache.kafka.common.config.Config
+import org.apache.kafka.common.requests.DescribeConfigsResponse.ConfigSource
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
 import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig}
+import org.jembi.jempi.em.kafka.Config.{CFG_KAFKA_APPLICATION_ID, CFG_KAFKA_BOOTSTRAP_SERVERS, CFG_KAFKA_CLIENT_ID, CFG_KAFKA_TOPIC_INTERACTION_EM}
+import org.jembi.jempi.em.kafka.{CustomMU, Probability, Producer}
 
 import java.util.Properties
 import scala.collection.immutable.ArraySeq
@@ -17,11 +17,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.immutable.ParVector
 
 object EM_Scala extends LazyLogging {
-
-  private val CFG_KAFKA_APPLICATION_ID = "AppID_EM_Scala"
-  private val CFG_KAFKA_CLIENT_ID = "ClientID_EM_Scala"
-  private val CFG_KAFKA_BOOTSTRAP_SERVERS = "kafka-01:9092"
-  private val CFG_KAFKA_TOPIC_INTERACTION_EM = "JeMPI-interaction-em"
 
   private val mapper = new ObjectMapper() with ClassTagExtensions
   mapper.registerModule(DefaultScalaModule)
@@ -116,9 +111,13 @@ object EM_Scala extends LazyLogging {
         interactions.map((fields: Array[String]) =>
           ArraySeq.unsafeWrapArray(fields)
         )
-      val (mu, ms) = profile(EM_Task.run(interactions_))
-      FIELDS.zipWithIndex.foreach(x => printMU(x._1.name, mu(x._2)))
+      val (mu, ms) = Profile.profile(EM_Task.run(interactions_))
+
+      Fields.FIELDS.zipWithIndex.foreach(x =>
+        Utils.printMU(x._1.name, mu(x._2))
+      )
       logger.info(s"$ms ms")
+      Producer.send(mu);
     }
 
   }

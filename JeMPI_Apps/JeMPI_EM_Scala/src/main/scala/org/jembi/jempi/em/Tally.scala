@@ -1,3 +1,5 @@
+package org.jembi.jempi.em
+
 case class Tally(
     a: Double = 0.0,
     b: Double = 0.0,

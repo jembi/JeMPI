@@ -1,3 +1,13 @@
+file://<WORKSPACE>/JeMPI_Apps/JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/models/GlobalConstants.java
+### java.util.NoSuchElementException: next on empty iterator
+
+occurred in the presentation compiler.
+
+action parameters:
+offset: 553
+uri: file://<WORKSPACE>/JeMPI_Apps/JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/models/GlobalConstants.java
+text:
+```scala
 package org.jembi.jempi.shared.models;
 
 public final class GlobalConstants {
@@ -7,7 +17,7 @@ public final class GlobalConstants {
    public static final String TOPIC_INTERACTION_EM = "JeMPI-interaction-em";
    public static final String TOPIC_INTERACTION_LINKER = "JeMPI-interaction-linker";
    public static final String TOPIC_MU_CONTROLLER = "JeMPI-mu-controller";
-   public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
+   public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";@@
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
 
@@ -72,3 +82,25 @@ public final class GlobalConstants {
    }
 
 }
+
+```
+
+
+
+#### Error stacktrace:
+
+```
+scala.collection.Iterator$$anon$19.next(Iterator.scala:973)
+	scala.collection.Iterator$$anon$19.next(Iterator.scala:971)
+	scala.collection.mutable.MutationTracker$CheckedIterator.next(MutationTracker.scala:76)
+	scala.collection.IterableOps.head(Iterable.scala:222)
+	scala.collection.IterableOps.head$(Iterable.scala:222)
+	scala.collection.AbstractIterable.head(Iterable.scala:933)
+	dotty.tools.dotc.interactive.InteractiveDriver.run(InteractiveDriver.scala:168)
+	scala.meta.internal.pc.MetalsDriver.run(MetalsDriver.scala:45)
+	scala.meta.internal.pc.HoverProvider$.hover(HoverProvider.scala:34)
+	scala.meta.internal.pc.ScalaPresentationCompiler.hover$$anonfun$1(ScalaPresentationCompiler.scala:329)
+```
+#### Short summary: 
+
+java.util.NoSuchElementException: next on empty iterator

@@ -147,7 +147,7 @@ public final class Main {
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                         GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
+                                                         GlobalConstants.TOPIC_INTERACTION_ETL,
                                                          keySerializer(), valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {

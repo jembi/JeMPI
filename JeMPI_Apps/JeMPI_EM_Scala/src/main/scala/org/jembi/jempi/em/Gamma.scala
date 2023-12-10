@@ -1,4 +1,4 @@
-import Utils.{GAMMA_TAG_EQUAL, GAMMA_TAG_MISSING, GAMMA_TAG_NOT_EQUAL}
+package org.jembi.jempi.em
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -56,11 +56,11 @@ object Gamma {
   ): String = {
     val key: ArraySeq[Int] = (left zip right).map { case (l, r) =>
       if (l.isEmpty || r.isEmpty) {
-        GAMMA_TAG_MISSING
+        Utils.GAMMA_TAG_MISSING
       } else if (l.equals(r)) {
-        GAMMA_TAG_EQUAL
+        Utils.GAMMA_TAG_EQUAL
       } else {
-        GAMMA_TAG_NOT_EQUAL
+        Utils.GAMMA_TAG_NOT_EQUAL
       }
     }
     key.mkString("<", ",", ">")

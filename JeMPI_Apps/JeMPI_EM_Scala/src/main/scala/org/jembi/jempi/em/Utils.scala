@@ -1,5 +1,7 @@
-import Jaro.jaro
+package org.jembi.jempi.em
+
 import com.typesafe.scalalogging.LazyLogging
+import Jaro.jaro
 
 import scala.collection.immutable.ArraySeq
 

@@ -1,7 +1,5 @@
-import Fields.FIELDS
-import Jaro.jaro
-import Profile.profile
-import Utils._
+package org.jembi.jempi.em
+
 import com.typesafe.scalalogging.LazyLogging
 
 import java.lang.Math.log
@@ -16,7 +14,7 @@ object EM_Task extends LazyLogging {
 
     val interactions_ = interactions.map(i => i.tail)
 
-    val (gamma, ms2) = profile(
+    val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
         Map[String, Long](),
         interactions_.head,
@@ -25,7 +23,7 @@ object EM_Task extends LazyLogging {
     )
     logger.info(s"$ms2 ms")
 
-    if (LOCK_U) {
+    if (Utils.LOCK_U) {
       @tailrec
       def randomlyChooseIndexes(
           size: Int,
@@ -51,11 +49,11 @@ object EM_Task extends LazyLogging {
       val randInteractions: ParVector[ArraySeq[String]] = new ParVector(
         randIndexes.map(idx => interactions_(idx)).toVector
       )
-      val (tallies2, ms1) = profile(
+      val (tallies2, ms1) = Profile.profile(
         scan(Utils.isPairMatch2(0.92), randInteractions)
       )
-      val lockedU = computeMU(tallies2)
-      FIELDS.zipWithIndex.foreach(x =>
+      val lockedU = Utils.computeMU(tallies2)
+      Fields.FIELDS.zipWithIndex.foreach(x =>
         Utils.printTalliesAndMU(
           x._1.name,
           tallies2.colTally(x._2),
@@ -65,7 +63,7 @@ object EM_Task extends LazyLogging {
       logger.info(s"$ms1 ms")
       runEM(0, lockedU.map(x => MU(0.8, x.u)), gamma)
     } else {
-      runEM(0, for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001), gamma)
+      runEM(0, for { _ <- Fields.FIELDS } yield MU(m = 0.8, u = 0.0001), gamma)
     }
   }
 
@@ -91,21 +89,22 @@ object EM_Task extends LazyLogging {
           val m = currentMU.apply(matchResult._2).m
           val u = currentMU.apply(matchResult._2).u
           matchResult._1 match {
-            case GAMMA_TAG_NOT_EQUAL => log((1.0 - m) / (1.0 - u)) / LOG_BASE
-            case GAMMA_TAG_EQUAL     => log(m / u) / LOG_BASE
-            case _                   => 0.0
+            case Utils.GAMMA_TAG_NOT_EQUAL =>
+              log((1.0 - m) / (1.0 - u)) / Utils.LOG_BASE
+            case Utils.GAMMA_TAG_EQUAL => log(m / u) / Utils.LOG_BASE
+            case _                     => 0.0
           }
         })
-        .fold(LOG_LAMBDA)(_ + _)
-      val odds = Math.pow(BASE, w)
+        .fold(Utils.LOG_LAMBDA)(_ + _)
+      val odds = Math.pow(Utils.BASE, w)
       val probability = Math.max(1e-10, odds / (1.0 + odds))
       val tallies: Tallies = Tallies(
         ArraySeq.unsafeWrapArray(
           matches.zipWithIndex.map(m =>
             m._1 match {
-              case GAMMA_TAG_NOT_EQUAL =>
+              case Utils.GAMMA_TAG_NOT_EQUAL =>
                 Tally(b = probability * count, d = (1.0 - probability) * count)
-              case GAMMA_TAG_EQUAL =>
+              case Utils.GAMMA_TAG_EQUAL =>
                 Tally(a = probability * count, c = (1.0 - probability) * count)
               case _ => Tally()
             }
@@ -120,15 +119,15 @@ object EM_Task extends LazyLogging {
         .split(',')
         .map(y =>
           y.trim() match {
-            case GAMMA_TAG_EQUAL_STR     => GAMMA_TAG_EQUAL
-            case GAMMA_TAG_NOT_EQUAL_STR => GAMMA_TAG_NOT_EQUAL
-            case GAMMA_TAG_MISSING_STR   => GAMMA_TAG_MISSING
+            case Utils.GAMMA_TAG_EQUAL_STR     => Utils.GAMMA_TAG_EQUAL
+            case Utils.GAMMA_TAG_NOT_EQUAL_STR => Utils.GAMMA_TAG_NOT_EQUAL
+            case Utils.GAMMA_TAG_MISSING_STR   => Utils.GAMMA_TAG_MISSING
           }
         )
     }
 
     logger.info(s"iteration: $iterations")
-    if (iterations >= MAX_EM_ITERATIONS) {
+    if (iterations >= Utils.MAX_EM_ITERATIONS) {
       currentMU
     } else {
       if (iterations == 2) {
@@ -140,13 +139,13 @@ object EM_Task extends LazyLogging {
         gamma_.map(x => x._1 -> computeGammaMetrics(x._2._1, x._2._2))
       val tallies = mapGammaMetrics.values
         .map(x => x.tallies)
-        .fold(Tallies())((x, y) => addTallies(x, y))
-      val newMU = computeMU(tallies)
-      FIELDS.zipWithIndex.foreach(x =>
-        printTalliesAndMU(x._1.name, tallies.colTally(x._2), newMU(x._2))
+        .fold(Tallies())((x, y) => Utils.addTallies(x, y))
+      val newMU = Utils.computeMU(tallies)
+      Fields.FIELDS.zipWithIndex.foreach(x =>
+        Utils.printTalliesAndMU(x._1.name, tallies.colTally(x._2), newMU(x._2))
       )
-      if (LOCK_U) {
-        runEM(iterations + 1, mergeMU(newMU, currentMU), gamma)
+      if (Utils.LOCK_U) {
+        runEM(iterations + 1, Utils.mergeMU(newMU, currentMU), gamma)
       } else {
         runEM(iterations + 1, newMU, gamma)
       }
@@ -167,8 +166,8 @@ object EM_Task extends LazyLogging {
         if (left.apply(col).isEmpty || right.apply(col).isEmpty) {
           Tally(b = split.matched, d = split.unmatched)
         } else {
-          val score = jaro(left.apply(col), right.apply(col))
-          if (score > JARO_THRESHOLD)
+          val score = Jaro.jaro(left.apply(col), right.apply(col))
+          if (score > Utils.JARO_THRESHOLD)
             Tally(a = split.matched, c = split.unmatched)
           else
             Tally(b = split.matched, d = split.unmatched)
@@ -177,7 +176,9 @@ object EM_Task extends LazyLogging {
 
       val split = isMatch(left, right)
       Tallies(
-        FIELDS.map(field => tallyFieldContribution(split, field.csvCol - 1))
+        Fields.FIELDS.map(field =>
+          tallyFieldContribution(split, field.csvCol - 1)
+        )
       )
     }
 
@@ -194,14 +195,14 @@ object EM_Task extends LazyLogging {
       ): Tallies = {
         interactions
           .map(right => tallyFieldsContribution(left, right))
-          .fold(Tallies()) { (x, y) => addTallies(x, y) }
+          .fold(Tallies()) { (x, y) => Utils.addTallies(x, y) }
       }
 
       if (right.isEmpty) {
         acc
       } else {
         outerLoop(
-          addTallies(acc, innerLoop(left, right)),
+          Utils.addTallies(acc, innerLoop(left, right)),
           right.head,
           right.tail
         )

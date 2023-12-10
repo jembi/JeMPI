@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -29,6 +30,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
@@ -276,8 +279,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
-      CustomLinkerProbabilistic.updateMU(req.mu);
-      req.replyTo.tell(new EventUpdateMURsp(true));
+      try {
+         final var json = OBJECT_MAPPER.writeValueAsString(req);
+         LOGGER.info("Update MU: {}", json);
+         CustomLinkerProbabilistic.updateMU(req.mu);
+         req.replyTo.tell(new EventUpdateMURsp(true));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         req.replyTo.tell(new EventUpdateMURsp(false));
+      }
       return Behaviors.same();
    }
 

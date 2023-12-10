@@ -1,3 +1,13 @@
+file://<WORKSPACE>/JeMPI_Apps/JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/models/GlobalConstants.java
+### java.util.NoSuchElementException: next on empty iterator
+
+occurred in the presentation compiler.
+
+action parameters:
+offset: 1837
+uri: file://<WORKSPACE>/JeMPI_Apps/JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/models/GlobalConstants.java
+text:
+```scala
 package org.jembi.jempi.shared.models;
 
 public final class GlobalConstants {
@@ -32,7 +42,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expanded-golden-records-csv";
    public static final String SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV = "expanded-interactions-csv";
    public static final String SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL = "golden-record-audit-trail";
-   public static final String SEGMENT_GET_INTERACTION_AUDIT_TRAIL = "interaction-audit-trail";
+   public static final String SEGMENT_GET_INTERACTION@@_AUDIT_TRAIL = "interaction-audit-trail";
    public static final String SEGMENT_GET_FIELDS_CONFIG = "config";
    public static final String SEGMENT_GET_LINKED_RECORDS = "LinkedRecords";
    public static final String SEGMENT_GET_NOTIFICATIONS = "MatchesForReview";
@@ -72,3 +82,25 @@ public final class GlobalConstants {
    }
 
 }
+
+```
+
+
+
+#### Error stacktrace:
+
+```
+scala.collection.Iterator$$anon$19.next(Iterator.scala:973)
+	scala.collection.Iterator$$anon$19.next(Iterator.scala:971)
+	scala.collection.mutable.MutationTracker$CheckedIterator.next(MutationTracker.scala:76)
+	scala.collection.IterableOps.head(Iterable.scala:222)
+	scala.collection.IterableOps.head$(Iterable.scala:222)
+	scala.collection.AbstractIterable.head(Iterable.scala:933)
+	dotty.tools.dotc.interactive.InteractiveDriver.run(InteractiveDriver.scala:168)
+	scala.meta.internal.pc.MetalsDriver.run(MetalsDriver.scala:45)
+	scala.meta.internal.pc.HoverProvider$.hover(HoverProvider.scala:34)
+	scala.meta.internal.pc.ScalaPresentationCompiler.hover$$anonfun$1(ScalaPresentationCompiler.scala:329)
+```
+#### Short summary: 
+
+java.util.NoSuchElementException: next on empty iterator
