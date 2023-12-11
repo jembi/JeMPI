@@ -83,7 +83,7 @@ const ConfusionMatrix = () => {
             <Grid item xs={6}>
               <Grid container alignItems={'center'}>
                 <Grid item xs={6} textAlign={'center'}>
-                  <Typography variant="button">Precesion</Typography>
+                  <Typography variant="button">Precision</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Box
