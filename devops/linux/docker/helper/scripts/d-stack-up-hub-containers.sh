@@ -22,12 +22,6 @@ pushd .
   docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 
 
-  pushd helper/topics
-    source ./topics-create.sh
-    source ./topics-list.sh
-  popd
-  pushd helper/postgres
-    source ./create-schema.sh
-  popd
+  ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
 
 popd
