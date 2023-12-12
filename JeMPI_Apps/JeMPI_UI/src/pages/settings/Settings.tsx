@@ -1,6 +1,8 @@
-import { Grid, Tab, Tabs, Typography } from '@mui/material'
+import { Grid, Tab, Tabs, Typography, useMediaQuery } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { SyntheticEvent, useState } from 'react'
+import CommonSettings from './common/Common'
+import UniqueToGR from './uniqueToGR/UniqueToGR'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -15,14 +17,12 @@ function CustomTabPanel(props: TabPanelProps) {
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`settings-tabpanel-${index}`}
+      aria-labelledby={`settings-tab-${index}`}
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
+        <Box sx={{ p: 3, backgroundColor: '#f5f5f5' }}>{children}</Box>
       )}
     </div>
   )
@@ -30,27 +30,27 @@ function CustomTabPanel(props: TabPanelProps) {
 
 function a11yProps(index: number) {
   return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`
+    id: `settings-tab-${index}`,
+    'aria-controls': `settings-tabpanel-${index}`
   }
 }
 const Settings = () => {
   const [value, setValue] = useState(0)
-
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={2}></Grid>
-      <Grid item xs={10}>
+    <Grid container spacing={4}>
+      <Grid item md={4}></Grid>
+      <Grid item md={8}>
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs
               value={value}
               onChange={handleChange}
-              aria-label="basic tabs example"
+              aria-label=" tabs "
+              variant="scrollable"
             >
               <Tab label="Common" {...a11yProps(0)} />
               <Tab label="Unique to Golden record" {...a11yProps(1)} />
@@ -62,10 +62,18 @@ const Settings = () => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            Common
+            <>
+              <Typography variant="h5" sx={{ py: 3 }}>
+                Setup common properties
+              </Typography>
+              <CommonSettings />
+            </>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            Unique to Golden record
+            <Typography variant="h5" sx={{ py: 3 }}>
+              Unique to Golden record
+            </Typography>
+            <UniqueToGR />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             Unique to Interaction
