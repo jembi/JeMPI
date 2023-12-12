@@ -66,7 +66,7 @@ export class ApiClient {
         const { method } = request
         if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
           const csrfToken = getCookie('XSRF-TOKEN')
-          if (csrfToken) {
+          if (csrfToken && request.headers) {
             request.headers['X-XSRF-TOKEN'] = csrfToken
           }
         }
