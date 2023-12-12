@@ -14,15 +14,14 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   public static final Config CONFIG = new Builder()
-         .withSystemEnvironment()
-         .withSystemProperties()
-         .withOptionalRelativeFile("/conf/server.production.conf")
-         .withOptionalRelativeFile("/conf/server.staging.conf")
-         .withOptionalRelativeFile("/conf/server.test.conf")
-         .withResource("application.local.conf")
-         .withResource("application.conf")
-         .build();
+   public static final Config CONFIG = new Builder().withSystemEnvironment()
+                                                    .withSystemProperties()
+                                                    .withOptionalRelativeFile("/conf/server.production.conf")
+                                                    .withOptionalRelativeFile("/conf/server.staging.conf")
+                                                    .withOptionalRelativeFile("/conf/server.test.conf")
+                                                    .withResource("application.local.conf")
+                                                    .withResource("application.conf")
+                                                    .build();
    public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
    public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");

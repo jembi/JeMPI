@@ -56,11 +56,7 @@ public final class APIKC {
          final DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
          final MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
          httpServer = new HttpServer(dispatcher);
-         httpServer.open("0.0.0.0",
-                         AppConfig.API_KC_HTTP_PORT,
-                         context.getSystem(),
-                         backEnd,
-                         jsonFieldsConfig.jsonFields);
+         httpServer.open("0.0.0.0", AppConfig.API_KC_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
             LOGGER.info("API Server Terminated. Reason {}", sig);
             httpServer.close(context.getSystem());

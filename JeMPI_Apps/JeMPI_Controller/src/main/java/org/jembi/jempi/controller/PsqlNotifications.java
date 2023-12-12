@@ -34,9 +34,8 @@ final class PsqlNotifications {
          Date res = new Date(created);
          String state = "New";
 
-         String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) "
-                      + "VALUES ('" + id + "','" + type + "','" + state + "','" + patientNames + "', '" + res + "', '" + dID
-                      + "', '" + gID + "', '" + score + "')";
+         String sql =
+               "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) " + "VALUES ('" + id + "','" + type + "','" + state + "','" + patientNames + "', '" + res + "', '" + dID + "', '" + gID + "', '" + score + "')";
          stmt.addBatch(sql);
          stmt.executeBatch();
          psqlClient.commit();
@@ -51,8 +50,7 @@ final class PsqlNotifications {
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =
-               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
-               + "')";
+               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
          stmt.addBatch(sql);
          stmt.executeBatch();
          psqlClient.commit();

@@ -14,15 +14,14 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   public static final Config CONFIG = new Builder()
-         .withSystemEnvironment()
-         .withSystemProperties()
-         .withOptionalRelativeFile("/conf/server.production.conf")
-         .withOptionalRelativeFile("/conf/server.staging.conf")
-         .withOptionalRelativeFile("/conf/server.test.conf")
-         .withResource("application.local.conf")
-         .withResource("application.conf")
-         .build();
+   public static final Config CONFIG = new Builder().withSystemEnvironment()
+                                                    .withSystemProperties()
+                                                    .withOptionalRelativeFile("/conf/server.production.conf")
+                                                    .withOptionalRelativeFile("/conf/server.staging.conf")
+                                                    .withOptionalRelativeFile("/conf/server.test.conf")
+                                                    .withResource("application.local.conf")
+                                                    .withResource("application.conf")
+                                                    .build();
    public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
    public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
 
@@ -45,14 +44,16 @@ public final class AppConfig {
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
    public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+
+   private AppConfig() {
+   }
+
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
    }
+
    public static int[] getDGraphPorts() {
       return DGRAPH_ALPHA_PORTS;
-   }
-
-   private AppConfig() {
    }
 
    private static class Builder {
@@ -81,7 +82,9 @@ public final class AppConfig {
 
       Builder withResource(final String resource) {
          Config resourceConfig = ConfigFactory.parseResources(resource);
-         String empty = resourceConfig.entrySet().isEmpty() ? " contains no values" : "";
+         String empty = resourceConfig.entrySet().isEmpty()
+               ? " contains no values"
+               : "";
          conf = conf.withFallback(resourceConfig);
          LOGGER.info("Loaded config file from resource ({}){}", resource, empty);
          return this;

@@ -23,22 +23,20 @@ public final class Ask {
    static CompletionStage<BackEnd.CountGoldenRecordsResponse> countGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.CountGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.CountGoldenRecordsRequest::new,
-                 java.time.Duration.ofSeconds(10),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.CountGoldenRecordsResponse> stage = AskPattern.ask(backEnd,
+                                                                                 BackEnd.CountGoldenRecordsRequest::new,
+                                                                                 java.time.Duration.ofSeconds(10),
+                                                                                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
    static CompletionStage<BackEnd.CountInteractionsResponse> countInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.CountInteractionsResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.CountInteractionsRequest::new,
-                 java.time.Duration.ofSeconds(10),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.CountInteractionsResponse> stage = AskPattern.ask(backEnd,
+                                                                                BackEnd.CountInteractionsRequest::new,
+                                                                                java.time.Duration.ofSeconds(10),
+                                                                                actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -46,22 +44,16 @@ public final class Ask {
    static CompletionStage<BackEnd.CountRecordsResponse> countRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.CountRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.CountRecordsRequest::new,
-                 java.time.Duration.ofSeconds(10),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.CountRecordsResponse> stage =
+            AskPattern.ask(backEnd, BackEnd.CountRecordsRequest::new, java.time.Duration.ofSeconds(10), actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
    static CompletionStage<BackEnd.GetGidsAllResponse> getGidsAll(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      CompletionStage<BackEnd.GetGidsAllResponse> stage = AskPattern
-            .ask(backEnd,
-                 BackEnd.GetGidsAllRequest::new,
-                 java.time.Duration.ofSeconds(30),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.GetGidsAllResponse> stage =
+            AskPattern.ask(backEnd, BackEnd.GetGidsAllRequest::new, java.time.Duration.ofSeconds(30), actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -72,11 +64,15 @@ public final class Ask {
          final int offset,
          final LocalDate date,
          final String state) {
-      CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, date, state),
-                 java.time.Duration.ofSeconds(30),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern.ask(backEnd,
+                                                                               replyTo -> new BackEnd.GetNotificationsRequest(
+                                                                                     replyTo,
+                                                                                     limit,
+                                                                                     offset,
+                                                                                     date,
+                                                                                     state),
+                                                                               java.time.Duration.ofSeconds(30),
+                                                                               actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -84,11 +80,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String gid) {
-      final CompletionStage<BackEnd.GetExpandedGoldenRecordResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetExpandedGoldenRecordRequest(replyTo, gid),
-                 java.time.Duration.ofSeconds(5),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.GetExpandedGoldenRecordResponse> stage = AskPattern.ask(backEnd,
+                                                                                            replyTo -> new BackEnd.GetExpandedGoldenRecordRequest(
+                                                                                                  replyTo,
+                                                                                                  gid),
+                                                                                            java.time.Duration.ofSeconds(5),
+                                                                                            actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -96,11 +93,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String iid) {
-      final CompletionStage<BackEnd.GetInteractionResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetInteractionRequest(replyTo, iid),
-                 java.time.Duration.ofSeconds(5),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.GetInteractionResponse> stage = AskPattern.ask(backEnd,
+                                                                                   replyTo -> new BackEnd.GetInteractionRequest(
+                                                                                         replyTo,
+                                                                                         iid),
+                                                                                   java.time.Duration.ofSeconds(5),
+                                                                                   actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -123,11 +121,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final List<String> gidList) {
-      CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetExpandedGoldenRecordsRequest(replyTo, gidList),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> stage = AskPattern.ask(backEnd,
+                                                                                       replyTo -> new BackEnd.GetExpandedGoldenRecordsRequest(
+                                                                                             replyTo,
+                                                                                             gidList),
+                                                                                       java.time.Duration.ofSeconds(6),
+                                                                                       actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -135,11 +134,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final List<String> uidList) {
-      CompletionStage<BackEnd.GetExpandedInteractionsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetExpandedInteractionsRequest(replyTo, uidList),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.GetExpandedInteractionsResponse> stage = AskPattern.ask(backEnd,
+                                                                                      replyTo -> new BackEnd.GetExpandedInteractionsRequest(
+                                                                                            replyTo,
+                                                                                            uidList),
+                                                                                      java.time.Duration.ofSeconds(6),
+                                                                                      actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -148,11 +148,13 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenId,
          final GoldenRecordUpdateRequestPayload payload) {
-      CompletionStage<BackEnd.PatchGoldenRecordResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PatchGoldenRecordRequest(replyTo, goldenId, payload.fields()),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.PatchGoldenRecordResponse> stage = AskPattern.ask(backEnd,
+                                                                                replyTo -> new BackEnd.PatchGoldenRecordRequest(
+                                                                                      replyTo,
+                                                                                      goldenId,
+                                                                                      payload.fields()),
+                                                                                java.time.Duration.ofSeconds(6),
+                                                                                actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -163,15 +165,15 @@ public final class Ask {
          final String newGoldenId,
          final String patientId,
          final Float score) {
-      final CompletionStage<BackEnd.PatchIidGidLinkResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PatchIidGidLinkRequest(replyTo,
-                                                               currentGoldenId,
-                                                               newGoldenId,
-                                                               patientId,
-                                                               score),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.PatchIidGidLinkResponse> stage = AskPattern.ask(backEnd,
+                                                                                    replyTo -> new BackEnd.PatchIidGidLinkRequest(
+                                                                                          replyTo,
+                                                                                          currentGoldenId,
+                                                                                          newGoldenId,
+                                                                                          patientId,
+                                                                                          score),
+                                                                                    java.time.Duration.ofSeconds(6),
+                                                                                    actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -180,11 +182,14 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final String currentGoldenId,
          final String patientId) {
-      final CompletionStage<BackEnd.PatchIidNewGidLinkResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PatchIidNewGidLinkRequest(replyTo, currentGoldenId, patientId, 2.0F),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.PatchIidNewGidLinkResponse> stage = AskPattern.ask(backEnd,
+                                                                                       replyTo -> new BackEnd.PatchIidNewGidLinkRequest(
+                                                                                             replyTo,
+                                                                                             currentGoldenId,
+                                                                                             patientId,
+                                                                                             2.0F),
+                                                                                       java.time.Duration.ofSeconds(6),
+                                                                                       actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -193,11 +198,13 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final long offset,
          final long length) {
-      final CompletionStage<BackEnd.GetGidsPagedResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetGidsPagedRequest(replyTo, offset, length),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.GetGidsPagedResponse> stage = AskPattern.ask(backEnd,
+                                                                                 replyTo -> new BackEnd.GetGidsPagedRequest(
+                                                                                       replyTo,
+                                                                                       offset,
+                                                                                       length),
+                                                                                 java.time.Duration.ofSeconds(6),
+                                                                                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -205,11 +212,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String gid) {
-      final CompletionStage<BackEnd.GetGoldenRecordAuditTrailResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetGoldenRecordAuditTrailRequest(replyTo, gid),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.GetGoldenRecordAuditTrailResponse> stage = AskPattern.ask(backEnd,
+                                                                                              replyTo -> new BackEnd.GetGoldenRecordAuditTrailRequest(
+                                                                                                    replyTo,
+                                                                                                    gid),
+                                                                                              java.time.Duration.ofSeconds(6),
+                                                                                              actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -217,11 +225,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String uid) {
-      final CompletionStage<BackEnd.GetInteractionAuditTrailResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.GetInteractionAuditTrailRequest(replyTo, uid),
-                 java.time.Duration.ofSeconds(6),
-                 actorSystem.scheduler());
+      final CompletionStage<BackEnd.GetInteractionAuditTrailResponse> stage = AskPattern.ask(backEnd,
+                                                                                             replyTo -> new BackEnd.GetInteractionAuditTrailRequest(
+                                                                                                   replyTo,
+                                                                                                   uid),
+                                                                                             java.time.Duration.ofSeconds(6),
+                                                                                             actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -229,11 +238,12 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern.ask(backEnd,
+                                                                                      replyTo -> new BackEnd.PostSimpleSearchGoldenRecordsRequest(
+                                                                                            replyTo,
+                                                                                            searchRequestPayload),
+                                                                                      java.time.Duration.ofSeconds(11),
+                                                                                      actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(
             response.records()));
    }
@@ -242,23 +252,24 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final FilterGidsRequestPayload filterRequestPayload) {
-      CompletionStage<BackEnd.PostFilterGidsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostFilterGidsRequest(replyTo, filterRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> ApiModels.ApiFiteredGidsPaginatedResultSet.fromLibMPIPaginatedResultSet(
-            response.goldenIds()));
+      CompletionStage<BackEnd.PostFilterGidsResponse> stage = AskPattern.ask(backEnd,
+                                                                             replyTo -> new BackEnd.PostFilterGidsRequest(replyTo,
+                                                                                                                          filterRequestPayload),
+                                                                             java.time.Duration.ofSeconds(11),
+                                                                             actorSystem.scheduler());
+      return stage.thenApply(response -> ApiModels.ApiFiteredGidsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.goldenIds()));
    }
+
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postFilterGidsWithInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final FilterGidsRequestPayload filterRequestPayload) {
-      CompletionStage<BackEnd.PostFilterGidsWithInteractionCountResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostFilterGidsWithInteractionCountRequest(replyTo, filterRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.PostFilterGidsWithInteractionCountResponse> stage = AskPattern.ask(backEnd,
+                                                                                                 replyTo -> new BackEnd.PostFilterGidsWithInteractionCountRequest(
+                                                                                                       replyTo,
+                                                                                                       filterRequestPayload),
+                                                                                                 java.time.Duration.ofSeconds(11),
+                                                                                                 actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiFiteredGidsWithInteractionCountPaginatedResultSet.fromPaginatedGidsWithInteractionCount(
             response.goldenIds()));
    }
@@ -267,52 +278,53 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final ApiModels.ApiSimpleSearchRequestPayload simpleSearchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostSimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(
-            response.records()));
+      CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern.ask(backEnd,
+                                                                                     replyTo -> new BackEnd.PostSimpleSearchInteractionsRequest(
+                                                                                           replyTo,
+                                                                                           simpleSearchRequestPayload),
+                                                                                     java.time.Duration.ofSeconds(11),
+                                                                                     actorSystem.scheduler());
+      return stage.thenApply(response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postCustomSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostCustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(
-            response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern.ask(backEnd,
+                                                                                      replyTo -> new BackEnd.PostCustomSearchGoldenRecordsRequest(
+                                                                                            replyTo,
+                                                                                            customSearchRequestPayload),
+                                                                                      java.time.Duration.ofSeconds(11),
+                                                                                      actorSystem.scheduler());
+      return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(
+            response.records()));
    }
 
    static CompletionStage<ApiModels.ApiPaginatedResultSet> postCustomSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostCustomSearchInteractionsRequest(replyTo, customSearchRequestPayload),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(
-            response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
+      CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern.ask(backEnd,
+                                                                                     replyTo -> new BackEnd.PostCustomSearchInteractionsRequest(
+                                                                                           replyTo,
+                                                                                           customSearchRequestPayload),
+                                                                                     java.time.Duration.ofSeconds(11),
+                                                                                     actorSystem.scheduler());
+      return stage.thenApply(response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
    static CompletionStage<BackEnd.PostUpdateNotificationResponse> postUpdateNotification(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final NotificationRequest notificationRequest) {
-      CompletionStage<BackEnd.PostUpdateNotificationResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostUpdateNotificationRequest(replyTo,
-                                                                      notificationRequest.notificationId(),
-                                                                      notificationRequest.state()),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.PostUpdateNotificationResponse> stage = AskPattern.ask(backEnd,
+                                                                                     replyTo -> new BackEnd.PostUpdateNotificationRequest(
+                                                                                           replyTo,
+                                                                                           notificationRequest.notificationId(),
+                                                                                           notificationRequest.state()),
+                                                                                     java.time.Duration.ofSeconds(11),
+                                                                                     actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -321,11 +333,13 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final FileInfo info,
          final File file) {
-      CompletionStage<BackEnd.PostUploadCsvFileResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.PostUploadCsvFileRequest(replyTo, info, file),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.PostUploadCsvFileResponse> stage = AskPattern.ask(backEnd,
+                                                                                replyTo -> new BackEnd.PostUploadCsvFileRequest(
+                                                                                      replyTo,
+                                                                                      info,
+                                                                                      file),
+                                                                                java.time.Duration.ofSeconds(11),
+                                                                                actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 

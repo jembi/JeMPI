@@ -13,15 +13,16 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(org.jembi.jempi.AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   private static final Config CONFIG = new org.jembi.jempi.AppConfig.Builder()
-         .withSystemEnvironment()
-         .withSystemProperties()
-         .withOptionalRelativeFile("/conf/server.production.conf")
-         .withOptionalRelativeFile("/conf/server.staging.conf")
-         .withOptionalRelativeFile("/conf/server.test.conf")
-         .withResource("application.local.conf")
-         .withResource("application.conf")
-         .build();
+   private static final Config CONFIG = new org.jembi.jempi.AppConfig.Builder().withSystemEnvironment()
+                                                                               .withSystemProperties()
+                                                                               .withOptionalRelativeFile(
+                                                                                     "/conf/server.production.conf")
+                                                                               .withOptionalRelativeFile(
+                                                                                     "/conf/server.staging.conf")
+                                                                               .withOptionalRelativeFile("/conf/server.test.conf")
+                                                                               .withResource("application.local.conf")
+                                                                               .withResource("application.conf")
+                                                                               .build();
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");

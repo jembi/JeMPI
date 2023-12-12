@@ -123,31 +123,30 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public Receive<Event> actor() {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
-      return builder
-            .onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
-            .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
-            .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
-            .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
-            .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
-            .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
-            .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
-            .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
-            .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
-            .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
-            .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
-            .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
-            .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
-            .onMessage(PatchIidGidLinkRequest.class, this::patchIidGidLinkHandler)
-            .onMessage(PatchIidNewGidLinkRequest.class, this::patchIidNewGidLinkHandler)
-            .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
-            .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
-            .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
-            .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
-            .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
-            .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
-            .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
-            .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
-            .build();
+      return builder.onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
+                    .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
+                    .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
+                    .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
+                    .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
+                    .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
+                    .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
+                    .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+                    .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
+                    .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
+                    .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
+                    .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
+                    .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
+                    .onMessage(PatchIidGidLinkRequest.class, this::patchIidGidLinkHandler)
+                    .onMessage(PatchIidNewGidLinkRequest.class, this::patchIidNewGidLinkHandler)
+                    .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
+                    .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
+                    .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
+                    .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
+                    .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+                    .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
+                    .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
+                    .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
+                    .build();
    }
 
    private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
@@ -515,8 +514,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record GetExpandedGoldenRecordRequest(
          ActorRef<GetExpandedGoldenRecordResponse> replyTo,
-         String goldenId)
-         implements Event {
+         String goldenId) implements Event {
    }
 
    public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {
@@ -527,8 +525,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> goldenIds) implements Event {
    }
 
-   public record GetExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords)
-         implements EventResponse {
+   public record GetExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse {
    }
 
    public record GetExpandedInteractionsRequest(
@@ -536,8 +533,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> patientIds) implements Event {
    }
 
-   public record GetExpandedInteractionsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords)
-         implements EventResponse {
+   public record GetExpandedInteractionsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse {
    }
 
    public record GetInteractionRequest(
@@ -545,8 +541,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String iid) implements Event {
    }
 
-   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient)
-         implements EventResponse {
+   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse {
    }
 
    public record GetNotificationsRequest(
@@ -580,8 +575,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          Float score) implements Event {
    }
 
-   public record PatchIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
-         implements EventResponse {
+   public record PatchIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
    public record PatchIidNewGidLinkRequest(
@@ -591,8 +585,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          float score) implements Event {
    }
 
-   public record PatchIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo)
-         implements EventResponse {
+   public record PatchIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
    public record PostUpdateNotificationRequest(
@@ -656,8 +649,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileRequest(
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
-         File file)
-         implements Event {
+         File file) implements Event {
    }
 
    public record PostUploadCsvFileResponse() implements EventResponse {

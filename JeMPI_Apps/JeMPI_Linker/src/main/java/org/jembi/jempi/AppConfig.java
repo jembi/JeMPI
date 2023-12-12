@@ -14,17 +14,16 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   private static final Config CONFIG = new Builder()
-         .withSystemEnvironment()
-         .withSystemProperties()
-         .withOptionalRelativeFile("/conf/server.production.conf")
-         .withOptionalRelativeFile("/conf/server.staging.conf")
-         .withOptionalRelativeFile("/conf/server.test.conf")
-         .withResource("application.local.conf")
-         .withResource("application.conf")
-         .build();
+   private static final Config CONFIG = new Builder().withSystemEnvironment()
+                                                     .withSystemProperties()
+                                                     .withOptionalRelativeFile("/conf/server.production.conf")
+                                                     .withOptionalRelativeFile("/conf/server.staging.conf")
+                                                     .withOptionalRelativeFile("/conf/server.test.conf")
+                                                     .withResource("application.local.conf")
+                                                     .withResource("application.conf")
+                                                     .build();
 
-//   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
+   //   public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
 //   public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
 //   public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
 //   public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
@@ -46,17 +45,17 @@ public final class AppConfig {
    public static final String API_HTTP_PORT = CONFIG.getString("API_HTTP_PORT");
    public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
    public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
+   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+
+   private AppConfig() {
+   }
 
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
    }
+
    public static int[] getDGraphPorts() {
       return DGRAPH_ALPHA_PORTS;
-   }
-
-   public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
-
-   private AppConfig() {
    }
 
    private static class Builder {

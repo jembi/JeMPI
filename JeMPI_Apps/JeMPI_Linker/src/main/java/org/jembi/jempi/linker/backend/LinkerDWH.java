@@ -84,9 +84,8 @@ final class LinkerDWH {
          final ExpandedGoldenRecord expandedGoldenRecord) {
       expandedGoldenRecord.interactionsWithScore().forEach(interactionWithScore -> {
          final var interaction = interactionWithScore.interaction();
-         final var score =
-               LinkerUtils.calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
-                                               interaction.demographicData());
+         final var score = LinkerUtils.calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
+                                                           interaction.demographicData());
 
          if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("{} -- {} : {}", interactionWithScore.score(), score, abs(interactionWithScore.score() - score) > 1E-2);
@@ -126,32 +125,29 @@ final class LinkerDWH {
             if (candidates.isEmpty()) {
                try {
                   final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
-                  final var f =
-                        """
-                        MATCH NOTIFICATION NO CANDIDATE
-                        {}""";
+                  final var f = """
+                                MATCH NOTIFICATION NO CANDIDATE
+                                {}""";
                   LOGGER.info(f, i);
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }
             } else {
-               final var workCandidate =
-                     candidates.parallelStream()
-                               .unordered()
-                               .map(candidate -> new WorkCandidate(candidate,
-                                                                   LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                                   interaction.demographicData())))
-                               .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                               .collect(Collectors.toCollection(ArrayList::new))
-                               .get(0);
+               final var workCandidate = candidates.parallelStream()
+                                                   .unordered()
+                                                   .map(candidate -> new WorkCandidate(candidate,
+                                                                                       LinkerUtils.calcNormalizedScore(candidate.demographicData(),
+                                                                                                                       interaction.demographicData())))
+                                                   .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                                   .collect(Collectors.toCollection(ArrayList::new))
+                                                   .get(0);
                try {
                   final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
                   final var g = OBJECT_MAPPER.writeValueAsString(workCandidate.goldenRecord().demographicData());
-                  final var f =
-                        """
-                        MATCH NOTIFICATION
-                        {}
-                        {}""";
+                  final var f = """
+                                MATCH NOTIFICATION
+                                {}
+                                {}""";
                   LOGGER.info(f, i, g);
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
@@ -173,14 +169,14 @@ final class LinkerDWH {
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
             } else {
-               final var allCandidateScores =
-                     candidateGoldenRecords.parallelStream()
-                                           .unordered()
-                                           .map(candidate -> new WorkCandidate(candidate,
-                                                                               LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                                               interaction.demographicData())))
-                                           .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                           .collect(Collectors.toCollection(ArrayList::new));
+               final var allCandidateScores = candidateGoldenRecords.parallelStream()
+                                                                    .unordered()
+                                                                    .map(candidate -> new WorkCandidate(candidate,
+                                                                                                        LinkerUtils.calcNormalizedScore(
+                                                                                                              candidate.demographicData(),
+                                                                                                              interaction.demographicData())))
+                                                                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                                                    .collect(Collectors.toCollection(ArrayList::new));
 
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
@@ -192,20 +188,13 @@ final class LinkerDWH {
                // Get a list of candidates above the supplied threshold
                final var belowThresholdNotifications = new ArrayList<Notification.MatchData>();
                final var aboveThresholdNotifications = new ArrayList<Notification.MatchData>();
-               final var candidatesAboveMatchThreshold =
-                     allCandidateScores
-                           .stream()
-                           .peek(v -> {
-                              if (v.score() > matchThreshold - 0.1 && v.score() < matchThreshold) {
-                                 belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(),
-                                                                                            v.score()));
-                              } else if (v.score() >= matchThreshold && v.score() < matchThreshold + 0.1) {
-                                 aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(),
-                                                                                            v.score()));
-                              }
-                           })
-                           .filter(v -> v.score() >= matchThreshold)
-                           .collect(Collectors.toCollection(ArrayList::new));
+               final var candidatesAboveMatchThreshold = allCandidateScores.stream().peek(v -> {
+                  if (v.score() > matchThreshold - 0.1 && v.score() < matchThreshold) {
+                     belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                  } else if (v.score() >= matchThreshold && v.score() < matchThreshold + 0.1) {
+                     aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                  }
+               }).filter(v -> v.score() >= matchThreshold).collect(Collectors.toCollection(ArrayList::new));
 
                if (candidatesAboveMatchThreshold.isEmpty()) {
                   if (candidatesInExternalLinkRange.isEmpty()) {
@@ -232,11 +221,10 @@ final class LinkerDWH {
                   final var validated2 =
                         CustomLinkerProbabilistic.validateProbabilisticScore(firstCandidate.goldenRecord.demographicData(),
                                                                              interaction.demographicData());
-                  linkInfo =
-                        libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
-                                                                              linkToGoldenId,
-                                                                              validated1,
-                                                                              validated2);
+                  linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
+                                                                                   linkToGoldenId,
+                                                                                   validated1,
+                                                                                   validated2);
 
                   if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                      sendNotification(Notification.NotificationType.THRESHOLD,

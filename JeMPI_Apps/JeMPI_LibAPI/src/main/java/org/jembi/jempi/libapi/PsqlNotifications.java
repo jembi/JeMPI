@@ -34,7 +34,7 @@ final class PsqlNotifications {
     * @param limit  The maximum number of matches to retrieve.
     * @param offset The number of matches to skip from the beginning.
     * @param date   The date threshold for match creation.
-    * @param state   The state of notification.
+    * @param state  The state of notification.
     * @return A {@link MatchesForReviewResult} object containing the matches and related information.
     */
    MatchesForReviewResult getMatchesForReview(
@@ -46,8 +46,9 @@ final class PsqlNotifications {
       MatchesForReviewResult result = new MatchesForReviewResult();
       int skippedRows = 0;
       psqlClient.connect();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY);
-           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification")) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY); PreparedStatement countStatement =
+            psqlClient.prepareStatement(
+            "SELECT COUNT(*) FROM notification")) {
          ResultSet countRs = countStatement.executeQuery();
          countRs.next();
          int totalCount = countRs.getInt(1);
@@ -117,8 +118,7 @@ final class PsqlNotifications {
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =
-               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
-               + "')";
+               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
          stmt.addBatch(sql);
 
 
@@ -133,7 +133,9 @@ final class PsqlNotifications {
       psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
          ResultSet rs = stmt.executeQuery(String.format(Locale.ROOT,
-                                                        "update notification set state = \'%s\' where id = \'%s\'", state, id));
+                                                        "update notification set state = '%s' where id = '%s'",
+                                                        state,
+                                                        id));
          psqlClient.commit();
       }
    }

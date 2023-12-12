@@ -55,13 +55,11 @@ final class PsqlAuditTrail {
 
    void addAuditEvent(final AuditEvent event) {
       psqlClient.connect(AppConfig.POSTGRESQL_AUDIT_DB);
-      try (var preparedStatement = psqlClient.prepareStatement(
-            String.format(
-                  Locale.ROOT,
-                  """
-                  INSERT INTO %s (createdAt, interactionID, goldenID, event)
-                  VALUES (?, ?, ?, ?);
-                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
+      try (var preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT, """
+                                                                                          INSERT INTO %s (createdAt, interactionID, goldenID, event)
+                                                                                          VALUES (?, ?, ?, ?);
+                                                                                          """, PSQL_TABLE_AUDIT_TRAIL)
+                                                                     .stripIndent())) {
          preparedStatement.setTimestamp(1, event.createdAt());
          preparedStatement.setString(2, event.interactionID());
          preparedStatement.setString(3, event.goldenID());

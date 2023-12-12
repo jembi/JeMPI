@@ -20,26 +20,22 @@ public final class Main {
    }
 
    public Behavior<Void> create() {
-      return Behaviors.setup(
-            context -> {
-               final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
-               context.watch(backEndActor);
-               final var spAuditTrail = new SPAuditTrail();
-               spAuditTrail.open();
-               final var spNotification = new SPNotification();
-               spNotification.open();
-               final var spInteractions = new SPInteractions();
-               spInteractions.open(context.getSystem(), backEndActor);
-               final var httpServer = new HttpServer();
-               httpServer.open(context.getSystem(), backEndActor);
-               return Behaviors.receive(Void.class)
-                               .onSignal(Terminated.class,
-                                         sig -> {
-                                            httpServer.close(context.getSystem());
-                                            return Behaviors.stopped();
-                                         })
-                               .build();
-            });
+      return Behaviors.setup(context -> {
+         final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
+         context.watch(backEndActor);
+         final var spAuditTrail = new SPAuditTrail();
+         spAuditTrail.open();
+         final var spNotification = new SPNotification();
+         spNotification.open();
+         final var spInteractions = new SPInteractions();
+         spInteractions.open(context.getSystem(), backEndActor);
+         final var httpServer = new HttpServer();
+         httpServer.open(context.getSystem(), backEndActor);
+         return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
+            httpServer.close(context.getSystem());
+            return Behaviors.stopped();
+         }).build();
+      });
    }
 
    private void run() {

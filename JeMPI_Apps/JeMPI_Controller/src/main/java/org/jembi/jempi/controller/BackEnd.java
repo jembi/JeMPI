@@ -30,10 +30,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public Receive<Event> createReceive() {
-      return newReceiveBuilder()
-            .onMessage(EventTeaTime.class, this::eventTeaTimeHandler)
-            .onMessage(EventWorkTime.class, this::eventWorkTimeHandler)
-            .build();
+      return newReceiveBuilder().onMessage(EventTeaTime.class, this::eventTeaTimeHandler)
+                                .onMessage(EventWorkTime.class, this::eventWorkTimeHandler)
+                                .build();
    }
 
    private Behavior<Event> eventWorkTimeHandler(final EventWorkTime request) {

@@ -38,30 +38,26 @@ final class SPNotification {
       final Deserializer<Notification> notificationDeserializer = new JsonPojoDeserializer<>(Notification.class);
       final Serde<Notification> notificationSerde = Serdes.serdeFrom(notificationSerializer, notificationDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, Notification> notificationStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_NOTIFICATIONS,
-            Consumed.with(stringSerde, notificationSerde));
-      notificationStream
-            .foreach((key, value) -> {
-               try {
-                  UUID id = UUID.randomUUID();
-                  psqlNotifications.insert(id,
-                                           value.notificationType().toString(),
-                                           value.patientNames(),
-                                           value.linkedTo().score(),
-                                           value.timeStamp(),
-                                           value.linkedTo().gID(),
-                                           value.dID());
+      final KStream<String, Notification> notificationStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_NOTIFICATIONS, Consumed.with(stringSerde, notificationSerde));
+      notificationStream.foreach((key, value) -> {
+         try {
+            UUID id = UUID.randomUUID();
+            psqlNotifications.insert(id,
+                                     value.notificationType().toString(),
+                                     value.patientNames(),
+                                     value.linkedTo().score(),
+                                     value.timeStamp(),
+                                     value.linkedTo().gID(),
+                                     value.dID());
 
-                  for (int i = 0; i < value.candidates().size(); i++) {
-                     psqlNotifications.insertCandidates(id,
-                                                        value.candidates().get(i).score(),
-                                                        value.candidates().get(i).gID());
-                  }
-               } catch (SQLException e) {
-                  LOGGER.debug(e.toString());
-               }
-            });
+            for (int i = 0; i < value.candidates().size(); i++) {
+               psqlNotifications.insertCandidates(id, value.candidates().get(i).score(), value.candidates().get(i).gID());
+            }
+         } catch (SQLException e) {
+            LOGGER.debug(e.toString());
+         }
+      });
 
       final var notificationKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       notificationKafkaStreams.cleanUp();
