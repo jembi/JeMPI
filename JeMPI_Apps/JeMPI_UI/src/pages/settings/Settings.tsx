@@ -3,6 +3,7 @@ import { Box } from '@mui/system'
 import React, { SyntheticEvent, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
+import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -76,7 +77,10 @@ const Settings = () => {
             <UniqueToGR />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            Unique to Interaction
+            <Typography variant="h5" sx={{ py: 3 }}>
+              Unique to Interaction
+            </Typography>
+            <UniqueToInteraction />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             Golden Records Lists

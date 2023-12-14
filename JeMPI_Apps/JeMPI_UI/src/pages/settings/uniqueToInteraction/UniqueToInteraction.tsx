@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add'
@@ -35,7 +35,7 @@ const initialRows: GridRowsProp = [
     id: randomId(),
     name: randomTraderName(),
     type: 'string',
-    index: 'exact, trigram',
+    index: 'exact',
     m: 0.8,
     u: 0.3
   },
@@ -51,7 +51,7 @@ const initialRows: GridRowsProp = [
     id: randomId(),
     name: randomTraderName(),
     type: 'string',
-    index: 'exact, trigram',
+    index: 'exact',
     m: 0.8,
     u: 0.3
   }
@@ -78,13 +78,10 @@ function EditToolbar(props: EditToolbarProps) {
 
   return <GridToolbarContainer></GridToolbarContainer>
 }
-
-const UniqueToGR = () => {
-  const [rows, setRows] = React.useState(initialRows)
+const UniqueToInteraction = () => {
+  const [rows, setRows] = useState(initialRows)
   const { enqueueSnackbar } = useSnackbar()
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
-  )
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
@@ -141,6 +138,15 @@ const UniqueToGR = () => {
     {
       field: 'type',
       headerName: 'Type',
+      type: 'string',
+      width: 300,
+      align: 'center',
+      headerAlign: 'center',
+      editable: false
+    },
+    {
+      field: 'index',
+      headerName: 'Index',
       type: 'string',
       width: 300,
       align: 'center',
@@ -222,4 +228,4 @@ const UniqueToGR = () => {
   )
 }
 
-export default UniqueToGR
+export default UniqueToInteraction
