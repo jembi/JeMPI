@@ -275,37 +275,42 @@ const Records = () => {
             </Stack>
           </AccordionDetails>
         </Accordion>
-        <Accordion>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography variant="h6">Search within filtered results</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Stack gap="10px" alignItems="flex-start">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DesktopDatePicker
-                  value={dateSearch}
-                  format="YYYY/MM/DD"
-                  onChange={value => changeSelectedSearchDate(value)}
-                  slotProps={{
-                    textField: {
-                      variant: 'outlined',
-                      label: 'Date'
-                    }
-                  }}
-                />
-              </LocalizationProvider>
+        {/* Search will be refactored in the future to be part of filter */}
+        {false && (
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography variant="h6">
+                Search within filtered results
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Stack gap="10px" alignItems="flex-start">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DesktopDatePicker
+                    value={dateSearch}
+                    format="YYYY/MM/DD"
+                    onChange={value => changeSelectedSearchDate(value)}
+                    slotProps={{
+                      textField: {
+                        variant: 'outlined',
+                        label: 'Date'
+                      }
+                    }}
+                  />
+                </LocalizationProvider>
 
-              <FilterTable
-                onSubmit={onSearch}
-                onCancel={() => setSearchQuery([])}
-              />
-            </Stack>
-          </AccordionDetails>
-        </Accordion>
+                <FilterTable
+                  onSubmit={onSearch}
+                  onCancel={() => setSearchQuery([])}
+                />
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
+        )}
         <Paper sx={{ p: 1 }}>
           <Typography p={1} variant="h6">
             Search result

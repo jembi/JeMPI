@@ -16,7 +16,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "rootDir": "./",
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "paths": {
       "types/*": ["types/*"],
       "components/*": ["components/*"],
