@@ -84,6 +84,10 @@ services:
         target: 50000
         protocol: tcp
         mode: host
+      - published: 50001
+        target: 50001
+        protocol: tcp
+        mode: host
       - published: 3000
         target: 3000
         protocol: tcp
@@ -102,6 +106,7 @@ services:
       resources:
         limits:
           memory: ${HAPROXY_RAM_LIMIT}
+    command: haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/extra-${HAPROXY_EXTENSION}.cfg
       
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
@@ -567,7 +572,7 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      API_HTTP_PORT: 50000
+      API_HTTP_PORT: ${API_PORT}
       LINKER_IP: linker
       LINKER_HTTP_PORT: 50000
     networks:
@@ -620,7 +625,7 @@ services:
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      API_KC_HTTP_PORT: 50000
+      API_KC_HTTP_PORT: ${API_PORT_KC}
       LINKER_IP: linker
       LINKER_HTTP_PORT: 50000
     networks:
