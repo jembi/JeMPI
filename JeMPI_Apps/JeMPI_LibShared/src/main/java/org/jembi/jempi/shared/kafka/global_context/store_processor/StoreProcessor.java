@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper;
+package org.jembi.jempi.shared.kafka.global_context.store_processor;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -6,14 +6,12 @@ import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.errors.InvalidStateStoreException;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.processor.api.Processor;
-import org.apache.kafka.streams.processor.api.ProcessorSupplier;
 import org.apache.kafka.streams.state.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde.KTableSerde;
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde.KTableSerializer;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerde;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerializer;
 
 import java.util.Properties;
 import java.util.UUID;
@@ -21,42 +19,34 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-public class GlobalKTableWrapperInstance<T> {
 
-    private static final Logger LOGGER = LogManager.getLogger(GlobalKTableWrapper.class);
+public class StoreProcessor<T> {
+    private static final Logger LOGGER = LogManager.getLogger(StoreProcessor.class);
     private final String topicName;
-    private final String uniqueId;
     private final String globalStoreName;
     private final ReadOnlyKeyValueStore<String, T> keyValueStore;
     private final MyKafkaProducer<String, T> updater;
-    private final Class<T> serializeCls;
     KafkaStreams streams;
-    public GlobalKTableWrapperInstance(final String bootStrapServers, final String topicName,  Class<T> serializeCls) throws InterruptedException, ExecutionException {
+    public StoreProcessor(final String bootStrapServers, final String topicName, Class<T> serializeCls) throws InterruptedException, ExecutionException {
 
-        this.serializeCls = serializeCls;
         this.topicName = topicName;
-        this.uniqueId = getUniqueId(topicName);
+        String uniqueId = getUniqueId(topicName);
         this.globalStoreName = String.format("%s-store", topicName);
 
         StreamsBuilder builder = new StreamsBuilder();
         builder.addGlobalStore(Stores.keyValueStoreBuilder(
-                        Stores.inMemoryKeyValueStore(globalStoreName), // TODO: Consider in memory. Also consider umique name
+                        Stores.inMemoryKeyValueStore(globalStoreName),
                         Serdes.String(),
-                        new KTableSerde<T>(this.serializeCls))
+                        new StoreValueSerde<T>(serializeCls))
                 ,
                 topicName,
-                Consumed.with(Serdes.String(),  new KTableSerde<T>(this.serializeCls)),
-                new ProcessorSupplier<String, T, Void, Void>() {
-                    public Processor<String, T, Void, Void> get() {
-                        return new GlobalKTableValuesUpdater(GetValueUpdater(), globalStoreName);
-                    }
-                });
+                Consumed.with(Serdes.String(), new StoreValueSerde<T>(serializeCls)),
+                () -> new StoreProcessorValuesUpdater<>(getValueUpdater(), globalStoreName));
 
 
-        streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId)); // TODO: Everytime called creates own unique
+        streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId));
 
-        streams.setUncaughtExceptionHandler(( exception) -> {
+        streams.setUncaughtExceptionHandler(exception -> {
             LOGGER.error(String.format("A error occurred on the global KTable stream %s", topicName), exception);
             return StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_CLIENT;
         });
@@ -66,18 +56,18 @@ public class GlobalKTableWrapperInstance<T> {
         keyValueStore = streams.store(StoreQueryParameters.fromNameAndType(globalStoreName,
                                         QueryableStoreTypes.keyValueStore()));
 
-        waitUntilStoreIsQueryable(streams).get();
+        waitUntilStoreIsQueryable().get();
 
-        updater = new MyKafkaProducer(bootStrapServers,
+        updater = new MyKafkaProducer<>(bootStrapServers,
                                         topicName,
                                         new StringSerializer(),
-                                        new KTableSerializer<T>(),
+                                        new StoreValueSerializer<>(),
                                         String.format("%s-producer", getUniqueId(topicName)));
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 
-    private CompletableFuture<Boolean> waitUntilStoreIsQueryable(KafkaStreams streams) {
+    private CompletableFuture<Boolean> waitUntilStoreIsQueryable() {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
         CompletableFuture.runAsync(() -> {
@@ -116,7 +106,7 @@ public class GlobalKTableWrapperInstance<T> {
 
         return properties;
     }
-    protected TableUpdaterProcessor<T, T, T> GetValueUpdater(){
+    protected StoreUpdaterProcessor<T, T, T> getValueUpdater(){
         return (T globalValue, T currentValue) -> currentValue;
     }
     public T getValue(){
@@ -126,10 +116,5 @@ public class GlobalKTableWrapperInstance<T> {
     public void updateValue(T value) throws ExecutionException, InterruptedException {
         updater.produceSync(this.topicName, value);
     }
-
-    public void onTableUpdate(Consumer<T> consumer){
-
-    }
-
 
 }

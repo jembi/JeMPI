@@ -1,10 +1,10 @@
-package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde;
+package org.jembi.jempi.shared.kafka.global_context.store_processor.serde;
 
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-public class KTableSerializer<T>  implements Serializer<T> {
+public class StoreValueSerializer<T>  implements Serializer<T> {
     @Override
     public byte[] serialize(String topic, T data) {
         if (data == null) {

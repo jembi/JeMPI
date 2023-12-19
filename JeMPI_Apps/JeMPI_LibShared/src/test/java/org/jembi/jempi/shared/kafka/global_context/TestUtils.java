@@ -1,11 +1,11 @@
-package org.jembi.jempi.shared.kafka.globalContext;
+package org.jembi.jempi.shared.kafka.global_context;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DeleteTopicsOptions;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.streams.StreamsConfig;
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapper;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessorFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class TestUtils {
     String getTestTopicName(final String topicName){
         return String.format("testTopic-%s", topicName);
     }
-    GlobalKTableWrapper getGlobalKTableWrapperInstance(Boolean restAll) throws ExecutionException, InterruptedException {
+    <T> StoreProcessorFactory<T>  getGlobalKTableWrapperInstance(Boolean restAll) throws ExecutionException, InterruptedException {
         if (restAll){
             Collection<String> collection = kafkaAdminClient.listTopics(new ListTopicsOptions().listInternal(false)).listings().get().stream()
                     .map(TopicListing::name)
@@ -47,6 +47,6 @@ public class TestUtils {
             kafkaAdminClient.deleteTopics(collection, new DeleteTopicsOptions()).all().get();
             Thread.sleep(1000);
         }
-        return new GlobalKTableWrapper(bootStrapServer);
+        return new StoreProcessorFactory<T>(bootStrapServer);
     }
 }

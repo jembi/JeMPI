@@ -1,14 +1,12 @@
-package org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.serde;
+package org.jembi.jempi.shared.kafka.global_context.store_processor.serde;
 
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-
-
-public class KTableDeserializer<T> implements Deserializer<T> {
+public class StoreValueDeserializer<T> implements Deserializer<T> {
     private final Class<T> serializeCls;
-    public KTableDeserializer(Class<T> serializeCls){
+    public StoreValueDeserializer(Class<T> serializeCls){
         this.serializeCls = serializeCls;
     }
     @Override
