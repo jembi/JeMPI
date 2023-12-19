@@ -16,11 +16,14 @@ public class MUKGlobalStoreInstance extends GlobalKTableWrapperInstance<Object> 
     }
     @Override
     public HashMap<String, FieldEqualityPairMatchMatrix> getValue() {
-
-
+        Object storedValue = super.getValue();
         HashMap<String, FieldEqualityPairMatchMatrix> storeValue = new HashMap<>();
 
-        for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) super.getValue()).entrySet()){
+        if (storedValue == null){
+            return storeValue;
+        }
+
+        for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) storedValue).entrySet()){
             storeValue.put(value.getKey(), ConvertTpFieldEqualityPairMatchMatrix(value.getValue()) );
         }
 

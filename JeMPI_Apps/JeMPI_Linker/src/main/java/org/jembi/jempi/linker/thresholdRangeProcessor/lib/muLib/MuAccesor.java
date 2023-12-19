@@ -8,7 +8,7 @@ public class MuAccesor {
 
     private static Map<String,MUKGlobalStoreInstance> accessorInstances = new HashMap<>() {};
 
-    static MUKGlobalStoreInstance GetKafkaMUUpdater(String linkerId, String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
+    public static MUKGlobalStoreInstance GetKafkaMUUpdater(String linkerId, String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
         if (!accessorInstances.containsKey(linkerId)) {
             accessorInstances.put(linkerId, (MUKGlobalStoreInstance) new MUKGlobalStoreFactory(kafkaBootstrapServer).getCreate(String.format("linker_mu_tally_%s", linkerId), Object.class)); //TODO: Object.class <- change
         }

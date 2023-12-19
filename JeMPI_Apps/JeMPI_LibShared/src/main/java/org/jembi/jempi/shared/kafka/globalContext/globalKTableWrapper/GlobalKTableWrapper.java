@@ -37,7 +37,7 @@ public class GlobalKTableWrapper {
             try{
                 instance = getInstanceClass(name, serializeCls);
             } catch (Exception e){
-                LOGGER.error(String.format("Failed to create global kTable with the name %s", name), e);
+                LOGGER.error(String.format("Failed to create global kTable with the name %s. Reason:", name, e.getMessage()), e);
                 throw e;
             }
             tables.put(name, instance);

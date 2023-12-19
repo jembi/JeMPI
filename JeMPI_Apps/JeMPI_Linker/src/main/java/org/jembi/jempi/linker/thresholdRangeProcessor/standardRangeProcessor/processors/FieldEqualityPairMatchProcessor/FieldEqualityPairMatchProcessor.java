@@ -72,7 +72,7 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     public void saveToKafka() throws ExecutionException, InterruptedException {
         // TODO: Use LOGGER
         System.out.println(this.muModel.toString());
-      //  this.muModel.saveToKafka();
+        this.muModel.saveToKafka();
     }
 
     public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){

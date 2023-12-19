@@ -162,6 +162,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
