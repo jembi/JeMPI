@@ -41,7 +41,7 @@ public class GlobalKTableWrapperInstance<T> {
 
         StreamsBuilder builder = new StreamsBuilder();
         builder.addGlobalStore(Stores.keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore(globalStoreName), // TODO: Consider in memory. Also consider umique name
+                        Stores.inMemoryKeyValueStore(globalStoreName), // TODO: Consider in memory. Also consider umique name
                         Serdes.String(),
                         new KTableSerde<T>(this.serializeCls))
                 ,
@@ -97,7 +97,7 @@ public class GlobalKTableWrapperInstance<T> {
             }
         });
 
-        future.orTimeout(5000, TimeUnit.MILLISECONDS)
+        future.orTimeout(15000, TimeUnit.MILLISECONDS)
                 .exceptionally(throwable -> {
                     future.completeExceptionally(new TimeoutException("Timeout waiting for the store to become Queryable ."));
                     return null;

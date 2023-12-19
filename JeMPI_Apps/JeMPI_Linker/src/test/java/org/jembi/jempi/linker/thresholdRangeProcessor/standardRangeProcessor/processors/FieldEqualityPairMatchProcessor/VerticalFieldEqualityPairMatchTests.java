@@ -7,6 +7,8 @@ import org.jembi.jempi.linker.backend.LinkerDWH;
 import org.jembi.jempi.linker.backend.LinkerUtils;
 import org.jembi.jempi.linker.backend.CustomLinkerDeterministic;
 import org.jembi.jempi.linker.backend.CustomLinkerProbabilistic;
+import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.MuAccesor;
 import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeDetails;
 import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeFactory;
 import org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.StandardThresholdRangeProcessor;
@@ -25,12 +27,12 @@ import org.junit.jupiter.api.TestInstance;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static java.lang.Thread.sleep;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class VerticalFieldEqualityPairMatchTests {
     LibMPI libMPI = null;
@@ -39,10 +41,30 @@ public class VerticalFieldEqualityPairMatchTests {
         libMPI = MockLibMPI.getLibMPI();
     }
 
+
+    public void printSaved() throws ExecutionException, InterruptedException {
+        sleep(2000);
+        HashMap<String, FieldEqualityPairMatchMatrix> resultMatrix = MuAccesor.GetKafkaMUUpdater("linker_new",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
+
+        StringBuilder matrixData = new StringBuilder("----- Current Values ----");
+
+        for (Map.Entry<String, FieldEqualityPairMatchMatrix> field: resultMatrix.entrySet()){
+            matrixData.append(String.format("\n-> %s", field.getKey()));
+            FieldEqualityPairMatchMatrix matrix = field.getValue();
+            matrixData.append(matrix.toString());
+            matrixData.append(String.format("M: %f\n", (float) matrix.getFieldEqualPairMatch() / (matrix.getFieldEqualPairMatch() + matrix.getFieldNotEqualPairMatch())));
+            matrixData.append(String.format("U: %f\n", (float) matrix.getFieldEqualPairNoMatch() / (matrix.getFieldEqualPairNoMatch() + matrix.getFieldNotEqualPairNoMatch())));
+            matrixData.append("\n\n");
+            matrixData.append("-----------------------------------------");
+        }
+
+        System.out.println(matrixData);
+    }
+
     // Extract of org.jembi.jempi.linker.backend.LinkerDWH.linkInteraction
     public void mockLinkInteraction(final Interaction interaction) throws ExecutionException, InterruptedException {
         StandardThresholdRangeProcessor thresholdProcessor =
-                (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker", interaction).SetRanges(List.of(RangeTypeFactory.StandardThresholdAboveThreshold(AppConfig.LINKER_MATCH_THRESHOLD, 1.0F)));
+                (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker_new", interaction).SetRanges(List.of(RangeTypeFactory.StandardThresholdAboveThreshold(AppConfig.LINKER_MATCH_THRESHOLD, 1.0F)));
 
         libMPI.startTransaction();
         final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
@@ -121,6 +143,7 @@ public class VerticalFieldEqualityPairMatchTests {
             libMPI.startTransaction();
             libMPI.dropAll(); libMPI.createSchema();
             useCSVFile("/csv/basic.csv");
+            printSaved();
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
