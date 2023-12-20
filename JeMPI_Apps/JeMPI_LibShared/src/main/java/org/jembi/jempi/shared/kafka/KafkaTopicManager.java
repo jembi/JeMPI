@@ -21,7 +21,7 @@ public final class KafkaTopicManager {
       return adminClient.listTopics(new ListTopicsOptions().listInternal(false)).listings().get();
    }
 
-   public Boolean hasTopic(String name) throws ExecutionException, InterruptedException {
+   public Boolean hasTopic(final String name) throws ExecutionException, InterruptedException {
       return getAllTopics().stream().anyMatch(r -> r.name().equals(name));
    }
    public Map<String, TopicDescription> describeTopic(final String topic) throws ExecutionException, InterruptedException {

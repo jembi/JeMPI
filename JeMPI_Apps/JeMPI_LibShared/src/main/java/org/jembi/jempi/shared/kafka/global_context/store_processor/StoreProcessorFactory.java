@@ -19,8 +19,8 @@ public class StoreProcessorFactory<T> {
         topicManager = new KafkaTopicManager(bootStrapServers);
         this.bootStrapServers = bootStrapServers;
     }
-    public StoreProcessor<T> getCreate(final String name, Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {
-        if (Boolean.FALSE.equals(topicManager.hasTopic(name))){
+    public StoreProcessor<T> getCreate(final String name, final Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {
+        if (Boolean.FALSE.equals(topicManager.hasTopic(name))) {
             topicManager.createTopic(name,
                             1,
                             (short) 1,
@@ -29,15 +29,15 @@ public class StoreProcessorFactory<T> {
         }
         return get(name, serializeCls);
     }
-    public StoreProcessor<T> get(final String name, Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {
-        if (Boolean.FALSE.equals(topicManager.hasTopic(name))){
+    public StoreProcessor<T> get(final String name, final Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {
+        if (Boolean.FALSE.equals(topicManager.hasTopic(name))) {
             throw new UnknownTopicIdException(String.format("Could not find the global KTable with the name '%s'. Try running getCreate instead.", name));
         }
-        if (!tables.containsKey(name)){
+        if (!tables.containsKey(name)) {
             StoreProcessor<T> instance;
-            try{
+            try {
                 instance = getInstanceClass(name, serializeCls);
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOGGER.error(String.format("Failed to create global kTable with the name %s. Reason: %s", name, e.getMessage()), e);
                 throw e;
             }
@@ -46,7 +46,7 @@ public class StoreProcessorFactory<T> {
         return tables.get(name);
     }
 
-    protected StoreProcessor<T> getInstanceClass(final String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
+    protected StoreProcessor<T> getInstanceClass(final String name, final Class<T> serializeCls) throws ExecutionException, InterruptedException {
         return new StoreProcessor<>(bootStrapServers, name, serializeCls);
     }
 }

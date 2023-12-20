@@ -73,7 +73,7 @@ public class CustomDemographicData {
                                        this.nationalId.toLowerCase().replaceAll("\\W", ""));
    }
 
-   public Map<String, String> toMap(){
+   public Map<String, String> toMap() {
       return Map.ofEntries(
               Map.entry("givenName", this.givenName),
               Map.entry("familyName", this.familyName),
