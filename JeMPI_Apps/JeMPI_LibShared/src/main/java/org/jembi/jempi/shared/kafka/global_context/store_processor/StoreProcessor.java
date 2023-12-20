@@ -14,7 +14,6 @@ import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreVa
 import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerializer;
 
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +51,6 @@ public class StoreProcessor<T> {
         });
 
         streams.start();
-
         keyValueStore = streams.store(StoreQueryParameters.fromNameAndType(globalStoreName,
                                         QueryableStoreTypes.keyValueStore()));
 
@@ -97,7 +95,7 @@ public class StoreProcessor<T> {
     }
 
     private String getUniqueId(final String topicName){
-        return String.format("jempi-global-ktable-wrapper-%s-%s", topicName, UUID.randomUUID());
+        return String.format("jempi-global-store-wrapper-%s", topicName);
     }
     private Properties getProperties(final String bootStrapServers, final String uniqueName){
         Properties properties = new Properties();

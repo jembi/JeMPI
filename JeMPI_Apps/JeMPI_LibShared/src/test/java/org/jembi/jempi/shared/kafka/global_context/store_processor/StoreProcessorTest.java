@@ -1,6 +1,6 @@
-package org.jembi.jempi.shared.kafka.global_context;
+package org.jembi.jempi.shared.kafka.global_context.store_processor;
 
-import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessor;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.utils.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
