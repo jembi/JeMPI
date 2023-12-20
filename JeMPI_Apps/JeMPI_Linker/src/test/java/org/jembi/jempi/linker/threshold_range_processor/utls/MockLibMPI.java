@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.utls;
+package org.jembi.jempi.linker.threshold_range_processor.utls;
 
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;

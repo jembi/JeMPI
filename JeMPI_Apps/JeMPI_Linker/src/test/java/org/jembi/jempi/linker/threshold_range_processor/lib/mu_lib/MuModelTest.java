@@ -1,8 +1,8 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib;
+package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
 
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.linker.thresholdRangeProcessor.utls.MockLibMPI;
+import org.jembi.jempi.linker.threshold_range_processor.utls.MockLibMPI;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

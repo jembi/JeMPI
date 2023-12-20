@@ -1,8 +1,7 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor;
+package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor.FieldEqualityPairMatchProcessor;
-import org.jembi.jempi.linker.thresholdRangeProcessor.utls.MockInteractionCreator;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.utls.MockInteractionCreator;
 import org.jembi.jempi.shared.models.Interaction;
 
 import java.util.List;

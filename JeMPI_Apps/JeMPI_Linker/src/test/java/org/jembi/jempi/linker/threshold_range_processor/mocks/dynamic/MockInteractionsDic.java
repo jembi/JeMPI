@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.mocks.dynamic;
+package org.jembi.jempi.linker.threshold_range_processor.mocks.dynamic;
 
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
 import org.jembi.jempi.shared.models.CustomDemographicData;

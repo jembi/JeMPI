@@ -1,6 +1,6 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.utls;
+package org.jembi.jempi.linker.threshold_range_processor.utls;
 
-import org.jembi.jempi.linker.thresholdRangeProcessor.mocks.dynamic.MockInteractionsDic;
+import org.jembi.jempi.linker.threshold_range_processor.mocks.dynamic.MockInteractionsDic;
 import org.jembi.jempi.shared.models.*;
 
 import java.time.LocalDateTime;

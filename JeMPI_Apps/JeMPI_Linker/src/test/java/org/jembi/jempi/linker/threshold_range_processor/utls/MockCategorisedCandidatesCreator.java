@@ -1,19 +1,19 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.utls;
+package org.jembi.jempi.linker.threshold_range_processor.utls;
 
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeDetails;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeFactory;
-import org.jembi.jempi.linker.thresholdRangeProcessor.mocks.dynamic.MockInteractionDicDefinition;
-import org.jembi.jempi.linker.thresholdRangeProcessor.mocks.dynamic.MockInteractionsDic;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeDetails;
+import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeFactory;
+import org.jembi.jempi.linker.threshold_range_processor.mocks.dynamic.MockInteractionDicDefinition;
+import org.jembi.jempi.linker.threshold_range_processor.mocks.dynamic.MockInteractionsDic;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 import java.util.Random;
 
 public class MockCategorisedCandidatesCreator {
 
-    RangeDetails notificationRangeBelow = RangeTypeFactory.StandardThresholdNotificationRangeBelow(0.4F, 0.5F);
-    RangeDetails notificationRangeAbove= RangeTypeFactory.StandardThresholdNotificationRangeBelow(0.5F, 0.6F);
-    RangeDetails aboveThreshold= RangeTypeFactory.StandardThresholdAboveThreshold(0.5F, 1.0F);
+    RangeDetails notificationRangeBelow = RangeTypeFactory.standardThresholdNotificationRangeBelow(0.4F, 0.5F);
+    RangeDetails notificationRangeAbove= RangeTypeFactory.standardThresholdNotificationRangeBelow(0.5F, 0.6F);
+    RangeDetails aboveThreshold= RangeTypeFactory.standardThresholdAboveThreshold(0.5F, 1.0F);
 
     MockInteractionDicDefinition.InteractionDic mockInteractionDic;
     public MockCategorisedCandidatesCreator(int mockInteractionIndex){
@@ -38,14 +38,14 @@ public class MockCategorisedCandidatesCreator {
 
         if (score > 0.6F){
             return new CategorisedCandidates(MockInteractionCreator.goldenRecordFromDemographicData(String.valueOf(String.format("ID_%s", mockCandidateToUse)), mockCandidate), score)
-                        .AddApplicableRange(aboveThreshold);
+                        .addApplicableRange(aboveThreshold);
         } else if (score >= 0.5F && score < 0.6F) {
             return new CategorisedCandidates(MockInteractionCreator.goldenRecordFromDemographicData(String.valueOf(String.format("ID_%s", mockCandidateToUse)), mockCandidate), score)
-                    .AddApplicableRange(notificationRangeAbove)
-                    .AddApplicableRange(aboveThreshold);
+                    .addApplicableRange(notificationRangeAbove)
+                    .addApplicableRange(aboveThreshold);
         } else if (score >= 0.4F && score < 0.5F) {
             return new CategorisedCandidates(MockInteractionCreator.goldenRecordFromDemographicData(String.valueOf(String.format("ID_%s", mockCandidateToUse)), mockCandidate), score)
-                    .AddApplicableRange(notificationRangeBelow);
+                    .addApplicableRange(notificationRangeBelow);
         } else {
             return new CategorisedCandidates(MockInteractionCreator.goldenRecordFromDemographicData(String.valueOf(String.format("ID_%s", mockCandidateToUse)), mockCandidate), score);
         }

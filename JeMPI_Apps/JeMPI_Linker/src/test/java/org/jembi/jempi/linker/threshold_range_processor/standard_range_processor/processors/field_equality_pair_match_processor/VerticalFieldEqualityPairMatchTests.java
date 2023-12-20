@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor;
+package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
@@ -7,13 +7,12 @@ import org.jembi.jempi.linker.backend.LinkerDWH;
 import org.jembi.jempi.linker.backend.LinkerUtils;
 import org.jembi.jempi.linker.backend.CustomLinkerDeterministic;
 import org.jembi.jempi.linker.backend.CustomLinkerProbabilistic;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.FieldEqualityPairMatchMatrix;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.MuAccesor;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeDetails;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeFactory;
-import org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.StandardThresholdRangeProcessor;
-import org.jembi.jempi.linker.thresholdRangeProcessor.utls.MockInteractionCreator;
-import org.jembi.jempi.linker.thresholdRangeProcessor.utls.MockLibMPI;
+import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.MuAccesor;
+import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeFactory;
+import org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.StandardThresholdRangeProcessor;
+import org.jembi.jempi.linker.threshold_range_processor.utls.MockInteractionCreator;
+import org.jembi.jempi.linker.threshold_range_processor.utls.MockLibMPI;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.Interaction;
 
@@ -64,7 +63,7 @@ public class VerticalFieldEqualityPairMatchTests {
     // Extract of org.jembi.jempi.linker.backend.LinkerDWH.linkInteraction
     public void mockLinkInteraction(final Interaction interaction) throws ExecutionException, InterruptedException {
         StandardThresholdRangeProcessor thresholdProcessor =
-                (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker_new", interaction).SetRanges(List.of(RangeTypeFactory.StandardThresholdAboveThreshold(AppConfig.LINKER_MATCH_THRESHOLD, 1.0F)));
+                (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker_new", interaction).setRanges(List.of(RangeTypeFactory.standardThresholdAboveThreshold(AppConfig.LINKER_MATCH_THRESHOLD, 1.0F)));
 
         libMPI.startTransaction();
         final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
@@ -72,7 +71,7 @@ public class VerticalFieldEqualityPairMatchTests {
         if (candidateGoldenRecords.isEmpty()) {
              libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
         } else {
-            thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
+            thresholdProcessor.processCandidates(candidateGoldenRecords);
 
             final var allCandidateScores =
                     candidateGoldenRecords.parallelStream()

@@ -1,11 +1,9 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor;
+package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
-import org.jembi.jempi.linker.backend.LinkerProbabilistic;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.FieldEqualityPairMatchMatrix;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.MuModel;
-import org.jembi.jempi.linker.thresholdRangeProcessor.utls.MockCategorisedCandidatesCreator;
-import org.jembi.jempi.linker.thresholdRangeProcessor.utls.MockInteractionCreator;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.linker.threshold_range_processor.utls.MockCategorisedCandidatesCreator;
+import org.jembi.jempi.linker.threshold_range_processor.utls.MockInteractionCreator;
 import org.jembi.jempi.shared.models.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -90,7 +88,7 @@ public class FieldEqualityPairMatchTests {
         processor = spy(processor);
         doNothing().when(processor).saveToKafka();
 
-        Boolean pmCandidates = processor.ProcessCandidates(categorisedCandidates);
+        Boolean pmCandidates = processor.processCandidates(categorisedCandidates);
         assertMatrixMatch(processor.getFieldEqualityPairMatchMatrix(),
                             Map.ofEntries(
                                     Map.entry("givenName", List.of(1, 0, 0, 0)),
@@ -131,7 +129,7 @@ public class FieldEqualityPairMatchTests {
         processor = spy(processor);
         doNothing().when(processor).saveToKafka();
 
-        Boolean pmCandidates = processor.ProcessCandidates(categorisedCandidates);
+        Boolean pmCandidates = processor.processCandidates(categorisedCandidates);
         assertMatrixMatch(processor.getFieldEqualityPairMatchMatrix(),
                 Map.ofEntries(
                         Map.entry("givenName", List.of(1, 1, 0, 2)),
