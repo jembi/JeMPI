@@ -36,5 +36,15 @@
             files="CustomDemographicData.java"
     />
 
+    <suppress
+            checks="(DesignForExtension)"
+            files="StoreProcessorFactory.java"
+    />
+
+    <suppress
+            checks="(DesignForExtension)"
+            files="StoreProcessor.java"
+    />
+
 
 </suppressions>

@@ -4,13 +4,13 @@ import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-public class StoreValueDeserializer<T> implements Deserializer<T> {
+public final class StoreValueDeserializer<T> implements Deserializer<T> {
     private final Class<T> serializeCls;
-    public StoreValueDeserializer(Class<T> serializeCls){
+    public StoreValueDeserializer(final Class<T> serializeCls) {
         this.serializeCls = serializeCls;
     }
     @Override
-    public T deserialize(String topic, byte[] bytes) {
+    public T deserialize(final String topic, final byte[] bytes) {
         if (bytes == null) {
             return null;
         }

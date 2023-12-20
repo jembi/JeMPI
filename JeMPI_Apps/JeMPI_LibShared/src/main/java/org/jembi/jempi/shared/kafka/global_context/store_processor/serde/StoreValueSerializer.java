@@ -4,9 +4,9 @@ import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Serializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-public class StoreValueSerializer<T>  implements Serializer<T> {
+public final class StoreValueSerializer<T>  implements Serializer<T> {
     @Override
-    public byte[] serialize(String topic, T data) {
+    public byte[] serialize(final String topic, final T data) {
         if (data == null) {
             return new byte[0];
         }
