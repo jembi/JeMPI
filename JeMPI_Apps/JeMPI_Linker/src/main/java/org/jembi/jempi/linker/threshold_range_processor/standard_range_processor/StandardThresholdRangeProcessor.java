@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class StandardThresholdRangeProcessor extends BaseThresholdProcessor {
-    public StandardThresholdRangeProcessor(final String linkerId, Interaction originalInteraction) {
-        super(linkerId, originalInteraction);
+    public StandardThresholdRangeProcessor(final String linkerId, final Interaction originalInteractionIn) {
+        super(linkerId, originalInteractionIn);
     }
     @Override
     protected List<IThresholdRangeSubProcessor> getSubProcessors() {
         return List.of(new FieldEqualityPairMatchProcessor(this.linkerId, this.originalInteraction));
     }
 
-    public void processCandidates(List<GoldenRecord> candidates) throws ExecutionException, InterruptedException {
+    public void processCandidates(final List<GoldenRecord> candidates) throws ExecutionException, InterruptedException {
         List<CategorisedCandidates> categorisedCandidates = this.getCategorisedCandidates(candidates);
         this.runProcessors(categorisedCandidates);
     }

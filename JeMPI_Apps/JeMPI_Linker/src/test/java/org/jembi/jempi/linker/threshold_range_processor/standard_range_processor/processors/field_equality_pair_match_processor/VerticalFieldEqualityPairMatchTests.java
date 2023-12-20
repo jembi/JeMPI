@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import static java.lang.Thread.sleep;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class VerticalFieldEqualityPairMatchTests {
+class VerticalFieldEqualityPairMatchTests {
     LibMPI libMPI = null;
     @BeforeAll
     void setLibMPI(){

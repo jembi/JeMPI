@@ -5,13 +5,13 @@ import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcesso
 
 import java.util.concurrent.ExecutionException;
 
-public class MUKGlobalStoreFactory extends StoreProcessorFactory<Object> {
-    public MUKGlobalStoreFactory(String bootStrapServers) {
+public final class MUKGlobalStoreFactory extends StoreProcessorFactory<Object> {
+    public MUKGlobalStoreFactory(final String bootStrapServers) {
         super(bootStrapServers);
     }
 
     @Override
-    protected StoreProcessor<Object> getInstanceClass(String name, Class<Object> serializeCls) throws ExecutionException, InterruptedException {
-        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, Object.class );
+    protected StoreProcessor<Object> getInstanceClass(final String name, final Class<Object> serializeCls) throws ExecutionException, InterruptedException {
+        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, Object.class);
     }
 }

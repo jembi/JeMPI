@@ -18,21 +18,21 @@ public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor
     protected List<RangeDetails> rangeDetails = new ArrayList<>();
     protected List<IThresholdRangeSubProcessor> subProcessors = new ArrayList<>();
 
-    protected BaseThresholdProcessor(final String linkerId, final Interaction originalInteraction){
-        this.linkerId = linkerId;
-        this.originalInteraction = originalInteraction;
+    protected BaseThresholdProcessor(final String linkerIdIn, final Interaction originalInteractionIn) {
+        this.linkerId = linkerIdIn;
+        this.originalInteraction = originalInteractionIn;
         this.subProcessors = this.getSubProcessors();
     }
 
-    protected List<CategorisedCandidates> getCategorisedCandidates(List<GoldenRecord> candidates){
+    protected List<CategorisedCandidates> getCategorisedCandidates(final List<GoldenRecord> candidates) {
         return candidates.parallelStream()
                 .unordered()
                 .map(candidate -> new CategorisedCandidates(candidate,
                         LinkerUtils.calcNormalizedScore(candidate.demographicData(),
                                 this.originalInteraction.demographicData())))
                 .peek(categorisedCandidates -> {
-                    for (RangeDetails r: this.rangeDetails){
-                        if (r.isApplicable(categorisedCandidates)){
+                    for (RangeDetails r: this.rangeDetails) {
+                        if (r.isApplicable(categorisedCandidates)) {
                             categorisedCandidates.addApplicableRange(r);
                         }
                     }
@@ -41,14 +41,14 @@ public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor
 
     }
 
-    protected void runProcessors(List<CategorisedCandidates> categorisedCandidates) throws ExecutionException, InterruptedException {
-        for (IThresholdRangeSubProcessor subProcessor: subProcessors){
-            if (!subProcessor.processCandidates(categorisedCandidates)){
+    protected void runProcessors(final List<CategorisedCandidates> categorisedCandidates) throws ExecutionException, InterruptedException {
+        for (IThresholdRangeSubProcessor subProcessor: subProcessors) {
+            if (!subProcessor.processCandidates(categorisedCandidates)) {
                 break;
             }
         }
     }
-    public IThresholdRangeProcessor setRanges(List<RangeDetails> rangeTypes){
+    public IThresholdRangeProcessor setRanges(final List<RangeDetails> rangeTypes) {
         this.rangeDetails = rangeTypes;
         return this;
     }

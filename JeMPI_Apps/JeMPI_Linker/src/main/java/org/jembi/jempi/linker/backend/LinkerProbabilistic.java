@@ -17,9 +17,9 @@ import static java.lang.Math.abs;
 import static java.lang.Math.log;
 import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.*;
 
-final public class LinkerProbabilistic {
+public final class LinkerProbabilistic {
 
-   public record FieldScoreInfo(Boolean isMatch, Float score){};
+   public record FieldScoreInfo(Boolean isMatch, Float score) { };
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
@@ -66,7 +66,7 @@ final public class LinkerProbabilistic {
    public static FieldScoreInfo fieldScoreInfo(
            final String left,
            final String right,
-           final Field field){
+           final Field field) {
       final var score = field.similarityScore.apply(left, right);
       for (int i = 0; i < field.weights.size(); i++) {
          if (score >= field.comparisonLevels.get(i)) {

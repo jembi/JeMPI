@@ -5,15 +5,16 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class MuAccesor {
-    private static final Map<String,MUKGlobalStoreInstance> accessorInstances = new HashMap<>() {};
+    protected MuAccesor() { }
+    private static final Map<String, MUKGlobalStoreInstance> ACCESSOR_INSTANCE = new HashMap<>() { };
 
-    public static MUKGlobalStoreInstance getKafkaMUUpdater(String linkerId, String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
-        if (!accessorInstances.containsKey(linkerId)) {
-            accessorInstances.put(linkerId, (MUKGlobalStoreInstance) new MUKGlobalStoreFactory(kafkaBootstrapServer).getCreate(String.format("linker_mu_tally_%s", linkerId), Object.class));
+    public static MUKGlobalStoreInstance getKafkaMUUpdater(final String linkerId, final String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
+        if (!ACCESSOR_INSTANCE.containsKey(linkerId)) {
+            ACCESSOR_INSTANCE.put(linkerId, (MUKGlobalStoreInstance) new MUKGlobalStoreFactory(kafkaBootstrapServer).getCreate(String.format("linker_mu_tally_%s", linkerId), Object.class));
         }
-        return accessorInstances.get(linkerId);
+        return ACCESSOR_INSTANCE.get(linkerId);
     }
-    static Object getKafkaMu(String linkerId, String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
+    static Object getKafkaMu(final String linkerId, final String kafkaBootstrapServer) throws ExecutionException, InterruptedException {
         return getKafkaMUUpdater(linkerId, kafkaBootstrapServer).getValue();
     }
 }

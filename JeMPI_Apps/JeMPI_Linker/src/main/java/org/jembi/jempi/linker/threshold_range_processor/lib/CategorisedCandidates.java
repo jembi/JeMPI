@@ -7,23 +7,23 @@ import org.jembi.jempi.shared.models.GoldenRecord;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategorisedCandidates {
+public final class CategorisedCandidates {
     private final GoldenRecord goldenRecord;
     private final float score;
     private final List<RangeDetails> rangeDetails = new ArrayList<>();
     private final List<RangeTypeName> rangeDetailsNames = new ArrayList<>();
 
-    public CategorisedCandidates(GoldenRecord goldenRecord, float score){
-        this.goldenRecord = goldenRecord;
-        this.score = score;
+    public CategorisedCandidates(final GoldenRecord goldenRecordIn, final float scoreIn) {
+        this.goldenRecord = goldenRecordIn;
+        this.score = scoreIn;
     }
-    public CategorisedCandidates addApplicableRange(RangeDetails range){
+    public CategorisedCandidates addApplicableRange(final RangeDetails range) {
         rangeDetails.add(range);
         rangeDetailsNames.add(range.getRangeName());
         return this;
     }
 
-    public Boolean isRangeApplicable(RangeTypeName rangeName){
+    public Boolean isRangeApplicable(final RangeTypeName rangeName) {
         return rangeDetailsNames.contains(rangeName);
     }
 

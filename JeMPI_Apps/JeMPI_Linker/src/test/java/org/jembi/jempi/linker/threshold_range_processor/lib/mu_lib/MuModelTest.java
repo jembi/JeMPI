@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MuModelTest {
+class MuModelTest {
     LibMPI libMPI = null;
     @BeforeAll
     void setLibMPI(){
@@ -73,8 +73,8 @@ public class MuModelTest {
         muModal.updateFieldEqualityPairMatchMatrix("firstName",true, true);
         muModal.updateFieldEqualityPairMatchMatrix("lastName",false, true);
 
-        //muModal.saveToKafka();
-        //muModal.saveToKafka();
+        muModal.saveToKafka();
+        muModal.saveToKafka();
         sleep(5000);
         assertKafkaMatrixMatch(MuAccesor.getKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue(),
                                 Map.ofEntries(
@@ -84,25 +84,25 @@ public class MuModelTest {
 
 
 
-//        fieldMap = getDefaultFieldMatrix();
-//        muModal = new MuModel("testlinker", fieldMap, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-//
-//        muModal.updateFieldEqualityPairMatchMatrix("firstName",false, false);
-//        muModal.updateFieldEqualityPairMatchMatrix("lastName",true, false);
-//
-//        muModal.updateFieldEqualityPairMatchMatrix("firstName",true, false);
-//        muModal.updateFieldEqualityPairMatchMatrix("lastName",true, false);
-//
-//        muModal.updateFieldEqualityPairMatchMatrix("firstName",true, true);
-//        muModal.updateFieldEqualityPairMatchMatrix("lastName",false, true);
-//
-//        muModal.saveToKafka();
-//
-//        assertKafkaMatrixMatch(MuAccesor.GetKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue(),
-//                Map.ofEntries(
-//                        Map.entry("firstName", List.of(2, 1, 0, 1)),
-//                        Map.entry("lastName", List.of(0, 2, 2, 0))
-//                ));
+        fieldMap = getDefaultFieldMatrix();
+        muModal = new MuModel("testlinker", fieldMap, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+
+        muModal.updateFieldEqualityPairMatchMatrix("firstName",false, false);
+        muModal.updateFieldEqualityPairMatchMatrix("lastName",true, false);
+
+        muModal.updateFieldEqualityPairMatchMatrix("firstName",true, false);
+        muModal.updateFieldEqualityPairMatchMatrix("lastName",true, false);
+
+        muModal.updateFieldEqualityPairMatchMatrix("firstName",true, true);
+        muModal.updateFieldEqualityPairMatchMatrix("lastName",false, true);
+
+        muModal.saveToKafka();
+
+        assertKafkaMatrixMatch(MuAccesor.getKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue(),
+                Map.ofEntries(
+                        Map.entry("firstName", List.of(2, 1, 0, 1)),
+                        Map.entry("lastName", List.of(0, 2, 2, 0))
+                ));
 
     }
 }

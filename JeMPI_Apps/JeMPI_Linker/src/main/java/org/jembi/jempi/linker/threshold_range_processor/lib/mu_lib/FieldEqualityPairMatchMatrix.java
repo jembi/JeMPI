@@ -1,13 +1,13 @@
 package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
 
-public class FieldEqualityPairMatchMatrix {
-    public FieldEqualityPairMatchMatrix(){}
+public final class FieldEqualityPairMatchMatrix {
 
-    public FieldEqualityPairMatchMatrix(int fieldEqualPairMatch, int fieldNotEqualPairMatch, int fieldEqualPairNoMatch, int fieldNotEqualPairNoMatch){
-        this.fieldEqualPairMatch = fieldEqualPairMatch;
-        this.fieldNotEqualPairMatch = fieldNotEqualPairMatch;
-        this.fieldEqualPairNoMatch = fieldEqualPairNoMatch;
-        this.fieldNotEqualPairNoMatch = fieldNotEqualPairNoMatch;
+    public FieldEqualityPairMatchMatrix() { }
+    public FieldEqualityPairMatchMatrix(final int fieldEqualPairMatchIn, final int fieldNotEqualPairMatchIn, final int fieldEqualPairNoMatchIn, final int fieldNotEqualPairNoMatchIn) {
+        this.fieldEqualPairMatch = fieldEqualPairMatchIn;
+        this.fieldNotEqualPairMatch = fieldNotEqualPairMatchIn;
+        this.fieldEqualPairNoMatch = fieldEqualPairNoMatchIn;
+        this.fieldNotEqualPairNoMatch = fieldNotEqualPairNoMatchIn;
     }
     private int fieldEqualPairMatch = 0;
     private int fieldNotEqualPairMatch = 0;
@@ -30,37 +30,37 @@ public class FieldEqualityPairMatchMatrix {
         return fieldNotEqualPairNoMatch;
     }
 
-    public void updateFieldEqualPairMatch(int value){
+    public void updateFieldEqualPairMatch(final int value) {
         fieldEqualPairMatch += value;
     }
 
-    public void updateFieldEqualPairNoMatch(int value){
+    public void updateFieldEqualPairNoMatch(final int value) {
         fieldEqualPairNoMatch += value;
     }
 
-    public void updateFieldNotEqualPairMatch(int value){
+    public void updateFieldNotEqualPairMatch(final int value) {
         fieldNotEqualPairMatch += value;
     }
 
-    public void updateFieldNotEqualPairNoMatch(int value){
+    public void updateFieldNotEqualPairNoMatch(final int value) {
         fieldNotEqualPairNoMatch += value;
     }
-    public FieldEqualityPairMatchMatrix merge(FieldEqualityPairMatchMatrix one, FieldEqualityPairMatchMatrix two){
+    public FieldEqualityPairMatchMatrix merge(final FieldEqualityPairMatchMatrix one, final FieldEqualityPairMatchMatrix two) {
         return new FieldEqualityPairMatchMatrix(one.getFieldEqualPairMatch() + two.getFieldEqualPairMatch(),
                                                 one.getFieldNotEqualPairMatch() + two.getFieldNotEqualPairMatch(),
                                                      one.getFieldEqualPairNoMatch() + two.getFieldEqualPairNoMatch(),
                                                      one.getFieldNotEqualPairNoMatch() + two.getFieldNotEqualPairNoMatch());
     }
     @Override
-    public String toString(){
+    public String toString() {
 
-        return "\n" +
-                "| ------------------------------------------|\n" +
-                "|               | Pair Match | Pair Unmatch |\n" +
-                "| ------------------------------------------|\n" +
-                String.format("| Field Equal   |     %s     |      %s      |\n", this.fieldEqualPairMatch, this.fieldEqualPairNoMatch) +
-                String.format("| Field Unequal |     %s     |      %s      |\n", this.fieldNotEqualPairMatch, this.fieldNotEqualPairNoMatch) +
-                String.format("| ------------------------------------------|\n") + "\n";
+        return "\n"
+                + "| ------------------------------------------|\n"
+                + "|               | Pair Match | Pair Unmatch |\n"
+                + "| ------------------------------------------|\n"
+                + String.format("| Field Equal   |     %s     |      %s      |\n", this.fieldEqualPairMatch, this.fieldEqualPairNoMatch)
+                + String.format("| Field Unequal |     %s     |      %s      |\n", this.fieldNotEqualPairMatch, this.fieldNotEqualPairNoMatch)
+                + String.format("| ------------------------------------------|\n") + "\n";
 
     }
 }

@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-final public class CustomLinkerDeterministic {
+public final class CustomLinkerDeterministic {
 
    static final boolean DETERMINISTIC_DO_LINKING = true;
    static final boolean DETERMINISTIC_DO_VALIDATING = false;

@@ -27,29 +27,28 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     protected Map<String, String> originalInteractionDemographicDataMap;
 
     protected MuModel muModel;
-    public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) {}
+    public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) { }
 
     protected String linkerId;
 
-    public FieldEqualityPairMatchProcessor(final String linkerId, final Interaction originalInteraction){
-        this.linkerId = linkerId;
-        this.originalInteraction = originalInteraction;
+    public FieldEqualityPairMatchProcessor(final String linkerIdIn, final Interaction originalInteractionIn) {
+        this.linkerId = linkerIdIn;
+        this.originalInteraction = originalInteractionIn;
         this.originalInteractionDemographicDataMap = this.originalInteraction.demographicData().toMap();
         this.muModel = MuModel.fromDemographicData(this.linkerId, originalInteractionDemographicDataMap, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
     }
 
-    List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(List<CategorisedCandidates> candidates){
+    List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(final List<CategorisedCandidates> candidates) {
          Boolean[] firstMatch = {true};
 
         return candidates.stream()
                         .filter(candidate -> !(candidate.isRangeApplicable(RangeTypeName.NOTIFICATION_RANGE_BELOW_THRESHOLD) || candidate.isRangeApplicable(RangeTypeName.NOTIFICATION_RANGE_ABOVE_THRESHOLD)))
                         .sorted((o1, o2) -> Float.compare(o2.getScore(), o1.getScore()))
-                        .map(orderCandidates-> {
-                            if (orderCandidates.isRangeApplicable(RangeTypeName.ABOVE_THRESHOLD) && firstMatch[0]){
+                        .map(orderCandidates -> {
+                            if (orderCandidates.isRangeApplicable(RangeTypeName.ABOVE_THRESHOLD) && firstMatch[0]) {
                                 firstMatch[0] = false;
                                 return new PairMatchUnmatchedCandidates(orderCandidates, true);
-                            }
-                            else{
+                            } else {
                                 return new PairMatchUnmatchedCandidates(orderCandidates, false);
                             }
                         })
@@ -57,8 +56,8 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
 
     }
 
-    void updateFieldEqualityPairMatchMatrix(List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
-        LOGGER.info(String.format("FieldEqualityPairMatchProcessor: Processing %d candidates", pairMatchUnmatchedCandidates.size() ));
+    void updateFieldEqualityPairMatchMatrix(final List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
+        LOGGER.info(String.format("FieldEqualityPairMatchProcessor: Processing %d candidates", pairMatchUnmatchedCandidates.size()));
         for (Map.Entry<String, LinkerProbabilistic.Field> field: currentLinkFieldsMap.entrySet()) {
             for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
                 var candidateDemographicData = pairMatchCandidate.candidates.getGoldenRecord().demographicData().toMap();
@@ -77,12 +76,12 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
         this.muModel.saveToKafka();
     }
 
-    public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){
+    public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix() {
         return (HashMap<String, FieldEqualityPairMatchMatrix>) this.muModel.getFieldEqualityPairMatchMatrix();
     }
 
     @Override
-    public Boolean processCandidates(List<CategorisedCandidates> candidate) throws ExecutionException, InterruptedException {
+    public Boolean processCandidates(final List<CategorisedCandidates> candidate) throws ExecutionException, InterruptedException {
         List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates = this.getPairMatchUnMatchedCandidates(candidate);
         this.updateFieldEqualityPairMatchMatrix(pairMatchUnmatchedCandidates);
         return true;

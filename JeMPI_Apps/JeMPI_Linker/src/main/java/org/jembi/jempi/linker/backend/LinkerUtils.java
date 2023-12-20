@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-final public class LinkerUtils {
+public final class LinkerUtils {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerUtils.class);
 

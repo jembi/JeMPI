@@ -2,18 +2,18 @@ package org.jembi.jempi.linker.threshold_range_processor.lib.range_type;
 
 import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
 
-public class RangeDetails {
+public final class RangeDetails {
 
-    private float lowerValue;
-    private float upperValue;
-    private RangeTypeName rangeName;
+    private final float lowerValue;
+    private final float upperValue;
+    private final RangeTypeName rangeName;
 
-    public RangeDetails(float lowerValue, float upperValue, RangeTypeName rangeName){
-        this.lowerValue = lowerValue;
-        this.upperValue = upperValue;
-        this.rangeName = rangeName;
+    public RangeDetails(final float lowerValueIn, final float upperValueIn, final RangeTypeName rangeNameIn) {
+        this.lowerValue = lowerValueIn;
+        this.upperValue = upperValueIn;
+        this.rangeName = rangeNameIn;
     }
-    public Boolean isApplicable(CategorisedCandidates candidate){
+    public Boolean isApplicable(final CategorisedCandidates candidate) {
         return lowerValue <= candidate.getScore() && candidate.getScore() < upperValue;
     }
 

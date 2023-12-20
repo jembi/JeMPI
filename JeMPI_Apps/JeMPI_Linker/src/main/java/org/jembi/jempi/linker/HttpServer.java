@@ -45,7 +45,6 @@ final class HttpServer extends AllDirectives {
       return pathPrefix("JeMPI",
                         () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS,
                                                       () -> Routes.proxyPatchCrUpdateField(actorSystem, backEnd))),
-                                     // TODO: [Cc] Consider moving to this to the controller
                                      post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
                                                             () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,

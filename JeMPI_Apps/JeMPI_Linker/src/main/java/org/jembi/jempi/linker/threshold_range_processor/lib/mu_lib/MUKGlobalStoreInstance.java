@@ -9,9 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class MUKGlobalStoreInstance extends StoreProcessor<Object> {
+public final class MUKGlobalStoreInstance extends StoreProcessor<Object> {
 
-    public MUKGlobalStoreInstance(String bootStrapServers, String topicName, Class<Object> serializeCls) throws InterruptedException, ExecutionException {
+    public MUKGlobalStoreInstance(final String bootStrapServers, final String topicName, final Class<Object> serializeCls) throws InterruptedException, ExecutionException {
         super(bootStrapServers, topicName, serializeCls);
     }
     @Override
@@ -19,33 +19,32 @@ public class MUKGlobalStoreInstance extends StoreProcessor<Object> {
         Object storedValue = super.getValue();
         HashMap<String, FieldEqualityPairMatchMatrix> storeValue = new HashMap<>();
 
-        if (storedValue == null){
+        if (storedValue == null) {
             return storeValue;
         }
 
-        for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) storedValue).entrySet()){
-            storeValue.put(value.getKey(), convertTpFieldEqualityPairMatchMatrix(value.getValue()) );
+        for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) storedValue).entrySet()) {
+            storeValue.put(value.getKey(), convertTpFieldEqualityPairMatchMatrix(value.getValue()));
         }
 
         return storeValue;
     }
 
-    protected FieldEqualityPairMatchMatrix convertTpFieldEqualityPairMatchMatrix(Object value){
+    protected FieldEqualityPairMatchMatrix convertTpFieldEqualityPairMatchMatrix(final Object value) {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.convertValue(value, FieldEqualityPairMatchMatrix.class);
     }
 
     @Override
-    protected StoreUpdaterProcessor<Object, Object, Object> getValueUpdater(){
-        return (Object globalValue, Object currentValue) -> {
+    protected StoreUpdaterProcessor<Object, Object, Object> getValueUpdater() {
+        return (final Object globalValue, final Object currentValue) -> {
             LinkedHashMap<String, Object> currentMapValue = (LinkedHashMap<String, Object>) currentValue;
             LinkedHashMap<String, Object> currentGlobalMapValue = (LinkedHashMap<String, Object>) globalValue;
 
-            for (Map.Entry<String, Object> current: currentMapValue.entrySet()){
-                if (!currentGlobalMapValue.containsKey(current.getKey())){
+            for (Map.Entry<String, Object> current: currentMapValue.entrySet()) {
+                if (!currentGlobalMapValue.containsKey(current.getKey())) {
                     currentGlobalMapValue.put(current.getKey(), current.getValue());
-                }
-                else{
+                } else {
                     FieldEqualityPairMatchMatrix currentParsedValue = convertTpFieldEqualityPairMatchMatrix(current.getValue());
                     FieldEqualityPairMatchMatrix currentGlobalParsedValue = convertTpFieldEqualityPairMatchMatrix(currentGlobalMapValue.get(current.getKey()));
 

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import static java.lang.Math.abs;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-final public class LinkerDWH {
+public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
 
@@ -170,8 +170,8 @@ final public class LinkerDWH {
                  = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker", interaction).setRanges(
                          new ArrayList<>(Arrays.asList(
                                  RangeTypeFactory.standardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
-                                 RangeTypeFactory.standardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F ),
-                                 RangeTypeFactory.standardThresholdAboveThreshold(matchThreshold, 1.0F ))));
+                                 RangeTypeFactory.standardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F),
+                                 RangeTypeFactory.standardThresholdAboveThreshold(matchThreshold, 1.0F))));
 
          try {
             libMPI.startTransaction();
@@ -185,7 +185,7 @@ final public class LinkerDWH {
 
                try {
                   thresholdProcessor.processCandidates(candidateGoldenRecords);
-               } catch (Exception e){
+               } catch (Exception e) {
                      LOGGER.error(String.format("An error occurred whilst trying to process the candidates. Error message %s", e.getMessage()), e);
                }
 

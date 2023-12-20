@@ -12,7 +12,7 @@ import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILAR
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
-final public class CustomLinkerProbabilistic {
+public final class CustomLinkerProbabilistic {
 
    static final int METRIC_MIN = 0;
    static final int METRIC_MAX = 1;
@@ -104,7 +104,6 @@ final public class CustomLinkerProbabilistic {
       return 0.0F;
    }
    public static void updateMU(final CustomMU mu) {
-      // TODO: [Cq] - What is this doing?
       if (mu.givenName().m() > mu.givenName().u()
           && mu.familyName().m() > mu.familyName().u()
           && mu.gender().m() > mu.gender().u()
