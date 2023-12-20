@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib;
+package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapperInstance;

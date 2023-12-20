@@ -1,6 +1,6 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType;
+package org.jembi.jempi.linker.threshold_range_processor.lib.range_type;
 
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
 
 public class RangeDetails {
 

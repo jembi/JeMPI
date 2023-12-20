@@ -1,12 +1,14 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor;
+package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
-import org.jembi.jempi.linker.thresholdRangeProcessor.IThresholdRangeSubProcessor;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.FieldEqualityPairMatchMatrix;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib.MuModel;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeName;
+import org.jembi.jempi.linker.threshold_range_processor.IThresholdRangeSubProcessor;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.MuModel;
+import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeName;
 import org.jembi.jempi.shared.models.Interaction;
 
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.currentLi
 
 public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor {
 
+    private static final Logger LOGGER = LogManager.getLogger(FieldEqualityPairMatchProcessor.class);
     protected Interaction originalInteraction;
     protected Map<String, String> originalInteractionDemographicDataMap;
 
@@ -39,10 +42,10 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
          Boolean[] firstMatch = {true};
 
         return candidates.stream()
-                        .filter(candidate -> !(candidate.IsRangeApplicable(RangeTypeName.NOTIFICATION_RANGE_BELOW_THRESHOLD) || candidate.IsRangeApplicable(RangeTypeName.NOTIFICATION_RANGE_ABOVE_THRESHOLD)))
+                        .filter(candidate -> !(candidate.isRangeApplicable(RangeTypeName.NOTIFICATION_RANGE_BELOW_THRESHOLD) || candidate.isRangeApplicable(RangeTypeName.NOTIFICATION_RANGE_ABOVE_THRESHOLD)))
                         .sorted((o1, o2) -> Float.compare(o2.getScore(), o1.getScore()))
                         .map(orderCandidates-> {
-                            if (orderCandidates.IsRangeApplicable(RangeTypeName.ABOVE_THRESHOLD) && firstMatch[0]){
+                            if (orderCandidates.isRangeApplicable(RangeTypeName.ABOVE_THRESHOLD) && firstMatch[0]){
                                 firstMatch[0] = false;
                                 return new PairMatchUnmatchedCandidates(orderCandidates, true);
                             }
@@ -55,8 +58,7 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     }
 
     void updateFieldEqualityPairMatchMatrix(List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
-        // TODO: Use LOGGER
-        System.out.println(String.format("Processing %s candidates", pairMatchUnmatchedCandidates.size() ));
+        LOGGER.info(String.format("FieldEqualityPairMatchProcessor: Processing %d candidates", pairMatchUnmatchedCandidates.size() ));
         for (Map.Entry<String, LinkerProbabilistic.Field> field: currentLinkFieldsMap.entrySet()) {
             for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
                 var candidateDemographicData = pairMatchCandidate.candidates.getGoldenRecord().demographicData().toMap();
@@ -70,17 +72,17 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     }
 
     public void saveToKafka() throws ExecutionException, InterruptedException {
-        // TODO: Use LOGGER
-        System.out.println(this.muModel.toString());
+        LOGGER.debug("Saving candidates m and u values to kafka");
+        LOGGER.debug(this.muModel.toString());
         this.muModel.saveToKafka();
     }
 
     public HashMap<String, FieldEqualityPairMatchMatrix> getFieldEqualityPairMatchMatrix(){
-        return this.muModel.getFieldEqualityPairMatchMatrix();
+        return (HashMap<String, FieldEqualityPairMatchMatrix>) this.muModel.getFieldEqualityPairMatchMatrix();
     }
 
     @Override
-    public Boolean ProcessCandidates(List<CategorisedCandidates> candidate) throws ExecutionException, InterruptedException {
+    public Boolean processCandidates(List<CategorisedCandidates> candidate) throws ExecutionException, InterruptedException {
         List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates = this.getPairMatchUnMatchedCandidates(candidate);
         this.updateFieldEqualityPairMatchMatrix(pairMatchUnmatchedCandidates);
         return true;

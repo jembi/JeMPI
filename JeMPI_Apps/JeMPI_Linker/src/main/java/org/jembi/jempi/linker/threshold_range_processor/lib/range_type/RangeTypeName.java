@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType;
+package org.jembi.jempi.linker.threshold_range_processor.lib.range_type;
 
 public enum RangeTypeName {
     NOTIFICATION_RANGE_ABOVE_THRESHOLD,

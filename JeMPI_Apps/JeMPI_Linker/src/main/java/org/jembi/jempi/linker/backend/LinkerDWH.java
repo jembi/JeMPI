@@ -7,9 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeDetails;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeTypeFactory;
-import org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.StandardThresholdRangeProcessor;
+import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeFactory;
+import org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.StandardThresholdRangeProcessor;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -116,13 +115,11 @@ final public class LinkerDWH {
    public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
-         // TODO: [Cc]: Only on http request
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_) {
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
-            // TODO: [Cq] - Why to we find candidates if we do nothing with results except to print
             final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
             LOGGER.debug("Match Candidates {} ", candidates.size());
             if (candidates.isEmpty()) {
@@ -154,9 +151,6 @@ final public class LinkerDWH {
                         MATCH NOTIFICATION
                         {}
                         {}""";
-                  // TODO: [Cc]
-                  //  HttpRequest: 404 (or interaction, make this auditable
-                  //  StreamProcess: make this auditable.
                   LOGGER.info(f, i, g);
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
@@ -173,18 +167,14 @@ final public class LinkerDWH {
                : matchThreshold_;
 
          StandardThresholdRangeProcessor thresholdProcessor
-                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker", interaction).SetRanges(
+                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker", interaction).setRanges(
                          new ArrayList<>(Arrays.asList(
-                                 RangeTypeFactory.StandardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
-                                 RangeTypeFactory.StandardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F ),
-                                 RangeTypeFactory.StandardThresholdAboveThreshold(matchThreshold, 1.0F ))));
+                                 RangeTypeFactory.standardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
+                                 RangeTypeFactory.standardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F ),
+                                 RangeTypeFactory.standardThresholdAboveThreshold(matchThreshold, 1.0F ))));
 
          try {
             libMPI.startTransaction();
-            // TODO: [Cq] - What it this suppose to do (checkUpdatedMU) ? Current does nothing
-
-            // TODO: [Cc] - Get from global state
-            // TODO: With multiple m-u values
             LinkerProbabilistic.checkUpdatedMU();
 
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
@@ -194,9 +184,9 @@ final public class LinkerDWH {
             } else {
 
                try {
-                  thresholdProcessor.ProcessCandidates(candidateGoldenRecords);
+                  thresholdProcessor.processCandidates(candidateGoldenRecords);
                } catch (Exception e){
-                  // TODO: loh exception
+                     LOGGER.error(String.format("An error occurred whilst trying to process the candidates. Error message %s", e.getMessage()), e);
                }
 
                final var allCandidateScores =
@@ -208,7 +198,6 @@ final public class LinkerDWH {
                                            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                            .collect(Collectors.toCollection(ArrayList::new));
 
-               // TODO: [Cq] - External link range
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
                      ? new ArrayList<WorkCandidate>()
@@ -223,7 +212,6 @@ final public class LinkerDWH {
                      allCandidateScores
                            .stream()
                            .peek(v -> {
-                              // TODO: [Cq] - Why the 10% range
                               if (v.score() > matchThreshold - 0.1 && v.score() < matchThreshold) {
                                  belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(),
                                                                                             v.score()));
@@ -235,11 +223,8 @@ final public class LinkerDWH {
                            .filter(v -> v.score() >= matchThreshold)
                            .collect(Collectors.toCollection(ArrayList::new));
 
-
-
                if (candidatesAboveMatchThreshold.isEmpty()) {
                   if (candidatesInExternalLinkRange.isEmpty()) {
-                     // TODO: <<<>>>>
                      linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                      if (!belowThresholdNotifications.isEmpty()) {
                         sendNotification(Notification.NotificationType.THRESHOLD,
@@ -319,8 +304,6 @@ final public class LinkerDWH {
          final List<Notification.MatchData> candidates) {
       final var notification = new Notification(System.currentTimeMillis(), type, dID, names, linkedTo, candidates);
       try {
-         // TODO: [Cq] - Is this working
-         // TODO: Have a static key
          BackEnd.topicNotifications.produceSync("dummy", notification);
       } catch (ExecutionException | InterruptedException e) {
          LOGGER.error(e.getLocalizedMessage(), e);

@@ -1,6 +1,4 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.lib.muLib;
-
-import java.util.Map;
+package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
 
 public class FieldEqualityPairMatchMatrix {
     public FieldEqualityPairMatchMatrix(){}
@@ -57,13 +55,12 @@ public class FieldEqualityPairMatchMatrix {
     public String toString(){
 
         return "\n" +
-                String.format("| ------------------------------------------|\n") +
-                String.format("|               | Pair Match | Pair Unmatch |\n") +
-                String.format("| ------------------------------------------|\n") +
+                "| ------------------------------------------|\n" +
+                "|               | Pair Match | Pair Unmatch |\n" +
+                "| ------------------------------------------|\n" +
                 String.format("| Field Equal   |     %s     |      %s      |\n", this.fieldEqualPairMatch, this.fieldEqualPairNoMatch) +
                 String.format("| Field Unequal |     %s     |      %s      |\n", this.fieldNotEqualPairMatch, this.fieldNotEqualPairNoMatch) +
-                String.format("| ------------------------------------------|\n") +
-                "\n";
+                String.format("| ------------------------------------------|\n") + "\n";
 
     }
 }

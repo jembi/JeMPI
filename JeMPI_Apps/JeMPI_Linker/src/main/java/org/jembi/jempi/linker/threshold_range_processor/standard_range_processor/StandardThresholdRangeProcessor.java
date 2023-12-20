@@ -1,9 +1,9 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor;
+package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor;
 
-import org.jembi.jempi.linker.thresholdRangeProcessor.IThresholdRangeSubProcessor;
-import org.jembi.jempi.linker.thresholdRangeProcessor.BaseThresholdProcessor;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.thresholdRangeProcessor.standardRangeProcessor.processors.FieldEqualityPairMatchProcessor.FieldEqualityPairMatchProcessor;
+import org.jembi.jempi.linker.threshold_range_processor.IThresholdRangeSubProcessor;
+import org.jembi.jempi.linker.threshold_range_processor.BaseThresholdProcessor;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor.FieldEqualityPairMatchProcessor;
 import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.models.Interaction;
 import java.util.List;
@@ -18,7 +18,7 @@ public class StandardThresholdRangeProcessor extends BaseThresholdProcessor {
         return List.of(new FieldEqualityPairMatchProcessor(this.linkerId, this.originalInteraction));
     }
 
-    public void ProcessCandidates(List<GoldenRecord> candidates) throws ExecutionException, InterruptedException {
+    public void processCandidates(List<GoldenRecord> candidates) throws ExecutionException, InterruptedException {
         List<CategorisedCandidates> categorisedCandidates = this.getCategorisedCandidates(candidates);
         this.runProcessors(categorisedCandidates);
     }

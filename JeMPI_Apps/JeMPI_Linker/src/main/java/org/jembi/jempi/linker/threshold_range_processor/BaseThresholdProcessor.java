@@ -1,9 +1,8 @@
-package org.jembi.jempi.linker.thresholdRangeProcessor;
+package org.jembi.jempi.linker.threshold_range_processor;
 
-import org.jembi.jempi.linker.backend.LinkerDWH;
 import org.jembi.jempi.linker.backend.LinkerUtils;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.thresholdRangeProcessor.lib.rangeType.RangeDetails;
+import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
+import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeDetails;
 import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.models.Interaction;
 
@@ -19,14 +18,13 @@ public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor
     protected List<RangeDetails> rangeDetails = new ArrayList<>();
     protected List<IThresholdRangeSubProcessor> subProcessors = new ArrayList<>();
 
-    public BaseThresholdProcessor(final String linkerId, final Interaction originalInteraction){
+    protected BaseThresholdProcessor(final String linkerId, final Interaction originalInteraction){
         this.linkerId = linkerId;
         this.originalInteraction = originalInteraction;
         this.subProcessors = this.getSubProcessors();
     }
 
     protected List<CategorisedCandidates> getCategorisedCandidates(List<GoldenRecord> candidates){
-        // TODO Consider not repeating
         return candidates.parallelStream()
                 .unordered()
                 .map(candidate -> new CategorisedCandidates(candidate,
@@ -35,7 +33,7 @@ public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor
                 .peek(categorisedCandidates -> {
                     for (RangeDetails r: this.rangeDetails){
                         if (r.isApplicable(categorisedCandidates)){
-                            categorisedCandidates.AddApplicableRange(r);
+                            categorisedCandidates.addApplicableRange(r);
                         }
                     }
                 })
@@ -45,16 +43,16 @@ public abstract class BaseThresholdProcessor implements IThresholdRangeProcessor
 
     protected void runProcessors(List<CategorisedCandidates> categorisedCandidates) throws ExecutionException, InterruptedException {
         for (IThresholdRangeSubProcessor subProcessor: subProcessors){
-            if (!subProcessor.ProcessCandidates(categorisedCandidates)){
+            if (!subProcessor.processCandidates(categorisedCandidates)){
                 break;
             }
         }
     }
-    public IThresholdRangeProcessor SetRanges(List<RangeDetails> rangeTypes){
+    public IThresholdRangeProcessor setRanges(List<RangeDetails> rangeTypes){
         this.rangeDetails = rangeTypes;
         return this;
     }
 
 
-    abstract protected List<IThresholdRangeSubProcessor> getSubProcessors();
+    protected abstract List<IThresholdRangeSubProcessor> getSubProcessors();
 }
