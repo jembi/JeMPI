@@ -43,7 +43,7 @@ public class VerticalFieldEqualityPairMatchTests {
 
     public void printSaved() throws ExecutionException, InterruptedException {
         sleep(2000);
-        HashMap<String, FieldEqualityPairMatchMatrix> resultMatrix = MuAccesor.GetKafkaMUUpdater("linker_new",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
+        HashMap<String, FieldEqualityPairMatchMatrix> resultMatrix = MuAccesor.getKafkaMUUpdater("linker_new",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
 
         StringBuilder matrixData = new StringBuilder("----- Current Values ----");
 

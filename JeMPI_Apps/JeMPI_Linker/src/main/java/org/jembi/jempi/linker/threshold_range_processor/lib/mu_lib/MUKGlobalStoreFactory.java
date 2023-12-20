@@ -1,17 +1,17 @@
 package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
 
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapper;
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapperInstance;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessor;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessorFactory;
 
 import java.util.concurrent.ExecutionException;
 
-public class MUKGlobalStoreFactory extends GlobalKTableWrapper {
+public class MUKGlobalStoreFactory extends StoreProcessorFactory<Object> {
     public MUKGlobalStoreFactory(String bootStrapServers) {
         super(bootStrapServers);
     }
 
     @Override
-    protected <T> GlobalKTableWrapperInstance<T> getInstanceClass(String name, Class<T> serializeCls) throws ExecutionException, InterruptedException {
-        return (GlobalKTableWrapperInstance<T>) new MUKGlobalStoreInstance(this.bootStrapServers, name, Object.class );
+    protected StoreProcessor<Object> getInstanceClass(String name, Class<Object> serializeCls) throws ExecutionException, InterruptedException {
+        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, Object.class );
     }
 }

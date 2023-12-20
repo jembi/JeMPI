@@ -35,7 +35,7 @@ public class MuModel {
         }
     }
     public void saveToKafka() throws ExecutionException, InterruptedException {
-        MuAccesor.GetKafkaMUUpdater(this.linkerId, this.kafkaBootstrapServer).updateValue(fieldEqualityPairMatchMap);
+        MuAccesor.getKafkaMUUpdater(this.linkerId, this.kafkaBootstrapServer).updateValue(fieldEqualityPairMatchMap);
     }
     public static MuModel fromDemographicData(String linkerId, Map<String, String> demographicData, String kafkaBootstrapServer) {
         HashMap<String, FieldEqualityPairMatchMatrix> fieldEqualityPairMatchMap = new HashMap<>();

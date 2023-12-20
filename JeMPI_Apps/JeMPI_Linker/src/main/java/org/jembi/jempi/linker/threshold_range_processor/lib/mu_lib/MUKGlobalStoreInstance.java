@@ -1,15 +1,15 @@
 package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.GlobalKTableWrapperInstance;
-import org.jembi.jempi.shared.kafka.globalContext.globalKTableWrapper.TableUpdaterProcessor;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessor;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreUpdaterProcessor;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class MUKGlobalStoreInstance extends GlobalKTableWrapperInstance<Object> {
+public class MUKGlobalStoreInstance extends StoreProcessor<Object> {
 
     public MUKGlobalStoreInstance(String bootStrapServers, String topicName, Class<Object> serializeCls) throws InterruptedException, ExecutionException {
         super(bootStrapServers, topicName, serializeCls);
@@ -24,18 +24,19 @@ public class MUKGlobalStoreInstance extends GlobalKTableWrapperInstance<Object> 
         }
 
         for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) storedValue).entrySet()){
-            storeValue.put(value.getKey(), ConvertTpFieldEqualityPairMatchMatrix(value.getValue()) );
+            storeValue.put(value.getKey(), convertTpFieldEqualityPairMatchMatrix(value.getValue()) );
         }
 
         return storeValue;
     }
 
-    protected FieldEqualityPairMatchMatrix ConvertTpFieldEqualityPairMatchMatrix(Object value){
+    protected FieldEqualityPairMatchMatrix convertTpFieldEqualityPairMatchMatrix(Object value){
         ObjectMapper mapper = new ObjectMapper();
         return mapper.convertValue(value, FieldEqualityPairMatchMatrix.class);
     }
 
-    protected TableUpdaterProcessor<Object, Object, Object> GetValueUpdater(){
+    @Override
+    protected StoreUpdaterProcessor<Object, Object, Object> getValueUpdater(){
         return (Object globalValue, Object currentValue) -> {
             LinkedHashMap<String, Object> currentMapValue = (LinkedHashMap<String, Object>) currentValue;
             LinkedHashMap<String, Object> currentGlobalMapValue = (LinkedHashMap<String, Object>) globalValue;
@@ -45,8 +46,8 @@ public class MUKGlobalStoreInstance extends GlobalKTableWrapperInstance<Object> 
                     currentGlobalMapValue.put(current.getKey(), current.getValue());
                 }
                 else{
-                    FieldEqualityPairMatchMatrix currentParsedValue = ConvertTpFieldEqualityPairMatchMatrix(current.getValue());
-                    FieldEqualityPairMatchMatrix currentGlobalParsedValue = ConvertTpFieldEqualityPairMatchMatrix(currentGlobalMapValue.get(current.getKey()));
+                    FieldEqualityPairMatchMatrix currentParsedValue = convertTpFieldEqualityPairMatchMatrix(current.getValue());
+                    FieldEqualityPairMatchMatrix currentGlobalParsedValue = convertTpFieldEqualityPairMatchMatrix(currentGlobalMapValue.get(current.getKey()));
 
                     currentGlobalMapValue.put(current.getKey(), currentGlobalParsedValue.merge(currentGlobalParsedValue, currentParsedValue));
                 }

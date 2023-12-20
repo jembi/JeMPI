@@ -32,7 +32,7 @@ public class MuModelTest {
         MuModel muModal = new MuModel("testlinker", fieldMap, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
 
         muModal.saveToKafka();
-        assertEquals(fieldMap, MuAccesor.GetKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue());
+        assertEquals(fieldMap, MuAccesor.getKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MuModelTest {
         //muModal.saveToKafka();
         //muModal.saveToKafka();
         sleep(5000);
-        assertKafkaMatrixMatch(MuAccesor.GetKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue(),
+        assertKafkaMatrixMatch(MuAccesor.getKafkaMUUpdater("testlinker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue(),
                                 Map.ofEntries(
                                         Map.entry("firstName", List.of(1, 0, 0, 0)),
                                         Map.entry("lastName", List.of(0, 0, 1, 0))
