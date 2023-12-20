@@ -11,7 +11,7 @@ const notifications: Notification[] = [
     created: new Date('05-03-2023'),
     names: 'Bob Smith',
     patient_id: '0x5a',
-    status: NotificationState.CLOSED,
+    status: NotificationState.New,
     golden_id: '0x9833',
     score: 0.5,
     candidates: [
@@ -27,7 +27,7 @@ const notifications: Notification[] = [
     created: new Date('02-03-2023'),
     names: 'Jane Doe',
     patient_id: '0x7j',
-    status: NotificationState.OPEN,
+    status: NotificationState.New,
     golden_id: '0x9824',
     score: 0.9,
     candidates: [
@@ -43,7 +43,7 @@ const notifications: Notification[] = [
     created: new Date('02-03-2023'),
     names: 'Jane Smith',
     patient_id: '0x1a',
-    status: NotificationState.OPEN,
+    status: NotificationState.New,
     golden_id: '0x9847',
     score: 0.3,
     candidates: [
@@ -59,7 +59,7 @@ const notifications: Notification[] = [
     created: new Date('02-03-2023'),
     names: 'John Themba',
     patient_id: '0x9a',
-    status: NotificationState.OPEN,
+    status: NotificationState.New,
     golden_id: '0x9866',
     score: 0.7,
     candidates: [

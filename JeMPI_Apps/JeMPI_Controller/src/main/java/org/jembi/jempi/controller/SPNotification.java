@@ -18,7 +18,6 @@ import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -50,7 +49,7 @@ final class SPNotification {
                                            value.notificationType().toString(),
                                            value.patientNames(),
                                            value.linkedTo().score(),
-                                           new Timestamp(value.timeStamp()),
+                                           value.timeStamp(),
                                            value.linkedTo().gID(),
                                            value.dID());
 

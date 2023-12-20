@@ -24,8 +24,9 @@ public record Notification(
    }
 
    public enum NotificationState {
-      OPEN("OPEN"),
-      CLOSED("CLOSED");
+      NEW("New"),
+      SEEN("Seen"),
+      ACTIONED("Actioned");
       public final String label;
 
       NotificationState(final String label) {

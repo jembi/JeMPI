@@ -16,7 +16,7 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
@@ -218,21 +218,19 @@ public final class Routes {
       return
             parameter("limit", limit ->
                   parameter("offset", offset ->
-                        parameter("startDate", startDate ->
-                              parameter("endDate", endDate ->
-                                    parameter("states", states ->
-                                          onComplete(Ask.getNotifications(actorSystem,
+                        parameter("date", date ->
+                              parameter("state", state ->
+                                    onComplete(Ask.getNotifications(actorSystem,
                                                                     backEnd,
                                                                     Integer.parseInt(limit),
                                                                     Integer.parseInt(offset),
-                                                                    Timestamp.valueOf(startDate),
-                                                                    Timestamp.valueOf(endDate),
-                                                                    Stream.of(states.split(",")).map(String::trim).toList()),
+                                                                    LocalDate.parse(date),
+                                                                    state),
                                                result -> result.isSuccess()
                                                      ? complete(StatusCodes.OK,
                                                                 result.get(),
                                                                 JSON_MARSHALLER)
-                                                     : complete(StatusCodes.IM_A_TEAPOT)))))));
+                                                     : complete(StatusCodes.IM_A_TEAPOT))))));
    }
 
    public static Route getExpandedGoldenRecordsUsingParameterList(

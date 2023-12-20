@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -70,12 +70,11 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final int limit,
          final int offset,
-         final Timestamp startDate,
-         final Timestamp endDate,
-         final List<String> states) {
+         final LocalDate date,
+         final String state) {
       CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, startDate, endDate, states),
+                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, date, state),
                  java.time.Duration.ofSeconds(30),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -310,7 +309,8 @@ public final class Ask {
       CompletionStage<BackEnd.PostUpdateNotificationResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.PostUpdateNotificationRequest(replyTo,
-                                                                      notificationRequest.notificationId()),
+                                                                      notificationRequest.notificationId(),
+                                                                      notificationRequest.state()),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

@@ -10,6 +10,7 @@ export NODE1=$(hostname)
 #   export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 export NODE1_IP=$(hostname -i)
 
+export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_NGINX=1
 export SCALE_KAFKA_01=1
 export SCALE_KAFKA_02=1
@@ -31,12 +32,13 @@ export DGRAPH_PORTS="9080,9081,9082"
 
 # API related env vars
 export API_PORT=50000
-export API_VARIANT="API" # For api that support keyclock, use API_KC
+export API_PORT_KC=50001
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
-export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
+export KC_JEMPI_CLIENT_SECRET="Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
+export KC_TEST_DB="key_clock_test_db"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
 export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
 # Deployment related env vars
@@ -45,12 +47,14 @@ export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
 # UI env vars
 export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
-export REACT_APP_JEMPI_BASE_API_PORT=${API_PORT}
+export REACT_APP_JEMPI_BASE_API_PORT=${API_PORT_KC}
 export REACT_APP_MOCK_BACKEND="false"
 export REACT_APP_ENABLE_SSO="false"
+export KC_FRONTEND_URL="http://localhost:8080"
 
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="16G"
+export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
 export NGINX_RAM_LIMIT="16G"
 export HAPROXY_RAM_LIMIT="32G"
 export KAFKA_RAM_LIMIT="32G"

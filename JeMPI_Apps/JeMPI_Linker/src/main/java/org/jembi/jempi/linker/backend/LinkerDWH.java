@@ -24,9 +24,7 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 final public class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
-   // TODO: [Cq] - Why LinkerDWH
 
-   // TODO: [Cc] DataWarehouse
    private LinkerDWH() {
    }
 
