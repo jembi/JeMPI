@@ -4,6 +4,7 @@ import React, { SyntheticEvent, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
+import Deterministic from './deterministic/deterministic'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -87,6 +88,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             Deterministic
+            <Deterministic />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             Blocking
