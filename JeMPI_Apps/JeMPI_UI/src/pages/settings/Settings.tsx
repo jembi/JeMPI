@@ -5,6 +5,7 @@ import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
+import Blocking from './blocking/Blocking'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -92,6 +93,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             Blocking
+            <Blocking />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
             Probabilistic

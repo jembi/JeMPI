@@ -1,9 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import {
@@ -18,9 +15,7 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-  GridValueSetterParams
 } from '@mui/x-data-grid'
-import { useSnackbar } from 'notistack'
 
 const randomTraderName = () => {
   return Math.random().toString(36).substring(2, 7)
@@ -80,7 +75,6 @@ function EditToolbar(props: EditToolbarProps) {
 }
 const UniqueToInteraction = () => {
   const [rows, setRows] = useState(initialRows)
-  const { enqueueSnackbar } = useSnackbar()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (

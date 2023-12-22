@@ -1,18 +1,19 @@
 import { AddOutlined } from '@mui/icons-material'
 import {
-  Box,
-  Button,
   Card,
-  CardActions,
   CardContent,
+  Button,
   FormControl,
-  IconButton,
   InputLabel,
   Select,
+  CardActions,
+  IconButton,
+  Typography
 } from '@mui/material'
+import { Box } from '@mui/system'
 import React from 'react'
 
-const Deterministic = () => {
+const Blocking = () => {
   const [viewType, setViewType] = React.useState(0)
   return (
     <>
@@ -84,7 +85,26 @@ const Deterministic = () => {
                 ></Select>
               </FormControl>
             </Box>
-          ) : null}
+          ) : (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant='h5' >Match (phone number, 3)</Typography>
+              Or
+              <Typography variant='h5'>Match (National ID, 3)</Typography> Or
+              <Typography variant='h5'>
+                Int (Match (given name , 3)) + Int(Match (family name, 3)) +
+                Int(Match (city, 3)) ≥ 3
+              </Typography>
+            </Box>
+          )}
         </CardContent>
         <CardActions>
           <IconButton aria-label="delete" size="small">
@@ -96,4 +116,4 @@ const Deterministic = () => {
   )
 }
 
-export default Deterministic
+export default Blocking
