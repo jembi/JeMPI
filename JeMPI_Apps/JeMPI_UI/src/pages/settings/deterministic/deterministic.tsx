@@ -9,6 +9,7 @@ import {
   IconButton,
   InputLabel,
   Select,
+  Typography
 } from '@mui/material'
 import React from 'react'
 
@@ -84,7 +85,24 @@ const Deterministic = () => {
                 ></Select>
               </FormControl>
             </Box>
-          ) : null}
+          ) : (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant="h5">eq (National ID)</Typography>
+              Or
+              <Typography variant="h5">
+                eq (given name) and eq(family name, 3) and eq (phone number)
+              </Typography>
+            </Box>
+          )}
         </CardContent>
         <CardActions>
           <IconButton aria-label="delete" size="small">
