@@ -6,6 +6,7 @@ import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
+import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -85,7 +86,10 @@ const Settings = () => {
             <UniqueToInteraction />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
-            Golden Records Lists
+            <Typography variant="h5" sx={{ py: 3 }}>
+              Setup properties for Golden Records Lists{' '}
+            </Typography>
+            <GoldenRecordLists />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             Deterministic
