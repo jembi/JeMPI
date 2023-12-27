@@ -1,6 +1,7 @@
 package org.jembi.jempi.shared.kafka.global_context.store_processor;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.errors.InvalidStateStoreException;
@@ -10,6 +11,7 @@ import org.apache.kafka.streams.state.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueDeserializer;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerde;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerializer;
 
@@ -31,19 +33,34 @@ public class StoreProcessor<T> {
 
         this.topicName = topicName;
         String uniqueId = getUniqueId(topicName);
+
         this.globalStoreName = String.format("%s-store", topicName);
 
-        StreamsBuilder builder = new StreamsBuilder();
-        builder.addGlobalStore(Stores.keyValueStoreBuilder(
+
+        Topology storeProcessorTopology = new Topology();
+        storeProcessorTopology.addGlobalStore(Stores.keyValueStoreBuilder(
                         Stores.inMemoryKeyValueStore(globalStoreName),
                         Serdes.String(),
-                        new StoreValueSerde<T>(serializeCls)),
+                        new StoreValueSerde<T>(serializeCls)).withLoggingDisabled(),
+                "rootNode",
+                new StringDeserializer(),
+                new StoreValueDeserializer<T>(serializeCls),
                 topicName,
-                Consumed.with(Serdes.String(), new StoreValueSerde<T>(serializeCls)),
+                "rootProcessor",
                 () -> new StoreProcessorValuesUpdater<>(getValueUpdater(), globalStoreName));
 
 
-        streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId));
+//        StreamsBuilder builder = new StreamsBuilder();
+//        builder.addGlobalStore(Stores.keyValueStoreBuilder(
+//                        Stores.inMemoryKeyValueStore(globalStoreName),
+//                        Serdes.String(),
+//                        new StoreValueSerde<T>(serializeCls)),
+//                topicName,
+//                Consumed.with(Serdes.String(), new StoreValueSerde<T>(serializeCls)),
+//                () -> new StoreProcessorValuesUpdater<>(getValueUpdater(), globalStoreName));
+
+
+        streams = new KafkaStreams(storeProcessorTopology, this.getProperties(bootStrapServers, uniqueId));
 
         streams.setUncaughtExceptionHandler(exception -> {
             LOGGER.error(String.format("A error occurred on the global KTable stream %s", topicName), exception);
