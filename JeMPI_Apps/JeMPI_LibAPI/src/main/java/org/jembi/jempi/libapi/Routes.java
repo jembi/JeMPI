@@ -11,6 +11,7 @@ import akka.japi.Pair;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.libapi.mpi_stats.MPIStats;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
@@ -744,7 +745,8 @@ public final class Routes {
                               "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                       path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
                       path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                              () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
+                              () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))),
+              MPIStats.getRoutes(actorSystem, backEnd));
    }
 
 
