@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
+package org.jembi.jempi.shared.libs.m_and_u;
 
 public final class FieldEqualityPairMatchMatrix {
 

@@ -6,8 +6,8 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
 import org.jembi.jempi.linker.threshold_range_processor.IThresholdRangeSubProcessor;
 import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.FieldEqualityPairMatchMatrix;
-import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.MuModel;
+import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeName;
 import org.jembi.jempi.shared.models.Interaction;
 
