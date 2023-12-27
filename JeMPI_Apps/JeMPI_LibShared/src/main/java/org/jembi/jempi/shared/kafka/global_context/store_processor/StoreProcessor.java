@@ -1,19 +1,15 @@
 package org.jembi.jempi.shared.kafka.global_context.store_processor;
 
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.errors.InvalidStateStoreException;
 import org.apache.kafka.streams.errors.StreamsUncaughtExceptionHandler;
-import org.apache.kafka.streams.processor.api.Processor;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.state.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueDeserializer;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerde;
-import org.jembi.jempi.shared.kafka.global_context.store_processor.serde.StoreValueSerializer;
 
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +22,7 @@ public class StoreProcessor<T> {
     private final String topicName;
     private final String sinkTopicName;
     private final String topicStoreName;
-    private final String sinkStoreName;
+    //private final String sinkStoreName;
     private final ReadOnlyKeyValueStore<String, T> keyValueStore;
     private final MyKafkaProducer<String, T> updater;
     KafkaStreams streams;
@@ -38,35 +34,31 @@ public class StoreProcessor<T> {
         String uniqueId = Utilities.getUniqueAppId(topicName);
 
         this.topicStoreName = String.format("%s-store", topicName);
-        this.sinkStoreName =  String.format("%s-store", sinkTopicName);
 
-        Topology storeProcessorTopology = new Topology();
-        storeProcessorTopology.addGlobalStore(Stores.keyValueStoreBuilder(
-                                                    Stores.inMemoryKeyValueStore(sinkStoreName),
-                                                    Serdes.String(),
-                                                    new StoreValueSerde<T>(serializeCls)).withLoggingDisabled(),
-                                            "sinkNode",
-                                            new StringDeserializer(),
-                                            new StoreValueDeserializer<T>(serializeCls),
-                                            sinkTopicName,
-                                            "sinkProcessor",
-                                            () -> (Processor<String, T, Void, Void>) record -> {
-                                                LOGGER.debug(String.format("Store %s update", topicName));
-                                            })
-                                .addGlobalStore(Stores.keyValueStoreBuilder(
-                                        Stores.inMemoryKeyValueStore(topicStoreName),
-                                        Serdes.String(),
-                                        new StoreValueSerde<T>(serializeCls)).withLoggingDisabled(),
-                                "topicNode",
-                                new StringDeserializer(),
-                                new StoreValueDeserializer<T>(serializeCls),
-                                topicName,
-                                "topicProcessor",
-                                () -> new StoreProcessorValuesUpdater<>(getValueUpdater(), sinkStoreName, getTopicProducer(sinkTopicName, bootStrapServers)));
+        StreamsBuilder builder = new StreamsBuilder();
+        builder.addGlobalStore(Stores.keyValueStoreBuilder(
+                        Stores.inMemoryKeyValueStore(topicStoreName),
+                        Serdes.String(),
+                        new StoreValueSerde<T>(serializeCls)),
+                topicName,
+                Consumed.with(Serdes.String(), new StoreValueSerde<T>(serializeCls)),
+                () -> new StoreProcessorValuesUpdater<>(getValueUpdater(), topicStoreName, topicName, sinkTopicName, bootStrapServers, serializeCls));
 
+//        Topology storeProcessorTopology = builder.build();
+////        storeProcessorTopology.addGlobalStore(Stores.keyValueStoreBuilder(
+////                                                    Stores.inMemoryKeyValueStore(sinkStoreName),
+////                                                    Serdes.String(),
+////                                                    new StoreValueSerde<T>(serializeCls)).withLoggingDisabled(),
+////                                            "sinkNode",
+////                                            new StringDeserializer(),
+////                                            new StoreValueDeserializer<T>(serializeCls),
+////                                            sinkTopicName,
+////                                            "sinkProcessor",
+////                                            () -> (Processor<String, T, Void, Void>) record -> {
+////                                                LOGGER.debug(String.format("Store %s update", topicName));
+////                                            });
 
-
-        streams = new KafkaStreams(storeProcessorTopology, this.getProperties(bootStrapServers, uniqueId));
+        streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId));
 
         streams.setUncaughtExceptionHandler(exception -> {
             LOGGER.error(String.format("A error occurred on the global KTable stream %s", topicName), exception);
@@ -79,19 +71,13 @@ public class StoreProcessor<T> {
 
         waitUntilStoreIsQueryable().get();
 
-        updater = getTopicProducer(topicName, bootStrapServers);
+        updater = Utilities.getTopicProducer(topicName, bootStrapServers);
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 
 
-    private MyKafkaProducer<String, T> getTopicProducer(String topicName, String bootStrapServers){
-        return new MyKafkaProducer<>(bootStrapServers,
-                topicName,
-                new StringSerializer(),
-                new StoreValueSerializer<>(),
-                String.format("%s-producer", Utilities.getUniqueAppId(topicName)));
-    }
+
     private CompletableFuture<Boolean> waitUntilStoreIsQueryable() {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
