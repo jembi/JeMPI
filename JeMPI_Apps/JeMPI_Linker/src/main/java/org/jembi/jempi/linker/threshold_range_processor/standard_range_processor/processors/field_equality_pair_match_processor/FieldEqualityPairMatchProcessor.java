@@ -3,6 +3,7 @@ package org.jembi.jempi.linker.threshold_range_processor.standard_range_processo
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.linker.CustomLinkerMU;
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
 import org.jembi.jempi.linker.threshold_range_processor.IThresholdRangeSubProcessor;
 import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
@@ -18,8 +19,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.currentLinkFieldsMap;
-
 public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor {
 
     private static final Logger LOGGER = LogManager.getLogger(FieldEqualityPairMatchProcessor.class);
@@ -34,8 +33,7 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
     public FieldEqualityPairMatchProcessor(final String linkerIdIn, final Interaction originalInteractionIn) {
         this.linkerId = linkerIdIn;
         this.originalInteraction = originalInteractionIn;
-        this.originalInteractionDemographicDataMap = this.originalInteraction.demographicData().toMap();
-        this.muModel = MuModel.fromDemographicData(this.linkerId, originalInteractionDemographicDataMap, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+        this.muModel = MuModel.withLinkedFields(this.linkerId, CustomLinkerMU.LINKER_FIELDS.keySet(), AppConfig.KAFKA_BOOTSTRAP_SERVERS);
     }
 
     List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(final List<CategorisedCandidates> candidates) {
@@ -58,15 +56,19 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
 
     void updateFieldEqualityPairMatchMatrix(final List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
         LOGGER.info(String.format("FieldEqualityPairMatchProcessor: Processing %d candidates", pairMatchUnmatchedCandidates.size()));
-        for (Map.Entry<String, LinkerProbabilistic.Field> field: currentLinkFieldsMap.entrySet()) {
-            for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
-                var candidateDemographicData = pairMatchCandidate.candidates.getGoldenRecord().demographicData().toMap();
 
-                var fieldScoreInfo = LinkerProbabilistic.fieldScoreInfo(originalInteractionDemographicDataMap.get(field.getKey()), candidateDemographicData.get(field.getKey()), field.getValue());
+        for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
+            Map<String, LinkerProbabilistic.FieldScoreInfo> fieldMatchInfo = new CustomLinkerMU.FieldMatchInfo(
+                                                                    pairMatchCandidate.candidates.getGoldenRecord().demographicData(),
+                                                                    originalInteraction.demographicData()).toMap();
 
+            for (Map.Entry<String, LinkerProbabilistic.Field> field: CustomLinkerMU.LINKER_FIELDS.entrySet()) {
+                LinkerProbabilistic.FieldScoreInfo fieldScoreInfo = fieldMatchInfo.get(field.getKey());
                 this.muModel.updateFieldEqualityPairMatchMatrix(field.getKey(), fieldScoreInfo.isMatch(), pairMatchCandidate.isPairMatch);
             }
+
         }
+
         this.saveToKafka();
     }
 

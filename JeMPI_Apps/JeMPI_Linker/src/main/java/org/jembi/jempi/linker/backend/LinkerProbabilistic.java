@@ -203,7 +203,7 @@ public final class LinkerProbabilistic {
          max = fieldScore(true, m, u);
       }
 
-      Field(
+      public Field(
             final SimilarityScore<Double> func_,
             final List<Float> comparisonLevels_,
             final float m_,

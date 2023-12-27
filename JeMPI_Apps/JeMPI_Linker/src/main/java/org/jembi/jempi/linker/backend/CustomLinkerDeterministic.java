@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-public final class CustomLinkerDeterministic {
+final public class CustomLinkerDeterministic {
 
    static final boolean DETERMINISTIC_DO_LINKING = true;
    static final boolean DETERMINISTIC_DO_VALIDATING = false;
@@ -28,7 +28,7 @@ public final class CustomLinkerDeterministic {
              && StringUtils.isNotBlank(interaction.phoneNumber);
    }
 
-   static boolean linkDeterministicMatch(
+   public static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       final var nationalIdL = goldenRecord.nationalId;

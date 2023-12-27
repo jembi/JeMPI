@@ -43,7 +43,7 @@ object CustomLinkerProbabilistic {
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
          |
-         |final class $custom_className {
+         |final public class $custom_className {
          |
          |   static final int METRIC_MIN = 0;
          |   static final int METRIC_MAX = 1;
@@ -181,7 +181,7 @@ object CustomLinkerProbabilistic {
 
     def validateProbabilisticScore(): Unit =
       writer.println(
-        """   static float validateProbabilisticScore(
+        """   public static float validateProbabilisticScore(
           |         final CustomDemographicData goldenRecord,
           |         final CustomDemographicData interaction) {""".stripMargin)
 

@@ -51,5 +51,10 @@
             files="FieldEqualityPairMatchProcessor.java"
     />
 
+    <suppress
+            checks="(DesignForExtension|RegexpSingleline|UnusedImports)"
+            files="CustomLinkerMU.java"
+    />
+
 
 </suppressions>
