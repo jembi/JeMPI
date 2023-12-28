@@ -38,19 +38,6 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         this.kafkaBootstrapConfig =  objectMapper.readValue(keycloakConfigStream, KafkaBootstrapConfig.class);
     }
 
-    private void awaitOperationComplete(final Function<Collection<TopicListing>, Boolean> checkFunc) {
-        boolean isComplete = false;
-        int count = 0;
-        while (!isComplete) {
-            try {
-                Thread.sleep(1000);
-                isComplete = checkFunc.apply(kafkaTopicManager.getAllTopics()) || count > 5000;
-                count += 1000;
-            } catch (ExecutionException | InterruptedException e) {
-                isComplete = true;
-            }
-        }
-    }
     @Override
     public Boolean createSchema() throws InterruptedException {
         LOGGER.info("Loading Kafka schema data.");
@@ -68,7 +55,7 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
                 LOGGER.warn(e.getMessage());
             }
         }
-        awaitOperationComplete(topics -> topics.size() >=  this.kafkaBootstrapConfig.topics.size());
+        kafkaTopicManager.checkTopicsWithWait(topics -> topics.size() >=  this.kafkaBootstrapConfig.topics.size(), 5000);
         return true;
     }
 
@@ -99,7 +86,7 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
             }
         }
 
-        awaitOperationComplete(topics -> topics.size() == 0);
+        kafkaTopicManager.checkTopicsWithWait(topics -> topics.size() == 0, 5000);
         return true;
     }
 

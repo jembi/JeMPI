@@ -8,6 +8,7 @@ import org.jembi.jempi.shared.kafka.KafkaTopicManager;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class StoreProcessorFactory<T> {
@@ -36,6 +37,10 @@ public class StoreProcessorFactory<T> {
                         4194304);
             }
         }
+        topicManager.checkTopicsWithWait(topics -> topics.stream().filter(t -> Objects.equals(t.name(), pTopicName.topicName()) ||
+                                                                               Objects.equals(t.name(), pTopicName.topicSinkName()) ).count() == 2,
+                                                                5000);
+
         return get(name, serializeCls);
     }
     public StoreProcessor<T> get(final String name, final Class<T> serializeCls) throws TopicExistsException, ExecutionException, InterruptedException {

@@ -22,7 +22,6 @@ public class StoreProcessor<T> {
     private final String topicName;
     private final String sinkTopicName;
     private final String topicStoreName;
-    //private final String sinkStoreName;
     private final ReadOnlyKeyValueStore<String, T> keyValueStore;
     private final MyKafkaProducer<String, T> updater;
     KafkaStreams streams;
@@ -42,21 +41,10 @@ public class StoreProcessor<T> {
                         new StoreValueSerde<T>(serializeCls)),
                 topicName,
                 Consumed.with(Serdes.String(), new StoreValueSerde<T>(serializeCls)),
-                () -> new StoreProcessorValuesUpdater<>(getValueUpdater(), topicStoreName, topicName, sinkTopicName, bootStrapServers, serializeCls));
-
-//        Topology storeProcessorTopology = builder.build();
-////        storeProcessorTopology.addGlobalStore(Stores.keyValueStoreBuilder(
-////                                                    Stores.inMemoryKeyValueStore(sinkStoreName),
-////                                                    Serdes.String(),
-////                                                    new StoreValueSerde<T>(serializeCls)).withLoggingDisabled(),
-////                                            "sinkNode",
-////                                            new StringDeserializer(),
-////                                            new StoreValueDeserializer<T>(serializeCls),
-////                                            sinkTopicName,
-////                                            "sinkProcessor",
-////                                            () -> (Processor<String, T, Void, Void>) record -> {
-////                                                LOGGER.debug(String.format("Store %s update", topicName));
-////                                            });
+                () -> new StoreProcessorValuesUpdater<>(getValueUpdater(),
+                                                        topicName,
+                                                        topicStoreName,
+                                                        new StoreProcessorSinkManager<>(topicName, sinkTopicName, bootStrapServers, serializeCls)));
 
         streams = new KafkaStreams(builder.build(), this.getProperties(bootStrapServers, uniqueId));
 
@@ -75,8 +63,6 @@ public class StoreProcessor<T> {
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
-
-
 
     private CompletableFuture<Boolean> waitUntilStoreIsQueryable() {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -106,7 +92,6 @@ public class StoreProcessor<T> {
 
         return future;
     }
-
 
     private Properties getProperties(final String bootStrapServers, final String uniqueName) {
         Properties properties = new Properties();
