@@ -12,7 +12,7 @@ echo "Build Apps"
 pwd
 pushd ../../../JeMPI_Apps
   source ./build-all-java.sh
-  source ./build-all-ui.sh
+#  source ./build-all-ui.sh
 popd
 sleep 2
 

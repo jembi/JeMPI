@@ -7,6 +7,7 @@ import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.streams.StreamsConfig;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessor;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessorFactory;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.Utilities;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +42,7 @@ public class TestUtils {
     public void resetAllTopics() throws ExecutionException, InterruptedException  {
         Collection<String> collection = kafkaAdminClient.listTopics(new ListTopicsOptions().listInternal(false)).listings().get().stream()
                 .map(TopicListing::name)
-                .filter(name -> name.startsWith("testTopic"))
+                .filter(name -> name.startsWith(Utilities.JEMPI_GLOBAL_STORE_PREFIX) && name.contains("testTopic"))
                 .collect(Collectors.toCollection(ArrayList::new));
 
 

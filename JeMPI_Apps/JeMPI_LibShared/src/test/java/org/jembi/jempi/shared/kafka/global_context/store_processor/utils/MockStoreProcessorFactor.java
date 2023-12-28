@@ -10,7 +10,7 @@ public class MockStoreProcessorFactor extends StoreProcessorFactory<TestUtils.Mo
         super(bootStrapServers);
     }
     @Override
-    protected StoreProcessor<TestUtils.MockTableData> getInstanceClass(final String name, Class<TestUtils.MockTableData> serializeCls) throws ExecutionException, InterruptedException {
-        return new MockStoreProcessor(bootStrapServers, name, serializeCls);
+    protected StoreProcessor<TestUtils.MockTableData> getInstanceClass(final String name, final String sinkName, Class<TestUtils.MockTableData> serializeCls) throws ExecutionException, InterruptedException {
+        return new MockStoreProcessor(bootStrapServers, name, sinkName, serializeCls);
     }
 }
