@@ -22,7 +22,7 @@ public class StoreProcessorFactory<T> {
         this.bootStrapServers = bootStrapServers;
     }
 
-    private Boolean checkRequireTopicsExist(String topicName) throws ExecutionException, InterruptedException {
+    private Boolean checkRequireTopicsExist(final String topicName) throws ExecutionException, InterruptedException {
         Utilities.TopicStoreNames pTopicName = Utilities.getStoreNames(topicName);
         return Boolean.TRUE.equals(topicManager.hasTopic(pTopicName.topicName())) && Boolean.TRUE.equals(topicManager.hasTopic(pTopicName.topicSinkName()));
     }
@@ -37,8 +37,8 @@ public class StoreProcessorFactory<T> {
                         4194304);
             }
         }
-        topicManager.checkTopicsWithWait(topics -> topics.stream().filter(t -> Objects.equals(t.name(), pTopicName.topicName()) ||
-                                                                               Objects.equals(t.name(), pTopicName.topicSinkName()) ).count() == 2,
+        topicManager.checkTopicsWithWait(topics -> topics.stream().filter(t -> Objects.equals(t.name(), pTopicName.topicName())
+                                                                                || Objects.equals(t.name(), pTopicName.topicSinkName())).count() == 2,
                                                                 5000);
 
         return get(name, serializeCls);

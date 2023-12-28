@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class StoreProcessorSinkManager <T>{
+public final class StoreProcessorSinkManager<T> {
     private static final Logger LOGGER = LogManager.getLogger(StoreProcessorSinkManager.class);
     private final String topicName;
     private final String sinkTopicName;
@@ -28,7 +28,7 @@ public class StoreProcessorSinkManager <T>{
         this.sinkUpdater = Utilities.getTopicProducer(sinkTopicName, bootStrapServers);
         this.sinkReader = Utilities.getTopicReader(sinkTopicName, bootStrapServers, serializeCls);
     }
-    public void updateSink(T updatedValue) throws ExecutionException, InterruptedException {
+    public void updateSink(final T updatedValue) throws ExecutionException, InterruptedException {
         this.sinkUpdater.produceSync(sinkTopicName, updatedValue);
     }
 
@@ -43,23 +43,22 @@ public class StoreProcessorSinkManager <T>{
                 this.sinkReader.assign(Collections.singletonList(topicPartition));
                 this.sinkReader.seekToEnd(Collections.singletonList(topicPartition));
                 long lastOffset = this.sinkReader.position(topicPartition);
-                if (lastOffset == 0){
+                if (lastOffset == 0) {
                     return null;
                 }
-                this.sinkReader.seek(topicPartition, lastOffset-1);
+                this.sinkReader.seek(topicPartition, lastOffset - 1);
 
 
                 ConsumerRecords<String, T> records = this.sinkReader.poll(Duration.ofMillis(1000));
 
                 T lastRecord = null;
-                for (ConsumerRecord<String, T> r: records){
+                for (ConsumerRecord<String, T> r: records) {
                     lastRecord = r.value();
                 }
 
                 return lastRecord;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(String.format("An error occurred trying to get the global store %s last value. Defaulting to null", this.topicName), e);
         }
         return null;

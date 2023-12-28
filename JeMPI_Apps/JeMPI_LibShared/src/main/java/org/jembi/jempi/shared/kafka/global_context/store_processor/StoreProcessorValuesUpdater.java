@@ -27,7 +27,7 @@ public final class StoreProcessorValuesUpdater<T> implements Processor<String, T
         this.sinkManager = sinkManager;
     }
 
-    private T readLastValue(Record<String, T> recordToProcess){
+    private T readLastValue(final Record<String, T> recordToProcess) {
         T lastValue = null;
 
         if (recordToProcess != null) {
@@ -45,7 +45,7 @@ public final class StoreProcessorValuesUpdater<T> implements Processor<String, T
         this.context = context;
         this.topicStore = context.getStateStore(topicStoreName);
         T lastValue = readLastValue(null);
-        if (lastValue != null){
+        if (lastValue != null) {
             this.topicStore.put(topicName, lastValue);
         }
     }
