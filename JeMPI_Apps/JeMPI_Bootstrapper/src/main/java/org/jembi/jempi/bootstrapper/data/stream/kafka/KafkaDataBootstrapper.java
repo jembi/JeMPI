@@ -1,6 +1,8 @@
 package org.jembi.jempi.bootstrapper.data.stream.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.admin.DeleteTopicsOptions;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.logging.log4j.Logger;
@@ -8,14 +10,14 @@ import org.jembi.jempi.bootstrapper.data.DataBootstrapper;
 import org.jembi.jempi.bootstrapper.data.utils.DataBootstraperConsts;
 import org.jembi.jempi.bootstrapper.utils.BootstrapperLogger;
 import org.jembi.jempi.shared.kafka.KafkaTopicManager;
+import org.jembi.jempi.shared.kafka.global_context.store_processor.Utilities;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class KafkaDataBootstrapper extends DataBootstrapper {
    protected static final Logger LOGGER = BootstrapperLogger.getChildLogger(DataBootstrapper.LOGGER, "Kafka");
@@ -72,20 +74,39 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
         };
         return true;
     }
-    @Override
-    public Boolean deleteData() throws InterruptedException {
-        LOGGER.info("Deleting kafka topics.");
-        for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails : this.kafkaBootstrapConfig.topics.entrySet()) {
 
-            KafkaBootstrapConfig.BootstrapperTopicConfig topic = topicDetails.getValue();
-            LOGGER.info(String.format("--> Deleting topic '%s'", topic.getTopicName()));
-            try {
-                kafkaTopicManager.deleteTopic(topic.getTopicName());
-            } catch (ExecutionException e) {
-                LOGGER.warn(e.getMessage());
-            }
+    private void doTopicDelete(final String topicName) {
+        LOGGER.info(String.format("--> Deleting topic '%s'", topicName));
+        try {
+            kafkaTopicManager.deleteTopic(topicName);
+        } catch (ExecutionException | InterruptedException e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
+
+    public Boolean deleteGlobalStoreTopicsData() throws ExecutionException, InterruptedException {
+        LOGGER.info("Deleting global store kafka topics.");
+        Collection<String> collection = kafkaTopicManager.getAllTopics().stream()
+                .map(TopicListing::name)
+                .filter(name -> name.startsWith(Utilities.JEMPI_GLOBAL_STORE_PREFIX))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        for (String topic: collection) {
+            doTopicDelete(topic);
         }
 
+        kafkaTopicManager.checkTopicsWithWait(topics -> topics.stream().filter(t -> t.name().startsWith(Utilities.JEMPI_GLOBAL_STORE_PREFIX)).count() == 0, 5000);
+        return true;
+    }
+
+    @Override
+    public Boolean deleteData() throws InterruptedException, ExecutionException {
+        LOGGER.info("Deleting kafka topics.");
+        for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails : this.kafkaBootstrapConfig.topics.entrySet()) {
+            KafkaBootstrapConfig.BootstrapperTopicConfig topic = topicDetails.getValue();
+            doTopicDelete(topic.getTopicName());
+        }
+        deleteGlobalStoreTopicsData();
         kafkaTopicManager.checkTopicsWithWait(topics -> topics.size() == 0, 5000);
         return true;
     }
