@@ -24,11 +24,6 @@ const NavigationMenu: React.FC = () => {
     close()
     logout(navigate)
   }
-
-  if (!currentUser) {
-    return null
-  }
-
   return (
     <Box sx={{ paddingX: '1rem' }}>
       <IconButton
