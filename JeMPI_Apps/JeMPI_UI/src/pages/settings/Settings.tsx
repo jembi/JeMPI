@@ -7,6 +7,7 @@ import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
+import './Shapes.css'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -46,7 +47,47 @@ const Settings = () => {
 
   return (
     <Grid container spacing={4}>
-      <Grid item md={4}></Grid>
+      <Grid item md={4}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            justifyItems: 'center',
+            alignContent: 'center',
+            gap: 0,
+            width: '100%'
+          }}
+        >
+          <div className="shapes-container">
+            <div className="circle" style={{ backgroundColor: '#ADD8E6' }}>
+              <b className="label">Golden Record</b>
+            </div>
+            <div className="connection-dashed"></div>
+            <div className="circle">
+              <b className="label">
+                Interaction
+                <br />
+                (encounter)
+              </b>
+            </div>
+          </div>
+          <div className="shapes-container">
+            <div
+              className="connection-solid"
+              style={{ rotate: '-50deg' }}
+            ></div>
+            <div style={{ left: 60 }} className="square">
+              <span className="label"></span>
+            </div>
+            <div
+              style={{ left: 0, rotate: '50deg' }}
+              className="connection-solid"
+            ></div>
+          </div>
+        </div>
+      </Grid>
       <Grid item md={8}>
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
