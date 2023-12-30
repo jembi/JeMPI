@@ -26,8 +26,8 @@ public class Utilities {
         String topicNameWithPrefix = Utilities.getTopicWithPrefix(topicName);
         return new TopicStoreNames(topicNameWithPrefix, String.format("%s-sink", topicNameWithPrefix));
     }
-    public static String getUniqueAppId(final String topicName) {
-        return String.format("jempi-global-store-app-%s-%s", topicName, UUID.randomUUID());
+    public static String getUniqueAppId(final String topicName, final String idSuffix) {
+        return String.format("jempi-global-store-app-%s-%s", topicName, idSuffix == null ? UUID.randomUUID() : idSuffix);
     }
 
     public static <T> MyKafkaProducer<String, T> getTopicProducer(final String topicName, final String bootStrapServers) {
@@ -35,7 +35,7 @@ public class Utilities {
                 topicName,
                 new StringSerializer(),
                 new StoreValueSerializer<>(),
-                String.format("%s-producer", Utilities.getUniqueAppId(topicName)));
+                String.format("%s-producer", Utilities.getUniqueAppId(topicName, null)));
     }
 
     public static <T> Consumer<String, T> getTopicReader(final String topicName, final String bootStrapServers,  final Class<T> serializeCls) {

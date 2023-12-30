@@ -30,7 +30,7 @@ public class StoreProcessor<T> {
         this.topicName = topicNameIn;
         this.sinkTopicName = sinkTopicNameIn;
 
-        String uniqueId = Utilities.getUniqueAppId(topicName);
+        String uniqueId = Utilities.getUniqueAppId(topicName, "" + ProcessHandle.current().pid());
 
         this.topicStoreName = String.format("%s-store", topicName);
 
