@@ -109,7 +109,7 @@ object CustomLinkerDeterministic {
          |
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |
-         |final public class $custom_className {
+         |public final class $custom_className {
          |
          |   static final boolean DETERMINISTIC_DO_LINKING = ${if (config.rules.link.get.deterministic.nonEmpty) "true" else "false"};
          |   static final boolean DETERMINISTIC_DO_VALIDATING = ${if (config.rules.validate.nonEmpty) "true" else "false"};

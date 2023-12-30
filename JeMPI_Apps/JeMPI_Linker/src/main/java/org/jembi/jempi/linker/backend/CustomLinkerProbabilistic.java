@@ -11,7 +11,7 @@ import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILAR
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
-final public class CustomLinkerProbabilistic {
+public final class CustomLinkerProbabilistic {
 
    static final int METRIC_MIN = 0;
    static final int METRIC_MAX = 1;

@@ -43,7 +43,7 @@ object CustomLinkerProbabilistic {
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
          |
-         |final public class $custom_className {
+         |public final class $custom_className {
          |
          |   static final int METRIC_MIN = 0;
          |   static final int METRIC_MAX = 1;
