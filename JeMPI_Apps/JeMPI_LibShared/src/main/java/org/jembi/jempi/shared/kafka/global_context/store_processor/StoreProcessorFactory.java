@@ -48,7 +48,7 @@ public class StoreProcessorFactory<T> {
             throw new UnknownTopicIdException(String.format("Could not find the global KTable with the name '%s'. Try running getCreate instead.", name));
         }
         Utilities.TopicStoreNames pTopicName = Utilities.getStoreNames(name);
-        if (!tables.containsKey(name)) {
+        if (!tables.containsKey(name) || (tables.containsKey(name) && !tables.get(name).validateIsAlive())) {
             StoreProcessor<T> instance;
             try {
                 instance = getInstanceClass(pTopicName.topicName(), pTopicName.topicSinkName(), serializeCls);
