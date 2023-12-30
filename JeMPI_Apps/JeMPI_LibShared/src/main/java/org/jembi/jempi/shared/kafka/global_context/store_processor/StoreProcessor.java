@@ -64,6 +64,19 @@ public class StoreProcessor<T> {
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 
+    public boolean validateIsAlive() {
+        if (!streams.state().isRunningOrRebalancing()) {
+            return false;
+        }
+
+        try {
+            getValue();
+        } catch (InvalidStateStoreException e) {
+            return false;
+        }
+
+        return true;
+    }
     private CompletableFuture<Boolean> waitUntilStoreIsQueryable() {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
