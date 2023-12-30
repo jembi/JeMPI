@@ -11,8 +11,8 @@ import java.util.concurrent.ExecutionException;
 
 public final class MUKGlobalStoreInstance extends StoreProcessor<Object> {
 
-    public MUKGlobalStoreInstance(final String bootStrapServers, final String topicName, final Class<Object> serializeCls) throws InterruptedException, ExecutionException {
-        super(bootStrapServers, topicName, serializeCls);
+    public MUKGlobalStoreInstance(final String bootStrapServers, final String topicName, final String sinkName, final Class<Object> serializeCls) throws InterruptedException, ExecutionException {
+        super(bootStrapServers, topicName, sinkName, serializeCls);
     }
     @Override
     public HashMap<String, FieldEqualityPairMatchMatrix> getValue() {

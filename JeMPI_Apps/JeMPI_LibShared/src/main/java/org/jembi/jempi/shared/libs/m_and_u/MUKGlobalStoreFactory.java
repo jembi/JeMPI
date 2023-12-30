@@ -11,7 +11,7 @@ public final class MUKGlobalStoreFactory extends StoreProcessorFactory<Object> {
     }
 
     @Override
-    protected StoreProcessor<Object> getInstanceClass(final String name, final Class<Object> serializeCls) throws ExecutionException, InterruptedException {
-        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, Object.class);
+    protected StoreProcessor<Object> getInstanceClass(final String name, final String sinkName, final Class<Object> serializeCls) throws ExecutionException, InterruptedException {
+        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, sinkName, Object.class);
     }
 }
