@@ -24,13 +24,13 @@ public final class MUKGlobalStoreInstance extends StoreProcessor<Object> {
         }
 
         for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) storedValue).entrySet()) {
-            storeValue.put(value.getKey(), convertTpFieldEqualityPairMatchMatrix(value.getValue()));
+            storeValue.put(value.getKey(), convertToFieldEqualityPairMatchMatrix(value.getValue()));
         }
 
         return storeValue;
     }
 
-    protected FieldEqualityPairMatchMatrix convertTpFieldEqualityPairMatchMatrix(final Object value) {
+    protected FieldEqualityPairMatchMatrix convertToFieldEqualityPairMatchMatrix(final Object value) {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.convertValue(value, FieldEqualityPairMatchMatrix.class);
     }
@@ -41,12 +41,16 @@ public final class MUKGlobalStoreInstance extends StoreProcessor<Object> {
             LinkedHashMap<String, Object> currentMapValue = (LinkedHashMap<String, Object>) currentValue;
             LinkedHashMap<String, Object> currentGlobalMapValue = (LinkedHashMap<String, Object>) globalValue;
 
+            if (currentGlobalMapValue == null) {
+                currentGlobalMapValue = new LinkedHashMap<>();
+            }
+
             for (Map.Entry<String, Object> current: currentMapValue.entrySet()) {
                 if (!currentGlobalMapValue.containsKey(current.getKey())) {
                     currentGlobalMapValue.put(current.getKey(), current.getValue());
                 } else {
-                    FieldEqualityPairMatchMatrix currentParsedValue = convertTpFieldEqualityPairMatchMatrix(current.getValue());
-                    FieldEqualityPairMatchMatrix currentGlobalParsedValue = convertTpFieldEqualityPairMatchMatrix(currentGlobalMapValue.get(current.getKey()));
+                    FieldEqualityPairMatchMatrix currentParsedValue = convertToFieldEqualityPairMatchMatrix(current.getValue());
+                    FieldEqualityPairMatchMatrix currentGlobalParsedValue = convertToFieldEqualityPairMatchMatrix(currentGlobalMapValue.get(current.getKey()));
 
                     currentGlobalMapValue.put(current.getKey(), currentGlobalParsedValue.merge(currentGlobalParsedValue, currentParsedValue));
                 }
