@@ -1,5 +1,7 @@
 package org.jembi.jempi.linker.threshold_range_processor.lib;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -7,9 +9,12 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.linker.backend.LinkerDWH;
 import org.jembi.jempi.shared.kafka.KafkaTopicManager;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.Utilities;
+import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.shared.libs.m_and_u.MuAccesor;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.apache.kafka.clients.admin.TopicListing;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +31,9 @@ import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.Interaction;
 import java.util.*;
+
+import static java.lang.Thread.sleep;
+
 public final class ExternalRunner {
 
     private static final Logger LOGGER = LogManager.getLogger(ExternalRunner.class);
@@ -86,6 +94,36 @@ public final class ExternalRunner {
         kafkaTopicManager.checkTopicsWithWait(topics -> topics.stream().filter(t -> t.name().startsWith(Utilities.JEMPI_GLOBAL_STORE_PREFIX)).count() == 0, 5000);
     }
 
+    public record MandU(Float m, Float u) { }
+    public record ReportMetaData(Float matchThreshold, Float windowLowerBound, Float windowUpperBound) { }
+    public record Report(ReportMetaData reportMetaData, Map<String, MandU> mAndU) { }
+    public static void printSaved(final String reportFilePath, final Float matchThreshold, final Float windowLowerBound, final Float windowUpperBound) throws ExecutionException, InterruptedException {
+        sleep(2000);
+        HashMap<String, FieldEqualityPairMatchMatrix> resultMatrix = MuAccesor.getKafkaMUUpdater("linker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
+
+        ReportMetaData reportMetaData = new ReportMetaData(matchThreshold, windowLowerBound, windowUpperBound);
+        Map<String, MandU> fieldMap = new HashMap<>();
+
+        for (Map.Entry<String, FieldEqualityPairMatchMatrix> field: resultMatrix.entrySet()) {
+            FieldEqualityPairMatchMatrix matrix = field.getValue();
+            fieldMap.put(field.getKey(), new MandU(((float) matrix.getFieldEqualPairMatch() / (matrix.getFieldEqualPairMatch() + matrix.getFieldNotEqualPairMatch())),
+                                                    ((float) matrix.getFieldEqualPairNoMatch() / (matrix.getFieldEqualPairNoMatch() + matrix.getFieldNotEqualPairNoMatch()))));
+
+        }
+        Report report = new Report(reportMetaData, fieldMap);
+
+        // Write the Report to a JSON file using Jackson
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        try {
+            objectMapper.writeValue(new File(reportFilePath), report);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public static void main(final String[] args) {
         LibMPI libMPI = getLibMPI();
         try {
@@ -93,6 +131,10 @@ public final class ExternalRunner {
             libMPI.startTransaction();
             libMPI.dropAll(); libMPI.createSchema();
             addInterationsFromFile(libMPI, args[0], args[1]);
+
+            Float matchThreshold =  Float.parseFloat(args[1]);
+            printSaved(args[2], matchThreshold, matchThreshold - 0.1F, matchThreshold + 0.1F);
+
             System.exit(0);
 
         } catch (Exception e) {
