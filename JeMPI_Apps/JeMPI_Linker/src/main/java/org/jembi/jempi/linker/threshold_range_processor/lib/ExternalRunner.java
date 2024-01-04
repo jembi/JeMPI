@@ -19,8 +19,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -55,10 +53,14 @@ public final class ExternalRunner {
                  demographicData);
     }
     private  static void addInterationsFromFile(final LibMPI libMPI, final String csvFile, final String matchThreshold) throws ExecutionException, InterruptedException {
+        LOGGER.info("======> Processing started <========");
+        long processingTimeStart = System.currentTimeMillis();
         try {
             CSVParser csvParser = CSVFormat.DEFAULT.withHeader().parse(new InputStreamReader(new FileInputStream(csvFile)));
 
             for (CSVRecord record : csvParser) {
+                LOGGER.info(String.format("======> Processing record %s", record.getRecordNumber()));
+                long recordUpdateTimeStart = System.currentTimeMillis();
                 LinkerDWH.linkInteraction(libMPI,  interactionFromDemographicData(new CustomDemographicData(
                         record.get("givenName"),
                         record.get("familyName"),
@@ -68,10 +70,15 @@ public final class ExternalRunner {
                         record.get("phoneNumber"),
                         record.get("nationalId")
                 )), null, Float.parseFloat(matchThreshold));
-
+                long recordUpdateTimeEnd = System.currentTimeMillis();
+                LOGGER.info(String.format("======> Processing complete. Duration %s seconds", (recordUpdateTimeEnd - recordUpdateTimeStart) / 1000));
+                LOGGER.info(String.format("======> Process current run time %s minutes", (recordUpdateTimeEnd - processingTimeStart) / 1000 / 60));
             }
 
             csvParser.close();
+            long processingTimeEnd = System.currentTimeMillis();
+            LOGGER.info(String.format("======> Process complete time: %s minutes", (processingTimeEnd - processingTimeStart) / 1000 / 60));
+            LOGGER.info("======> Processing end <========");
         } catch (IOException e) {
             e.printStackTrace();
         }
