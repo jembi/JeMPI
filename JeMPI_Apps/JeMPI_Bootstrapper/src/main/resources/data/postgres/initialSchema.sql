@@ -2,25 +2,25 @@ CREATE TABLE IF NOT EXISTS Notification_Type
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     Type VARCHAR(50)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS Action_Type
 (
     Id UUID DEFAULT gen_random_uuid() PRIMARY KEY UNIQUE,
     Type VARCHAR(50)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS Notification_State
 (
     Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     State VARCHAR(50)
-    );
+);
 
 CREATE TABLE IF NOT EXISTS Notification
 (
     Id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     Type VARCHAR(50),
-    Created date,
+    Created timestamp without time zone,
     Reviewd_By uuid,
     Reviewed_At timestamp without time zone,
     State VARCHAR(50),
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS Notification
     Names VARCHAR(100),
     Golden_Id VARCHAR(50),
     Score Numeric
-    );
+);
 
 CREATE TABLE IF NOT EXISTS Action
 (
@@ -37,12 +37,12 @@ CREATE TABLE IF NOT EXISTS Action
     Action_Type_Id UUID,
     Date date,
     CONSTRAINT FK_Notification
-    FOREIGN KEY(Notification_Id)
-    REFERENCES Notification(Id),
+      FOREIGN KEY(Notification_Id)
+	    REFERENCES Notification(Id),
     CONSTRAINT FK_Action_Type
-    FOREIGN KEY(Action_Type_Id)
-    REFERENCES Action_Type(Id)
-    );
+      FOREIGN KEY(Action_Type_Id)
+	    REFERENCES Action_Type(Id)
+);
 
 CREATE TABLE IF NOT EXISTS Match
 (
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS Match
     Score Numeric,
     Golden_Id VARCHAR(50),
     CONSTRAINT FK_Notification
-    FOREIGN KEY(Notification_Id)
-    REFERENCES Notification(Id)
-    );
+      FOREIGN KEY(Notification_Id)
+	    REFERENCES Notification(Id)
+);
 
 CREATE TABLE IF NOT EXISTS candidates
 (
@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS candidates
     Score Numeric,
     Golden_Id VARCHAR(50),
     CONSTRAINT FK_Notification
-    FOREIGN KEY(Notification_Id)
-    REFERENCES Notification(Id)
-    );
+      FOREIGN KEY(Notification_Id)
+	    REFERENCES Notification(Id)
+);
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS users
     family_name VARCHAR(255),
     email VARCHAR(255) UNIQUE,
     username VARCHAR(255) UNIQUE
-    );
+);
 
 INSERT INTO Notification_State(State)
 VALUES ('OPEN'), ('CLOSED');
