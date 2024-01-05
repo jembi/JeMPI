@@ -51,8 +51,13 @@ import { useConfig } from 'hooks/useConfig'
 import CustomPagination from 'components/shared/CustomDataGridPagination'
 
 // TODO: Later -  We can update this at a later stage, such the field configuration info can contain the getAlignment, since this can be dynamic
-const getAlignment = (fieldName: string) => 'left'
-
+const getAlignment = (fieldName: string) =>
+  fieldName === 'givenName' ||
+  fieldName === 'familyName' ||
+  fieldName === 'city' ||
+  fieldName === 'gender'
+    ? 'left'
+    : 'center'
 
 const Records = () => {
   const navigate = useNavigate()
