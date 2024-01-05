@@ -50,13 +50,9 @@ import { Search } from '@mui/icons-material'
 import { useConfig } from 'hooks/useConfig'
 import CustomPagination from 'components/shared/CustomDataGridPagination'
 
-const getAlignment = (fieldName: string) =>
-  fieldName === 'givenName' ||
-  fieldName === 'familyName' ||
-  fieldName === 'city' ||
-  fieldName === 'gender'
-    ? 'left'
-    : 'center'
+// TODO: Later -  We can update this at a later stage, such the field configuration info can contain the getAlignment, since this can be dynamic
+const getAlignment = (fieldName: string) => 'left'
+
 
 const Records = () => {
   const navigate = useNavigate()
@@ -71,9 +67,9 @@ const Records = () => {
   const [searchQuery, setSearchQuery] = useState<Array<SearchParameter>>([])
   const [dateSearch, setDateSearch] = useState(dayjs())
   const [searchParams, setSearchParams] = useSearchParams()
-  const [isFetchingInteractions, setIsFetchingInteractions] = useState(
+  const [isFetchingInteractions, setIsFetchingInteractions] = useState<boolean>(
     searchParams.get('isFetchingInteractions')
-      ? JSON.parse(searchParams.get('isFetchingInteractions') as string)
+      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) == "true"
       : false
   )
 
@@ -149,7 +145,7 @@ const Records = () => {
           return acc
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        { isFetchingInteractions: isFetchingInteractions } as any
+        { isFetchingInteractions } as any
       )
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps

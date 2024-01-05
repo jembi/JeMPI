@@ -91,7 +91,7 @@ const Dashboard = () => {
           />
           <Tab
             label={<Typography variant="h5"> Import Process Status</Typography>}
-            {...tabProps(1)}
+            {...tabProps(2)}
           />
         </Tabs>
         <Box padding={'1rem 1rem 1rem 1rem'}>
