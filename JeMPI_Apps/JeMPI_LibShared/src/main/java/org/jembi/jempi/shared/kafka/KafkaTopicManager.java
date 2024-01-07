@@ -7,6 +7,8 @@ import org.apache.kafka.streams.StreamsConfig;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+
 public final class KafkaTopicManager {
 
    private final AdminClient adminClient;
@@ -23,6 +25,20 @@ public final class KafkaTopicManager {
 
    public Boolean hasTopic(final String name) throws ExecutionException, InterruptedException {
       return getAllTopics().stream().anyMatch(r -> r.name().equals(name));
+   }
+
+   public void checkTopicsWithWait(final Function<Collection<TopicListing>, Boolean> checkFunc, final Integer timeoutMs) {
+      boolean isComplete = false;
+      int count = 0;
+      while (!isComplete) {
+         try {
+            Thread.sleep(200);
+            isComplete = checkFunc.apply(this.getAllTopics()) || count > timeoutMs;
+            count += 200;
+         } catch (ExecutionException | InterruptedException e) {
+            isComplete = true;
+         }
+      }
    }
    public Map<String, TopicDescription> describeTopic(final String topic) throws ExecutionException, InterruptedException {
       return adminClient.describeTopics(Arrays.asList(topic)).allTopicNames().get();

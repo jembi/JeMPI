@@ -6,6 +6,11 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.linker.backend.LinkerProbabilistic;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import java.util.Locale;
 
@@ -122,5 +127,45 @@ public final class CustomLinkerMU {
       }
 
    }
+           
+   public static final class FieldMatchInfo {
+      LinkerProbabilistic.FieldScoreInfo givenName = null;
+      LinkerProbabilistic.FieldScoreInfo familyName = null;
+      LinkerProbabilistic.FieldScoreInfo gender = null;
+      LinkerProbabilistic.FieldScoreInfo dob = null;
+      LinkerProbabilistic.FieldScoreInfo city = null;
+      LinkerProbabilistic.FieldScoreInfo phoneNumber = null;
+      LinkerProbabilistic.FieldScoreInfo nationalId = null;
+      public FieldMatchInfo(final CustomDemographicData patient,
+                                                    final CustomDemographicData goldenRecord) {
+         this.givenName = LinkerProbabilistic.fieldScoreInfo(patient.givenName, goldenRecord.givenName, LINKER_FIELDS.get("givenName"));
+         this.familyName = LinkerProbabilistic.fieldScoreInfo(patient.familyName, goldenRecord.familyName, LINKER_FIELDS.get("familyName"));
+         this.gender = LinkerProbabilistic.fieldScoreInfo(patient.gender, goldenRecord.gender, LINKER_FIELDS.get("gender"));
+         this.dob = LinkerProbabilistic.fieldScoreInfo(patient.dob, goldenRecord.dob, LINKER_FIELDS.get("dob"));
+         this.city = LinkerProbabilistic.fieldScoreInfo(patient.city, goldenRecord.city, LINKER_FIELDS.get("city"));
+         this.phoneNumber = LinkerProbabilistic.fieldScoreInfo(patient.phoneNumber, goldenRecord.phoneNumber, LINKER_FIELDS.get("phoneNumber"));
+         this.nationalId = LinkerProbabilistic.fieldScoreInfo(patient.nationalId, goldenRecord.nationalId, LINKER_FIELDS.get("nationalId"));
+      }
 
+      public Map<String, LinkerProbabilistic.FieldScoreInfo> toMap() {
+          return Map.ofEntries(
+            Map.entry("givenName", this.givenName),
+            Map.entry("familyName", this.familyName),
+            Map.entry("gender", this.gender),
+            Map.entry("dob", this.dob),
+            Map.entry("city", this.city),
+            Map.entry("phoneNumber", this.phoneNumber),
+            Map.entry("nationalId", this.nationalId)
+         );
+       } 
+    }
+   public static final Map<String, LinkerProbabilistic.Field> LINKER_FIELDS = Map.ofEntries(
+      Map.entry("givenName",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8806329F, 0.0026558F)),
+      Map.entry("familyName",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9140443F, 6.275E-4F)),
+      Map.entry("gender",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9468393F, 0.4436446F)),
+      Map.entry("dob",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.7856196F, 4.65E-5F)),
+      Map.entry("city",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8445694F, 0.0355741F)),
+      Map.entry("phoneNumber",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.84085F, 4.0E-7F)),
+      Map.entry("nationalId",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8441029F, 2.0E-7F))
+   );
 }

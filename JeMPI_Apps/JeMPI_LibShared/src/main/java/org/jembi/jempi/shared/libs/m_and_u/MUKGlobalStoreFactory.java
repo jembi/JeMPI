@@ -1,4 +1,4 @@
-package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
+package org.jembi.jempi.shared.libs.m_and_u;
 
 import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessor;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessorFactory;
@@ -11,7 +11,7 @@ public final class MUKGlobalStoreFactory extends StoreProcessorFactory<Object> {
     }
 
     @Override
-    protected StoreProcessor<Object> getInstanceClass(final String name, final Class<Object> serializeCls) throws ExecutionException, InterruptedException {
-        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, Object.class);
+    protected StoreProcessor<Object> getInstanceClass(final String name, final String sinkName, final Class<Object> serializeCls) throws ExecutionException, InterruptedException {
+        return  new MUKGlobalStoreInstance(this.bootStrapServers, name, sinkName, Object.class);
     }
 }

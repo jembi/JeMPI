@@ -1,7 +1,7 @@
 package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
 import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
-import org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
 import org.jembi.jempi.linker.threshold_range_processor.utls.MockCategorisedCandidatesCreator;
 import org.jembi.jempi.linker.threshold_range_processor.utls.MockInteractionCreator;
 import org.jembi.jempi.shared.models.*;
@@ -95,7 +95,7 @@ public class FieldEqualityPairMatchTests {
                                     Map.entry("familyName", List.of(1, 0, 0, 0)),
                                     Map.entry("gender", List.of(1, 0, 0, 0)),
                                     Map.entry("dob", List.of(1, 0, 0, 0)),
-                                    Map.entry("city", List.of(1, 0, 0, 0)),
+                                    Map.entry("city", List.of(0, 0, 1, 0)),
                                     Map.entry("phoneNumber", List.of(1, 0, 0, 0)),
                                     Map.entry("nationalId", List.of(1, 0, 0, 0))
 

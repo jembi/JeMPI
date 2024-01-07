@@ -8,6 +8,7 @@ import picocli.CommandLine.Command;
         subcommands = {
                 KafkaResetAllCommand.class,
                 KafkaDeleteAllCommand.class,
+                KafkaDeleteGlobalStoreDataCommand.class,
                 KafkaCreateAllSchemaDataCommand.class,
                 KafkaListTopicsCommand.class,
                 KafkaDescribeTopicCommand.class

@@ -1,7 +1,8 @@
-package org.jembi.jempi.linker.threshold_range_processor.lib.mu_lib;
+package org.jembi.jempi.shared.libs.m_and_u;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public final class MuModel {
@@ -34,10 +35,10 @@ public final class MuModel {
     public void saveToKafka() throws ExecutionException, InterruptedException {
         MuAccesor.getKafkaMUUpdater(this.linkerId, this.kafkaBootstrapServer).updateValue(fieldEqualityPairMatchMap);
     }
-    public static MuModel fromDemographicData(final String linkerId, final Map<String, String> demographicData, final String kafkaBootstrapServer) {
+    public static MuModel withLinkedFields(final String linkerId, final Set<String> linkedFields, final String kafkaBootstrapServer) {
         HashMap<String, FieldEqualityPairMatchMatrix> fieldEqualityPairMatchMap = new HashMap<>();
 
-        for (String field: demographicData.keySet()) {
+        for (String field: linkedFields) {
             fieldEqualityPairMatchMap.put(field, new FieldEqualityPairMatchMatrix());
         }
         return new MuModel(linkerId, fieldEqualityPairMatchMap, kafkaBootstrapServer);

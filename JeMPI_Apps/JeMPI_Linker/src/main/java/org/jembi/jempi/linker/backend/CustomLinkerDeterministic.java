@@ -28,7 +28,7 @@ public final class CustomLinkerDeterministic {
              && StringUtils.isNotBlank(interaction.phoneNumber);
    }
 
-   static boolean linkDeterministicMatch(
+   public static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       final var nationalIdL = goldenRecord.nationalId;

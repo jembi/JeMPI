@@ -14,9 +14,9 @@ public class MockInteractionsDic {
                             new CustomDemographicData("Jabu",
                                     "Khutuma",
                                     "Male",
-                                    "01/01/89",
+                                    "02/05/87",
                                     "Joburg",
-                                    "793847286",
+                                    "3344665566",
                                     "123"),
                             List.of(
                                     // Candidate 1
@@ -26,16 +26,16 @@ public class MockInteractionsDic {
                                                     Map.entry("familyName", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
                                                     Map.entry("gender", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
                                                     Map.entry("dob", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
-                                                    Map.entry("city", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
+                                                    Map.entry("city", new LinkerProbabilistic.FieldScoreInfo(false, 0.3F)),
                                                     Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
                                                     Map.entry("nationalId", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F))
                                             ),
                                             new CustomDemographicData("Jabu",
                                                     "Khutuma",
                                                     "Male",
-                                                    "01/01/89",
+                                                    "02/05/87",
                                                     "Durban",
-                                                    "793847286",
+                                                    "3344665566",
                                                     "123")
                                     ),
                                     // Candidate 2
@@ -44,9 +44,9 @@ public class MockInteractionsDic {
                                                     Map.entry("firstName", new LinkerProbabilistic.FieldScoreInfo(true, 0.96F)),
                                                     Map.entry("familyName", new LinkerProbabilistic.FieldScoreInfo(true, 0.93F)),
                                                     Map.entry("gender", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
-                                                    Map.entry("dob", new LinkerProbabilistic.FieldScoreInfo(true, 0.79F)),
+                                                    Map.entry("dob", new LinkerProbabilistic.FieldScoreInfo(false, 0.79F)),
                                                     Map.entry("city", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
-                                                    Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F)),
+                                                    Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F)),
                                                     Map.entry("nationalId", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F))
                                             ),
                                             new CustomDemographicData("Jabu2",
@@ -60,18 +60,18 @@ public class MockInteractionsDic {
                                     // Candidate 3
                                     new MockInteractionDicDefinition.MockInteractionCandidates(
                                             Map.ofEntries(
-                                                    Map.entry("firstName", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F)),
+                                                    Map.entry("firstName", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F)),
                                                     Map.entry("familyName", new LinkerProbabilistic.FieldScoreInfo(true, 0.93F)),
                                                     Map.entry("gender", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
                                                     Map.entry("dob", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
                                                     Map.entry("city", new LinkerProbabilistic.FieldScoreInfo(true, 1.0F)),
-                                                    Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F)),
-                                                    Map.entry("nationalId", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F))
+                                                    Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F)),
+                                                    Map.entry("nationalId", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F))
                                             ),
                                             new CustomDemographicData("Smith",
                                                     "Khuma",
                                                     "Male",
-                                                    "01/01/89",
+                                                    "02/05/87",
                                                     "Joburg",
                                                     "83564215",
                                                     "56493")
@@ -79,13 +79,13 @@ public class MockInteractionsDic {
                                     // Candidate 4
                                     new MockInteractionDicDefinition.MockInteractionCandidates(
                                             Map.ofEntries(
-                                                    Map.entry("firstName", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F)),
-                                                    Map.entry("familyName", new LinkerProbabilistic.FieldScoreInfo(true, 0.46F)),
-                                                    Map.entry("gender", new LinkerProbabilistic.FieldScoreInfo(true, 0.41F)),
-                                                    Map.entry("dob", new LinkerProbabilistic.FieldScoreInfo(true, 0.85F)),
-                                                    Map.entry("city", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F)),
-                                                    Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F)),
-                                                    Map.entry("nationalId", new LinkerProbabilistic.FieldScoreInfo(true, 0.0F))
+                                                    Map.entry("firstName", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F)),
+                                                    Map.entry("familyName", new LinkerProbabilistic.FieldScoreInfo(false, 0.46F)),
+                                                    Map.entry("gender", new LinkerProbabilistic.FieldScoreInfo(false, 0.41F)),
+                                                    Map.entry("dob", new LinkerProbabilistic.FieldScoreInfo(false, 0.85F)),
+                                                    Map.entry("city", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F)),
+                                                    Map.entry("phoneNumber", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F)),
+                                                    Map.entry("nationalId", new LinkerProbabilistic.FieldScoreInfo(false, 0.0F))
                                             ),
                                             new CustomDemographicData("Smith",
                                                     "John",

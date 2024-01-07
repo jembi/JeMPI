@@ -5,7 +5,6 @@ import org.jembi.jempi.shared.models.CustomMU;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
@@ -50,15 +49,6 @@ public final class CustomLinkerProbabilistic {
          LinkerProbabilistic.Field nationalId) {
    }
 
-   public static Map<String, LinkerProbabilistic.Field> currentLinkFieldsMap = Map.ofEntries(
-           Map.entry("givenName", new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8806329F, 0.0026558F)),
-           Map.entry("familyName", new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9140443F, 6.275E-4F)),
-           Map.entry("gender", new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.9468393F, 0.4436446F)),
-           Map.entry("dob", new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.7856196F, 4.65E-5F)),
-           Map.entry("city",  new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8445694F, 0.0355741F)),
-           Map.entry("phoneNumber", new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.84085F, 4.0E-7F)),
-           Map.entry("nationalId", new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8441029F, 2.0E-7F))
-   );
    static LinkFields currentLinkFields =
       new LinkFields(
          new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8806329F, 0.0026558F),
