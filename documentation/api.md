@@ -68,7 +68,7 @@ Below are the necessary parameters to get the notifications list
 | limit     | Number of notification that the user want to get from the API                                             | Number |
 | date      | A date limit, the user will get the data from the oldest to that particualar date limit (YYYY-MM-DD)      | Date   |
 | offset    | A pagination parameter                                                                                    | Number |
-| state     | The state of the notificaitons that we want to fetch interaction (New, Seen, Actioned, Accepted, Pending) | String |
+| state     | The state of the notificaitons that we want to fetch interaction (OPEN, CLOSED) | String |
 
 Below is a sample of the response
 

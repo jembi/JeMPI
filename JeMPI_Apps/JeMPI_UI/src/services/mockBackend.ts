@@ -53,7 +53,7 @@ axiosMockAdapterInstance
   })
   .onPost(ROUTES.POST_UPDATE_NOTIFICATION)
   .reply(() => {
-    notifications[0].status = NotificationState.Accepted
+    notifications[0].status = NotificationState.OPEN
     return [200, notifications]
   })
   .onPatch(new RegExp(`^${ROUTES.PATCH_IID_NEW_GID_LINK}?.*`))
