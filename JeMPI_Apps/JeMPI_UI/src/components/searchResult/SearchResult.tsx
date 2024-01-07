@@ -26,10 +26,7 @@ type SearchResultProps = {
   title: string
 }
 
-const SearchResult: React.FC<SearchResultProps> = ({
-  isGoldenRecord,
-  title
-}) => {
+const SearchResult: React.FC<SearchResultProps> = ({ isGoldenRecord }) => {
   const {
     state: { payload: searchPayload }
   } = useLocation()

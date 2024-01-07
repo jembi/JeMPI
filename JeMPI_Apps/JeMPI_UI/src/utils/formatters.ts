@@ -22,7 +22,7 @@ export const getFieldValueFormatter = (type: FieldType) => {
     }
   }
 }
-
+// eslint-disable-next-line
 export const valueGetter = (params: GridValueGetterParams<AnyRecord, any>) => {
   const { row, field } = params
   const f = field as keyof AnyRecord

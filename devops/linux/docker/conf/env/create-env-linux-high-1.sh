@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export USE_LOCAL_REGISTRY=${USE_LOCAL_REGISTRY:-"true"}
+export PROJECT_PATH_APPS_ROOT=$(builtin cd ../../../../../; pwd)
+export PROJECT_PATH_UI=${PROJECT_PATH_APPS_ROOT}/JeMPI_Apps/JeMPI_UI
 export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
@@ -46,6 +48,8 @@ export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
 
 # UI env vars
+# NODE_ENV production || development
+export NODE_ENV="production"
 export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
 export REACT_APP_JEMPI_BASE_API_PORT=${API_PORT_KC}
 export REACT_APP_MOCK_BACKEND="false"
