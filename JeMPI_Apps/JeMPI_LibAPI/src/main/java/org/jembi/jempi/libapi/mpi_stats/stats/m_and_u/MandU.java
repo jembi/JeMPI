@@ -25,7 +25,7 @@ public final  class MandU implements IMPIStat {
     }
 
     private Route handler(final ActorSystem<Void> actorSystem,
-                          final ActorRef<BackEnd.Event> backEnd, String linkerId) {
+                          final ActorRef<BackEnd.Event> backEnd, final String linkerId) {
 
         CompletionStage<MandUActor.GetTallyMandUResponse> stage = AskPattern
                 .ask(backEnd,
@@ -34,12 +34,12 @@ public final  class MandU implements IMPIStat {
                         actorSystem.scheduler());
 
         return onComplete(stage, result ->  {
-            if (result.isSuccess()){
+            if (result.isSuccess()) {
                 Object processedResult = result.get();
                 return complete(StatusCodes.OK, processedResult, JSON_MARSHALLER);
             }
             return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-        } );
+        });
 
     }
 }

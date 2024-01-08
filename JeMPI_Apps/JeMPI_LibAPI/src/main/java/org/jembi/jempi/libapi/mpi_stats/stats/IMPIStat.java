@@ -6,6 +6,6 @@ import akka.http.javadsl.server.Route;
 import org.jembi.jempi.libapi.BackEnd;
 
 public interface IMPIStat {
-    Route getRoute(final ActorSystem<Void> actorSystem,
-                   final ActorRef<BackEnd.Event> backEnd);
+    Route getRoute(ActorSystem<Void> actorSystem,
+                   ActorRef<BackEnd.Event> backEnd);
 }

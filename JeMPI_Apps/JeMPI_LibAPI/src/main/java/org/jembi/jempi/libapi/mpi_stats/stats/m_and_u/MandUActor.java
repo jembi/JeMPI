@@ -7,14 +7,14 @@ import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libmpi.LibMPI;
 
 public class MandUActor {
-
+    protected MandUActor() { }
     public record GetTallyMandUResponse() implements BackEnd.EventResponse { }
     public record GetTallyMandURequest(
             ActorRef<GetTallyMandUResponse> replyTo,
             String linkerId) implements BackEnd.Event {
     }
 
-    public static Behavior<BackEnd.Event> process(final GetTallyMandURequest request, LibMPI libMPI){
+    public static Behavior<BackEnd.Event> process(final GetTallyMandURequest request, final LibMPI libMPI) {
         return  Behaviors.same();
     }
 }

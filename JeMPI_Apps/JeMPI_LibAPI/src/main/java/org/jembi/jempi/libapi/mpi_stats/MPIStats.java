@@ -14,13 +14,13 @@ import static akka.http.javadsl.server.Directives.pathPrefix;
 
 public class MPIStats {
     protected MPIStats() { }
-    private static final List<IMPIStat> statsRegistry = List.of(new MandU());
+    private static final List<IMPIStat> STATS_REGISTRY = List.of(new MandU());
     public static Route getRoutes(final ActorSystem<Void> actorSystem,
                                   final ActorRef<BackEnd.Event> backEnd) {
 
         Route statRoutes = null;
 
-        for (IMPIStat stat: statsRegistry) {
+        for (IMPIStat stat: STATS_REGISTRY) {
             statRoutes = statRoutes == null ? stat.getRoute(actorSystem, backEnd) : concat(statRoutes, stat.getRoute(actorSystem, backEnd));
         }
 
