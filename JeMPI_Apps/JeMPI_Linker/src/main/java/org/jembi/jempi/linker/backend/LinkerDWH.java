@@ -259,8 +259,9 @@ public final class LinkerDWH {
                                       linkInfo.interactionUID(),
                                       AppUtils.getNames(interaction.demographicData()),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
-                                      aboveThresholdNotifications);
+                                      aboveThresholdNotifications.stream().filter(m -> !Objects.equals(m.gID(), firstCandidate.goldenRecord.goldenId())).collect(Collectors.toCollection(ArrayList::new)));
                   }
+
                   if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                      CustomLinkerBackEnd.updateGoldenRecordFields(libMPI,
                                                                   matchThreshold,
