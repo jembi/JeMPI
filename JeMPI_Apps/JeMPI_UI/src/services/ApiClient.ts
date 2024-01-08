@@ -174,13 +174,13 @@ export class ApiClient {
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}`
+    const url = `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}&candidates=${(request.candidates ?? []).join("_")}`
     const { data } = await this.client.patch(url)
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${linkRequest.goldenID}&newGoldenID=${linkRequest.newGoldenID}&patientID=${linkRequest.patientID}&score=2`
+    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${linkRequest.goldenID}&newGoldenID=${linkRequest.newGoldenID}&patientID=${linkRequest.patientID}&score=2&candidates=${(linkRequest.candidates ?? []).join("_")}`
     const { data } = await this.client.patch(url)
     return data
   }

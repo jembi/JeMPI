@@ -13,7 +13,8 @@ export interface NotificationRequest {
 export interface LinkRequest {
   goldenID: string
   patientID: string
-  newGoldenID?: string
+  newGoldenID?: string,
+  candidates?: string[]
 }
 
 export interface NotificationResponse {

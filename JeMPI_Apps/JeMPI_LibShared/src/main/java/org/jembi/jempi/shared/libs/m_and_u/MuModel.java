@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 public final class MuModel {
 
-    public record MuNotificationResolutionDetails(String notificationId, String interactionId, String goldenRecordId) { }
+    public record MuNotificationResolutionDetails(String notificationId, String interactionId, String goldenRecordId, String candidates) { }
     private HashMap<String, FieldEqualityPairMatchMatrix> fieldEqualityPairMatchMap = new HashMap<>();
     private final String linkerId;
     private final String kafkaBootstrapServer;

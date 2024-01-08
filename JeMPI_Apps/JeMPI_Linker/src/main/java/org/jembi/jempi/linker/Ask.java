@@ -161,7 +161,8 @@ final class Ask {
                       replyTo -> new BackEnd.UpdateMandUOnNotificationResolutionRequest(replyTo,
                               notiResolutionDetails.notificationId(),
                               notiResolutionDetails.interactionId(),
-                              notiResolutionDetails.goldenRecordId()),
+                              notiResolutionDetails.goldenRecordId(),
+                              notiResolutionDetails.candidates()),
                       java.time.Duration.ofSeconds(6),
                       actorSystem.scheduler());
       return stage.thenApply(response -> response);

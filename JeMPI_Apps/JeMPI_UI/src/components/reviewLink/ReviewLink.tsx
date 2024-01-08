@@ -103,7 +103,8 @@ const ReviewLink = () => {
       {
         patientID: payload?.patient_id || '',
         goldenID: goldenRecord ? goldenRecord.uid : '',
-        newGoldenID: id
+        newGoldenID: id,
+        candidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : []
       },
       {
         onSuccess: data => {
@@ -134,7 +135,8 @@ const ReviewLink = () => {
         {
           patientID: payload.patient_id,
           goldenID: goldenRecord.uid,
-          newGoldenID: id
+          newGoldenID: id,
+          candidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : []
         },
         {
           onSuccess: () => {

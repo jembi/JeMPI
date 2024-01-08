@@ -300,6 +300,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       if (originalInteraction.isPresent()) {
          MuModel muModel = MuModel.withLinkedFields(GlobalConstants.DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME, CustomLinkerMU.LINKER_FIELDS.keySet(), AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          FieldEqualityPairMatchProcessor.updateFieldEqualityPairMatchMatrixField(linkedGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), true, muModel);
+
+         ArrayList<String> candidates = Arrays.stream(request.candidates.split("_")).filter(c -> !Objects.equals(c, linkedGoldenRecord.goldenRecord().goldenId())).collect(Collectors.toCollection(ArrayList::new));
+
+         for (ExpandedGoldenRecord candidateGoldenRecord : libMPI.findExpandedGoldenRecords(candidates)) {
+            FieldEqualityPairMatchProcessor.updateFieldEqualityPairMatchMatrixField(candidateGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), false, muModel);
+         }
+
          request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(true));
       } else {
          request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(false));
@@ -443,7 +450,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
            ActorRef<UpdateMandUOnNotificationResolutionResponse> replyTo,
            String notificationId,
            String interactionId,
-           String goldenID
+           String goldenID,
+           String candidates
    ) implements Request  {
    }
 
