@@ -14,12 +14,14 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libapi.mpi_stats.MPIStats;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -146,7 +148,10 @@ public final class Routes {
 
    public static Route patchIidGidLink(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
+         final ActorRef<BackEnd.Event> backEnd,
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return parameter("goldenID",
                        currentGoldenId ->
                              parameter("newGoldenID",
@@ -167,10 +172,20 @@ public final class Routes {
                                                                                            .linkInfo()
                                                                                            .mapLeft(Routes::mapError)
                                                                                            .fold(error -> error,
-                                                                                                 linkInfo -> complete(
-                                                                                                       StatusCodes.OK,
-                                                                                                       linkInfo,
-                                                                                                       JSON_MARSHALLER))
+                                                                                                 linkInfo ->  onComplete(updateMandUOnNotificationResolution(
+                                                                                                                              linkerIP,
+                                                                                                                              linkerPort,
+                                                                                                                              http,
+                                                                                                                              new MuModel.MuNotificationResolutionDetails(
+                                                                                                                                      "",
+                                                                                                                                      linkInfo.interactionUID(),
+                                                                                                                                      linkInfo.goldenUID())
+                                                                                                                              ),
+                                                                                                                        r ->  complete(
+                                                                                                                             StatusCodes.OK,
+                                                                                                                             linkInfo,
+                                                                                                                             JSON_MARSHALLER))
+                                                                                                 )
                                                                                    : complete(StatusCodes.IM_A_TEAPOT))))));
    }
 
@@ -501,6 +516,35 @@ public final class Routes {
       return stage.thenApply(response -> response);
    }
 
+   private static CompletionStage<Boolean> updateMandUOnNotificationResolution(
+           final String linkerIP,
+           final Integer linkerPort,
+           final Http http,
+           final MuModel.MuNotificationResolutionDetails body) {
+      try {
+         final var request = HttpRequest
+                 .create(String.format(Locale.ROOT,
+                         "http://%s:%d/JeMPI/%s",
+                         linkerIP,
+                         linkerPort,
+                         GlobalConstants.SEGMENT_PROXY_UPDATE_M_AND_U_ON_NOTI_RESOLUTION))
+                 .withMethod(HttpMethods.POST)
+                 .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
+         final var stage = http.singleRequest(request);
+         return stage.thenApply(response -> {
+            if (response.status() != StatusCodes.OK) {
+               LOGGER.error(String.format("Could not update the m and u value based on the notification resolution . Notification id: %s", body.notificationId()));
+            }
+            return true;
+         });
+      } catch (Exception e) {
+         LOGGER.error(String.format("Could not update the m and u value based on the notification resolution . Notification id: %s", body.notificationId()), e);
+         return CompletableFuture.completedFuture(true);
+      }
+
+
+   }
+
    public static Route proxyGetCandidatesWithScore(
          final String linkerIP,
          final Integer linkerPort,
@@ -712,7 +756,7 @@ public final class Routes {
                       path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,
                               () -> Routes.patchIidNewGidLink(actorSystem, backEnd)),
                       path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
-                              () -> Routes.patchIidGidLink(actorSystem, backEnd)),
+                              () -> Routes.patchIidGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)),
                       path(GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS,
                               () -> Routes.patchCrUpdateFields(linkerIP, linkerPort, http)))),
               get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,

@@ -114,7 +114,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
-//                                .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+                                .onMessage(UpdateMandUOnNotificationResolutionRequest.class, this::updateMandUOnNotificationResolutionHandler)
+//                              .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
@@ -278,12 +279,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
+
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
       CustomLinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
 
+   private Behavior<Request> updateMandUOnNotificationResolutionHandler(final UpdateMandUOnNotificationResolutionRequest request) {
+      LOGGER.info(String.format("Updating the m and u values based on a notification resolution. Notification Id: %s", request.notificationId));
+      request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse((true)));
+      return Behaviors.same();
+   }
 //   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
 //      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
 //      return Behaviors.same();
@@ -414,6 +421,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             List<String> updated,
             List<String> failed) {
       }
+   }
+
+   public record UpdateMandUOnNotificationResolutionRequest(
+           ActorRef<UpdateMandUOnNotificationResolutionResponse> replyTo,
+           String notificationId,
+           String interactionId,
+           String goldenID
+   ) implements Request  {
+   }
+
+   public record UpdateMandUOnNotificationResolutionResponse(Boolean updated)
+           implements Response {
    }
 
 }

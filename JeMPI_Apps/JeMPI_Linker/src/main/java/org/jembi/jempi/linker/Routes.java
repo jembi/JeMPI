@@ -8,6 +8,7 @@ import akka.http.javadsl.server.Route;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
+import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
@@ -70,6 +71,18 @@ final class Routes {
                     }));
    }
 
+    static Route updateMandUOnNotificationResolution(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Request> backEnd) {
+        return entity(Jackson.unmarshaller(MuModel.MuNotificationResolutionDetails.class),
+                obj -> onComplete(Ask.updateMandUOnNotificationResolution(actorSystem, backEnd, obj), response -> {
+                    if (response.isSuccess()) {
+                        return complete(StatusCodes.OK);
+                    } else {
+                        return complete(StatusCodes.IM_A_TEAPOT);
+                    }
+                }));
+    }
    static Route proxyPostLinkInteractionToGID(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {

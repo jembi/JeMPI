@@ -6,6 +6,7 @@ import akka.actor.typed.javadsl.AskPattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
+import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
@@ -148,6 +149,21 @@ final class Ask {
             replyTo -> new BackEnd.CalculateScoresRequest(body, replyTo),
             java.time.Duration.ofSeconds(11),
             actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.UpdateMandUOnNotificationResolutionResponse> updateMandUOnNotificationResolution(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Request> backEnd,
+           final MuModel.MuNotificationResolutionDetails notiResolutionDetails) {
+      final CompletionStage<BackEnd.UpdateMandUOnNotificationResolutionResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.UpdateMandUOnNotificationResolutionRequest(replyTo,
+                              notiResolutionDetails.notificationId(),
+                              notiResolutionDetails.interactionId(),
+                              notiResolutionDetails.goldenRecordId()),
+                      java.time.Duration.ofSeconds(6),
+                      actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 

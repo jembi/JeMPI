@@ -55,6 +55,8 @@ public final class GlobalConstants {
 
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidate-golden-records";
    public static final String SEGMENT_PROXY_POST_CALCULATE_SCORES = "calculate-scores";
+
+   public static final String SEGMENT_PROXY_UPDATE_M_AND_U_ON_NOTI_RESOLUTION = "m-and-u-noti-resolution";
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION = "link-interaction";
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID = "link-interaction-to-gid";
 
