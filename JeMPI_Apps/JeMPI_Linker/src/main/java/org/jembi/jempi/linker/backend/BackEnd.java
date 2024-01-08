@@ -17,16 +17,16 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.linker.CustomLinkerMU;
+import org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor.FieldEqualityPairMatchProcessor;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.stats.StatsTask;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -288,7 +288,23 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private Behavior<Request> updateMandUOnNotificationResolutionHandler(final UpdateMandUOnNotificationResolutionRequest request) {
       LOGGER.info(String.format("Updating the m and u values based on a notification resolution. Notification Id: %s", request.notificationId));
-      request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse((true)));
+
+      ExpandedGoldenRecord linkedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenID());
+      if (linkedGoldenRecord == null) {
+         request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(false));
+         return Behaviors.same();
+      }
+
+      Optional<InteractionWithScore> originalInteraction = linkedGoldenRecord.interactionsWithScore().stream().filter(i -> Objects.equals(i.interaction().interactionId(), request.interactionId())).findFirst();
+
+      if (originalInteraction.isPresent()) {
+         MuModel muModel = MuModel.withLinkedFields(GlobalConstants.DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME, CustomLinkerMU.LINKER_FIELDS.keySet(), AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+         FieldEqualityPairMatchProcessor.updateFieldEqualityPairMatchMatrixField(linkedGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), true, muModel);
+         request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(true));
+      } else {
+         request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(false));
+      }
+
       return Behaviors.same();
    }
 //   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {

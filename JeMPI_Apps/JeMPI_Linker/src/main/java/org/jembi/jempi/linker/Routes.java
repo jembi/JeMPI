@@ -76,7 +76,7 @@ final class Routes {
             final ActorRef<BackEnd.Request> backEnd) {
         return entity(Jackson.unmarshaller(MuModel.MuNotificationResolutionDetails.class),
                 obj -> onComplete(Ask.updateMandUOnNotificationResolution(actorSystem, backEnd, obj), response -> {
-                    if (response.isSuccess()) {
+                    if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
                         return complete(StatusCodes.OK);
                     } else {
                         return complete(StatusCodes.IM_A_TEAPOT);

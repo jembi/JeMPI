@@ -167,7 +167,7 @@ public final class LinkerDWH {
                : matchThreshold_;
 
          StandardThresholdRangeProcessor thresholdProcessor
-                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor("linker", interaction).setRanges(
+                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor(GlobalConstants.DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME, interaction).setRanges(
                          new ArrayList<>(Arrays.asList(
                                  RangeTypeFactory.standardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
                                  RangeTypeFactory.standardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F),

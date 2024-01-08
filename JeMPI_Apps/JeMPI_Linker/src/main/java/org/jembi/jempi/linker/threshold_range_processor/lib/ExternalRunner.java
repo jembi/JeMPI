@@ -11,7 +11,7 @@ import org.jembi.jempi.shared.kafka.KafkaTopicManager;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.Utilities;
 import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
 import org.jembi.jempi.shared.libs.m_and_u.MuAccesor;
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.*;
 import org.apache.kafka.clients.admin.TopicListing;
 
 import java.io.File;
@@ -25,9 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.jembi.jempi.shared.models.CustomSourceId;
-import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-import org.jembi.jempi.shared.models.Interaction;
+
 import java.util.*;
 
 import static java.lang.Thread.sleep;
@@ -106,7 +104,7 @@ public final class ExternalRunner {
     public record Report(ReportMetaData reportMetaData, Map<String, MandU> mAndU) { }
     public static void printSaved(final String reportFilePath, final Float matchThreshold, final Float windowLowerBound, final Float windowUpperBound) throws ExecutionException, InterruptedException {
         sleep(2000);
-        HashMap<String, FieldEqualityPairMatchMatrix> resultMatrix = MuAccesor.getKafkaMUUpdater("linker",  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
+        HashMap<String, FieldEqualityPairMatchMatrix> resultMatrix = MuAccesor.getKafkaMUUpdater(GlobalConstants.DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME,  AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
 
         ReportMetaData reportMetaData = new ReportMetaData(matchThreshold, windowLowerBound, windowUpperBound);
         Map<String, MandU> fieldMap = new HashMap<>();

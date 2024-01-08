@@ -10,6 +10,7 @@ import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidate
 import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
 import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeName;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.Interaction;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor {
+public final class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor {
 
     private static final Logger LOGGER = LogManager.getLogger(FieldEqualityPairMatchProcessor.class);
     protected Interaction originalInteraction;
@@ -54,18 +55,23 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
 
     }
 
+    public static void updateFieldEqualityPairMatchMatrixField(final CustomDemographicData goldenRecord, final CustomDemographicData interaction, final boolean isPairMatch, final MuModel muModel) {
+        Map<String, LinkerProbabilistic.FieldScoreInfo> fieldMatchInfo = new CustomLinkerMU.FieldMatchInfo(
+                goldenRecord,
+                interaction).toMap();
+
+        for (Map.Entry<String, LinkerProbabilistic.Field> field: CustomLinkerMU.LINKER_FIELDS.entrySet()) {
+            LinkerProbabilistic.FieldScoreInfo fieldScoreInfo = fieldMatchInfo.get(field.getKey());
+            muModel.updateFieldEqualityPairMatchMatrix(field.getKey(), fieldScoreInfo.isMatch(), isPairMatch);
+        }
+    }
     void updateFieldEqualityPairMatchMatrix(final List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
         LOGGER.info(String.format("FieldEqualityPairMatchProcessor: Processing %d candidates", pairMatchUnmatchedCandidates.size()));
 
         for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
-            Map<String, LinkerProbabilistic.FieldScoreInfo> fieldMatchInfo = new CustomLinkerMU.FieldMatchInfo(
-                                                                    pairMatchCandidate.candidates.getGoldenRecord().demographicData(),
-                                                                    originalInteraction.demographicData()).toMap();
 
-            for (Map.Entry<String, LinkerProbabilistic.Field> field: CustomLinkerMU.LINKER_FIELDS.entrySet()) {
-                LinkerProbabilistic.FieldScoreInfo fieldScoreInfo = fieldMatchInfo.get(field.getKey());
-                this.muModel.updateFieldEqualityPairMatchMatrix(field.getKey(), fieldScoreInfo.isMatch(), pairMatchCandidate.isPairMatch);
-            }
+            updateFieldEqualityPairMatchMatrixField(pairMatchCandidate.candidates.getGoldenRecord().demographicData(),
+                                                    originalInteraction.demographicData(), pairMatchCandidate.isPairMatch, this.muModel);
 
         }
 
