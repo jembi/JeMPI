@@ -189,6 +189,18 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.SQLDashboardDataResponse> getSQLDashboardData(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd
+   ) {
+      final CompletionStage<BackEnd.SQLDashboardDataResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.SQLDashboardDataRequest(replyTo),
+                      java.time.Duration.ofSeconds(6),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetGidsPagedResponse> getGidsPaged(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,

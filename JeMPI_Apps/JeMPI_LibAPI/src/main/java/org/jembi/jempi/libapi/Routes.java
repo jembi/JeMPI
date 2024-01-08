@@ -499,6 +499,35 @@ public final class Routes {
                     });
    }
 
+   public static Route getDashboardData(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String linkerIp,
+           final Integer linkerPort,
+           final Http http) {
+
+      final var uri = Uri
+              .create(String.format(Locale.ROOT,
+                      "http://%s:%d/JeMPI/%s",
+                      linkerIp,
+                      linkerPort,
+                      GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA));
+      final var request = HttpRequest.GET(uri.path());
+
+      return onComplete(
+              CompletableFuture.allOf(
+                      (CompletableFuture<?>) Ask.getSQLDashboardData(actorSystem, backEnd),
+                      (CompletableFuture<?>) http.singleRequest(request)
+                      ),
+              result -> {
+                 if (result.isSuccess()) {
+                    return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                 } else {
+                    return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                 }
+              });
+
+   }
 
    private static CompletionStage<HttpResponse> proxyGetCandidatesWithScore(
          final String linkerIP,

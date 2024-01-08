@@ -8,6 +8,8 @@ import java.sql.*;
 import java.util.*;
 
 final class PsqlNotifications {
+
+   private static final String NOTIFICATION_TABLE_NAME = "notification";
    private static final String QUERY = """
          SELECT patient_id, id, names, created, state,type, score, golden_id
          FROM notification
@@ -85,7 +87,22 @@ final class PsqlNotifications {
       result.setNotifications(list);
       return result;
    }
+   public int getNotificationCount(final String status) {
+      String queryStatement = status == null ?  String.format("SELECT COUNT(*) FROM %s", NOTIFICATION_TABLE_NAME)
+              : String.format("SELECT COUNT(*) FROM %s WHERE state = '%s'", NOTIFICATION_TABLE_NAME, status);
 
+      psqlClient.connect();
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(queryStatement);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
+         if (resultSet.next()) {
+            return resultSet.getInt(1);
+         }
+         return 0;
+      } catch (SQLException e) {
+         LOGGER.error(e);
+      }
+      return -1;
+   }
    String extractState(
          final int index,
          final List<String> states) {
