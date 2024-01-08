@@ -37,8 +37,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_GET_NOTIFICATIONS = "MatchesForReview";
 
    public static final String SEGMENT_PATCH_GOLDEN_RECORD = "golden-record";
-   public static final String SEGMENT_PATCH_IID_GID_LINK = "Link";
-   public static final String SEGMENT_PATCH_IID_NEW_GID_LINK = "Unlink";
+   public static final String SEGMENT_POST_IID_GID_LINK = "Link";
+   public static final String SEGMENT_POST_IID_NEW_GID_LINK = "Unlink";
 
    public static final String SEGMENT_POST_UPDATE_NOTIFICATION = "NotificationRequest";
    public static final String SEGMENT_POST_SIMPLE_SEARCH = "search";
@@ -56,7 +56,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidate-golden-records";
    public static final String SEGMENT_PROXY_POST_CALCULATE_SCORES = "calculate-scores";
 
-   public static final String SEGMENT_PROXY_UPDATE_M_AND_U_ON_NOTI_RESOLUTION = "m-and-u-noti-resolution";
+   public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "on-notification-resolution";
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION = "link-interaction";
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID = "link-interaction-to-gid";
 

@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libapi.mpi_stats.MPIStats;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
@@ -127,87 +126,68 @@ public final class Routes {
    }
 
    public static Route patchIidNewGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return parameter("goldenID",
-                       currentGoldenId -> parameter("patientID",
-                                                    patientId ->
-                                                            // to-do: Later - We need to convert this whole request to a post, as these candidates could end up being quite a lot
-                                                            parameter("candidates", candidates ->
-                                                                  onComplete(Ask.patchIidNewGidLink(actorSystem,
-                                                                                                   backEnd,
-                                                                                                   currentGoldenId,
-                                                                                                   patientId),
-                                                                            result -> result.isSuccess()
-                                                                                  ? result.get()
-                                                                                          .linkInfo()
-                                                                                          .mapLeft(Routes::mapError)
-                                                                                          .fold(error -> error,
-                                                                                                  linkInfo ->  onComplete(updateMandUOnNotificationResolution(
-                                                                                                                  linkerIP,
-                                                                                                                  linkerPort,
-                                                                                                                  http,
-                                                                                                                  new MuModel.MuNotificationResolutionDetails(
-                                                                                                                          "",
-                                                                                                                          linkInfo.interactionUID(),
-                                                                                                                          linkInfo.goldenUID(),
-                                                                                                                          candidates)
-                                                                                                          ),
-                                                                                                          r ->  complete(
-                                                                                                                  StatusCodes.OK,
-                                                                                                                  linkInfo,
-                                                                                                                  JSON_MARSHALLER))
-                                                                                          )
-                                                                                  : complete(StatusCodes.IM_A_TEAPOT)))));
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String linkerIP,
+           final Integer linkerPort,
+           final Http http) {
+
+      return entity(Jackson.unmarshaller(NotificationResolution.class),
+              obj -> onComplete(Ask.patchIidNewGidLink(actorSystem,
+                                      backEnd,
+                                      obj.newGoldenId(),
+                                      obj.interactionId()),
+                              result -> result.isSuccess()
+                                      ? result.get()
+                                      .linkInfo()
+                                      .mapLeft(Routes::mapError)
+                                      .fold(error -> error,
+                                              linkInfo ->  onComplete(processOnNotificationResolution(
+                                                              linkerIP,
+                                                              linkerPort,
+                                                              http,
+                                                              new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r ->  complete(
+                                                              StatusCodes.OK,
+                                                              linkInfo,
+                                                              JSON_MARSHALLER))
+                                      )
+                                      : complete(StatusCodes.IM_A_TEAPOT))
+              );
    }
 
    public static Route patchIidGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return parameter("goldenID",
-                       currentGoldenId ->
-                             parameter("newGoldenID",
-                                       newGoldenId ->
-                                             parameter("patientID",
-                                                       patientId ->
-                                                             parameter("score", score ->
-                                                                     // to-do: Later - We need to convert this whole request to a post, as these candidates could end up being quite a lot
-                                                                     parameter("candidates", candidates ->
-                                                                       onComplete(
-                                                                             Ask.patchIidGidLink(
-                                                                                   actorSystem,
-                                                                                   backEnd,
-                                                                                   currentGoldenId,
-                                                                                   newGoldenId,
-                                                                                   patientId,
-                                                                                   Float.parseFloat(score)),
-                                                                             result -> result.isSuccess()
-                                                                                   ? result.get()
-                                                                                           .linkInfo()
-                                                                                           .mapLeft(Routes::mapError)
-                                                                                           .fold(error -> error,
-                                                                                                 linkInfo ->  onComplete(updateMandUOnNotificationResolution(
-                                                                                                                              linkerIP,
-                                                                                                                              linkerPort,
-                                                                                                                              http,
-                                                                                                                              new MuModel.MuNotificationResolutionDetails(
-                                                                                                                                      "",
-                                                                                                                                      linkInfo.interactionUID(),
-                                                                                                                                      linkInfo.goldenUID(),
-                                                                                                                                      candidates)
-                                                                                                                              ),
-                                                                                                                        r ->  complete(
-                                                                                                                             StatusCodes.OK,
-                                                                                                                             linkInfo,
-                                                                                                                             JSON_MARSHALLER))
-                                                                                                 )
-                                                                                   : complete(StatusCodes.IM_A_TEAPOT)))))));
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String linkerIP,
+           final Integer linkerPort,
+           final Http http) {
+
+      return entity(Jackson.unmarshaller(NotificationResolution.class),
+              obj -> onComplete(Ask.patchIidGidLink(
+                              actorSystem,
+                              backEnd,
+                              obj.currentGoldenId(),
+                              obj.newGoldenId(),
+                              obj.interactionId(),
+                              obj.score()),
+                      result -> result.isSuccess()
+                              ? result.get()
+                              .linkInfo()
+                              .mapLeft(Routes::mapError)
+                              .fold(error -> error,
+                                      linkInfo ->  onComplete(processOnNotificationResolution(
+                                                      linkerIP,
+                                                      linkerPort,
+                                                      http,
+                                                      new NotificationResolutionProcessorData(obj, linkInfo)),
+                                              r ->  complete(
+                                                      StatusCodes.OK,
+                                                      linkInfo,
+                                                      JSON_MARSHALLER))
+                              )
+                              : complete(StatusCodes.IM_A_TEAPOT))
+      );
    }
 
    public static Route countGoldenRecords(
@@ -537,29 +517,29 @@ public final class Routes {
       return stage.thenApply(response -> response);
    }
 
-   private static CompletionStage<Boolean> updateMandUOnNotificationResolution(
+   private static CompletionStage<Boolean> processOnNotificationResolution(
            final String linkerIP,
            final Integer linkerPort,
            final Http http,
-           final MuModel.MuNotificationResolutionDetails body) {
+           final NotificationResolutionProcessorData body) {
       try {
          final var request = HttpRequest
                  .create(String.format(Locale.ROOT,
                          "http://%s:%d/JeMPI/%s",
                          linkerIP,
                          linkerPort,
-                         GlobalConstants.SEGMENT_PROXY_UPDATE_M_AND_U_ON_NOTI_RESOLUTION))
+                         GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION))
                  .withMethod(HttpMethods.POST)
                  .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
          final var stage = http.singleRequest(request);
          return stage.thenApply(response -> {
             if (response.status() != StatusCodes.OK) {
-               LOGGER.error(String.format("Could not update the m and u value based on the notification resolution . Notification id: %s", body.notificationId()));
+               LOGGER.error(String.format("An error occurred while processing the notification resolution. Notification id: %s", body.notificationResolution().notificationId()));
             }
             return true;
          });
       } catch (Exception e) {
-         LOGGER.error(String.format("Could not update the m and u value based on the notification resolution . Notification id: %s", body.notificationId()), e);
+         LOGGER.error(String.format("An error occurred while processing the notification resolution.  Notification id: %s", body.notificationResolution().notificationId()), e);
          return CompletableFuture.completedFuture(true);
       }
 
@@ -771,13 +751,13 @@ public final class Routes {
                       path(GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES,
                               () -> Routes.postCrCandidates(linkerIP, linkerPort, http)),
                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
-                              () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
+                              () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
+                      path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
+                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)),
+                      path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
+                              () -> Routes.patchIidGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)))),
               patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                               "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
-                      path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,
-                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)),
-                      path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
-                              () -> Routes.patchIidGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)),
                       path(GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS,
                               () -> Routes.patchCrUpdateFields(linkerIP, linkerPort, http)))),
               get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
