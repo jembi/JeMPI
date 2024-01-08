@@ -11,6 +11,7 @@ import SimpleSearch from 'components/search/SimpleSearch'
 import SearchResult from 'components/searchResult/SearchResult'
 import Login from 'components/user/Login'
 import Dashboard from 'components/dashboard/Dashboard'
+import Settings from 'pages/settings/Settings'
 
 const baseRouter = createBrowserRouter([
   { path: 'login', element: <Login /> },
@@ -25,6 +26,10 @@ const baseRouter = createBrowserRouter([
       {
         path: 'browse-records',
         element: <BrowseRecords />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
       },
       {
         path: 'record-details/:uid',
