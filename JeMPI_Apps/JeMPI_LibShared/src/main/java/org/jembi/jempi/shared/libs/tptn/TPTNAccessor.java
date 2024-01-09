@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+// todo: A lot of repetition here, refactor
 public class TPTNAccessor {
 
     protected TPTNAccessor() { }

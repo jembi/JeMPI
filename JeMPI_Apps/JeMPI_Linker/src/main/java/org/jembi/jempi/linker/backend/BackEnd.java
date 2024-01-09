@@ -165,7 +165,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          });
       }
       final var linkInfo =
-            LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
+            LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD, req.batchInteraction.stan());
       if (linkInfo.isLeft()) {
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
@@ -182,7 +182,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             LinkerDWH.linkInteraction(libMPI,
                                       request.link.interaction(),
                                       request.link.externalLinkRange(),
-                                      request.link.matchThreshold());
+                                      request.link.matchThreshold(),
+                                      request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isLeft()
                                                                  ? listLinkInfo.getLeft()

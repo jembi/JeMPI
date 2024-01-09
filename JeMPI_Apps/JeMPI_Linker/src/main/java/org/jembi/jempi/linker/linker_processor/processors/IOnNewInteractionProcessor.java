@@ -4,5 +4,5 @@ import org.jembi.jempi.shared.models.Interaction;
 
 public interface IOnNewInteractionProcessor extends ISubProcessor {
 
-    void onNewInteraction(Interaction interaction);
+    void onNewInteraction(Interaction interaction, String envelopeStan) throws Exception;
 }

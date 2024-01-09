@@ -53,9 +53,13 @@ public abstract class BaseLinkerProcessor implements ILinkerProcessor {
         return this;
     }
 
-    public void onNewInteraction(final Interaction interaction) {
+    public void onNewInteraction(final Interaction interaction, final String envelopeStan) {
         for (IOnNewInteractionProcessor subProcessor: onNewInteractionProcessors) {
-            subProcessor.onNewInteraction(interaction);
+            try {
+                subProcessor.onNewInteraction(interaction, envelopeStan);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

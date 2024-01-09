@@ -67,7 +67,7 @@ public final class ExternalRunner {
                         record.get("city"),
                         record.get("phoneNumber"),
                         record.get("nationalId")
-                )), null, Float.parseFloat(matchThreshold));
+                )), null, Float.parseFloat(matchThreshold), null);
                 long recordUpdateTimeEnd = System.currentTimeMillis();
                 LOGGER.info(String.format("======> Processing complete. Duration %s seconds", (recordUpdateTimeEnd - recordUpdateTimeStart) / 1000));
                 LOGGER.info(String.format("======> Process current run time %s minutes", (recordUpdateTimeEnd - processingTimeStart) / 1000 / 60));

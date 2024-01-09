@@ -116,12 +116,14 @@ public final class LinkerDWH {
          final LibMPI libMPI,
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
-         final float matchThreshold_) {
+         final float matchThreshold_, final String envelopeStan) {
 
       StandardLinkerProcessor linkerProcessor
               =  new StandardLinkerProcessor(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME, interaction);
 
-      linkerProcessor.onNewInteraction(interaction);
+      // todo: Rethink the envelope stan. The correct way would be to update the envelope to contain the correct data
+      // This change should be a part of a bigger one
+      linkerProcessor.onNewInteraction(interaction, envelopeStan);
 
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
