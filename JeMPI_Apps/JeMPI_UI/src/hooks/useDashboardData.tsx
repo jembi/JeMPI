@@ -38,7 +38,9 @@ export const DashboardDataProvider = ({
             r.linkerDashboardData = JSON.parse(r.linkerDashboardData)
             return r
         }),
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    // TODO: Consider updating later
+    refetchInterval: 2000,
   })
 
 
