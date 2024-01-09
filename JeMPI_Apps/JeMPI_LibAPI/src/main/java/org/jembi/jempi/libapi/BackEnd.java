@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -234,8 +234,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
-      MatchesForReviewResult result =
-            psqlNotifications.getMatchesForReview(request.limit(), request.offset(), request.date(), request.state);
+      MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(), request.offset(),
+            request.startDate(), request.endDate(), request.states());
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
                                                         result.getSkippedRecords(),
                                                         result.getNotifications()));
@@ -428,7 +428,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         psqlNotifications.updateNotificationState(request.notificationId, request.state);
+         psqlNotifications.updateNotificationState(request.notificationId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
@@ -548,8 +548,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          ActorRef<GetNotificationsResponse> replyTo,
          int limit,
          int offset,
-         LocalDate date,
-         String state) implements Event {
+         Timestamp startDate,
+         Timestamp endDate,
+         List<String> states) implements Event {
    }
 
    public record GetNotificationsResponse(
@@ -592,8 +593,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record PostUpdateNotificationRequest(
          ActorRef<PostUpdateNotificationResponse> replyTo,
-         String notificationId,
-         String state) implements Event {
+         String notificationId) implements Event {
    }
 
    public record PostUpdateNotificationResponse() implements EventResponse {

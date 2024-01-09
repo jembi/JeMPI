@@ -5,8 +5,8 @@ export const getTestEnvConfig = () => {
           ? `${process.env.REACT_APP_JEMPI_BASE_API_HOST}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`
           : `http://localhost:50000/JeMPI`,
         shouldMockBackend: process.env.REACT_APP_MOCK_BACKEND === 'true',
-        KeyCloakUrl: process.env.KC_FRONTEND_URL || 'http://localhost:9088',
-        KeyCloakRealm: process.env.KC_REALM_NAME || 'platform-realm',
+        KeyCloakUrl: process.env.KC_FRONTEND_URL || 'http://localhost:8080',
+        KeyCloakRealm: process.env.KC_REALM_NAME || 'jempi-dev',
         KeyCloakClientId: process.env.KC_JEMPI_CLIENT_ID || 'jempi-oauth',
         useSso: process.env.REACT_APP_ENABLE_SSO === 'true',
         maxUploadCsvSize: +(

@@ -8,7 +8,6 @@ import {
 
 export interface NotificationRequest {
   notificationId: string
-  state: NotificationState
 }
 
 export interface LinkRequest {

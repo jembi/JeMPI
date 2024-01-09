@@ -67,22 +67,11 @@ To configure JeMPI you need to configure 4 main variable found in `_devops/linux
    <td>Default
    </td>
   </tr>
-  <tr>
-   <td>API_VARIANT
-   </td>
-   <td>This specifies what version of the JeMPI API you want to use. 
-<p>
-Currently there is a version which supports Keycloak, one which does not.
-<p>
-If you want to use Keycloak  set this to ‘API_KC’
-   </td>
-   <td>API
-   </td>
-  </tr>
+  
   <tr>
    <td>KC_API_URL 
    </td>
-   <td>The url of the keycloak server (including port). This should be accessible both form the computer running the JeMPI ui app and the JeMPI API server
+   <td>The url the API uses to access keycloak. When running in a docker swarm this could be the service host name (e.g http://keycloak-test-server:8080)
    </td>
    <td>
    </td>
@@ -170,6 +159,14 @@ Do note: If you are not running JeMPI UI within the docker swarm, you will need 
    <td>false
    </td>
   </tr>
+  <tr>
+   <td>KC_FRONTEND_URL 
+   </td>
+   <td>The url the ui will access keycloak from. In the case of keycloak running in docker with the port exposed it will be http://localhost:8080
+   </td>
+   <td>
+   </td>
+  </tr>
 </table>
 
 
@@ -201,57 +198,24 @@ Once these variables are set up, you should be able to start JeMPI as normal and
 
 ## Configuring JeMPI test keycloak server
 
-The above instructions assume you have a keycloak server already configured elsewhere. If you want to test login with Keycloak with JeMPI you can enable the `jempi-test-keycloak-server`.
+The above instructions assume you have a keycloak server already configured elsewhere. If not, JeMPI bundles a test version of keycloak which it uses. **Please note, the version is a development version, and should not be used in production.**
 
-Instructions on how to do this are highlighted below.
-
-
-
-1. After starting JeMPI using the normal startup scripts run `devops/linux/docker/conf/keycloak/start-keycloak-test-server.sh`
-
-**Please note: **
+To use it:-
 
 
 
-* The postgresql service has to be up and running else it wont start
-* It does take a few seconds to startup and be ready
-* Once ready it imports a realm.json file, with the default ‘jempi-dev’ settings. These settings are as follows
-
-
-
+1. Update the JeMPI variable above to use the test server one. These are highlighted below. Note: By default these variables are already set correctly.
 
 <table>
   <tr>
-   <td>realm
+   <td> REACT_APP_ENABLE_SSO
    </td>
-   <td>jempi-dev
-   </td>
-  </tr>
-  <tr>
-   <td>client
-   </td>
-   <td>jempi-oauth
+   <td>true
    </td>
   </tr>
   <tr>
-   <td>client secret
-   </td>
-   <td>Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh
-   </td>
-  </tr>
-</table>
-
-
-
-
-2. Update the JeMPI variable above to use the test server one. Mainly,
-
-
-
-
-<table>
-  <tr>
-   <td>KC_REALM_NAME
+   <td>
+KC_REALM_NAME
    </td>
    <td>jempi-dev
    </td>
@@ -271,7 +235,19 @@ Instructions on how to do this are highlighted below.
   <tr>
    <td>KC_API_URL
    </td>
+   <td>http://keycloak-test-server:8080
+   </td>
+  </tr>
+  <tr>
+   <td>KC_FRONTEND_URL
+   </td>
    <td>http://localhost:8080
+   </td>
+  </tr>
+  <tr>
+   <td> KC_TEST_DB
+   </td>
+   <td>key_clock_test_db
    </td>
   </tr>
 </table>
@@ -279,16 +255,26 @@ Instructions on how to do this are highlighted below.
 
 
 
-3. Restart JeMPI and the test keycloak server
+2. Start JeMPI normally. The key username details are below:
 
-This test server has one user with the details below
+    **Username:** dev-user
 
-**Username:** dev-user
 
-**Password:** dev-password
+    **Password:** dev-password
 
-The admin use for the keycloak server is
 
-**Username:** admin
+    The admin use for the keycloak server is 
 
-**Password:** admin
+
+    **Username:** admin
+
+
+    **Password:** admin
+
+
+**Notes:**
+
+* The keycloak server takes a minute to two to startup, and be ready
+* Once it starts up it import the jempi-dev realm (with setting matching the above) 
+* In the case that this fails, you can alway run the script `devops/linux/docker/helper/keycloak/realms/import.sh` directly
+* Also note, there is an export script as well (in case you want to keep a particular configuration). See `devops/linux/docker/helper/keycloak/realms/export.sh`

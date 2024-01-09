@@ -3,6 +3,7 @@ import { Button } from '@mui/material'
 import { SearchParameter } from '../../types/SimpleSearch'
 
 interface AddFieldOrGroupButtonProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick: (obj: any) => void
   initialCustomSearchValues:
     | SearchParameter
