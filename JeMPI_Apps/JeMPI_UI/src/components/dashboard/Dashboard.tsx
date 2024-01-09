@@ -169,7 +169,7 @@ const Dashboard = () => {
           <CustomTabPanel value={currentTabIndex} index={1}>
             <Grid container sx={{ minHeight: { lg: '450px' } }}>
               <Grid item xs={6}>
-                <MandU />
+                <MandU data={dashboardData.isReady ? dashboardData?.data?.linkerDashboardData?.dashboardData?.m_and_u : null} />
               </Grid>
             </Grid>
           </CustomTabPanel>

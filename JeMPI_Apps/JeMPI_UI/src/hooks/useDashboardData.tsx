@@ -40,7 +40,7 @@ export const DashboardDataProvider = ({
         }),
     refetchOnWindowFocus: false,
     // TODO: Consider updating later
-    refetchInterval: 2000,
+    refetchInterval: 3000,
   })
 
 
