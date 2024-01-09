@@ -22,7 +22,7 @@ public final class StoreProcessorSinkManager<T> {
     private final Consumer<String, T> sinkReader;
     private final MyKafkaProducer<String, T> sinkUpdater;
 
-    public StoreProcessorSinkManager(final String topicName, final String sinkTopicName, final String bootStrapServers, final Class<T> serializeCls) {
+    StoreProcessorSinkManager(final String topicName, final String sinkTopicName, final String bootStrapServers, final Class<T> serializeCls) {
         this.topicName = topicName;
         this.sinkTopicName = sinkTopicName;
         this.sinkUpdater = Utilities.getTopicProducer(sinkTopicName, bootStrapServers);

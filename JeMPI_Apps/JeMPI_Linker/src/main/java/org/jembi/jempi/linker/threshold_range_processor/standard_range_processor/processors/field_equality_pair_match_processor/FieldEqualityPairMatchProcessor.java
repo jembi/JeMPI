@@ -1,8 +1,6 @@
 package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -13,9 +11,8 @@ import org.jembi.jempi.linker.threshold_range_processor.IDashboardDataProducer;
 import org.jembi.jempi.linker.threshold_range_processor.IOnNotificationResolutionProcessor;
 import org.jembi.jempi.linker.threshold_range_processor.IThresholdRangeSubProcessor;
 import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
-import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessorSinkManager;
-import org.jembi.jempi.shared.kafka.global_context.store_processor.Utilities;
 import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.shared.libs.m_and_u.MuAccesor;
 import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeName;
 import org.jembi.jempi.shared.models.*;
@@ -23,8 +20,6 @@ import org.jembi.jempi.shared.models.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static org.jembi.jempi.shared.kafka.global_context.store_processor.Utilities.*;
 
 public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor, IOnNotificationResolutionProcessor, IDashboardDataProducer {
 
@@ -127,31 +122,17 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
         }
     }
 
-    protected FieldEqualityPairMatchMatrix convertToFieldEqualityPairMatchMatrix(final Object value) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return mapper.convertValue(value, FieldEqualityPairMatchMatrix.class);
-    }
     @Override
     public Object getDashboardData(final LibMPI libMPI) throws ExecutionException {
         try {
-            // todo: Rework maybe
             HashMap<String, FieldEqualityPairMatchMatrix.MandU> dashboardData = new HashMap<>();
 
-            TopicStoreNames topicName = Utilities.getStoreNames(String.format("linker_mu_tally_%s", this.linkerId));
-            StoreProcessorSinkManager sm = new StoreProcessorSinkManager<>(topicName.topicName(), topicName.topicSinkName(), AppConfig.KAFKA_BOOTSTRAP_SERVERS, Object.class);
-
-            Object storedValue = sm.readSink();
-            if (storedValue == null) {
-                return dashboardData;
+            HashMap<String, FieldEqualityPairMatchMatrix> fieldMatrix = MuAccesor.getKafkaMUUpdater(this.linkerId, AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
+            for (Map.Entry<String, FieldEqualityPairMatchMatrix> value: fieldMatrix.entrySet()) {
+                dashboardData.put(value.getKey(), value.getValue().getMandUValues());
             }
-
-            for (Map.Entry<String, Object> value: ((LinkedHashMap<String, Object>) storedValue).entrySet()) {
-                dashboardData.put(value.getKey(), convertToFieldEqualityPairMatchMatrix(value.getValue()).getMandUValues());
-            }
-
             return dashboardData;
-        } catch (Exception e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new ExecutionException(e);
         }
 
