@@ -2,6 +2,7 @@ package org.jembi.jempi.shared.libs.m_and_u;
 
 public final class FieldEqualityPairMatchMatrix {
 
+    public record MandU(Float m, Float u) { }
     public FieldEqualityPairMatchMatrix() { }
     public FieldEqualityPairMatchMatrix(final int fieldEqualPairMatchIn, final int fieldNotEqualPairMatchIn, final int fieldEqualPairNoMatchIn, final int fieldNotEqualPairNoMatchIn) {
         this.fieldEqualPairMatch = fieldEqualPairMatchIn;
@@ -62,5 +63,10 @@ public final class FieldEqualityPairMatchMatrix {
                 + String.format("| Field Unequal |     %s     |      %s      |\n", this.fieldNotEqualPairMatch, this.fieldNotEqualPairNoMatch)
                 + String.format("| ------------------------------------------|\n") + "\n";
 
+    }
+
+    public MandU getMandUValues() {
+        return new MandU(((float) this.getFieldEqualPairMatch() / (this.getFieldEqualPairMatch() + this.getFieldNotEqualPairMatch())),
+                ((float) this.getFieldEqualPairNoMatch() / (this.getFieldEqualPairNoMatch() + this.getFieldNotEqualPairNoMatch())));
     }
 }

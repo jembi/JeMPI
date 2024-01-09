@@ -821,7 +821,9 @@ public final class Routes {
                               "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                       path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
                       path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                              () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))),
+                              () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
+                      path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                              () -> Routes.getDashboardData(linkerIP, linkerPort, http)))),
               MPIStats.getRoutes(actorSystem, backEnd));
    }
 

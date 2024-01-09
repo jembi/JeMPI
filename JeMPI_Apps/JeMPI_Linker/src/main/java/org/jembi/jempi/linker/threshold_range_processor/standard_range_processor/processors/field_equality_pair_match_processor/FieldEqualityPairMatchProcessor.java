@@ -1,32 +1,34 @@
 package org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor;
 
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.linker.CustomLinkerMU;
 import org.jembi.jempi.linker.backend.LinkerProbabilistic;
+import org.jembi.jempi.linker.threshold_range_processor.IDashboardDataProducer;
+import org.jembi.jempi.linker.threshold_range_processor.IOnNotificationResolutionProcessor;
 import org.jembi.jempi.linker.threshold_range_processor.IThresholdRangeSubProcessor;
 import org.jembi.jempi.linker.threshold_range_processor.lib.CategorisedCandidates;
 import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.shared.libs.m_and_u.MuAccesor;
 import org.jembi.jempi.shared.libs.m_and_u.MuModel;
 import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeName;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-public final class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor {
+public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProcessor, IOnNotificationResolutionProcessor, IDashboardDataProducer {
 
     private static final Logger LOGGER = LogManager.getLogger(FieldEqualityPairMatchProcessor.class);
     protected Interaction originalInteraction;
     protected Map<String, String> originalInteractionDemographicDataMap;
 
     protected MuModel muModel;
+
     public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) { }
 
     protected String linkerId;
@@ -55,7 +57,7 @@ public final class FieldEqualityPairMatchProcessor implements IThresholdRangeSub
 
     }
 
-    public static void updateFieldEqualityPairMatchMatrixField(final CustomDemographicData goldenRecord, final CustomDemographicData interaction, final boolean isPairMatch, final MuModel muModel) {
+    void updateFieldEqualityPairMatchMatrixField(final CustomDemographicData goldenRecord, final CustomDemographicData interaction, final boolean isPairMatch) {
         Map<String, LinkerProbabilistic.FieldScoreInfo> fieldMatchInfo = new CustomLinkerMU.FieldMatchInfo(
                 goldenRecord,
                 interaction).toMap();
@@ -71,7 +73,7 @@ public final class FieldEqualityPairMatchProcessor implements IThresholdRangeSub
         for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {
 
             updateFieldEqualityPairMatchMatrixField(pairMatchCandidate.candidates.getGoldenRecord().demographicData(),
-                                                    originalInteraction.demographicData(), pairMatchCandidate.isPairMatch, this.muModel);
+                                                    originalInteraction.demographicData(), pairMatchCandidate.isPairMatch);
 
         }
 
@@ -94,4 +96,53 @@ public final class FieldEqualityPairMatchProcessor implements IThresholdRangeSub
         this.updateFieldEqualityPairMatchMatrix(pairMatchUnmatchedCandidates);
         return true;
     }
+
+    @Override
+    public boolean processOnNotificationResolution(final NotificationResolutionProcessorData data, final LibMPI libMPI) {
+        LOGGER.info(String.format("Updating the m and u values based on a notification resolution. Notification Id: %s", data.notificationResolution().notificationId()));
+        ExpandedGoldenRecord linkedGoldenRecord = libMPI.findExpandedGoldenRecord(data.linkInfo().goldenUID());
+
+        if (linkedGoldenRecord == null) {
+            LOGGER.error(String.format("Failed to update the m and u values based on a notification resolution. Could not find new golden record %s", data.linkInfo().goldenUID()));
+            return false;
+        }
+
+        Optional<InteractionWithScore> originalInteraction = linkedGoldenRecord.interactionsWithScore().stream().filter(i -> Objects.equals(i.interaction().interactionId(), data.notificationResolution().interactionId())).findFirst();
+
+        if (originalInteraction.isPresent()) {
+            updateFieldEqualityPairMatchMatrixField(linkedGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), true);
+
+            ArrayList<String> candidates = data.notificationResolution().currentCandidates().stream().filter(c -> !Objects.equals(c, linkedGoldenRecord.goldenRecord().goldenId())).collect(Collectors.toCollection(ArrayList::new));
+
+            for (ExpandedGoldenRecord candidateGoldenRecord : libMPI.findExpandedGoldenRecords(candidates)) {
+                updateFieldEqualityPairMatchMatrixField(candidateGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), false);
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public Object getDashboardData(final LibMPI libMPI) throws ExecutionException {
+        try {
+            HashMap<String, FieldEqualityPairMatchMatrix.MandU> dashboardData = new HashMap<>();
+
+            HashMap<String, FieldEqualityPairMatchMatrix> fieldMatrix = MuAccesor.getKafkaMUUpdater(this.linkerId, AppConfig.KAFKA_BOOTSTRAP_SERVERS).getValue();
+            for (Map.Entry<String, FieldEqualityPairMatchMatrix> value: fieldMatrix.entrySet()) {
+                dashboardData.put(value.getKey(), value.getValue().getMandUValues());
+            }
+            return dashboardData;
+        } catch (ExecutionException | InterruptedException e) {
+            throw new ExecutionException(e);
+        }
+
+    }
+
+    @Override
+    public String getDashboardDataName() {
+        return "m_and_u";
+    }
+
 }

@@ -8,11 +8,7 @@ import akka.http.javadsl.server.Route;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.libs.m_and_u.MuModel;
-import org.jembi.jempi.shared.models.ApiModels;
-import org.jembi.jempi.shared.models.CustomMU;
-import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
-import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
+import org.jembi.jempi.shared.models.*;
 
 import static akka.http.javadsl.server.Directives.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -71,17 +67,29 @@ final class Routes {
                     }));
    }
 
-    static Route updateMandUOnNotificationResolution(
+    static Route onNotificationResolution(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Request> backEnd) {
-        return entity(Jackson.unmarshaller(MuModel.MuNotificationResolutionDetails.class),
-                obj -> onComplete(Ask.updateMandUOnNotificationResolution(actorSystem, backEnd, obj), response -> {
+        return entity(Jackson.unmarshaller(NotificationResolutionProcessorData.class),
+                obj -> onComplete(Ask.onNotificationResolution(actorSystem, backEnd, obj), response -> {
                     if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
                         return complete(StatusCodes.OK);
                     } else {
                         return complete(StatusCodes.IM_A_TEAPOT);
                     }
                 }));
+    }
+
+    static Route getDashboardData(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Request> backEnd) {
+        return onComplete(Ask.getDashboardData(actorSystem, backEnd), response -> {
+                    if (response.isSuccess()) {
+                        return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
+                    } else {
+                        return complete(StatusCodes.IM_A_TEAPOT);
+                    }
+                });
     }
    static Route proxyPostLinkInteractionToGID(
          final ActorSystem<Void> actorSystem,

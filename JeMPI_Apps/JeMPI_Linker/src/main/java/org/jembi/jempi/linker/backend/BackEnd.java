@@ -17,10 +17,11 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
-import org.jembi.jempi.linker.CustomLinkerMU;
-import org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.processors.field_equality_pair_match_processor.FieldEqualityPairMatchProcessor;
+
+import org.jembi.jempi.linker.threshold_range_processor.IDashboardDataProducer;
+import org.jembi.jempi.linker.threshold_range_processor.IOnNotificationResolutionProcessor;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.libs.m_and_u.MuModel;
+import org.jembi.jempi.linker.threshold_range_processor.ProcessorsRegistry;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.stats.StatsTask;
@@ -114,7 +115,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
-                                .onMessage(UpdateMandUOnNotificationResolutionRequest.class, this::updateMandUOnNotificationResolutionHandler)
+                                .onMessage(OnNotificationResolutionRequest.class, this::onNotificationResolutionHandler)
+                                 .onMessage(DashboardDataRequest.class, this::getDashboardDataHandler)
 //                              .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
@@ -286,34 +288,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> updateMandUOnNotificationResolutionHandler(final UpdateMandUOnNotificationResolutionRequest request) {
-      LOGGER.info(String.format("Updating the m and u values based on a notification resolution. Notification Id: %s", request.notificationId));
+   private Behavior<Request> onNotificationResolutionHandler(final OnNotificationResolutionRequest request) {
 
-      ExpandedGoldenRecord linkedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenID());
-      if (linkedGoldenRecord == null) {
-         request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(false));
-         return Behaviors.same();
+      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : ProcessorsRegistry.getOnNotificationResolutionProcessors()) {
+         notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
       }
-
-      Optional<InteractionWithScore> originalInteraction = linkedGoldenRecord.interactionsWithScore().stream().filter(i -> Objects.equals(i.interaction().interactionId(), request.interactionId())).findFirst();
-
-      if (originalInteraction.isPresent()) {
-         MuModel muModel = MuModel.withLinkedFields(GlobalConstants.DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME, CustomLinkerMU.LINKER_FIELDS.keySet(), AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-         FieldEqualityPairMatchProcessor.updateFieldEqualityPairMatchMatrixField(linkedGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), true, muModel);
-
-         ArrayList<String> candidates = Arrays.stream(request.candidates.split("_")).filter(c -> !Objects.equals(c, linkedGoldenRecord.goldenRecord().goldenId())).collect(Collectors.toCollection(ArrayList::new));
-
-         for (ExpandedGoldenRecord candidateGoldenRecord : libMPI.findExpandedGoldenRecords(candidates)) {
-            FieldEqualityPairMatchProcessor.updateFieldEqualityPairMatchMatrixField(candidateGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), false, muModel);
-         }
-
-         request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(true));
-      } else {
-         request.replyTo.tell(new UpdateMandUOnNotificationResolutionResponse(false));
-      }
-
+      request.replyTo.tell(new OnNotificationResolutionResponse(true));
       return Behaviors.same();
    }
+
+
+   private Behavior<Request> getDashboardDataHandler(final DashboardDataRequest request) {
+
+      HashMap<String, Object> dashboardData = new HashMap<>();
+
+      for (IDashboardDataProducer<?> dashboardDataProducer : ProcessorsRegistry.getDashboardDataProducerProcessors()) {
+         try {
+            dashboardData.put(dashboardDataProducer.getDashboardDataName(), dashboardDataProducer.getDashboardData(libMPI));
+         } catch (Exception e) {
+            LOGGER.error(String.format("An error occurred trying to the dashboard data for %s. Will not be included", dashboardDataProducer.getDashboardDataName()), e);
+         }
+
+      }
+      request.replyTo.tell(new DashboardDataResponse(dashboardData));
+      return Behaviors.same();
+   }
+
 //   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
 //      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
 //      return Behaviors.same();
@@ -446,16 +446,22 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       }
    }
 
-   public record UpdateMandUOnNotificationResolutionRequest(
-           ActorRef<UpdateMandUOnNotificationResolutionResponse> replyTo,
-           String notificationId,
-           String interactionId,
-           String goldenID,
-           String candidates
+   public record OnNotificationResolutionRequest(
+           ActorRef<OnNotificationResolutionResponse> replyTo,
+           NotificationResolutionProcessorData notificationResolutionDetails
    ) implements Request  {
    }
 
-   public record UpdateMandUOnNotificationResolutionResponse(Boolean updated)
+   public record OnNotificationResolutionResponse(Boolean updated)
+           implements Response {
+   }
+
+   public record DashboardDataRequest(
+           ActorRef<DashboardDataResponse> replyTo
+   ) implements Request  {
+   }
+
+   public record DashboardDataResponse(HashMap<String, Object> dashboardData)
            implements Response {
    }
 

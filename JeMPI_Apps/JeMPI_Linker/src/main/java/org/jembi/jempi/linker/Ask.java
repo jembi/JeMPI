@@ -6,11 +6,7 @@ import akka.actor.typed.javadsl.AskPattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.libs.m_and_u.MuModel;
-import org.jembi.jempi.shared.models.ApiModels;
-import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
-import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
+import org.jembi.jempi.shared.models.*;
 
 import java.util.concurrent.CompletionStage;
 
@@ -152,17 +148,24 @@ final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.UpdateMandUOnNotificationResolutionResponse> updateMandUOnNotificationResolution(
+   static CompletionStage<BackEnd.OnNotificationResolutionResponse> onNotificationResolution(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Request> backEnd,
-           final MuModel.MuNotificationResolutionDetails notiResolutionDetails) {
-      final CompletionStage<BackEnd.UpdateMandUOnNotificationResolutionResponse> stage = AskPattern
+           final NotificationResolutionProcessorData notificationResolutionDetails) {
+      final CompletionStage<BackEnd.OnNotificationResolutionResponse> stage = AskPattern
               .ask(backEnd,
-                      replyTo -> new BackEnd.UpdateMandUOnNotificationResolutionRequest(replyTo,
-                              notiResolutionDetails.notificationId(),
-                              notiResolutionDetails.interactionId(),
-                              notiResolutionDetails.goldenRecordId(),
-                              notiResolutionDetails.candidates()),
+                      replyTo -> new BackEnd.OnNotificationResolutionRequest(replyTo, notificationResolutionDetails),
+                      java.time.Duration.ofSeconds(6),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.DashboardDataResponse> getDashboardData(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Request> backEnd) {
+      final CompletionStage<BackEnd.DashboardDataResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.DashboardDataRequest(replyTo),
                       java.time.Duration.ofSeconds(6),
                       actorSystem.scheduler());
       return stage.thenApply(response -> response);
