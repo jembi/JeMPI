@@ -14,12 +14,12 @@ public class StandardLinkerProcessor extends BaseLinkerProcessor {
     }
     @Override
     protected List<IThresholdRangeSubProcessor> getThresholdProcessors() {
-        return this.processorRegistry.getThresholdProcessors(this.originalInteraction, null);
+        return this.processorRegistry.getThresholdProcessors(this.originalInteraction, this.linkerId);
     }
 
     @Override
     protected List<IOnNewInteractionProcessor> getOnNewInteractionProcessors() {
-        return this.processorRegistry.getOnNewInteractionProcessors(null);
+        return this.processorRegistry.getOnNewInteractionProcessors(this.linkerId);
     }
 
     public void processCandidates(final List<GoldenRecord> candidates) throws ExecutionException, InterruptedException {

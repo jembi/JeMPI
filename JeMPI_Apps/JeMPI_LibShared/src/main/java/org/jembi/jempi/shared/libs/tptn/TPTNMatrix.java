@@ -54,5 +54,20 @@ public final class TPTNMatrix {
                 one.getFalseNegative() + two.getFalseNegative());
     }
 
+    @Override
+    public String toString() {
+
+        return "\n"
+                + "| ------------------------------------------|\n"
+                + "|             TP / TP / FP / FN              |\n"
+                + "| ------------------------------------------|\n"
+                + String.format("| True Positive  |     %s     |\n", this.truePositive)
+                + String.format("| True Negative  |     %s     |\n", this.trueNegative)
+                + String.format("| False Postive  |     %s     |\n", this.falsePositive)
+                + String.format("| False Negative |     %s     |\n", this.falseNegative)
+                + String.format("| ----------------------------\n") + "\n";
+
+    }
+
 
 }

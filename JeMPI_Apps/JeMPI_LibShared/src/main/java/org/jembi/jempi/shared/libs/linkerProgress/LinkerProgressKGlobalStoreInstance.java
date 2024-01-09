@@ -2,7 +2,6 @@ package org.jembi.jempi.shared.libs.linkerProgress;
 
 import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreProcessor;
 import org.jembi.jempi.shared.kafka.global_context.store_processor.StoreUpdaterProcessor;
-
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -11,7 +10,14 @@ public final class LinkerProgressKGlobalStoreInstance extends StoreProcessor<Lin
     public LinkerProgressKGlobalStoreInstance(final String bootStrapServers, final String topicName, final String sinkName, final Class<LinkerProgressData> serializeCls) throws InterruptedException, ExecutionException {
         super(bootStrapServers, topicName, sinkName, serializeCls);
     }
+    public LinkerProgressData getValue() {
+        LinkerProgressData storedValue = super.getValue();
 
+        if (storedValue == null) {
+            return new LinkerProgressData(0, 0, 0, null);
+        }
+        return storedValue;
+    }
     @Override
     protected StoreUpdaterProcessor<LinkerProgressData, LinkerProgressData, LinkerProgressData> getValueUpdater() {
         return (LinkerProgressData globalValue, final LinkerProgressData currentValue) -> {

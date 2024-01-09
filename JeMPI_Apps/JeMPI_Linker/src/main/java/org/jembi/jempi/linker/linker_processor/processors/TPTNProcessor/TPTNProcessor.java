@@ -1,5 +1,7 @@
 package org.jembi.jempi.linker.linker_processor.processors.TPTNProcessor;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.linker.linker_processor.lib.CategorisedCandidates;
@@ -18,7 +20,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public final class TPTNProcessor extends SubProcessor implements IThresholdRangeSubProcessor, IOnNotificationResolutionProcessor, IDashboardDataProducer<TPTNStats> {
-
+    protected Interaction originalInteraction;
+    private static final Logger LOGGER = LogManager.getLogger(TPTNProcessor.class);
     private float getFScoreType(final String type, final TPTNMatrix tptnMatrix) {
         float beta;
 
@@ -32,11 +35,17 @@ public final class TPTNProcessor extends SubProcessor implements IThresholdRange
             throw new RuntimeException("Unknown f-score type");
         }
 
-        return (1 + beta) * tptnMatrix.getTruePositive() / (((1 + beta) * tptnMatrix.getTruePositive()) + (beta * tptnMatrix.getFalseNegative()) + tptnMatrix.getFalsePositive());
+        float divider = (((1F + beta) * tptnMatrix.getTruePositive()) + (beta * tptnMatrix.getFalseNegative()) + tptnMatrix.getFalsePositive());
+        if (divider == 0) {
+            return -1;
+        }
+
+        return  (1F + beta) * tptnMatrix.getTruePositive() / divider;
     }
     public TPTNStats getDashboardData(final LibMPI libMPI) throws Exception {
         TPTNKGlobalStoreInstance store = getStore();
         TPTNMatrix currentMatrix = store.getValue();
+
         return new TPTNStats(currentMatrix, new TPTNFScore(getFScoreType("recall", currentMatrix),
                                                            getFScoreType("recall_precision", currentMatrix),
                                                            getFScoreType("precision", currentMatrix)));
@@ -67,12 +76,14 @@ public final class TPTNProcessor extends SubProcessor implements IThresholdRange
         tptnMatrix.updateTruePositive(candidateOutsideNotiWindow.stream().filter(c -> c.isRangeApplicable(RangeTypeName.ABOVE_THRESHOLD)).count());
         tptnMatrix.updateTrueNegative(candidateOutsideNotiWindow.stream().filter(c -> !c.isRangeApplicable(RangeTypeName.ABOVE_THRESHOLD)).count());
 
+        LOGGER.debug(String.format("Updating the TPTN Matrix with the following: \n %s", tptnMatrix));
         store.updateValue(tptnMatrix);
         return true;
     }
 
     @Override
     public IThresholdRangeSubProcessor setOriginalInteraction(final Interaction originalInteractionIn) {
-        return null;
+        this.originalInteraction = originalInteractionIn;
+        return this;
     }
 }

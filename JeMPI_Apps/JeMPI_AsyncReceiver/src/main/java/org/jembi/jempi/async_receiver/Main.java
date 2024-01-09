@@ -89,8 +89,9 @@ public final class Main {
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
-         final var reader = Files.newBufferedReader(Paths.get(fileName));
-         final long fileSize = Files.size(Paths.get(fileName));
+         final var filePathUri = Paths.get(fileName);
+         final var reader = Files.newBufferedReader(filePathUri);
+         final long fileSize = Files.size(filePathUri);
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
@@ -112,7 +113,7 @@ public final class Main {
          for (CSVRecord csvRecord : csvParser) {
             sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
-                                               String.format(Locale.ROOT, "%s:%07d:%d_%d:%s", stanDate, ++index, getRowSize(csvRecord.values()), fileSize, fileName),
+                                               String.format(Locale.ROOT, "%s#%07d#%d_%d#%s", stanDate, ++index, getRowSize(csvRecord.values()), fileSize, filePathUri.getFileName()),
                                                new Interaction(null,
                                                                CustomAsyncHelper.customSourceId(csvRecord),
                                                                CustomAsyncHelper.customUniqueInteractionData(csvRecord),

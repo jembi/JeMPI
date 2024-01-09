@@ -10,6 +10,15 @@ public final class TPTNKGlobalStoreInstance extends StoreProcessor<TPTNMatrix> {
         super(bootStrapServers, topicName, sinkName, serializeCls);
     }
 
+    public TPTNMatrix getValue() {
+        TPTNMatrix storedValue = super.getValue();
+
+        if (storedValue == null) {
+            return new TPTNMatrix();
+        }
+        return storedValue;
+    }
+
     @Override
     protected StoreUpdaterProcessor<TPTNMatrix, TPTNMatrix, TPTNMatrix> getValueUpdater() {
         return (TPTNMatrix globalValue, final TPTNMatrix currentValue) -> {

@@ -40,7 +40,7 @@ public final class LinkerStatsProcessor extends SubProcessor implements IOnNewIn
     public void onNewInteraction(final Interaction interaction, final String envelopeStan) throws Exception {
 
         try {
-            String[] stanDetails = envelopeStan.split(":");
+            String[] stanDetails = envelopeStan.split("#");
             String[] sizes = stanDetails[2].split("_");
             getStore().updateValue(new LinkerProgressData(1, Long.parseLong(sizes[0]), Long.parseLong(sizes[1]), stanDetails[3]));
         } catch (ExecutionException | InterruptedException e) {
