@@ -1,5 +1,8 @@
 package org.jembi.jempi.shared.libs.m_and_u;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class FieldEqualityPairMatchMatrix {
 
     public record MandU(Float m, Float u) { }

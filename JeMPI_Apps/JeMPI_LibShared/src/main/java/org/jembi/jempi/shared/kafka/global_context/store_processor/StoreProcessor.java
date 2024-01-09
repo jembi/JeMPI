@@ -15,7 +15,6 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class StoreProcessor<T> {
     private static final Logger LOGGER = LogManager.getLogger(StoreProcessor.class);
@@ -93,15 +92,13 @@ public class StoreProcessor<T> {
                         Thread.currentThread().interrupt();
                         future.completeExceptionally(e);
                     }
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
                 }
             }
         });
 
-        future.orTimeout(15000, TimeUnit.MILLISECONDS)
-                .exceptionally(throwable -> {
-                    future.completeExceptionally(new TimeoutException("Timeout waiting for the store to become Queryable ."));
-                    return null;
-                });
+        future.orTimeout(5000, TimeUnit.MILLISECONDS);
 
         return future;
     }
