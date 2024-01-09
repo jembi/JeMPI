@@ -71,7 +71,7 @@ public final class GlobalConstants {
    //                         SEGMENT_CURRENT_USER: '/current-user',
 
 
-   public static final String DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME = "linker";
+   public static final String DEFAULT_LINKER_GLOBAL_STORE_NAME = "linker";
    private GlobalConstants() {
    }
 

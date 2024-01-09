@@ -18,10 +18,10 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 
-import org.jembi.jempi.linker.threshold_range_processor.IDashboardDataProducer;
-import org.jembi.jempi.linker.threshold_range_processor.IOnNotificationResolutionProcessor;
+import org.jembi.jempi.linker.linker_processor.processors.IDashboardDataProducer;
+import org.jembi.jempi.linker.linker_processor.processors.IOnNotificationResolutionProcessor;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.linker.threshold_range_processor.ProcessorsRegistry;
+import org.jembi.jempi.linker.linker_processor.processors.ProcessorsRegistry;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.stats.StatsTask;
@@ -290,7 +290,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private Behavior<Request> onNotificationResolutionHandler(final OnNotificationResolutionRequest request) {
 
-      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : ProcessorsRegistry.getOnNotificationResolutionProcessors()) {
+      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : new ProcessorsRegistry().getOnNotificationResolutionProcessors(null)) {
          notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
       }
       request.replyTo.tell(new OnNotificationResolutionResponse(true));
@@ -302,7 +302,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
       HashMap<String, Object> dashboardData = new HashMap<>();
 
-      for (IDashboardDataProducer<?> dashboardDataProducer : ProcessorsRegistry.getDashboardDataProducerProcessors()) {
+      for (IDashboardDataProducer<?> dashboardDataProducer : new ProcessorsRegistry().getDashboardDataProducerProcessors(null)) {
          try {
             dashboardData.put(dashboardDataProducer.getDashboardDataName(), dashboardDataProducer.getDashboardData(libMPI));
          } catch (Exception e) {

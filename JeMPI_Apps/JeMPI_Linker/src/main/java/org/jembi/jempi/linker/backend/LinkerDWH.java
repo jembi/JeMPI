@@ -7,8 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.linker.threshold_range_processor.lib.range_type.RangeTypeFactory;
-import org.jembi.jempi.linker.threshold_range_processor.standard_range_processor.StandardThresholdRangeProcessor;
+import org.jembi.jempi.linker.linker_processor.lib.range_type.RangeTypeFactory;
+import org.jembi.jempi.linker.linker_processor.StandardLinkerProcessor;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -117,6 +117,12 @@ public final class LinkerDWH {
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_) {
+
+      StandardLinkerProcessor linkerProcessor
+              =  new StandardLinkerProcessor(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME, interaction);
+
+      linkerProcessor.onNewInteraction(interaction);
+
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
@@ -166,8 +172,8 @@ public final class LinkerDWH {
                ? externalLinkRange.high()
                : matchThreshold_;
 
-         StandardThresholdRangeProcessor thresholdProcessor
-                 = (StandardThresholdRangeProcessor) new StandardThresholdRangeProcessor(GlobalConstants.DEFAULT_LINKER_M_AND_U_GLOBAL_STORE_NAME, interaction).setRanges(
+         linkerProcessor
+                 = (StandardLinkerProcessor) linkerProcessor.setRanges(
                          new ArrayList<>(Arrays.asList(
                                  RangeTypeFactory.standardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
                                  RangeTypeFactory.standardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F),
@@ -184,7 +190,7 @@ public final class LinkerDWH {
             } else {
 
                try {
-                  thresholdProcessor.processCandidates(candidateGoldenRecords);
+                  linkerProcessor.processCandidates(candidateGoldenRecords);
                } catch (Exception e) {
                      LOGGER.error(String.format("An error occurred whilst trying to process the candidates. Error message %s", e.getMessage()), e);
                }
