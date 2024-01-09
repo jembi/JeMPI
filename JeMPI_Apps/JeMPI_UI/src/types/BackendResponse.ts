@@ -63,6 +63,12 @@ export interface Interaction {
   uniqueInteractionData: UniqueInteractionData
 }
 
+export interface DashboardData {
+  // TODO: Later make the types more specifc
+  sqlDashboardData: any
+  linkerDashboardData: any
+}
+
 export interface GoldenRecordCandidatesResponse {
   goldenRecords: {
     goldenId: string

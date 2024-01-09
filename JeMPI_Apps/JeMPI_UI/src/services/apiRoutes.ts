@@ -3,6 +3,7 @@ const ROUTES = {
   GET_LINKED_RECORDS: '/LinkedRecords',
   GET_NOTIFICATIONS: '/MatchesForReview',
   GET_INTERACTION: '/interaction',
+  GET_DASHBOARD_DATA: '/dashboard-data',
   GET_GIDS_PAGED: '/gids-paged',
   GET_GOLDEN_RECORD: '/expanded-golden-record',
   GET_EXPANDED_GOLDEN_RECORDS: '/expanded-golden-records',

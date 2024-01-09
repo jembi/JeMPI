@@ -25,6 +25,7 @@ import CircularProgress, {
   CircularProgressProps
 } from '@mui/material/CircularProgress'
 import { ImportProcessWidget } from './widgets/ImportProcessWidget'
+import { useDashboardData } from 'hooks/useDashboardData'
 interface TabPanelProps {
   children?: React.ReactNode
   index: number
@@ -55,6 +56,9 @@ const tabProps = (index: number) => {
 }
 
 const Dashboard = () => {
+  const dashboardData = useDashboardData()
+
+  console.log(dashboardData)
   const [currentTabIndex, setCurrentTabIndex] = useState(0)
   const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIndex(newValue)
@@ -129,7 +133,7 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="New/Open"
-                            value={10000}
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData.data?.sqlDashboardData?.dashboardData?.notificationStats?.openNotifications : 0}
                             icon={
                               <NotificationAdd sx={{ fontSize: '3.5rem' }} />
                             }
@@ -139,7 +143,7 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="Closed"
-                            value={20000}
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData.data?.sqlDashboardData?.dashboardData?.notificationStats?.closedNotifications : 0}
                             icon={
                               <NotificationsOff sx={{ fontSize: '3.5rem' }} />
                             }

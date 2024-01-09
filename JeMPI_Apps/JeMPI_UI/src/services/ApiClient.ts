@@ -18,7 +18,8 @@ import {
   InteractionWithScore,
   NotificationRequest,
   LinkRequest,
-  GoldenRecordCandidatesResponse
+  GoldenRecordCandidatesResponse,
+  DashboardData
 } from 'types/BackendResponse'
 import {
   GoldenRecord,
@@ -111,6 +112,13 @@ export class ApiClient {
       records: formattedRecords,
       pagination
     }
+  }
+
+  async getDashboardData() {
+    const { data } = await this.client.get<DashboardData>(
+      ROUTES.GET_DASHBOARD_DATA
+    )
+    return data
   }
 
   async getInteraction(uid: string) {
