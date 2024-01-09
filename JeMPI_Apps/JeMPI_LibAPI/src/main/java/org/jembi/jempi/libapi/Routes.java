@@ -542,6 +542,7 @@ public final class Routes {
 
                     return complete(StatusCodes.OK, dashboardDataResults, JSON_MARSHALLER);
                  } else {
+                    LOGGER.error("Error getting dashboard data ", result.failed().get());
                     return complete(StatusCodes.INTERNAL_SERVER_ERROR);
                  }
               });
