@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
-import org.jembi.jempi.libapi.mpi_stats.stats.m_and_u.MandUActor;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -146,7 +145,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
             .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
             .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
-            .onMessage(MandUActor.GetTallyMandURequest.class, (final MandUActor.GetTallyMandURequest request) -> MandUActor.process(request, libMPI))
             .build();
    }
 

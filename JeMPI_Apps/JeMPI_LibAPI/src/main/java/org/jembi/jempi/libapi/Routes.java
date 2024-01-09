@@ -7,6 +7,7 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
+import akka.http.javadsl.unmarshalling.Unmarshaller;
 import akka.japi.Pair;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
@@ -19,8 +20,7 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -505,22 +505,42 @@ public final class Routes {
            final Integer linkerPort,
            final Http http) {
 
-      final var uri = Uri
+      final var request = HttpRequest
               .create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIp,
                       linkerPort,
-                      GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA));
-      final var request = HttpRequest.GET(uri.path());
+                      GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA))
+              .withMethod(HttpMethods.GET);
 
+      CompletableFuture<BackEnd.SQLDashboardDataResponse> sqlDashboardDataFuture = Ask.getSQLDashboardData(actorSystem, backEnd).toCompletableFuture();
+      CompletableFuture<HttpResponse> dashboardDataFuture = http.singleRequest(request).toCompletableFuture();
       return onComplete(
               CompletableFuture.allOf(
-                      (CompletableFuture<?>) Ask.getSQLDashboardData(actorSystem, backEnd),
-                      (CompletableFuture<?>) http.singleRequest(request)
+                       sqlDashboardDataFuture,
+                       dashboardDataFuture
                       ),
               result -> {
                  if (result.isSuccess()) {
-                    return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                    HttpResponse dashboardDataResponse = dashboardDataFuture.join();
+                    if (dashboardDataResponse.status() != StatusCodes.OK) {
+                       LOGGER.error("Error getting dashboard data ");
+                       return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                    }
+
+                    String responseBody = null;
+                    try {
+                       responseBody = Unmarshaller.entityToString().unmarshal(dashboardDataResponse.entity(), actorSystem).
+                               toCompletableFuture().get(2, TimeUnit.SECONDS);
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                       LOGGER.error("Error getting dashboard data ", e);
+                       return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                    }
+
+                    Map<String, Object> dashboardDataResults = Map.ofEntries(Map.entry("sqlDashboardData", sqlDashboardDataFuture.join()),
+                                                                              Map.entry("dashboardData", responseBody));
+
+                    return complete(StatusCodes.OK, dashboardDataResults, JSON_MARSHALLER);
                  } else {
                     return complete(StatusCodes.INTERNAL_SERVER_ERROR);
                  }

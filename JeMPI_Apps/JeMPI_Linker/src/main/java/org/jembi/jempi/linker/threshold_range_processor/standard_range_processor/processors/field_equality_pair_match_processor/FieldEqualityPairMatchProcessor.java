@@ -25,8 +25,6 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
 
     private static final Logger LOGGER = LogManager.getLogger(FieldEqualityPairMatchProcessor.class);
     protected Interaction originalInteraction;
-    protected Map<String, String> originalInteractionDemographicDataMap;
-
     protected MuModel muModel;
 
     public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) { }
@@ -107,15 +105,15 @@ public class FieldEqualityPairMatchProcessor implements IThresholdRangeSubProces
             return false;
         }
 
-        Optional<InteractionWithScore> originalInteraction = linkedGoldenRecord.interactionsWithScore().stream().filter(i -> Objects.equals(i.interaction().interactionId(), data.notificationResolution().interactionId())).findFirst();
+        Optional<InteractionWithScore> originalLinkedInteraction = linkedGoldenRecord.interactionsWithScore().stream().filter(i -> Objects.equals(i.interaction().interactionId(), data.notificationResolution().interactionId())).findFirst();
 
-        if (originalInteraction.isPresent()) {
-            updateFieldEqualityPairMatchMatrixField(linkedGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), true);
+        if (originalLinkedInteraction.isPresent()) {
+            updateFieldEqualityPairMatchMatrixField(linkedGoldenRecord.goldenRecord().demographicData(), originalLinkedInteraction.get().interaction().demographicData(), true);
 
             ArrayList<String> candidates = data.notificationResolution().currentCandidates().stream().filter(c -> !Objects.equals(c, linkedGoldenRecord.goldenRecord().goldenId())).collect(Collectors.toCollection(ArrayList::new));
 
             for (ExpandedGoldenRecord candidateGoldenRecord : libMPI.findExpandedGoldenRecords(candidates)) {
-                updateFieldEqualityPairMatchMatrixField(candidateGoldenRecord.goldenRecord().demographicData(), originalInteraction.get().interaction().demographicData(), false);
+                updateFieldEqualityPairMatchMatrixField(candidateGoldenRecord.goldenRecord().demographicData(), originalLinkedInteraction.get().interaction().demographicData(), false);
             }
 
             return true;
