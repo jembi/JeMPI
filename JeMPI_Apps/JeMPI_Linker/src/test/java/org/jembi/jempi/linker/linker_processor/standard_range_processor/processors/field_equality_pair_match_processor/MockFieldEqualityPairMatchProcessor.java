@@ -10,9 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class MockFieldEqualityPairMatchProcessor extends FieldEqualityPairMatchProcessor {
-    public MockFieldEqualityPairMatchProcessor(String linkerId, Interaction originalInteraction) {
-        super(linkerId, originalInteraction);
-    }
+
 
     public String getLinkerId(){
         return this.linkerId;
@@ -27,7 +25,10 @@ public class MockFieldEqualityPairMatchProcessor extends FieldEqualityPairMatchP
     }
 
     public static  MockFieldEqualityPairMatchProcessor getMockInstance(final String linkerId, final Interaction mockInteraction){
-        return new MockFieldEqualityPairMatchProcessor(linkerId == null ?  UUID.randomUUID().toString() : linkerId,
-                                                        mockInteraction == null ? MockInteractionCreator.interactionFromDemographicData(null, null): mockInteraction);
+        MockFieldEqualityPairMatchProcessor m = (MockFieldEqualityPairMatchProcessor) new MockFieldEqualityPairMatchProcessor()
+                .setLinkerId(linkerId == null ?  UUID.randomUUID().toString() : linkerId)
+                .setOriginalInteraction(mockInteraction == null ? MockInteractionCreator.interactionFromDemographicData(null, null): mockInteraction);
+
+        return m;
     }
 }

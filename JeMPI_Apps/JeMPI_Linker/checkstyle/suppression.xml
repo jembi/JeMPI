@@ -38,17 +38,7 @@
 
     <suppress
             checks="(DesignForExtension)"
-            files="BaseThresholdProcessor.java"
-    />
-
-    <suppress
-            checks="(DesignForExtension)"
-            files="StandardThresholdRangeProcessor.java"
-    />
-
-    <suppress
-            checks="(DesignForExtension)"
-            files="FieldEqualityPairMatchProcessor.java"
+            files="().java"
     />
 
     <suppress

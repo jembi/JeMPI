@@ -30,7 +30,7 @@ public class FieldEqualityPairMatchProcessor extends SubProcessor implements ITh
 
     public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) { }
 
-    List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(final List<CategorisedCandidates> candidates) {
+    protected List<PairMatchUnmatchedCandidates> getPairMatchUnMatchedCandidates(final List<CategorisedCandidates> candidates) {
          Boolean[] firstMatch = {true};
 
         return candidates.stream()
@@ -58,7 +58,7 @@ public class FieldEqualityPairMatchProcessor extends SubProcessor implements ITh
             muModel.updateFieldEqualityPairMatchMatrix(field.getKey(), fieldScoreInfo.isMatch(), isPairMatch);
         }
     }
-    void updateFieldEqualityPairMatchMatrix(final List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
+    protected void updateFieldEqualityPairMatchMatrix(final List<PairMatchUnmatchedCandidates> pairMatchUnmatchedCandidates) throws ExecutionException, InterruptedException {
         LOGGER.info(String.format("FieldEqualityPairMatchProcessor: Processing %d candidates", pairMatchUnmatchedCandidates.size()));
 
         for (PairMatchUnmatchedCandidates pairMatchCandidate : pairMatchUnmatchedCandidates) {

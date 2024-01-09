@@ -17,7 +17,7 @@ import org.jembi.jempi.shared.models.dashboard.LinkerStats;
 import java.util.concurrent.ExecutionException;
 
 
-public class LinkerStatsProcessor extends SubProcessor implements IOnNewInteractionProcessor, IDashboardDataProducer<LinkerStats> {
+public final class LinkerStatsProcessor extends SubProcessor implements IOnNewInteractionProcessor, IDashboardDataProducer<LinkerStats> {
     private static final Logger LOGGER = LogManager.getLogger(LinkerStatsProcessor.class);
 
     private LinkerProgressKGlobalStoreInstance getStore() throws ExecutionException, InterruptedException {

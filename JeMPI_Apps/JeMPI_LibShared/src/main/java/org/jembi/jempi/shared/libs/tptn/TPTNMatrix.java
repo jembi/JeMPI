@@ -2,7 +2,7 @@ package org.jembi.jempi.shared.libs.tptn;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TPTNMatrix {
+public final class TPTNMatrix {
 
     public TPTNMatrix() { }
     public TPTNMatrix(final long truePositive, final long trueNegative, final long falsePositive, final long falseNegative) {
