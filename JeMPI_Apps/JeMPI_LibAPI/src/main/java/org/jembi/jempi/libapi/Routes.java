@@ -16,7 +16,7 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
@@ -212,24 +212,24 @@ public final class Routes {
    public static Route getNotifications(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("limit",
-                       limit -> parameter("offset",
-                                          offset -> parameter("date",
-                                                              date -> parameter("state",
-                                                                                state -> onComplete(Ask.getNotifications(
-                                                                                                          actorSystem,
-                                                                                                          backEnd,
-                                                                                                          Integer.parseInt(limit),
-                                                                                                          Integer.parseInt(offset),
-                                                                                                          LocalDate.parse(date),
-                                                                                                          state),
-                                                                                                    result -> result.isSuccess()
-                                                                                                          ?
-                                                                                                          complete(StatusCodes.OK,
-                                                                                                                     result.get(),
-                                                                                                                     JSON_MARSHALLER)
-                                                                                                          : complete(ApiModels.getHttpErrorResponse(
-                                                                                                                StatusCodes.IM_A_TEAPOT)))))));
+      return
+            parameter("limit", limit ->
+                  parameter("offset", offset ->
+                        parameter("startDate", startDate ->
+                              parameter("endDate", endDate ->
+                                    parameter("states", states ->
+                                          onComplete(Ask.getNotifications(actorSystem,
+                                                                    backEnd,
+                                                                    Integer.parseInt(limit),
+                                                                    Integer.parseInt(offset),
+                                                                    Timestamp.valueOf(startDate),
+                                                                    Timestamp.valueOf(endDate),
+                                                                    Stream.of(states.split(",")).map(String::trim).toList()),
+                                               result -> result.isSuccess()
+                                                     ? complete(StatusCodes.OK,
+                                                                result.get(),
+                                                                JSON_MARSHALLER)
+                                                     : complete(StatusCodes.IM_A_TEAPOT)))))));
    }
 
    public static Route getExpandedGoldenRecordsUsingParameterList(

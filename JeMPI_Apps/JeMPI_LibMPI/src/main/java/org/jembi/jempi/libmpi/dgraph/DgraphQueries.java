@@ -363,8 +363,8 @@ final class DgraphQueries {
    }
 
    private static String getSimpleSearchQueryFilters(
-         final RecordType recordType,
-         final List<ApiModels.ApiSearchParameter> parameters) {
+           final RecordType recordType,
+           final List<ApiModels.ApiSearchParameter> parameters) {
       List<String> gqlFilters = new ArrayList<>();
       for (ApiModels.ApiSearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
@@ -372,9 +372,20 @@ final class DgraphQueries {
             Integer distance = param.distance();
             String value = param.value();
             if (distance == -1) {
-               gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               if (value.contains("_")) {
+                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
+                          + "\") AND le("
+                          + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
+               } else {
+                  gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               }
             } else if (distance == 0) {
-               gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               if (value.contains("_")) {
+                  gqlFilters.add(
+                          "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
+               } else {
+                  gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               }
             } else {
                gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
