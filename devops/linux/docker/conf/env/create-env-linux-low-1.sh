@@ -22,6 +22,7 @@ export SCALE_POSTGRESQL=1
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
 export POSTGRESQL_DATABASE="postgres"
+export POSTGRESQL_USERS_DB="users_db"
 export POSTGRESQL_NOTIFICATIONS_DB="notifications_db"
 export POSTGRESQL_AUDIT_DB="audit_db"
 export POSTGRESQL_KC_TEST_DB="kc_test_db"
@@ -32,7 +33,7 @@ export DGRAPH_PORTS="9080"
 
 # Ports
 export API_HTTP_PORT=50000
-export API_KC_HTTP_PORT=50001
+export API_KC_HTTP_PORT=50000
 export ETL_HTTP_PORT=50000
 export CONTROLLER_HTTP_PORT=50000
 export LINKER_HTTP_PORT=50000
@@ -52,10 +53,10 @@ export JEMPI_SESSION_DOMAIN_NAME="localhost"
 # NODE_ENV production || development
 export NODE_ENV="production"
 export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
-export REACT_APP_JEMPI_BASE_API_PORT=50000
+export REACT_APP_JEMPI_BASE_API_PORT=50001
 export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
-export KC_FRONTEND_URL="http://localhost:8080"
+export REACT_APP_ENABLE_SSO="true"
+export KC_FRONTEND_URL=http://${NODE1_IP}:8080
 
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="8G"

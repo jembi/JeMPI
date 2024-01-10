@@ -9,7 +9,7 @@ public class QueryRunner {
    private static final String URL = String.format("jdbc:postgresql://%s:%d/%s",
                                                    AppConfig.POSTGRESQL_IP,
                                                    AppConfig.POSTGRESQL_PORT,
-                                                   AppConfig.POSTGRESQL_AUDIT_DB);
+                                                   AppConfig.POSTGRESQL_USERS_DB);
 
    protected final Connection establishConnection() throws SQLException {
       return DriverManager.getConnection(URL, AppConfig.POSTGRESQL_USER, AppConfig.POSTGRESQL_PASSWORD);
