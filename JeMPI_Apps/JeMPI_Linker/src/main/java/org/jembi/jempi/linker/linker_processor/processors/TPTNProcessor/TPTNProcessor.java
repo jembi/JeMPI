@@ -59,23 +59,24 @@ public final class TPTNProcessor extends SubProcessor implements IThresholdRange
 
     @Override
     public boolean processOnNotificationResolution(final NotificationResolutionProcessorData notificationResolutionProcessorData, final LibMPI libMPI) throws Exception {
+        LOGGER.info(String.format("Updating the tptn values based on a notification resolution. Notification Id: %s", notificationResolutionProcessorData.notificationResolution().notificationId()));
+
         TPTNMatrix tptnMatrix = new TPTNMatrix();
         TPTNKGlobalStoreInstance store = getStore();
         NotificationResolution resolution = notificationResolutionProcessorData.notificationResolution();
-        if (Objects.equals(resolution.resolutionState(), "APPROVED")) {
-            if (Objects.equals(resolution.resolutionState(), "ABOVE THRESHOLD")) {
-                tptnMatrix.updateTruePositive(1);
-            }
 
-            if (Objects.equals(resolution.resolutionState(), "BELOW THRESHOLD")) {
+        LOGGER.info(resolution.resolutionState());
+        LOGGER.info(resolution.notificationType());
+        if (Objects.equals(resolution.resolutionState(), "APPROVED")) {
+            if (Objects.equals(resolution.notificationType(), "ABOVE THRESHOLD")) {
+                tptnMatrix.updateTruePositive(1);
+            } else if (Objects.equals(resolution.notificationType(), "BELOW THRESHOLD")) {
                 tptnMatrix.updateTrueNegative(1);
             }
         } else {
-            if (Objects.equals(resolution.resolutionState(), "ABOVE THRESHOLD")) {
+            if (Objects.equals(resolution.notificationType(), "ABOVE THRESHOLD")) {
                 tptnMatrix.updateFalsePositive(1);
-            }
-
-            if (Objects.equals(resolution.resolutionState(), "BELOW THRESHOLD")) {
+            } else if (Objects.equals(resolution.notificationType(), "BELOW THRESHOLD")) {
                 tptnMatrix.updateFalseNegative(1);
             }
         }

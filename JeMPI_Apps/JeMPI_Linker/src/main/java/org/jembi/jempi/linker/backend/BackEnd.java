@@ -100,10 +100,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
       libMPI.startTransaction();
-      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
-         LOGGER.error("Create Schema Error");
-      }
-      libMPI.closeTransaction();
    }
 
    @Override
@@ -291,7 +287,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    private Behavior<Request> onNotificationResolutionHandler(final OnNotificationResolutionRequest request) {
 
-      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : new ProcessorsRegistry().getOnNotificationResolutionProcessors(null)) {
+      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : new ProcessorsRegistry().getOnNotificationResolutionProcessors(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME)) {
          try {
             notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
          } catch (Exception e) {
@@ -308,7 +304,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
       HashMap<String, Object> dashboardData = new HashMap<>();
 
-      for (IDashboardDataProducer<?> dashboardDataProducer : new ProcessorsRegistry().getDashboardDataProducerProcessors(null)) {
+      for (IDashboardDataProducer<?> dashboardDataProducer : new ProcessorsRegistry().getDashboardDataProducerProcessors(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME)) {
          try {
             dashboardData.put(dashboardDataProducer.getDashboardDataName(), dashboardDataProducer.getDashboardData(libMPI));
          } catch (Exception e) {
