@@ -35,7 +35,7 @@ export const DashboardDataProvider = ({
   } = useQuery<DashboardData, AxiosError>({
     queryKey: ['dashboardData'],
     queryFn: async () =>  apiClient.getDashboardData().then(r => {
-            r.linkerDashboardData = JSON.parse(r.linkerDashboardData)
+            r.dashboardData = JSON.parse(r.dashboardData)
             return r
         }),
     refetchOnWindowFocus: false,

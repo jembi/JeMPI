@@ -66,7 +66,7 @@ export interface Interaction {
 export interface DashboardData {
   // TODO: Later make the types more specifc
   sqlDashboardData: any
-  linkerDashboardData: any
+  dashboardData: any
 }
 
 export interface GoldenRecordCandidatesResponse {

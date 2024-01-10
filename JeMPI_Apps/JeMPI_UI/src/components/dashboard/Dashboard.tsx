@@ -110,7 +110,7 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="Golden Record"
-                            value={10000}
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.goldenRecordCount : 0}
                             icon={<Person sx={{ fontSize: '3.5rem' }} />}
                             iconBackgroundColor={'#FFD700'}
                           />
@@ -118,7 +118,7 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="Interactions "
-                            value={20000}
+                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.interactionsCount : 0}
                             icon={<Layers sx={{ fontSize: '3.5rem' }} />}
                             iconBackgroundColor={'primary.main'}
                           />
@@ -154,14 +154,14 @@ const Dashboard = () => {
                     </Box>
                   </Grid>
                   <Grid item xs={12}>
-                    <BetaFscore />
+                    <BetaFscore data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.tptn?.tptnfScore : null} />
                   </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12} lg={6}>
                 <Box component="fieldset" minHeight={'550px'}>
                   <legend>Confusion Matrix</legend>
-                  <ConfusionMatrix />
+                  <ConfusionMatrix data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.tptn : null}  />
                 </Box>
               </Grid>
             </Grid>
@@ -169,12 +169,12 @@ const Dashboard = () => {
           <CustomTabPanel value={currentTabIndex} index={1}>
             <Grid container sx={{ minHeight: { lg: '450px' } }}>
               <Grid item xs={6}>
-                <MandU data={dashboardData.isReady ? dashboardData?.data?.linkerDashboardData?.dashboardData?.m_and_u : null} />
+                <MandU data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.m_and_u : null} />
               </Grid>
             </Grid>
           </CustomTabPanel>
           <CustomTabPanel value={currentTabIndex} index={2}>
-            <ImportProcessWidget />
+            <ImportProcessWidget data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.linkerProgressStats : null} />
           </CustomTabPanel>
         </Box>
       </Stack>
