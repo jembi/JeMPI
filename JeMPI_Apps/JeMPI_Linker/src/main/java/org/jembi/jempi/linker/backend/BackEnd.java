@@ -292,7 +292,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> onNotificationResolutionHandler(final OnNotificationResolutionRequest request) {
 
       for (IOnNotificationResolutionProcessor notificationResolutionProcessor : new ProcessorsRegistry().getOnNotificationResolutionProcessors(null)) {
-         notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
+         try {
+            notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
+         } catch (Exception e) {
+            LOGGER.error("An error occurred trying OnNotificationResolution", e);
+         }
+
       }
       request.replyTo.tell(new OnNotificationResolutionResponse(true));
       return Behaviors.same();

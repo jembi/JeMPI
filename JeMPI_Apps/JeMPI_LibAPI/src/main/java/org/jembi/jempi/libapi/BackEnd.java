@@ -398,8 +398,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> patchIidGidLinkHandler(final PatchIidGidLinkRequest request) {
-      var result = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
-      request.replyTo.tell(new PatchIidGidLinkResponse(result));
+
+
+      if (!Objects.equals(request.currentGoldenId, request.newGoldenId)) {
+         var result = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+         request.replyTo.tell(new PatchIidGidLinkResponse(result));
+      } else {
+         request.replyTo.tell(new PatchIidGidLinkResponse(Either.right(new LinkInfo(request.newGoldenId, request.patientId, request.score))));
+      }
+
+
       return Behaviors.same();
    }
 
@@ -442,7 +450,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       File file = request.file();
       try {
-         Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
+         String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
+         Files.copy(file.toPath(), Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName()));
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");

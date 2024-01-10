@@ -11,6 +11,7 @@ import org.jembi.jempi.shared.libs.tptn.TPTNAccessor;
 import org.jembi.jempi.shared.libs.tptn.TPTNKGlobalStoreInstance;
 import org.jembi.jempi.shared.libs.tptn.TPTNMatrix;
 import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.NotificationResolution;
 import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
 import org.jembi.jempi.shared.models.dashboard.TPTNFScore;
 import org.jembi.jempi.shared.models.dashboard.TPTNStats;
@@ -57,8 +58,30 @@ public final class TPTNProcessor extends SubProcessor implements IThresholdRange
     }
 
     @Override
-    public boolean processOnNotificationResolution(final NotificationResolutionProcessorData notificationResolutionProcessorData, final LibMPI libMPI) {
-        return false;
+    public boolean processOnNotificationResolution(final NotificationResolutionProcessorData notificationResolutionProcessorData, final LibMPI libMPI) throws Exception {
+        TPTNMatrix tptnMatrix = new TPTNMatrix();
+        TPTNKGlobalStoreInstance store = getStore();
+        NotificationResolution resolution = notificationResolutionProcessorData.notificationResolution();
+        if (Objects.equals(resolution.resolutionState(), "APPROVED")) {
+            if (Objects.equals(resolution.resolutionState(), "ABOVE THRESHOLD")) {
+                tptnMatrix.updateTruePositive(1);
+            }
+
+            if (Objects.equals(resolution.resolutionState(), "BELOW THRESHOLD")) {
+                tptnMatrix.updateTrueNegative(1);
+            }
+        } else {
+            if (Objects.equals(resolution.resolutionState(), "ABOVE THRESHOLD")) {
+                tptnMatrix.updateFalsePositive(1);
+            }
+
+            if (Objects.equals(resolution.resolutionState(), "BELOW THRESHOLD")) {
+                tptnMatrix.updateFalseNegative(1);
+            }
+        }
+
+        store.updateValue(tptnMatrix);
+        return true;
     }
 
     private TPTNKGlobalStoreInstance getStore() throws ExecutionException, InterruptedException {
