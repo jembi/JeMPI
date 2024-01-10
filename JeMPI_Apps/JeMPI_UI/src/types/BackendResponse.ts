@@ -11,10 +11,14 @@ export interface NotificationRequest {
 }
 
 export interface LinkRequest {
-  goldenID: string
-  patientID: string
-  newGoldenID?: string,
-  candidates?: string[]
+  notificationId: string
+  notificationType: String
+  interactionId: string
+  resolutionState: string
+  currentGoldenId: string
+  currentCandidates: string[]
+  newGoldenId: string
+  score?: Number
 }
 
 export interface NotificationResponse {

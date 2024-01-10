@@ -13,6 +13,7 @@ public record NotificationResolution(
         @JsonProperty(value = "currentGoldenId", required = true) String currentGoldenId,
         @JsonProperty(value = "currentCandidates", required = true) ArrayList<String> currentCandidates,
         @JsonProperty(value = "newGoldenId", required = true) String newGoldenId,
+        @JsonProperty(value = "notificationType", required = true) String notificationType,
         @JsonProperty("score") Float score
 ) {
 

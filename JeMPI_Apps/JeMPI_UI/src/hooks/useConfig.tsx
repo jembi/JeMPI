@@ -10,6 +10,7 @@ import { getApiClient } from '../services/ApiClient'
 export interface ConfigContextValue {
   config: Config
   apiClient: ApiClient
+  matchThreshold: number
 }
 
 const ConfigContext = React.createContext<ConfigContextValue | null>(null)
@@ -49,7 +50,9 @@ export const ConfigProvider = ({
     <ConfigContext.Provider
       value={{
         config,
-        apiClient
+        apiClient,
+        // TODO: Remove, do this properly
+        matchThreshold: 0.65
       }}
     >
       {children}

@@ -28,10 +28,11 @@ import CustomPagination from 'components/shared/CustomDataGridPagination'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import MultiSelect from 'components/shared/MultiSelect'
+import { THRESHOLD_SPECIFIC_REASON } from 'utils/constants'
 
 const NotificationWorklist = () => {
   const navigate = useNavigate()
-  const { apiClient } = useConfig()
+  const { apiClient, matchThreshold } = useConfig()
   const [selectedStates, setSelectedStates] = useState([NotificationState.OPEN])
   const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
     dayjs().startOf('day')
@@ -163,7 +164,9 @@ const NotificationWorklist = () => {
                   }
                 }}
                 columns={NOTIFICATIONS_COLUMNS}
-                rows={data.records as Notification[]}
+                rows={(data.records as Notification[]).map((d: Notification) => { 
+                    return {...d, type: d.score >= matchThreshold ? THRESHOLD_SPECIFIC_REASON.ABOVE : THRESHOLD_SPECIFIC_REASON.BELOW }
+                  } )}
                 slots={{ pagination: CustomPagination }}
                 pageSizeOptions={[25, 50, 100]}
                 paginationModel={paginationModel}
@@ -183,6 +186,7 @@ const NotificationWorklist = () => {
                       state: {
                         payload: {
                           notificationId: params.row.id,
+                          notificationType: params.row.type,
                           patient_id: params.row.patient_id,
                           golden_id: params.row.golden_id,
                           score: params.row.score,

@@ -32,6 +32,7 @@ import UnlinkingDialog from './UnlinkingDialog'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
 import { NotificationRequest } from 'types/BackendResponse'
+import { RESOLUTION_TYPES } from 'utils/constants'
 
 const getRowClassName = (type?: string) => {
   switch (type) {
@@ -98,13 +99,17 @@ const ReviewLink = () => {
     )
   }
 
-  const createGoldenRecord = (id: string) => {
+  const createGoldenRecord = (id: string, resolutionState:string) => {
     createNewGoldenRecord.mutate(
       {
-        patientID: payload?.patient_id || '',
-        goldenID: goldenRecord ? goldenRecord.uid : '',
-        newGoldenID: id,
-        candidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : []
+        notificationId: payload?.notificationId,
+        notificationType: payload?.notificationType,
+        interactionId: payload.patient_id || '',
+        currentGoldenId: goldenRecord ? goldenRecord.uid : '',
+        resolutionState: resolutionState,
+        currentCandidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : [],
+        newGoldenId: id,
+        score: payload?.score
       },
       {
         onSuccess: data => {
@@ -114,7 +119,7 @@ const ReviewLink = () => {
           enqueueSnackbar('New record linked', {
             variant: 'success'
           })
-          navigate(`/record-details/${data.goldenUID}`)
+          navigate(`/record-details/${(data as any).goldenUID}`)
         },
         onError: (error: AxiosError) => {
           enqueueSnackbar(
@@ -129,14 +134,18 @@ const ReviewLink = () => {
     )
   }
 
-  const linkToCandidateRecord = (id: string) => {
+  const linkToCandidateRecord = (id: string, resolutionState: string) => {
     goldenRecord &&
       linkRecords.mutate(
         {
-          patientID: payload.patient_id,
-          goldenID: goldenRecord.uid,
-          newGoldenID: id,
-          candidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : []
+          notificationId: payload?.notificationId,
+          notificationType: payload?.notificationType,
+          interactionId: payload.patient_id,
+          currentGoldenId: goldenRecord.uid,
+          resolutionState: resolutionState,
+          currentCandidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : [],
+          newGoldenId: id,
+          score: payload?.score
         },
         {
           onSuccess: () => {
@@ -323,18 +332,18 @@ const ReviewLink = () => {
         <UnlinkingDialog
           isOpen={isNewGoldenRecordDialogOpen}
           onClose={() => handleModalCancel()}
-          onConfirm={() => createGoldenRecord(canditateUID)}
+          onConfirm={() => createGoldenRecord(canditateUID, RESOLUTION_TYPES.RELINKED_NEW)}
         />
         <CloseNotificationDialog
           isOpen={isAcceptLinkDialogOpen}
           onClose={handleModalCancel}
-          onConfirm={() => linkToCandidateRecord(goldenRecord?.uid)}
+          onConfirm={() => linkToCandidateRecord(goldenRecord?.uid, RESOLUTION_TYPES.APPROVED)}
         />
         <LinkRecordsDialog
           isOpen={isLinkRecordDialogOpen}
           data={tableData}
           onClose={handleModalCancel}
-          onConfirm={() => linkToCandidateRecord(canditateUID)}
+          onConfirm={() => linkToCandidateRecord(canditateUID, RESOLUTION_TYPES.RELINKED)}
         />
       </Stack>
     </Container>
