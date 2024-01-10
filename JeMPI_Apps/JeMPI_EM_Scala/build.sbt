@@ -18,9 +18,9 @@ lazy val root = (project in file("."))
       // https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams-scala
       "org.apache.kafka" %% "kafka-streams-scala" % "3.6.1",
       // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.16.0",
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.16.1",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1",
       // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
       "ch.qos.logback" % "logback-classic" % "1.4.14"
     ),
