@@ -22,6 +22,6 @@ pushd .
   docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 
 
-  ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
+  # ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
 
 popd

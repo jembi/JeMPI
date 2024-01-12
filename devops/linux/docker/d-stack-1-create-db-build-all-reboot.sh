@@ -18,10 +18,13 @@ sleep 2
 
 echo
 echo Up app containers
-# source ./helper/scripts/d-stack-create-dirs.sh
+source ./helper/scripts/d-stack-create-dirs.sh
 sleep 2
 source ./helper/scripts/d-stack-deploy-0.sh
 sleep 2
 source ./helper/scripts/d-stack-up-hub-containers.sh
 sleep 2
+source ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
+sleep 2
 source ./helper/scripts/d-stack-up-app-containers.sh
+

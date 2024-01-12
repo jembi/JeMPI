@@ -99,9 +99,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
       libMPI.startTransaction();
-      if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
-         LOGGER.error("Create Schema Error");
-      }
+      // if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
+      //    LOGGER.error("Create Schema Error");
+      // }
       libMPI.closeTransaction();
    }
 
