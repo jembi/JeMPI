@@ -17,7 +17,7 @@ echo "6. Destroy JeMPI (This process will wipe all data)."
 
 
 # Prompt user for choice
-read -p "Enter your choice (1-5): " choice
+read -p "Enter your choice (1-6): " choice
 
 # Function to ask for confirmation
 confirm() {
