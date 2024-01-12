@@ -130,8 +130,7 @@ final class PsqlNotifications {
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =
-               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
-               + "')";
+               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
          stmt.addBatch(sql);
 
 

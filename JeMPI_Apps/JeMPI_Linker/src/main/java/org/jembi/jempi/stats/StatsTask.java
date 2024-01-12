@@ -17,6 +17,7 @@ import java.util.*;
 
 import static java.lang.Math.min;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 
 public final class StatsTask {
 
@@ -106,7 +107,6 @@ public final class StatsTask {
    }
 
    private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
-      /*
       final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
@@ -123,7 +123,6 @@ public final class StatsTask {
       } else {
          entry.add(new GoldenRecordMembers(goldenRecordAuxId, list));
       }
-      */
    }
 
    private void processSubList(
@@ -158,7 +157,6 @@ public final class StatsTask {
             LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
          }
 
-/*
          int fromIdx;
          int toIdx;
          for (long i = 0; i < subLists; i++) {
@@ -199,19 +197,21 @@ public final class StatsTask {
          if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Golden Records Found: {}", dataSet.size());
             LOGGER.info("TP:{}  FP:{}  FN:{}  Precision:{}  Recall:{}  F-score:{}",
-                        truePositives[0], falsePositives[0], falseNegatives[0],
-                        precision, recall, fScore);
+                        truePositives[0],
+                        falsePositives[0],
+                        falseNegatives[0],
+                        precision,
+                        recall,
+                        fScore);
          }
-         return new StatsResults(
-               interactionCount,
-               goldenRecords,
-               truePositives[0],
-               falsePositives[0],
-               falseNegatives[0],
-               precision,
-               recall,
-               fScore);
-*/
+         return new StatsResults(interactionCount,
+                                 goldenRecords,
+                                 truePositives[0],
+                                 falsePositives[0],
+                                 falseNegatives[0],
+                                 precision,
+                                 recall,
+                                 fScore);
       } catch (IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

@@ -7,6 +7,7 @@ import org.apache.kafka.streams.StreamsConfig;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+
 public final class KafkaTopicManager {
 
    private final AdminClient adminClient;
@@ -22,7 +23,7 @@ public final class KafkaTopicManager {
    }
 
    public Map<String, TopicDescription> describeTopic(final String topic) throws ExecutionException, InterruptedException {
-      return adminClient.describeTopics(Arrays.asList(topic)).allTopicNames().get();
+      return adminClient.describeTopics(Collections.singletonList(topic)).allTopicNames().get();
    }
 
    public void createTopic(
@@ -35,7 +36,7 @@ public final class KafkaTopicManager {
 
       HashMap<String, String> config = new HashMap<>();
       config.put(TopicConfig.RETENTION_MS_CONFIG, Integer.toString(retention_ms));
-      config.put(TopicConfig.SEGMENT_BYTES_CONFIG,  Integer.toString(segments_bytes));
+      config.put(TopicConfig.SEGMENT_BYTES_CONFIG, Integer.toString(segments_bytes));
 
       newTopic.configs(config);
       KafkaFuture<Void> createFuture = adminClient.createTopics(Collections.singleton(newTopic)).all();

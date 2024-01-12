@@ -8,16 +8,14 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "deleteAllSchemaData", mixinStandardHelpOptions = true, description = "Delete all the data and schema used by JeMPI.")
+@CommandLine.Command(name = "deleteAllSchemaData", mixinStandardHelpOptions = true, description = "Delete all the data and " +
+                                                                                                  "schema used by JeMPI.")
 public class DeleteAllSchemaDataCommand extends BaseCLICommand implements Callable<Integer> {
-    @Override
-    public Integer call() throws Exception {
+   @Override
+   public Integer call() throws Exception {
 
-        return this.execute(() -> this.callMultiple(new BaseDataBootstrapperCommand[]
-                {
-                        new PostgresDeleteAllCommand(),
-                        new DgraphDeleteAllCommand(),
-                        new KafkaDeleteAllCommand()
-                }));
-    }
+      return this.execute(() -> this.callMultiple(new BaseDataBootstrapperCommand[]{new PostgresDeleteAllCommand(),
+                                                                                    new DgraphDeleteAllCommand(),
+                                                                                    new KafkaDeleteAllCommand()}));
+   }
 }
