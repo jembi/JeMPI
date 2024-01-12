@@ -4,12 +4,13 @@ import scala.util.parsing.combinator.JavaTokenParsers
 
 object ParseRule extends JavaTokenParsers {
 
-  import Ast._
+  import Ast.*
 
   def parse(str: String): Ast.Expression =
     parseAll(expression, str) match {
       case Success(result, _) => result
-      case failedOrIncomplete => throw new RuntimeException(failedOrIncomplete.toString)
+      case failedOrIncomplete =>
+        throw new RuntimeException(failedOrIncomplete.toString)
     }
 
   private def expression: Parser[Expression] =
@@ -18,11 +19,10 @@ object ParseRule extends JavaTokenParsers {
   private def combinationExpression: Parser[Expression] =
     comment.? ~> or | and <~ comment.?
 
-  /**
-   * Expressions that can be used as left part of recursive expression
-   *
-   * @return
-   */
+  /** Expressions that can be used as left part of recursive expression
+    *
+    * @return
+    */
   private def leftExpression: Parser[Expression] =
     comment.? ~> not | brackets | matchField | eqField <~ comment.?
 
@@ -33,7 +33,9 @@ object ParseRule extends JavaTokenParsers {
     "eq" ~ "(" ~>! variable <~! ")" ^^ (parameter => Eq.apply(parameter))
 
   private def matchField: Parser[Match] =
-    "match" ~ "(" ~>! matchParameters <~! ")" ^^ (parameters => Match.apply(parameters._1, parameters._2))
+    "match" ~ "(" ~>! matchParameters <~! ")" ^^ (parameters =>
+      Match.apply(parameters._1, parameters._2)
+    )
 
   private def matchParameters: Parser[(Variable, Int)] =
     variable ~! matchDistance ^^ (parameters => (parameters._1, parameters._2))

@@ -103,9 +103,8 @@ public final class Cache {
             expandedGoldenRecord.interactionsWithScore()
                                 .forEach(interactionWithScore -> rowData.add(getInteractionVector(interactionWithScore)));
             base = (base + (BUFFER_SIZE - 1)) % BUFFER_SIZE;
-            buffer[base] = new BufferItem(fromGidIndex[0] + i,
-                                          buffer[(base + 1) % BUFFER_SIZE].rowNumber - rowData.size(),
-                                          rowData);
+            buffer[base] =
+                  new BufferItem(fromGidIndex[0] + i, buffer[(base + 1) % BUFFER_SIZE].rowNumber - rowData.size(), rowData);
          }
          synchronized (LOCK) {
             Cache.totalFetched -= fillSize;
@@ -141,13 +140,11 @@ public final class Cache {
          int rowNumber = 0;
          for (int i = 0; i < BUFFER_SIZE; i++) {
             int startRow = rowNumber;
-            final var expandedGoldenRecord =
-                  API_CLIENT.getGoldenRecordsInteractions(List.of(GID_BUFFER.get(i))).get(0);
+            final var expandedGoldenRecord = API_CLIENT.getGoldenRecordsInteractions(List.of(GID_BUFFER.get(i))).get(0);
             final ArrayList<String[]> rowData = new ArrayList<>();
             rowData.add(getGoldenRecordVector(expandedGoldenRecord));
-            expandedGoldenRecord
-                  .interactionsWithScore()
-                  .forEach(interactionWithScore -> rowData.add(getInteractionVector(interactionWithScore)));
+            expandedGoldenRecord.interactionsWithScore()
+                                .forEach(interactionWithScore -> rowData.add(getInteractionVector(interactionWithScore)));
             rowNumber += (1 + expandedGoldenRecord.interactionsWithScore().size());
             buffer[i] = new BufferItem(i, startRow, rowData);
          }

@@ -2,10 +2,12 @@ package org.jembi.jempi.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 final class PsqlNotifications {
@@ -21,24 +23,28 @@ final class PsqlNotifications {
          final String type,
          final String patientNames,
          final Float score,
-         final Long created,
+         final Timestamp created,
          final String gID,
          final String dID) throws SQLException {
 
-      psqlClient.connect();
-      try (Statement stmt = psqlClient.createStatement()) {
-
-         // Set auto-commit to false
+      psqlClient.connect(AppConfig.POSTGRESQL_NOTIFICATIONS_DB);
+      String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      try (PreparedStatement pstmt = psqlClient.prepareStatement(sql)) {
          psqlClient.setAutoCommit(false);
-         Date res = new Date(created);
-         String state = "New";
-
-         String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) "
-                      + "VALUES ('" + id + "','" + type + "','" + state + "','" + patientNames + "', '" + res + "', '" + dID
-                      + "', '" + gID + "', '" + score + "')";
-         stmt.addBatch(sql);
-         stmt.executeBatch();
-         psqlClient.commit();
+         pstmt.setObject(1, id);
+         pstmt.setString(2, type);
+         pstmt.setString(3, "OPEN");
+         pstmt.setString(4, patientNames);
+         pstmt.setTimestamp(5, created);
+         pstmt.setString(6, dID);
+         pstmt.setString(7, gID);
+         pstmt.setFloat(8, score);
+         pstmt.executeUpdate();
+      } catch (SQLException e) {
+         LOGGER.error("Error executing INSERT statement: {}", e.getMessage(), e);
+      } finally {
+         psqlClient.setAutoCommit(true);
       }
    }
 
@@ -46,12 +52,11 @@ final class PsqlNotifications {
          final UUID id,
          final Float score,
          final String gID) throws SQLException {
-      psqlClient.connect();
+      psqlClient.connect(AppConfig.POSTGRESQL_NOTIFICATIONS_DB);
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =
-               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
-               + "')";
+               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
          stmt.addBatch(sql);
          stmt.executeBatch();
          psqlClient.commit();

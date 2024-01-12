@@ -10,11 +10,11 @@ pushd .
   source ./conf.env
 
   declare -a SERVICES=(
+    haproxy
     async-receiver
-    sync-receiver
     etl
     controller
-    em
+    em-scala
     linker
     api
     api-kc
@@ -26,6 +26,7 @@ pushd .
     kafka-03
     kafka-02
     kafka-01
+    postgresql
     ui
   )
 

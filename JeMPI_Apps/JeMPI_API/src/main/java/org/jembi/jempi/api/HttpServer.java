@@ -18,7 +18,9 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.Routes;
 import org.jembi.jempi.shared.models.GlobalConstants;
+
 import java.util.concurrent.CompletionStage;
+
 import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 
 public final class HttpServer extends AllDirectives {
@@ -54,9 +56,9 @@ public final class HttpServer extends AllDirectives {
    }
 
    public Route createCorsRoutes(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final String jsonFields) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String jsonFields) {
       final var settings = CorsSettings.create(AppConfig.CONFIG);
 
       final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler().mapRejectionResponse(response -> {
@@ -68,16 +70,22 @@ public final class HttpServer extends AllDirectives {
          return response;
       });
 
-      final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder()
-              .match(Exception.class, x -> {
-                 LOGGER.error("An exception occurred while executing the Route", x);
-                 return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred, see server logs for details");
-              }).build();
+      final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder().match(Exception.class, x -> {
+         LOGGER.error("An exception occurred while executing the Route", x);
+         return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred, see server logs for details");
+      }).build();
 
-      return cors(settings, () -> pathPrefix("JeMPI", () -> concat(
-              Routes.createCoreAPIRoutes(actorSystem, backEnd, jsonFields, AppConfig.LINKER_IP, AppConfig.LINKER_HTTP_PORT, http),
-              path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)))))
-              .seal(rejectionHandler, exceptionHandler);
+      return cors(settings,
+                  () -> pathPrefix("JeMPI",
+                                   () -> concat(Routes.createCoreAPIRoutes(actorSystem,
+                                                                           backEnd,
+                                                                           jsonFields,
+                                                                           AppConfig.LINKER_IP,
+                                                                           AppConfig.LINKER_HTTP_PORT,
+                                                                           http),
+                                                path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+                                                     () -> complete(StatusCodes.OK, jsonFields))))).seal(rejectionHandler,
+                                                                                                         exceptionHandler);
    }
 
 }

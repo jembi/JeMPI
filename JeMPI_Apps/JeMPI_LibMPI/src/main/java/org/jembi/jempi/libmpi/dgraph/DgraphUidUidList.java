@@ -9,5 +9,6 @@ import java.util.List;
 record DgraphUidUidList(@JsonProperty("list") List<RecUidList> list) {
    record RecUidList(
          @JsonProperty("uid") String uid,
-         @JsonProperty("list") List<DgraphUid> list) {}
+         @JsonProperty("list") List<DgraphUid> list) {
+   }
 }

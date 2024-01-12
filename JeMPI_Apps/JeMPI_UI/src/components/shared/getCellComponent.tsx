@@ -36,13 +36,9 @@ const getCellComponent = (
             alignItems: 'center'
           }}
         >
-          <Typography fontSize={'1em'}>{`${dayjs(
-            params.row.createdAt as Date
-          ).format('YYYY/MM/DD')}`}</Typography>
-
-          <Typography fontSize={'1em'}>{`${dayjs(
-            params.row.createdAt as Date
-          ).format('HH:MM:ss')}`}</Typography>
+          <Typography fontSize={'1em'}>
+            {dayjs(params.row.created).format('YYYY-MM-DD HH:mm:ss')}
+          </Typography>
         </Box>
       )
     case 'recordType':

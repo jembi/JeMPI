@@ -11,19 +11,19 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.version>[3.9.4,)</maven.version>
+        <java.version>21.0.1</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.version>[3.9.5,)</maven.version>
         <akka.version>2.6.21</akka.version>
         <akka.http.version>10.2.10</akka.http.version>
         <jackson.version>2.14.3</jackson.version>
-        <log4j.version>2.20.0</log4j.version>
+        <log4j.version>2.22.0</log4j.version>
         <slf4j.version>2.0.9</slf4j.version>
-        <java.version>17.0.6</java.version>
         <scala.tools.version>2.13</scala.tools.version>
         <scala.version>2.13.10</scala.version>
-        <javac.executable>javac</javac.executable>
+        <javac.executable>${env.JAVA_HOME}/bin/javac</javac.executable>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-enforcer-plugin -->
         <version.org.apache.maven.plugins.maven-enforcer-plugin>
@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>com.typesafe</groupId>
                 <artifactId>config</artifactId>
-                <version>1.4.2</version>
+                <version>1.4.3</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/io.vavr/vavr -->
@@ -191,14 +191,14 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.10.0</version>
+                <version>1.11.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
@@ -212,14 +212,14 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-streams</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
@@ -262,7 +262,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.11.0</version>
+                <version>4.12.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
@@ -276,7 +276,7 @@
             <dependency>
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
-                <version>5.8</version>
+                <version>5.9</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
@@ -297,7 +297,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>5.10.0</version>
+                <version>5.10.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -305,14 +305,14 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>5.6.0</version>
+                <version>5.7.0</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.6.0</version>
+                <version>5.7.0</version>
                 <scope>test</scope>
             </dependency>
 
@@ -477,7 +477,6 @@
         <module>JeMPI_AsyncReceiver</module>
         <module>JeMPI_ETL</module>
         <module>JeMPI_Controller</module>
-        <module>JeMPI_EM</module>
         <module>JeMPI_Linker</module>
         <module>JeMPI_GUI</module>
         <module>JeMPI_Bootstrapper</module>

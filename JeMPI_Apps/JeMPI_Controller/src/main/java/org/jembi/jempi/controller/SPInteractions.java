@@ -40,22 +40,21 @@ public final class SPInteractions {
       final Serde<InteractionEnvelop> batchPatientRecordSerde =
             Serdes.serdeFrom(batchPatientRecordSerializer, batchPatientRecordDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, InteractionEnvelop> batchPatientRecordKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_INTERACTION_CONTROLLER,
-            Consumed.with(stringSerde, batchPatientRecordSerde));
+      final KStream<String, InteractionEnvelop> batchPatientRecordKStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_CONTROLLER,
+                                  Consumed.with(stringSerde, batchPatientRecordSerde));
       topicEM = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                       GlobalConstants.TOPIC_INTERACTION_EM,
-                                      new StringSerializer(), new JsonPojoSerializer<>(),
+                                      new StringSerializer(),
+                                      new JsonPojoSerializer<>(),
                                       AppConfig.KAFKA_CLIENT_ID);
-      batchPatientRecordKStream
-            .peek((key, batchPatient) -> {
-               topicEM.produceAsync(key, batchPatient, ((metadata, exception) -> {
-                  if (exception != null) {
-                     LOGGER.error(exception.toString());
-                  }
-               }));
-            })
-            .to(GlobalConstants.TOPIC_INTERACTION_LINKER, Produced.with(stringSerde, batchPatientRecordSerde));
+      batchPatientRecordKStream.peek((key, batchPatient) -> {
+         topicEM.produceAsync(key, batchPatient, ((metadata, exception) -> {
+            if (exception != null) {
+               LOGGER.error(exception.toString());
+            }
+         }));
+      }).to(GlobalConstants.TOPIC_INTERACTION_LINKER, Produced.with(stringSerde, batchPatientRecordSerde));
       interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionKafkaStreams.cleanUp();
       interactionKafkaStreams.start();
