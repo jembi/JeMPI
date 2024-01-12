@@ -2,10 +2,11 @@ package org.jembi.jempi.shared.models;
 
 public final class GlobalConstants {
 
-   public static final String TOPIC_INTERACTION_ASYNC_ETL = "JeMPI-async-etl";
+   public static final String TOPIC_INTERACTION_ETL = "JeMPI-interaction-etl";
    public static final String TOPIC_INTERACTION_CONTROLLER = "JeMPI-interaction-controller";
    public static final String TOPIC_INTERACTION_EM = "JeMPI-interaction-em";
    public static final String TOPIC_INTERACTION_LINKER = "JeMPI-interaction-linker";
+   public static final String TOPIC_MU_CONTROLLER = "JeMPI-mu-controller";
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
@@ -47,10 +48,10 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_FILTER_GIDS = "filter-gids";
    public static final String SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT = "filter-gids-interaction";
 
-   public static final String SEGMENT_PROXY_CR_REGISTER = "cr-register";
-   public static final String SEGMENT_PROXY_CR_FIND = "cr-find";
-   public static final String SEGMENT_PROXY_CR_CANDIDATES = "cr-candidates";
-   public static final String SEGMENT_PROXY_CR_UPDATE_FIELDS = "cr-update-fields";
+   public static final String SEGMENT_PROXY_POST_CR_REGISTER = "cr-register";
+   public static final String SEGMENT_PROXY_POST_CR_FIND = "cr-find";
+   public static final String SEGMENT_PROXY_POST_CR_CANDIDATES = "cr-candidates";
+   public static final String SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS = "cr-update-fields";
 
 
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidate-golden-records";

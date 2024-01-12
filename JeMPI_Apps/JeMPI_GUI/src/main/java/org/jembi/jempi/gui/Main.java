@@ -53,8 +53,7 @@ public class Main extends JPanel {
          Collections.addAll(colNamesList,
                             new ArrayList<>(Arrays.stream(DEMOGRAPHIC_FIELDS)
                                                   .map(Field::getName)
-                                                  .toList())
-                                  .toArray(new String[0]));
+                                                  .toList()).toArray(new String[0]));
          Collections.addAll(colNamesList, "Score");
          colNames = colNamesList.toArray(new String[0]);
       }
@@ -151,9 +150,9 @@ public class Main extends JPanel {
          totalWidth.addAndGet(setColWidth("Aux ID", charWidth, 17));
          totalWidth.addAndGet(setColWidth("UID", charWidth, 10));
          totalWidth.addAndGet(setColWidth("Created", charWidth, 28));
-         Arrays.stream(DEMOGRAPHIC_FIELDS).sequential().forEach(x -> totalWidth.addAndGet(setColWidth(x.getName(),
-                                                                                                      charWidth,
-                                                                                                      15)));
+         Arrays.stream(DEMOGRAPHIC_FIELDS)
+               .sequential()
+               .forEach(x -> totalWidth.addAndGet(setColWidth(x.getName(), charWidth, 15)));
          totalWidth.addAndGet(setColWidth("Score", charWidth, 10));
          this.setPreferredScrollableViewportSize(new Dimension(totalWidth.get(), 30 * Math.round((metrics.getHeight() * 1.4F))));
          this.setFillsViewportHeight(true);

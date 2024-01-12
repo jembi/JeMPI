@@ -8,8 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.LinkInteractionSyncBody;
-import org.jembi.jempi.shared.models.LinkInteractionToGidSyncBody;
 
 import java.util.concurrent.CompletionStage;
 
@@ -93,7 +91,7 @@ final class Ask {
    static CompletionStage<BackEnd.SyncLinkInteractionResponse> postLinkInteraction(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
-         final LinkInteractionSyncBody body) {
+         final ApiModels.LinkInteractionSyncBody body) {
       CompletionStage<BackEnd.SyncLinkInteractionResponse> stage = AskPattern.ask(backEnd,
                                                                                   replyTo -> new BackEnd.SyncLinkInteractionRequest(
                                                                                         body,
@@ -118,18 +116,19 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final String iid) {
-      CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, iid),
-                 java.time.Duration.ofSeconds(5),
-                 actorSystem.scheduler());
+      CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern.ask(backEnd,
+                                                                                      replyTo -> new BackEnd.FindCandidatesWithScoreRequest(
+                                                                                            replyTo,
+                                                                                            iid),
+                                                                                      java.time.Duration.ofSeconds(5),
+                                                                                      actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
    static CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> postLinkPatientToGid(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
-         final LinkInteractionToGidSyncBody body) {
+         final ApiModels.LinkInteractionToGidSyncBody body) {
       CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> stage = AskPattern.ask(backEnd,
                                                                                        replyTo -> new BackEnd.SyncLinkInteractionToGidRequest(
                                                                                              body,
@@ -143,11 +142,11 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCalculateScoresRequest body) {
-      CompletionStage<BackEnd.CalculateScoresResponse> stage = AskPattern.ask(
-            backEnd,
-            replyTo -> new BackEnd.CalculateScoresRequest(body, replyTo),
-            java.time.Duration.ofSeconds(11),
-            actorSystem.scheduler());
+      CompletionStage<BackEnd.CalculateScoresResponse> stage = AskPattern.ask(backEnd,
+                                                                              replyTo -> new BackEnd.CalculateScoresRequest(body,
+                                                                                                                            replyTo),
+                                                                              java.time.Duration.ofSeconds(11),
+                                                                              actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 

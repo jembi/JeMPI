@@ -7,37 +7,37 @@ import org.jembi.jempi.bootstrapper.utils.BootstrapperLogger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 
 public class DgraphDataBootstrapper extends DataBootstrapper {
-    protected static final Logger LOGGER = BootstrapperLogger.getChildLogger(DataBootstrapper.LOGGER, "DGraph");
-    private LibDgraph libDgraph;
-    public DgraphDataBootstrapper(final String configFilePath) {
-        super(configFilePath);
-        this.loadDgraphLib();
-    }
+   protected static final Logger LOGGER = BootstrapperLogger.getChildLogger(DataBootstrapper.LOGGER, "DGraph");
+   private LibDgraph libDgraph;
 
-    public void loadDgraphLib() {
-        libDgraph = new LibDgraph(Level.INFO,
-                                    this.loadedConfig.DGRAPH_ALPHA_HOSTS,
-                                    this.loadedConfig.DGRAPH_ALPHA_PORTS);
-    }
-    @Override
-    public Boolean createSchema() {
-        LOGGER.info("Loading DGraph schema data.");
-        libDgraph.startTransaction();
-        libDgraph.createSchema();
-        return true;
-    }
+   public DgraphDataBootstrapper(final String configFilePath) {
+      super(configFilePath);
+      this.loadDgraphLib();
+   }
 
-    @Override
-    public Boolean deleteData() {
-        LOGGER.info("Deleting DGraph data and schemas.");
-        libDgraph.startTransaction();
-        libDgraph.dropAll();
-        return true;
-    }
+   public void loadDgraphLib() {
+      libDgraph = new LibDgraph(Level.INFO, this.loadedConfig.DGRAPH_ALPHA_HOSTS, this.loadedConfig.DGRAPH_ALPHA_PORTS);
+   }
 
-    @Override
-    public Boolean resetAll() {
-        LOGGER.info("Resetting DGraph data and schemas.");
-        return this.deleteData() && this.createSchema();
-    }
+   @Override
+   public Boolean createSchema() {
+      LOGGER.info("Loading DGraph schema data.");
+      libDgraph.startTransaction();
+      libDgraph.createSchema();
+      return true;
+   }
+
+   @Override
+   public Boolean deleteData() {
+      LOGGER.info("Deleting DGraph data and schemas.");
+      libDgraph.startTransaction();
+      libDgraph.dropAll();
+      return true;
+   }
+
+   @Override
+   public Boolean resetAll() {
+      LOGGER.info("Resetting DGraph data and schemas.");
+      return this.deleteData() && this.createSchema();
+   }
 }

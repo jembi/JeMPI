@@ -131,16 +131,15 @@ final class DgraphQueries {
    }
 
    static List<String> findExpandedGoldenIds(final String goldenId) {
-      final String query = String.format(Locale.ROOT,
-                                         """
-                                         query recordGoldenUidInteractionUidList() {
-                                             list(func: uid(%s)) {
-                                                 uid
-                                                 list: GoldenRecord.interactions {
-                                                     uid
-                                                 }
-                                             }
-                                         }""", goldenId);
+      final String query = String.format(Locale.ROOT, """
+                                                      query recordGoldenUidInteractionUidList() {
+                                                          list(func: uid(%s)) {
+                                                              uid
+                                                              list: GoldenRecord.interactions {
+                                                                  uid
+                                                              }
+                                                          }
+                                                      }""", goldenId);
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphUidUidList.class);
@@ -177,13 +176,12 @@ final class DgraphQueries {
    static List<String> fetchGoldenIds(
          final long offset,
          final long length) {
-      final String query = String.format(Locale.ROOT,
-                                         """
-                                         query recordGoldenIds() {
-                                           list(func: type(GoldenRecord), offset: %d, first: %d) {
-                                             uid
-                                           }
-                                         }""", offset, length);
+      final String query = String.format(Locale.ROOT, """
+                                                      query recordGoldenIds() {
+                                                        list(func: type(GoldenRecord), offset: %d, first: %d) {
+                                                          uid
+                                                        }
+                                                      }""", offset, length);
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = AppUtils.OBJECT_MAPPER.readValue(json, DgraphUidList.class);
@@ -221,13 +219,12 @@ final class DgraphQueries {
    }
 
    static long countGoldenRecordEntities(final String goldenId) {
-      final var query = String.format(Locale.ROOT,
-                                      """
-                                      query recordCount() {
-                                        list(func: uid(%s)) {
-                                          count: count(GoldenRecord.interactions)
-                                        }
-                                      }""", goldenId);
+      final var query = String.format(Locale.ROOT, """
+                                                   query recordCount() {
+                                                     list(func: uid(%s)) {
+                                                       count: count(GoldenRecord.interactions)
+                                                     }
+                                                   }""", goldenId);
       return getCount(query);
    }
 
@@ -245,8 +242,7 @@ final class DgraphQueries {
          final List<Function1<CustomDemographicData, DgraphGoldenRecords>> listFunction,
          final CustomDemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (Function1<CustomDemographicData,
-            DgraphGoldenRecords> deterministicFunction : listFunction) {
+      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : listFunction) {
          final var block = deterministicFunction.apply(interaction);
          if (!block.all().isEmpty()) {
             final var list = block.all();
@@ -541,14 +537,13 @@ final class DgraphQueries {
                                           paginationOptions.sortAsc());
       String gqlPagination = getSearchQueryPagination(RecordType.GoldenRecord, gqlFilters);
       String gqlPaginationCount = Boolean.TRUE.equals(getInteractionCount)
-            ? String.format(Locale.ROOT,
-                            """
-                              var(func: type(GoldenRecord)) @filter(%s){
-                                a as count(GoldenRecord.interactions)}
-                                  interactionCount(){
-                                    total: sum(val(a))
-                                    }
-                            """, gqlFilters)
+            ? String.format(Locale.ROOT, """
+                                           var(func: type(GoldenRecord)) @filter(%s){
+                                             a as count(GoldenRecord.interactions)}
+                                               interactionCount(){
+                                                 total: sum(val(a))
+                                                 }
+                                         """, gqlFilters)
             : "";
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
@@ -658,9 +653,7 @@ final class DgraphQueries {
             queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
          }
       }
-      queryBuilder.append(") {\n")
-                  .append(GOLDEN_RECORD_FIELD_NAMES)
-                  .append("  }\n}\n");
+      queryBuilder.append(") {\n").append(GOLDEN_RECORD_FIELD_NAMES).append("  }\n}\n");
       final var query = queryBuilder.toString();
       final var map = new HashMap<String, String>();
       map.put("$" + camelToSnake(op.name()), op.value());

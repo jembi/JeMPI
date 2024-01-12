@@ -28,12 +28,12 @@ final class PsqlAuditTrail {
    List<AuditEvent> goldenRecordAuditTrail(final String uid) {
       psqlClient.connect();
       final var list = new ArrayList<AuditEvent>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
-            String.format(
-                  Locale.ROOT,
-                  """
-                  SELECT * FROM %s where goldenID = ?;
-                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
+                                                                                           """
+                                                                                           SELECT * FROM %s where goldenID = ?;
+                                                                                           """,
+                                                                                           PSQL_TABLE_AUDIT_TRAIL)
+                                                                                   .stripIndent())) {
          preparedStatement.setString(1, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
@@ -53,12 +53,12 @@ final class PsqlAuditTrail {
    List<AuditEvent> interactionRecordAuditTrail(final String uid) {
       psqlClient.connect();
       final var list = new ArrayList<AuditEvent>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
-            String.format(
-                  Locale.ROOT,
-                  """
-                  SELECT * FROM %s where interactionID = ?;
-                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
+                                                                                           """
+                                                                                           SELECT * FROM %s where interactionID = ?;
+                                                                                           """,
+                                                                                           PSQL_TABLE_AUDIT_TRAIL)
+                                                                                   .stripIndent())) {
          preparedStatement.setString(1, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
