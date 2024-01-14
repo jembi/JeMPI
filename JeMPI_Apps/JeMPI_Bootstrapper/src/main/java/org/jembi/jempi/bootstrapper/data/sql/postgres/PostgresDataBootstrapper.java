@@ -1,6 +1,5 @@
 package org.jembi.jempi.bootstrapper.data.sql.postgres;
 
-import org.jembi.jempi.bootstrapper.BootstrapperConfig;
 import org.jembi.jempi.bootstrapper.data.DataBootstrapper;
 import org.jembi.jempi.bootstrapper.data.utils.DataBootstraperConsts;
 
@@ -53,7 +52,7 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
 
          postgresDALLib.createDb(dbName);
 
-         if (dbSchemaFilePath != null ) {
+         if (dbSchemaFilePath != null) {
             postgresDALLib.runQuery(connection -> connection.prepareStatement(getCreateSchemaScript(dbSchemaFilePath)),
                         true,
                                     dbName);

@@ -1,5 +1,7 @@
 package org.jembi.jempi.bootstrapper.data.stream.kafka;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 
 public class KafkaBootstrapConfig {
@@ -14,8 +16,11 @@ public class KafkaBootstrapConfig {
       private String topicName;
       private Integer partition;
       private short replications;
-      private Integer retention_ms;
-      private Integer segments_bytes;
+      @JsonProperty("retention_ms")
+      private Integer retentionMs;
+
+      @JsonProperty("segments_bytes")
+      private Integer segmentsBytes;
 
       public Integer getPartition() {
          return partition;
@@ -25,12 +30,12 @@ public class KafkaBootstrapConfig {
          return replications;
       }
 
-      public Integer getRetention_ms() {
-         return retention_ms;
+      public Integer getRetentionMs() {
+         return retentionMs;
       }
 
-      public Integer getSegments_bytes() {
-         return segments_bytes;
+      public Integer getSegmentsBytes() {
+         return segmentsBytes;
       }
 
       public String getTopicName() {

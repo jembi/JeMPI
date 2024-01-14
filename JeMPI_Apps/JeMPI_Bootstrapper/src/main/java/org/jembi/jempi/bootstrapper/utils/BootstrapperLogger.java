@@ -4,9 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class BootstrapperLogger {
+   protected BootstrapperLogger() { }
    public static Logger getChildLogger(
-         Logger parentLogger,
-         String childLoggerName) {
+         final Logger parentLogger,
+         final String childLoggerName) {
       return LogManager.getLogger(String.format("%s > %s", parentLogger.getName(), childLoggerName));
    }
 

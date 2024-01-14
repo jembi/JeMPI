@@ -4,8 +4,8 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "describeTopic", mixinStandardHelpOptions = true, description = "Describe a topic associated with " +
-                                                                                            "the JeMPI instance.")
+@CommandLine.Command(name = "describeTopic", mixinStandardHelpOptions = true, description = "Describe a topic associated with "
+        + "the JeMPI instance.")
 public class KafkaDescribeTopicCommand extends BaseKafkaCommand implements Callable<Integer> {
 
    @CommandLine.Option(names = {"-t", "--topicName"}, description = "Topic Name", required = true)

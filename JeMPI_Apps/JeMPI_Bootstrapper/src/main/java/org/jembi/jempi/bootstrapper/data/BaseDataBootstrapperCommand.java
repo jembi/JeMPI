@@ -19,7 +19,7 @@ public abstract class BaseDataBootstrapperCommand<T extends DataBootstrapper> im
       return this;
    }
 
-   protected Integer execute(Callable<Integer> bootstrapperFunc) {
+   protected Integer execute(final Callable<Integer> bootstrapperFunc) {
       try {
          Integer bootstrapperResult = bootstrapperFunc.call();
          if (bootstrapperResult != 0) {

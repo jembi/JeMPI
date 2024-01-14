@@ -27,12 +27,12 @@ public class PostgresDALLib {
    private String getDbUrl(final String db) {
       return  String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", ip, port, db);
    }
-   private Connection getConnection(final String dbName) throws SQLException {;
+   private Connection getConnection(final String dbName) throws SQLException {
       return DriverManager.getConnection(getDbUrl(dbName != null ? dbName : defaultDb), this.usr, this.psw);
    }
 
-   public Boolean createDb(String dbName) throws SQLException {
-      if (!databaseExists(dbName)){
+   public Boolean createDb(final String dbName) throws SQLException {
+      if (!databaseExists(dbName)) {
          return runQuery(connection -> {
             return connection.prepareStatement(getCreateDbSchema(dbName));
          }, true, null);
@@ -40,7 +40,7 @@ public class PostgresDALLib {
       return true;
    }
 
-   protected  boolean databaseExists( String databaseName) throws SQLException {
+   protected  boolean databaseExists(final String databaseName) throws SQLException {
       String query = "SELECT 1 FROM pg_database WHERE datname = ?";
       try (PreparedStatement preparedStatement = getConnection(null).prepareStatement(query)) {
          preparedStatement.setString(1, databaseName);

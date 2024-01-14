@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class BootstrapperConfig {
 
-   public final String POSTGRESQL_IP;
+   public final  String POSTGRESQL_IP;
    public final Integer POSTGRESQL_PORT;
    public final String POSTGRESQL_USER;
    public final String POSTGRESQL_PASSWORD;
@@ -23,7 +23,7 @@ public class BootstrapperConfig {
    public final String[] DGRAPH_ALPHA_HOSTS;
    public final int[] DGRAPH_ALPHA_PORTS;
 
-   public BootstrapperConfig(Config parsedConfig) {
+   public BootstrapperConfig(final Config parsedConfig) {
       POSTGRESQL_IP = parsedConfig.getString("POSTGRESQL_IP");
       POSTGRESQL_PORT = parsedConfig.getInt("POSTGRESQL_PORT");
       POSTGRESQL_USER = parsedConfig.getString("POSTGRESQL_USER");
@@ -48,9 +48,9 @@ public class BootstrapperConfig {
    }
 
    public static BootstrapperConfig create(
-         String filepath,
-         Logger LOGGER) {
-      return new BootstrapperConfig(new Builder(LOGGER).withOptionalFile(filepath)
+         final String filepath,
+         final Logger logger) {
+      return new BootstrapperConfig(new Builder(logger).withOptionalFile(filepath)
                                                        .withSystemEnvironment()
                                                        .withSystemProperties()
                                                        .build());
@@ -63,7 +63,7 @@ public class BootstrapperConfig {
       private final Logger logger;
       private Config conf = ConfigFactory.empty();
 
-      public Builder(Logger logger) {
+      Builder(final Logger logger) {
          this.logger = logger;
       }
 
