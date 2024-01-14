@@ -15,16 +15,30 @@ public class PostgresDALLib {
    public PostgresDALLib(
          final String ip,
          final int port,
-         final String db,
          final String usr,
          final String psw) {
-      this.url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", ip, port, db);
+      this.url = String.format(Locale.ROOT, "jdbc:postgresql://%s:%d", ip, port);
       this.usr = usr;
       this.psw = psw;
    }
 
    private Connection getConnection() throws SQLException {
       return DriverManager.getConnection(this.url, this.usr, this.psw);
+   }
+
+   public Boolean createDb(String dbName) throws SQLException {
+      return runQuery(connection -> connection.prepareStatement(getCreateDbSchema(dbName)));
+   }
+
+   public String getCreateDbSchema(final String dbName) {
+      return String.format("""
+                          DO $$
+                          BEGIN
+                              IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = '%s') THEN
+                                  CREATE DATABASE %s;
+                              END IF;
+                          END $$;
+                           """, dbName, dbName);
    }
 
    public <T extends PreparedStatement> Boolean runQuery(final ThrowingFunction<Connection, T, SQLException> getStatement) throws SQLException {
