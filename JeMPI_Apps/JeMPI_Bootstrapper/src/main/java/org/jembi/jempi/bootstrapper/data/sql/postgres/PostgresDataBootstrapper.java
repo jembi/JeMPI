@@ -22,6 +22,7 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
       postgresDALLib = new PostgresDALLib(this.loadedConfig.POSTGRESQL_IP,
                                           this.loadedConfig.POSTGRESQL_PORT,
                                           this.loadedConfig.POSTGRESQL_USER,
+                                          this.loadedConfig.POSTGRESQL_USER,
                                           this.loadedConfig.POSTGRESQL_PASSWORD);
    }
 
@@ -32,16 +33,19 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
                                                                                                           "\n"));
    }
 
-   @Override
-   public Boolean createSchema() throws SQLException {
-      LOGGER.info("Loading Postgres schema data.");
-
-      for (DBSchemaDetails schemaDetails: List.of(
+   protected List<DBSchemaDetails> getAllDbSchemas() {
+      return List.of(
               new DBSchemaDetails(this.loadedConfig.POSTGRESQL_USERS_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_USERS_DB),
               new DBSchemaDetails(this.loadedConfig.POSTGRESQL_NOTIFICATIONS_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_NOTIFICATION_DB),
               new DBSchemaDetails(this.loadedConfig.POSTGRESQL_AUDIT_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_AUDIT_DB),
               new DBSchemaDetails(this.loadedConfig.POSTGRESQL_KC_TEST_DB, null)
-      )) {
+      );
+   }
+   @Override
+   public Boolean createSchema() throws SQLException {
+      LOGGER.info("Loading Postgres schema data.");
+
+      for (DBSchemaDetails schemaDetails: getAllDbSchemas()) {
          String dbName = schemaDetails.dbName();
          String dbSchemaFilePath = schemaDetails.schemaFilePath();
 
@@ -50,12 +54,9 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
          postgresDALLib.createDb(dbName);
 
          if (dbSchemaFilePath != null ) {
-            postgresDALLib.runQuery(connection -> connection.prepareStatement(
-                    String.format("""
-                            USE %s
-                            
-                            %s
-                            """, dbName, getCreateSchemaScript(dbSchemaFilePath))));
+            postgresDALLib.runQuery(connection -> connection.prepareStatement(getCreateSchemaScript(dbSchemaFilePath)),
+                        true,
+                                    dbName);
          }
 
       }
@@ -80,15 +81,35 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
 
    public Boolean deleteTables() throws SQLException {
       LOGGER.info("Deleting Postgres tables");
-      return postgresDALLib.runQuery(connection -> connection.prepareStatement(this.getAllTablesWrapper(
-            "'DROP TABLE ' || table_name || ' CASCADE ;';")));
+      for (DBSchemaDetails schemaDetails: getAllDbSchemas()) {
+         String dbName = schemaDetails.dbName();
+         if (postgresDALLib.databaseExists(dbName)) {
+            LOGGER.info(String.format("---> Deleting tables for database %s", dbName));
+            postgresDALLib.runQuery(connection -> {
+               return connection.prepareStatement(this.getAllTablesWrapper(
+                       "'DROP TABLE ' || table_name || ' CASCADE ;';"));
+
+            }, true, dbName);
+         }
+      }
+      return true;
    }
 
    @Override
    public Boolean deleteData() throws SQLException {
       LOGGER.info("Deleting Postgres data");
-      return postgresDALLib.runQuery(connection -> connection.prepareStatement(this.getAllTablesWrapper(
-            "'DELETE FROM ' || table_name || ';';")));
+      for (DBSchemaDetails schemaDetails: getAllDbSchemas()) {
+         String dbName = schemaDetails.dbName();
+         if (postgresDALLib.databaseExists(dbName)) {
+            LOGGER.info(String.format("---> Deleting data for database %s", dbName));
+            postgresDALLib.runQuery(connection -> {
+               return connection.prepareStatement(this.getAllTablesWrapper(
+                       "'DELETE FROM ' || table_name || ';';"));
+
+            }, true, dbName);
+         }
+      }
+      return true;
    }
 
    @Override

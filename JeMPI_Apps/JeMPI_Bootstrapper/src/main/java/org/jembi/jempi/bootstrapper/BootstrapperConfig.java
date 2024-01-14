@@ -13,6 +13,7 @@ public class BootstrapperConfig {
    public final Integer POSTGRESQL_PORT;
    public final String POSTGRESQL_USER;
    public final String POSTGRESQL_PASSWORD;
+   public final String POSTGRESQL_DATABASE;
    public final String POSTGRESQL_USERS_DB;
    public final String POSTGRESQL_NOTIFICATIONS_DB;
    public final String POSTGRESQL_AUDIT_DB;
@@ -28,6 +29,7 @@ public class BootstrapperConfig {
       POSTGRESQL_USER = parsedConfig.getString("POSTGRESQL_USER");
       POSTGRESQL_PASSWORD = parsedConfig.getString("POSTGRESQL_PASSWORD");
 
+      POSTGRESQL_DATABASE = parsedConfig.getString("POSTGRESQL_DATABASE");
       POSTGRESQL_USERS_DB = parsedConfig.getString("POSTGRESQL_USERS_DB");
       POSTGRESQL_NOTIFICATIONS_DB = parsedConfig.getString("POSTGRESQL_NOTIFICATIONS_DB");
       POSTGRESQL_AUDIT_DB = parsedConfig.getString("POSTGRESQL_AUDIT_DB");
