@@ -57,8 +57,8 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
    @Override
    public Boolean createSchema() throws InterruptedException {
       LOGGER.info("Loading Kafka schema data.");
-      for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails :
-            this.kafkaBootstrapConfig.topics.entrySet()) {
+      for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails
+              : this.kafkaBootstrapConfig.topics.entrySet()) {
          KafkaBootstrapConfig.BootstrapperTopicConfig topic = topicDetails.getValue();
 
          LOGGER.info(String.format("--> Creating topic '%s'", topic.getTopicName()));
@@ -66,8 +66,8 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
             kafkaTopicManager.createTopic(topic.getTopicName(),
                                           topic.getPartition(),
                                           topic.getReplications(),
-                                          topic.getRetention_ms(),
-                                          topic.getSegments_bytes());
+                                          topic.getRetentionMs(),
+                                          topic.getSegmentsBytes());
          } catch (ExecutionException e) {
             LOGGER.warn(e.getMessage());
          }
@@ -93,8 +93,8 @@ public class KafkaDataBootstrapper extends DataBootstrapper {
    @Override
    public Boolean deleteData() throws InterruptedException {
       LOGGER.info("Deleting kafka topics.");
-      for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails :
-            this.kafkaBootstrapConfig.topics.entrySet()) {
+      for (HashMap.Entry<String, KafkaBootstrapConfig.BootstrapperTopicConfig> topicDetails
+              : this.kafkaBootstrapConfig.topics.entrySet()) {
 
          KafkaBootstrapConfig.BootstrapperTopicConfig topic = topicDetails.getValue();
          LOGGER.info(String.format("--> Deleting topic '%s'", topic.getTopicName()));

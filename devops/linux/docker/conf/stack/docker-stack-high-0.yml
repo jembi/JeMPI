@@ -684,6 +684,27 @@ services:
         constraints:
           - node.labels.name == $PLACEMENT_KEYCLOAK_TEST_SERVER
 
+  bootstrapper:
+    image: ${IMAGE_REGISTRY}$BOOTSTRAPPER_IMAGE
+    networks:
+      - backend
+    environment:
+      POSTGRESQL_IP: postgresql
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      POSTGRESQL_KC_TEST_DB: ${POSTGRESQL_KC_TEST_DB}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-bootstrapper
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+    deploy:
+      mode: global
+
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
     environment:

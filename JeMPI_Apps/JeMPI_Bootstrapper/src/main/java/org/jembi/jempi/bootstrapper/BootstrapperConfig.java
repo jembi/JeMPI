@@ -9,22 +9,32 @@ import java.util.Arrays;
 
 public class BootstrapperConfig {
 
-   public final String POSTGRESQL_IP;
+   public final  String POSTGRESQL_IP;
    public final Integer POSTGRESQL_PORT;
    public final String POSTGRESQL_USER;
    public final String POSTGRESQL_PASSWORD;
    public final String POSTGRESQL_DATABASE;
+   public final String POSTGRESQL_USERS_DB;
+   public final String POSTGRESQL_NOTIFICATIONS_DB;
+   public final String POSTGRESQL_AUDIT_DB;
+   public final String POSTGRESQL_KC_TEST_DB;
    public final String KAFKA_BOOTSTRAP_SERVERS;
    public final String KAFKA_APPLICATION_ID;
    public final String[] DGRAPH_ALPHA_HOSTS;
    public final int[] DGRAPH_ALPHA_PORTS;
 
-   public BootstrapperConfig(Config parsedConfig) {
+   public BootstrapperConfig(final Config parsedConfig) {
       POSTGRESQL_IP = parsedConfig.getString("POSTGRESQL_IP");
       POSTGRESQL_PORT = parsedConfig.getInt("POSTGRESQL_PORT");
       POSTGRESQL_USER = parsedConfig.getString("POSTGRESQL_USER");
       POSTGRESQL_PASSWORD = parsedConfig.getString("POSTGRESQL_PASSWORD");
+
       POSTGRESQL_DATABASE = parsedConfig.getString("POSTGRESQL_DATABASE");
+      POSTGRESQL_USERS_DB = parsedConfig.getString("POSTGRESQL_USERS_DB");
+      POSTGRESQL_NOTIFICATIONS_DB = parsedConfig.getString("POSTGRESQL_NOTIFICATIONS_DB");
+      POSTGRESQL_AUDIT_DB = parsedConfig.getString("POSTGRESQL_AUDIT_DB");
+      POSTGRESQL_KC_TEST_DB = parsedConfig.getString("POSTGRESQL_KC_TEST_DB");
+
       KAFKA_BOOTSTRAP_SERVERS = parsedConfig.getString("KAFKA_BOOTSTRAP_SERVERS");
       KAFKA_APPLICATION_ID = parsedConfig.getString("KAFKA_APPLICATION_ID");
       DGRAPH_ALPHA_HOSTS = parsedConfig.getString("DGRAPH_HOSTS").split(",");
@@ -38,9 +48,9 @@ public class BootstrapperConfig {
    }
 
    public static BootstrapperConfig create(
-         String filepath,
-         Logger LOGGER) {
-      return new BootstrapperConfig(new Builder(LOGGER).withOptionalFile(filepath)
+         final String filepath,
+         final Logger logger) {
+      return new BootstrapperConfig(new Builder(logger).withOptionalFile(filepath)
                                                        .withSystemEnvironment()
                                                        .withSystemProperties()
                                                        .build());
@@ -53,7 +63,7 @@ public class BootstrapperConfig {
       private final Logger logger;
       private Config conf = ConfigFactory.empty();
 
-      public Builder(Logger logger) {
+      Builder(final Logger logger) {
          this.logger = logger;
       }
 

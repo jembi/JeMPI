@@ -37,10 +37,10 @@ CREATE TABLE IF NOT EXISTS Action
     Action_Type_Id UUID,
     Date date,
     CONSTRAINT FK_Notification
-      FOREIGN KEY(Notification_Id)
+      FOREIGN KEY(Notification_Id) 
 	    REFERENCES Notification(Id),
     CONSTRAINT FK_Action_Type
-      FOREIGN KEY(Action_Type_Id)
+      FOREIGN KEY(Action_Type_Id) 
 	    REFERENCES Action_Type(Id)
 );
 
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS Match
     Score Numeric,
     Golden_Id VARCHAR(50),
     CONSTRAINT FK_Notification
-      FOREIGN KEY(Notification_Id)
+      FOREIGN KEY(Notification_Id) 
 	    REFERENCES Notification(Id)
 );
 
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS candidates
     Score Numeric,
     Golden_Id VARCHAR(50),
     CONSTRAINT FK_Notification
-      FOREIGN KEY(Notification_Id)
+      FOREIGN KEY(Notification_Id) 
 	    REFERENCES Notification(Id)
 );
 
