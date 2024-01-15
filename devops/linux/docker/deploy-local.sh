@@ -123,7 +123,7 @@ build_all_stack_and_reboot(){
 initialize_db_build_all_stack_and_reboot(){
     echo "Create DB"
     cd $JEMPI_HOME/devops/linux/docker
-    source $JEMPI_HOME/devops/linux/docker/d-stack-0-initialize-db.sh
+    source $JEMPI_HOME/devops/linux/docker/d-stack-1-create-db-build-all-reboot.sh
 }
 
 
@@ -138,7 +138,7 @@ case $choice in
         run_field_configuration_file
         initialize_swarm
         pull_docker_images_and_push_local
-        create_db_build_all_stack_and_reboot
+        initialize_db_build_all_stack_and_reboot
         ;;
     2)
         echo "Deploy JeMPI"
@@ -146,7 +146,7 @@ case $choice in
         run_field_configuration_file
         initialize_swarm
         pull_docker_images_and_push_local
-        create_db_build_all_stack_and_reboot
+        initialize_db_build_all_stack_and_reboot
         ;;
     3)
         echo "Build and Reboot"
