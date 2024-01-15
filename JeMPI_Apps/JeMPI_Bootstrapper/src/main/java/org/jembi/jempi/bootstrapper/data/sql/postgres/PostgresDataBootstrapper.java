@@ -48,7 +48,7 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
          String dbName = schemaDetails.dbName();
          String dbSchemaFilePath = schemaDetails.schemaFilePath();
 
-         LOGGER.info(String.format("---> Create schama for database %s", dbName));
+         LOGGER.info(String.format("---> Create schema for database %s", dbName));
 
          postgresDALLib.createDb(dbName);
 
