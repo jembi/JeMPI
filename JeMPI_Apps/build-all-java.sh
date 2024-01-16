@@ -32,6 +32,9 @@ popd
 pushd JeMPI_API_KC
   ./build.sh || exit 1
 popd
+pushd JeMPI_Bootstrapper
+  ./build.sh || exit 1
+popd
 pushd JeMPI_AsyncReceiver
   ./push.sh
 popd
@@ -51,6 +54,9 @@ pushd JeMPI_API
   ./push.sh
 popd
 pushd JeMPI_API_KC
+  ./push.sh
+popd
+pushd JeMPI_Bootstrapper
   ./push.sh
 popd
 
