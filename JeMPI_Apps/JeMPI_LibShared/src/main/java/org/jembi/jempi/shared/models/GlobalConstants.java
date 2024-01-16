@@ -4,6 +4,7 @@ public final class GlobalConstants {
 
    public static final String TOPIC_INTERACTION_ASYNC_ETL = "JeMPI-async-etl";
    public static final String TOPIC_INTERACTION_CONTROLLER = "JeMPI-interaction-controller";
+   public static final String TOPIC_INTERACTION_PROCESSOR_CONTROLLER = "JeMPI-interaction-processor-controller";
    public static final String TOPIC_INTERACTION_EM = "JeMPI-interaction-em";
    public static final String TOPIC_INTERACTION_LINKER = "JeMPI-interaction-linker";
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";

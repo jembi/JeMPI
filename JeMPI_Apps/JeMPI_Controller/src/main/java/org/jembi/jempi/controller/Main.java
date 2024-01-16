@@ -22,6 +22,7 @@ public final class Main {
    public Behavior<Void> create() {
       return Behaviors.setup(
             context -> {
+
                final var backEndActor = context.spawn(BackEnd.create(), "BackEnd");
                context.watch(backEndActor);
                final var spAuditTrail = new SPAuditTrail();
@@ -30,6 +31,7 @@ public final class Main {
                spNotification.open();
                final var spInteractions = new SPInteractions();
                spInteractions.open(context.getSystem(), backEndActor);
+               new SPInteractionProcessor().open();
                final var httpServer = new HttpServer();
                httpServer.open(context.getSystem(), backEndActor);
                return Behaviors.receive(Void.class)

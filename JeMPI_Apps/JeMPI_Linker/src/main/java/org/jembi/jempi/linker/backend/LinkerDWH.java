@@ -5,10 +5,10 @@ import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.linker.linker_processor.lib.range_type.RangeTypeFactory;
-import org.jembi.jempi.linker.linker_processor.StandardLinkerProcessor;
+import org.jembi.jempi.shared.libs.interactionProcessor.InteractionProcessorConnector;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -118,13 +118,9 @@ public final class LinkerDWH {
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_, final String envelopeStan) {
 
-      StandardLinkerProcessor linkerProcessor
-              =  new StandardLinkerProcessor(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME, interaction);
+      InteractionProcessorConnector interactionProcessorConnector = new InteractionProcessorConnector(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
 
-      // todo: Rethink the envelope stan. The correct way would be to update the envelope to contain the correct data
-      // This change should be a part of a bigger one
-      linkerProcessor.onNewInteraction(interaction, envelopeStan);
-
+      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
@@ -174,12 +170,6 @@ public final class LinkerDWH {
                ? externalLinkRange.high()
                : matchThreshold_;
 
-         linkerProcessor
-                 = (StandardLinkerProcessor) linkerProcessor.setRanges(
-                         new ArrayList<>(Arrays.asList(
-                                 RangeTypeFactory.standardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
-                                 RangeTypeFactory.standardThresholdNotificationRangeAbove(matchThreshold, matchThreshold + 0.1F),
-                                 RangeTypeFactory.standardThresholdAboveThreshold(matchThreshold, 1.0F))));
 
          try {
             libMPI.startTransaction();
@@ -191,12 +181,7 @@ public final class LinkerDWH {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
             } else {
 
-               try {
-                  linkerProcessor.processCandidates(candidateGoldenRecords);
-               } catch (Exception e) {
-                     LOGGER.error(String.format("An error occurred whilst trying to process the candidates. Error message %s", e.getMessage()), e);
-               }
-
+               Map<String, Float> candidatesIdsWithScores = new HashMap<>();
                final var allCandidateScores =
                      candidateGoldenRecords.parallelStream()
                                            .unordered()
@@ -204,8 +189,10 @@ public final class LinkerDWH {
                                                                                LinkerUtils.calcNormalizedScore(candidate.demographicData(),
                                                                                                                interaction.demographicData())))
                                            .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                           .peek(w -> candidatesIdsWithScores.put(w.goldenRecord().goldenId(), w.score()))
                                            .collect(Collectors.toCollection(ArrayList::new));
 
+               interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold, candidatesIdsWithScores);
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
                      ? new ArrayList<WorkCandidate>()
