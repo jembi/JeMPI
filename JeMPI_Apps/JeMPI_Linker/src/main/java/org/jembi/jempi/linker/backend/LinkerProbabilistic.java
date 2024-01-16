@@ -67,11 +67,11 @@ final class LinkerProbabilistic {
    }
 
    static void checkUpdatedMU() {
-//      if (CustomLinkerProbabilistic.updatedFields != null) {
-//         LOGGER.info("Using updated MU values: {}", CustomLinkerProbabilistic.updatedFields);
-//         CustomLinkerProbabilistic.currentLinkFields = CustomLinkerProbabilistic.updatedFields;
-//         CustomLinkerProbabilistic.updatedFields = null;
-//      }
+      if (CustomLinkerProbabilistic.updatedLinkFields != null) {
+         LOGGER.info("Using updated MU values: {}", updatedLinkFields);
+         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
+         updatedLinkFields = null;
+      }
    }
 
    static void updateMetricsForStringField(
@@ -202,11 +202,7 @@ final class LinkerProbabilistic {
          if (n % 2 == 0) {
             final var k = n / 2;
             final var z = 1.0F / k;
-            final var w = IntStream.range(0, n)
-                                   .mapToDouble(i -> abs(1.0 - (z * i)))
-                                   .boxed()
-                                   .map(Double::floatValue)
-                                   .toList();
+            final var w = IntStream.range(0, n).mapToDouble(i -> abs(1.0 - (z * i))).boxed().map(Double::floatValue).toList();
             if (LOGGER.isDebugEnabled()) {
                try {
                   LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));

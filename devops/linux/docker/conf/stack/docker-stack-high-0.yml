@@ -48,25 +48,6 @@ services:
         constraints:
         - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
-  # nginx:
-  #   image: ${IMAGE_REGISTRY}$NGINX_IMAGE
-  #   networks:
-  #     - frontend
-  #   deploy:
-  #     mode: replicated
-  #     replicas: 0
-  #     resources:
-  #       limits:
-  #         memory: ${NGINX_RAM_LIMIT}
-  #     update_config:
-  #       parallelism: 1
-  #       delay: 10s
-  #     restart_policy:
-  #       condition: on-failure
-  #     placement:
-  #       constraints:
-  #         - node.labels.name == $PLACEMENT_NGINX
-
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
     dns:
@@ -105,7 +86,7 @@ services:
       resources:
         limits:
           memory: ${HAPROXY_RAM_LIMIT}
-    command: haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/extra-${HAPROXY_EXTENSION}.cfg
+    command: haproxy -f /etc/haproxy/haproxy.cfg
       
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
@@ -452,7 +433,8 @@ services:
       POSTGRESQL_PORT: 5432
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-ctrl
       KAFKA_CLIENT_ID: client-id-ctrl
@@ -484,9 +466,9 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_CONTROLLER}
-       
-  em:
-    image: ${IMAGE_REGISTRY}${EM_IMAGE}
+
+  em-scala:
+    image: ${IMAGE_REGISTRY}${EM_SCALA_IMAGE}
     environment:
       LOG4J2_LEVEL: "DEBUG" 
       KAFKA_SERVERS: ${KAFKA_SERVERS}
@@ -494,15 +476,19 @@ services:
     - backend
     volumes:
     - type: bind
-      source: $DATA_DIR_EM/conf
+      source: $DATA_DIR_EM_SCALA/conf
       target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_EM_SCALA/data
+      target: /app/data
       read_only: true
     deploy:
       mode: replicated
       replicas: 0
       resources:
         limits:
-          memory: ${EM_RAM_LIMIT}
+          memory: ${EM_SCALA_RAM_LIMIT}
       update_config:
         parallelism: 1
         delay: 10s
@@ -512,7 +498,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_EM}
+        - node.labels.name == ${PLACEMENT_EM_SCALA}
 
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
@@ -520,9 +506,10 @@ services:
       LOG4J2_LEVEL: "TRACE" 
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID_INTERACTIONS: app-id-lnk1
       KAFKA_APPLICATION_ID_MU: app-id-lnk2
@@ -564,14 +551,15 @@ services:
       LOG4J2_LEVEL: "DEBUG" 
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      API_HTTP_PORT: ${API_PORT}
+      API_HTTP_PORT: ${API_HTTP_PORT}
       LINKER_IP: linker
       LINKER_HTTP_PORT: 50000
     networks:
@@ -617,16 +605,18 @@ services:
       JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-api
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
-      API_KC_HTTP_PORT: ${API_PORT_KC}
+      API_KC_HTTP_PORT: ${API_KC_HTTP_PORT}
       LINKER_IP: linker
-      LINKER_HTTP_PORT: 50000
+      LINKER_HTTP_PORT: ${LINKER_HTTP_PORT}
     networks:
     - frontend
     - backend
@@ -654,7 +644,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_API}
+        - node.labels.name == ${PLACEMENT_API_KC}
 
   keycloak-test-server:
     image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
@@ -667,9 +657,9 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: "admin"
       DB_ADDR: postgresql
       DB_PORT: 5432
-      DB_DATABASE: ${KC_TEST_DB}
       DB_USER: ${POSTGRESQL_USERNAME}
       DB_PASSWORD: ${POSTGRESQL_PASSWORD}
+      DB_DATABASE: ${POSTGRESQL_KC_TEST_DB}
     healthcheck: 
       test: 
       - "CMD"
@@ -704,6 +694,10 @@ services:
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      POSTGRESQL_KC_TEST_DB: ${POSTGRESQL_KC_TEST_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-bootstrapper
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}

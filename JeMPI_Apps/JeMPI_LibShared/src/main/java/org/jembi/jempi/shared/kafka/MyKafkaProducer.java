@@ -48,8 +48,7 @@ public final class MyKafkaProducer<KEY_TYPE, VAL_TYPE> {
 
    public RecordMetadata produceSync(
          final KEY_TYPE key,
-         final VAL_TYPE item) throws ExecutionException,
-                                     InterruptedException {
+         final VAL_TYPE item) throws ExecutionException, InterruptedException {
       final ProducerRecord<KEY_TYPE, VAL_TYPE> rec = new ProducerRecord<>(topic, key, item);
       return producer.send(rec).get();
    }

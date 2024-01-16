@@ -38,7 +38,7 @@ export interface AuthProviderProps {
 }
 
 export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
-  const { apiClient, config }  = useConfig()
+  const { apiClient, config } = useConfig()
   const authContext = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -81,9 +81,9 @@ export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
     () => {
       if (config.useSso && !authContext.isLoading) {
         if (!authContext.currentUser && !isLoginPage) {
-          navigate({ pathname: '/login' });
+          navigate({ pathname: '/login' })
         } else if (authContext.currentUser && isLoginPage) {
-          navigate({ pathname: '/' });
+          navigate({ pathname: '/' })
         }
       }
     },
@@ -101,22 +101,26 @@ export const AuthChecker = ({ children }: AuthProviderProps): JSX.Element => {
     !authContext.isAuthenticated &&
     !isLoginPage
   ) {
-    return (<>
-      {authContext.error && <ApiErrorMessage error={authContext.error} />}
-      <LoadingSpinner id="user-loading-spinner" />
-    </>)
+    return (
+      <>
+        {authContext.error && <ApiErrorMessage error={authContext.error} />}
+        <LoadingSpinner id="user-loading-spinner" />
+      </>
+    )
   }
 
-  return (<>
-    {authContext.error && <ApiErrorMessage error={authContext.error} />}
-    {children}
-  </>)
+  return (
+    <>
+      {authContext.error && <ApiErrorMessage error={authContext.error} />}
+      {children}
+    </>
+  )
 }
 
 const currentUserOueryClientKey = 'auth-user'
 
 export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
-  const { apiClient, config }  = useConfig()
+  const { apiClient, config } = useConfig()
   const keycloack = getKeycloak(config)
   const queryClient = useQueryClient()
   const { enqueueSnackbar } = useSnackbar()
@@ -138,6 +142,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 
   const { mutate: logout } = useMutation({
     mutationFn: apiClient.logout.bind(apiClient),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess(data: any, navigate: NavigateFunction) {
       queryClient.clear()
       navigate({ pathname: '/login' })
@@ -162,6 +167,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   }
 
   // No need to display this, as we redirect user to the login page, if that is the case
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filterForbiddenErrors = (error: any) => {
     if (!error) {
       return null

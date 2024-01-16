@@ -7,6 +7,9 @@ cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API/src/main/resources/co
 cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API_KC/src/main/resources/config-api.json
 
 mvn clean package
+pushd JeMPI_EM_Scala
+  sbt clean assembly
+popd
 
 pushd JeMPI_AsyncReceiver
   ./build.sh || exit 1
@@ -17,7 +20,7 @@ popd
 pushd JeMPI_Controller
   ./build.sh || exit 1
 popd
-pushd JeMPI_EM
+pushd JeMPI_EM_Scala
   ./build.sh || exit 1
 popd
 pushd JeMPI_Linker
@@ -41,7 +44,7 @@ popd
 pushd JeMPI_Controller
   ./push.sh
 popd
-pushd JeMPI_EM
+pushd JeMPI_EM_Scala
   ./push.sh
 popd
 pushd JeMPI_Linker

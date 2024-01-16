@@ -1,4 +1,3 @@
-
 import BrowseRecords from 'components/browseRecords/BrowseRecords'
 import NotFound from 'components/error/NotFound'
 import Import from 'components/import/Import'

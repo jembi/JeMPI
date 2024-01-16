@@ -8,7 +8,7 @@ import {
   FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
-import { OAuthParams, User } from '../types/User'
+import { OAuthParams } from '../types/User'
 import ROUTES from './apiRoutes'
 import moxios from './mockBackend'
 import {
@@ -66,13 +66,13 @@ export class ApiClient {
         const { method } = request
         if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
           const csrfToken = getCookie('XSRF-TOKEN')
-          if (csrfToken) {
+          if (csrfToken && request.headers) {
             request.headers['X-XSRF-TOKEN'] = csrfToken
           }
         }
 
         const authToken = await apiClientAuth.getAuthToken()
-        if (authToken) {
+        if (authToken && request.headers) {
           request.headers['authorization'] = authToken
         }
 
@@ -90,10 +90,11 @@ export class ApiClient {
   async getMatches(
     limit: number,
     offset: number,
-    created: string,
-    state: string
+    startDay: string,
+    endDay: string,
+    states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 
@@ -371,7 +372,9 @@ export class ApiClient {
       response.data &&
       'set-authorization' in response.headers
     ) {
-      await apiClientAuth.setAuthToken(response.headers['set-authorization'])
+      await apiClientAuth.setAuthToken(
+        response.headers['set-authorization'] as string
+      )
       return response.data
     }
     throw new Error(
