@@ -47,7 +47,8 @@ object EM_Scala extends LazyLogging {
         case "BATCH_END_SENTINEL" =>
           val parVector = new ParVector(buffer.toVector)
           buffer.clearAndShrink()
-          val emRunnable: EM_Runnable = new EM_Runnable(parVector)
+          val emRunnable: EM_Runnable =
+            new EM_Runnable(interactionEnvelop.tag.get, parVector)
           val thread: Thread = new Thread(emRunnable)
           thread.start();
         case "BATCH_INTERACTION" =>
@@ -109,8 +110,10 @@ object EM_Scala extends LazyLogging {
     props
   }
 
-  private class EM_Runnable(val interactions: ParVector[Array[String]])
-      extends Runnable {
+  private class EM_Runnable(
+      val tag: String,
+      val interactions: ParVector[Array[String]]
+  ) extends Runnable {
 
     def run(): Unit = {
       val interactions_ : ParVector[ArraySeq[String]] =
@@ -123,7 +126,7 @@ object EM_Scala extends LazyLogging {
         Utils.printMU(x._1.name, mu(x._2))
       )
       logger.info(s"$ms ms")
-      Producer.send(mu);
+      Producer.send(tag, mu);
     }
 
   }

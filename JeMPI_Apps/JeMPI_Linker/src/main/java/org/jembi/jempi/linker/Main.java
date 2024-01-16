@@ -27,8 +27,10 @@ public final class Main {
          final var system = context.getSystem();
          final ActorRef<BackEnd.Request> backEnd = context.spawn(BackEnd.create(), "BackEnd");
          context.watch(backEnd);
+         /*
          final SPInteractions spInteractions = SPInteractions.create();
-         spInteractions.open(system, backEnd);
+         spInteractions.open(GlobalConstants.TOPIC_INTERACTION_LINKER, system, backEnd);
+         */
          final SPMU spMU = new SPMU();
          spMU.open(system, backEnd);
          httpServer = HttpServer.create();

@@ -62,7 +62,7 @@ object CustomLinkerProbabilistic {
          |   }
          |""".stripMargin)
 
-    generateGetMU()
+//    generateGetMU()
     if (!linkMuList.isEmpty) {
       generateFieldsRecord("LinkFields", linkMuList)
     }

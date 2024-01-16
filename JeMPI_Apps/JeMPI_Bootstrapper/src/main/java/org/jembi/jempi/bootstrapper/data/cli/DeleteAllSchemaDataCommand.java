@@ -8,8 +8,8 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "deleteAllSchemaData", mixinStandardHelpOptions = true, description = "Delete all the data and " +
-                                                                                                  "schema used by JeMPI.")
+@CommandLine.Command(name = "deleteAllSchemaData", mixinStandardHelpOptions = true, description = "Delete all the data and "
+        + "schema used by JeMPI.")
 public class DeleteAllSchemaDataCommand extends BaseCLICommand implements Callable<Integer> {
    @Override
    public Integer call() throws Exception {

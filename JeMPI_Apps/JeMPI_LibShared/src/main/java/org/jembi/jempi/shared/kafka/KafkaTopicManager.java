@@ -12,6 +12,10 @@ public final class KafkaTopicManager {
 
    private final AdminClient adminClient;
 
+   public void close() {
+      adminClient.close();
+   }
+
    public KafkaTopicManager(final String bootStrapServers) {
       Properties properties = new Properties();
       properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);

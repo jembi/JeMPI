@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -56,6 +55,7 @@ public final class SPInteractions {
    }
 
    public void open(
+         final String topic,
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd) {
       LOGGER.info("EM Stream Processor");
@@ -65,7 +65,7 @@ public final class SPInteractions {
             Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> patientsStream =
-            streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_LINKER, Consumed.with(stringSerde, batchPatientRecordSerde));
+            streamsBuilder.stream(topic, Consumed.with(stringSerde, batchPatientRecordSerde));
       patientsStream.foreach((key, patient) -> linkPatient(system, backEnd, key, patient));
       patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       patientKafkaStreams.cleanUp();

@@ -2,6 +2,7 @@ package org.jembi.jempi.async_receiver;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -81,6 +82,7 @@ public final class Main {
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
          final var uuid = UUID.randomUUID().toString();
+         final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
          final var csvParser = CSVFormat.DEFAULT.builder()
                                                 .setHeader()
@@ -93,13 +95,13 @@ public final class Main {
          int index = 0;
          sendToKafka(uuid,
                      new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
-                                            fileName,
+                                            tag,
                                             String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                             null));
          for (CSVRecord csvRecord : csvParser) {
             sendToKafka(UUID.randomUUID().toString(),
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
-                                               fileName,
+                                               tag,
                                                String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                new Interaction(null,
                                                                CustomAsyncHelper.customSourceId(csvRecord),
@@ -108,7 +110,7 @@ public final class Main {
          }
          sendToKafka(uuid,
                      new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
-                                            fileName,
+                                            tag,
                                             String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                             null));
       } catch (IOException ex) {

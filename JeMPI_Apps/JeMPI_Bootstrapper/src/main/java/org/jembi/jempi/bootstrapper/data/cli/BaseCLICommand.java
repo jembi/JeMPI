@@ -14,11 +14,11 @@ public abstract class BaseCLICommand extends BaseDataBootstrapperCommand<DataBoo
    }
 
    @Override
-   protected DataBootstrapper getBootstrapper(String configPath) {
+   protected DataBootstrapper getBootstrapper(final String configPath) {
       return null;
    }
 
-   protected Integer callMultiple(BaseDataBootstrapperCommand<DataBootstrapper>[] bootstrapperCommands) throws Exception {
+   protected Integer callMultiple(final BaseDataBootstrapperCommand<DataBootstrapper>[] bootstrapperCommands) throws Exception {
       Integer execResult = 0;
       for (BaseDataBootstrapperCommand<DataBootstrapper> b : bootstrapperCommands) {
          execResult += b.setConfigPath(this.config).init().call();

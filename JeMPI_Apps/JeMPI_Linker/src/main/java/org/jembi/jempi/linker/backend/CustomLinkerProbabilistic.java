@@ -28,17 +28,6 @@ final class CustomLinkerProbabilistic {
    private CustomLinkerProbabilistic() {
    }
 
-   static CustomMU getMU() {
-      return new CustomMU(
-         LinkerProbabilistic.getProbability(currentLinkFields.givenName),
-         LinkerProbabilistic.getProbability(currentLinkFields.familyName),
-         LinkerProbabilistic.getProbability(currentLinkFields.gender),
-         LinkerProbabilistic.getProbability(currentLinkFields.dob),
-         LinkerProbabilistic.getProbability(currentLinkFields.city),
-         LinkerProbabilistic.getProbability(currentLinkFields.phoneNumber),
-         LinkerProbabilistic.getProbability(currentLinkFields.nationalId));
-   }
-
    private record LinkFields(
          LinkerProbabilistic.Field givenName,
          LinkerProbabilistic.Field familyName,

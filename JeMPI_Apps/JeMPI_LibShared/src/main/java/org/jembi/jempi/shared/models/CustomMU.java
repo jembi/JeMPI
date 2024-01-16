@@ -3,7 +3,8 @@ package org.jembi.jempi.shared.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record CustomMU(Probability givenName,
+public record CustomMU(String tag,
+                       Probability givenName,
                        Probability familyName,
                        Probability gender,
                        Probability dob,
@@ -11,8 +12,9 @@ public record CustomMU(Probability givenName,
                        Probability phoneNumber,
                        Probability nationalId) {
 
-   public CustomMU(final double[] mHat, final double[] uHat) {
-      this(new CustomMU.Probability((float) mHat[0], (float) uHat[0]),
+   public CustomMU(final String tag, final double[] mHat, final double[] uHat) {
+      this(tag,
+           new CustomMU.Probability((float) mHat[0], (float) uHat[0]),
            new CustomMU.Probability((float) mHat[1], (float) uHat[1]),
            new CustomMU.Probability((float) mHat[2], (float) uHat[2]),
            new CustomMU.Probability((float) mHat[3], (float) uHat[3]),
