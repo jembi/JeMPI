@@ -11,7 +11,6 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -27,7 +26,6 @@ public final class InteractionProcessorConnector {
     }
 
     private void produceMessage(final InteractionProcessorEnvelop interactionProcessorEnvelop) {
-        LOGGER.info(String.format("Sending event '%s' to the interaction processor", interactionProcessorEnvelop.processorToUse()));
         kafkaProducer.produceAsync(UUID.randomUUID().toString(),
                                     interactionProcessorEnvelop,
                                     ((metadata, exception) -> {
@@ -41,8 +39,8 @@ public final class InteractionProcessorConnector {
         produceMessage(new InteractionProcessorEnvelop(InteractionProcessorEvents.ON_NEW_INTERACTION,
                 new OnNewInteractionInteractionProcessorEnvelope(interaction, envelopeStan)));
     }
-    public void sendOnProcessCandidates(final Interaction interaction, final String envelopeStan, final Float matchThreshold, final Map<String, Float> candidatesWithScores) {
-        produceMessage(new InteractionProcessorEnvelop(InteractionProcessorEvents.ON_NEW_INTERACTION,
-                new OnProcessCandidatesInteractionProcessorEnvelope(interaction, envelopeStan, matchThreshold, candidatesWithScores)));
+    public void sendOnProcessCandidates(final Interaction interaction, final String envelopeStan, final Float matchThreshold) {
+        produceMessage(new InteractionProcessorEnvelop(InteractionProcessorEvents.ON_PROCESS_CANDIDATES,
+                new OnProcessCandidatesInteractionProcessorEnvelope(interaction, envelopeStan, matchThreshold)));
     }
 }

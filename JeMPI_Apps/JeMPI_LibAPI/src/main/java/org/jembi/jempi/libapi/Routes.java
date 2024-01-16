@@ -121,54 +121,68 @@ public final class Routes {
    }
 
    public static Route patchIidNewGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("goldenID",
-                       currentGoldenId -> parameter("patientID",
-                                                    patientId -> onComplete(Ask.patchIidNewGidLink(actorSystem,
-                                                                                                   backEnd,
-                                                                                                   currentGoldenId,
-                                                                                                   patientId),
-                                                                            result -> result.isSuccess()
-                                                                                  ? result.get()
-                                                                                          .linkInfo()
-                                                                                          .mapLeft(Routes::mapError)
-                                                                                          .fold(error -> error,
-                                                                                                linkInfo -> complete(StatusCodes.OK,
-                                                                                                                     linkInfo,
-                                                                                                                     JSON_MARSHALLER))
-                                                                                  : complete(ApiModels.getHttpErrorResponse(
-                                                                                        StatusCodes.IM_A_TEAPOT)))));
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String linkerIP,
+           final Integer linkerPort,
+           final Http http) {
+
+      return entity(Jackson.unmarshaller(NotificationResolution.class),
+              obj -> onComplete(Ask.patchIidNewGidLink(actorSystem,
+                                      backEnd,
+                                      obj.newGoldenId(),
+                                      obj.interactionId()),
+                              result -> result.isSuccess()
+                                      ? result.get()
+                                      .linkInfo()
+                                      .mapLeft(Routes::mapError)
+                                      .fold(error -> error,
+                                              linkInfo ->  onComplete(processOnNotificationResolution(
+                                                              linkerIP,
+                                                              linkerPort,
+                                                              http,
+                                                              new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r ->  complete(
+                                                              StatusCodes.OK,
+                                                              linkInfo,
+                                                              JSON_MARSHALLER))
+                                      )
+                                      : complete(StatusCodes.IM_A_TEAPOT))
+              );
    }
 
    public static Route patchIidGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("goldenID",
-                       currentGoldenId -> parameter("newGoldenID",
-                                                    newGoldenId -> parameter("patientID",
-                                                                             patientId -> parameter("score",
-                                                                                                    score -> onComplete(Ask.patchIidGidLink(
-                                                                                                                              actorSystem,
-                                                                                                                              backEnd,
-                                                                                                                              currentGoldenId,
-                                                                                                                              newGoldenId,
-                                                                                                                              patientId,
-                                                                                                                              Float.parseFloat(score)),
-                                                                                                                        result -> result.isSuccess()
-                                                                                                                              ?
-                                                                                                                              result.get()
-                                                                                                                                      .linkInfo()
-                                                                                                                                      .mapLeft(
-                                                                                                                                            Routes::mapError)
-                                                                                                                                      .fold(error -> error,
-                                                                                                                                            linkInfo -> complete(
-                                                                                                                                                  StatusCodes.OK,
-                                                                                                                                                  linkInfo,
-                                                                                                                                                  JSON_MARSHALLER))
-                                                                                                                              : complete(
-                                                                                                                                    ApiModels.getHttpErrorResponse(
-                                                                                                                                          StatusCodes.IM_A_TEAPOT)))))));
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String linkerIP,
+           final Integer linkerPort,
+           final Http http) {
+
+      return entity(Jackson.unmarshaller(NotificationResolution.class),
+              obj -> onComplete(Ask.patchIidGidLink(
+                              actorSystem,
+                              backEnd,
+                              obj.currentGoldenId(),
+                              obj.newGoldenId(),
+                              obj.interactionId(),
+                              obj.score()),
+                      result -> result.isSuccess()
+                              ? result.get()
+                              .linkInfo()
+                              .mapLeft(Routes::mapError)
+                              .fold(error -> error,
+                                      linkInfo ->  onComplete(processOnNotificationResolution(
+                                                      linkerIP,
+                                                      linkerPort,
+                                                      http,
+                                                      new NotificationResolutionProcessorData(obj, linkInfo)),
+                                              r ->  complete(
+                                                      StatusCodes.OK,
+                                                      linkInfo,
+                                                      JSON_MARSHALLER))
+                              )
+                              : complete(StatusCodes.IM_A_TEAPOT))
+      );
    }
 
    public static Route countGoldenRecords(
@@ -834,13 +848,13 @@ public final class Routes {
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
                                            () -> Routes.postCrCandidates(linkerIP, linkerPort, http)),
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
-                                           () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
+                                           () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
+                                      path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
+                                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)),
+                                      path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
+                                              () -> Routes.patchIidGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
-                                       path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,
-                                            () -> Routes.patchIidNewGidLink(actorSystem, backEnd)),
-                                       path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
-                                            () -> Routes.patchIidGidLink(actorSystem, backEnd)),
                                        path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
                                             () -> Routes.patchCrUpdateFields(linkerIP, linkerPort, http)))),
                     get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,

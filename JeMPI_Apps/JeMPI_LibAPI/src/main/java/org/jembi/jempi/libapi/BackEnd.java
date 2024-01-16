@@ -148,7 +148,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
                     .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
-					.onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)   
+                    .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
                     .build();
    }
 

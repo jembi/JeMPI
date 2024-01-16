@@ -165,14 +165,10 @@ public final class LinkerDWH {
          final var matchThreshold = externalLinkRange != null
                ? externalLinkRange.high()
                : matchThreshold_;
-
-
          try {
             libMPI.startTransaction();
             LinkerProbabilistic.checkUpdatedMU();
-
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
-
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
             } else {
@@ -183,6 +179,7 @@ public final class LinkerDWH {
                                                                                                               candidate.demographicData(),
                                                                                                               interaction.demographicData())))
                                                                     .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                                                    .collect(Collectors.toCollection(ArrayList::new));
 
                interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold);
                // Get a list of candidates withing the supplied for external link range
@@ -240,7 +237,6 @@ public final class LinkerDWH {
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                       aboveThresholdNotifications.stream().filter(m -> !Objects.equals(m.gID(), firstCandidate.goldenRecord.goldenId())).collect(Collectors.toCollection(ArrayList::new)));
                   }
-
                   if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                      CustomLinkerBackEnd.updateGoldenRecordFields(libMPI,
                                                                   matchThreshold,
