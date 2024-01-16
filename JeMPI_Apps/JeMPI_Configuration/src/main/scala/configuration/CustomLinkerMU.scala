@@ -3,36 +3,35 @@ package configuration
 import java.io.{File, PrintWriter}
 import scala.language.{existentials, postfixOps}
 
-
 object CustomLinkerMU {
 
-  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
+  private val classLocation =
+    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
   private val custom_className = "CustomLinkerMU"
   private val packageText = "org.jembi.jempi.linker"
 
   private val indent = 3
 
   def generate(config: Config): Any = {
-    val classFile: String = classLocation + File.separator + custom_className + ".java"
+    val classFile: String =
+      classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
-    val muList = for (
-      t <- config.demographicFields.filter(f => f.linkMetaData.isDefined)
-    ) yield t
+    val muList =
+      for (t <- config.demographicFields.filter(f => f.linkMetaData.isDefined))
+        yield t
 
     writer.println(s"package $packageText;")
     writer.println()
 
     if (muList.length == 0) {
-      writer.println(
-        s"""public class $custom_className {
+      writer.println(s"""public class $custom_className {
            |}
            |""".stripMargin)
     } else {
-      writer.println(
-        s"""import org.apache.commons.lang3.StringUtils;
+      writer.println(s"""import org.apache.commons.lang3.StringUtils;
            |import org.apache.commons.text.similarity.SimilarityScore;
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.apache.logging.log4j.LogManager;
@@ -87,8 +86,7 @@ object CustomLinkerMU {
            |   }
            |""".stripMargin)
 
-      writer.println(
-        s"""   void updateMatchSums(
+      writer.println(s"""   void updateMatchSums(
            |         final CustomDemographicData patient,
            |         final CustomDemographicData goldenRecord) {""".stripMargin)
       if (muList.nonEmpty) {
@@ -96,25 +94,24 @@ object CustomLinkerMU {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
             s"      updateMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName" +
-              s");")
+              s");"
+          )
         })
-        writer.println(
-          """      LOGGER.debug("{}", fields);
+        writer.println("""      LOGGER.debug("{}", fields);
             |   }
             |""".stripMargin)
       }
 
-      writer.println(
-        s"""   void updateMissmatchSums(
+      writer.println(s"""   void updateMissmatchSums(
            |         final CustomDemographicData patient,
            |         final CustomDemographicData goldenRecord) {""".stripMargin)
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName);")
+          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName);"
+        )
       })
-      writer.println(
-        """      LOGGER.debug("{}", fields);
+      writer.println("""      LOGGER.debug("{}", fields);
           |   }
           |
           |   static class Field {
@@ -135,10 +132,11 @@ object CustomLinkerMU {
           |   static class Fields {""".stripMargin)
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-        writer.println(s"      final Field $fieldName = new Field(JARO_WINKLER_SIMILARITY, 0.92);")
+        writer.println(
+          s"      final Field $fieldName = new Field(JARO_WINKLER_SIMILARITY, 0.92);"
+        )
       })
-      writer.println(
-        """
+      writer.println("""
           |      private float computeM(final Field field) {
           |         return (float) (field.matchedPairFieldMatched)
           |              / (float) (field.matchedPairFieldMatched + field.matchedPairFieldUnmatched);
@@ -150,8 +148,7 @@ object CustomLinkerMU {
           |      }
           |""".stripMargin)
 
-      writer.println(
-        """      @Override
+      writer.println("""      @Override
           |      public String toString() {""".stripMargin)
 
       if (muList.nonEmpty) {
@@ -161,16 +158,18 @@ object CustomLinkerMU {
         //    println(fmt)
 
         writer.println(
-          s"""         return String.format(Locale.ROOT, "$fmt",""".stripMargin)
+          s"""         return String.format(Locale.ROOT, "$fmt",""".stripMargin
+        )
         muList.zipWithIndex.foreach((mu, idx) => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-          writer.println(s"                              computeM($fieldName), computeU($fieldName)"
-            + (if ((idx + 1) != muList.length) "," else ");"))
+          writer.println(
+            s"                              computeM($fieldName), computeU($fieldName)"
+              + (if ((idx + 1) != muList.length) "," else ");")
+          )
         })
       }
 
-      writer.println(
-        s"""      }
+      writer.println(s"""      }
            |
            |   }
            """.stripMargin)

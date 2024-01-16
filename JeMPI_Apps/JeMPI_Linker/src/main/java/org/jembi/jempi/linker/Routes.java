@@ -3,8 +3,11 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.marshallers.jackson.Jackson;
+import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
@@ -15,7 +18,16 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class Routes {
 
+   private static final Logger LOGGER = LogManager.getLogger(Routes.class);
+
    private Routes() {
+   }
+
+   static StatusCode logHttpError(
+         final StatusCode code,
+         final String log) {
+      LOGGER.debug("{}", log);
+      return code;
    }
 
    static Route mapError(final MpiGeneralError obj) {
@@ -46,25 +58,7 @@ final class Routes {
                                                                                 candidateList -> complete(StatusCodes.OK,
                                                                                                           candidateList,
                                                                                                           Jackson.marshaller()))
-                                                                  : complete(StatusCodes.IM_A_TEAPOT))));
-   }
-
-   static Route proxyPostLinkInteraction(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(LinkInteractionSyncBody.class),
-                    obj -> onComplete(Ask.postLinkInteraction(actorSystem, backEnd, obj), response -> {
-                       if (response.isSuccess()) {
-                          final var eventLinkPatientSyncRsp = response.get();
-                          return complete(StatusCodes.OK,
-                                          new ApiModels.ApiExtendedLinkInfo(eventLinkPatientSyncRsp.stan(),
-                                                                            eventLinkPatientSyncRsp.linkInfo(),
-                                                                            eventLinkPatientSyncRsp.externalLinkCandidateList()),
-                                          Jackson.marshaller());
-                       } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
-                       }
-                    }));
+                                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
    }
 
     static Route onNotificationResolution(
@@ -94,11 +88,11 @@ final class Routes {
    static Route proxyPostLinkInteractionToGID(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(LinkInteractionToGidSyncBody.class),
+      return entity(Jackson.unmarshaller(ApiModels.LinkInteractionToGidSyncBody.class),
                     obj -> onComplete(Ask.postLinkPatientToGid(actorSystem, backEnd, obj),
                                       response -> response.isSuccess()
                                             ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
-                                            : complete(StatusCodes.IM_A_TEAPOT)));
+                                            : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
 
    static Route proxyPostCalculateScores(
@@ -108,17 +102,8 @@ final class Routes {
                     obj -> onComplete(Ask.postCalculateScores(actorSystem, backEnd, obj),
                                       response -> response.isSuccess()
                                             ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
-                                            : complete(StatusCodes.IM_A_TEAPOT)));
+                                            : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
-
-//   static Route routeMU(
-//         final ActorSystem<Void> actorSystem,
-//         final ActorRef<BackEnd.Request> backEnd) {
-//      return onComplete(Ask.getMU(actorSystem, backEnd),
-//                        response -> response.isSuccess()
-//                              ? complete(StatusCodes.OK, response.get().mu(), Jackson.marshaller())
-//                              : complete(StatusCodes.IM_A_TEAPOT));
-//   }
 
    static Route proxyGetCrCandidates(
          final ActorSystem<Void> actorSystem,
@@ -134,7 +119,7 @@ final class Routes {
                                           new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                           Jackson.marshaller(OBJECT_MAPPER));
                        } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     }));
    }
@@ -153,7 +138,7 @@ final class Routes {
                                           new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                           Jackson.marshaller(OBJECT_MAPPER));
                        } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     }));
    }
@@ -174,7 +159,25 @@ final class Routes {
                                              Jackson.marshaller(OBJECT_MAPPER));
                           }
                        } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                       }
+                    }));
+   }
+
+   static Route proxyPostLinkInteraction(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionSyncBody.class),
+                    obj -> onComplete(Ask.postLinkInteraction(actorSystem, backEnd, obj), response -> {
+                       if (response.isSuccess()) {
+                          final var eventLinkPatientSyncRsp = response.get();
+                          return complete(StatusCodes.OK,
+                                          new ApiModels.ApiExtendedLinkInfo(eventLinkPatientSyncRsp.stan(),
+                                                                            eventLinkPatientSyncRsp.linkInfo(),
+                                                                            eventLinkPatientSyncRsp.externalLinkCandidateList()),
+                                          Jackson.marshaller());
+                       } else {
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     }));
    }
@@ -195,7 +198,7 @@ final class Routes {
                                              Jackson.marshaller());
                           }
                        } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
                        }
                     }));
    }

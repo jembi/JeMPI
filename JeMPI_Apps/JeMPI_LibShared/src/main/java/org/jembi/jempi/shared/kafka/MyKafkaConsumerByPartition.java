@@ -90,11 +90,10 @@ public final class MyKafkaConsumerByPartition<KEY_TYPE, VAL_TYPE> {
       TopicPartition tp = new TopicPartition(topic, partition);
       LOGGER.info("Set offset {} {}", tp, offset);
       // Get topic partitions
-      List<TopicPartition> partitions = consumer
-            .partitionsFor(topic)
-            .stream()
-            .map(partitionInfo -> new TopicPartition(topic, partitionInfo.partition()))
-            .collect(Collectors.toList());
+      List<TopicPartition> partitions = consumer.partitionsFor(topic)
+                                                .stream()
+                                                .map(partitionInfo -> new TopicPartition(topic, partitionInfo.partition()))
+                                                .collect(Collectors.toList());
       // Explicitly assign the partitions to our consumer
       consumer.assign(partitions);
       //seek, query offsets, or poll

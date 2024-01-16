@@ -4,10 +4,12 @@ import java.io.{File, PrintWriter}
 
 private object CustomPostgresqlInteraction {
 
-  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/postgresql"
+  private val classLocation =
+    "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/postgresql"
   private val packageText = "org.jembi.jempi.libmpi.postgresql"
   private val customClassName = "CustomInteractionData"
-  private val classFile: String = classLocation + File.separator + customClassName + ".java"
+  private val classFile: String =
+    classLocation + File.separator + customClassName + ".java"
 
   def generate(fields: Array[DemographicField]): Unit = {
     println("Creating " + classFile)
@@ -21,11 +23,18 @@ private object CustomPostgresqlInteraction {
          |final class $customClassName extends CustomDemographicData implements NodeData {
          |
          |   $customClassName(final CustomDemographicData customDemographicData) {
-         |      super(${fields.map(field => s"""customDemographicData.${Utils.snakeCaseToCamelCase(field.fieldName)}""").mkString(s",${sys.props("line.separator")}            ")});
+         |      super(${fields
+          .map(field =>
+            s"""customDemographicData.${Utils.snakeCaseToCamelCase(
+                field.fieldName
+              )}"""
+          )
+          .mkString(s",${sys.props("line.separator")}            ")});
          |   }
          |
          |}
-         |""".stripMargin)
+         |""".stripMargin
+    )
     writer.close()
   }
 

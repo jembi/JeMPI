@@ -3,49 +3,65 @@ package configuration
 import java.io.{File, PrintWriter}
 import scala.language.{existentials, postfixOps}
 
-
 object CustomLinkerDeterministic {
 
-  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
+  private val classLocation =
+    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
   private val custom_className = "CustomLinkerDeterministic"
   private val packageText = "org.jembi.jempi.linker.backend"
 
   def generate(config: Config): Any = {
-    val classFile: String = classLocation + File.separator + custom_className + ".java"
+    val classFile: String =
+      classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-
 
     def emitCanApplyLinking(rules: Map[String, Rule]): Unit = {
       writer.print(
         s"""   static boolean canApplyLinking(
            |         final CustomDemographicData interaction) {
-           |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin)
+           |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin
+      )
       rules.zipWithIndex.foreach((rule, rule_idx) => {
-        writer.print(
-          s"""
+        writer.print(s"""
              |             || """.stripMargin)
         rule._2.vars.zipWithIndex.foreach((field, var_idx) =>
-          writer.print(s"StringUtils.isNotBlank(interaction.${Utils.snakeCaseToCamelCase(field)})${if (var_idx + 1 < rule._2.vars.length) s"${sys.props("line.separator")}${" " * 13}&& " else ""}")
+          writer.print(
+            s"StringUtils.isNotBlank(interaction.${Utils.snakeCaseToCamelCase(field)})${
+                if (var_idx + 1 < rule._2.vars.length)
+                  s"${sys.props("line.separator")}${" " * 13}&& "
+                else ""
+              }"
+          )
         )
       })
-      writer.println(
-        s""";
+      writer.println(s""";
            |   }
            |""".stripMargin)
     }
 
-    def emitDeterministicMatch(funcName: String, map: Map[String, Rule]): Unit = {
+    def emitDeterministicMatch(
+        funcName: String,
+        map: Map[String, Rule]
+    ): Unit = {
 
       def checkNullExpression(expr: Ast.Expression): String = {
         expr match {
-          case Ast.Or(x) => "("
-            + (for (k <- x.zipWithIndex) yield if (k._2 == 0) checkNullExpression(k._1) else " || " + checkNullExpression(k._1)).mkString
-            + ")"
-          case Ast.And(x) => "("
-            + (for (k <- x.zipWithIndex) yield if (k._2 == 0) checkNullExpression(k._1) else " && " + checkNullExpression(k._1)).mkString
-            + ")"
+          case Ast.Or(x) =>
+            "("
+              + (for (k <- x.zipWithIndex)
+                yield
+                  if (k._2 == 0) checkNullExpression(k._1)
+                  else " || " + checkNullExpression(k._1)).mkString
+              + ")"
+          case Ast.And(x) =>
+            "("
+              + (for (k <- x.zipWithIndex)
+                yield
+                  if (k._2 == 0) checkNullExpression(k._1)
+                  else " && " + checkNullExpression(k._1)).mkString
+              + ")"
           case Ast.Not(x) =>
             "NOT (" + checkNullExpression(x) + ")"
           case Ast.Match(variable, _) =>
@@ -69,8 +85,7 @@ object CustomLinkerDeterministic {
            |         final CustomDemographicData interaction) {""".stripMargin)
 
       if (map.isEmpty) {
-        writer.println(
-          s"""      return false;
+        writer.println(s"""      return false;
              |   }
              |""".stripMargin)
       } else {
@@ -86,17 +101,14 @@ object CustomLinkerDeterministic {
             writer.println(" " * 6 + s"final var $right = interaction.$field;")
           })
           if (index < z.size - 1) {
-            writer.println(
-              s"""      if ($expr_1) {
+            writer.println(s"""      if ($expr_1) {
                  |         return true;
                  |      }""".stripMargin)
           } else {
-            writer.println(
-              s"""      return $expr_1;""".stripMargin)
+            writer.println(s"""      return $expr_1;""".stripMargin)
           }
         })
-        writer.println(
-          """   }
+        writer.println("""   }
             |""".stripMargin)
 
       }
@@ -111,9 +123,15 @@ object CustomLinkerDeterministic {
          |
          |public final class $custom_className {
          |
-         |   static final boolean DETERMINISTIC_DO_LINKING = ${if (config.rules.link.get.deterministic.nonEmpty) "true" else "false"};
-         |   static final boolean DETERMINISTIC_DO_VALIDATING = ${if (config.rules.validate.nonEmpty) "true" else "false"};
-         |   static final boolean DETERMINISTIC_DO_MATCHING = ${if (config.rules.matchNotification.nonEmpty) "true" else "false"};
+         |   static final boolean DETERMINISTIC_DO_LINKING = ${
+          if (config.rules.link.get.deterministic.nonEmpty) "true" else "false"
+        };
+         |   static final boolean DETERMINISTIC_DO_VALIDATING = ${
+          if (config.rules.validate.nonEmpty) "true" else "false"
+        };
+         |   static final boolean DETERMINISTIC_DO_MATCHING = ${
+          if (config.rules.matchNotification.nonEmpty) "true" else "false"
+        };
          |
          |   private $custom_className() {
          |   }
@@ -123,11 +141,25 @@ object CustomLinkerDeterministic {
          |         final String right) {
          |      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
          |   }
-         |""".stripMargin)
+         |""".stripMargin
+    )
     emitCanApplyLinking(config.rules.link.get.deterministic.get)
-    emitDeterministicMatch("linkDeterministicMatch", config.rules.link.get.deterministic.get)
-    emitDeterministicMatch("validateDeterministicMatch", if (config.rules.validate.isDefined) config.rules.validate.get.deterministic else Map.empty[String, Rule])
-    emitDeterministicMatch("matchNotificationDeterministicMatch", if (config.rules.matchNotification.isDefined) config.rules.matchNotification.get.deterministic.get else Map.empty[String, Rule])
+    emitDeterministicMatch(
+      "linkDeterministicMatch",
+      config.rules.link.get.deterministic.get
+    )
+    emitDeterministicMatch(
+      "validateDeterministicMatch",
+      if (config.rules.validate.isDefined)
+        config.rules.validate.get.deterministic
+      else Map.empty[String, Rule]
+    )
+    emitDeterministicMatch(
+      "matchNotificationDeterministicMatch",
+      if (config.rules.matchNotification.isDefined)
+        config.rules.matchNotification.get.deterministic.get
+      else Map.empty[String, Rule]
+    )
     writer.println("}")
     writer.flush()
     writer.close()

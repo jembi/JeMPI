@@ -8,16 +8,14 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "resetAll", mixinStandardHelpOptions = true, description = "Deletes all data and schemas associated with JeMPI, then recreates schemas, and add initial data.")
+@CommandLine.Command(name = "resetAll", mixinStandardHelpOptions = true, description = "Deletes all data and schemas associated"
+        + " with JeMPI, then recreates schemas, and add initial data.")
 public class ResetAllCommand extends BaseCLICommand implements Callable<Integer> {
-    @Override
-    public Integer call() throws Exception {
+   @Override
+   public Integer call() throws Exception {
 
-        return this.execute(() -> this.callMultiple(new BaseDataBootstrapperCommand[]
-                {
-                        new PostgresResetAllCommand(),
-                        new DgraphResetAllCommand(),
-                        new KafkaResetAllCommand()
-                }));
-    }
+      return this.execute(() -> this.callMultiple(new BaseDataBootstrapperCommand[]{new PostgresResetAllCommand(),
+                                                                                    new DgraphResetAllCommand(),
+                                                                                    new KafkaResetAllCommand()}));
+   }
 }

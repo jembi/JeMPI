@@ -10,11 +10,11 @@ public class User {
    private String givenName;
 
    public User(
-           final String id,
-           final String username,
-           final String email,
-           final String familyName,
-           final String givenName) {
+         final String id,
+         final String username,
+         final String email,
+         final String familyName,
+         final String givenName) {
       this.setId(id);
       this.setUsername(username);
       this.setEmail(email);
@@ -25,18 +25,17 @@ public class User {
    public static User buildUserFromToken(final AccessToken token) {
       String familyName = token.getFamilyName();
       String givenName = token.getGivenName();
-      return new User(
-            null,
-            token.getPreferredUsername(),
-            token.getEmail(),
-            familyName != null
-                  ? familyName
-                  : "",
-            givenName != null
-                  ? givenName
-                  : ""
-      );
+      return new User(null,
+                      token.getPreferredUsername(),
+                      token.getEmail(),
+                      familyName != null
+                            ? familyName
+                            : "",
+                      givenName != null
+                            ? givenName
+                            : "");
    }
+
    public String getUsername() {
       return username;
    }

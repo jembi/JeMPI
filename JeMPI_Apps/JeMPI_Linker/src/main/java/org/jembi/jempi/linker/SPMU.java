@@ -40,12 +40,11 @@ public final class SPMU {
          final String key,
          final CustomMU mu) {
       LOGGER.info("New MU set: {}/{}", key, mu);
-      final CompletionStage<BackEnd.EventUpdateMURsp> result =
-            AskPattern.ask(
-                  backEnd,
-                  replyTo -> new BackEnd.EventUpdateMUReq(mu, replyTo),
-                  java.time.Duration.ofSeconds(5),
-                  system.scheduler());
+      final CompletionStage<BackEnd.EventUpdateMURsp> result = AskPattern.ask(backEnd,
+                                                                              replyTo -> new BackEnd.EventUpdateMUReq(mu,
+                                                                                                                      replyTo),
+                                                                              java.time.Duration.ofSeconds(5),
+                                                                              system.scheduler());
       final var completableFuture = result.toCompletableFuture();
       try {
          final var reply = completableFuture.get(6, TimeUnit.SECONDS);
@@ -64,12 +63,10 @@ public final class SPMU {
       LOGGER.info("MY Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serde<CustomMU> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
-                                                       new JsonPojoDeserializer<>(CustomMU.class));
+      final Serde<CustomMU> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(CustomMU.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, CustomMU> muStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_MU_LINKER,
-            Consumed.with(stringSerde, muSerde));
+      final KStream<String, CustomMU> muStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_MU_LINKER, Consumed.with(stringSerde, muSerde));
       muStream.foreach((key, mu) -> installMU(system, backEnd, key, mu));
       muKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       muKafkaStreams.cleanUp();

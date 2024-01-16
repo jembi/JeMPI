@@ -1,39 +1,45 @@
 package org.jembi.jempi.bootstrapper.data.stream.kafka;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 
 public class KafkaBootstrapConfig {
 
-    public static class BootstrapperTopicConfig {
-        private String topicName;
-        private Integer partition;
-        private short replications;
-        private Integer retention_ms;
-        private Integer segments_bytes;
+   public HashMap<String, BootstrapperTopicConfig> topics;
 
-        public Integer getPartition() {
-            return partition;
-        }
+   public HashMap<String, BootstrapperTopicConfig> getTopics() {
+      return topics;
+   }
 
-        public short getReplications() {
-            return replications;
-        }
+   public static class BootstrapperTopicConfig {
+      private String topicName;
+      private Integer partition;
+      private short replications;
+      @JsonProperty("retention_ms")
+      private Integer retentionMs;
 
-        public Integer getRetention_ms() {
-            return retention_ms;
-        }
+      @JsonProperty("segments_bytes")
+      private Integer segmentsBytes;
 
-        public Integer getSegments_bytes() {
-            return segments_bytes;
-        }
+      public Integer getPartition() {
+         return partition;
+      }
 
-        public String getTopicName() {
-            return topicName;
-        }
-    }
-    public HashMap<String, BootstrapperTopicConfig> topics;
+      public short getReplications() {
+         return replications;
+      }
 
-    public HashMap<String, BootstrapperTopicConfig> getTopics() {
-        return topics;
-    }
+      public Integer getRetentionMs() {
+         return retentionMs;
+      }
+
+      public Integer getSegmentsBytes() {
+         return segmentsBytes;
+      }
+
+      public String getTopicName() {
+         return topicName;
+      }
+   }
 }

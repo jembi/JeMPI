@@ -4,17 +4,18 @@ import java.io.{File, PrintWriter}
 
 private object CustomDgraphGoldenRecord {
 
-  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
+  private val classLocation =
+    "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomDgraphGoldenRecord"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(config: Config): Unit =
-    val classFile: String = classLocation + File.separator + customClassName + ".java"
+    val classFile: String =
+      classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    writer.println(
-      s"""package $packageText;
+    writer.println(s"""package $packageText;
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,20 +46,22 @@ private object CustomDgraphGoldenRecord {
     writer.flush()
     writer.close()
 
-
     def goldenRecordFields(): String =
 
-      def field(fieldName: String, fieldType: String): String = s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${fieldName.toUpperCase}) ${Utils.javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
+      def field(fieldName: String, fieldType: String): String =
+        s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${fieldName.toUpperCase}) ${Utils
+            .javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
 
-      val f1 = (if (config.uniqueGoldenRecordFields.isEmpty) "" else
-        config
-          .uniqueGoldenRecordFields
-          .get
-          .map(f => field(f.fieldName, f.fieldType))
-          .mkString(sys.props("line.separator")) + sys.props("line.separator"))
+      val f1 =
+        (if (config.uniqueGoldenRecordFields.isEmpty) ""
+         else
+           config.uniqueGoldenRecordFields.get
+             .map(f => field(f.fieldName, f.fieldType))
+             .mkString(sys.props("line.separator")) + sys.props(
+             "line.separator"
+           ))
       val f2 =
-        config
-          .demographicFields
+        config.demographicFields
           .map(f => field(f.fieldName, f.fieldType))
           .mkString(sys.props("line.separator"))
           .dropRight(1)
@@ -66,22 +69,26 @@ private object CustomDgraphGoldenRecord {
     end goldenRecordFields
 
     def uniqueArguments(): String =
-      if (config.uniqueGoldenRecordFields.isEmpty) "" else
-        config
-          .uniqueGoldenRecordFields
-          .get
+      if (config.uniqueGoldenRecordFields.isEmpty) ""
+      else
+        config.uniqueGoldenRecordFields.get
           .map(f =>
-            s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-          .mkString(sys.props("line.separator")).trim.dropRight(1)
+            s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),"""
+          )
+          .mkString(sys.props("line.separator"))
+          .trim
+          .dropRight(1)
       end if
     end uniqueArguments
 
     def demographicArguments(): String =
-      config
-        .demographicFields
+      config.demographicFields
         .map(f =>
-          s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-        .mkString(sys.props("line.separator")).trim.dropRight(1)
+          s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),"""
+        )
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
     end demographicArguments
 
   end generate

@@ -8,14 +8,12 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import io.vavr.control.Either;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 
 import org.jembi.jempi.linker.linker_processor.processors.IDashboardDataProducer;
@@ -93,11 +91,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                              AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                              "CLIENT_ID_LINKER-" + UUID.randomUUID());
       } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
-                             AppConfig.POSTGRESQL_USER,
-                             AppConfig.POSTGRESQL_PASSWORD,
-                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
+         libMPI = null;
+//         new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig
+//         .POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
+//                             AppConfig.POSTGRESQL_USER,
+//                             AppConfig.POSTGRESQL_PASSWORD,
+//                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+//                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
       libMPI.startTransaction();
    }
@@ -106,7 +106,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public Receive<Request> createReceive() {
       return newReceiveBuilder().onMessage(AsyncLinkInteractionRequest.class, this::asyncLinkInteractionHandler)
                                 .onMessage(SyncLinkInteractionRequest.class, this::syncLinkInteractionHandler)
-                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
+//                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
                                 .onMessage(CalculateScoresRequest.class, this::calculateScoresHandler)
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
@@ -137,15 +137,35 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
+   private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
+      final var result = LinkerCR.crUpdateField(libMPI, req.crUpdateFields);
+      req.replyTo.tell(new CrUpdateFieldResponse(result));
+      return Behaviors.same();
+   }
+
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       final var result = LinkerCR.crRegister(libMPI, req.crRegister);
       req.replyTo.tell(new CrRegisterResponse(result));
       return Behaviors.same();
    }
 
-   private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
-      final var result = LinkerCR.crUpdateField(libMPI, req.crUpdateFields);
-      req.replyTo.tell(new CrUpdateFieldResponse(result));
+   private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
+      final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
+                                                         new Interaction(null,
+                                                                         request.link.sourceId(),
+                                                                         request.link.uniqueInteractionData(),
+                                                                         request.link.demographicData()),
+                                                         request.link.externalLinkRange(),
+                                                         request.link.matchThreshold() == null
+                                                               ? AppConfig.LINKER_MATCH_THRESHOLD
+                                                               : request.link.matchThreshold());
+      request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
+                                                           listLinkInfo.isLeft()
+                                                                 ? listLinkInfo.getLeft()
+                                                                 : null,
+                                                           listLinkInfo.isRight()
+                                                                 ? listLinkInfo.get()
+                                                                 : null));
       return Behaviors.same();
    }
 
@@ -173,23 +193,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       });
    }
 
-   private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
-      final var listLinkInfo =
-            LinkerDWH.linkInteraction(libMPI,
-                                      request.link.interaction(),
-                                      request.link.externalLinkRange(),
-                                      request.link.matchThreshold(),
-                                      request.link.stan());
-      request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
-                                                           listLinkInfo.isLeft()
-                                                                 ? listLinkInfo.getLeft()
-                                                                 : null,
-                                                           listLinkInfo.isRight()
-                                                                 ? listLinkInfo.get()
-                                                                 : null));
-      return Behaviors.same();
-   }
-
+/*
    private Behavior<Request> syncLinkInteractionToGidHandler(final SyncLinkInteractionToGidRequest request) {
       final LinkInfo linkInfo;
       final var interaction = request.link.interaction();
@@ -207,12 +211,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                LOGGER.error("Golden Record for GID {} is null", gid);
                linkInfo = null;
             } else {
-               final var validated1 =
-                     CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
-               final var validated2 =
-                     CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
+               final var validated1 = CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
+                                                                                           interaction.demographicData());
+               final var validated2 = CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
+                                                                                           interaction.demographicData());
 
                linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
                                                                                 new LibMPIClientInterface.GoldenIdScore(gid,
@@ -229,6 +231,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       request.replyTo.tell(new SyncLinkInteractionToGidResponse(request.link.stan(), linkInfo));
       return Behaviors.same();
    }
+*/
 
    private Behavior<Request> workTimeHandler(final WorkTimeRequest request) {
       LOGGER.info("WORK TIME");
@@ -271,10 +274,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                                                                                    interaction.demographicData())))
                                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                       .collect(Collectors.toCollection(ArrayList::new));
-      request.replyTo.tell(
-            new CalculateScoresResponse(
-                  new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
-                                                           scores)));
+      request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
+                                                                                                scores)));
       return Behaviors.same();
    }
 
@@ -375,7 +376,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record SyncLinkInteractionRequest(
-         LinkInteractionSyncBody link,
+         ApiModels.LinkInteractionSyncBody link,
          ActorRef<SyncLinkInteractionResponse> replyTo) implements Request {
    }
 
@@ -386,7 +387,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record SyncLinkInteractionToGidRequest(
-         LinkInteractionToGidSyncBody link,
+         ApiModels.LinkInteractionToGidSyncBody link,
          ActorRef<SyncLinkInteractionToGidResponse> replyTo) implements Request {
    }
 
