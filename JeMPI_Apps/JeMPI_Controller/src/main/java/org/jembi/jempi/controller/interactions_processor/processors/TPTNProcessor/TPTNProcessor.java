@@ -10,9 +10,9 @@ import org.jembi.jempi.controller.interactions_processor.processors.SubProcessor
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.controller.interactions_processor.lib.CategorisedCandidates;
 import org.jembi.jempi.controller.interactions_processor.lib.range_type.RangeTypeName;
-import org.jembi.jempi.shared.libs.tptn.TPTNAccessor;
-import org.jembi.jempi.shared.libs.tptn.TPTNKGlobalStoreInstance;
-import org.jembi.jempi.shared.libs.tptn.TPTNMatrix;
+import org.jembi.jempi.shared.libs.interactionProcessor.processors.tptn.TPTNAccessor;
+import org.jembi.jempi.shared.libs.interactionProcessor.processors.tptn.TPTNKGlobalStoreInstance;
+import org.jembi.jempi.shared.libs.interactionProcessor.processors.tptn.TPTNMatrix;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.NotificationResolution;
 import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public final class TPTNProcessor extends SubProcessor implements IThresholdRangeSubProcessor, IOnNotificationResolutionProcessor, IDashboardDataProducer<TPTNStats> {
-    protected Interaction originalInteraction;
+    private Interaction originalInteraction;
     private static final Logger LOGGER = LogManager.getLogger(TPTNProcessor.class);
     private float getFScoreType(final String type, final TPTNMatrix tptnMatrix) {
         float beta;

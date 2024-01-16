@@ -6,7 +6,7 @@ import org.jembi.jempi.controller.interactions_processor.lib.CategorisedCandidat
 import org.jembi.jempi.controller.interactions_processor.lib.range_type.RangeDetails;
 import org.jembi.jempi.controller.interactions_processor.processors.IOnNewInteractionProcessor;
 import org.jembi.jempi.controller.interactions_processor.processors.IThresholdRangeSubProcessor;
-import org.jembi.jempi.shared.libs.linking.LinkerUtils;
+import org.jembi.jempi.shared.libs.linker.LinkerUtils;
 import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.models.Interaction;
 
@@ -24,13 +24,13 @@ public abstract class BaseInteractionProcessor implements IInteractionProcessor 
     protected ProcessorsRegistry processorRegistry;
     protected  LibMPI libMPI;
 
-    protected BaseInteractionProcessor(final String linkerIdIn, final Interaction originalInteractionIn, final LibMPI libMPI) {
+    protected BaseInteractionProcessor(final String linkerIdIn, final Interaction originalInteractionIn, final LibMPI libMPIIn) {
         this.linkerId = linkerIdIn;
         this.originalInteraction = originalInteractionIn;
         this.processorRegistry = new ProcessorsRegistry();
         this.thresholdProcessors = this.getThresholdProcessors();
         this.onNewInteractionProcessors = this.getOnNewInteractionProcessors();
-        this.libMPI = libMPI;
+        this.libMPI = libMPIIn;
     }
 
     protected List<CategorisedCandidates> getCategorisedCandidates(final List<GoldenRecord> candidates) {

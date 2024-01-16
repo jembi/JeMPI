@@ -10,23 +10,23 @@ import org.jembi.jempi.controller.interactions_processor.processors.IOnNotificat
 import org.jembi.jempi.controller.interactions_processor.processors.IThresholdRangeSubProcessor;
 import org.jembi.jempi.controller.interactions_processor.processors.SubProcessor;
 import org.jembi.jempi.libmpi.LibMPI;
-import org.jembi.jempi.shared.libs.linking.CustomLinkerMU;
-import org.jembi.jempi.shared.libs.linking.LinkerProbabilistic;
+import org.jembi.jempi.shared.libs.linker.CustomLinkerMU;
+import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
 import org.jembi.jempi.controller.interactions_processor.processors.IDashboardDataProducer;
-import org.jembi.jempi.shared.libs.m_and_u.FieldEqualityPairMatchMatrix;
-import org.jembi.jempi.shared.libs.m_and_u.MuAccesor;
-import org.jembi.jempi.shared.libs.m_and_u.MuModel;
+import org.jembi.jempi.shared.libs.interactionProcessor.processors.m_and_u.FieldEqualityPairMatchMatrix;
+import org.jembi.jempi.shared.libs.interactionProcessor.processors.m_and_u.MuAccesor;
+import org.jembi.jempi.shared.libs.interactionProcessor.processors.m_and_u.MuModel;
 import org.jembi.jempi.shared.models.*;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-public class FieldEqualityPairMatchProcessor extends SubProcessor implements IThresholdRangeSubProcessor, IOnNotificationResolutionProcessor, IDashboardDataProducer {
+public final class FieldEqualityPairMatchProcessor extends SubProcessor implements IThresholdRangeSubProcessor, IOnNotificationResolutionProcessor, IDashboardDataProducer {
 
     private static final Logger LOGGER = LogManager.getLogger(FieldEqualityPairMatchProcessor.class);
-    protected Interaction originalInteraction;
-    protected MuModel muModel;
+    private Interaction originalInteraction;
+    private MuModel muModel;
 
     public record PairMatchUnmatchedCandidates(CategorisedCandidates candidates, Boolean isPairMatch) { }
 

@@ -18,11 +18,10 @@ import org.jembi.jempi.shared.libs.interactionProcessor.models.InteractionProces
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.Locale;
 import java.util.Properties;
 import java.util.UUID;
 
-public class SPInteractionProcessor {
+public final class SPInteractionProcessor {
     private static final Logger LOGGER = LogManager.getLogger(SPInteractionProcessor.class);
     private static LibMPI getLibMPI(final boolean useDGraph) {
         LibMPI libMPI;
@@ -35,11 +34,7 @@ public class SPInteractionProcessor {
                     AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                     "CLIENT_ID_CONTROLLER_INTERACTION_PROCESSOR-" + UUID.randomUUID());
         } else {
-            libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig.POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
-                    AppConfig.POSTGRESQL_USER,
-                    AppConfig.POSTGRESQL_PASSWORD,
-                    AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                    "CLIENT_ID_CONTROLLER_INTERACTION_PROCESSOR-" + UUID.randomUUID());
+            libMPI = null;
         }
         libMPI.startTransaction();
         return libMPI;
@@ -67,7 +62,7 @@ public class SPInteractionProcessor {
                     try {
                         InteractionProcessorRunner.run(value, libMPI);
                     } catch (Exception e) {
-                        LOGGER.debug(String.format("Failed to run the interaction processor %s", value.processorToUse()), e.toString());
+                        LOGGER.debug(String.format("Failed to run the interaction processor %s", value.processorToUse()), e);
                     }
                 });
 
