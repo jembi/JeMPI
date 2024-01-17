@@ -123,8 +123,8 @@ public final class Routes {
    public static Route patchIidNewGidLink(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
-           final String linkerIP,
-           final Integer linkerPort,
+           final String controllerIp,
+           final Integer controllerPort,
            final Http http) {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
@@ -138,8 +138,8 @@ public final class Routes {
                                       .mapLeft(Routes::mapError)
                                       .fold(error -> error,
                                               linkInfo ->  onComplete(processOnNotificationResolution(
-                                                              linkerIP,
-                                                              linkerPort,
+                                                              controllerIp,
+                                                              controllerPort,
                                                               http,
                                                               new NotificationResolutionProcessorData(obj, linkInfo)),
                                                       r ->  complete(
@@ -154,8 +154,8 @@ public final class Routes {
    public static Route patchIidGidLink(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
-           final String linkerIP,
-           final Integer linkerPort,
+           final String controllerIp,
+           final Integer controllerPort,
            final Http http) {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
@@ -172,8 +172,8 @@ public final class Routes {
                               .mapLeft(Routes::mapError)
                               .fold(error -> error,
                                       linkInfo ->  onComplete(processOnNotificationResolution(
-                                                      linkerIP,
-                                                      linkerPort,
+                                                      controllerIp,
+                                                      controllerPort,
                                                       http,
                                                       new NotificationResolutionProcessorData(obj, linkInfo)),
                                               r ->  complete(
@@ -489,15 +489,15 @@ public final class Routes {
    public static Route getDashboardData(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,
-           final String linkerIp,
-           final Integer linkerPort,
+           final String controllerIp,
+           final Integer controllerPort,
            final Http http) {
 
       final var request = HttpRequest
               .create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
-                      linkerIp,
-                      linkerPort,
+                      controllerIp,
+                      controllerPort,
                       GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA))
               .withMethod(HttpMethods.GET);
 
@@ -814,6 +814,8 @@ public final class Routes {
          final String jsonFields,
          final String linkerIP,
          final Integer linkerPort,
+         final String controllerIP,
+         final Integer controllerPort,
          final Http http) {
       return concat(post(() -> concat(path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
                                            () -> Routes.postUpdateNotification(actorSystem, backEnd)),
@@ -850,9 +852,9 @@ public final class Routes {
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                            () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
-                                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)),
+                                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
                                       path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
-                                              () -> Routes.patchIidGidLink(actorSystem, backEnd, linkerIP, linkerPort, http)))),
+                                              () -> Routes.patchIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
                                        path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
@@ -887,7 +889,7 @@ public final class Routes {
                                            "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
                                     path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                                          () -> Routes.getDashboardData(actorSystem, backEnd, linkerIP, linkerPort, http)),
+                                          () -> Routes.getDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                           () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
    }

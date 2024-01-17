@@ -562,6 +562,8 @@ services:
       API_HTTP_PORT: ${API_HTTP_PORT}
       LINKER_IP: linker
       LINKER_HTTP_PORT: 50000
+      CONTROLLER_IP: controller
+      CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
     networks:
     - backend
     volumes:
@@ -617,6 +619,8 @@ services:
       API_KC_HTTP_PORT: ${API_KC_HTTP_PORT}
       LINKER_IP: linker
       LINKER_HTTP_PORT: ${LINKER_HTTP_PORT}
+      CONTROLLER_IP: controller
+      CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
     networks:
     - frontend
     - backend

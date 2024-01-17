@@ -138,7 +138,8 @@ public final class Main {
          LOGGER.info("A new file {} was created", filename);
          if (name.endsWith(".csv")) {
             LOGGER.info("Process CSV file: {}", filename);
-            apacheReadCSV("csv/" + filename);
+            String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
+            apacheReadCSV(userCSVPath + "/" + filename);
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
@@ -163,7 +164,8 @@ public final class Main {
                                                          valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-         final var csvDir = Path.of("./csv");
+         String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
+         final var csvDir = Path.of(userCSVPath != null ? userCSVPath : "./csv");
          csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
          for (;;) {
             WatchKey key = watchService.take();
