@@ -143,12 +143,13 @@ public final class HttpServer extends AllDirectives {
                         () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
                                                             this::routeLinkInteraction),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-                                                            this::routeLinkInteractionToGid))),
+                                                            this::routeLinkInteractionToGid),
+                                                        path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
+                                                                () -> onNotificationResolution(actorSystem, backEnd)))),
                                      get(() -> concat(path("mu", this::routeMU),
                                                       path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                                                              () -> getDashboardData(actorSystem, backEnd)),
-                                                      path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
-                                                              () -> onNotificationResolution(actorSystem, backEnd))))));
+                                                              () -> getDashboardData(actorSystem, backEnd))
+                                                     ))));
    }
 
 }
