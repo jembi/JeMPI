@@ -149,28 +149,7 @@ final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.OnNotificationResolutionResponse> onNotificationResolution(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Request> backEnd,
-           final NotificationResolutionProcessorData notificationResolutionDetails) {
-      final CompletionStage<BackEnd.OnNotificationResolutionResponse> stage = AskPattern
-              .ask(backEnd,
-                      replyTo -> new BackEnd.OnNotificationResolutionRequest(replyTo, notificationResolutionDetails),
-                      java.time.Duration.ofSeconds(6),
-                      actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
 
-   static CompletionStage<BackEnd.DashboardDataResponse> getDashboardData(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Request> backEnd) {
-      final CompletionStage<BackEnd.DashboardDataResponse> stage = AskPattern
-              .ask(backEnd,
-                      replyTo -> new BackEnd.DashboardDataRequest(replyTo),
-                      java.time.Duration.ofSeconds(6),
-                      actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
 
 //   static CompletionStage<BackEnd.EventGetMURsp> getMU(
 //         final ActorSystem<Void> actorSystem,

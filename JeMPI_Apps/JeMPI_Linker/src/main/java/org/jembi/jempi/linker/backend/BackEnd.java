@@ -16,10 +16,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 
-import org.jembi.jempi.linker.linker_processor.processors.IDashboardDataProducer;
-import org.jembi.jempi.linker.linker_processor.processors.IOnNotificationResolutionProcessor;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.linker.linker_processor.processors.ProcessorsRegistry;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.stats.StatsTask;
@@ -111,8 +108,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
-                                .onMessage(OnNotificationResolutionRequest.class, this::onNotificationResolutionHandler)
-                                 .onMessage(DashboardDataRequest.class, this::getDashboardDataHandler)
 //                              .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
@@ -158,7 +153,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                          request.link.externalLinkRange(),
                                                          request.link.matchThreshold() == null
                                                                ? AppConfig.LINKER_MATCH_THRESHOLD
-                                                               : request.link.matchThreshold());
+                                                               : request.link.matchThreshold(), request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isLeft()
                                                                  ? listLinkInfo.getLeft()
@@ -286,36 +281,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> onNotificationResolutionHandler(final OnNotificationResolutionRequest request) {
-
-      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : new ProcessorsRegistry().getOnNotificationResolutionProcessors(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME)) {
-         try {
-            notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
-         } catch (Exception e) {
-            LOGGER.error("An error occurred trying OnNotificationResolution", e);
-         }
-
-      }
-      request.replyTo.tell(new OnNotificationResolutionResponse(true));
-      return Behaviors.same();
-   }
-
-
-   private Behavior<Request> getDashboardDataHandler(final DashboardDataRequest request) {
-
-      HashMap<String, Object> dashboardData = new HashMap<>();
-
-      for (IDashboardDataProducer<?> dashboardDataProducer : new ProcessorsRegistry().getDashboardDataProducerProcessors(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME)) {
-         try {
-            dashboardData.put(dashboardDataProducer.getDashboardDataName(), dashboardDataProducer.getDashboardData(libMPI));
-         } catch (Exception e) {
-            LOGGER.error(String.format("An error occurred trying to the dashboard data for %s. Will not be included", dashboardDataProducer.getDashboardDataName()), e);
-         }
-
-      }
-      request.replyTo.tell(new DashboardDataResponse(dashboardData));
-      return Behaviors.same();
-   }
 
 //   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
 //      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
@@ -449,23 +414,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       }
    }
 
-   public record OnNotificationResolutionRequest(
-           ActorRef<OnNotificationResolutionResponse> replyTo,
-           NotificationResolutionProcessorData notificationResolutionDetails
-   ) implements Request  {
-   }
 
-   public record OnNotificationResolutionResponse(Boolean updated)
-           implements Response {
-   }
-
-   public record DashboardDataRequest(
-           ActorRef<DashboardDataResponse> replyTo
-   ) implements Request  {
-   }
-
-   public record DashboardDataResponse(HashMap<String, Object> dashboardData)
-           implements Response {
-   }
 
 }

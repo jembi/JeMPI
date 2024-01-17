@@ -886,8 +886,8 @@ public final class Routes {
                                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                            "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
- path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                              () -> Routes.getDashboardData(actorSystem, backEnd, linkerIP, linkerPort, http)),
+                                    path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                                          () -> Routes.getDashboardData(actorSystem, backEnd, linkerIP, linkerPort, http)),
                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                           () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
    }

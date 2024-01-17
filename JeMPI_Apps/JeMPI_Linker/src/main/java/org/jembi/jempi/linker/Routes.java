@@ -61,30 +61,6 @@ final class Routes {
                                                                   : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
    }
 
-    static Route onNotificationResolution(
-            final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Request> backEnd) {
-        return entity(Jackson.unmarshaller(NotificationResolutionProcessorData.class),
-                obj -> onComplete(Ask.onNotificationResolution(actorSystem, backEnd, obj), response -> {
-                    if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
-                        return complete(StatusCodes.OK);
-                    } else {
-                        return complete(StatusCodes.IM_A_TEAPOT);
-                    }
-                }));
-    }
-
-    static Route getDashboardData(
-            final ActorSystem<Void> actorSystem,
-            final ActorRef<BackEnd.Request> backEnd) {
-        return onComplete(Ask.getDashboardData(actorSystem, backEnd), response -> {
-                    if (response.isSuccess()) {
-                        return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
-                    } else {
-                        return complete(StatusCodes.IM_A_TEAPOT);
-                    }
-                });
-    }
    static Route proxyPostLinkInteractionToGID(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
