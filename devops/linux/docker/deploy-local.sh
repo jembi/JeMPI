@@ -2,7 +2,7 @@
 # Set JEMPI_HOME environment variable
 cd ../../..
 export JEMPI_HOME=$(pwd)
-export JAVA_VERSION=17.0.8.1-tem
+export JAVA_VERSION=21.0.1-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 
