@@ -1,13 +1,14 @@
 package org.jembi.jempi.shared.libs.linker;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
 public final class CustomLinkerDeterministic {
 
-   static final boolean DETERMINISTIC_DO_LINKING = true;
-   static final boolean DETERMINISTIC_DO_VALIDATING = false;
-   static final boolean DETERMINISTIC_DO_MATCHING = false;
+   public static final boolean DETERMINISTIC_DO_LINKING = true;
+   public static final boolean DETERMINISTIC_DO_VALIDATING = false;
+   public static final boolean DETERMINISTIC_DO_MATCHING = false;
 
    private CustomLinkerDeterministic() {
    }
@@ -18,7 +19,7 @@ public final class CustomLinkerDeterministic {
       return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
    }
 
-   static boolean canApplyLinking(
+   public static boolean canApplyLinking(
          final CustomDemographicData interaction) {
       return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
              || StringUtils.isNotBlank(interaction.nationalId)

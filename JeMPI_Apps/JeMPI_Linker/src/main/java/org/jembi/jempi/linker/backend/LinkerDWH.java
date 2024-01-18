@@ -9,6 +9,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.shared.libs.interactionProcessor.InteractionProcessorConnector;
+import org.jembi.jempi.shared.libs.linker.*;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 

@@ -6,9 +6,10 @@ import scala.language.{existentials, postfixOps}
 object CustomLinkerMU {
 
   private val classLocation =
-    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
+    "../JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/libs/linker"
+
   private val custom_className = "CustomLinkerMU"
-  private val packageText = "org.jembi.jempi.linker"
+  private val packageText = "org.jembi.jempi.shared.libs.linker"
 
   private val indent = 3
 
@@ -37,7 +38,7 @@ object CustomLinkerMU {
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
-           |import org.jembi.jempi.linker.backend.LinkerProbabilistic;
+           |import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
            |
            |import java.util.Arrays;
            |import java.util.List;

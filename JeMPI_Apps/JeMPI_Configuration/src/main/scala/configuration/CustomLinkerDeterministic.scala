@@ -6,9 +6,9 @@ import scala.language.{existentials, postfixOps}
 object CustomLinkerDeterministic {
 
   private val classLocation =
-    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
+    "../JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/libs/linker"
   private val custom_className = "CustomLinkerDeterministic"
-  private val packageText = "org.jembi.jempi.linker.backend"
+  private val packageText = "org.jembi.jempi.shared.libs.linker"
 
   def generate(config: Config): Any = {
     val classFile: String =
@@ -19,7 +19,7 @@ object CustomLinkerDeterministic {
 
     def emitCanApplyLinking(rules: Map[String, Rule]): Unit = {
       writer.print(
-        s"""   static boolean canApplyLinking(
+        s"""   public static boolean canApplyLinking(
            |         final CustomDemographicData interaction) {
            |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin
       )
@@ -123,13 +123,13 @@ object CustomLinkerDeterministic {
          |
          |public final class $custom_className {
          |
-         |   static final boolean DETERMINISTIC_DO_LINKING = ${
+         |   public static final boolean DETERMINISTIC_DO_LINKING = ${
           if (config.rules.link.get.deterministic.nonEmpty) "true" else "false"
         };
-         |   static final boolean DETERMINISTIC_DO_VALIDATING = ${
+         |   public static final boolean DETERMINISTIC_DO_VALIDATING = ${
           if (config.rules.validate.nonEmpty) "true" else "false"
         };
-         |   static final boolean DETERMINISTIC_DO_MATCHING = ${
+         |   public static final boolean DETERMINISTIC_DO_MATCHING = ${
           if (config.rules.matchNotification.nonEmpty) "true" else "false"
         };
          |

@@ -76,11 +76,11 @@ public final class LinkerProbabilistic {
         return new FieldScoreInfo(false, fieldScore(false, field.m, field.u));
 
     }
-    static CustomMU.Probability getProbability(final Field field) {
+    public static CustomMU.Probability getProbability(final Field field) {
         return new CustomMU.Probability(field.m(), field.u());
     }
 
-    static void checkUpdatedMU() {
+    public static void checkUpdatedMU() {
         if (updatedLinkFields != null) {
             LOGGER.info("Using updated MU values: {}", updatedLinkFields);
             CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
@@ -88,7 +88,7 @@ public final class LinkerProbabilistic {
         }
     }
 
-    static void updateMetricsForStringField(
+    public static void updateMetricsForStringField(
             final float[] metrics,
             final String left,
             final String right,

@@ -3,8 +3,12 @@ package org.jembi.jempi.shared.libs.linker;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
 
+import java.util.Arrays;
 import java.util.List;
 
+import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.EXACT_SIMILARITY;
+import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JACCARD_SIMILARITY;
+import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JARO_SIMILARITY;
 import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
 public final class CustomLinkerProbabilistic {
@@ -14,8 +18,8 @@ public final class CustomLinkerProbabilistic {
    static final int METRIC_SCORE = 2;
    static final int METRIC_MISSING_PENALTY = 3;
    static final boolean PROBABILISTIC_DO_LINKING = true;
-   static final boolean PROBABILISTIC_DO_VALIDATING = false;
-   static final boolean PROBABILISTIC_DO_MATCHING = false;
+   public static final boolean PROBABILISTIC_DO_VALIDATING = false;
+   public static final boolean PROBABILISTIC_DO_MATCHING = false;
 
    static LinkFields updatedLinkFields = null;
 
