@@ -24,20 +24,6 @@ public final class StandardInteractionProcessor extends BaseInteractionProcessor
         return this.processorRegistry.getOnNewInteractionProcessors(this.linkerId);
     }
 
-//    protected List<CategorisedCandidates> getCategorisedCandidates(final Map<String, Float> candidateIdsWithScores) {
-//        return libMPI.findGoldenRecords(candidateIdsWithScores.keySet().stream().toList())
-//                .stream().map(c -> new CategorisedCandidates(c, candidateIdsWithScores.get(c.goldenId())))
-//                .peek(categorisedCandidates -> {
-//                    for (RangeDetails r: this.rangeDetails) {
-//                        if (r.isApplicable(categorisedCandidates)) {
-//                            categorisedCandidates.addApplicableRange(r);
-//                        }
-//                    }
-//                })
-//                .collect(Collectors.toCollection(ArrayList::new));
-//
-//    }
-
     public void onProcessCandidates(final Interaction interaction) throws ExecutionException, InterruptedException {
         List<GoldenRecord> candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
         List<CategorisedCandidates> categorisedCandidates = this.getCategorisedCandidates(candidateGoldenRecords);

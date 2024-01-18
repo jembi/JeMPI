@@ -204,7 +204,7 @@ public final class LinkerDWH {
                   if (candidatesInExternalLinkRange.isEmpty()) {
                      linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                      if (!belowThresholdNotifications.isEmpty()) {
-                        sendNotification(Notification.NotificationType.THRESHOLD,
+                        sendNotification(Notification.NotificationType.BELOW_THRESHOLD,
                                          linkInfo.interactionUID(),
                                          AppUtils.getNames(interaction.demographicData()),
                                          new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
@@ -231,7 +231,7 @@ public final class LinkerDWH {
                                                                                    validated2);
 
                   if (linkToGoldenId.score() <= matchThreshold + 0.1) {
-                     sendNotification(Notification.NotificationType.THRESHOLD,
+                     sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
                                       linkInfo.interactionUID(),
                                       AppUtils.getNames(interaction.demographicData()),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
