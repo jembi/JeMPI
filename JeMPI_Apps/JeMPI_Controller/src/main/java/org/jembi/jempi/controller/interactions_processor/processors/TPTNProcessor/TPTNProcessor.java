@@ -71,15 +71,15 @@ public final class TPTNProcessor extends SubProcessor implements IThresholdRange
         LOGGER.info(resolution.resolutionState());
         LOGGER.info(resolution.notificationType());
         if (Objects.equals(resolution.resolutionState(), "APPROVED")) {
-            if (Objects.equals(resolution.notificationType(), "ABOVE THRESHOLD")) {
+            if (Objects.equals(resolution.notificationType(), "ABOVE_THRESHOLD")) {
                 tptnMatrix.updateTruePositive(1);
-            } else if (Objects.equals(resolution.notificationType(), "BELOW THRESHOLD")) {
+            } else if (Objects.equals(resolution.notificationType(), "BELOW_THRESHOLD")) {
                 tptnMatrix.updateTrueNegative(1);
             }
         } else {
-            if (Objects.equals(resolution.notificationType(), "ABOVE THRESHOLD")) {
+            if (Objects.equals(resolution.notificationType(), "ABOVE_THRESHOLD")) {
                 tptnMatrix.updateFalsePositive(1);
-            } else if (Objects.equals(resolution.notificationType(), "BELOW THRESHOLD")) {
+            } else if (Objects.equals(resolution.notificationType(), "BELOW_THRESHOLD")) {
                 tptnMatrix.updateFalseNegative(1);
             }
         }
