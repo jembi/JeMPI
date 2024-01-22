@@ -357,7 +357,7 @@ public final class Routes {
    public static Route postUploadCsvFile(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return withSizeLimit(1024 * 1024 * 6, () -> storeUploadedFile("csv",
+      return withSizeLimit(1024 * 1024 * 2048, () -> storeUploadedFile("csv",
                                                                     (info) -> {
                                                                        try {
                                                                           return File.createTempFile("import-", ".csv");

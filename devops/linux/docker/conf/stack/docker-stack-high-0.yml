@@ -674,7 +674,7 @@ services:
       - "http://localhost:8080"
       interval: "5s"
       timeout: "5s"
-      retries: 12
+      retries: 36
     deploy:
       mode: replicated
       replicas: 0
