@@ -1,7 +1,7 @@
 package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
-import org.jembi.jempi.em.Fields.FIELDS
+import org.jembi.jempi.em.CustomFields.FIELDS
 import org.jembi.jempi.em.Utils._
 
 import java.lang.Math.log
@@ -14,13 +14,11 @@ object EM_Task extends LazyLogging {
 
   def run(interactions: ParVector[ArraySeq[String]]): ArraySeq[MU] = {
 
-    val interactions_ = interactions.map(i => i.tail)
-
     val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
         Map[String, Long](),
-        interactions_.head,
-        interactions_.tail
+        interactions.head,
+        interactions.tail
       )
     )
     logger.info(s"$ms2 ms")
@@ -44,12 +42,12 @@ object EM_Task extends LazyLogging {
       }
 
       val randIndexes = randomlyChooseIndexes(
-        interactions_.size,
+        interactions.size,
         Set[Int](),
-        Math.min(20_000, (interactions_.size * 2) / 4)
+        Math.min(20_000, (interactions.size * 2) / 4)
       )
       val randInteractions: ParVector[ArraySeq[String]] = new ParVector(
-        randIndexes.map(idx => interactions_(idx)).toVector
+        randIndexes.map(idx => interactions(idx)).toVector
       )
       val (tallies2, ms1) = Profile.profile(
         scan(isPairMatch2(0.92), randInteractions)
@@ -135,7 +133,9 @@ object EM_Task extends LazyLogging {
         logger.info("break")
       }
       val gamma_ =
-        gamma.toVector.map(x => x._1 -> (matchAsInts(x._1), x._2)).toMap
+        gamma.toVector
+          .map(x => x._1 -> (matchAsInts(x._1), x._2))
+          .toMap
       val mapGammaMetrics =
         gamma_.map(x => x._1 -> computeGammaMetrics(x._2._1, x._2._2))
       val tallies = mapGammaMetrics.values
@@ -177,7 +177,7 @@ object EM_Task extends LazyLogging {
 
       val split = isMatch(left, right)
       Tallies(
-        FIELDS.map(field => tallyFieldContribution(split, field.csvCol - 1))
+        FIELDS.map(field => tallyFieldContribution(split, field.csvCol))
       )
     }
 

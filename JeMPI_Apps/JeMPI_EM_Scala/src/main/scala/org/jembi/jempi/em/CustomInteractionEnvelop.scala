@@ -1,9 +1,11 @@
-package org.jembi.jempi.em
+package org.jembi.jempi.em;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class InteractionEnvelop(
+case class CustomInteractionEnvelop(
     contentType: String,
     tag: Option[String],
     stan: Option[String],
@@ -29,3 +31,4 @@ case class DemographicData(
     phoneNumber: String,
     nationalId: String
 )
+

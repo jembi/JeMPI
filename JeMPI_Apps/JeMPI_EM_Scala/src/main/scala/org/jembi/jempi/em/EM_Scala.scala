@@ -41,7 +41,7 @@ object EM_Scala extends LazyLogging {
     )
     patientRecordKStream.foreach((_, json) => {
       val interactionEnvelop =
-        mapper.readValue(json, classOf[InteractionEnvelop])
+        mapper.readValue(json, classOf[CustomInteractionEnvelop])
       interactionEnvelop.contentType match {
         case "BATCH_START_SENTINEL" => buffer.clearAndShrink()
         case "BATCH_END_SENTINEL" =>
@@ -50,45 +50,31 @@ object EM_Scala extends LazyLogging {
           val emRunnable: EM_Runnable =
             new EM_Runnable(interactionEnvelop.tag.get, parVector)
           val thread: Thread = new Thread(emRunnable)
-          thread.start();
+          thread.start()
         case "BATCH_INTERACTION" =>
           if (interactionEnvelop.interaction.isDefined) {
-            val auxId =
-              interactionEnvelop.interaction.get.uniqueInteractionData.auxId
-            val givenName =
-              interactionEnvelop.interaction.get.demographicData.givenName
-            val familyName =
-              interactionEnvelop.interaction.get.demographicData.familyName
-            val gender =
-              interactionEnvelop.interaction.get.demographicData.gender
-            val dob = interactionEnvelop.interaction.get.demographicData.dob
-            val city = interactionEnvelop.interaction.get.demographicData.city
-            val phoneNumber =
-              interactionEnvelop.interaction.get.demographicData.phoneNumber
-            val nationalId =
-              interactionEnvelop.interaction.get.demographicData.nationalId
+//            val givenName =
+//              interactionEnvelop.interaction.get.demographicData.givenName
+//            val familyName =
+//              interactionEnvelop.interaction.get.demographicData.familyName
+//            val gender =
+//              interactionEnvelop.interaction.get.demographicData.gender
+//            val dob = interactionEnvelop.interaction.get.demographicData.dob
+//            val city = interactionEnvelop.interaction.get.demographicData.city
+//            val phoneNumber =
+//              interactionEnvelop.interaction.get.demographicData.phoneNumber
+//            val nationalId =
+//              interactionEnvelop.interaction.get.demographicData.nationalId
             val interaction = Array(
-              auxId,
-              givenName,
-              familyName,
-              gender,
-              dob,
-              city,
-              phoneNumber,
-              nationalId
+              interactionEnvelop.interaction.get.demographicData.givenName,
+              interactionEnvelop.interaction.get.demographicData.familyName,
+              interactionEnvelop.interaction.get.demographicData.gender,
+              interactionEnvelop.interaction.get.demographicData.dob,
+              interactionEnvelop.interaction.get.demographicData.city,
+              interactionEnvelop.interaction.get.demographicData.phoneNumber,
+              interactionEnvelop.interaction.get.demographicData.nationalId
             )
             buffer += interaction
-            logger.info(
-              "{} {} {} {} {} {} {} {}",
-              auxId,
-              givenName,
-              familyName,
-              gender,
-              dob,
-              city,
-              phoneNumber,
-              nationalId
-            )
           }
       }
     })
@@ -122,7 +108,7 @@ object EM_Scala extends LazyLogging {
         )
       val (mu, ms) = Profile.profile(EM_Task.run(interactions_))
 
-      Fields.FIELDS.zipWithIndex.foreach(x =>
+      CustomFields.FIELDS.zipWithIndex.foreach(x =>
         Utils.printMU(x._1.name, mu(x._2))
       )
       logger.info(s"$ms ms")

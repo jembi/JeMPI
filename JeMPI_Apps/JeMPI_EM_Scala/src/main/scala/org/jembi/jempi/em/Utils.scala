@@ -2,6 +2,7 @@ package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
 import Jaro.jaro
+import org.jembi.jempi.em.CustomFields.FIELDS
 
 import scala.collection.immutable.ArraySeq
 
@@ -12,8 +13,6 @@ object Utils extends LazyLogging {
   val LAMBDA: Double = 1.0 / 2_000_000.0
   val LOG_LAMBDA: Double = Math.log(LAMBDA / (1.0 - LAMBDA)) / LOG_BASE
   val JARO_THRESHOLD: Double = 0.92
-  val JARO_THRESHOLD_EM: Double = 0.99
-  val COL_REC_NUM = 0
   val MAX_EM_ITERATIONS = 100
   val GAMMA_TAG_MISSING: Int = 0
   val GAMMA_TAG_NOT_EQUAL: Int = 1
@@ -50,6 +49,7 @@ object Utils extends LazyLogging {
     )
   }
 
+  /*
   def isPairMatch1(
       left: ArraySeq[String],
       right: ArraySeq[String]
@@ -64,6 +64,7 @@ object Utils extends LazyLogging {
       ContributionSplit(0.0, 1.0)
     }
   }
+  */
 
   def isPairMatch2(
       fieldThreshold: Double
@@ -107,7 +108,7 @@ object Utils extends LazyLogging {
 
     Tallies(
       ArraySeq
-        .range(0, x.colTally.length)
+        .range(0, FIELDS.length) // x.colTally.length)
         .map(idx => addTally(x.colTally(idx), y.colTally(idx)))
     )
   }
