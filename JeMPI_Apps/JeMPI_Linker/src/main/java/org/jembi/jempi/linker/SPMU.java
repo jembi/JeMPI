@@ -40,8 +40,9 @@ public final class SPMU {
          final String key,
          final CustomMU mu) {
       LOGGER.info("New MU set: {}/{}", key, mu);
-      final SPInteractions spInteractions = SPInteractions.create();
-      spInteractions.open(mu.tag(), system, backEnd);
+
+      final SPInteractions spInteractions = SPInteractions.create(mu.tag());
+      spInteractions.open(system, backEnd);
 
       final CompletionStage<BackEnd.EventUpdateMURsp> result = AskPattern.ask(backEnd,
                                                                               replyTo -> new BackEnd.EventUpdateMUReq(mu,

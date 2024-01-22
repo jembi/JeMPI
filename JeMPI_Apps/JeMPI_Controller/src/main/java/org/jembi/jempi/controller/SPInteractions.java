@@ -65,13 +65,14 @@ public final class SPInteractions {
                      }
                      var kafkaTopicManager = new KafkaTopicManager(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
                      try {
-                        kafkaTopicManager.createTopic(batchPatient.tag(), 1, (short) 1, 24 * 60 * 60, 4 * 1024 * 1024);
+                        kafkaTopicManager.createTopic(batchPatient.tag(), 1, (short) 1, 7 * 24 * 60 * 60 * 1000, 4 * 1024 * 1024);
                      } catch (ExecutionException e) {
                         LOGGER.error(e.getLocalizedMessage(), e);
                      } catch (InterruptedException e) {
                         LOGGER.error(e.getLocalizedMessage(), e);
+                     } finally {
+                        kafkaTopicManager.close();
                      }
-                     kafkaTopicManager.close();
                      break;
                   case BATCH_END_SENTINEL:
                      try {

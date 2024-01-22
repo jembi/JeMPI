@@ -3,23 +3,28 @@ package org.jembi.jempi.shared.kafka;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.config.TopicConfig;
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public final class KafkaTopicManager {
 
-   private final AdminClient adminClient;
+   private static final Logger LOGGER = LogManager.getLogger(KafkaTopicManager.class);
 
-   public void close() {
-      adminClient.close();
-   }
+   private final AdminClient adminClient;
 
    public KafkaTopicManager(final String bootStrapServers) {
       Properties properties = new Properties();
       properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServers);
       adminClient = AdminClient.create(properties);
+   }
+
+   public void close() {
+      adminClient.close();
    }
 
    public Collection<TopicListing> getAllTopics() throws ExecutionException, InterruptedException {
@@ -50,8 +55,14 @@ public final class KafkaTopicManager {
    public void deleteTopic(final String topicName) throws ExecutionException, InterruptedException {
       KafkaFuture<Void> deleteFuture =
             adminClient.deleteTopics(Collections.singleton(topicName), new DeleteTopicsOptions()).all();
-      deleteFuture.get(); // Wait for the topic deletion to complete
+      try {
+         deleteFuture.get(); // Wait for the topic deletion to complete
+      } catch (ExecutionException e) {
+         if (!(e.getCause() instanceof UnknownTopicOrPartitionException)) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            throw (e);
+         }
+      }
    }
 
 }
-

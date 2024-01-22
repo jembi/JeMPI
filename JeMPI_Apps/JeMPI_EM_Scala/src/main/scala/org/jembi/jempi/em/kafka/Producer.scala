@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.jembi.jempi.em.MU
 import org.jembi.jempi.em.kafka.Config.{
   CFG_KAFKA_BOOTSTRAP_SERVERS,
+  CFG_KAFKA_TOPIC_MU_CONTROLLER,
   CFG_KAFKA_TOPIC_MU_LINKER
 }
 
@@ -47,7 +48,7 @@ object Producer {
     )
     val json = mapper.writeValueAsString(customMU)
 
-    val record = new ProducerRecord(CFG_KAFKA_TOPIC_MU_LINKER, "key", json)
+    val record = new ProducerRecord(CFG_KAFKA_TOPIC_MU_CONTROLLER, "key", json)
     producer.send(record)
     producer.close()
   }

@@ -236,7 +236,73 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
-    command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
+    command: dgraph zero --my=zero-01:5080 --raft idx=1 --replicas 1 --telemetry "reports=false; sentry=false;"
+
+  zero-02:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "zero-02"
+    networks:
+    - backend
+    ports:
+    - published: 5081
+      target: 5080
+      protocol: tcp
+      mode: host
+    - published: 6081
+      target: 6080
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ZERO_02_DIR}
+      target: /dgraph
+    deploy:
+      replicas: 0
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+    command: dgraph zero --my=zero-02:5080 --raft idx=2 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"  
+
+  zero-03:
+    image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
+    hostname: "zero-03"
+    networks:
+    - backend
+    ports:
+    - published: 5082
+      target: 5080
+      protocol: tcp
+      mode: host
+    - published: 6082
+      target: 6080
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: bind
+      source: ${DATA_DGRAPH_ZERO_03_DIR}
+      target: /dgraph
+    deploy:
+      replicas: 0
+      resources:
+        limits:
+          memory: ${DGRAPH_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+    command: dgraph zero --my=zero-03:5080 --raft idx=3 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"  
 
   alpha-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}

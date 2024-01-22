@@ -7,5 +7,6 @@ object Config {
   val CFG_KAFKA_BOOTSTRAP_SERVERS = "kafka-01:9092"
   val CFG_KAFKA_TOPIC_INTERACTION_EM = "JeMPI-interaction-em"
   val CFG_KAFKA_TOPIC_MU_LINKER = "JeMPI-mu-linker"
+  val CFG_KAFKA_TOPIC_MU_CONTROLLER = "JeMPI-mu-controller"
 
 }

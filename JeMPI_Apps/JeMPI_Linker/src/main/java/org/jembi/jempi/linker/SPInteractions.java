@@ -21,28 +21,33 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
+import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_INTERACTION;
+
 public final class SPInteractions {
 
    private static final Logger LOGGER = LogManager.getLogger(SPInteractions.class);
-   private KafkaStreams patientKafkaStreams;
+   private final String topic;
+   private KafkaStreams interactionEnvelopKafkaStreams;
 
-   private SPInteractions() {
+   private SPInteractions(final String topic_) {
       LOGGER.info("SPInteractions constructor");
+      this.topic = topic_;
    }
 
-   public static SPInteractions create() {
-      return new SPInteractions();
+   public static SPInteractions create(final String topic_) {
+      return new SPInteractions(topic_);
    }
 
    private void linkPatient(
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final InteractionEnvelop batchInteraction) {
-      if (batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+         final InteractionEnvelop interactionEnvelop) {
+      if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
          return;
       }
-      final var completableFuture = Ask.linkInteraction(system, backEnd, key, batchInteraction).toCompletableFuture();
+      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop).toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
@@ -50,38 +55,43 @@ public final class SPInteractions {
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
-         close();
+         this.close();
       }
+
    }
 
    public void open(
-         final String topic,
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd) {
-      LOGGER.info("EM Stream Processor");
+      LOGGER.info("SPInteractions Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
-      final var batchPatientRecordSerde =
-            Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(InteractionEnvelop.class));
+      final var interactionEnvelopSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+                                                           new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, InteractionEnvelop> patientsStream =
-            streamsBuilder.stream(topic, Consumed.with(stringSerde, batchPatientRecordSerde));
-      patientsStream.foreach((key, patient) -> linkPatient(system, backEnd, key, patient));
-      patientKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
-      patientKafkaStreams.cleanUp();
-      patientKafkaStreams.start();
+      final KStream<String, InteractionEnvelop> interactionStream =
+            streamsBuilder.stream(topic, Consumed.with(stringSerde, interactionEnvelopSerde));
+      interactionStream.foreach((key, interactionEnvelop) -> {
+         linkPatient(system, backEnd, key, interactionEnvelop);
+         if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+            this.close();
+         }
+      });
+      interactionEnvelopKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
+      interactionEnvelopKafkaStreams.cleanUp();
+      interactionEnvelopKafkaStreams.start();
       LOGGER.info("KafkaStreams started");
    }
 
-   public void close() {
-      LOGGER.warn("Stream closed");
-      patientKafkaStreams.close();
+   private void close() {
+      LOGGER.info("Stream closed");
+      interactionEnvelopKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
    }
 
    private Properties loadConfig() {
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_INTERACTIONS);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_INTERACTIONS + topic);
       return props;
    }
 
