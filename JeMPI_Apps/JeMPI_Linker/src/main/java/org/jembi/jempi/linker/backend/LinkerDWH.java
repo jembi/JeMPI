@@ -9,7 +9,10 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.shared.libs.interactionProcessor.InteractionProcessorConnector;
-import org.jembi.jempi.shared.libs.linker.*;
+import org.jembi.jempi.shared.libs.linker.CustomLinkerDeterministic;
+import org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic;
+import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
+import org.jembi.jempi.shared.libs.linker.LinkerUtils;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -111,14 +114,17 @@ public final class LinkerDWH {
          }
       });
    }
-// +
+
+   // +
    public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
-         final float matchThreshold_, final String envelopeStan) {
+         final float matchThreshold_,
+         final String envelopeStan) {
 
-      InteractionProcessorConnector interactionProcessorConnector = new InteractionProcessorConnector(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      InteractionProcessorConnector interactionProcessorConnector =
+            new InteractionProcessorConnector(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
 
       interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
@@ -236,7 +242,10 @@ public final class LinkerDWH {
                                       linkInfo.interactionUID(),
                                       AppUtils.getNames(interaction.demographicData()),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
-                                      aboveThresholdNotifications.stream().filter(m -> !Objects.equals(m.gID(), firstCandidate.goldenRecord.goldenId())).collect(Collectors.toCollection(ArrayList::new)));
+                                      aboveThresholdNotifications.stream()
+                                                                 .filter(m -> !Objects.equals(m.gID(),
+                                                                                              firstCandidate.goldenRecord.goldenId()))
+                                                                 .collect(Collectors.toCollection(ArrayList::new)));
                   }
                   if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                      CustomLinkerBackEnd.updateGoldenRecordFields(libMPI,
