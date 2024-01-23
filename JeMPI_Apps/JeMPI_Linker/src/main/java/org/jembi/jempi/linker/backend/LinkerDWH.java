@@ -5,10 +5,8 @@ import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.shared.libs.interactionProcessor.InteractionProcessorConnector;
 import org.jembi.jempi.shared.libs.linker.CustomLinkerDeterministic;
 import org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
@@ -20,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -27,6 +26,9 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
+
+   public static CustomFieldTallies uberCustomFieldTallies = CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
+
 
    private LinkerDWH() {
    }
@@ -123,10 +125,10 @@ public final class LinkerDWH {
          final float matchThreshold_,
          final String envelopeStan) {
 
-      InteractionProcessorConnector interactionProcessorConnector =
-            new InteractionProcessorConnector(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+//      InteractionProcessorConnector interactionProcessorConnector = InteractionProcessorConnector.getInstance(AppConfig
+//      .KAFKA_BOOTSTRAP_SERVERS);
 
-      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
+//      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
@@ -179,16 +181,37 @@ public final class LinkerDWH {
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
             } else {
-               final var allCandidateScores = candidateGoldenRecords.parallelStream()
-                                                                    .unordered()
-                                                                    .map(candidate -> new WorkCandidate(candidate,
-                                                                                                        LinkerUtils.calcNormalizedScore(
-                                                                                                              candidate.demographicData(),
-                                                                                                              interaction.demographicData())))
-                                                                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                                                    .collect(Collectors.toCollection(ArrayList::new));
+               final var allCandidateScores = candidateGoldenRecords
+                     .parallelStream()
+                     .unordered()
+                     .map(candidate -> new WorkCandidate(candidate,
+                                                         LinkerUtils.calcNormalizedScore(
+                                                               candidate.demographicData(),
+                                                               interaction.demographicData())))
+                     .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                     .collect(Collectors.toCollection(ArrayList::new));
 
-               interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold);
+               // DO SOME TALLYING
+               // interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold);
+               final var customFieldTallies = IntStream
+                     .range(0, allCandidateScores.size())
+                     .mapToObj(i -> {
+                        final var workCandidate = allCandidateScores.get(i);
+                        return CustomFieldTallies.map(i == 0 && workCandidate.score >= matchThreshold,
+                                                      interaction.demographicData(),
+                                                      workCandidate.goldenRecord.demographicData());
+                     })
+                     .reduce(CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY, CustomFieldTallies::sum);
+               uberCustomFieldTallies = uberCustomFieldTallies.sum(customFieldTallies);
+               /*
+               try {
+                  final var json = OBJECT_MAPPER.writeValueAsString(customFieldTallies);
+                  LOGGER.debug(json);
+               } catch (JsonProcessingException e) {
+                  LOGGER.error(e.getLocalizedMessage(), e);
+               }
+               */
+
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
                      ? new ArrayList<WorkCandidate>()

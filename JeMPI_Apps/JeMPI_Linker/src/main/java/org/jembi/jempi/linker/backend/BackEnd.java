@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
-
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.libs.linker.LinkerUtils;
@@ -24,10 +24,14 @@ import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.stats.StatsTask;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
@@ -178,7 +182,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          });
       }
       final var linkInfo =
-            LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD, req.batchInteraction.stan());
+            LinkerDWH.linkInteraction(libMPI,
+                                      req.batchInteraction.interaction(),
+                                      null,
+                                      AppConfig.LINKER_MATCH_THRESHOLD,
+                                      req.batchInteraction.stan());
       if (linkInfo.isLeft()) {
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
@@ -238,6 +246,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> teaTimeHandler(final TeaTimeRequest request) {
       if (LOGGER.isInfoEnabled()) {
          LOGGER.info("TEA TIME");
+         try {
+            final var json = OBJECT_MAPPER.writeValueAsString(LinkerDWH.uberCustomFieldTallies);
+            LOGGER.debug(json);
+            LinkerDWH.uberCustomFieldTallies.logFieldMU();
+         } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+         }
       }
       var cf = CompletableFuture.supplyAsync(() -> {
          if (LOGGER.isInfoEnabled()) {
@@ -415,7 +430,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             List<String> failed) {
       }
    }
-
 
 
 }
