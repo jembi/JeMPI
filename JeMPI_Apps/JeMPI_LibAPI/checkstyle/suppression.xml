@@ -28,7 +28,7 @@
 
     <suppress
             checks="(ParameterNumber)"
-            files="(PsqlQueries|BackEnd).java"
+            files="(PsqlQueries|BackEnd|Routes).java"
     />
 
 </suppressions>

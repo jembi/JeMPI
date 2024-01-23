@@ -11,9 +11,14 @@ export interface NotificationRequest {
 }
 
 export interface LinkRequest {
-  goldenID: string
-  patientID: string
-  newGoldenID?: string
+  notificationId: string
+  notificationType: String
+  interactionId: string
+  resolutionState: string
+  currentGoldenId: string
+  currentCandidates: string[]
+  newGoldenId: string
+  score?: Number
 }
 
 export interface NotificationResponse {
@@ -60,6 +65,12 @@ export interface Interaction {
   sourceId: SourceId
   demographicData: DemographicData
   uniqueInteractionData: UniqueInteractionData
+}
+
+export interface DashboardData {
+  // TODO: Later make the types more specifc
+  sqlDashboardData: any
+  dashboardData: any
 }
 
 export interface GoldenRecordCandidatesResponse {

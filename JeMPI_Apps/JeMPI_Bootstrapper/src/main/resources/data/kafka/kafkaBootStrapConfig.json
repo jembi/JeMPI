@@ -14,6 +14,13 @@
       "retention_ms": 86400000,
       "segments_bytes": 4194304
     },
+    "JeMPI-interaction-processor-controller": {
+      "topicName": "JeMPI-interaction-processor-controller",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
     "JeMPI-interaction-em": {
       "topicName": "JeMPI-interaction-em",
       "partition": 1,

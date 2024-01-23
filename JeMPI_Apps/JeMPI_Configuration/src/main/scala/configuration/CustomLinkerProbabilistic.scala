@@ -5,9 +5,9 @@ import scala.language.{existentials, postfixOps}
 
 object CustomLinkerProbabilistic {
 
-  private val classLocation = "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
+  private val classLocation = "../JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/libs/linker"
   private val custom_className = "CustomLinkerProbabilistic"
-  private val packageText = "org.jembi.jempi.linker.backend"
+  private val packageText = "org.jembi.jempi.shared.libs.linker"
 
   def generate(config: Config): Any = {
 
@@ -37,12 +37,12 @@ object CustomLinkerProbabilistic {
          |import java.util.Arrays;
          |import java.util.List;
          |
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+         |import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.EXACT_SIMILARITY;
+         |import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JACCARD_SIMILARITY;
+         |import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JARO_SIMILARITY;
+         |import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
          |
-         |final class $custom_className {
+         |public final class $custom_className {
          |
          |   static final int METRIC_MIN = 0;
          |   static final int METRIC_MAX = 1;
@@ -51,8 +51,8 @@ object CustomLinkerProbabilistic {
          |   static final boolean PROBABILISTIC_DO_LINKING = ${
             if (config.demographicFields.exists(x => x.linkMetaData.isDefined)) "true"
             else "false"};
-         |   static final boolean PROBABILISTIC_DO_VALIDATING = ${if (config.demographicFields.exists(x => x.validateMetaData.isDefined)) "true" else "false"};
-         |   static final boolean PROBABILISTIC_DO_MATCHING = ${if (config.demographicFields.exists(x => x.matchMetaData.isDefined)) "true" else "false"};
+         |   public static final boolean PROBABILISTIC_DO_VALIDATING = ${if (config.demographicFields.exists(x => x.validateMetaData.isDefined)) "true" else "false"};
+         |   public static final boolean PROBABILISTIC_DO_MATCHING = ${if (config.demographicFields.exists(x => x.matchMetaData.isDefined)) "true" else "false"};
          |
          |${if (linkMuList.isEmpty)"" else "   static LinkFields updatedLinkFields = null;"}
          |${if (validateMuList.isEmpty) "" else "   static ValidateFields updatedValidateFields = null;"}
@@ -190,7 +190,7 @@ object CustomLinkerProbabilistic {
 
     def validateProbabilisticScore(): Unit =
       writer.println(
-        """   static float validateProbabilisticScore(
+        """   public static float validateProbabilisticScore(
           |         final CustomDemographicData goldenRecord,
           |         final CustomDemographicData interaction) {""".stripMargin)
 

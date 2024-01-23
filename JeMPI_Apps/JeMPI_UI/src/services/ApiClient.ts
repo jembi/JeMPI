@@ -18,7 +18,8 @@ import {
   InteractionWithScore,
   NotificationRequest,
   LinkRequest,
-  GoldenRecordCandidatesResponse
+  GoldenRecordCandidatesResponse,
+  DashboardData
 } from 'types/BackendResponse'
 import {
   GoldenRecord,
@@ -113,6 +114,13 @@ export class ApiClient {
     }
   }
 
+  async getDashboardData() {
+    const { data } = await this.client.get<DashboardData>(
+      ROUTES.GET_DASHBOARD_DATA
+    )
+    return data
+  }
+
   async getInteraction(uid: string) {
     const { data } = await this.client.get<Interaction>(
       `${ROUTES.GET_INTERACTION}/${uid}`
@@ -174,14 +182,12 @@ export class ApiClient {
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}`
-    const { data } = await this.client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_NEW_GID_LINK, request)
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${linkRequest.goldenID}&newGoldenID=${linkRequest.newGoldenID}&patientID=${linkRequest.patientID}&score=2`
-    const { data } = await this.client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_GID_LINK, linkRequest)
     return data
   }
 

@@ -16,7 +16,18 @@
             files="().java"
     />
 
-<!--    <suppress-->
+    <suppress
+            checks="(DesignForExtension|VisibilityModifier)"
+            files="SubProcessor.java"
+    />
+
+    <suppress
+            checks="(DesignForExtension|VisibilityModifier)"
+            files="BaseInteractionProcessor.java"
+    />
+
+
+    <!--    <suppress-->
 <!--            checks="(ParameterName|VisibilityModifier)"-->
 <!--            files="().java"-->
 <!--    />-->

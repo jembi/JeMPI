@@ -1,7 +1,7 @@
 import { Box, Grid } from '@mui/material'
 import CountWidget from './CountWidgetWidget'
 
-function BetaFscoreWidget() {
+function BetaFscoreWidget({data, ...rest}: any) {
   return (
     <Box component={'fieldset'}>
       <legend>Beta F-scores</legend>
@@ -9,18 +9,16 @@ function BetaFscoreWidget() {
         <Grid item lg={6} xs={16}>
           <CountWidget
             label="Weighs precision higher than recall"
-            value={75}
-            secondValue={75}
+            value={data && data.precision.toFixed(2)}
           />
         </Grid>
         <Grid item lg={4} xs={16}>
-          <CountWidget label="Neutral" value={75} secondValue={75} />
+          <CountWidget label="Neutral" value={data && data.recall_precision.toFixed(2)} />
         </Grid>
         <Grid item lg={6} xs={16}>
           <CountWidget
             label="Weighs recall higher than precision"
-            value={75}
-            secondValue={75}
+            value={data && data.recall.toFixed(2)}
           />
         </Grid>
       </Grid>

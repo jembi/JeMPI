@@ -6,9 +6,12 @@ import scala.language.{existentials, postfixOps}
 object CustomLinkerMU {
 
   private val classLocation =
-    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
+    "../JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/libs/linker"
+
   private val custom_className = "CustomLinkerMU"
-  private val packageText = "org.jembi.jempi.linker"
+  private val packageText = "org.jembi.jempi.shared.libs.linker"
+
+  private val indent = 3
 
   def generate(config: Config): Any = {
     val classFile: String =
@@ -35,6 +38,11 @@ object CustomLinkerMU {
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
            |import org.jembi.jempi.shared.models.CustomDemographicData;
+           |import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
+           |
+           |import java.util.Arrays;
+           |import java.util.List;
+           |import java.util.Map;
            |
            |import java.util.Locale;
            |
@@ -165,8 +173,73 @@ object CustomLinkerMU {
       writer.println(s"""      }
            |
            |   }
-           |
-           |}""".stripMargin)
+           """.stripMargin)
+      
+      writer.println(
+      s"""${" " * indent * 1}public static final class FieldMatchInfo {""".stripMargin)
+
+      if (muList.nonEmpty) {
+        muList.zipWithIndex.foreach((mu, idx) => {
+            val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+            writer.println(s"""${" " * indent * 2}LinkerProbabilistic.FieldScoreInfo $fieldName = null;""".stripMargin)
+        })
+      }
+
+      // constructor
+      writer.println(s"""${" " * indent * 2}public FieldMatchInfo(final CustomDemographicData patient,
+                                                    final CustomDemographicData goldenRecord) {""".stripMargin)
+
+      if (muList.nonEmpty) {
+        muList.zipWithIndex.foreach((mu, idx) => {
+            val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+            writer.println(s"""${" " * indent * 3}this.$fieldName = LinkerProbabilistic.fieldScoreInfo(patient.$fieldName, goldenRecord.$fieldName, LINKER_FIELDS.get("$fieldName"));""".stripMargin)
+        })
+      }     
+       
+      writer.println(s"""${" " * indent * 2}}""".stripMargin) 
+
+      
+      //toMap
+      writer.println()
+      writer.println(s"""${" " * indent * 2}public Map<String, LinkerProbabilistic.FieldScoreInfo> toMap() {
+                       | ${" " * indent * 3}return Map.ofEntries(""".stripMargin)
+
+      if (muList.nonEmpty) {
+        muList.zipWithIndex.foreach((mu, idx) => {
+            val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+            writer.println(
+              s"""${" " * indent * 4}Map.entry("$fieldName", this.$fieldName)${if (idx < muList.length - 1) ',' else ""}""".stripMargin)
+        })
+      }     
+
+      writer.println(s"""${" " * indent * 3});
+                      | ${" " * indent * 2}} 
+                      | ${" " * indent * 1}}""".stripMargin)   
+
+
+      writer.println(
+        s"""${" " * indent * 1}public static final Map<String, LinkerProbabilistic.Field> LINKER_FIELDS = Map.ofEntries(""".stripMargin)
+        if (muList.nonEmpty) {
+        muList.zipWithIndex.foreach((mu, idx) => {
+
+          val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
+          val comparison = mu.linkMetaData.get.comparison
+          val comparisonLevels = mu.linkMetaData.get.comparisonLevels
+          val m: Double = mu.linkMetaData.get.m 
+          val u: Double = mu.linkMetaData.get.u
+
+          def extractComparisonList(levels: List[Double]): String = levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
+
+          writer.println(
+              s"""${" " * indent * 2}Map.entry("$fieldName",  new LinkerProbabilistic.Field($comparison, ${if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("}${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F))${if (idx < muList.length - 1) ',' else ""}""".stripMargin)
+        })
+      }  
+
+      writer.println(s"""${" " * indent * 1});""".stripMargin);
+
+      writer.println(s"""}""".stripMargin)                                     
+
+
     }
     writer.flush()
     writer.close()
