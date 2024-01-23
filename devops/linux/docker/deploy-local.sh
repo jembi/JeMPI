@@ -68,6 +68,12 @@ install_sdkman_and_java_sbt_maven() {
     echo "Installing sbt... "
     sdk install sbt
 }
+
+hostname_setup() {
+    echo "Setting up hostname & IP address in Hosts file"
+    source $JEMPI_HOME/devops/linux/hostname-setup.sh
+}
+
 run_enviroment_configuration_and_helper_script(){
     # Navigate to environment configuration directory
     echo "Navigate to environment configuration directory"
@@ -128,12 +134,14 @@ initialize_db_build_all_stack_and_reboot(){
 
 
 
+
 # Process user choice
 case $choice in
     1)
         echo "Deploy JeMPI from Scratch"
         install_docker
         install_sdkman_and_java_sbt_maven
+        hostname_setup
         run_enviroment_configuration_and_helper_script
         run_field_configuration_file
         initialize_swarm
@@ -142,6 +150,7 @@ case $choice in
         ;;
     2)
         echo "Deploy JeMPI"
+        hostname_setup
         run_enviroment_configuration_and_helper_script
         run_field_configuration_file
         initialize_swarm
