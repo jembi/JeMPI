@@ -13,6 +13,8 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 1. **Set JEMPI_HOME Environment Variable:**
    ```bash
    export JAVA_VERSION=21.0.1-tem
+   JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
+
    ```
 
 
