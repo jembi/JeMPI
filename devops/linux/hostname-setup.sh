@@ -11,7 +11,7 @@ device_name=$(uname -n)
 
 file_path="/etc/hosts"
 search_string=$device_name
-host_ip="$ip_address $device_name"
+host_ip="$ip_address     $device_name"
 echo "Hostname : $host_ip"
 
 # Check if the string is present in the file
