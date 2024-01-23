@@ -53,18 +53,6 @@ object EM_Scala extends LazyLogging {
           thread.start()
         case "BATCH_INTERACTION" =>
           if (interactionEnvelop.interaction.isDefined) {
-//            val givenName =
-//              interactionEnvelop.interaction.get.demographicData.givenName
-//            val familyName =
-//              interactionEnvelop.interaction.get.demographicData.familyName
-//            val gender =
-//              interactionEnvelop.interaction.get.demographicData.gender
-//            val dob = interactionEnvelop.interaction.get.demographicData.dob
-//            val city = interactionEnvelop.interaction.get.demographicData.city
-//            val phoneNumber =
-//              interactionEnvelop.interaction.get.demographicData.phoneNumber
-//            val nationalId =
-//              interactionEnvelop.interaction.get.demographicData.nationalId
             val interaction = Array(
               interactionEnvelop.interaction.get.demographicData.givenName,
               interactionEnvelop.interaction.get.demographicData.familyName,

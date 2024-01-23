@@ -21,7 +21,7 @@ object ScalaCustomInteractionEnvelop {
       for (t <- config.demographicFields.filter(f => f.linkMetaData.isDefined))
         yield t
 
-    writer.println(s"package $packageText;")
+    writer.println(s"package $packageText")
     writer.println()
 
     if (muList.length == 0) {

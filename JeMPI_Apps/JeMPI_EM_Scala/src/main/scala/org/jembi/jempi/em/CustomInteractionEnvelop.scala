@@ -1,4 +1,4 @@
-package org.jembi.jempi.em;
+package org.jembi.jempi.em
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
