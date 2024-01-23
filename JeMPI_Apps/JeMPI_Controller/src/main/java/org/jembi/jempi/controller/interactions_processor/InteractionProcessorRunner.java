@@ -1,6 +1,5 @@
 package org.jembi.jempi.controller.interactions_processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jembi.jempi.controller.interactions_processor.lib.range_type.RangeTypeFactory;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.shared.libs.interactionProcessor.models.OnNewInteractionInteractionProcessorEnvelope;
@@ -22,27 +21,21 @@ public class InteractionProcessorRunner {
         return new StandardInteractionProcessor(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME, interaction, libMPI);
     }
 
-    private static <T> T objectConvertor(final Object value, final Class<T> classToMap) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.findAndRegisterModules();
-        return mapper.convertValue(value, classToMap);
-    }
     public static void run(final InteractionProcessorEnvelop interactionProcessorEnvelop, final LibMPI libMPI) throws ExecutionException, InterruptedException, InteractionProcessorNotFoundException {
 
         String processorToUse = interactionProcessorEnvelop.processorToUse();
-        Object interactionEnvelop = interactionProcessorEnvelop.interactionEnvelop();
-
         switch (processorToUse) {
             case InteractionProcessorEvents.ON_NEW_INTERACTION:
-                OnNewInteractionInteractionProcessorEnvelope interactionEnvNn = objectConvertor(interactionEnvelop, OnNewInteractionInteractionProcessorEnvelope.class);
+                OnNewInteractionInteractionProcessorEnvelope interactionEnvNn = interactionProcessorEnvelop.newInteractionEnvelope();
                 Interaction interactionNn = interactionEnvNn.interaction();
                 // todo: Rethink the envelope stan. The correct way would be to update the envelope to contain the correct data. This change should be a part of a bigger one
                 getInteractionProcessor(interactionNn, libMPI).onNewInteraction(interactionNn, interactionEnvNn.envelopeStan());
                 return;
             case InteractionProcessorEvents.ON_PROCESS_CANDIDATES:
-                OnProcessCandidatesInteractionProcessorEnvelope interactionEnvOPC = objectConvertor(interactionEnvelop, OnProcessCandidatesInteractionProcessorEnvelope.class);
-                Interaction interactionOPC = interactionEnvOPC.interaction();
-                Float matchThreshold = interactionEnvOPC.matchThreshold();
+                OnProcessCandidatesInteractionProcessorEnvelope interactionOPCEnv = interactionProcessorEnvelop.newProcessCandidatesEnvelope();
+                Interaction interactionOPC = interactionOPCEnv.interaction();
+                Float matchThreshold = interactionOPCEnv.matchThreshold();
+
                 StandardInteractionProcessor processor = (StandardInteractionProcessor) getInteractionProcessor(interactionOPC, libMPI).setRanges(
                         new ArrayList<>(Arrays.asList(
                                 RangeTypeFactory.standardThresholdNotificationRangeBelow(matchThreshold - 0.1F, matchThreshold),
