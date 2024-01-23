@@ -32,8 +32,7 @@ public sealed interface MpiServiceError extends MpiGeneralError {
    }
 
    record CRMissingFieldError(
-         String field
-   ) implements MpiServiceError {
+         String field) implements MpiServiceError {
    }
 
    record CRClientExistsError(

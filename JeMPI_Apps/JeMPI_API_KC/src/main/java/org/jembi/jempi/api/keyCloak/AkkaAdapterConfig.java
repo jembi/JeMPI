@@ -9,16 +9,20 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-@JsonPropertyOrder({"realm", "realm-public-key", "auth-server-url", "redirect-uri", "ssl-required", "resource",
-                    "public-client", "credentials", "use-resource-role-mappings", "enable-cors", "cors-max-age",
-                    "cors-allowed-methods", "cors-exposed-headers", "expose-token", "bearer-only", "autodetect-bearer-only",
-                    "connection-pool-size", "socket-timeout-millis", "connection-ttl-millis", "connection-timeout-millis",
-                    "allow-any-hostname", "disable-trust-manager", "truststore", "truststore-password", "client-keystore",
-                    "client-keystore-password", "client-key-password", "always-refresh-token", "register-node-at-startup",
-                    "register-node-period", "token-store", "adapter-state-cookie-path", "principal-attribute", "proxy-url",
-                    "turn-off-change-session-id-on-login", "token-minimum-time-to-live", "min-time-between-jwks-requests",
-                    "public-key-cache-ttl", "policy-enforcer", "ignore-oauth-query-parameter", "verify-token-audience"})
+@JsonPropertyOrder(
+      {"realm", "realm-public-key", "auth-server-url", "redirect-uri", "ssl-required", "resource", "public-client",
+       "credentials", "use-resource-role-mappings", "enable-cors", "cors-max-age", "cors-allowed-methods",
+       "cors-exposed-headers", "expose-token", "bearer-only", "autodetect-bearer-only", "connection-pool-size",
+       "socket-timeout-millis", "connection-ttl-millis", "connection-timeout-millis", "allow-any-hostname",
+       "disable-trust-manager", "truststore", "truststore" + "-password", "client-keystore", "client-keystore-password",
+       "client-key-password", "always-refresh-token", "register-node-at-startup", "register-node-period", "token-store",
+       "adapter-state-cookie-path", "principal-attribute", "proxy-url", "turn-off-change-session-id-on-login",
+       "token-minimum-time-to-live", "min-time-between-jwks-requests", "public-key-cache-ttl", "policy-enforcer",
+       "ignore-oauth-query-parameter", "verify-token-audience"})
 public final class AkkaAdapterConfig extends AdapterConfig {
+   @JsonProperty("frontend-kc-url")
+   private String frontendKcUri;
+
    @JsonProperty("redirect-uri")
    private String redirectUri;
 
@@ -48,6 +52,10 @@ public final class AkkaAdapterConfig extends AdapterConfig {
          }
       }
       return credentials;
+   }
+
+   String getFrontendKcUri() {
+      return EnvUtil.replace(this.frontendKcUri);
    }
 
    String getRedirectUri() {

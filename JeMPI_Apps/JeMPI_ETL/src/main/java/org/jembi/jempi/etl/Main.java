@@ -16,22 +16,16 @@ public final class Main {
    }
 
    public Behavior<Void> create() {
-      return Behaviors.setup(
-            context -> {
-               final var customSourceRecordStream = new CustomSourceRecordStream();
-               customSourceRecordStream.open();
-               return Behaviors.receive(Void.class)
-                               .onSignal(Terminated.class,
-                                         sig -> Behaviors.stopped())
-                               .build();
-            });
+      return Behaviors.setup(context -> {
+         final var customSourceRecordStream = new CustomSourceRecordStream();
+         customSourceRecordStream.open();
+         return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> Behaviors.stopped()).build();
+      });
    }
 
    private void run() {
       LOGGER.info("ETL");
-      LOGGER.info("KAFKA: {} {}",
-                  AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_APPLICATION_ID);
-     ActorSystem.create(this.create(), "ETL");
+      LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_APPLICATION_ID);
+      ActorSystem.create(this.create(), "ETL");
    }
 }

@@ -69,14 +69,10 @@ final class LinkerCR {
       if (crRegister.uniqueInteractionData().auxDateCreated() == null) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
-         final var matchedCandidates = crMatchedCandidates(libMPI,
-                                                           crRegister.candidateThreshold(),
-                                                           crRegister.demographicData());
+         final var matchedCandidates = crMatchedCandidates(libMPI, crRegister.candidateThreshold(), crRegister.demographicData());
          if (matchedCandidates.isEmpty()) {
-            final var interaction = new Interaction(null,
-                                                    crRegister.sourceId(),
-                                                    crRegister.uniqueInteractionData(),
-                                                    crRegister.demographicData());
+            final var interaction =
+                  new Interaction(null, crRegister.sourceId(), crRegister.uniqueInteractionData(), crRegister.demographicData());
             final var linkInfo =
                   libMPI.createInteractionAndLinkToClonedGoldenRecord(CustomLinkerBackEnd.applyAutoCreateFunctions(interaction),
                                                                       1.0F);
@@ -84,8 +80,7 @@ final class LinkerCR {
          } else {
             return Either.left(new MpiServiceError.CRClientExistsError(matchedCandidates.stream()
                                                                                         .map(GoldenRecord::demographicData)
-                                                                                        .toList(),
-                                                                       crRegister.demographicData()));
+                                                                                        .toList(), crRegister.demographicData()));
          }
       }
    }
@@ -112,12 +107,9 @@ final class LinkerCR {
       });
       LOGGER.debug("{}", success);
       if (fail.isEmpty()) {
-         return Either.right(new BackEnd.CrUpdateFieldResponse.UpdateFieldResponse(crUpdateFields.goldenId(),
-                                                                                   pass,
-                                                                                   fail));
+         return Either.right(new BackEnd.CrUpdateFieldResponse.UpdateFieldResponse(crUpdateFields.goldenId(), pass, fail));
       } else {
-         return Either.left(new MpiServiceError.CRUpdateFieldError(crUpdateFields.goldenId(),
-                                                                   fail));
+         return Either.left(new MpiServiceError.CRUpdateFieldError(crUpdateFields.goldenId(), fail));
       }
    }
 

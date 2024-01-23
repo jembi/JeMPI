@@ -2,21 +2,22 @@
 # Set JEMPI_HOME environment variable
 cd ../../..
 export JEMPI_HOME=$(pwd)
-export JAVA_VERSION=17.0.8.1-tem
+export JAVA_VERSION=21.0.1-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 
 # Display menu options
 echo "Select an option for local deployment:"
 echo "1. Deploy JeMPI from Scratch (With all installations...)."
-echo "2. Build and Reboot."
-echo "3. Restart JeMPI."
-echo "4. Down the JeMPI."
-echo "5. Destroy JeMPI (This process will wipe all data)."
+echo "2. Deploy JeMPI without installations"
+echo "3. Build and Reboot."
+echo "4. Restart JeMPI."
+echo "5. Down the JeMPI."
+echo "6. Destroy JeMPI (This process will wipe all data)."
 
 
 # Prompt user for choice
-read -p "Enter your choice (1-5): " choice
+read -p "Enter your choice (1-6): " choice
 
 # Function to ask for confirmation
 confirm() {
@@ -67,6 +68,12 @@ install_sdkman_and_java_sbt_maven() {
     echo "Installing sbt... "
     sdk install sbt
 }
+
+hostname_setup() {
+    echo "Setting up hostname & IP address in Hosts file"
+    source $JEMPI_HOME/devops/linux/hostname-setup.sh
+}
+
 run_enviroment_configuration_and_helper_script(){
     # Navigate to environment configuration directory
     echo "Navigate to environment configuration directory"
@@ -111,12 +118,20 @@ pull_docker_images_and_push_local(){
     source $JEMPI_HOME/devops/linux/docker/c-registry-2-push-hub-images.sh
 }
 build_all_stack_and_reboot(){
+    # run_enviroment_configuration_and_helper_script
+    run_field_configuration_file
     # Build and reboot the entire stack
     echo "Build and reboot the entire stack"
     cd $JEMPI_HOME/devops/linux/docker
     yes | source $JEMPI_HOME/devops/linux/docker/d-stack-1-build-all-reboot.sh
 
 }
+initialize_db_build_all_stack_and_reboot(){
+    echo "Create DB"
+    cd $JEMPI_HOME/devops/linux/docker
+    yes |source $JEMPI_HOME/devops/linux/docker/d-stack-1-create-db-build-all-reboot.sh
+}
+
 
 
 
@@ -126,40 +141,49 @@ case $choice in
         echo "Deploy JeMPI from Scratch"
         install_docker
         install_sdkman_and_java_sbt_maven
+        hostname_setup
         run_enviroment_configuration_and_helper_script
         run_field_configuration_file
         initialize_swarm
         pull_docker_images_and_push_local
-        build_all_stack_and_reboot
+        initialize_db_build_all_stack_and_reboot
         ;;
     2)
+        echo "Deploy JeMPI"
+        hostname_setup
+        run_enviroment_configuration_and_helper_script
+        run_field_configuration_file
+        initialize_swarm
+        pull_docker_images_and_push_local
+        initialize_db_build_all_stack_and_reboot
+        ;;
+    3)
         echo "Build and Reboot"
         build_all_stack_and_reboot
         ;;
-    3)
+    4)
         echo "Restart JeMPI"
         cd $JEMPI_HOME/devops/linux/docker
         source $JEMPI_HOME/devops/linux/docker/d-stack-3-reboot.sh
         # Add your Option 3 logic here
         ;;
-    4)
+    5)
         echo "Down"
         cd $JEMPI_HOME/devops/linux/docker
         source $JEMPI_HOME/devops/linux/docker/d-stack-3-down.sh
         exit 0
         ;;
-    5)
+    6)
         echo "Destroy"
         # Main script
-        echo "This is a critical action that requires confirmation."
-
+        echo "Do you want to continue? (Ctrl+Y for Yes, any other key for No)"
+        read -rsn1 -p "> " answer
         # Call the confirm function
-        if confirm; then
+        if [[ $answer == $'\x19' ]]; then
+
             echo "You confirmed. Proceeding with Destroy JeMPI."
             cd $JEMPI_HOME/devops/linux/docker
             source $JEMPI_HOME/devops/linux/docker/b-swarm-2-leave.sh
-
-            # Your critical action goes here
         else
             echo "You did not confirm. Exiting without performing the critical action."
         fi
@@ -169,5 +193,3 @@ case $choice in
         echo "Invalid choice. Please enter a number."
         ;;
 esac
-
-

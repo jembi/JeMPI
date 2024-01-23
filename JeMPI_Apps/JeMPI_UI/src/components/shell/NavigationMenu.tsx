@@ -30,7 +30,7 @@ const NavigationMenu: React.FC = () => {
   }
 
   return config.useSso ? (
-    <>
+    <Box sx={{ paddingX: '1rem' }}>
       <IconButton
         aria-controls={isOpen ? 'basic-menu' : undefined}
         aria-haspopup="true"
@@ -67,7 +67,7 @@ const NavigationMenu: React.FC = () => {
           </Typography>
         </MenuItem>
       </Menu>
-    </>
+    </Box>
   ) : (
     <></>
   )

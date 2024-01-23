@@ -51,7 +51,7 @@ const SearchSelectField: React.FC<SearchSelectFieldProps> = ({
       <InputLabel>{title}</InputLabel>
       <Select
         value={fieldName}
-        label="Field"
+        label="org.jembi.jempi.em.Field"
         onChange={onChange}
         name={fieldIdentifier}
       >

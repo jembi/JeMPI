@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   AppBar,
   Box,
@@ -148,19 +148,27 @@ const NavigationBar = () => {
           </Box>
           <Box
             sx={{
-              display: { xs: 'none', md: 'grid' },
-              gridTemplateColumns: 'repeat(4, auto)',
+              display: { xs: 'none', md: 'flex' },
               fontWeight: '500',
+              justifyContent: 'start',
+              alignItems: 'end',
+              width: '100%',
               gap: 3
             }}
           >
-            {navigationItems.map(item => (
-              <LabeledIconBox
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                link={item.link}
-              />
+            {navigationItems.map((item, index) => (
+              <Box
+                sx={{
+                  ml: index < navigationItems.length - 1 ? 0 : 'auto'
+                }}
+              >
+                <LabeledIconBox
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  link={item.link}
+                />
+              </Box>
             ))}
           </Box>
           <NavigationMenu />

@@ -7,11 +7,10 @@ import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.model.HttpEntity;
 import akka.http.javadsl.model.StatusCodes;
-import akka.http.javadsl.server.Route;
-import akka.http.javadsl.server.RejectionHandler;
 import akka.http.javadsl.server.ExceptionHandler;
+import akka.http.javadsl.server.RejectionHandler;
+import akka.http.javadsl.server.Route;
 import ch.megard.akka.http.cors.javadsl.settings.CorsSettings;
-import com.softwaremill.session.*;
 import com.softwaremill.session.javadsl.HttpSessionAwareDirectives;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,8 +30,9 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
    private ActorSystem<Void> actorSystem;
    private ActorRef<BackEnd.Event> backEnd;
-   private  String jsonFields;
+   private String jsonFields;
    private Http akkaHttpServer = null;
+
    public HttpServer(final MessageDispatcher dispatcher) {
       super(new HttpServerSessionManager(dispatcher));
    }
@@ -54,7 +54,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       this.jsonFields = jsonFields;
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
 
-      akkaHttpServer =  Http.get(actorSystem);
+      akkaHttpServer = Http.get(actorSystem);
       binding = akkaHttpServer.newServerAt(httpServerHost, httpPort).bind(this.createCorsRoutes());
       LOGGER.info("Server online at http://{}:{}", httpServerHost, httpPort);
    }
@@ -66,6 +66,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    public Http getAkkaHttpServer() {
       return akkaHttpServer;
    }
+
    public String getJsonFields() {
       return jsonFields;
    }
@@ -83,16 +84,15 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
          return response;
       });
-      final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder()
-              .match(Exception.class, x -> {
-                 LOGGER.error("An exception occurred while executing the Route", x);
-                 return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred. Please see server logs for details");
-              }).build();
+      final ExceptionHandler exceptionHandler = ExceptionHandler.newBuilder().match(Exception.class, x -> {
+         LOGGER.error("An exception occurred while executing the Route", x);
+         return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred. Please see server logs for details");
+      }).build();
 
 
       return cors(CorsSettings.create(AppConfig.CONFIG),
-                    () -> pathPrefix("JeMPI", () -> new RoutesEntries(this).getRouteEntries())
-                  ).seal(rejectionHandler, exceptionHandler);
+                  () -> pathPrefix("JeMPI", () -> new RoutesEntries(this).getRouteEntries())).seal(rejectionHandler,
+                                                                                                   exceptionHandler);
    }
 
 }
