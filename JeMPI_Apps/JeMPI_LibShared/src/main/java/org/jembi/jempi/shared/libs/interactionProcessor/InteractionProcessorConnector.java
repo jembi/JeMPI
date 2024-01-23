@@ -15,10 +15,16 @@ import java.util.UUID;
 
 
 public final class InteractionProcessorConnector {
-
+    private static InteractionProcessorConnector instance = null;
+    public static InteractionProcessorConnector getInstance(final String bootstrapperServer) {
+        if (instance == null) {
+            instance = new InteractionProcessorConnector(bootstrapperServer);
+        }
+        return instance;
+    }
     private static final Logger LOGGER = LogManager.getLogger(InteractionProcessorConnector.class);
     private MyKafkaProducer<String, InteractionProcessorEnvelop> kafkaProducer;
-    public InteractionProcessorConnector(final String bootstrapperServer) {
+    private InteractionProcessorConnector(final String bootstrapperServer) {
         kafkaProducer = new MyKafkaProducer<>(bootstrapperServer,
                                 GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
                                 new StringSerializer(), new JsonPojoSerializer<>(),
@@ -26,7 +32,7 @@ public final class InteractionProcessorConnector {
     }
 
     private void produceMessage(final InteractionProcessorEnvelop interactionProcessorEnvelop) {
-        kafkaProducer.produceAsync(UUID.randomUUID().toString(),
+        kafkaProducer.produceAsync("interactionProcessorMessage",
                                     interactionProcessorEnvelop,
                                     ((metadata, exception) -> {
                                         if (exception != null) {
@@ -37,10 +43,10 @@ public final class InteractionProcessorConnector {
     }
     public void sendOnNewNotification(final Interaction interaction, final String envelopeStan) {
         produceMessage(new InteractionProcessorEnvelop(InteractionProcessorEvents.ON_NEW_INTERACTION,
-                new OnNewInteractionInteractionProcessorEnvelope(interaction, envelopeStan)));
+                new OnNewInteractionInteractionProcessorEnvelope(interaction, envelopeStan), null));
     }
     public void sendOnProcessCandidates(final Interaction interaction, final String envelopeStan, final Float matchThreshold) {
-        produceMessage(new InteractionProcessorEnvelop(InteractionProcessorEvents.ON_PROCESS_CANDIDATES,
+        produceMessage(new InteractionProcessorEnvelop(InteractionProcessorEvents.ON_PROCESS_CANDIDATES, null,
                 new OnProcessCandidatesInteractionProcessorEnvelope(interaction, envelopeStan, matchThreshold)));
     }
 }

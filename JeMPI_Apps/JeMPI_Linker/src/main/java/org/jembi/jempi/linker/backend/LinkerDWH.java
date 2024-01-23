@@ -118,7 +118,7 @@ public final class LinkerDWH {
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_, final String envelopeStan) {
 
-      InteractionProcessorConnector interactionProcessorConnector = new InteractionProcessorConnector(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      InteractionProcessorConnector interactionProcessorConnector = InteractionProcessorConnector.getInstance(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
 
       interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
