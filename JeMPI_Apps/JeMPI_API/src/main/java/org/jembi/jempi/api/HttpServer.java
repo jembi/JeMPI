@@ -82,6 +82,8 @@ public final class HttpServer extends AllDirectives {
                                                                            jsonFields,
                                                                            AppConfig.LINKER_IP,
                                                                            AppConfig.LINKER_HTTP_PORT,
+                                                                           AppConfig.CONTROLLER_IP,
+                                                                           AppConfig.CONTROLLER_HTTP_PORT,
                                                                            http),
                                                 path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
                                                      () -> complete(StatusCodes.OK, jsonFields))))).seal(rejectionHandler,

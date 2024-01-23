@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
 
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
@@ -74,6 +75,31 @@ public final class HttpServer extends AllDirectives {
       return stage.thenApply(response -> response);
    }
 
+   private Route onNotificationResolution(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+      return entity(Jackson.unmarshaller(NotificationResolutionProcessorData.class),
+              obj -> onComplete(BackEnd.askOnNotificationResolution(actorSystem, backEnd, obj), response -> {
+                 if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
+                    return complete(StatusCodes.OK);
+                 } else {
+                    return complete(StatusCodes.IM_A_TEAPOT);
+                 }
+              }));
+   }
+
+   private Route getDashboardData(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(BackEnd.askGetDashboardData(actorSystem, backEnd), response -> {
+         if (response.isSuccess()) {
+            return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
+         } else {
+            return complete(StatusCodes.IM_A_TEAPOT);
+         }
+      });
+   }
+
    private Route routeLinkInteraction() {
       return entity(Jackson.unmarshaller(ApiModels.LinkInteractionSyncBody.class), obj -> {
          try {
@@ -117,8 +143,13 @@ public final class HttpServer extends AllDirectives {
                         () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
                                                             this::routeLinkInteraction),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-                                                            this::routeLinkInteractionToGid))),
-                                     get(() -> path("mu", this::routeMU))));
+                                                            this::routeLinkInteractionToGid),
+                                                        path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
+                                                                () -> onNotificationResolution(actorSystem, backEnd)))),
+                                     get(() -> concat(path("mu", this::routeMU),
+                                                      path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                                                              () -> getDashboardData(actorSystem, backEnd))
+                                                     ))));
    }
 
 }

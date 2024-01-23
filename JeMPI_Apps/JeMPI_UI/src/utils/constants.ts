@@ -17,6 +17,17 @@ export const ACTION_TYPE: { [key: string]: string } = {
     'GR and Patient record link approved'
 }
 
+export const THRESHOLD_SPECIFIC_REASON = {
+  ABOVE: "ABOVE THRESHOLD",
+  BELOW: "BELOW THRESHOLD",
+}
+
+export const RESOLUTION_TYPES = {
+  RELINKED: "RELINKED",
+  RELINKED_NEW: "RELINKED_NEW",
+  APPROVED: "APPROVED"
+}
+
 export const PAGINATION_LIMIT = 10
 
 export const INITIAL_SEARCH_PARAMETER: SearchParameter = {

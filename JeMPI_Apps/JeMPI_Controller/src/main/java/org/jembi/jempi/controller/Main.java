@@ -28,6 +28,7 @@ public final class Main {
          final var spNotification = new SPNotification();
          spNotification.open();
          final var spInteractions = new SPInteractions();
+         new SPInteractionProcessor().open();
          spInteractions.open(context.getSystem(), backEndActor);
          final var httpServer = new HttpServer();
          httpServer.open(context.getSystem(), backEndActor);

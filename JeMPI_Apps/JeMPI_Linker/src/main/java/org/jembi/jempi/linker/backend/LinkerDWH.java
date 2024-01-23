@@ -5,15 +5,15 @@ import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.shared.libs.interactionProcessor.InteractionProcessorConnector;
+import org.jembi.jempi.shared.libs.linker.*;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static java.lang.Math.abs;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-final class LinkerDWH {
+public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
 
@@ -111,12 +111,16 @@ final class LinkerDWH {
          }
       });
    }
-
-   static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
+// +
+   public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
-         final float matchThreshold_) {
+         final float matchThreshold_, final String envelopeStan) {
+
+      InteractionProcessorConnector interactionProcessorConnector = new InteractionProcessorConnector(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+
+      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
@@ -178,6 +182,7 @@ final class LinkerDWH {
                                                                     .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                                                     .collect(Collectors.toCollection(ArrayList::new));
 
+               interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold);
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
                      ? new ArrayList<WorkCandidate>()
@@ -200,7 +205,7 @@ final class LinkerDWH {
                   if (candidatesInExternalLinkRange.isEmpty()) {
                      linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                      if (!belowThresholdNotifications.isEmpty()) {
-                        sendNotification(Notification.NotificationType.THRESHOLD,
+                        sendNotification(Notification.NotificationType.BELOW_THRESHOLD,
                                          linkInfo.interactionUID(),
                                          AppUtils.getNames(interaction.demographicData()),
                                          new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
@@ -227,11 +232,11 @@ final class LinkerDWH {
                                                                                    validated2);
 
                   if (linkToGoldenId.score() <= matchThreshold + 0.1) {
-                     sendNotification(Notification.NotificationType.THRESHOLD,
+                     sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
                                       linkInfo.interactionUID(),
                                       AppUtils.getNames(interaction.demographicData()),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
-                                      aboveThresholdNotifications);
+                                      aboveThresholdNotifications.stream().filter(m -> !Objects.equals(m.gID(), firstCandidate.goldenRecord.goldenId())).collect(Collectors.toCollection(ArrayList::new)));
                   }
                   if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                      CustomLinkerBackEnd.updateGoldenRecordFields(libMPI,
@@ -282,7 +287,7 @@ final class LinkerDWH {
       }
    }
 
-   private record WorkCandidate(
+   public record WorkCandidate(
          GoldenRecord goldenRecord,
          float score) {
    }

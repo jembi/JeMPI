@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
@@ -36,6 +37,22 @@ public final class AppConfig {
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+
+   private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
+   private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
+
+   public static String[] getDGraphHosts() {
+      return DGRAPH_ALPHA_HOSTS;
+   }
+   public static int[] getDGraphPorts() {
+      return DGRAPH_ALPHA_PORTS;
+   }
 
    private AppConfig() {
    }

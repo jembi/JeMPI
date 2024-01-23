@@ -36,4 +36,15 @@
             files="LinkerDWH.java"
     />
 
+    <suppress
+            checks="(DesignForExtension)"
+            files="().java"
+    />
+
+    <suppress
+            checks="(DesignForExtension|RegexpSingleline|UnusedImports)"
+            files="CustomLinkerMU.java"
+    />
+
+
 </suppressions>
