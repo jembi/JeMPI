@@ -107,6 +107,10 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CFG_BROKER_ID: 1
+    # TODO - Later: Research on the appropriate sizes to use for each of these properties. Were added in https://github.com/bitnami/containers/commit/a2984c22221afa766cbf501c30f96a7dc6058653 as a port
+      KAFKA_CFG_MAX_REQUEST_SIZE: 2000000
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 2000000
+      KAFKA_CFG_MAX_PARTITION_FETCH_BYTES: 2000000
     volumes:
       - type: bind
         source: ${DATA_KAFKA_01_DIR}
