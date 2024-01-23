@@ -19,7 +19,9 @@ const rows = [
   createData('National Id ', 305, 3.7),
   createData('City ', 305, 3.7)
 ]
-function MandU() {
+function MandU({data, ...rest}: any) {
+
+   
   return (
     <Box component={'fieldset'}>
       <legend>M & U Values</legend>
@@ -33,15 +35,15 @@ function MandU() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(row => (
-              <TableRow key={row.fieldName}>
+            {data && Object.entries(data).map(([fieldId, m_and_u]) => (
+              <TableRow key={fieldId}>
                 <TableCell component="th" scope="row">
-                  {row.fieldName}
+                  {fieldId}
                 </TableCell>
                 <TableCell align="center" scope="row">
-                  {row.mValue}
+                  {parseFloat((m_and_u as any).m).toFixed(7)}
                 </TableCell>
-                <TableCell align="center">{row.uValue}</TableCell>
+                <TableCell align="center">{parseFloat((m_and_u as any).u).toFixed(7)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

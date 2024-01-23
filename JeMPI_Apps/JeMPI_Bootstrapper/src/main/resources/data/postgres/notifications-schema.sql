@@ -77,4 +77,4 @@ INSERT INTO Notification_State(State)
 VALUES ('OPEN'), ('CLOSED');
 
 INSERT INTO Notification_Type(Type)
-VALUES ('THRESHOLD'), ('MARGIN'), ('UPDATE');
+VALUES ('ABOVE_THRESHOLD'), ('BELOW_THRESHOLD'), ('MARGIN'), ('UPDATE');

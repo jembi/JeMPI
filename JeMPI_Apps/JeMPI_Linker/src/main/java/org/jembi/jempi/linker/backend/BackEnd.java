@@ -15,15 +15,16 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic;
+import org.jembi.jempi.shared.libs.linker.LinkerUtils;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.stats.StatsTask;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -98,10 +99,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 //                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
       }
       libMPI.startTransaction();
-      // if (!(libMPI.dropAll().isEmpty() && libMPI.createSchema().isEmpty())) {
-      //    LOGGER.error("Create Schema Error");
-      // }
-      libMPI.closeTransaction();
    }
 
    @Override
@@ -113,7 +110,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
                                 .onMessage(EventUpdateMUReq.class, this::eventUpdateMUReqHandler)
-//                                .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
+//                              .onMessage(EventGetMUReq.class, this::eventGetMUReqHandler)
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
@@ -158,7 +155,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                          request.link.externalLinkRange(),
                                                          request.link.matchThreshold() == null
                                                                ? AppConfig.LINKER_MATCH_THRESHOLD
-                                                               : request.link.matchThreshold());
+                                                               : request.link.matchThreshold(), request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isLeft()
                                                                  ? listLinkInfo.getLeft()
@@ -181,7 +178,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          });
       }
       final var linkInfo =
-            LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD);
+            LinkerDWH.linkInteraction(libMPI, req.batchInteraction.interaction(), null, AppConfig.LINKER_MATCH_THRESHOLD, req.batchInteraction.stan());
       if (linkInfo.isLeft()) {
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
@@ -279,11 +276,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
+
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
       CustomLinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
+
 
 //   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
 //      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
@@ -416,5 +415,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             List<String> failed) {
       }
    }
+
+
 
 }

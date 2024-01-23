@@ -22,6 +22,8 @@ public final class RoutesEntries extends ApiHttpServerRouteEntries {
                                                               this.httpServer.getJsonFields(),
                                                               AppConfig.LINKER_IP,
                                                               AppConfig.LINKER_HTTP_PORT,
+                                                              AppConfig.CONTROLLER_IP,
+                                                              AppConfig.CONTROLLER_HTTP_PORT,
                                                               this.httpServer.getAkkaHttpServer())));
 
    }

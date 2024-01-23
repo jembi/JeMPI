@@ -24,10 +24,4 @@ pushd .
 
   # ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
 
-  pushd helper/keycloak
-    # if [ "$REACT_APP_ENABLE_SSO" = "true" ]; then
-      source ./start-keycloak-test-server.sh
-    # fi
-    popd
-
 popd

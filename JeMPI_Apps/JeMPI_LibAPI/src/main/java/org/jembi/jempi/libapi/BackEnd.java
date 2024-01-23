@@ -13,6 +13,8 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.dashboard.NotificationStats;
+import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
@@ -146,6 +148,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
                     .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
+                    .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
                     .build();
    }
 
@@ -443,7 +446,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       File file = request.file();
       try {
-         Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
+         String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
+         Files.copy(file.toPath(), Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName()));
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
@@ -451,6 +455,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       request.replyTo.tell(new PostUploadCsvFileResponse());
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> getSqlDashboardDataHandler(final SQLDashboardDataRequest request) {
+      int openNotifications = psqlNotifications.getNotificationCount("OPEN");
+      int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
+      request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications, closedNotifications))));
       return Behaviors.same();
    }
 
@@ -500,6 +511,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetInteractionAuditTrailRequest(
          ActorRef<GetInteractionAuditTrailResponse> replyTo,
          String uid) implements Event {
+   }
+
+   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) { }
+
+   public record SQLDashboardDataRequest(
+           ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
    }
 
    public record GetInteractionAuditTrailResponse(List<AuditEvent> auditTrail) {

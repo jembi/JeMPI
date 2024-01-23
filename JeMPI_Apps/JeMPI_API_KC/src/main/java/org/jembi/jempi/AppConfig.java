@@ -42,6 +42,9 @@ public final class AppConfig {
    public static final Integer API_KC_HTTP_PORT = CONFIG.getInt("API_KC_HTTP_PORT");
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
+
+   public static final String CONTROLLER_IP = CONFIG.getString("CONTROLLER_IP");
+   public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
    public static final String SESSION_SECRET = CONFIG.getString("JEMPI_SESSION_SECRET");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
