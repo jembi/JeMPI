@@ -55,7 +55,7 @@ export NODE_ENV="production"
 export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
 export REACT_APP_JEMPI_BASE_API_PORT=50001
 export REACT_APP_MOCK_BACKEND="false"
-export REACT_APP_ENABLE_SSO="false"
+export REACT_APP_ENABLE_SSO="true"
 export KC_FRONTEND_URL=http://${NODE1_IP}:8080
 
 # ram limit for linker

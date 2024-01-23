@@ -129,7 +129,7 @@ build_all_stack_and_reboot(){
 initialize_db_build_all_stack_and_reboot(){
     echo "Create DB"
     cd $JEMPI_HOME/devops/linux/docker
-    source $JEMPI_HOME/devops/linux/docker/d-stack-1-create-db-build-all-reboot.sh
+    yes |source $JEMPI_HOME/devops/linux/docker/d-stack-1-create-db-build-all-reboot.sh
 }
 
 
