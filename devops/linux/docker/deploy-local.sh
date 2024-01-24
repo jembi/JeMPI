@@ -11,13 +11,14 @@ echo "Select an option for local deployment:"
 echo "1. Deploy JeMPI from Scratch (With all installations...)."
 echo "2. Deploy JeMPI without installations"
 echo "3. Build and Reboot."
-echo "4. Restart JeMPI."
-echo "5. Down the JeMPI."
-echo "6. Destroy JeMPI (This process will wipe all data)."
+echo "4. Backup Postgres & Dgraph."
+echo "5. Restart JeMPI."
+echo "6. Down the JeMPI."
+echo "7. Destroy JeMPI (This process will wipe all data)."
 
 
 # Prompt user for choice
-read -p "Enter your choice (1-6): " choice
+read -p "Enter your choice (1-7): " choice
 
 # Function to ask for confirmation
 confirm() {
@@ -159,21 +160,28 @@ case $choice in
         ;;
     3)
         echo "Build and Reboot"
+        run_enviroment_configuration_and_helper_script
         build_all_stack_and_reboot
         ;;
     4)
+        echo "Backup"
+        source $JEMPI_HOME/devops/linux/docker/dgraph-backup.sh
+        source $JEMPI_HOME/devops/linux/docker/postgres-backup.sh
+
+        ;;
+    5)
         echo "Restart JeMPI"
         cd $JEMPI_HOME/devops/linux/docker
         source $JEMPI_HOME/devops/linux/docker/d-stack-3-reboot.sh
         # Add your Option 3 logic here
         ;;
-    5)
+    6)
         echo "Down"
         cd $JEMPI_HOME/devops/linux/docker
         source $JEMPI_HOME/devops/linux/docker/d-stack-3-down.sh
         exit 0
         ;;
-    6)
+    7)
         echo "Destroy"
         # Main script
         echo "Do you want to continue? (Ctrl+Y for Yes, any other key for No)"
