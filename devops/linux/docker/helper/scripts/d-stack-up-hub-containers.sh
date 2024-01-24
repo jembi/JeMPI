@@ -21,7 +21,4 @@ pushd .
   if [ ! -z ${SCALE_ALPHA_03+x} ] ; then docker service scale ${STACK_NAME}_alpha-03=${SCALE_ALPHA_03}; fi
   docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 
-
-  ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
-
 popd

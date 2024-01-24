@@ -28,7 +28,7 @@ pushd .
 
   pushd helper/keycloak
   # if [ "$REACT_APP_ENABLE_SSO" = "true" ]; then
-    source ./start-keycloak-test-server.sh
+    # source ./start-keycloak-test-server.sh
   # fi
   popd
 
