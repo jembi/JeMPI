@@ -75,6 +75,7 @@ public record CustomFieldTallies(
    }
 
    public void logFieldMU() {
+      LOGGER.debug("Tally derived M&U's");
       logMU("givenName", givenName);
       logMU("familyName", familyName);
       logMU("gender", gender);

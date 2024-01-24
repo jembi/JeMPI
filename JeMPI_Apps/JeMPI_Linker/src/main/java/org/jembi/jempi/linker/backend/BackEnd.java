@@ -7,7 +7,6 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -30,8 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
@@ -246,13 +243,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> teaTimeHandler(final TeaTimeRequest request) {
       if (LOGGER.isInfoEnabled()) {
          LOGGER.info("TEA TIME");
-         try {
-            final var json = OBJECT_MAPPER.writeValueAsString(LinkerDWH.uberCustomFieldTallies);
-            LOGGER.debug(json);
-            LinkerDWH.uberCustomFieldTallies.logFieldMU();
-         } catch (JsonProcessingException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-         }
       }
       var cf = CompletableFuture.supplyAsync(() -> {
          if (LOGGER.isInfoEnabled()) {

@@ -3,15 +3,20 @@ package org.jembi.jempi.linker.backend;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.libs.linker.CustomLinkerDeterministic;
 import org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic;
 import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
 import org.jembi.jempi.shared.libs.linker.LinkerUtils;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.*;
@@ -27,8 +32,7 @@ public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
 
-   public static CustomFieldTallies uberCustomFieldTallies = CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
-
+   private static MyKafkaProducer<String, CustomFieldTallies> muTalliesProducer = null;
 
    private LinkerDWH() {
    }
@@ -127,8 +131,15 @@ public final class LinkerDWH {
 
 //      InteractionProcessorConnector interactionProcessorConnector = InteractionProcessorConnector.getInstance(AppConfig
 //      .KAFKA_BOOTSTRAP_SERVERS);
-
 //      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
+      if (muTalliesProducer == null) {
+         muTalliesProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                   GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
+                                                   keySerializer(),
+                                                   valueSerializer(),
+                                                   "LinkerDWH-MU-TALLIES");
+      }
+
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
@@ -152,7 +163,7 @@ public final class LinkerDWH {
                                                                                                                        interaction.demographicData())))
                                                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                                    .collect(Collectors.toCollection(ArrayList::new))
-                                                   .get(0);
+                                                   .getFirst();
                try {
                   final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
                   final var g = OBJECT_MAPPER.writeValueAsString(workCandidate.goldenRecord().demographicData());
@@ -202,15 +213,11 @@ public final class LinkerDWH {
                                                       workCandidate.goldenRecord.demographicData());
                      })
                      .reduce(CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY, CustomFieldTallies::sum);
-               uberCustomFieldTallies = uberCustomFieldTallies.sum(customFieldTallies);
-               /*
-               try {
-                  final var json = OBJECT_MAPPER.writeValueAsString(customFieldTallies);
-                  LOGGER.debug(json);
-               } catch (JsonProcessingException e) {
-                  LOGGER.error(e.getLocalizedMessage(), e);
-               }
-               */
+               muTalliesProducer.produceAsync("123", customFieldTallies, ((metadata, exception) -> {
+                  if (exception != null) {
+                     LOGGER.error(exception.toString());
+                  }
+               }));
 
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
@@ -317,6 +324,14 @@ public final class LinkerDWH {
       } catch (ExecutionException | InterruptedException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
+   }
+
+   private static Serializer<String> keySerializer() {
+      return new StringSerializer();
+   }
+
+   private static Serializer<CustomFieldTallies> valueSerializer() {
+      return new JsonPojoSerializer<>();
    }
 
    public record WorkCandidate(

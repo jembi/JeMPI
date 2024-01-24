@@ -26,10 +26,9 @@
             files="BaseInteractionProcessor.java"
     />
 
-
-    <!--    <suppress-->
-<!--            checks="(ParameterName|VisibilityModifier)"-->
-<!--            files="().java"-->
-<!--    />-->
+    <suppress
+            checks="(DesignForExtension)"
+            files="SPTalliesMU.java"
+    />
 
 </suppressions>
