@@ -11,12 +11,12 @@ final class PsqlNotifications {
 
    private static final String NOTIFICATION_TABLE_NAME = "notification";
    private static final String QUERY = """
-         SELECT patient_id, id, names, created, state,type, score, golden_id
-         FROM notification
-         WHERE created BETWEEN ? AND ? AND state IN (?, ?)
-         ORDER BY created
-         LIMIT ? OFFSET ?
-         """;
+                                       SELECT patient_id, id, names, created, state,type, score, golden_id
+                                       FROM notification
+                                       WHERE created BETWEEN ? AND ? AND state IN (?, ?)
+                                       ORDER BY created
+                                       LIMIT ? OFFSET ?
+                                       """;
    private static final Logger LOGGER = LogManager.getLogger(PsqlNotifications.class);
    private final PsqlClient psqlClient;
 
@@ -35,7 +35,7 @@ final class PsqlNotifications {
     * @param limit  The maximum number of matches to retrieve.
     * @param offset The number of matches to skip from the beginning.
     * @param date   The date threshold for match creation.
-    * @param states   The state of notification.
+    * @param states The state of notification.
     * @return A {@link MatchesForReviewResult} object containing the matches and related information.
     */
    MatchesForReviewResult getMatchesForReview(
@@ -49,7 +49,8 @@ final class PsqlNotifications {
       int skippedRows = 0;
       psqlClient.connect();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY);
-           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification WHERE created BETWEEN ? AND ? AND state IN (?, ?)")) {
+           PreparedStatement countStatement = psqlClient.prepareStatement(
+                 "SELECT COUNT(*) FROM notification WHERE created BETWEEN ? AND ? AND state IN (?, ?)")) {
          countStatement.setTimestamp(1, startDate);
          countStatement.setTimestamp(2, endDate);
          countStatement.setString(3, extractState(0, states));
@@ -73,7 +74,13 @@ final class PsqlNotifications {
                if (md.getColumnName(i).equals("id")) {
                   notificationID = rs.getObject(i, UUID.class);
                }
-               row.put(md.getColumnName(i), (rs.getObject(i)));
+               final var name = md.getColumnName(i);
+               final var obj = rs.getObject(i);
+               if (obj == null && "names".equals(name)) {
+                  row.put(name, "");
+               } else {
+                  row.put(name, (obj));
+               }
             }
             list.add(row);
             row.put("candidates", getCandidates(notificationID));
@@ -87,13 +94,15 @@ final class PsqlNotifications {
       result.setNotifications(list);
       return result;
    }
+
    public int getNotificationCount(final String status) {
-      String queryStatement = status == null ?  String.format("SELECT COUNT(*) FROM %s", NOTIFICATION_TABLE_NAME)
-              : String.format("SELECT COUNT(*) FROM %s WHERE state = '%s'", NOTIFICATION_TABLE_NAME, status);
+      String queryStatement = status == null
+            ? String.format("SELECT COUNT(*) FROM %s", NOTIFICATION_TABLE_NAME)
+            : String.format("SELECT COUNT(*) FROM %s WHERE state = '%s'", NOTIFICATION_TABLE_NAME, status);
 
       psqlClient.connect();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(queryStatement);
-            ResultSet resultSet = preparedStatement.executeQuery()) {
+           ResultSet resultSet = preparedStatement.executeQuery()) {
          if (resultSet.next()) {
             return resultSet.getInt(1);
          }
@@ -103,6 +112,7 @@ final class PsqlNotifications {
       }
       return -1;
    }
+
    String extractState(
          final int index,
          final List<String> states) {
@@ -110,7 +120,7 @@ final class PsqlNotifications {
          return null;
       }
       return states.get(index);
-   };
+   }
 
    List<HashMap<String, Object>> getCandidates(final UUID nID) {
       final var list = new ArrayList<HashMap<String, Object>>();
@@ -161,7 +171,9 @@ final class PsqlNotifications {
       psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
          ResultSet rs = stmt.executeQuery(String.format(Locale.ROOT,
-                                                        "update notification set state = \'%s\' where id = \'%s\'", "CLOSED", id));
+                                                        "update notification set state = '%s' where id = '%s'",
+                                                        "CLOSED",
+                                                        id));
          psqlClient.commit();
       }
    }
