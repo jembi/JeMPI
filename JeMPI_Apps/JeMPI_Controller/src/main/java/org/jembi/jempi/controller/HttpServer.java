@@ -88,7 +88,7 @@ public final class HttpServer extends AllDirectives {
               }));
    }
 
-   private Route getDashboardData(
+   private Route routeDashboardData(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(BackEnd.askGetDashboardData(actorSystem, backEnd), response -> {
@@ -148,7 +148,7 @@ public final class HttpServer extends AllDirectives {
                                                                 () -> onNotificationResolution(actorSystem, backEnd)))),
                                      get(() -> concat(path("mu", this::routeMU),
                                                       path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                                                              () -> getDashboardData(actorSystem, backEnd))
+                                                              () -> routeDashboardData(actorSystem, backEnd))
                                                      ))));
    }
 

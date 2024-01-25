@@ -14,7 +14,7 @@ public record CustomFieldTallies(
       FieldTally phoneNumber,
       FieldTally nationalId) {
 
-   public static final CustomFieldTallies.FieldTally FIELD_TALLY_SUM_IDENTITY = new CustomFieldTallies.FieldTally(0, 0, 0, 0);
+   public static final CustomFieldTallies.FieldTally FIELD_TALLY_SUM_IDENTITY = new CustomFieldTallies.FieldTally(0L, 0L, 0L, 0L);
    public static final CustomFieldTallies CUSTOM_FIELD_TALLIES_SUM_IDENTITY = new CustomFieldTallies(FIELD_TALLY_SUM_IDENTITY,
                                                                                                      FIELD_TALLY_SUM_IDENTITY,
                                                                                                      FIELD_TALLY_SUM_IDENTITY,
@@ -24,10 +24,10 @@ public record CustomFieldTallies(
                                                                                                      FIELD_TALLY_SUM_IDENTITY);
    private static final Logger LOGGER = LogManager.getFormatterLogger(CustomFieldTallies.class);
    private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
-   private static final FieldTally A = new FieldTally(1, 0, 0, 0);
-   private static final FieldTally B = new FieldTally(0, 1, 0, 0);
-   private static final FieldTally C = new FieldTally(0, 0, 1, 0);
-   private static final FieldTally D = new FieldTally(0, 0, 0, 1);
+   private static final FieldTally A = new FieldTally(1L, 0L, 0L, 0L);
+   private static final FieldTally B = new FieldTally(0L, 1L, 0L, 0L);
+   private static final FieldTally C = new FieldTally(0L, 0L, 1L, 0L);
+   private static final FieldTally D = new FieldTally(0L, 0L, 0L, 1L);
 
    private static FieldTally getFieldTally(
          final boolean recordsMatch,
@@ -96,10 +96,10 @@ public record CustomFieldTallies(
    }
 
    public record FieldTally(
-         Integer a,
-         Integer b,
-         Integer c,
-         Integer d) {
+         Long a,
+         Long b,
+         Long c,
+         Long d) {
 
       FieldTally sum(final FieldTally r) {
          return new FieldTally(this.a + r.a,
@@ -107,6 +107,7 @@ public record CustomFieldTallies(
                                this.c + r.c,
                                this.d + r.d);
       }
+
 
    }
 

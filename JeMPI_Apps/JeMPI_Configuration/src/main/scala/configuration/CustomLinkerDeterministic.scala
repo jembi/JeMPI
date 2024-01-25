@@ -6,9 +6,9 @@ import scala.language.{existentials, postfixOps}
 object CustomLinkerDeterministic {
 
   private val classLocation =
-    "../JeMPI_LibShared/src/main/java/org/jembi/jempi/shared/libs/linker"
+    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker/backend"
   private val custom_className = "CustomLinkerDeterministic"
-  private val packageText = "org.jembi.jempi.shared.libs.linker"
+  private val packageText = "org.jembi.jempi.linker.backend"
 
   def generate(config: Config): Any = {
     val classFile: String =
@@ -19,7 +19,7 @@ object CustomLinkerDeterministic {
 
     def emitCanApplyLinking(rules: Map[String, Rule]): Unit = {
       writer.print(
-        s"""   public static boolean canApplyLinking(
+        s"""   static boolean canApplyLinking(
            |         final CustomDemographicData interaction) {
            |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin
       )
@@ -79,8 +79,7 @@ object CustomLinkerDeterministic {
         }
       }
 
-      writer.println(
-        s"""   public static boolean $funcName(
+      writer.println(s"""   static boolean $funcName(
            |         final CustomDemographicData goldenRecord,
            |         final CustomDemographicData interaction) {""".stripMargin)
 
@@ -121,15 +120,15 @@ object CustomLinkerDeterministic {
          |
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |
-         |public final class $custom_className {
+         |final class $custom_className {
          |
-         |   public static final boolean DETERMINISTIC_DO_LINKING = ${
+         |   static final boolean DETERMINISTIC_DO_LINKING = ${
           if (config.rules.link.get.deterministic.nonEmpty) "true" else "false"
         };
-         |   public static final boolean DETERMINISTIC_DO_VALIDATING = ${
+         |   static final boolean DETERMINISTIC_DO_VALIDATING = ${
           if (config.rules.validate.nonEmpty) "true" else "false"
         };
-         |   public static final boolean DETERMINISTIC_DO_MATCHING = ${
+         |   static final boolean DETERMINISTIC_DO_MATCHING = ${
           if (config.rules.matchNotification.nonEmpty) "true" else "false"
         };
          |

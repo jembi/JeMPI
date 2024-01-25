@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.libs.linker;
+package org.jembi.jempi.linker.backend;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
@@ -6,20 +6,20 @@ import org.jembi.jempi.shared.models.CustomMU;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.EXACT_SIMILARITY;
-import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JACCARD_SIMILARITY;
-import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JARO_SIMILARITY;
-import static org.jembi.jempi.shared.libs.linker.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
+import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
 
-public final class CustomLinkerProbabilistic {
+final class CustomLinkerProbabilistic {
 
    static final int METRIC_MIN = 0;
    static final int METRIC_MAX = 1;
    static final int METRIC_SCORE = 2;
    static final int METRIC_MISSING_PENALTY = 3;
    static final boolean PROBABILISTIC_DO_LINKING = true;
-   public static final boolean PROBABILISTIC_DO_VALIDATING = false;
-   public static final boolean PROBABILISTIC_DO_MATCHING = false;
+   static final boolean PROBABILISTIC_DO_VALIDATING = false;
+   static final boolean PROBABILISTIC_DO_MATCHING = false;
 
    static LinkFields updatedLinkFields = null;
 
@@ -71,7 +71,7 @@ public final class CustomLinkerProbabilistic {
 
    }
 
-   public static float validateProbabilisticScore(
+   static float validateProbabilisticScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return 0.0F;

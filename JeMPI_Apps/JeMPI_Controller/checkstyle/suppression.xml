@@ -28,7 +28,7 @@
 
     <suppress
             checks="(DesignForExtension)"
-            files="SPTalliesMU.java"
+            files="SPLinkStatsMeta.java"
     />
 
 </suppressions>

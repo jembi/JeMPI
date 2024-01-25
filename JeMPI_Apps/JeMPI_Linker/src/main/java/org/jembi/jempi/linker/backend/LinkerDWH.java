@@ -11,10 +11,6 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.libs.linker.CustomLinkerDeterministic;
-import org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic;
-import org.jembi.jempi.shared.libs.linker.LinkerProbabilistic;
-import org.jembi.jempi.shared.libs.linker.LinkerUtils;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -26,13 +22,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
+import static org.jembi.jempi.shared.models.CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
 
-   private static MyKafkaProducer<String, CustomFieldTallies> muTalliesProducer = null;
+   private static MyKafkaProducer<String, LinkStatsMeta> linkStatsMetaProducer = null;
 
    private LinkerDWH() {
    }
@@ -128,16 +125,18 @@ public final class LinkerDWH {
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_,
          final String envelopeStan) {
+      LinkStatsMeta.ConfusionMatrix confusionMatrix = LinkStatsMeta.CONFUSION_MATRIX_IDENTITY;
+      CustomFieldTallies customFieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 
 //      InteractionProcessorConnector interactionProcessorConnector = InteractionProcessorConnector.getInstance(AppConfig
 //      .KAFKA_BOOTSTRAP_SERVERS);
 //      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
-      if (muTalliesProducer == null) {
-         muTalliesProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                   GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
-                                                   keySerializer(),
-                                                   valueSerializer(),
-                                                   "LinkerDWH-MU-TALLIES");
+      if (linkStatsMetaProducer == null) {
+         linkStatsMetaProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                       GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
+                                                       stringSerializer(),
+                                                       linkStatsMetaSerializer(),
+                                                       "LinkerDWH-MU-TALLIES");
       }
 
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
@@ -191,6 +190,7 @@ public final class LinkerDWH {
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+               confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 1.0, 0.0);
             } else {
                final var allCandidateScores = candidateGoldenRecords
                      .parallelStream()
@@ -204,7 +204,7 @@ public final class LinkerDWH {
 
                // DO SOME TALLYING
                // interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold);
-               final var customFieldTallies = IntStream
+               customFieldTallies = IntStream
                      .range(0, allCandidateScores.size())
                      .mapToObj(i -> {
                         final var workCandidate = allCandidateScores.get(i);
@@ -212,12 +212,17 @@ public final class LinkerDWH {
                                                       interaction.demographicData(),
                                                       workCandidate.goldenRecord.demographicData());
                      })
-                     .reduce(CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY, CustomFieldTallies::sum);
-               muTalliesProducer.produceAsync("123", customFieldTallies, ((metadata, exception) -> {
-                  if (exception != null) {
-                     LOGGER.error(exception.toString());
-                  }
-               }));
+                     .reduce(CUSTOM_FIELD_TALLIES_SUM_IDENTITY, CustomFieldTallies::sum);
+               final var score = allCandidateScores.getFirst().score;
+               if (score >= matchThreshold + 0.1) {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(1.0, 0.0, 0.0, 0.0);
+               } else if (score >= matchThreshold) {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.80, 0.20, 0.0, 0.0);
+               } else if (score >= matchThreshold - 0.1) {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 0.20, 0.80);
+               } else {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 1.0, 0.0);
+               }
 
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
@@ -253,7 +258,7 @@ public final class LinkerDWH {
                            candidate.score)));
                   }
                } else {
-                  final var firstCandidate = candidatesAboveMatchThreshold.get(0);
+                  final var firstCandidate = candidatesAboveMatchThreshold.getFirst();
                   final var linkToGoldenId =
                         new LibMPIClientInterface.GoldenIdScore(firstCandidate.goldenRecord.goldenId(), firstCandidate.score);
                   final var validated1 =
@@ -306,6 +311,14 @@ public final class LinkerDWH {
          } finally {
             libMPI.closeTransaction();
          }
+         linkStatsMetaProducer.produceAsync("123",
+                                            new LinkStatsMeta(confusionMatrix, customFieldTallies),
+                                            ((metadata, exception) -> {
+                                               if (exception != null) {
+                                                  LOGGER.error(exception.toString());
+                                               }
+                                            }));
+
          return linkInfo == null
                ? Either.right(externalLinkCandidateList)
                : Either.left(linkInfo);
@@ -326,11 +339,11 @@ public final class LinkerDWH {
       }
    }
 
-   private static Serializer<String> keySerializer() {
+   private static Serializer<String> stringSerializer() {
       return new StringSerializer();
    }
 
-   private static Serializer<CustomFieldTallies> valueSerializer() {
+   private static Serializer<LinkStatsMeta> linkStatsMetaSerializer() {
       return new JsonPojoSerializer<>();
    }
 

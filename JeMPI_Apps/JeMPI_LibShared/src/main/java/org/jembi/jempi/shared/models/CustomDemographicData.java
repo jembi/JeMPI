@@ -62,13 +62,13 @@ public class CustomDemographicData {
    }
 
    public CustomDemographicData clean() {
-      return new CustomDemographicData(this.givenName.toLowerCase().replaceAll("\\W", ""),
-                                       this.familyName.toLowerCase().replaceAll("\\W", ""),
-                                       this.gender.toLowerCase().replaceAll("\\W", ""),
-                                       this.dob.toLowerCase().replaceAll("\\W", ""),
-                                       this.city.toLowerCase().replaceAll("\\W", ""),
-                                       this.phoneNumber.toLowerCase().replaceAll("\\W", ""),
-                                       this.nationalId.toLowerCase().replaceAll("\\W", ""));
+      return new CustomDemographicData(this.givenName.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.familyName.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.gender.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.dob.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.city.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.phoneNumber.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.nationalId.trim().toLowerCase().replaceAll("\\W", ""));
    }
 
 }

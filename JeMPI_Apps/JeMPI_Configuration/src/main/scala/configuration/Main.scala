@@ -2,10 +2,7 @@ package configuration
 
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.scala.{
-  ClassTagExtensions,
-  DefaultScalaModule
-}
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 
 import java.nio.file.Paths
 

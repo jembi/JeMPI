@@ -1,14 +1,14 @@
-package org.jembi.jempi.shared.libs.linker;
+package org.jembi.jempi.linker.backend;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.jembi.jempi.shared.models.CustomDemographicData;
 
-public final class CustomLinkerDeterministic {
+final class CustomLinkerDeterministic {
 
-   public static final boolean DETERMINISTIC_DO_LINKING = true;
-   public static final boolean DETERMINISTIC_DO_VALIDATING = false;
-   public static final boolean DETERMINISTIC_DO_MATCHING = false;
+   static final boolean DETERMINISTIC_DO_LINKING = true;
+   static final boolean DETERMINISTIC_DO_VALIDATING = false;
+   static final boolean DETERMINISTIC_DO_MATCHING = false;
 
    private CustomLinkerDeterministic() {
    }
@@ -19,7 +19,7 @@ public final class CustomLinkerDeterministic {
       return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
    }
 
-   public static boolean canApplyLinking(
+   static boolean canApplyLinking(
          final CustomDemographicData interaction) {
       return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
              || StringUtils.isNotBlank(interaction.nationalId)
@@ -28,7 +28,7 @@ public final class CustomLinkerDeterministic {
              && StringUtils.isNotBlank(interaction.phoneNumber);
    }
 
-   public static boolean linkDeterministicMatch(
+   static boolean linkDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       final var nationalIdL = goldenRecord.nationalId;
@@ -45,13 +45,13 @@ public final class CustomLinkerDeterministic {
       return (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(phoneNumberL, phoneNumberR));
    }
 
-   public static boolean validateDeterministicMatch(
+   static boolean validateDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return false;
    }
 
-   public static boolean matchNotificationDeterministicMatch(
+   static boolean matchNotificationDeterministicMatch(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
       return false;

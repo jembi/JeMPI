@@ -17,8 +17,8 @@ import org.apache.kafka.streams.state.Stores;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.CustomFieldTallies;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.LinkStatsMeta;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -28,11 +28,11 @@ public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
    private static final Deserializer<String> STRING_DESERIALIZER = new StringDeserializer();
-   private static final Deserializer<CustomFieldTallies> CUSTOM_FIELD_TALLIES_DESERIALIZER =
-         new JsonPojoDeserializer<>(CustomFieldTallies.class);
+   private static final Deserializer<LinkStatsMeta> LINK_STATS_META_DESERIALIZER =
+         new JsonPojoDeserializer<>(LinkStatsMeta.class);
    private static final Serde<String> STRING_SERDE = Serdes.String();
-   private static final Serde<CustomFieldTallies> CUSTOM_FIELD_TALLIES_SERDE =
-         Serdes.serdeFrom(new JsonPojoSerializer<>(), CUSTOM_FIELD_TALLIES_DESERIALIZER);
+   private static final Serde<LinkStatsMeta> LINK_STATS_META_SERDE =
+         Serdes.serdeFrom(new JsonPojoSerializer<>(), LINK_STATS_META_DESERIALIZER);
 
    private Main() {
    }
@@ -42,16 +42,16 @@ public final class Main {
    }
 
    public static Topology createTopology() {
-      StoreBuilder<KeyValueStore<String, CustomFieldTallies>> stateStoreBuilder =
-            Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(SPTalliesMU.STATE_STORE_NAME),
+      StoreBuilder<KeyValueStore<String, LinkStatsMeta>> stateStoreBuilder =
+            Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(SPLinkStatsMeta.STATE_STORE_NAME),
                                         STRING_SERDE,
-                                        CUSTOM_FIELD_TALLIES_SERDE);
+                                        LINK_STATS_META_SERDE);
 
       return new Topology()
             .addSource("Source",
-                       STRING_DESERIALIZER, CUSTOM_FIELD_TALLIES_DESERIALIZER,
+                       STRING_DESERIALIZER, LINK_STATS_META_DESERIALIZER,
                        GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER)
-            .addProcessor("Process", SPTalliesMU::new, "Source")
+            .addProcessor("Process", SPLinkStatsMeta::new, "Source")
             .addStateStore(stateStoreBuilder, "Process");
    }
 

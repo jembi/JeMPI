@@ -1,4 +1,4 @@
-package org.jembi.jempi.shared.libs.linker;
+package org.jembi.jempi.linker.backend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
@@ -15,12 +15,11 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.log;
-import static org.jembi.jempi.shared.libs.linker.CustomLinkerProbabilistic.*;
+import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.*;
 
 public final class LinkerProbabilistic {
 
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
-
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
