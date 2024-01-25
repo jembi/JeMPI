@@ -21,6 +21,7 @@ import java.util.Properties
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.immutable.ParVector
+import scala.util.Random
 
 object EM_Scala extends LazyLogging {
 
@@ -45,7 +46,10 @@ object EM_Scala extends LazyLogging {
       interactionEnvelop.contentType match {
         case "BATCH_START_SENTINEL" => buffer.clearAndShrink()
         case "BATCH_END_SENTINEL" =>
-          val parVector = new ParVector(buffer.toVector)
+          val parVector = new ParVector(
+            if (buffer.length <= 50_000) buffer.toVector
+            else Random.shuffle(buffer.toVector).take(50_000)
+          )
           buffer.clearAndShrink()
           val emRunnable: EM_Runnable =
             new EM_Runnable(interactionEnvelop.tag.get, parVector)

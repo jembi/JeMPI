@@ -147,6 +147,7 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       KAFKA_CFG_BROKER_ID: 2
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 1048576
     volumes:
       - type: bind
         source: ${DATA_KAFKA_02_DIR}
@@ -186,6 +187,7 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
       KAFKA_CFG_BROKER_ID: 3
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 1048576
     volumes:
       - type: bind
         source: ${DATA_KAFKA_03_DIR}
@@ -237,7 +239,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
-    command: dgraph zero --my=zero-01:5080 --raft idx=1 --replicas 1 --telemetry "reports=false; sentry=false;"
+    command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   zero-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -336,7 +338,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -369,7 +371,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
-    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 -o 1 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
 
   alpha-03:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -402,7 +404,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
-    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16,127.0.0.1 -o 2 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "reports=false; sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
@@ -502,9 +504,9 @@ services:
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
       POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-ctrl
       KAFKA_CLIENT_ID: client-id-ctrl
       CONTROLLER_HTTP_PORT: 50000
