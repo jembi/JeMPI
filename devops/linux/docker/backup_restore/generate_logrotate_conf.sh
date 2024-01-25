@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ../conf.env
 # Load Backup Directory from Environment Variable
 POSTGRES_BACKUP_PATH="${POSTGRES_BACKUP_DIRECTORY}"
 OLD_LOGS_DIR="${BACKUP_PATH}/old_logs"

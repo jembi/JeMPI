@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ../conf.env
 # Load Database Credentials from Environment Variables
 DB_NAME="${POSTGRESQL_DATABASE}"
 DB_USER="${POSTGRES_USER}"

@@ -162,13 +162,13 @@ case $choice in
         ;;
     3)
         echo "Build and Reboot"
-        run_enviroment_configuration_and_helper_script
         build_all_stack_and_reboot
         ;;
     4)
         echo "Backup"
-        source $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-backup.sh
-        source $JEMPI_HOME/devops/linux/docker/backup_restore/postgres-backup.sh
+        cd $JEMPI_HOME/devops/linux/docker/backup_restore
+        sudo bash $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-backup.sh
+        sudo bash  $JEMPI_HOME/devops/linux/docker/backup_restore/postgres-backup.sh
 
         ;;
     5)

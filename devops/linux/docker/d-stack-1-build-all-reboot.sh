@@ -24,4 +24,10 @@ source ./helper/scripts/d-stack-deploy-0.sh
 sleep 2
 source ./helper/scripts/d-stack-up-hub-containers.sh
 sleep 2
+source ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
+sleep 2
+if [ "$REACT_APP_ENABLE_SSO" = "true" ]; then
+  source ./helper/keycloak/start-keycloak-test-server.sh
+fi
+sleep 2
 source ./helper/scripts/d-stack-up-app-containers.sh

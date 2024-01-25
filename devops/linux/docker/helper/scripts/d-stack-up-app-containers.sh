@@ -26,12 +26,6 @@ pushd .
 
   echo
 
-  pushd helper/keycloak
-  # if [ "$REACT_APP_ENABLE_SSO" = "true" ]; then
-    # source ./start-keycloak-test-server.sh
-  # fi
-  popd
-
   sleep 5
   docker stack services ${STACK_NAME}
   echo
