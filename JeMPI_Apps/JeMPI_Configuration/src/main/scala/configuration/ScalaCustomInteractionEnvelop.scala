@@ -11,6 +11,28 @@ object ScalaCustomInteractionEnvelop {
   private val packageText = "org.jembi.jempi.em"
 
   def generate(config: Config): Any = {
+
+    def fieldDefs(): String =
+      config.demographicFields.zipWithIndex
+        .map((f, i) => {
+          val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
+          s"""${" " * 4}${fieldName}: String,"""
+        })
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
+    end fieldDefs
+
+    def fieldList(): String =
+      config.demographicFields.zipWithIndex
+        .map((f, i) => {
+          val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
+          s"""${fieldName}"""
+        })
+        .mkString("", "," + sys.props("line.separator") + (" " * 12), "")
+        .trim
+    end fieldList
+
     val classFile: String =
       classLocation + File.separator + custom_className + ".scala"
     println("Creating " + classFile)
@@ -52,105 +74,15 @@ object ScalaCustomInteractionEnvelop {
            |
            |@JsonIgnoreProperties(ignoreUnknown = true)
            |case class DemographicData(
-           |    givenName: String,
-           |    familyName: String,
-           |    gender: String,
-           |    dob: String,
-           |    city: String,
-           |    phoneNumber: String,
-           |    nationalId: String
-           |)
+           |    ${fieldDefs()}
+           |) {
+           |
+           |   def toArray: Array[String] =
+           |      Array(${fieldList()})
+           |
+           |}
            |""".stripMargin)
 
-      /*      writer.println(s"""   void updateMatchSums(
-           |         final CustomDemographicData patient,
-           |         final CustomDemographicData goldenRecord) {""".stripMargin)
-      if (muList.nonEmpty) {
-        muList.foreach(mu => {
-          val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-          writer.println(
-            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName" +
-              s");"
-          )
-        })
-        writer.println("""      LOGGER.debug("{}", fields);
-            |   }
-            |""".stripMargin)
-      }
-
-      writer.println(s"""   void updateMissmatchSums(
-           |         final CustomDemographicData patient,
-           |         final CustomDemographicData goldenRecord) {""".stripMargin)
-      muList.foreach(mu => {
-        val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-        writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName);"
-        )
-      })
-      writer.println("""      LOGGER.debug("{}", fields);
-          |   }
-          |
-          |   static class Field {
-          |      final SimilarityScore<Double> similarityScore;
-          |      final double threshold;
-          |      long matchedPairFieldMatched = 0L;
-          |      long matchedPairFieldUnmatched = 0L;
-          |      long unMatchedPairFieldMatched = 0L;
-          |      long unMatchedPairFieldUnmatched = 0L;
-          |
-          |      Field(final SimilarityScore<Double> score,
-          |            final double mismatchThreshold) {
-          |         this.similarityScore = score;
-          |         this.threshold = mismatchThreshold;
-          |      }
-          |   }
-          |
-          |   static class Fields {""".stripMargin)
-      muList.foreach(mu => {
-        val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-        writer.println(
-          s"      final Field $fieldName = new Field(JARO_WINKLER_SIMILARITY, 0.92);"
-        )
-      })
-      writer.println("""
-          |      private float computeM(final Field field) {
-          |         return (float) (field.matchedPairFieldMatched)
-          |              / (float) (field.matchedPairFieldMatched + field.matchedPairFieldUnmatched);
-          |      }
-          |
-          |      private float computeU(final Field field) {
-          |         return (float) (field.unMatchedPairFieldMatched)
-          |              / (float) (field.unMatchedPairFieldMatched + field.unMatchedPairFieldUnmatched);
-          |      }
-          |""".stripMargin)
-
-      writer.println("""      @Override
-          |      public String toString() {""".stripMargin)
-
-      if (muList.nonEmpty) {
-        val fmt = Range(0, muList.length)
-          .map(x => "f" + (x + 1).toString + "(%f:%f)")
-          .reduce { (accumulator, elem) => accumulator + " " + elem }
-        //    println(fmt)
-
-        writer.println(
-          s"""         return String.format(Locale.ROOT, "$fmt",""".stripMargin
-        )
-        muList.zipWithIndex.foreach((mu, idx) => {
-          val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
-          writer.println(
-            s"                              computeM($fieldName), computeU($fieldName)"
-              + (if ((idx + 1) != muList.length) "," else ");")
-          )
-        })
-      }
-
-      writer.println(s"""      }
-           |
-           |   }
-           |
-           |}""".stripMargin)
-       */
     }
     writer.flush()
     writer.close()

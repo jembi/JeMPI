@@ -14,25 +14,26 @@ public record CustomFieldTallies(
       FieldTally phoneNumber,
       FieldTally nationalId) {
 
-   public static final CustomFieldTallies.FieldTally FIELD_TALLY_SUM_IDENTITY = new CustomFieldTallies.FieldTally(0L, 0L, 0L, 0L);
-   public static final CustomFieldTallies CUSTOM_FIELD_TALLIES_SUM_IDENTITY = new CustomFieldTallies(FIELD_TALLY_SUM_IDENTITY,
-                                                                                                     FIELD_TALLY_SUM_IDENTITY,
-                                                                                                     FIELD_TALLY_SUM_IDENTITY,
-                                                                                                     FIELD_TALLY_SUM_IDENTITY,
-                                                                                                     FIELD_TALLY_SUM_IDENTITY,
-                                                                                                     FIELD_TALLY_SUM_IDENTITY,
-                                                                                                     FIELD_TALLY_SUM_IDENTITY);
    private static final Logger LOGGER = LogManager.getFormatterLogger(CustomFieldTallies.class);
    private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    private static final FieldTally A = new FieldTally(1L, 0L, 0L, 0L);
    private static final FieldTally B = new FieldTally(0L, 1L, 0L, 0L);
    private static final FieldTally C = new FieldTally(0L, 0L, 1L, 0L);
    private static final FieldTally D = new FieldTally(0L, 0L, 0L, 1L);
+   public static final CustomFieldTallies.FieldTally FIELD_TALLY_SUM_IDENTITY = new CustomFieldTallies.FieldTally(0L, 0L, 0L, 0L);
+   public static final CustomFieldTallies CUSTOM_FIELD_TALLIES_SUM_IDENTITY = new CustomFieldTallies(
+      FIELD_TALLY_SUM_IDENTITY,
+      FIELD_TALLY_SUM_IDENTITY,
+      FIELD_TALLY_SUM_IDENTITY,
+      FIELD_TALLY_SUM_IDENTITY,
+      FIELD_TALLY_SUM_IDENTITY,
+      FIELD_TALLY_SUM_IDENTITY,
+      FIELD_TALLY_SUM_IDENTITY);
 
    private static FieldTally getFieldTally(
-         final boolean recordsMatch,
-         final String left,
-         final String right) {
+      final boolean recordsMatch,
+      final String left,
+      final String right) {
       if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
          return FIELD_TALLY_SUM_IDENTITY;
       }
@@ -108,9 +109,6 @@ public record CustomFieldTallies(
                                this.d + r.d);
       }
 
-
    }
 
 }
-
-

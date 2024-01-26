@@ -30,5 +30,16 @@ case class DemographicData(
     city: String,
     phoneNumber: String,
     nationalId: String
-)
+) {
+
+   def toArray: Array[String] =
+      Array(givenName,
+            familyName,
+            gender,
+            dob,
+            city,
+            phoneNumber,
+            nationalId)
+
+}
 

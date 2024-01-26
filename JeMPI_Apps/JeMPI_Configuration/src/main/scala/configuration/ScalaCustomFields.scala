@@ -11,6 +11,18 @@ object ScalaCustomFields {
   private val packageText = "org.jembi.jempi.em"
 
   def generate(config: Config): Any = {
+
+    def fieldDefs(): String =
+      config.demographicFields.zipWithIndex
+        .map((f, i) => {
+          val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
+          s"""${" " * 4}Field("${fieldName}", ${i}),"""
+        })
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
+    end fieldDefs
+
     val classFile: String =
       classLocation + File.separator + custom_className + ".scala"
     println("Creating " + classFile)
@@ -24,13 +36,7 @@ object ScalaCustomFields {
       |object CustomFields {
       |
       |  val FIELDS: ArraySeq[Field] = ArraySeq(
-      |    Field("Given Name", 0),
-      |    Field("Family Name", 1),
-      |    Field("Gender", 2),
-      |    Field("Date of Birth", 3),
-      |    Field("City", 4),
-      |    Field("Mobile", 5),
-      |    Field("National ID", 6)
+      |    ${fieldDefs()}
       |  )
       |
       |}
