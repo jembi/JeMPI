@@ -154,7 +154,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                          request.link.externalLinkRange(),
                                                          request.link.matchThreshold() == null
                                                                ? AppConfig.LINKER_MATCH_THRESHOLD
-                                                               : request.link.matchThreshold(), request.link.stan());
+                                                               : request.link.matchThreshold(),
+                                                         request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isLeft()
                                                                  ? listLinkInfo.getLeft()
@@ -166,9 +167,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
-      if (LOGGER.isTraceEnabled()) {
-         LOGGER.trace("{}", req.batchInteraction.stan());
-      }
       if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));

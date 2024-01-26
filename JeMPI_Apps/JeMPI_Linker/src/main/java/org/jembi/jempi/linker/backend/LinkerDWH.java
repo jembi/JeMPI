@@ -124,13 +124,15 @@ public final class LinkerDWH {
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_,
-         final String envelopeStan) {
-      LinkStatsMeta.ConfusionMatrix confusionMatrix = LinkStatsMeta.CONFUSION_MATRIX_IDENTITY;
+         final String envelopStan) {
+
+//      if (LOGGER.isTraceEnabled()) {
+//         LOGGER.trace("{}", envelopStan);
+//      }
+
+      LinkStatsMeta.ConfusionMatrix confusionMatrix;
       CustomFieldTallies customFieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 
-//      InteractionProcessorConnector interactionProcessorConnector = InteractionProcessorConnector.getInstance(AppConfig
-//      .KAFKA_BOOTSTRAP_SERVERS);
-//      interactionProcessorConnector.sendOnNewNotification(interaction, envelopeStan);
       if (linkStatsMetaProducer == null) {
          linkStatsMetaProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                        GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
@@ -188,6 +190,7 @@ public final class LinkerDWH {
             libMPI.startTransaction();
             LinkerProbabilistic.checkUpdatedMU();
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
+            LOGGER.debug("{} : {}", envelopStan, candidateGoldenRecords.size());
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 1.0, 0.0);
@@ -203,9 +206,9 @@ public final class LinkerDWH {
                      .collect(Collectors.toCollection(ArrayList::new));
 
                // DO SOME TALLYING
-               // interactionProcessorConnector.sendOnProcessCandidates(interaction, envelopeStan, matchThreshold);
                customFieldTallies = IntStream
                      .range(0, allCandidateScores.size())
+                     .parallel()
                      .mapToObj(i -> {
                         final var workCandidate = allCandidateScores.get(i);
                         return CustomFieldTallies.map(i == 0 && workCandidate.score >= matchThreshold,
