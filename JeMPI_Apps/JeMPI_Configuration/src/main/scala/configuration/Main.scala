@@ -44,5 +44,7 @@ object Main {
     CustomPostgresqlGoldenRecord.generate(config.demographicFields)
     CustomAsyncHelper.generate(config)
     CustomPatient.generate(config)
+    ScalaCustomFields.generate(config)
+    ScalaCustomInteractionEnvelop.generate(config)
 
 }

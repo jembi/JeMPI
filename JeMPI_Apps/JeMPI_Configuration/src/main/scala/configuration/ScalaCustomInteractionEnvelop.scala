@@ -3,16 +3,16 @@ package configuration
 import java.io.{File, PrintWriter}
 import scala.language.{existentials, postfixOps}
 
-object CustomLinkerMU {
+object ScalaCustomInteractionEnvelop {
 
   private val classLocation =
-    "../JeMPI_Linker/src/main/java/org/jembi/jempi/linker"
-  private val custom_className = "CustomLinkerMU"
-  private val packageText = "org.jembi.jempi.linker"
+    "../JeMPI_EM_Scala/src/main/scala/org/jembi/jempi/em"
+  private val custom_className = "CustomInteractionEnvelop"
+  private val packageText = "org.jembi.jempi.em"
 
   def generate(config: Config): Any = {
     val classFile: String =
-      classLocation + File.separator + custom_className + ".java"
+      classLocation + File.separator + custom_className + ".scala"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
@@ -21,7 +21,7 @@ object CustomLinkerMU {
       for (t <- config.demographicFields.filter(f => f.linkMetaData.isDefined))
         yield t
 
-    writer.println(s"package $packageText;")
+    writer.println(s"package $packageText")
     writer.println()
 
     if (muList.length == 0) {
@@ -29,57 +29,40 @@ object CustomLinkerMU {
            |}
            |""".stripMargin)
     } else {
-      writer.println(s"""import org.apache.commons.lang3.StringUtils;
-           |import org.apache.commons.text.similarity.SimilarityScore;
-           |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-           |import org.apache.logging.log4j.LogManager;
-           |import org.apache.logging.log4j.Logger;
-           |import org.jembi.jempi.shared.models.CustomDemographicData;
+      writer.println(s"""
+           |import com.fasterxml.jackson.annotation.JsonIgnoreProperties
            |
-           |import java.util.Locale;
            |
-           |public final class $custom_className {
+           |@JsonIgnoreProperties(ignoreUnknown = true)
+           |case class ${custom_className}(
+           |    contentType: String,
+           |    tag: Option[String],
+           |    stan: Option[String],
+           |    interaction: Option[Interaction]
+           |) {}
            |
-           |   private static final Logger LOGGER = LogManager.getLogger($custom_className.class);
-           |   private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
+           |@JsonIgnoreProperties(ignoreUnknown = true)
+           |case class Interaction(
+           |    uniqueInteractionData: UniqueInteractionData,
+           |    demographicData: DemographicData
+           |)
            |
-           |   private final Fields fields = new Fields();
+           |@JsonIgnoreProperties(ignoreUnknown = true)
+           |case class UniqueInteractionData(auxId: String)
            |
-           |   CustomLinkerMU() {
-           |      LOGGER.debug("CustomLinkerMU");
-           |   }
-           |
-           |   private static boolean fieldMismatch(
-           |         final Field field,
-           |         final String left,
-           |         final String right) {
-           |      return field.similarityScore.apply(left, right) <= field.threshold;
-           |   }
-           |
-           |   private void updateMatchedPair(
-           |         final Field field,
-           |         final String left,
-           |         final String right) {
-           |      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(field, left, right)) {
-           |         field.matchedPairFieldUnmatched += 1;
-           |      } else {
-           |         field.matchedPairFieldMatched += 1;
-           |      }
-           |   }
-           |
-           |   private void updateUnMatchedPair(
-           |         final Field field,
-           |         final String left,
-           |         final String right) {
-           |      if (StringUtils.isBlank(left) || StringUtils.isBlank(right) || fieldMismatch(field, left, right)) {
-           |         field.unMatchedPairFieldUnmatched += 1;
-           |      } else {
-           |         field.unMatchedPairFieldMatched += 1;
-           |      }
-           |   }
+           |@JsonIgnoreProperties(ignoreUnknown = true)
+           |case class DemographicData(
+           |    givenName: String,
+           |    familyName: String,
+           |    gender: String,
+           |    dob: String,
+           |    city: String,
+           |    phoneNumber: String,
+           |    nationalId: String
+           |)
            |""".stripMargin)
 
-      writer.println(s"""   void updateMatchSums(
+      /*      writer.println(s"""   void updateMatchSums(
            |         final CustomDemographicData patient,
            |         final CustomDemographicData goldenRecord) {""".stripMargin)
       if (muList.nonEmpty) {
@@ -167,6 +150,7 @@ object CustomLinkerMU {
            |   }
            |
            |}""".stripMargin)
+       */
     }
     writer.flush()
     writer.close()
