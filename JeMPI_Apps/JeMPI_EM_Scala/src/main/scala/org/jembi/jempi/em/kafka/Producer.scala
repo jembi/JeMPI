@@ -36,16 +36,8 @@ object Producer {
 
     val producer = new KafkaProducer[String, String](props)
 
-    val customMU = CustomMU(
-      tag,
-      Probability(muSeq.apply(0).m, muSeq.apply(0).u),
-      Probability(muSeq.apply(1).m, muSeq.apply(1).u),
-      Probability(muSeq.apply(2).m, muSeq.apply(2).u),
-      Probability(muSeq.apply(3).m, muSeq.apply(3).u),
-      Probability(muSeq.apply(4).m, muSeq.apply(4).u),
-      Probability(muSeq.apply(5).m, muSeq.apply(5).u),
-      Probability(muSeq.apply(6).m, muSeq.apply(6).u)
-    )
+    val customMU = CustomMU.fromArraySeq(tag, muSeq)
+
     val json = mapper.writeValueAsString(customMU)
 
     val record = new ProducerRecord(CFG_KAFKA_TOPIC_MU_CONTROLLER, "key", json)

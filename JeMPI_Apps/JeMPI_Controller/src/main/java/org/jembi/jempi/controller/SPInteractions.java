@@ -20,10 +20,11 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class SPInteractions {
 
@@ -59,16 +60,14 @@ public final class SPInteractions {
                switch (batchPatient.contentType()) {
                   case BATCH_START_SENTINEL:
                      try {
-                        LOGGER.debug("START SENTINEL {}", AppUtils.OBJECT_MAPPER.writeValueAsString(batchPatient));
+                        LOGGER.debug("START SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
                      } catch (JsonProcessingException e) {
                         LOGGER.error(e.getLocalizedMessage(), e);
                      }
                      var kafkaTopicManager = new KafkaTopicManager(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
                      try {
                         kafkaTopicManager.createTopic(batchPatient.tag(), 1, (short) 1, 7 * 24 * 60 * 60 * 1000, 4 * 1024 * 1024);
-                     } catch (ExecutionException e) {
-                        LOGGER.error(e.getLocalizedMessage(), e);
-                     } catch (InterruptedException e) {
+                     } catch (ExecutionException | InterruptedException e) {
                         LOGGER.error(e.getLocalizedMessage(), e);
                      } finally {
                         kafkaTopicManager.close();
@@ -76,7 +75,7 @@ public final class SPInteractions {
                      break;
                   case BATCH_END_SENTINEL:
                      try {
-                        LOGGER.debug("END SENTINEL {}", AppUtils.OBJECT_MAPPER.writeValueAsString(batchPatient));
+                        LOGGER.debug("END SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
                      } catch (JsonProcessingException e) {
                         LOGGER.error(e.getLocalizedMessage(), e);
                      }

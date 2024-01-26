@@ -1,20 +1,12 @@
 package org.jembi.jempi.em
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.{
-  ClassTagExtensions,
-  DefaultScalaModule
-}
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
 import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig}
-import org.jembi.jempi.em.kafka.Config.{
-  CFG_KAFKA_APPLICATION_ID,
-  CFG_KAFKA_BOOTSTRAP_SERVERS,
-  CFG_KAFKA_CLIENT_ID,
-  CFG_KAFKA_TOPIC_INTERACTION_EM
-}
+import org.jembi.jempi.em.kafka.Config.{CFG_KAFKA_APPLICATION_ID, CFG_KAFKA_BOOTSTRAP_SERVERS, CFG_KAFKA_CLIENT_ID, CFG_KAFKA_TOPIC_INTERACTION_EM}
 import org.jembi.jempi.em.kafka.Producer
 
 import java.util.Properties
@@ -57,15 +49,8 @@ object EM_Scala extends LazyLogging {
           thread.start()
         case "BATCH_INTERACTION" =>
           if (interactionEnvelop.interaction.isDefined) {
-            val interaction = Array(
-              interactionEnvelop.interaction.get.demographicData.givenName,
-              interactionEnvelop.interaction.get.demographicData.familyName,
-              interactionEnvelop.interaction.get.demographicData.gender,
-              interactionEnvelop.interaction.get.demographicData.dob,
-              interactionEnvelop.interaction.get.demographicData.city,
-              interactionEnvelop.interaction.get.demographicData.phoneNumber,
-              interactionEnvelop.interaction.get.demographicData.nationalId
-            )
+            val interaction =
+              interactionEnvelop.interaction.get.demographicData.toArray
             buffer += interaction
           }
       }
