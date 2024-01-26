@@ -115,34 +115,35 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getDashboardDataHandler(final DashboardDataRequest request) {
+      final var dashboardData = new HashMap<String, Object>();
       final var linkStatsMeta = LinkStatsMetaCache.get();
-      HashMap<String, Object> dashboardData = new HashMap<>();
-
-      dashboardData.put("linker_stats", new LinkerStats(123L, 456L));
-      dashboardData.put("m_and_u", new DashboardMU(
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().givenName()),
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().familyName()),
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().gender()),
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().dob()),
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().city()),
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().phoneNumber()),
-            DashboardMU.getMU(linkStatsMeta.customFieldTallies().nationalId())));
-      final var tp = linkStatsMeta.confusionMatrix().TP();
-      final var fp = linkStatsMeta.confusionMatrix().FP();
-      final var tn = linkStatsMeta.confusionMatrix().TN();
-      final var fn = linkStatsMeta.confusionMatrix().FN();
-      final var b1 = 0.25;  // beta = 0.5
-      final var b2 = 1.0;   // beta = 1.0
-      final var b3 = 4.0;   // beta = 2.0;
-      final var f1 = ((1.0 + b1) * tp) / ((1 + b1) * tp + b1 * fn + fp);
-      final var f2 = ((1.0 + b2) * tp) / ((1 + b2) * tp + b2 * fn + fp);
-      final var f3 = ((1.0 + b3) * tp) / ((1 + b3) * tp + b3 * fn + fp);
-      dashboardData.put("tptn",
-                        new TPTN(new TPTN.TPTNMatrix(tp.longValue(),
-                                                     fp.longValue(),
-                                                     tn.longValue(),
-                                                     fn.longValue()),
-                                 new TPTN.TPTNfScore(f1, f2, f3)));
+      if (linkStatsMeta != null) {
+         dashboardData.put("linker_stats", new LinkerStats(123L, 456L));
+         dashboardData.put("m_and_u", new DashboardMU(
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().givenName()),
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().familyName()),
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().gender()),
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().dob()),
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().city()),
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().phoneNumber()),
+               DashboardMU.getMU(linkStatsMeta.customFieldTallies().nationalId())));
+         final var tp = linkStatsMeta.confusionMatrix().TP();
+         final var fp = linkStatsMeta.confusionMatrix().FP();
+         final var tn = linkStatsMeta.confusionMatrix().TN();
+         final var fn = linkStatsMeta.confusionMatrix().FN();
+         final var b1 = 0.25;  // beta = 0.5
+         final var b2 = 1.0;   // beta = 1.0
+         final var b3 = 4.0;   // beta = 2.0;
+         final var f1 = ((1.0 + b1) * tp) / ((1 + b1) * tp + b1 * fn + fp);
+         final var f2 = ((1.0 + b2) * tp) / ((1 + b2) * tp + b2 * fn + fp);
+         final var f3 = ((1.0 + b3) * tp) / ((1 + b3) * tp + b3 * fn + fp);
+         dashboardData.put("tptn",
+                           new TPTN(new TPTN.TPTNMatrix(tp.longValue(),
+                                                        fp.longValue(),
+                                                        tn.longValue(),
+                                                        fn.longValue()),
+                                    new TPTN.TPTNfScore(f1, f2, f3)));
+      }
       request.replyTo.tell(new DashboardDataResponse(dashboardData));
       return Behaviors.same();
    }

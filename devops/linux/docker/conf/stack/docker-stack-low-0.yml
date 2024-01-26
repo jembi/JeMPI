@@ -192,7 +192,7 @@ services:
       placement:
         constraints:
         - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
-    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=4096; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}

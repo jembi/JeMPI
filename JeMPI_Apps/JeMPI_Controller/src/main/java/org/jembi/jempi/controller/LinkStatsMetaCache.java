@@ -4,7 +4,7 @@ import org.jembi.jempi.shared.models.LinkStatsMeta;
 
 public final class LinkStatsMetaCache {
 
-   private static LinkStatsMeta linkStatsMeta;
+   private static LinkStatsMeta linkStatsMeta = null;
 
    private LinkStatsMetaCache() {
    }
