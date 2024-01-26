@@ -36,7 +36,7 @@ private object CustomPatient {
         .map(f =>
           s"""${" " * 39}this.${Utils.snakeCaseToCamelCase(
               f.fieldName
-            )}.toLowerCase().replaceAll("\\\\W", ""),"""
+            )}.trim().toLowerCase().replaceAll("\\\\W", ""),"""
         )
         .mkString(sys.props("line.separator"))
         .trim

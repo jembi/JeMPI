@@ -21,6 +21,7 @@ import java.util.Properties
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.parallel.immutable.ParVector
+import scala.util.Random
 
 object EM_Scala extends LazyLogging {
 
@@ -41,53 +42,31 @@ object EM_Scala extends LazyLogging {
     )
     patientRecordKStream.foreach((_, json) => {
       val interactionEnvelop =
-        mapper.readValue(json, classOf[InteractionEnvelop])
+        mapper.readValue(json, classOf[CustomInteractionEnvelop])
       interactionEnvelop.contentType match {
         case "BATCH_START_SENTINEL" => buffer.clearAndShrink()
         case "BATCH_END_SENTINEL" =>
-          val parVector = new ParVector(buffer.toVector)
+          val parVector = new ParVector(
+            if (buffer.length <= 50_000) buffer.toVector
+            else Random.shuffle(buffer.toVector).take(50_000)
+          )
           buffer.clearAndShrink()
-          val emRunnable: EM_Runnable = new EM_Runnable(parVector)
+          val emRunnable: EM_Runnable =
+            new EM_Runnable(interactionEnvelop.tag.get, parVector)
           val thread: Thread = new Thread(emRunnable)
-          thread.start();
+          thread.start()
         case "BATCH_INTERACTION" =>
           if (interactionEnvelop.interaction.isDefined) {
-            val auxId =
-              interactionEnvelop.interaction.get.uniqueInteractionData.auxId
-            val givenName =
-              interactionEnvelop.interaction.get.demographicData.givenName
-            val familyName =
-              interactionEnvelop.interaction.get.demographicData.familyName
-            val gender =
-              interactionEnvelop.interaction.get.demographicData.gender
-            val dob = interactionEnvelop.interaction.get.demographicData.dob
-            val city = interactionEnvelop.interaction.get.demographicData.city
-            val phoneNumber =
-              interactionEnvelop.interaction.get.demographicData.phoneNumber
-            val nationalId =
-              interactionEnvelop.interaction.get.demographicData.nationalId
             val interaction = Array(
-              auxId,
-              givenName,
-              familyName,
-              gender,
-              dob,
-              city,
-              phoneNumber,
-              nationalId
+              interactionEnvelop.interaction.get.demographicData.givenName,
+              interactionEnvelop.interaction.get.demographicData.familyName,
+              interactionEnvelop.interaction.get.demographicData.gender,
+              interactionEnvelop.interaction.get.demographicData.dob,
+              interactionEnvelop.interaction.get.demographicData.city,
+              interactionEnvelop.interaction.get.demographicData.phoneNumber,
+              interactionEnvelop.interaction.get.demographicData.nationalId
             )
             buffer += interaction
-            logger.info(
-              "{} {} {} {} {} {} {} {}",
-              auxId,
-              givenName,
-              familyName,
-              gender,
-              dob,
-              city,
-              phoneNumber,
-              nationalId
-            )
           }
       }
     })
@@ -109,8 +88,10 @@ object EM_Scala extends LazyLogging {
     props
   }
 
-  private class EM_Runnable(val interactions: ParVector[Array[String]])
-      extends Runnable {
+  private class EM_Runnable(
+      val tag: String,
+      val interactions: ParVector[Array[String]]
+  ) extends Runnable {
 
     def run(): Unit = {
       val interactions_ : ParVector[ArraySeq[String]] =
@@ -119,11 +100,11 @@ object EM_Scala extends LazyLogging {
         )
       val (mu, ms) = Profile.profile(EM_Task.run(interactions_))
 
-      Fields.FIELDS.zipWithIndex.foreach(x =>
+      CustomFields.FIELDS.zipWithIndex.foreach(x =>
         Utils.printMU(x._1.name, mu(x._2))
       )
       logger.info(s"$ms ms")
-      Producer.send(mu);
+      Producer.send(tag, mu);
     }
 
   }

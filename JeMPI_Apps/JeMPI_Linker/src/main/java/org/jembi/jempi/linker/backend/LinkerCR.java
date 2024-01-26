@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.shared.libs.linker.LinkerUtils;
 import org.jembi.jempi.shared.models.*;
 
 import java.util.ArrayList;
