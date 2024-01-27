@@ -5,7 +5,7 @@ set -u
 
 echo
 echo "Down stacks"
-source ../../helper/scripts/d-stack-rm.sh
+source ../scripts/d-stack-rm.sh
 
 echo
 echo "Build Apps"
@@ -18,8 +18,10 @@ sleep 2
 
 echo
 echo Up app containers
-source ../../helper/scripts/d-stack-deploy-0.sh
+source ../scripts/d-stack-deploy-0.sh
 sleep 2
-source ../../helper/scripts/d-stack-up-hub-containers.sh
+source ../scripts/d-stack-up-hub-containers.sh
 sleep 2
-source ../../helper/scripts/d-stack-up-app-containers.sh
+source ../scripts/d-stack-up-keycloak-containers.sh
+sleep 2
+source ../scripts/d-stack-up-app-containers.sh
