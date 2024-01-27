@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.CustomFieldTallies;
 import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
 
 import java.time.Duration;
@@ -19,14 +18,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
-//   private final LibMPI libMPI;
 
-   //   private final ProcessorsRegistry interactionProcessorsRegistry;
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
-//      libMPI = getLibMPI(true);
-//      interactionProcessorsRegistry = new ProcessorsRegistry();
    }
 
    public static Behavior<Event> create() {
@@ -56,25 +51,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return stage.thenApply(response -> response);
    }
 
-/*
-   private LibMPI getLibMPI(final boolean useDGraph) {
-      LibMPI libMPIIn;
-      if (useDGraph) {
-         final var host = AppConfig.getDGraphHosts();
-         final var port = AppConfig.getDGraphPorts();
-         libMPIIn = new LibMPI(AppConfig.GET_LOG_LEVEL,
-                               host,
-                               port,
-                               AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                               "CLIENT_ID_CONTROLLER_INTERACTION_PROCESSOR-" + UUID.randomUUID());
-      } else {
-         libMPIIn = null;
-      }
-      libMPIIn.startTransaction();
-      return libMPIIn;
-   }
-*/
-
    public void close() {
    }
 
@@ -100,16 +76,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> onNotificationResolutionHandler(final OnNotificationResolutionRequest request) {
-
-//      for (IOnNotificationResolutionProcessor notificationResolutionProcessor : this.interactionProcessorsRegistry
-//      .getOnNotificationResolutionProcessors(GlobalConstants.DEFAULT_LINKER_GLOBAL_STORE_NAME)) {
-//         try {
-//            notificationResolutionProcessor.processOnNotificationResolution(request.notificationResolutionDetails, libMPI);
-//         } catch (Exception e) {
-//            LOGGER.error("An error occurred trying OnNotificationResolution", e);
-//         }
-//
-//      }
       request.replyTo.tell(new OnNotificationResolutionResponse(true));
       return Behaviors.same();
    }
@@ -119,14 +85,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var linkStatsMeta = LinkStatsMetaCache.get();
       if (linkStatsMeta != null) {
          dashboardData.put("linker_stats", new LinkerStats(123L, 456L));
-         dashboardData.put("m_and_u", new DashboardMU(
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().givenName()),
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().familyName()),
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().gender()),
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().dob()),
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().city()),
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().phoneNumber()),
-               DashboardMU.getMU(linkStatsMeta.customFieldTallies().nationalId())));
+         dashboardData.put("m_and_u", CustomControllerDashboardMU.fromCustomFieldTallies(linkStatsMeta.customFieldTallies()));
          final var tp = linkStatsMeta.confusionMatrix().TP();
          final var fp = linkStatsMeta.confusionMatrix().FP();
          final var tn = linkStatsMeta.confusionMatrix().TN();
@@ -162,29 +121,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private record LinkerStats(
          Long goldenRecordCount,
          Long interactionsCount) {
-   }
-
-   private record DashboardMU(
-         MU givenName,
-         MU familyName,
-         MU gender,
-         MU dob,
-         MU city,
-         MU phoneNumber,
-         MU nationalId) {
-
-      static MU getMU(final CustomFieldTallies.FieldTally fieldTally) {
-         if (fieldTally.a() + fieldTally.b() == 0 || fieldTally.c() + fieldTally.d() == 0) {
-            return new MU(-1.0, -1.0);
-         }
-         return new MU(fieldTally.a().doubleValue() / (fieldTally.a().doubleValue() + fieldTally.b().doubleValue()),
-                       fieldTally.c().doubleValue() / (fieldTally.c().doubleValue() + fieldTally.d().doubleValue()));
-      }
-
-      record MU(
-            Double m,
-            Double u) {
-      }
    }
 
    private record TPTN(

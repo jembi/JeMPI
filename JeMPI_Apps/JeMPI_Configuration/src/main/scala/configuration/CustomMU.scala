@@ -39,27 +39,6 @@ private object CustomMU {
       }
     end if
     writer.println()
-
-//    writer.println(
-//      s"   public $customClassName(final double[] mHat, final double[] uHat) {"
-//    )
-//    if (filteredFields.length == 0)
-//      writer.println(
-//        s"      this(new $customClassName.Probability(0.0F, 0.0F));"
-//      )
-//    else
-//      var s = s"""${" " * 6}this(""".stripMargin
-//      filteredFields.zipWithIndex.foreach((_, idx) =>
-//        s +=
-//          s"""${" " * (if (idx > 0) 11
-//                       else
-//                         0)}new $customClassName.Probability((float) mHat[$idx], (float) uHat[$idx])${
-//              if (idx < filteredFields.length - 1) "," else ");"
-//            }
-//             |""".stripMargin
-//      )
-//      writer.print(s);
-//    end if
     writer.println(s"""
          |
          |   public record Probability(float m, float u) {

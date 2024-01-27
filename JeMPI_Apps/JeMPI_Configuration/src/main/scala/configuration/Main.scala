@@ -2,7 +2,10 @@ package configuration
 
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.fasterxml.jackson.module.scala.{
+  ClassTagExtensions,
+  DefaultScalaModule
+}
 
 import java.nio.file.Paths
 
@@ -44,7 +47,10 @@ object Main {
     CustomPostgresqlGoldenRecord.generate(config.demographicFields)
     CustomAsyncHelper.generate(config)
     CustomPatient.generate(config)
+    CustomFieldTallies.generate(config)
+    CustomControllerDashboardMU.generate(config)
     ScalaCustomFields.generate(config)
     ScalaCustomInteractionEnvelop.generate(config)
+    ScalaCustomMU.generate(config)
 
 }

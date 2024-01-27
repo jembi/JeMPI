@@ -85,12 +85,12 @@ public final class Main {
       }
       return size;
    }
+
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
          final var filePathUri = Paths.get(fileName);
          final var reader = Files.newBufferedReader(filePathUri);
-         final long fileSize = Files.size(filePathUri);
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
@@ -112,14 +112,17 @@ public final class Main {
                                             String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                             null));
          for (CSVRecord csvRecord : csvParser) {
-            sendToKafka(UUID.randomUUID().toString(),
-                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
-                                               tag,
-                                               String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                               new Interaction(null,
-                                                               CustomAsyncHelper.customSourceId(csvRecord),
-                                                               CustomAsyncHelper.customUniqueInteractionData(csvRecord),
-                                                               CustomAsyncHelper.customDemographicData(csvRecord))));
+            final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
+                                                                  tag,
+                                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                                  new Interaction(null,
+                                                                                  CustomAsyncHelper.customSourceId(csvRecord),
+                                                                                  CustomAsyncHelper.customUniqueInteractionData(
+                                                                                        csvRecord),
+                                                                                  CustomAsyncHelper.customDemographicData(
+                                                                                        csvRecord)));
+
+            sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
          }
          sendToKafka(uuid,
                      new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
