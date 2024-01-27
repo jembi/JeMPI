@@ -3,7 +3,7 @@
 set -e
 set -u
 
-source ./conf.env
+source ../../conf.env
 
 
 echo
