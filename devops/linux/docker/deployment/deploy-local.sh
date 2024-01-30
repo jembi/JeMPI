@@ -193,7 +193,7 @@ case $choice in
         cd $JEMPI_HOME/devops/linux/docker/deployment/reboot
         source $JEMPI_HOME/devops/linux/docker/deployment/reboot/d-stack-3-reboot.sh
         ;;
-    7)
+    8)
         echo "Destroy"
         # Main script
         echo "Do you want to continue? (Ctrl+Y for Yes, any other key for No)"
