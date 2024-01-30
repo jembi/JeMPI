@@ -6,7 +6,9 @@ set -u
 echo
 echo "Down stack"
 source ../scripts/d-stack-rm.sh
-sleep 2
+echo "Waiting for Down stack..."
+sleep 60
+
 echo
 echo Up app containers
 source ../scripts/d-stack-wait-removed.sh
