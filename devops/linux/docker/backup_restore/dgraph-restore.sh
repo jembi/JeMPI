@@ -51,4 +51,9 @@ copy_from_remote() {
     fi
 }
 # Main Execution
+whoami
 copy_from_remote
+# echo $PWD
+# cd ../deployment/build_and_reboot
+# echo $PWD
+# yes | source d-stack-1-build-all-reboot.sh

@@ -12,14 +12,15 @@ echo "Select an option for local deployment:"
 echo "1. Deploy JeMPI from Scratch (With all installations...)."
 echo "2. Deploy JeMPI without installations"
 echo "3. Build and Reboot."
-echo "4. Backup Postgres & Dgraph."
-echo "5. Restart JeMPI."
-echo "6. Down the JeMPI."
-echo "7. Destroy JeMPI (This process will wipe all data)."
+echo "4. Restart JeMPI."
+echo "5. Down the JeMPI."
+echo "6. Backup Postgres & Dgraph."
+echo "7. Restore Postgres & Dgraph."
+echo "8. Destroy JeMPI (This process will wipe all data)."
 
 
 # Prompt user for choice
-read -p "Enter your choice (1-7): " choice
+read -p "Enter your choice (1-8): " choice
 
 # Function to ask for confirmation
 confirm() {
@@ -165,23 +166,32 @@ case $choice in
         build_all_stack_and_reboot
         ;;
     4)
+        echo "Restart JeMPI"
+        cd $JEMPI_HOME/devops/linux/docker/deployment/reboot
+        source $JEMPI_HOME/devops/linux/docker/deployment/reboot/d-stack-3-reboot.sh
+        # Add your Option 3 logic here
+        ;;
+    5)
+        echo "Down"
+        cd $JEMPI_HOME/devops/linux/docker/deployment/down
+        source $JEMPI_HOME/devops/linux/docker/deployment/down/d-stack-3-down.sh
+        exit 0
+        ;;
+    6)
         echo "Backup"
         cd $JEMPI_HOME/devops/linux/docker/backup_restore
         sudo bash $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-backup.sh
         sudo bash  $JEMPI_HOME/devops/linux/docker/backup_restore/postgres-backup.sh
 
         ;;
-    5)
-        echo "Restart JeMPI"
+    7)
+        echo "Restore Databases"
+        cd $JEMPI_HOME/devops/linux/docker/backup_restore
+        sudo bash $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-restore.sh
+        sudo bash  $JEMPI_HOME/devops/linux/docker/backup_restore/postgres-restore.sh
+        echo "Reboot"
         cd $JEMPI_HOME/devops/linux/docker/deployment/reboot
         source $JEMPI_HOME/devops/linux/docker/deployment/reboot/d-stack-3-reboot.sh
-        # Add your Option 3 logic here
-        ;;
-    6)
-        echo "Down"
-        cd $JEMPI_HOME/devops/linux/docker/deployment/down
-        source $JEMPI_HOME/devops/linux/docker/deployment/down/d-stack-3-down.sh
-        exit 0
         ;;
     7)
         echo "Destroy"
