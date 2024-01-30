@@ -144,6 +144,9 @@ restore_dgraph_db(){
         echo "Starting Dgraph database restore..."
         sudo bash $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-restore.sh
         echo "Database Dgraph restore completed."
+        echo "Rebooting JeMPI"
+        cd $JEMPI_HOME/devops/linux/docker/deployment/reboot
+        source $JEMPI_HOME/devops/linux/docker/deployment/reboot/d-stack-3-reboot.sh
     else
         echo "Dgraph Database restore cancelled. Moving ahead without restore."
         # Continue with the rest of your script
@@ -158,9 +161,6 @@ restore_postgres_db(){
         echo "Starting Postgres database restore..."
         sudo bash  $JEMPI_HOME/devops/linux/docker/backup_restore/postgres-restore.sh
         echo "Database Postgres restore completed."
-        echo "Rebooting JeMPI"
-        cd $JEMPI_HOME/devops/linux/docker/deployment/reboot
-        source $JEMPI_HOME/devops/linux/docker/deployment/reboot/d-stack-3-reboot.sh
     else
         echo "Postgres Database restore cancelled. Moving ahead without restore."
         # Continue with the rest of your script
