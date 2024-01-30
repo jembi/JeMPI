@@ -11,13 +11,14 @@ DATA_DGRAPH_ZERO_01_DIR="${DATA_DGRAPH_ZERO_01_DIR}"
 DATA_DGRAPH_ALPHA_01_DIR="${DATA_DGRAPH_ALPHA_01_DIR}"
 DATA_DGRAPH_ALPHA_02_DIR="${DATA_DGRAPH_ALPHA_02_DIR:-}" # Optional
 DATA_DGRAPH_ALPHA_03_DIR="${DATA_DGRAPH_ALPHA_03_DIR:-}" # Optional
-BACKUP_PATH="${DGRAPH_BACKUP_DIRECTORY}"
+BACKUP_PATH="${DGRAPH_BACKUP_DIRECTORY}/$(date +%Y%m%d_%H%M%S)"
 REMOTE_SERVER="${DGRAPH_BACKUP_REMOTE_SERVER}"
 REMOTE_PATH="${DGRAPH_BACKUP_REMOTE_PATH}"
 
 # Create Backup Directory if it doesn't exist
-[ ! -d "$BACKUP_PATH" ] && sudo mkdir -p "$BACKUP_PATH"
-LOG_FILE="${BACKUP_PATH}/dgraph_backup_$(date +%Y%m%d).log"
+[ ! -d "$BACKUP_PATH" ] && mkdir -p "$BACKUP_PATH"
+
+LOG_FILE="${BACKUP_PATH}/dgraph_backup_$(date +%Y%m%d_%H%M%S).log"
 
 # Function to Backup DGraph Alpha and Zero Nodes
 backup_dgraph_node() {
@@ -36,9 +37,10 @@ backup_dgraph_dir() {
     local dir_name=$(basename "$dir")
 
     echo "$(date) - Starting backup for DGraph directory at $dir" >> "${LOG_FILE}"
-    tar -czvf "${BACKUP_PATH}/${dir_name}_$(date +%Y%m%d).tar.gz" -C "$dir" .
+    tar -czvf "${BACKUP_PATH}/${dir_name}_$(date +%Y%m%d_%H%M%S).tar.gz" -C "$dir" .
     echo "$(date) - Backup completed for DGraph directory at $dir" >> "${LOG_FILE}"
 }
+
 
 # Backup DGraph Nodes (Alphas and Zeros)
 IFS=',' read -r -a alpha_hosts <<< "$DGRAPH_ALPHA_HOSTS"
@@ -73,3 +75,4 @@ copy_to_remote() {
 
 # Main Execution
 copy_to_remote
+chmod -R  777 "$BACKUP_PATH"
