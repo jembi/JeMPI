@@ -1,7 +1,20 @@
 #!/bin/bash
 source ../conf.env
-#Back Folder Name
-BACKUP_FOLDER_NAME="20240130_114844"
+#Backup Folder Name
+while true; do
+    # Ask the user to enter a folder name
+    echo "Backup folder Path:- ${DGRAPH_BACKUP_DIRECTORY}"
+    read -p "Please enter your Dgraph Backup Folder Name: " BACKUP_FOLDER_NAME
+
+    # Check if the folder exists
+    if [ -d "${DGRAPH_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME" ]; then
+        echo "Folder '$BACKUP_FOLDER_NAME' exists!"
+        break  # Exit the loop if the folder exists
+    else
+        echo "Folder '$BACKUP_FOLDER_NAME' does not exist, at ${DGRAPH_BACKUP_DIRECTORY}. "
+        echo  "Please try again"
+    fi
+done
 
 # Load Environment Variables for DGraph Alpha and Zero Nodes
 DGRAPH_ALPHA_HOSTS="${DGRAPH_HOSTS:-localhost}"
