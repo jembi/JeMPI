@@ -27,7 +27,8 @@
     },
     {
       "fieldName": "aux_id",
-      "fieldType": "String"
+      "fieldType": "String",
+      "source": "aux_id"
     }
   ],
   "additionalNodes": [

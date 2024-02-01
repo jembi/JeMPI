@@ -25,23 +25,28 @@ private object CustomMU {
     val margin = 23
     val filteredFields = fields.filter(f => f.linkMetaData.isDefined)
     if (filteredFields.length == 0)
-      writer.println("Probability dummy) {")
+      writer.println(s"""              Probability dummy) {
+           |
+           |   public static final Boolean SEND_INTERACTIONS_TO_EM = false;
+           |""".stripMargin)
     else
       filteredFields.zipWithIndex.foreach { case (f, i) =>
         val parameterName = Utils.snakeCaseToCamelCase(f.fieldName)
         writer.print(" " * margin)
         writer.print(s"Probability $parameterName")
-        if (i + 1 < filteredFields.length)
-          writer.println(",")
+        if (i + 1 < filteredFields.length) writer.println(",")
         else
           writer.println(") {")
+          writer.print(
+            s"""
+               |   public static final Boolean SEND_INTERACTIONS_TO_EM = true;
+               |""".stripMargin
+          )
         end if
       }
     end if
     writer.println()
-    writer.println(s"""
-         |
-         |   public record Probability(float m, float u) {
+    writer.println(s"""   public record Probability(float m, float u) {
          |   }
          |
          |}""".stripMargin)

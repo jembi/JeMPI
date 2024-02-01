@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.KafkaTopicManager;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
@@ -29,7 +30,10 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 public final class SPInteractions {
 
    private static final Logger LOGGER = LogManager.getLogger(SPInteractions.class);
-   private final TopicNameExtractor<String, InteractionEnvelop> topicNameExtractor = (key, value, recordContext) -> value.tag();
+   private final TopicNameExtractor<String, InteractionEnvelop> topicNameExtractor =
+         Boolean.TRUE.equals(CustomMU.SEND_INTERACTIONS_TO_EM)
+               ? (key, value, recordContext) -> value.tag()
+               : (key, value, recordContext) -> GlobalConstants.TOPIC_INTERACTION_LINKER;
    private MyKafkaProducer<String, InteractionEnvelop> topicEM;
    private KafkaStreams interactionKafkaStreams = null;
 
@@ -57,40 +61,47 @@ public final class SPInteractions {
                                       AppConfig.KAFKA_CLIENT_ID);
       batchPatientRecordKStream
             .peek((key, batchPatient) -> {
-               switch (batchPatient.contentType()) {
-                  case BATCH_START_SENTINEL:
-                     try {
-                        LOGGER.debug("START SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
-                     } catch (JsonProcessingException e) {
-                        LOGGER.error(e.getLocalizedMessage(), e);
-                     }
-                     var kafkaTopicManager = new KafkaTopicManager(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-                     try {
-                        kafkaTopicManager.createTopic(batchPatient.tag(), 1, (short) 1, 7 * 24 * 60 * 60 * 1000, 4 * 1024 * 1024);
-                     } catch (ExecutionException | InterruptedException e) {
-                        LOGGER.error(e.getLocalizedMessage(), e);
-                     } finally {
-                        kafkaTopicManager.close();
-                     }
-                     break;
-                  case BATCH_END_SENTINEL:
-                     try {
-                        LOGGER.debug("END SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
-                     } catch (JsonProcessingException e) {
-                        LOGGER.error(e.getLocalizedMessage(), e);
-                     }
-                     break;
-                  default:
-                     break;
-               }
-               topicEM.produceAsync(key, batchPatient, ((metadata, exception) -> {
-                  if (exception != null) {
-                     LOGGER.error(exception.toString());
+               if (Boolean.TRUE.equals(CustomMU.SEND_INTERACTIONS_TO_EM)) {
+                  switch (batchPatient.contentType()) {
+                     case BATCH_START_SENTINEL:
+                        try {
+                           LOGGER.debug("START SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
+                        } catch (JsonProcessingException e) {
+                           LOGGER.error(e.getLocalizedMessage(), e);
+                        }
+                        if (CustomMU.SEND_INTERACTIONS_TO_EM) {
+                           var kafkaTopicManager = new KafkaTopicManager(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+                           try {
+                              kafkaTopicManager.createTopic(batchPatient.tag(),
+                                                            1,
+                                                            (short) 1,
+                                                            7 * 24 * 60 * 60 * 1000,
+                                                            4 * 1024 * 1024);
+                           } catch (ExecutionException | InterruptedException e) {
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                           } finally {
+                              kafkaTopicManager.close();
+                           }
+                        }
+                        break;
+                     case BATCH_END_SENTINEL:
+                        try {
+                           LOGGER.debug("END SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
+                        } catch (JsonProcessingException e) {
+                           LOGGER.error(e.getLocalizedMessage(), e);
+                        }
+                        break;
+                     default:
+                        break;
                   }
-               }));
+                  topicEM.produceAsync(key, batchPatient, ((metadata, exception) -> {
+                     if (exception != null) {
+                        LOGGER.error(exception.toString());
+                     }
+                  }));
+               }
             })
-            .to(topicNameExtractor /* GlobalConstants.TOPIC_INTERACTION_LINKER*/,
-                Produced.with(stringSerde, batchPatientRecordSerde));
+            .to(topicNameExtractor, Produced.with(stringSerde, batchPatientRecordSerde));
       interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionKafkaStreams.cleanUp();
       interactionKafkaStreams.start();

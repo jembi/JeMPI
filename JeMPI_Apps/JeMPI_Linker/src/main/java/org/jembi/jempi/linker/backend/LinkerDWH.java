@@ -188,7 +188,7 @@ public final class LinkerDWH {
                : matchThreshold_;
          try {
             libMPI.startTransaction();
-            LinkerProbabilistic.checkUpdatedMU();
+            CustomLinkerProbabilistic.checkUpdatedLinkMU();
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
             LOGGER.debug("{} : {}", envelopStan, candidateGoldenRecords.size());
             if (candidateGoldenRecords.isEmpty()) {
