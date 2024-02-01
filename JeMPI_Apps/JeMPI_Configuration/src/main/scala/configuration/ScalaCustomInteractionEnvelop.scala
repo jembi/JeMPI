@@ -12,8 +12,12 @@ object ScalaCustomInteractionEnvelop {
 
   def generate(config: Config): Any = {
 
+    val muList =
+      for (t <- config.demographicFields.filter(f => f.linkMetaData.isDefined))
+        yield t
+
     def fieldDefs(): String =
-      config.demographicFields.zipWithIndex
+      muList.zipWithIndex
         .map((f, i) => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
           s"""${" " * 4}${fieldName}: String,"""
@@ -24,7 +28,7 @@ object ScalaCustomInteractionEnvelop {
     end fieldDefs
 
     def fieldList(): String =
-      config.demographicFields.zipWithIndex
+      muList.zipWithIndex
         .map((f, i) => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
           s"""${fieldName}"""
@@ -39,17 +43,41 @@ object ScalaCustomInteractionEnvelop {
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
-    val muList =
-      for (t <- config.demographicFields.filter(f => f.linkMetaData.isDefined))
-        yield t
-
     writer.println(s"package $packageText")
     writer.println()
 
     if (muList.length == 0) {
-      writer.println(s"""public class $custom_className {
-           |}
-           |""".stripMargin)
+      writer.println(s"""
+                        |import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+                        |
+                        |
+                        |@JsonIgnoreProperties(ignoreUnknown = true)
+                        |case class ${custom_className}(
+                        |    contentType: String,
+                        |    tag: Option[String],
+                        |    stan: Option[String],
+                        |    interaction: Option[Interaction]
+                        |) {}
+                        |
+                        |@JsonIgnoreProperties(ignoreUnknown = true)
+                        |case class Interaction(
+                        |    uniqueInteractionData: UniqueInteractionData,
+                        |    demographicData: DemographicData
+                        |)
+                        |
+                        |@JsonIgnoreProperties(ignoreUnknown = true)
+                        |case class UniqueInteractionData(auxId: String)
+                        |
+                        |@JsonIgnoreProperties(ignoreUnknown = true)
+                        |case class DemographicData(
+                        |    ${fieldDefs()}
+                        |) {
+                        |
+                        |   def toArray: Array[String] =
+                        |      Array(${fieldList()})
+                        |
+                        |}
+                        |""".stripMargin)
     } else {
       writer.println(s"""
            |import com.fasterxml.jackson.annotation.JsonIgnoreProperties

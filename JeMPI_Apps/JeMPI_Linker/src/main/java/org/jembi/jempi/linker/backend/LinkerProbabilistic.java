@@ -81,13 +81,13 @@ public final class LinkerProbabilistic {
       return new CustomMU.Probability(field.m(), field.u());
    }
 
-   public static void checkUpdatedMU() {
-      if (updatedLinkFields != null) {
-         LOGGER.info("Using updated MU values: {}", updatedLinkFields);
-         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
-         updatedLinkFields = null;
-      }
-   }
+//   public static void checkUpdatedMU() {
+//      if (updatedLinkFields != null) {
+//         LOGGER.info("Using updated MU values: {}", updatedLinkFields);
+//         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
+//         updatedLinkFields = null;
+//      }
+//   }
 
    public static void updateMetricsForStringField(
          final float[] metrics,
