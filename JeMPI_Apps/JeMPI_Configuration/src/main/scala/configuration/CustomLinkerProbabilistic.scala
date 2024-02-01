@@ -31,6 +31,8 @@ object CustomLinkerProbabilistic {
     writer.println(s"""package $packageText;""")
     writer.println(
       s"""
+         |import org.apache.logging.log4j.LogManager;
+         |import org.apache.logging.log4j.Logger;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.CustomMU;
          |
@@ -44,17 +46,19 @@ object CustomLinkerProbabilistic {
          |
          |final class $custom_className {
          |
+         |   private static final Logger LOGGER = LogManager.getLogger(${custom_className}.class);
          |   static final int METRIC_MIN = 0;
          |   static final int METRIC_MAX = 1;
          |   static final int METRIC_SCORE = 2;
          |   static final int METRIC_MISSING_PENALTY = 3;
          |   static final boolean PROBABILISTIC_DO_LINKING = ${
-            if (config.demographicFields.exists(x => x.linkMetaData.isDefined)) "true"
-            else "false"};
+        if (config.demographicFields.exists(x => x.linkMetaData.isDefined)) "true"
+        else "false"
+      };
          |   static final boolean PROBABILISTIC_DO_VALIDATING = ${if (config.demographicFields.exists(x => x.validateMetaData.isDefined)) "true" else "false"};
          |   static final boolean PROBABILISTIC_DO_MATCHING = ${if (config.demographicFields.exists(x => x.matchMetaData.isDefined)) "true" else "false"};
          |
-         |${if (linkMuList.isEmpty)"" else "   static LinkFields updatedLinkFields = null;"}
+         |${if (linkMuList.isEmpty) "" else "   static LinkFields updatedLinkFields = null;"}
          |${if (validateMuList.isEmpty) "" else "   static ValidateFields updatedValidateFields = null;"}
          |${if (matchNotificationMuList.isEmpty) "" else "   static MatchNotificationFields updatedMatchNotificationFields = null;"}
          |
@@ -87,6 +91,7 @@ object CustomLinkerProbabilistic {
     validateProbabilisticScore()
     matchNotificationProbabilisticScore()
     updateMU()
+    checkUpdatedMU()
 
     writer.println("}")
     writer.flush()
@@ -98,33 +103,34 @@ object CustomLinkerProbabilistic {
         writer.println("   static CustomMU getMU() {")
         writer.println("      return new CustomMU(")
         linkMuList.zipWithIndex.foreach((mu, idx) =>
-          writer.print(" " * 9 + s"LinkerProbabilistic.getProbability(currentLinkFields.${
-            Utils.snakeCaseToCamelCase(mu.fieldName)})")
-          if (idx + 1 < linkMuList.length)
-            writer.println(",")
-          else
-            writer.println(
-              """);
-                |   }
-                |""".stripMargin)
-          end if
-        )
+                                          writer.print(" " * 9 + s"LinkerProbabilistic.getProbability(currentLinkFields.${
+                                            Utils.snakeCaseToCamelCase(mu.fieldName)
+                                          })")
+                                          if (idx + 1 < linkMuList.length)
+                                            writer.println(",")
+                                          else
+                                            writer.println(
+                                              """);
+                                                |   }
+                                                |""".stripMargin)
+                                          end if
+                                        )
       end if
     end generateGetMU
 
     def generateFieldsRecord(recordName: String, demographicFields: Array[DemographicField]): Unit =
       writer.println(s"   private record $recordName(")
       demographicFields.zipWithIndex.foreach((mu, idx) =>
-        writer.print(s"""${" " * 9}LinkerProbabilistic.Field ${Utils.snakeCaseToCamelCase(mu.fieldName)}""")
-        if (idx + 1 < demographicFields.length)
-          writer.println(",")
-        else
-          writer.println(
-            s""") {
-               |   }""".stripMargin)
-          writer.println()
-        end if
-      )
+                                               writer.print(s"""${" " * 9}LinkerProbabilistic.Field ${Utils.snakeCaseToCamelCase(mu.fieldName)}""")
+                                               if (idx + 1 < demographicFields.length)
+                                                 writer.println(",")
+                                               else
+                                                 writer.println(
+                                                   s""") {
+                                                      |   }""".stripMargin)
+                                                 writer.println()
+                                               end if
+                                             )
     end generateFieldsRecord
 
     def generateCurrentFields(recordName: String,
@@ -137,28 +143,30 @@ object CustomLinkerProbabilistic {
            |         """.stripMargin)
       var margin = 0
       demographicFields.zipWithIndex.foreach((field, idx) =>
-        if ((linking && field.linkMetaData.isDefined) || (!linking && field.validateMetaData.isDefined))
-          val comparison = if (linking) field.linkMetaData.get.comparison else field.validateMetaData.get.comparison
-          val comparisonLevels = if (linking) field.linkMetaData.get.comparisonLevels
-                                 else field.validateMetaData.get.comparisonLevels
-          val m: Double = if (linking) field.linkMetaData.get.m else field.validateMetaData.get.m
-          val u: Double = if (linking) field.linkMetaData.get.u else field.validateMetaData.get.u
+                                               if ((linking && field.linkMetaData.isDefined) || (!linking && field.validateMetaData.isDefined))
+                                                 val comparison = if (linking) field.linkMetaData.get.comparison else field.validateMetaData.get.comparison
+                                                 val comparisonLevels = if (linking) field.linkMetaData.get.comparisonLevels
+                                                 else field.validateMetaData.get.comparisonLevels
+                                                 val m: Double = if (linking) field.linkMetaData.get.m else field.validateMetaData.get.m
+                                                 val u: Double = if (linking) field.linkMetaData.get.u else field.validateMetaData.get.u
 
-          def extractComparisonList(levels: List[Double]): String = levels.map(level => s""" ${
-            level.toString}F""".stripMargin).mkString(",").trim
+                                                 def extractComparisonList(levels: List[Double]): String = levels.map(level =>
+                                                                                                                        s""" ${
+                                                                                                                          level.toString
+                                                                                                                        }F""".stripMargin).mkString(",").trim
 
-          writer.print(" " * margin + s"new LinkerProbabilistic.Field($comparison, ${
-            if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
-          }${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F)")
-          if (idx + 1 < demographicFields.length)
-            writer.println(",")
-            margin = 9
-          else
-            writer.println(");")
-            writer.println()
-          end if
-        end if
-      )
+                                                 writer.print(" " * margin + s"new LinkerProbabilistic.Field($comparison, ${
+                                                   if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
+                                                 }${extractComparisonList(comparisonLevels)}), ${m}F, ${u}F)")
+                                                 if (idx + 1 < demographicFields.length)
+                                                   writer.println(",")
+                                                   margin = 9
+                                                 else
+                                                   writer.println(");")
+                                                   writer.println()
+                                                 end if
+                                               end if
+                                             )
     end generateCurrentFields
 
     def linkProbabilisticScore(): Unit =
@@ -174,10 +182,10 @@ object CustomLinkerProbabilistic {
             |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
       end if
       linkMuList.zipWithIndex.foreach((field, _) =>
-        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
-        writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentLinkFields" +
-          s".$fieldName);"))
+                                        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                        writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
+                                        writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentLinkFields" +
+                                                       s".$fieldName);"))
       if (!linkMuList.isEmpty)
         writer.println(
           s"""${" " * 6}return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
@@ -205,7 +213,7 @@ object CustomLinkerProbabilistic {
           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
           writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
           writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentValidateFields" +
-            s".$fieldName);")
+                         s".$fieldName);")
         })
         writer.print(
           s"""${" " * 6}return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
@@ -228,11 +236,11 @@ object CustomLinkerProbabilistic {
             |      // min, max, score, missingPenalty
             |      final float[] metrics = {0, 0, 0, 1.0F};""".stripMargin)
         matchNotificationMuList.foreach(field =>
-          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-          writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
-          writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentMatchNotificationFields" +
-            s".$fieldName);")
-        )
+                                          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                          writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
+                                          writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentMatchNotificationFields" +
+                                                         s".$fieldName);")
+                                        )
         writer.print(
           s"""${" " * 6}return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
              |""".stripMargin)
@@ -243,44 +251,62 @@ object CustomLinkerProbabilistic {
     def updateMU(): Unit =
       writer.println("   public static void updateMU(final CustomMU mu) {")
       linkMuList.zipWithIndex.foreach((field, idx) =>
-        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-        if (idx == 0)
-          writer.print(" " * 6 + s"if (mu.$fieldName().m() > mu.$fieldName().u()")
-        else
-          writer.print(" " * 10 + s"&& mu.$fieldName().m() > mu.$fieldName().u()")
-        end if
-        if (idx + 1 < linkMuList.length)
-          writer.println()
-        else
-          writer.println(") {")
-        end if
-      )
+                                        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                        if (idx == 0)
+                                          writer.print(" " * 6 + s"if (mu.$fieldName().m() > mu.$fieldName().u()")
+                                        else
+                                          writer.print(" " * 10 + s"&& mu.$fieldName().m() > mu.$fieldName().u()")
+                                        end if
+                                        if (idx + 1 < linkMuList.length)
+                                          writer.println()
+                                        else
+                                          writer.println(") {")
+                                        end if
+                                      )
       if (!linkMuList.isEmpty)
         writer.println(" " * 9 + "updatedLinkFields = new LinkFields(")
         linkMuList.zipWithIndex.foreach((field, idx) =>
-          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-          val comparison = field.linkMetaData.get.comparison
-          val comparisonLevels = field.linkMetaData.get.comparisonLevels
+                                          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                          val comparison = field.linkMetaData.get.comparison
+                                          val comparisonLevels = field.linkMetaData.get.comparisonLevels
 
-          def extractComparisonList(levels: List[Double]): String = {
-            levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
-          }
+                                          def extractComparisonList(levels: List[Double]): String = {
+                                            levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
+                                          }
 
-          writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${
-            if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
-          }${extractComparisonList(comparisonLevels)}), mu.$fieldName().m(), mu.$fieldName().u())")
-          if (idx + 1 < linkMuList.length)
-            writer.println(",")
-          else
-            writer.println(");")
-          end if
-        )
+                                          writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${
+                                            if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
+                                          }${extractComparisonList(comparisonLevels)}), mu.$fieldName().m(), mu.$fieldName().u())")
+                                          if (idx + 1 < linkMuList.length)
+                                            writer.println(",")
+                                          else
+                                            writer.println(");")
+                                          end if
+                                        )
         writer.println(" " * 6 + "}")
       end if
       writer.println("   }")
       writer.println()
 
     end updateMU
+
+
+    def checkUpdatedMU(): Unit =
+
+      def generateCode(): String =
+        return s"""      if (updatedLinkFields != null) {
+                  |         LOGGER.info("Using updated Link MU values: {}", updatedLinkFields);
+                  |         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
+                  |         updatedLinkFields = null;
+                  |     }""".stripMargin
+      end generateCode
+
+      writer.println(
+        s"""   public static void checkUpdatedLinkMU() {
+           |${if (linkMuList.length > 0) generateCode() else ""}
+           |   }
+           |""".stripMargin)
+    end checkUpdatedMU
 
   }
 

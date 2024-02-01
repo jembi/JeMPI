@@ -12,7 +12,7 @@ public record CustomMU(String tag,
                        Probability phoneNumber,
                        Probability nationalId) {
 
-
+   public static final Boolean SEND_INTERACTIONS_TO_EM = true;
 
    public record Probability(float m, float u) {
    }
