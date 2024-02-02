@@ -4,6 +4,12 @@ source ../conf.env
 while true; do
     # Ask the user to enter a folder name
     echo "Backup folder Path:- ${POSTGRES_BACKUP_DIRECTORY}"
+    pushd ${POSTGRES_BACKUP_DIRECTORY}
+        echo
+        echo "Recent 5 Backups list"
+        ls -lt --time=creation --sort=time | grep '^d' | tail -n 5
+        echo
+    popd
     read -p "Please enter your Postgres Backup Folder Name: " BACKUP_FOLDER_NAME
 
     # Check if the folder exists
