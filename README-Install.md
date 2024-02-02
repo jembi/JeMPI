@@ -4,7 +4,7 @@
 ## Overview
 
 
-This Bash script is designed for deploying JeMPI locally with various options. It performs tasks such as installing Docker, SDKMAN, Java, Maven, and SBT, setting up the environment configuration, creating a Docker registry, pulling and pushing Docker images, initializing the Docker Swarm, building the entire stack, rebooting, restarting, tearing down, and destroying JeMPI.
+This Bash script is designed for deploying JeMPI locally with various options. It performs tasks such as installing Docker, SDKMAN, Java, Maven, and SBT, setting up the environment configuration, creating a Docker registry, pulling and pushing Docker images, initializing the Docker Swarm, building the entire stack, rebooting, restarting, tearing down, Backup & Restore Databases and destroying JeMPI.
 
 
 ## Usage
@@ -12,6 +12,9 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 
 1. **Set JEMPI_HOME Environment Variable:**
    ```bash
+   Location of file - JeMPI/devops/linux/docker/deployment
+   File Name - local-deployment.sh
+
    export JAVA_VERSION=21.0.1-tem
    JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 
@@ -20,6 +23,7 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 
 2. **Run the Script:**
    ```bash
+   This script must be run from the following path and will not work if executed from a different location.
    Location of file - JeMPI/devops/linux/docker/deployment
    bash local-deployment.sh
    ```
@@ -31,8 +35,31 @@ This Bash script is designed for deploying JeMPI locally with various options. I
    - **Option 3:** Build and Reboot.
    - **Option 4:** Restart JeMPI.
    - **Option 5:** Down JeMPI.
-   - **Option 6:** Destroy JeMPI (This process will wipe all data).
+   - **Option 6:** Backup Postgres & Dgraph.
+   - **Option 7:** Restore Postgres & Dgraph.
+   - **Option 8:** Destroy JeMPI (This process will wipe all data).
 
+
+
+## Backup and Restore Functionality
+
+### Postgres
+
+**Backup:**
+- **Backup Directory:** `JeMPI/devops/linux/docker/docker_data/data/backups/postgres`
+- The backup process creates a folder with a timestamp, and inside it, SQL files are generated for each database.
+
+**Restore:**
+- Users need to enter the folder name of the backup directory for Postgres to initiate the restore process.
+
+### Dgraph
+
+**Backup:**
+- **Backup Directory:** `JeMPI/devops/linux/docker/docker_data/data/backups/dgraph`
+- The backup process creates a folder with a timestamp, and inside it, folders are copied for each Dgraph node.
+
+**Restore:**
+- Users need to enter the folder name of the backup directory for Dgraph
 
 ## Script Functions
 
