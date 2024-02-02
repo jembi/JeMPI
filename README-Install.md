@@ -23,6 +23,7 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 
 2. **Run the Script:**
    ```bash
+   This script must be run from the following path and will not work if executed from a different location.
    Location of file - JeMPI/devops/linux/docker/deployment
    bash local-deployment.sh
    ```
