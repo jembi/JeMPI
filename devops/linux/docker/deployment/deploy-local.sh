@@ -141,12 +141,10 @@ restore_dgraph_db(){
     dgraph_confirmation=$(echo "$dgraph_confirmation" | tr '[:upper:]' '[:lower:]')
 
     if [ "$dgraph_confirmation" == "yes" ] || [ "$dgraph_confirmation" == "y" ]; then
+        cd $JEMPI_HOME/devops/linux/docker/backup_restore
         echo "Starting Dgraph database restore..."
-        sudo bash $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-restore.sh
+        bash $JEMPI_HOME/devops/linux/docker/backup_restore/dgraph-restore.sh
         echo "Database Dgraph restore completed."
-        echo "Rebooting JeMPI"
-        cd $JEMPI_HOME/devops/linux/docker/deployment/reboot
-        source $JEMPI_HOME/devops/linux/docker/deployment/reboot/d-stack-3-reboot.sh
     else
         echo "Dgraph Database restore cancelled. Moving ahead without restore."
         # Continue with the rest of your script

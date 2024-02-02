@@ -24,6 +24,7 @@ PGPORT="${PGPORT:-5432}"
 
 # Function to Perform Backup
 backup_database() {
+    echo "Starting Postgres database Backup..."
     # Loop through each database and dump it
     for db in "${databases[@]}"; do
         echo "db.. $db "
@@ -33,6 +34,7 @@ backup_database() {
         PGPASSWORD=$DB_PASSWORD pg_dump -h $DB_HOST -U $DB_USER -d $db -F c -f "${BACKUP_PATH}/${db}--$(date +%Y%m%d_%H%M%S).sql"
         echo "$(date) - Backup completed for database: ${db}" >> "${LOG_FILE}"
     done
+    echo "Database Postgres Backup completed."
 }
 
 echo Function to Copy Backup to Remote Server

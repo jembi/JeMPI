@@ -31,6 +31,7 @@ pushd .
 
   mkdir -p ${DATA_POSTGRESQL_DIR}
   cp ./conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
+
   mkdir -p ${DATA_POSTGRESQL_DB_DIR}
   sudo chown -R 1001:1001 ${DATA_POSTGRESQL_DB_DIR}
   sudo chmod -R 770 ${DATA_POSTGRESQL_DB_DIR}
@@ -53,6 +54,9 @@ pushd .
 
   mkdir -p ${DATA_DIR_API_KC}/conf
   
+  mkdir -p ${POSTGRES_BACKUP_DIRECTORY}
+  
+  mkdir -p ${DGRAPH_BACKUP_DIRECTORY}
   echo
 
 popd

@@ -9,3 +9,6 @@
 sandbox
 my-notes
 .Rproj.user
+.settings
+.classpath
+.project

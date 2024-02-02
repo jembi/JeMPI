@@ -16,6 +16,12 @@ while true; do
     fi
 done
 
+pushd ../deployment/reboot 
+    source d-stack-3-reboot.sh
+popd
+echo "Please wait for sometime..."
+sleep 60
+# BACKUP_FOLDER_NAME="20240202_123952"
 # Load Environment Variables for DGraph Alpha and Zero Nodes
 DGRAPH_ALPHA_HOSTS="${DGRAPH_HOSTS:-localhost}"
 DGRAPH_ALPHA_PORTS="${DGRAPH_PORTS:-8080}"
@@ -29,15 +35,20 @@ DATA_DGRAPH_ALPHA_02_DIR="${DATA_DGRAPH_ALPHA_02_DIR:-}" # Optional
 DATA_DGRAPH_ALPHA_03_DIR="${DATA_DGRAPH_ALPHA_03_DIR:-}" # Optional
 BACKUP_PATH="${DGRAPH_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME"
 
-REMOTE_SERVER="${DGRAPH_BACKUP_REMOTE_SERVER}"
-REMOTE_PATH="${DGRAPH_BACKUP_REMOTE_PATH}"
+REMOTE_SERVER="${DGRAPH_BACKUP_REMOTE_SERVER:-""}"
+REMOTE_PATH="${DGRAPH_BACKUP_REMOTE_PATH:-""}"
 # Function to Restore DGraph Directory
-
 restore_dgraph_dir() {
     local dir=$1
     local backup_file=$2
+    echo $dir
+    if [ "$(ls -A $dir)" ]; then
+        echo "Directory $dir is not empty. Clearing existing files."
+        sudo rm -rf $dir/*
+    fi
+
     echo “$(date) - Starting restore for DGraph directory at $dir from $backup_file”
-    tar -xzvf ${backup_file} -C $dir
+    sudo tar -xzvf ${backup_file} -C $dir --strip-components=1
     echo “$(date) - Restore completed for DGraph directory at $dir”
 }
 # Restore Zero Nodes
@@ -63,3 +74,8 @@ copy_from_remote() {
 }
 # Main Execution
 copy_from_remote
+echo "Rebooting JeMPI"
+pushd ../deployment/reboot 
+    echo $PWD
+    source d-stack-3-reboot.sh
+popd
