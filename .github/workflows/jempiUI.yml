@@ -1,14 +1,9 @@
 on:
   pull_request:
     branches:
-      - dev
+      - main
     paths:
       - "JeMPI_Apps/JeMPI_UI/**"
-  push:
-    branches:
-      - dev
-    paths:
-      - 'JeMPI_Apps/JeMPI_UI/**'
 jobs:
   common-setup:
     runs-on: ubuntu-latest
