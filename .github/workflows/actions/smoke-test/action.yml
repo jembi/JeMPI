@@ -1,0 +1,7 @@
+name: Action > Smoke Test
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2

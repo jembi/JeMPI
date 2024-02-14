@@ -1,0 +1,15 @@
+name: SDKMan Installer
+inputs:
+  candidate:
+    required: true
+  version:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Installing ${{ inputs.candidate }} (version ${{ inputs.version }})
+    shell: bash
+    run: |
+      echo "$HOME/.sdkman/bin/sdkman-init.sh"
+      source "$HOME/.sdkman/bin/sdkman-init.sh"
+      sdk install ${{ inputs.candidate }} ${{ inputs.version }}

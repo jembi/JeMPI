@@ -1,0 +1,24 @@
+name: Install Node
+inputs:
+  node-version:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Install Nvm
+    shell: bash
+    run: |
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+      source "$HOME/.nvm/nvm.sh"
+      nvm --version
+  - name: Install node ${{ inputs.node-version }}
+    run: |
+      source "$HOME/.nvm/nvm.sh"
+      nvm install ${{ inputs.node-version }}
+    shell: bash
+  - name: Install UI packages
+    run: |
+       source "$HOME/.nvm/nvm.sh"
+       cd $JEMPI_APP_PATH/JeMPI_UI
+       yarn install --frozen-lockfile
+    shell: bash

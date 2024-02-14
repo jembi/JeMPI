@@ -1,0 +1,28 @@
+name: Build Save Deploy Images
+inputs:
+  docker-push-tag:
+    required: false
+  image-build-tag:
+    required: true
+  docker-host:
+    required: true
+  docker-username:
+    required: true
+  docker-password:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/workflows/actions/docker-images-build
+      with:
+        image-build-tag: ${{ inputs.image-build-tag }}
+    - uses: ./.github/workflows/actions/docker-images-save
+      with:
+        image-build-tag: ${{ inputs.image-build-tag }}
+    - uses: ./.github/workflows/actions/docker-images-deploy
+      with:
+        image-build-tag: ${{ inputs.image-build-tag }}
+        docker-push-tag: ${{ inputs.docker-push-tag }}
+        docker-username: ${{ inputs.docker-username }}
+        docker-password: ${{ inputs.docker-password }}
+        docker-host: ${{ inputs.docker-host }}
