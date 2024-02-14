@@ -35,7 +35,8 @@ jobs:
               echo "Can only do a manual deployment on main / master. Exiting."
               exit 1
           fi
-
+        
+          git fetch --tags
           if git rev-parse -q --verify "refs/tags/${{ inputs.tag }}" > /dev/null; then
             echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
             echo "docker-push-tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
