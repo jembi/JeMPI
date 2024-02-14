@@ -51,4 +51,4 @@ jobs:
         docker-push-tag: ${{ steps.validate-tag.outputs.docker-push-tag }}
         docker-host: "docker.io"
         docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        docker-password: ${{ secrets.DOCKER_HUB_PASSOWRD }}
+        docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}
