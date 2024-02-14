@@ -36,7 +36,7 @@ jobs:
               exit 1
           fi
 
-          if git tag --list | grep -q "^${{ inputs.tag }}$"; then
+          if git rev-parse -q --verify "refs/tags/${{ inputs.tag }}" > /dev/null; then
             echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
             echo "docker-push-tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
           else
