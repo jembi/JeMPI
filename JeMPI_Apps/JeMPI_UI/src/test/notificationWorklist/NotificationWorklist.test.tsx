@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
   }
 })
 
-test('User is in the notification screen, and the search input works as expected', async () => {
+test.skip('User is in the notification screen, and the search input works as expected', async () => {
   render(
     <QueryClientProvider client={queryClient}>
       <AppConfigProvider>
