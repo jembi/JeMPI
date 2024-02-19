@@ -30,7 +30,7 @@ import { PatientRecord, GoldenRecord, AnyRecord } from 'types/PatientRecord'
 import { sortColumns } from 'utils/helpers'
 import getCellComponent from 'components/shared/getCellComponent'
 import { AUDIT_TRAIL_COLUMNS } from 'utils/constants'
-import { AuditTrail } from 'types/AuditTrail'
+import { AuditTrail, ExpandedAuditTrail } from 'types/AuditTrail'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
 
@@ -135,14 +135,14 @@ const RecordDetails = () => {
     data: auditTrail,
     isLoading: isAuditTrailLoading,
     isFetching
-  } = useQuery<Array<AuditTrail>, AxiosError>({
+  } = useQuery<Array<ExpandedAuditTrail>, AxiosError>({
     queryKey: ['audit-trail', record?.uid],
     queryFn: async () => {
       if (record) {
         if ('linkRecords' in record) {
-          return await apiClient.getGoldenRecordAuditTrail(record.uid || '')
+          return await apiClient.getExpandedGoldenRecordAuditTrail(record.uid || '')
         } else {
-          return await apiClient.getInteractionAuditTrail(record.uid || '')
+          return await apiClient.getExpandedInteractionAuditTrail(record.uid || '')
         }
       }
       throw new Error('Empty record')

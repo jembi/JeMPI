@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
-import { AuditTrailEntries } from '../types/AuditTrail'
+import { AuditTrailEntries, ExpandedAuditTrail } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
   ApiSearchResponse,
@@ -343,6 +343,24 @@ export class ApiClient {
     }))
   }
 
+  async getExpandedGoldenRecordAuditTrail(gid: string): Promise<ExpandedAuditTrail[]>{
+    const entries = await this.getGoldenRecordAuditTrail(gid);
+
+    return entries.map((entry) => {
+      const expandedEntry: ExpandedAuditTrail = {
+        matching_rule: extractMatchingRule(entry.entry),
+        inserted_at: entry.inserted_at,
+        created_at: entry.created_at,
+        interaction_id: entry.interaction_id,
+        golden_id: entry.golden_id,
+        entry: entry.entry
+        
+      };
+  
+      return expandedEntry;
+    })
+  }
+
   async getGoldenRecordAuditTrail(gid: string) {
     const {
       data: { entries }
@@ -355,6 +373,24 @@ export class ApiClient {
       }
     )
     return entries
+  }
+
+  async getExpandedInteractionAuditTrail(iid: string): Promise<ExpandedAuditTrail[]>{
+    const entries = await this.getInteractionAuditTrail(iid);
+
+    return entries.map((entry) => {
+      const expandedEntry: ExpandedAuditTrail = {
+        matching_rule: null,
+        inserted_at: entry.inserted_at,
+        created_at: entry.created_at,
+        interaction_id: entry.interaction_id,
+        golden_id: entry.golden_id,
+        entry: entry.entry
+        
+      };
+  
+      return expandedEntry;
+    })
   }
 
   async getInteractionAuditTrail(iid: string) {
@@ -418,6 +454,35 @@ export class ApiClient {
     return data
   }
 }
+
+const extractMatchingRule = (input: string ) => {
+    const numberStr =  extractScore(input)
+
+    if (numberStr !== null) {
+        const number = parseFloat(numberStr);
+
+        if (number === 1.0) {
+            return "DETERMINISTIC";
+        } else if (number > 0.0 && number < 1.0) {
+            return "PROBABILISTIC";
+        }
+    }
+
+    return null;
+};
+
+const extractScore = (input: string) => {
+    const pattern = /\((\d+\.\d+)\)/;
+    const matches = input.match(pattern);
+
+    if (matches !== null) {
+        return matches[1];
+    } else {
+        return null;
+    }
+};
+
+
 
 const apiClient = new ApiClient()
 

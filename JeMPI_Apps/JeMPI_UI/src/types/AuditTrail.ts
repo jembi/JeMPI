@@ -9,3 +9,7 @@ export interface AuditTrail {
 export interface AuditTrailEntries {
   entries: Array<AuditTrail>
 }
+
+export interface ExpandedAuditTrail extends AuditTrail {
+    matching_rule: string | null
+}
