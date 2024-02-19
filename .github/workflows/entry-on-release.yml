@@ -29,8 +29,7 @@ jobs:
     - id: validate-tag
       run: |        
           echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
-          echo "docker-push-tag=$GITHUB_REF" >> $GITHUB_OUTPUT
-        
+          echo "docker-push-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
     - uses: ./.github/workflows/actions/build-save-deploy-images
       with: 
         image-build-tag: ${{ steps.validate-tag.outputs.image-build-tag }}
