@@ -1,0 +1,44 @@
+name: Save Docker Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to use (defaults to [branch]-[commit])'
+        required: false
+        type: string
+
+env:
+  GITHUB_WORKFLOW_FOLDER: ./.github/workflows
+  JEMPI_APP_PATH: ./JeMPI_Apps
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/workflows/actions/prepare
+  build-save-deploy-images:
+    runs-on: ubuntu-22.04
+    needs: [prepare]
+    steps:
+    - uses: actions/checkout@v4
+    - id: validate-tag
+      run: |
+          $user_tag=${{ inputs.tag }}
+          if [ -z "$user_tag" ]; then
+            echo "image-build-tag=$user_tag" >> $GITHUB_OUTPUT
+          else
+            echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
+          fi
+    - uses: ./.github/workflows/actions/build-save-deploy-images
+      with: 
+        image-build-tag: ${{ steps.validate-tag.outputs.image-build-tag }}
+        docker-push-tag: ${{ steps.validate-tag.outputs.docker-push-tag }}
+        docker-host: "docker.io"
+        docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+        docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}

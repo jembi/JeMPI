@@ -16,9 +16,6 @@ runs:
     - uses: ./.github/workflows/actions/docker-images-build
       with:
         image-build-tag: ${{ inputs.image-build-tag }}
-    - uses: ./.github/workflows/actions/docker-images-save
-      with:
-        image-build-tag: ${{ inputs.image-build-tag }}
     - uses: ./.github/workflows/actions/docker-images-deploy
       with:
         image-build-tag: ${{ inputs.image-build-tag }}
