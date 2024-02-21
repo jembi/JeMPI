@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
         
-    - uses: ./.github/workflows/actions/build-save-deploy-images
+    - uses: ./.github/workflows/actions/build-deploy-images
       with: 
         image-build-tag: ${{ steps.validate-tag.outputs.image-build-tag }}
         docker-push-tag: ${{ steps.validate-tag.outputs.docker-push-tag }}

@@ -27,7 +27,7 @@ jobs:
     needs: [prepare]
     steps:
     - uses: actions/checkout@v4
-    - id: validate-tag
+    - id: get-image-build-tag
       run: |
           $user_tag=${{ inputs.tag }}
           if [ -z "$user_tag" ]; then
@@ -35,10 +35,9 @@ jobs:
           else
             echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
           fi
-    - uses: ./.github/workflows/actions/build-save-deploy-images
-      with: 
-        image-build-tag: ${{ steps.validate-tag.outputs.image-build-tag }}
-        docker-push-tag: ${{ steps.validate-tag.outputs.docker-push-tag }}
-        docker-host: "docker.io"
-        docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+    - uses: ./.github/workflows/actions/docker-images-build
+      with:
+        image-build-tag: ${{ steps.get-image-build-tag.outputs.image-build-tag }}
+    - uses: ./.github/workflows/actions/docker-images-save
+      with:
+        image-build-tag: ${{ steps.get-image-build-tag.outputs.image-build-tag }}
