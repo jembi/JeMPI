@@ -1,0 +1,15 @@
+.vscode
+.idea
+.DS_Store
+*.iml
+*.tgz
+*.swp
+*.args
+*.bsp
+sandbox
+my-notes
+.Rproj.user
+.settings
+.classpath
+.project
+.metal
