@@ -54,6 +54,9 @@ object ParseRule extends JavaTokenParsers {
       case (left: Expression) ~ (right: Seq[Expression]) => And(left +: right)
     }
 
+  private def null: Parser[Null] = 
+    "null" ~ "(" ~>! variable <~! ")" ^^ (parameter => Null.apply(parameter))
+
   private def or: Parser[Or] =
     (and | leftExpression) ~ ("or" ~> (and | leftExpression)).+ ^^ {
       case left ~ right => Or(left +: right)

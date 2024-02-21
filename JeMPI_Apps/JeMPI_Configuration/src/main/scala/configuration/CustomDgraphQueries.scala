@@ -262,7 +262,7 @@ object CustomDgraphQueries {
       val varsMap = vars.zipWithIndex
         .toMap[String, Int]
         .map((k, i) => (k, ("A".head + i).toChar.toString))
-      var meta = Map[String, (String, Option[Integer])]()
+      var meta = Map[String, (String, Option[Integer], Option(Function1[var, String]) )]()
 
       def main_func(expression: Ast.Expression): String = {
         expression match {
@@ -283,25 +283,40 @@ object CustomDgraphQueries {
           case Ast.Not(x) =>
             "NOT (" + main_func(x) + ")"
           case Ast.Match(variable, distance) =>
-            meta += (variable.name -> ("match", Option(distance)))
+            meta += (variable.name -> ("match", Option(distance), None))
             "uid(" + variable.name + ")"
           case Ast.Eq(variable) =>
-            meta += (variable.name -> ("eq", None))
+            meta += (variable.name -> ("eq", None, None))
+            "uid(" + variable.name + ")"
+          case Ast.Null(variable) =>
+            meta += (variable.name -> ("eq", None, new Function1[var, String] {
+                                                          def apply(x: var): String = ""
+                                                        }))
             "uid(" + variable.name + ")"
           case _ =>
             "ERROR"
         }
       }
 
+      def getFilterParams(v: var):String = {
+        if (meta(v)._3.isDefined) {
+          return meta(v)._3.get.apply(v)
+        }
+
+        return s"""
+              $$$v${
+                if (meta(v)._2.isDefined) ", " + meta(v)._2.get
+                else
+                  ""
+              }
+              """
+      }  
+
       def createScalerFunc(): Unit = {
         vars.foreach(v => {
           val fn = meta(v)._1
           writer.println(
-            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, $$$v${
-                if (meta(v)._2.isDefined) ", " + meta(v)._2.get
-                else
-                  ""
-              })) {
+            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v)})) {
                |${" " * 15}uid
                |${" " * 15}GoldenRecord.source_id {
                |${" " * 18}uid
@@ -323,9 +338,7 @@ object CustomDgraphQueries {
         vars.foreach(v => {
           val fn = meta(v)._1
           writer.println(
-            s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, $$$v${
-                if (meta(v)._2.isDefined) ", " + meta(v)._2.get else ""
-              })) {
+            s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v)})) {
                |${" " * 15}${varsMap(v)} as uid
                |${" " * 12}}""".stripMargin
           )
