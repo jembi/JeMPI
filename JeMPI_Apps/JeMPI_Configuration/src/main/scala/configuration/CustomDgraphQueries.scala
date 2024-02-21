@@ -262,7 +262,15 @@ object CustomDgraphQueries {
       val varsMap = vars.zipWithIndex
         .toMap[String, Int]
         .map((k, i) => (k, ("A".head + i).toChar.toString))
-      var meta = Map[String, (String, Option[Integer], Option(Function1[var, String]) )]()
+      var meta = Map[String, List[(String, Option[Integer], Option[Function1[String, String]] )]]()
+
+      def addMeta(v: String, metaInfo: (String, Option[Integer], Option[Function1[String, String]]) ): Unit = {
+          if (!meta.contains(v)){
+             meta += (v -> List())
+          }
+
+          meta = meta + (v -> (meta(v) :+ metaInfo))
+      }
 
       def main_func(expression: Ast.Expression): String = {
         expression match {
@@ -283,29 +291,29 @@ object CustomDgraphQueries {
           case Ast.Not(x) =>
             "NOT (" + main_func(x) + ")"
           case Ast.Match(variable, distance) =>
-            meta += (variable.name -> ("match", Option(distance), None))
+            addMeta(variable.name, ("match", Option(distance), None))
             "uid(" + variable.name + ")"
           case Ast.Eq(variable) =>
-            meta += (variable.name -> ("eq", None, None))
+            addMeta(variable.name, ("eq", None, None))
             "uid(" + variable.name + ")"
           case Ast.Null(variable) =>
-            meta += (variable.name -> ("eq", None, new Function1[var, String] {
-                                                          def apply(x: var): String = ""
-                                                        }))
+            addMeta(variable.name, ("eq", None, Option(new Function1[String, String] {
+                                                          def apply(x: String): String = "\"\""
+                                                        })))
             "uid(" + variable.name + ")"
           case _ =>
             "ERROR"
         }
       }
 
-      def getFilterParams(v: var):String = {
-        if (meta(v)._3.isDefined) {
-          return meta(v)._3.get.apply(v)
+      def getFilterParams(v: String, metaInfo: (String, Option[Integer], Option[Function1[String, String]])):String = {
+        if (metaInfo._3.isDefined) {
+          return metaInfo._3.get.apply(v)
         }
 
         return s"""
               $$$v${
-                if (meta(v)._2.isDefined) ", " + meta(v)._2.get
+                if (metaInfo._2.isDefined) ", " + metaInfo._2.get
                 else
                   ""
               }
@@ -314,9 +322,10 @@ object CustomDgraphQueries {
 
       def createScalerFunc(): Unit = {
         vars.foreach(v => {
-          val fn = meta(v)._1
+          val m = meta(v)(0)
+          val fn = m._1
           writer.println(
-            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v)})) {
+            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v, m)})) {
                |${" " * 15}uid
                |${" " * 15}GoldenRecord.source_id {
                |${" " * 18}uid
@@ -336,13 +345,16 @@ object CustomDgraphQueries {
 
       def createFilterFunc(all_func_str: String): Unit = {
         vars.foreach(v => {
-          val fn = meta(v)._1
-          writer.println(
-            s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v)})) {
-               |${" " * 15}${varsMap(v)} as uid
-               |${" " * 12}}""".stripMargin
-          )
+           (meta(v)).foreach(m => {
+              val fn = m._1
+              writer.println(
+                s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v, m)})) {
+                  |${" " * 15}${varsMap(v)} as uid
+                  |${" " * 12}}""".stripMargin
+              )
+           })
         })
+
         writer.println(s"""${" " * 12}all(func:type(GoldenRecord)) @filter${
                            if (all_func_str.startsWith("(")) "" else "("
                          }$all_func_str${
@@ -382,7 +394,8 @@ object CustomDgraphQueries {
       })
       writer.println(") {")
 
-      if (vars.length == 1)
+      if ((vars.length == 1 && !meta.contains(vars(0))) || 
+          ((vars.length == 1 && meta(vars(0)).length < 2) ))
         createScalerFunc()
       else
         createFilterFunc(all_func_str)

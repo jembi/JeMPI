@@ -24,7 +24,7 @@ object ParseRule extends JavaTokenParsers {
     * @return
     */
   private def leftExpression: Parser[Expression] =
-    comment.? ~> not | brackets | matchField | eqField <~ comment.?
+    comment.? ~> not | brackets | matchField | eqField | nullField <~ comment.?
 
   private def brackets: Parser[Expression] =
     "(" ~> expression <~ ")"
@@ -54,7 +54,7 @@ object ParseRule extends JavaTokenParsers {
       case (left: Expression) ~ (right: Seq[Expression]) => And(left +: right)
     }
 
-  private def null: Parser[Null] = 
+  private def nullField: Parser[Null] = 
     "null" ~ "(" ~>! variable <~! ")" ^^ (parameter => Null.apply(parameter))
 
   private def or: Parser[Or] =
