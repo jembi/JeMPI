@@ -31,37 +31,37 @@ popd
 
 pushd JeMPI_AsyncReceiver
   ./build.sh || exit 1
-  tag_image $ASYNC_RECEIVER_IMAGE
+  tag_image $ASYNC_RECEIVER_HUB_IMAGE
 popd
 pushd JeMPI_ETL
   ./build.sh || exit 1
-  tag_image $ETL_IMAGE
+  tag_image $ETL_HUB_IMAGE
 popd
 pushd JeMPI_Controller
   ./build.sh || exit 1
-  tag_image $CONTROLLER_IMAGE
+  tag_image $CONTROLLER_HUB_IMAGE
 popd
 pushd JeMPI_EM_Scala
   ./build.sh || exit 1
-  tag_image $EM_SCALA_IMAGE
+  tag_image $EM_SCALA_HUB_IMAGE
 popd
 pushd JeMPI_Linker
   ./build.sh || exit 1
-  tag_image $LINKER_IMAGE
+  tag_image $LINKER_HUB_IMAGE
 popd
 pushd JeMPI_API
   ./build.sh || exit 1
-   tag_image $API_IMAGE
+   tag_image $API_HUB_IMAGE
 popd
 pushd JeMPI_API_KC
   ./build.sh || exit 1
-   tag_image $API_KC_IMAGE
+   tag_image $API_KC_HUB_IMAGE
 popd
 pushd JeMPI_Bootstrapper
   ./build.sh || exit 1
-  tag_image $BOOTSTRAPPER_IMAGE
+  tag_image $BOOTSTRAPPER_HUB_IMAGE
 popd
 pushd JeMPI_UI
   ./build-image.sh || exit 1
-  tag_image $UI_IMAGE
+  tag_image $UI_HUB_IMAGE
 popd
