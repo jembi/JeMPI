@@ -1,4 +1,4 @@
-name: Build Save Deploy Images
+name: Build and Deploy Images
 inputs:
   docker-push-tag:
     required: false

@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/workflows/actions/prepare
-  build-save-deploy-images:
+  build-deploy-images:
     runs-on: ubuntu-22.04
     needs: [prepare]
     steps:
@@ -30,7 +30,7 @@ jobs:
       run: |        
           echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
           echo "docker-push-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
-    - uses: ./.github/workflows/actions/build-save-deploy-images
+    - uses: ./.github/workflows/actions/build-deploy-images
       with: 
         image-build-tag: ${{ steps.validate-tag.outputs.image-build-tag }}
         docker-push-tag: ${{ steps.validate-tag.outputs.docker-push-tag }}

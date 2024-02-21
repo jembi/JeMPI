@@ -24,14 +24,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/workflows/actions/prepare
-  build-save-deploy-images:
+  build-deploy-images:
     runs-on: ubuntu-22.04
     needs: [prepare]
     steps:
     - uses: actions/checkout@v4
     - id: get-image-build-tag
       run: echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
-    - uses: ./.github/workflows/actions/build-save-deploy-images
+    - uses: ./.github/workflows/actions/build-deploy-images
       with: 
         image-build-tag: ${{ steps.get-image-build-tag.outputs.image-build-tag }}
         docker-host: ${{ vars.DOCKER_LOCAL_HOST_NAME }}
