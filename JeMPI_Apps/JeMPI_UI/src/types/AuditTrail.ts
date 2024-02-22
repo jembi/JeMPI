@@ -10,3 +10,10 @@ export interface AuditTrail {
 export interface AuditTrailEntries {
   entries: Array<AuditTrail>
 }
+
+export const MatchingRule = {
+  DETERMINISTIC: 'DETERMINISTIC',
+  PROBABLISTIC: 'PROBABLISTIC',
+  UNKNOWN: ''
+} as const;
+

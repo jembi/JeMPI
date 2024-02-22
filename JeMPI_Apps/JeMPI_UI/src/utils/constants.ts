@@ -1,6 +1,7 @@
 import { GridColDef } from '@mui/x-data-grid'
 import { CustomSearchQuery, SearchParameter } from 'types/SimpleSearch'
 import { formatDate } from './formatters'
+import { MatchingRule } from 'types/AuditTrail'
 
 export enum ACTIONS {
   newnewUserCreated,
@@ -104,13 +105,12 @@ export const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
   }
 ]
 
-const extractMatchingRule = (score: number ) => {
+const extractMatchingRule = (score: number) => {
   if (score === 1.0) {
-          return "DETERMINISTIC";
-      } else if (score > 0.0 && score < 1.0) {
-          return "PROBABILISTIC";
-      }
-
-  return null;
+    return MatchingRule.DETERMINISTIC;
+  } else if (score > 0.0 && score < 1.0) {
+    return MatchingRule.PROBABLISTIC;
+  } else {
+    return MatchingRule.UNKNOWN
+  }
 };
-
