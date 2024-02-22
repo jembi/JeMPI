@@ -30,7 +30,7 @@ jobs:
     - id: get-image-build-tag
       run: |
           user_tag=${{ inputs.tag }}
-          if [ -z "$user_tag" ]; then
+          if [ ! -z "$user_tag" ]; then
             echo "image-build-tag=$user_tag" >> $GITHUB_OUTPUT
           else
             echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
