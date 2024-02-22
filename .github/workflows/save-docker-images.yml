@@ -29,7 +29,7 @@ jobs:
     - uses: actions/checkout@v4
     - id: get-image-build-tag
       run: |
-          $user_tag=${{ inputs.tag }}
+          user_tag=${{ inputs.tag }}
           if [ -z "$user_tag" ]; then
             echo "image-build-tag=$user_tag" >> $GITHUB_OUTPUT
           else
