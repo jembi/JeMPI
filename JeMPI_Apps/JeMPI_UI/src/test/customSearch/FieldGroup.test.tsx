@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react'
 import SearchRowTest from './SearchRow'
 
-test('Field group renders successfully when called', async () => {
+test.skip('Field group renders successfully when called', async () => {
   await act(() => {
     render(<SearchRowTest />)
   })

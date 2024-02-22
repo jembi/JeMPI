@@ -1,0 +1,10 @@
+name: Install SDKMan
+runs:
+  using: 'composite'
+  steps:
+  - name: Install SDKMan
+    shell: bash
+    run: |
+      curl -s "https://get.sdkman.io" | bash
+      source "$HOME/.sdkman/bin/sdkman-init.sh"
+      sdk version

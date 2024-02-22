@@ -68,26 +68,24 @@ const CustomDataGrid = <R extends GridValidRowModel>({
 
   const columns: GridColDef[] = useMemo(
     () =>
-      action
-        ? [
-            ...fieldColumns,
-            {
-              field: 'action',
-              type: 'action',
-              headerName: 'Action',
-              flex: 1,
-              sortable: false,
-              filterable: false,
-              align: 'center',
-              headerAlign: 'center',
-              headerClassName: 'super-app-theme--linkHeader',
-              renderCell: (params: GridRenderCellParams) =>
-                getCellComponent('actions', params, () => {
-                  if (action) action(params.row.uid)
-                })
-            }
-          ]
-        : fieldColumns,
+      [ 
+        ...fieldColumns,
+        {
+          field: 'action',
+          type: 'action',
+          headerName: action ? 'Action' : '',
+          flex: 1,
+          sortable: false,
+          filterable: false,
+          align: 'center',
+          headerAlign: 'center',
+          headerClassName: 'super-app-theme--linkHeader',
+          renderCell: (params: GridRenderCellParams) =>
+            action ? getCellComponent('actions', params, () => {
+              if (action) action(params.row.uid)
+            }) : null
+        }
+      ],
     [action, fieldColumns]
   )
 

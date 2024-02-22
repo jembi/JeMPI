@@ -1,0 +1,20 @@
+name: Action > Test
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/workflows/actions/cached-dependencies
+    - name: Testing Java Apps
+      run: |
+        set -eo pipefail
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        cd $JEMPI_APP_PATH
+        mvn clean test
+      shell: bash
+    - name: Testing javascript app (ui)
+      run: |
+        source "$HOME/.nvm/nvm.sh"
+        cd $JEMPI_APP_PATH/JeMPI_UI
+        yarn install --frozen-lockfile
+        yarn run test -- --watchAll=false
+      shell: bash
