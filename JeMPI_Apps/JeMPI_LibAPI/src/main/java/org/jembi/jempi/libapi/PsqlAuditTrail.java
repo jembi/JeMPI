@@ -42,7 +42,8 @@ final class PsqlAuditTrail {
             final var interactionID = rs.getString(4);
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
-            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event));
+            final var score = rs.getFloat(7);
+            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score));
          }
       } catch (Exception e) {
          LOGGER.error(e);
@@ -67,7 +68,8 @@ final class PsqlAuditTrail {
             final var interactionID = rs.getString(4);
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
-            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event));
+            final var score = rs.getFloat(7);
+            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score));
          }
       } catch (Exception e) {
          LOGGER.error(e);

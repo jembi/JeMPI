@@ -10,5 +10,6 @@ public record AuditEvent(
       Timestamp insertedAt,
       String interactionID,
       String goldenID,
-      String event) {
+      String event,
+      Float score) {
 }

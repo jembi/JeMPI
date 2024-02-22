@@ -92,5 +92,25 @@ export const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
     disableColumnMenu: true,
     headerClassName: 'super-app-theme--header',
     flex: 1
+  },
+  {
+    field: 'score',
+    headerName: 'Matching Type',
+    valueFormatter: ({ value }) => extractMatchingRule(value),
+    sortable: false,
+    disableColumnMenu: true,
+    headerClassName: 'super-app-theme--header',
+    flex: 1
   }
 ]
+
+const extractMatchingRule = (score: number ) => {
+  if (score === 1.0) {
+          return "DETERMINISTIC";
+      } else if (score > 0.0 && score < 1.0) {
+          return "PROBABILISTIC";
+      }
+
+  return null;
+};
+

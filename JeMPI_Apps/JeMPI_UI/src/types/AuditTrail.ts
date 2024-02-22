@@ -4,6 +4,7 @@ export interface AuditTrail {
   interaction_id: string
   golden_id: string
   entry: string
+  score: number
 }
 
 export interface AuditTrailEntries {
