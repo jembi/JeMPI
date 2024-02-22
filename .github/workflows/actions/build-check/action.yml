@@ -1,0 +1,27 @@
+name: Action > Build
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/workflows/actions/cached-dependencies
+    - name: Build  javascript app (ui)
+      run: |
+        source "$HOME/.nvm/nvm.sh"
+        cd $JEMPI_APP_PATH/JeMPI_UI
+        yarn install --frozen-lockfile
+        yarn build
+      shell: bash
+    - name: Build Scala Apps
+      run: |
+        set -eo pipefail
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        cd $JEMPI_APP_PATH/JeMPI_EM_Scala
+        sbt clean assembly
+      shell: bash
+    - name: Build Java App
+      run: |
+        set -eo pipefail
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        cd $JEMPI_APP_PATH
+        mvn clean package
+      shell: bash

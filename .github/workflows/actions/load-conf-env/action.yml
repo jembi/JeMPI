@@ -1,0 +1,12 @@
+name: Action > Load Conf Env
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Load Conf Env
+      run: |
+        pushd $GITHUB_WORKSPACE/devops/linux/docker/conf/env
+        ./create-env-linux-high-1.sh
+        popd
+        source $GITHUB_WORKSPACE/devops/linux/docker/conf.env
+      shell: bash

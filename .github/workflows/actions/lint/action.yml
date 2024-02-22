@@ -1,0 +1,20 @@
+name: Action > Lint
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/workflows/actions/cached-dependencies
+    - name: Running javascript linter
+      run: |
+        source "$HOME/.nvm/nvm.sh"
+        cd $JEMPI_APP_PATH/JeMPI_UI
+        yarn install --frozen-lockfile
+        yarn lint && yarn format
+      shell: bash
+    - name: Running java linter
+      run: |
+        set -eo pipefail
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        source $GITHUB_WORKFLOW_FOLDER/actions/lint/mvn_linter.sh $JEMPI_APP_PATH
+      shell: bash
+    
