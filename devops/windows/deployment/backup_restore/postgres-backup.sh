@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../base-docker-wsl/conf.env
+source ../../base-docker-wsl/conf.env
 # Load Database Credentials from Environment Variables
 
 DB_NAME="${POSTGRESQL_DATABASE}"

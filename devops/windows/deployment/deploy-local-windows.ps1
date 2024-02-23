@@ -37,9 +37,7 @@ function  installApp() {
 # Start WSL in a new window
 Start-Process wsl.exe -WindowStyle Normal
 # Wait for WSL to start
-Start-Sleep -Seconds 5  # Adjust the sleep time as needed
-$wslPath = wsl.exe pwd
-Write-Host "Path in WSL:- $wslPath"
+
 
 # Display menu options
 Write-Host "Select an option for local deployment:"
@@ -55,6 +53,8 @@ Write-Host "8. Install Prerequisites."
 # Get user input
 $choice = Read-Host "Enter the number of your choice"
 
+$wslPath = wsl.exe pwd
+Write-Host "Path in WSL:- $wslPath"
 # Process the user's choice
 switch ($choice) {
     '1' {
@@ -122,8 +122,11 @@ switch ($choice) {
     }
     '5' {
         Write-Host "Database Backup."
-        # wsl -d Ubuntu /mnt/d/Jembi/jeMPI/JeMPI/devops/windows/deployment/backup_restore/dgraph-backup.sh
-        wsl -d Ubuntu $wslPath/devops/windows/deployment/backup_restore/postgres-backup.sh
+        Push-Location $currentPath/devops/windows/deployment/backup_restore/
+           wsl -d Ubuntu $wslPath/devops/windows/deployment/backup_restore/dgraph-backup.sh
+           wsl -d Ubuntu $wslPath/devops/windows/deployment/backup_restore/postgres-backup.sh
+        Pop-Location
+        
     }
     '6' {
         Write-Host "Restore Backup."
@@ -145,8 +148,7 @@ switch ($choice) {
         }
         
     }
-    '
-    8' {
+    '8' {
         Push-Location $currentPath/devops/windows/run--base-docker-wsl
             Write-Host "Installing required softwares"
             installApp $nodeUrl $nodeAppName

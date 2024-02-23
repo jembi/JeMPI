@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "$PWD"
-source ../base-docker-wsl/conf.env
+source ../../base-docker-wsl/conf.env
 # Load Environment Variables for DGraph Alpha and Zero Nodes
 DGRAPH_ALPHA_HOSTS="${DGRAPH_HOSTS:-localhost}"
 DGRAPH_ALPHA_PORTS="${DGRAPH_PORTS:-8080}"
