@@ -12,13 +12,13 @@ export interface NotificationRequest {
 
 export interface LinkRequest {
   notificationId: string
-  notificationType: String
+  notificationType: string
   interactionId: string
   resolutionState: string
   currentGoldenId: string
   currentCandidates: string[]
   newGoldenId: string
-  score?: Number
+  score?:number
 }
 
 export interface NotificationResponse {
