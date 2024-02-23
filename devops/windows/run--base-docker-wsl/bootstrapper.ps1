@@ -79,32 +79,14 @@ $api_jar                                      = "-jar " + $jempi_apps_dir + "\Je
 $def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE" 
 $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
-
 $bootstrapper_jar                             = "-jar " + $jempi_apps_dir + "\JeMPI_Bootstrapper\target\Bootstrapper-1.0-SNAPSHOT-spring-boot.jar"
+$def_postgresql_postgres                      = "-DPOSTGRESQL_DATABASE=postgres"
+$def_postgresql_user_db                       = "-DPOSTGRESQL_USERS_DB=users_db"
+$def_postgresql_notifications_db              = "-DPOSTGRESQL_NOTIFICATIONS_DB=notifications_db"
+$def_postgresql_audit_db                      = "-DPOSTGRESQL_AUDIT_DB=audit_db"
+$def_postgresql_kc_test_db                    = "-DPOSTGRESQL_KC_TEST_DB=kc_test_db"
 
-# export POSTGRESQL_USERNAME="postgres"
-# export POSTGRESQL_PASSWORD="postgres"
-# export POSTGRESQL_DATABASE="postgres"
-# export POSTGRESQL_USERS_DB="users_db"
-# export POSTGRESQL_NOTIFICATIONS_DB="notifications_db"
-# export POSTGRESQL_AUDIT_DB="audit_db"
-# export POSTGRESQL_KC_TEST_DB="kc_test_db"
-
-$def_postgresql_postgres  = "-DPOSTGRESQL_DATABASE=postgres"
-
-$def_postgresql_user_db  = "-DPOSTGRESQL_USERS_DB=users_db"
-$def_postgresql_notifications_db  = "-DPOSTGRESQL_NOTIFICATIONS_DB=notifications_db"
-$def_postgresql_audit_db  = "-DPOSTGRESQL_AUDIT_DB=audit_db"
-$def_postgresql_kc_test_db  = "-DPOSTGRESQL_KC_TEST_DB=kc_test_db"
-# 
-# build apps
-#
-# Push-Location ..\..\..\JeMPI_Apps
-#   Copy-Item JeMPI_Configuration\config-api.json JeMPI_API\src\main\resources\.
-#   mvn clean  
-#   mvn package
-# Pop-Location
-
+ Write-Host "Starting BootStrapper App"
 
 $bootstrapper_handle = Start-Process -FilePath java `
                                -ArgumentList $def_linker_log4j_level, `

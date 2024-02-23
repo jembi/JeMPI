@@ -38,7 +38,9 @@ $def_postgresql_ip                            = "-DPOSTGRESQL_IP=" + $postgresql
 $def_postgresql_port                          = "-DPOSTGRESQL_PORT=" + $postgresql_port 
 $def_postgresql_user                          = "-DPOSTGRESQL_USER=`"postgres`""
 $def_postgresql_password                      = "-DPOSTGRESQL_PASSWORD=`"postgres`""
-$def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notifications`""
+$def_postgresql_notifications_db              = "-DPOSTGRESQL_NOTIFICATIONS_DB=`"notifications_db`""
+$def_postgresql_audit_db                      = "-DPOSTGRESQL_AUDIT_DB=`"audit_db`""
+
 $def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
 $def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
 $def_etl_ip                                   = "-DETL_IP=" + $etl_ip
@@ -77,9 +79,12 @@ $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-a
 
 
 
+
+
 # 
 # build UI apps
 #
+
 
 
 # BUILD UI
@@ -103,6 +108,8 @@ Pop-Location
 # Start BootStrapper and Create databases
 #
 .\bootstrapper.ps1 -Wait
+#
+
 #
 # start async receiver
 #
@@ -176,10 +183,13 @@ $controller_handle = Start-Process -FilePath java `
                                                  $def_postgresql_user, `
                                                  $def_postgresql_password, `
                                                  $def_postgresql_notifications_db, `
+                                                 $def_postgresql_audit_db, `
                                                  $def_kafka_bootstrap_servers, `
                                                  $def_controller_kafka_application_id, `
                                                  $def_controller_kafka_client_id, `
                                                  $def_controller_http_port, `
+                                                 $def_dgraph_hosts, `
+                                                 $def_dgraph_ports, `
                                                  $def_etl_ip, `
                                                  $def_etl_http_port, `
                                                  $def_controller_ip, `
@@ -261,6 +271,7 @@ $api_handle = Start-Process -FilePath java `
                                           $def_postgresql_user, `
                                           $def_postgresql_password, `
                                           $def_postgresql_notifications_db, `
+                                          $def_postgresql_audit_db, `
                                           $def_kafka_bootstrap_servers, `
                                           $def_api_kafka_application_id, `
                                           $def_dgraph_hosts, `

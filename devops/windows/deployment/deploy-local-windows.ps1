@@ -33,7 +33,14 @@ function  installApp() {
 
     Remove-Item -Path  $localPath
 }
+
+# Start WSL in a new window
+Start-Process wsl.exe -WindowStyle Normal
+# Wait for WSL to start
+Start-Sleep -Seconds 5  # Adjust the sleep time as needed
 $wslPath = wsl.exe pwd
+Write-Host "Path in WSL:- $wslPath"
+
 # Display menu options
 Write-Host "Select an option for local deployment:"
 Write-Host "1. Deploy JeMPI (For Fresh Start)"
@@ -51,12 +58,9 @@ $choice = Read-Host "Enter the number of your choice"
 # Process the user's choice
 switch ($choice) {
     '1' {
-        
-        
         Write-Host $wslPath
         Write-Host "Deploying JeMPI "
         wsl -d Ubuntu $wslPath/devops/windows/deployment/deploy-local-wsl.sh  -Wait
-
         Start-Sleep -Seconds 30
 
         Push-Location $currentPath/JeMPI_Apps/JeMPI_Configuration
@@ -65,9 +69,9 @@ switch ($choice) {
         Pop-Location
 
         Push-Location $currentPath/devops/windows/run--base-docker-wsl
-            Write-Host "Running file: start.ps1"
+            Write-Host "start-with-bootstraper.ps1"
             # .\bootstrapper.ps1 -Wait
-            .\start.ps1 -Wait
+            .\start-with-bootstraper.ps1 -Wait
 
             Write-Host "Script completed."
             Write-Host "Running file: start-ui.ps1"
@@ -83,7 +87,7 @@ switch ($choice) {
         Pop-Location
 
         Push-Location $currentPath/devops/windows/run--base-docker-wsl
-            Write-Host "Running file: start.ps1"
+            Write-Host "start-with-bootstraper.ps1"
             .\start.ps1 -Wait
 
             Write-Host "Script completed."
