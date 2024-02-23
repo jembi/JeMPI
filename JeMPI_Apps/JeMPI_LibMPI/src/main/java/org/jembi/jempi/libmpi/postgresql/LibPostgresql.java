@@ -72,10 +72,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                                                                                                                 .patient()))
                                                                                                          .toList(),
                                                                                         new CustomUniqueGoldenRecordData(
-                                                                                              LocalDateTime.now(),
-                                                                                              true,
-                                                                                              interaction.uniqueInteractionData()
-                                                                                                         .auxId()),
+                                                                                              interaction.uniqueInteractionData()),
                                                                                         goldenRecord.data()),
                                                                        PostgresqlQueries.getScore(goldenRecord.uid(),
                                                                                                   UUID.fromString(eid)))));
@@ -92,7 +89,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                               sourceIds.stream()
                                        .map(x -> new CustomSourceId(x.id().toString(), x.data().facility(), x.data().patient()))
                                        .toList(),
-                              new CustomUniqueGoldenRecordData(LocalDateTime.now(), true, "AUX_ID"),
+                              new CustomUniqueGoldenRecordData(null),
                               goldenRecord.data());
    }
 
@@ -278,7 +275,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
                       eid,
                       Edge.EdgeName.GID2IID,
                       new FacetScore(goldenIdScore.score()));
-      return new LinkInfo(goldenIdScore.goldenId(), eid.toString(), goldenIdScore.score());
+      return new LinkInfo(goldenIdScore.goldenId(), eid.toString(), null, goldenIdScore.score());
    }
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
@@ -291,7 +288,7 @@ public final class LibPostgresql implements LibMPIClientInterface {
       Edge.createEdge(gid, sid, Edge.EdgeName.GID2SID);
       Edge.createEdge(gid, iid, Edge.EdgeName.GID2IID, new FacetScore(score));
 
-      return new LinkInfo(gid.toString(), iid.toString(), score);
+      return new LinkInfo(gid.toString(), iid.toString(), null, score);
    }
 
    public void startTransaction() {

@@ -24,8 +24,6 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     headerName: 'Date',
     type: 'date',
     flex: 1,
-    sortable: true,
-    sortingOrder: ['desc'],
     filterable: false,
     headerClassName: 'super-app-theme--header',
     renderCell: (params: GridRenderCellParams) =>

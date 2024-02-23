@@ -12,7 +12,6 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useAppConfig } from '../../hooks/useAppConfig'
-import ApiClient from '../../services/ApiClient'
 import {
   ApiSearchResult,
   CustomSearchQuery,
@@ -20,22 +19,21 @@ import {
 } from '../../types/SimpleSearch'
 import PageHeader from '../shell/PageHeader'
 import { useLocation } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
 
 type SearchResultProps = {
   isGoldenRecord: boolean
   title: string
 }
 
-const SearchResult: React.FC<SearchResultProps> = ({
-  isGoldenRecord,
-  title
-}) => {
+const SearchResult: React.FC<SearchResultProps> = ({ isGoldenRecord }) => {
   const {
     state: { payload: searchPayload }
   } = useLocation()
   const [payload, setPayLoad] = useState<SearchQuery | CustomSearchQuery>(
     searchPayload || ({} as CustomSearchQuery)
   )
+  const { apiClient } = useConfig()
   const { availableFields } = useAppConfig()
 
   const columns: GridColDef[] = useMemo(
@@ -87,7 +85,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   >({
     queryKey: [isGoldenRecord ? 'golden-record' : 'patient-record', payload],
     queryFn: () => {
-      return ApiClient.searchQuery(payload, isGoldenRecord)
+      return apiClient.searchQuery(payload, isGoldenRecord)
     },
     refetchOnWindowFocus: false
   })
@@ -120,7 +118,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
   return (
     <Container maxWidth={false}>
       <PageHeader
-        description={title}
         title="Search Results"
         breadcrumbs={[
           {

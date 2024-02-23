@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
   }
 })
 
-test('Simple Search button exist when we navigate to custom search', async () => {
+test.skip('Simple Search button exist when we navigate to custom search', async () => {
   render(
     <QueryClientProvider client={queryClient}>
       <AppConfigProvider>

@@ -24,16 +24,15 @@ final class Edge {
          final UUID uid1,
          final UUID uid2,
          final EdgeName edgeName) {
-      try (var stmt = PostgresqlClient.getInstance().prepareStatement(
-            String.format(Locale.ROOT,
-                          """
-                          INSERT INTO %s (source, dest, name) VALUES ('%s', '%s', '%s');
-                          """,
-                          TABLE_EDGES,
-                          uid1.toString(), uid2.toString(), edgeName.name()).stripIndent()
-                  .stripIndent(),
-            Statement.RETURN_GENERATED_KEYS)
-      ) {
+      try (var stmt = PostgresqlClient.getInstance().prepareStatement(String.format(Locale.ROOT,
+                                                                                    """
+                                                                                    INSERT INTO %s (source, dest, name) VALUES ('%s', '%s', '%s');
+                                                                                    """,
+                                                                                    TABLE_EDGES,
+                                                                                    uid1.toString(),
+                                                                                    uid2.toString(),
+                                                                                    edgeName.name()).stripIndent().stripIndent(),
+                                                                      Statement.RETURN_GENERATED_KEYS)) {
          stmt.executeUpdate();
          try (ResultSet keys = stmt.getGeneratedKeys()) {
             keys.next();
@@ -48,19 +47,16 @@ final class Edge {
          final UUID uid2,
          final EdgeName edgeName,
          final Facet facet) {
-      try (var stmt = PostgresqlClient.getInstance().prepareStatement(
-            String.format(Locale.ROOT,
-                          """
-                          INSERT INTO %s (source, dest, name, facet) VALUES ('%s', '%s', '%s', '%s');
-                          """,
-                          TABLE_EDGES,
-                          uid1.toString(),
-                          uid2.toString(),
-                          edgeName.name(),
-                          OBJECT_MAPPER.writeValueAsString(facet))
-                  .stripIndent(),
-            Statement.RETURN_GENERATED_KEYS)
-      ) {
+      try (var stmt = PostgresqlClient.getInstance().prepareStatement(String.format(Locale.ROOT,
+                                                                                    """
+                                                                                    INSERT INTO %s (source, dest, name, facet) VALUES ('%s', '%s', '%s', '%s');
+                                                                                    """,
+                                                                                    TABLE_EDGES,
+                                                                                    uid1.toString(),
+                                                                                    uid2.toString(),
+                                                                                    edgeName.name(),
+                                                                                    OBJECT_MAPPER.writeValueAsString(facet))
+                                                                            .stripIndent(), Statement.RETURN_GENERATED_KEYS)) {
          stmt.executeUpdate();
          try (ResultSet keys = stmt.getGeneratedKeys()) {
             keys.next();

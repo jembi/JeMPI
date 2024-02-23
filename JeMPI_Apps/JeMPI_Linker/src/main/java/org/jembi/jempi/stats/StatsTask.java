@@ -156,6 +156,7 @@ public final class StatsTask {
             LOGGER.info("Sub Lists:            {}", subLists);
             LOGGER.info("Final Sub List Size:  {}", finalSubListSize);
          }
+
          int fromIdx;
          int toIdx;
          for (long i = 0; i < subLists; i++) {
@@ -196,19 +197,21 @@ public final class StatsTask {
          if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Golden Records Found: {}", dataSet.size());
             LOGGER.info("TP:{}  FP:{}  FN:{}  Precision:{}  Recall:{}  F-score:{}",
-                        truePositives[0], falsePositives[0], falseNegatives[0],
-                        precision, recall, fScore);
+                        truePositives[0],
+                        falsePositives[0],
+                        falseNegatives[0],
+                        precision,
+                        recall,
+                        fScore);
          }
-         return new StatsResults(
-               interactionCount,
-               goldenRecords,
-               truePositives[0],
-               falsePositives[0],
-               falseNegatives[0],
-               precision,
-               recall,
-               fScore);
-
+         return new StatsResults(interactionCount,
+                                 goldenRecords,
+                                 truePositives[0],
+                                 falsePositives[0],
+                                 falseNegatives[0],
+                                 precision,
+                                 recall,
+                                 fScore);
       } catch (IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

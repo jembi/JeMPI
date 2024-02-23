@@ -1,5 +1,4 @@
-import { AxiosRequestConfig } from 'axios'
-import { config } from '../config'
+import { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { AuditTrailEntries } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
@@ -9,9 +8,8 @@ import {
   FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
-import { OAuthParams, User } from '../types/User'
+import { OAuthParams } from '../types/User'
 import ROUTES from './apiRoutes'
-import axiosInstance from './axios'
 import moxios from './mockBackend'
 import {
   NotificationResponse,
@@ -20,7 +18,8 @@ import {
   InteractionWithScore,
   NotificationRequest,
   LinkRequest,
-  GoldenRecordCandidatesResponse
+  GoldenRecordCandidatesResponse,
+  DashboardData
 } from 'types/BackendResponse'
 import {
   GoldenRecord,
@@ -29,23 +28,75 @@ import {
   PatientRecord
 } from 'types/PatientRecord'
 import { Notifications } from 'types/Notification'
+import { Config } from 'config'
+import axios from 'axios'
+import { getCookie } from '../utils/misc'
 
-const client = config.shouldMockBackend ? moxios : axiosInstance
+const apiClientAuth = (() => {
+  const authKey = 'jempi-auth-key'
+  return {
+    clearAuthToken: async () => {
+      await localStorage.removeItem(authKey)
+    },
+    getAuthToken: async () => {
+      return await localStorage.getItem(authKey)
+    },
+    setAuthToken: async (token: string) => {
+      await localStorage.setItem(authKey, token)
+    }
+  }
+})()
 
-class ApiClient {
+export class ApiClient {
+  client!: AxiosInstance
+
+  async init(config: Config) {
+    if (process.env.NODE_ENV === 'test') {
+      this.client = moxios
+    } else {
+      const axiosInstance = axios.create({
+        withCredentials: true,
+        baseURL: config.apiUrl
+          ? `${config.apiUrl}/JeMPI`
+          : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}/JeMPI`,
+        responseType: 'json'
+      })
+
+      // Add a request interceptor to set CSRF and update loading state
+      axiosInstance.interceptors.request.use(async request => {
+        const { method } = request
+        if (['post', 'patch', 'put', 'delete'].indexOf(method || '') !== -1) {
+          const csrfToken = getCookie('XSRF-TOKEN')
+          if (csrfToken && request.headers) {
+            request.headers['X-XSRF-TOKEN'] = csrfToken
+          }
+        }
+
+        const authToken = await apiClientAuth.getAuthToken()
+        if (authToken && request.headers) {
+          request.headers['authorization'] = authToken
+        }
+
+        return request
+      })
+      this.client = axiosInstance
+    }
+  }
+
   async getFields() {
-    const { data } = await client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
+    const { data } = await this.client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
     return data
   }
 
   async getMatches(
     limit: number,
     offset: number,
-    created: string,
-    state: string
+    startDay: string,
+    endDay: string,
+    states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&date=${created}&offset=${offset}&state=${state}`
-    const { data } = await client.get<NotificationResponse>(url)
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
+    const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -63,8 +114,15 @@ class ApiClient {
     }
   }
 
+  async getDashboardData() {
+    const { data } = await this.client.get<DashboardData>(
+      ROUTES.GET_DASHBOARD_DATA
+    )
+    return data
+  }
+
   async getInteraction(uid: string) {
-    const { data } = await client.get<Interaction>(
+    const { data } = await this.client.get<Interaction>(
       `${ROUTES.GET_INTERACTION}/${uid}`
     )
     return data
@@ -73,7 +131,7 @@ class ApiClient {
   async getGoldenRecord(uid: string): Promise<GoldenRecord> {
     const {
       data: { goldenRecord, interactionsWithScore }
-    } = await client.get<ExpandedGoldenRecordResponse>(
+    } = await this.client.get<ExpandedGoldenRecordResponse>(
       `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
     )
     return {
@@ -116,19 +174,20 @@ class ApiClient {
   }
 
   async updateNotification(request: NotificationRequest) {
-    const { data } = await client.post(ROUTES.POST_UPDATE_NOTIFICATION, request)
+    const { data } = await this.client.post(
+      ROUTES.POST_UPDATE_NOTIFICATION,
+      request
+    )
     return data
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}`
-    const { data } = await client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_NEW_GID_LINK, request)
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${linkRequest.goldenID}&newGoldenID=${linkRequest.newGoldenID}&patientID=${linkRequest.patientID}&score=2`
-    const { data } = await client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_GID_LINK, linkRequest)
     return data
   }
 
@@ -140,7 +199,10 @@ class ApiClient {
     const endpoint = `${
       isCustomSearch ? ROUTES.POST_CUSTOM_SEARCH : ROUTES.POST_SIMPLE_SEARCH
     }/${isGoldenOnly ? 'golden' : 'patient'}`
-    const { data: querySearchResponse } = await client.post(endpoint, request)
+    const { data: querySearchResponse } = await this.client.post(
+      endpoint,
+      request
+    )
     if (isGoldenOnly) {
       const { pagination, data } =
         querySearchResponse as ApiSearchResponse<ExpandedGoldenRecordResponse>
@@ -191,7 +253,7 @@ class ApiClient {
   }
 
   async getFilteredGoldenIds(request: FilterQuery) {
-    const { data } = await client.post<{
+    const { data } = await this.client.post<{
       data: string[]
       pagination: { total: number }
     }>(ROUTES.POST_FILTER_GIDS, request)
@@ -201,7 +263,7 @@ class ApiClient {
   async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
     const {
       data: { data, interactionCount, pagination }
-    } = await client.post<{
+    } = await this.client.post<{
       data: string[]
       interactionCount: { total: number }
       pagination: { total: number }
@@ -216,7 +278,7 @@ class ApiClient {
   async getExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<GoldenRecord[]> {
-    const { data } = await client.get<Array<ExpandedGoldenRecordResponse>>(
+    const { data } = await this.client.get<Array<ExpandedGoldenRecordResponse>>(
       ROUTES.GET_EXPANDED_GOLDEN_RECORDS,
       {
         params: { uidList: goldenIds?.toString() }
@@ -264,7 +326,7 @@ class ApiClient {
     demographicData: DemographicData,
     candidateThreshold: number
   ): Promise<GoldenRecord[]> {
-    const { data } = await client.post<GoldenRecordCandidatesResponse>(
+    const { data } = await this.client.post<GoldenRecordCandidatesResponse>(
       ROUTES.POST_CR_CANDIDATES,
       { demographicData, candidateThreshold }
     )
@@ -284,7 +346,7 @@ class ApiClient {
   async getGoldenRecordAuditTrail(gid: string) {
     const {
       data: { entries }
-    } = await client.get<AuditTrailEntries>(
+    } = await this.client.get<AuditTrailEntries>(
       ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
       {
         params: {
@@ -298,7 +360,7 @@ class ApiClient {
   async getInteractionAuditTrail(iid: string) {
     const {
       data: { entries }
-    } = await client.get<AuditTrailEntries>(
+    } = await this.client.get<AuditTrailEntries>(
       ROUTES.GET_INTERACTION_AUDIT_TRAIL,
       {
         params: {
@@ -310,21 +372,37 @@ class ApiClient {
   }
 
   async validateOAuth(oauthParams: OAuthParams) {
-    const { data } = await client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
-    return data as User
+    const response = await this.client.post(ROUTES.VALIDATE_OAUTH, oauthParams)
+    if (
+      response.status == 200 &&
+      response.data &&
+      'set-authorization' in response.headers
+    ) {
+      await apiClientAuth.setAuthToken(
+        response.headers['set-authorization'] as string
+      )
+      return response.data
+    }
+    throw new Error(
+      `Got response from server but not all authentication details were present. Failed to validate`
+    )
   }
 
   async getCurrentUser() {
-    const { data } = await client.get(ROUTES.CURRENT_USER)
-    return data
+    const { data } = await this.client.get(ROUTES.CURRENT_USER)
+    return typeof data === 'string' && data.length === 0 ? null : data
   }
 
   async logout() {
-    return await client.get(ROUTES.LOGOUT)
+    const response = await this.client.get(ROUTES.LOGOUT)
+    if (response.status == 200) {
+      await apiClientAuth.clearAuthToken()
+    }
+    return response
   }
 
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
-    const response = await client.patch(
+    const response = await this.client.patch(
       `${ROUTES.PATCH_GOLDEN_RECORD}/${uid}`,
       request
     )
@@ -332,7 +410,7 @@ class ApiClient {
   }
 
   uploadFile = async (requestConfig: AxiosRequestConfig<FormData>) => {
-    const { data } = await client.post(
+    const { data } = await this.client.post(
       ROUTES.UPLOAD,
       requestConfig.data,
       requestConfig
@@ -341,4 +419,9 @@ class ApiClient {
   }
 }
 
-export default new ApiClient()
+const apiClient = new ApiClient()
+
+export function getApiClient(config: Config) {
+  apiClient.init(config)
+  return apiClient
+}

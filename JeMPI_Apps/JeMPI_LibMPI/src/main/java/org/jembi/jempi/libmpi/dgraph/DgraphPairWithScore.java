@@ -6,5 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 record DgraphPairWithScore(
       String goldenUID,
       String interactionUID,
-      float score) {}
+      float score) {
+}
 

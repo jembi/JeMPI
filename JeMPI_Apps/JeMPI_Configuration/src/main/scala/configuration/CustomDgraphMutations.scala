@@ -4,17 +4,18 @@ import java.io.{File, PrintWriter}
 
 private object CustomDgraphMutations {
 
-  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
+  private val classLocation =
+    "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val custom_className = "CustomDgraphMutations"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(config: Config): Unit =
-    val classFile: String = classLocation + File.separator + custom_className + ".java"
+    val classFile: String =
+      classLocation + File.separator + custom_className + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
-    writer.println(
-      s"""package $packageText;
+    writer.println(s"""package $packageText;
          |
          |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
          |import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
@@ -68,18 +69,17 @@ private object CustomDgraphMutations {
     writer.flush()
     writer.close()
 
-
     def checkToString(v: String): String =
       v match
-        case "Bool" => ".toString()"
+        case "Bool"     => ".toString()"
         case "DateTime" => ".toString()"
-        case _ => ""
+        case _          => ""
     end checkToString
 
     def castAs(t: String): String =
       t match
-        case "String" => ""
-        case "Bool" => "^^<xs:boolean>"
+        case "String"   => ""
+        case "Bool"     => "^^<xs:boolean>"
         case "DateTime" => "^^<xs:dateTime>"
     end castAs
 
@@ -90,17 +90,16 @@ private object CustomDgraphMutations {
         s"""${" " * 27}_:%s  <Interaction.$fieldName>${" " * (30 - fieldName.length)}%s$c${" " * (20 - c.length)}."""
       end mapField
 
-      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => mapField(f.fieldName, f.fieldType))
-          .mkString("\n") + "\n"
+      val f1 =
+        if (config.uniqueInteractionFields.isEmpty) ""
+        else
+          config.uniqueInteractionFields.get
+            .map(f => mapField(f.fieldName, f.fieldType))
+            .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config
-        .demographicFields
+      val f2 = config.demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
     end interactionFields
@@ -108,24 +107,28 @@ private object CustomDgraphMutations {
     def interactionArguments(): String =
 
       def mapUniqueField(f: UniqueField): String =
-        s"""AppUtils.quotedValue(uniqueInteractionData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
+        s"""AppUtils.quotedValue(uniqueInteractionData.${Utils
+            .snakeCaseToCamelCase(f.fieldName)}()${checkToString(
+            f.fieldType
+          )})"""
       end mapUniqueField
 
       def mapCommonField(f: DemographicField): String =
-        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
+        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(
+            f.fieldName
+          )})${checkToString(f.fieldType)}"""
       end mapCommonField
 
-      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
-          .mkString("\n") + "\n"
+      val f1 =
+        if (config.uniqueInteractionFields.isEmpty) ""
+        else
+          config.uniqueInteractionFields.get
+            .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
+            .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config
-        .demographicFields
+      val f2 = config.demographicFields
         .map(f => s"""${" " * 27}uuid, ${mapCommonField(f)},""")
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 
@@ -138,17 +141,16 @@ private object CustomDgraphMutations {
         s"""${" " * 27}_:%s  <GoldenRecord.${fieldName}>${" " * (30 - fieldName.length)}%s$c${" " * (20 - c.length)}."""
       end mapField
 
-      val f1 = if (config.uniqueGoldenRecordFields.isEmpty) "" else
-        config
-          .uniqueGoldenRecordFields
-          .get
-          .map(f => mapField(f.fieldName, f.fieldType))
-          .mkString("\n") + "\n"
+      val f1 =
+        if (config.uniqueGoldenRecordFields.isEmpty) ""
+        else
+          config.uniqueGoldenRecordFields.get
+            .map(f => mapField(f.fieldName, f.fieldType))
+            .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config
-        .demographicFields
+      val f2 = config.demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 
@@ -157,26 +159,28 @@ private object CustomDgraphMutations {
     def goldenRecordArguments(): String =
 
       def mapUniqueField(f: UniqueField): String =
-        s"""AppUtils.quotedValue(uniqueGoldenRecordData.${Utils.snakeCaseToCamelCase(f.fieldName)}()${checkToString(f.fieldType)})"""
+        s"""AppUtils.quotedValue(uniqueGoldenRecordData.${Utils
+            .snakeCaseToCamelCase(f.fieldName)}()${checkToString(
+            f.fieldType
+          )})"""
       end mapUniqueField
 
       def mapDemographicField(f: DemographicField): String =
-        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(f.fieldName)})${checkToString(f.fieldType)}"""
+        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(
+            f.fieldName
+          )})${checkToString(f.fieldType)}"""
       end mapDemographicField
 
-      val f1 = if (config.uniqueGoldenRecordFields.isEmpty) "" else
-        config
-          .uniqueGoldenRecordFields
-          .get
-          .map(f =>
-            s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
-          .mkString("\n") + "\n"
+      val f1 =
+        if (config.uniqueGoldenRecordFields.isEmpty) ""
+        else
+          config.uniqueGoldenRecordFields.get
+            .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
+            .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config
-        .demographicFields
-        .map(f =>
-          s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
-        .mkString("\n")
+      val f2 = config.demographicFields
+        .map(f => s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
 

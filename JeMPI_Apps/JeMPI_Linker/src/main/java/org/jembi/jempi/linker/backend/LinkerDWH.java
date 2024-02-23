@@ -3,27 +3,33 @@ package org.jembi.jempi.linker.backend;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
+import static org.jembi.jempi.shared.models.CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-final class LinkerDWH {
+public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
+
+   private static MyKafkaProducer<String, LinkStatsMeta> linkStatsMetaProducer = null;
 
    private LinkerDWH() {
    }
@@ -82,21 +88,10 @@ final class LinkerDWH {
          final LibMPI libMPI,
          final float threshold,
          final ExpandedGoldenRecord expandedGoldenRecord) {
-      if (LOGGER.isTraceEnabled()) {
-         expandedGoldenRecord.interactionsWithScore().forEach(interactionWithScore -> LOGGER.trace("{} -> {} : {}",
-                                                                                                   interactionWithScore.interaction()
-                                                                                                                       .uniqueInteractionData()
-                                                                                                                       .auxId(),
-                                                                                                   expandedGoldenRecord.goldenRecord()
-                                                                                                                       .customUniqueGoldenRecordData()
-                                                                                                                       .auxId(),
-                                                                                                   interactionWithScore.score()));
-      }
       expandedGoldenRecord.interactionsWithScore().forEach(interactionWithScore -> {
          final var interaction = interactionWithScore.interaction();
-         final var score =
-               LinkerUtils.calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
-                                               interaction.demographicData());
+         final var score = LinkerUtils.calcNormalizedScore(expandedGoldenRecord.goldenRecord().demographicData(),
+                                                           interaction.demographicData());
 
          if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("{} -- {} : {}", interactionWithScore.score(), score, abs(interactionWithScore.score() - score) > 1E-2);
@@ -123,11 +118,29 @@ final class LinkerDWH {
       });
    }
 
-   static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
+   // +
+   public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
-         final float matchThreshold_) {
+         final float matchThreshold_,
+         final String envelopStan) {
+
+//      if (LOGGER.isTraceEnabled()) {
+//         LOGGER.trace("{}", envelopStan);
+//      }
+
+      LinkStatsMeta.ConfusionMatrix confusionMatrix;
+      CustomFieldTallies customFieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
+
+      if (linkStatsMetaProducer == null) {
+         linkStatsMetaProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                       GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
+                                                       stringSerializer(),
+                                                       linkStatsMetaSerializer(),
+                                                       "LinkerDWH-MU-TALLIES");
+      }
+
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
          libMPI.startTransaction();
          if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
@@ -136,32 +149,29 @@ final class LinkerDWH {
             if (candidates.isEmpty()) {
                try {
                   final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
-                  final var f =
-                        """
-                        MATCH NOTIFICATION NO CANDIDATE
-                        {}""";
+                  final var f = """
+                                MATCH NOTIFICATION NO CANDIDATE
+                                {}""";
                   LOGGER.info(f, i);
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }
             } else {
-               final var workCandidate =
-                     candidates.parallelStream()
-                               .unordered()
-                               .map(candidate -> new WorkCandidate(candidate,
-                                                                   LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                                   interaction.demographicData())))
-                               .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                               .collect(Collectors.toCollection(ArrayList::new))
-                               .get(0);
+               final var workCandidate = candidates.parallelStream()
+                                                   .unordered()
+                                                   .map(candidate -> new WorkCandidate(candidate,
+                                                                                       LinkerUtils.calcNormalizedScore(candidate.demographicData(),
+                                                                                                                       interaction.demographicData())))
+                                                   .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                                   .collect(Collectors.toCollection(ArrayList::new))
+                                                   .getFirst();
                try {
                   final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
                   final var g = OBJECT_MAPPER.writeValueAsString(workCandidate.goldenRecord().demographicData());
-                  final var f =
-                        """
-                        MATCH NOTIFICATION
-                        {}
-                        {}""";
+                  final var f = """
+                                MATCH NOTIFICATION
+                                {}
+                                {}""";
                   LOGGER.info(f, i, g);
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
@@ -178,19 +188,44 @@ final class LinkerDWH {
                : matchThreshold_;
          try {
             libMPI.startTransaction();
-            LinkerProbabilistic.checkUpdatedMU();
+            CustomLinkerProbabilistic.checkUpdatedLinkMU();
             final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
+            LOGGER.debug("{} : {}", envelopStan, candidateGoldenRecords.size());
             if (candidateGoldenRecords.isEmpty()) {
                linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+               confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 1.0, 0.0);
             } else {
-               final var allCandidateScores =
-                     candidateGoldenRecords.parallelStream()
-                                           .unordered()
-                                           .map(candidate -> new WorkCandidate(candidate,
-                                                                               LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                                               interaction.demographicData())))
-                                           .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                           .collect(Collectors.toCollection(ArrayList::new));
+               final var allCandidateScores = candidateGoldenRecords
+                     .parallelStream()
+                     .unordered()
+                     .map(candidate -> new WorkCandidate(candidate,
+                                                         LinkerUtils.calcNormalizedScore(
+                                                               candidate.demographicData(),
+                                                               interaction.demographicData())))
+                     .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                     .collect(Collectors.toCollection(ArrayList::new));
+
+               // DO SOME TALLYING
+               customFieldTallies = IntStream
+                     .range(0, allCandidateScores.size())
+                     .parallel()
+                     .mapToObj(i -> {
+                        final var workCandidate = allCandidateScores.get(i);
+                        return CustomFieldTallies.map(i == 0 && workCandidate.score >= matchThreshold,
+                                                      interaction.demographicData(),
+                                                      workCandidate.goldenRecord.demographicData());
+                     })
+                     .reduce(CUSTOM_FIELD_TALLIES_SUM_IDENTITY, CustomFieldTallies::sum);
+               final var score = allCandidateScores.getFirst().score;
+               if (score >= matchThreshold + 0.1) {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(1.0, 0.0, 0.0, 0.0);
+               } else if (score >= matchThreshold) {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.80, 0.20, 0.0, 0.0);
+               } else if (score >= matchThreshold - 0.1) {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 0.20, 0.80);
+               } else {
+                  confusionMatrix = new LinkStatsMeta.ConfusionMatrix(0.0, 0.0, 1.0, 0.0);
+               }
 
                // Get a list of candidates withing the supplied for external link range
                final var candidatesInExternalLinkRange = externalLinkRange == null
@@ -202,26 +237,19 @@ final class LinkerDWH {
                // Get a list of candidates above the supplied threshold
                final var belowThresholdNotifications = new ArrayList<Notification.MatchData>();
                final var aboveThresholdNotifications = new ArrayList<Notification.MatchData>();
-               final var candidatesAboveMatchThreshold =
-                     allCandidateScores
-                           .stream()
-                           .peek(v -> {
-                              if (v.score() > matchThreshold - 0.1 && v.score() < matchThreshold) {
-                                 belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(),
-                                                                                            v.score()));
-                              } else if (v.score() >= matchThreshold && v.score() < matchThreshold + 0.1) {
-                                 aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(),
-                                                                                            v.score()));
-                              }
-                           })
-                           .filter(v -> v.score() >= matchThreshold)
-                           .collect(Collectors.toCollection(ArrayList::new));
+               final var candidatesAboveMatchThreshold = allCandidateScores.stream().peek(v -> {
+                  if (v.score() > matchThreshold - 0.1 && v.score() < matchThreshold) {
+                     belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                  } else if (v.score() >= matchThreshold && v.score() < matchThreshold + 0.1) {
+                     aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                  }
+               }).filter(v -> v.score() >= matchThreshold).collect(Collectors.toCollection(ArrayList::new));
 
                if (candidatesAboveMatchThreshold.isEmpty()) {
                   if (candidatesInExternalLinkRange.isEmpty()) {
                      linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                      if (!belowThresholdNotifications.isEmpty()) {
-                        sendNotification(Notification.NotificationType.THRESHOLD,
+                        sendNotification(Notification.NotificationType.BELOW_THRESHOLD,
                                          linkInfo.interactionUID(),
                                          AppUtils.getNames(interaction.demographicData()),
                                          new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
@@ -233,7 +261,7 @@ final class LinkerDWH {
                            candidate.score)));
                   }
                } else {
-                  final var firstCandidate = candidatesAboveMatchThreshold.get(0);
+                  final var firstCandidate = candidatesAboveMatchThreshold.getFirst();
                   final var linkToGoldenId =
                         new LibMPIClientInterface.GoldenIdScore(firstCandidate.goldenRecord.goldenId(), firstCandidate.score);
                   final var validated1 =
@@ -242,18 +270,20 @@ final class LinkerDWH {
                   final var validated2 =
                         CustomLinkerProbabilistic.validateProbabilisticScore(firstCandidate.goldenRecord.demographicData(),
                                                                              interaction.demographicData());
-                  linkInfo =
-                        libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
-                                                                              linkToGoldenId,
-                                                                              validated1,
-                                                                              validated2);
+                  linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
+                                                                                   linkToGoldenId,
+                                                                                   validated1,
+                                                                                   validated2);
 
                   if (linkToGoldenId.score() <= matchThreshold + 0.1) {
-                     sendNotification(Notification.NotificationType.THRESHOLD,
+                     sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
                                       linkInfo.interactionUID(),
                                       AppUtils.getNames(interaction.demographicData()),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
-                                      aboveThresholdNotifications);
+                                      aboveThresholdNotifications.stream()
+                                                                 .filter(m -> !Objects.equals(m.gID(),
+                                                                                              firstCandidate.goldenRecord.goldenId()))
+                                                                 .collect(Collectors.toCollection(ArrayList::new)));
                   }
                   if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
                      CustomLinkerBackEnd.updateGoldenRecordFields(libMPI,
@@ -284,6 +314,14 @@ final class LinkerDWH {
          } finally {
             libMPI.closeTransaction();
          }
+         linkStatsMetaProducer.produceAsync("123",
+                                            new LinkStatsMeta(confusionMatrix, customFieldTallies),
+                                            ((metadata, exception) -> {
+                                               if (exception != null) {
+                                                  LOGGER.error(exception.toString());
+                                               }
+                                            }));
+
          return linkInfo == null
                ? Either.right(externalLinkCandidateList)
                : Either.left(linkInfo);
@@ -304,7 +342,15 @@ final class LinkerDWH {
       }
    }
 
-   private record WorkCandidate(
+   private static Serializer<String> stringSerializer() {
+      return new StringSerializer();
+   }
+
+   private static Serializer<LinkStatsMeta> linkStatsMetaSerializer() {
+      return new JsonPojoSerializer<>();
+   }
+
+   public record WorkCandidate(
          GoldenRecord goldenRecord,
          float score) {
    }

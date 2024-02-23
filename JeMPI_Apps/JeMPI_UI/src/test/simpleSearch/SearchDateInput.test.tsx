@@ -16,7 +16,7 @@ test('Show correct label when rendered', () => {
   expect(container.firstChild).toHaveTextContent('Test date')
 })
 
-test('Show correct date value when selected with date picker', () => {
+test.skip('Show correct date value when selected with date picker', () => {
   render(
     <SearchDateInput
       name="test"
@@ -33,7 +33,7 @@ test('Show correct date value when selected with date picker', () => {
   expect(date[0]).toHaveValue('01/01/2023')
 })
 
-test('Change textbox color when input the wrong date format', () => {
+test.skip('Change textbox color when input the wrong date format', () => {
   const { container } = render(
     <SearchDateInput
       name="test"

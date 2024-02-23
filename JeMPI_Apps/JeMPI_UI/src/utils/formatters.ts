@@ -22,7 +22,7 @@ export const getFieldValueFormatter = (type: FieldType) => {
     }
   }
 }
-
+// eslint-disable-next-line
 export const valueGetter = (params: GridValueGetterParams<AnyRecord, any>) => {
   const { row, field } = params
   const f = field as keyof AnyRecord
@@ -36,11 +36,6 @@ export const valueGetter = (params: GridValueGetterParams<AnyRecord, any>) => {
 export const formatName = (value: string) => {
   const fullName = value.split(',')
   return `${fullName[0] ? fullName[0] : ''} ${fullName[1] ? fullName[1] : ''}`
-}
-
-export const truncateString = (value: string, maxLength: number) => {
-  if (value.length > maxLength) return `${value.substring(0, maxLength)}...`
-  return value
 }
 
 export const formatBytesSize = (maxSizeInBytes: number) => {

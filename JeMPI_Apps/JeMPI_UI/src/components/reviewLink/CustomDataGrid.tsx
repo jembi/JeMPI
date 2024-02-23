@@ -3,6 +3,7 @@ import {
   GridCellParams,
   GridColDef,
   GridRenderCellParams,
+  GridValidRowModel,
   GridValueFormatterParams,
   DataGrid as MuiDataGrid
 } from '@mui/x-data-grid'
@@ -15,7 +16,7 @@ import { useMemo } from 'react'
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-interface CustomDataGridProps extends PartialBy<DataGridProps, 'columns'> {
+interface CustomDataGridProps<R extends GridValidRowModel> extends PartialBy<DataGridProps<R>, 'columns'> {
   action?: (uid: string) => void
 }
 
@@ -35,12 +36,12 @@ const getCellClassName = (
   } else return ''
 }
 
-const CustomDataGrid: React.FC<CustomDataGridProps> = ({
+const CustomDataGrid = <R extends GridValidRowModel>({
   sx,
   rows,
   action,
   ...props
-}) => {
+}: CustomDataGridProps<R>) => {
   const { availableFields } = useAppConfig()
 
   const fieldColumns: GridColDef[] = availableFields.map(
@@ -59,7 +60,7 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
       cellClassName: (params: GridCellParams) =>
         fieldName === 'recordType'
           ? getRecordTypeClassName(params)
-          : getCellClassName(params, groups, rows[0]),
+          : getCellClassName(params, groups, rows[0] as any as AnyRecord),
       renderCell: (params: GridRenderCellParams) =>
         getCellComponent(fieldName, params)
     })
@@ -67,26 +68,24 @@ const CustomDataGrid: React.FC<CustomDataGridProps> = ({
 
   const columns: GridColDef[] = useMemo(
     () =>
-      action
-        ? [
-            ...fieldColumns,
-            {
-              field: 'action',
-              type: 'action',
-              headerName: 'Action',
-              flex: 1,
-              sortable: false,
-              filterable: false,
-              align: 'center',
-              headerAlign: 'center',
-              headerClassName: 'super-app-theme--linkHeader',
-              renderCell: (params: GridRenderCellParams) =>
-                getCellComponent('actions', params, () => {
-                  if (action) action(params.row.uid)
-                })
-            }
-          ]
-        : fieldColumns,
+      [ 
+        ...fieldColumns,
+        {
+          field: 'action',
+          type: 'action',
+          headerName: action ? 'Action' : '',
+          flex: 1,
+          sortable: false,
+          filterable: false,
+          align: 'center',
+          headerAlign: 'center',
+          headerClassName: 'super-app-theme--linkHeader',
+          renderCell: (params: GridRenderCellParams) =>
+            action ? getCellComponent('actions', params, () => {
+              if (action) action(params.row.uid)
+            }) : null
+        }
+      ],
     [action, fieldColumns]
   )
 

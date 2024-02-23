@@ -1,82 +1,82 @@
 import { People } from '@mui/icons-material'
-import { Box, Container, Divider, Paper, Stack, debounce } from '@mui/material'
-import { DataGrid, GridFilterModel } from '@mui/x-data-grid'
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Paper,
+  Stack,
+  debounce
+} from '@mui/material'
+import { DataGrid, GridFilterModel, gridClasses } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import Loading from 'components/common/Loading'
 import ApiErrorMessage from 'components/error/ApiErrorMessage'
 import NotFound from 'components/error/NotFound'
-import ApiClient from '../../services/ApiClient'
-import Notification, { Notifications } from '../../types/Notification'
+import Notification, {
+  NotificationState,
+  Notifications
+} from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
-import locale from 'dayjs/locale/uk'
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
+import CustomPagination from 'components/shared/CustomDataGridPagination'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import MultiSelect from 'components/shared/MultiSelect'
 
 const NotificationWorklist = () => {
   const navigate = useNavigate()
-  const selectedDate = dayjs().locale({
-    ...locale
-  })
-  const [date, setDate] = React.useState(selectedDate)
+  const { apiClient } = useConfig()
+  const [selectedStates, setSelectedStates] = useState([NotificationState.OPEN])
+  const [startDateFilter, setStartDateFilter] = useState<Dayjs>(
+    dayjs().startOf('day')
+  )
+  const [endDateFilter, setEndDateFilter] = useState<Dayjs>(
+    dayjs().endOf('day')
+  )
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10
+    pageSize: 25
   })
   const [filterModel, setFilterModel] = useState<GridFilterModel>({
-    items: [{ field: 'state', value: 'New', operator: 'contains' }]
+    items: [{ field: 'state', value: 'OPEN', operator: 'contains' }]
   })
-  const { data, error, isLoading, isFetching } = useQuery<
+
+  const { data, error, isLoading, isFetching, refetch } = useQuery<
     Notifications,
     AxiosError
   >({
     queryKey: [
       'notifications',
-      date.format('YYYY-MM-DD'),
       paginationModel.page,
       paginationModel.pageSize,
       filterModel
     ],
     queryFn: () =>
-      ApiClient.getMatches(
+      apiClient.getMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
-        date.format('YYYY-MM-DD'),
-        filterModel.items[0].value ? filterModel.items[0].value : ''
+        startDateFilter.format('YYYY-MM-DD HH:mm:ss'),
+        endDateFilter.format('YYYY-MM-DD HH:mm:ss'),
+        selectedStates
       ),
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    keepPreviousData: true
   })
 
   const onFilterChange = useCallback((filterModel: GridFilterModel) => {
     setFilterModel({ ...filterModel })
   }, [])
 
-  if (isLoading || isFetching) {
-    return <Loading />
-  }
-
-  if (error) {
-    return <ApiErrorMessage error={error} />
-  }
-
-  if (!data) {
-    return <NotFound />
-  }
-
-  const changeSelectedDate = (date: Dayjs | null) => {
-    if (date) {
-      setDate(date)
-    }
-  }
   return (
     <Container maxWidth={false}>
       <PageHeader
         title={'Notification Worklist'}
-        description={'browse through notifications'}
         breadcrumbs={[
           {
             link: '/notifications/',
@@ -87,58 +87,115 @@ const NotificationWorklist = () => {
       />
       <Divider />
       <Stack padding={'2rem 1rem 1rem 1rem'}>
-        <Box>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DesktopDatePicker
-              sx={{ mb: '10px' }}
-              value={date}
-              format="YYYY/MM/DD"
-              onChange={value => changeSelectedDate(value)}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Box
+            display={'flex'}
+            gap={'2rem'}
+            alignItems={'center'}
+            paddingY={'1rem'}
+            flexDirection={{ xs: 'column', md: 'row' }}
+          >
+            <DateTimePicker
+              value={startDateFilter}
+              format="YYYY/MM/DD HH:mm:ss"
+              onChange={value => value && setStartDateFilter(value)}
               slotProps={{
                 textField: {
                   variant: 'outlined',
-                  label: 'Date'
+                  label: 'Start Date'
                 }
               }}
             />
-          </LocalizationProvider>
-        </Box>
-        <Paper sx={{ p: 1 }}>
-          <DataGrid
-            sx={{
-              '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus': {
-                outline: 'none'
-              }
-            }}
-            columns={NOTIFICATIONS_COLUMNS}
-            rows={data.records as Notification[]}
-            pageSizeOptions={[10, 25, 50]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={model => setPaginationModel(model)}
-            paginationMode="server"
-            rowCount={data.pagination.total || 0}
-            filterMode="server"
-            filterModel={filterModel}
-            onFilterModelChange={debounce(onFilterChange, 3000)}
-            onRowDoubleClick={params =>
-              navigate(
-                {
-                  pathname: 'match-details'
-                },
-                {
-                  state: {
-                    payload: {
-                      notificationId: params.row.id,
-                      patient_id: params.row.patient_id,
-                      golden_id: params.row.golden_id,
-                      score: params.row.score,
-                      candidates: params.row.candidates
-                    }
-                  }
+            <DateTimePicker
+              value={endDateFilter}
+              format="YYYY/MM/DD HH:mm:ss"
+              onChange={value => value && setEndDateFilter(value)}
+              slotProps={{
+                textField: {
+                  variant: 'outlined',
+                  label: 'End Date'
                 }
-              )
-            }
-          />
+              }}
+            />
+            <MultiSelect
+              listValues={[NotificationState.OPEN, NotificationState.CLOSED]}
+              label="States"
+              setSelectedValues={setSelectedStates}
+              defaultSelectedValues={[NotificationState.OPEN]}
+            />
+            <Button variant="contained" onClick={() => refetch()} size="large">
+              Filter
+            </Button>
+          </Box>
+        </LocalizationProvider>
+        <Paper sx={{ p: 1 }}>
+          {error && <ApiErrorMessage error={error} />}
+          {!data && !isLoading && !isFetching && <NotFound />}
+          <Box
+            component={'div'}
+            sx={{
+              position: 'relative'
+            }}
+          >
+            {data && (
+              <DataGrid
+                sx={{
+                  overflow: 'visible',
+                  '& .MuiDataGrid-columnSeparator': {
+                    visibility: 'visible'
+                  },
+                  '& .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus':
+                    {
+                      outline: 'none'
+                    },
+                  [`.${gridClasses.main}`]: {
+                    overflow: 'visible'
+                  },
+                  [`.${gridClasses.columnHeaders}`]: {
+                    position: 'sticky',
+                    top: 65,
+                    zIndex: 1
+                  }
+                }}
+                initialState={{
+                  sorting: {
+                    sortModel: [{ field: 'created', sort: 'desc' }]
+                  }
+                }}
+                columns={NOTIFICATIONS_COLUMNS}
+                rows={data.records as Notification[]}
+                slots={{ pagination: CustomPagination }}
+                pageSizeOptions={[25, 50, 100]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={model => setPaginationModel(model)}
+                paginationMode="server"
+                rowCount={data.pagination.total || 0}
+                filterMode="server"
+                filterModel={filterModel}
+                loading={isLoading}
+                onFilterModelChange={debounce(onFilterChange, 3000)}
+                onRowDoubleClick={params =>
+                  navigate(
+                    {
+                      pathname: 'match-details'
+                    },
+                    {
+                      state: {
+                        payload: {
+                          notificationId: params.row.id,
+                          notificationType: params.row.type,
+                          patient_id: params.row.patient_id,
+                          golden_id: params.row.golden_id,
+                          score: params.row.score,
+                          candidates: params.row.candidates
+                        }
+                      }
+                    }
+                  )
+                }
+              />
+            )}
+          </Box>
         </Paper>
       </Stack>
     </Container>

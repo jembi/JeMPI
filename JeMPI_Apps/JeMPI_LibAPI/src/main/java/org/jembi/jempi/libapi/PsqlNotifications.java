@@ -5,14 +5,15 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.MatchesForReviewResult;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.*;
 
 final class PsqlNotifications {
+
+   private static final String NOTIFICATION_TABLE_NAME = "notification";
    private static final String QUERY = """
                                        SELECT patient_id, id, names, created, state,type, score, golden_id
                                        FROM notification
-                                       WHERE created <= ? AND state = ?
+                                       WHERE created BETWEEN ? AND ? AND state IN (?, ?)
                                        ORDER BY created
                                        LIMIT ? OFFSET ?
                                        """;
@@ -34,29 +35,35 @@ final class PsqlNotifications {
     * @param limit  The maximum number of matches to retrieve.
     * @param offset The number of matches to skip from the beginning.
     * @param date   The date threshold for match creation.
-    * @param state   The state of notification.
+    * @param states The state of notification.
     * @return A {@link MatchesForReviewResult} object containing the matches and related information.
     */
    MatchesForReviewResult getMatchesForReview(
          final int limit,
          final int offset,
-         final LocalDate date,
-         final String state) {
+         final Timestamp startDate,
+         final Timestamp endDate,
+         final List<String> states) {
       final var list = new ArrayList<HashMap<String, Object>>();
       MatchesForReviewResult result = new MatchesForReviewResult();
       int skippedRows = 0;
       psqlClient.connect();
       try (PreparedStatement preparedStatement = psqlClient.prepareStatement(QUERY);
-           PreparedStatement countStatement = psqlClient.prepareStatement("SELECT COUNT(*) FROM notification")) {
+           PreparedStatement countStatement = psqlClient.prepareStatement(
+                 "SELECT COUNT(*) FROM notification WHERE created BETWEEN ? AND ? AND state IN (?, ?)")) {
+         countStatement.setTimestamp(1, startDate);
+         countStatement.setTimestamp(2, endDate);
+         countStatement.setString(3, extractState(0, states));
+         countStatement.setString(4, extractState(1, states));
          ResultSet countRs = countStatement.executeQuery();
          countRs.next();
          int totalCount = countRs.getInt(1);
-
-         preparedStatement.setDate(1, java.sql.Date.valueOf(date));
-         preparedStatement.setString(2, state);
-         preparedStatement.setInt(3, limit);
-         preparedStatement.setInt(4, offset);
-         LOGGER.debug("{}", preparedStatement);
+         preparedStatement.setTimestamp(1, startDate);
+         preparedStatement.setTimestamp(2, endDate);
+         preparedStatement.setString(3, extractState(0, states));
+         preparedStatement.setString(4, extractState(1, states));
+         preparedStatement.setInt(5, limit);
+         preparedStatement.setInt(6, offset);
          ResultSet rs = preparedStatement.executeQuery();
          ResultSetMetaData md = rs.getMetaData();
          int columns = md.getColumnCount();
@@ -67,7 +74,13 @@ final class PsqlNotifications {
                if (md.getColumnName(i).equals("id")) {
                   notificationID = rs.getObject(i, UUID.class);
                }
-               row.put(md.getColumnName(i), (rs.getObject(i)));
+               final var name = md.getColumnName(i);
+               final var obj = rs.getObject(i);
+               if (obj == null && "names".equals(name)) {
+                  row.put(name, "");
+               } else {
+                  row.put(name, (obj));
+               }
             }
             list.add(row);
             row.put("candidates", getCandidates(notificationID));
@@ -80,6 +93,33 @@ final class PsqlNotifications {
       }
       result.setNotifications(list);
       return result;
+   }
+
+   public int getNotificationCount(final String status) {
+      String queryStatement = status == null
+            ? String.format("SELECT COUNT(*) FROM %s", NOTIFICATION_TABLE_NAME)
+            : String.format("SELECT COUNT(*) FROM %s WHERE state = '%s'", NOTIFICATION_TABLE_NAME, status);
+
+      psqlClient.connect();
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(queryStatement);
+           ResultSet resultSet = preparedStatement.executeQuery()) {
+         if (resultSet.next()) {
+            return resultSet.getInt(1);
+         }
+         return 0;
+      } catch (SQLException e) {
+         LOGGER.error(e);
+      }
+      return -1;
+   }
+
+   String extractState(
+         final int index,
+         final List<String> states) {
+      if (index + 1 > states.size()) {
+         return null;
+      }
+      return states.get(index);
    }
 
    List<HashMap<String, Object>> getCandidates(final UUID nID) {
@@ -117,8 +157,7 @@ final class PsqlNotifications {
       try (Statement stmt = psqlClient.createStatement()) {
          psqlClient.setAutoCommit(false);
          String sql =
-               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID
-               + "')";
+               "INSERT INTO candidates (notification_id, score, golden_id)" + " VALUES ('" + id + "','" + score + "', '" + gID + "')";
          stmt.addBatch(sql);
 
 
@@ -128,12 +167,13 @@ final class PsqlNotifications {
    }
 
    void updateNotificationState(
-         final String id,
-         final String state) throws SQLException {
+         final String id) throws SQLException {
       psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
          ResultSet rs = stmt.executeQuery(String.format(Locale.ROOT,
-                                                        "update notification set state = \'%s\' where id = \'%s\'", state, id));
+                                                        "update notification set state = '%s' where id = '%s'",
+                                                        "CLOSED",
+                                                        id));
          psqlClient.commit();
       }
    }

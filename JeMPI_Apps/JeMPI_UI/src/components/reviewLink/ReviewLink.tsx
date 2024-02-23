@@ -13,9 +13,11 @@ import { useLinkReview } from 'hooks/useLinkReview'
 import { useSnackbar } from 'notistack'
 import { useState } from 'react'
 import { CustomSearchQuery, SearchQuery } from 'types/SimpleSearch'
-import ApiClient from '../../services/ApiClient'
-import { NotificationState } from '../../types/Notification'
-import { AnyRecord } from '../../types/PatientRecord'
+import {
+  AnyRecord,
+  GoldenRecord,
+  PatientRecord
+} from '../../types/PatientRecord'
 import Loading from '../common/Loading'
 import ApiErrorMessage from '../error/ApiErrorMessage'
 import NotFound from '../error/NotFound'
@@ -28,8 +30,11 @@ import LinkRecordsDialog from './LinkRecordsDialog'
 import CloseNotificationDialog from './CloseNotificationDialog'
 import UnlinkingDialog from './UnlinkingDialog'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
+import { NotificationRequest } from 'types/BackendResponse'
+import { RESOLUTION_TYPES } from 'utils/constants'
 
-const getRowClassName = (type: string) => {
+const getRowClassName = (type?: string) => {
   switch (type) {
     case 'Current':
       return 'super-app-theme--Current'
@@ -57,6 +62,7 @@ const ReviewLink = () => {
   const [refineSearchQuery, setRefineSearchQuery] = useState<
     SearchQuery | CustomSearchQuery | undefined
   >(undefined)
+  const { apiClient } = useConfig()
 
   const {
     patientRecord,
@@ -70,7 +76,8 @@ const ReviewLink = () => {
   const { linkRecords, createNewGoldenRecord } = useRelink()
 
   const mutateNotification = useMutation({
-    mutationFn: ApiClient.updateNotification,
+    mutationFn: (request: NotificationRequest) =>
+      apiClient.updateNotification(request),
     onError: (error: AxiosError) => {
       enqueueSnackbar(`Error updating notification: ${error.message}`, {
         variant: 'error'
@@ -79,44 +86,40 @@ const ReviewLink = () => {
     }
   })
 
-  const updateNotification = (state: NotificationState) => {
+  const updateNotification = () => {
     mutateNotification.mutate(
       {
-        notificationId: payload?.notificationId ? payload.notificationId : '',
-        state: state
+        notificationId: payload?.notificationId
       },
       {
         onSuccess: () => {
-          if (state === NotificationState.Pending) {
-            enqueueSnackbar(
-              'Notification kept as pending. Golden Record remains linked',
-              {
-                variant: 'warning'
-              }
-            )
-            navigate('/notifications')
-          }
+          navigate('/notifications')
         }
       }
     )
   }
 
-  const createGoldenRecord = (id: string) => {
+  const createGoldenRecord = (id: string, resolutionState:string) => {
     createNewGoldenRecord.mutate(
       {
-        patientID: payload?.patient_id || '',
-        goldenID: goldenRecord ? goldenRecord.uid : '',
-        newGoldenID: id
+        notificationId: payload?.notificationId,
+        notificationType: payload?.notificationType,
+        interactionId: payload.patient_id || '',
+        currentGoldenId: goldenRecord ? goldenRecord.uid : '',
+        resolutionState: resolutionState,
+        currentCandidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : [],
+        newGoldenId: id,
+        score: payload?.score
       },
       {
         onSuccess: data => {
           if (payload?.notificationId) {
-            updateNotification(NotificationState.Actioned)
+            updateNotification()
           }
           enqueueSnackbar('New record linked', {
             variant: 'success'
           })
-          navigate(`/record-details/${data.goldenUID}`)
+          navigate(`/record-details/${(data as any).goldenUID}`)
         },
         onError: (error: AxiosError) => {
           enqueueSnackbar(
@@ -131,24 +134,30 @@ const ReviewLink = () => {
     )
   }
 
-  const linkToCandidateRecord = (id: string, status?: NotificationState) => {
-    linkRecords.mutate(
-      {
-        patientID: payload?.patient_id || '',
-        goldenID: goldenRecord ? goldenRecord.uid : '',
-        newGoldenID: id
-      },
-      {
-        onSuccess: () => {
-          if (payload?.notificationId) {
-            updateNotification(status ?? NotificationState.Actioned)
-            navigate('/notifications')
-          } else {
-            navigate(`/record-details/${id}`)
+  const linkToCandidateRecord = (id: string, resolutionState: string) => {
+    goldenRecord &&
+      linkRecords.mutate(
+        {
+          notificationId: payload?.notificationId,
+          notificationType: payload?.notificationType,
+          interactionId: payload.patient_id,
+          currentGoldenId: goldenRecord.uid,
+          resolutionState: resolutionState,
+          currentCandidates: payload?.notificationId ? (candidateGoldenRecords || []).map(c => c.uid) : [],
+          newGoldenId: id,
+          score: payload?.score
+        },
+        {
+          onSuccess: () => {
+            if (payload?.notificationId) {
+              updateNotification()
+              navigate('/notifications')
+            } else {
+              navigate(`/record-details/${id}`)
+            }
           }
         }
-      }
-    )
+      )
   }
 
   const handleModalCancel = () => {
@@ -180,16 +189,15 @@ const ReviewLink = () => {
         ...goldenRecord.linkRecords.filter(
           record => record.uid !== patientRecord?.uid
         ),
-        patientRecord,
+        ...(patientRecord ? [patientRecord] : []),
         goldenRecord
       ]
     : []
 
   const handleOpenLinkedRecordDialog = (uid: string) => {
     const tableDataTemp: AnyRecord[] | undefined = payload?.notificationId
-      ? candidateGoldenRecords?.filter(d => d.uid === uid)
-      : thresholdCandidates?.filter(d => d.uid === uid)
-
+      ? candidateGoldenRecords?.filter(ele => ele.uid === uid)
+      : thresholdCandidates?.filter(ele => ele.uid === uid)
     if (patientRecord && tableDataTemp)
       setTableData([patientRecord, ...tableDataTemp])
 
@@ -198,11 +206,7 @@ const ReviewLink = () => {
   }
 
   const handleCancel = () => {
-    if (payload?.notificationId) {
-      updateNotification(NotificationState.Pending)
-    } else {
-      navigate(`/record-details/${goldenRecord?.uid}`)
-    }
+    navigate(`/record-details/${goldenRecord?.uid}`)
   }
 
   return (
@@ -212,7 +216,6 @@ const ReviewLink = () => {
         breadcrumbs={[
           { icon: <Search />, title: 'Browse Records', link: '/browse-records' }
         ]}
-        description="Review the patient record and possible matches in detail."
         buttons={[
           <Button
             startIcon={<SearchOutlined />}
@@ -230,7 +233,7 @@ const ReviewLink = () => {
           <Typography pl={1} variant="dgSubTitle">
             PATIENT LINKED TO GOLDEN RECORD
           </Typography>
-          <CustomDataGrid
+          <CustomDataGrid<GoldenRecord | PatientRecord>
             rows={matches}
             sx={{
               borderRadius: '0px'
@@ -238,7 +241,9 @@ const ReviewLink = () => {
             getRowClassName={params =>
               params.row.uid === payload?.patient_id
                 ? 'super-app-theme--SelectedPatient'
-                : getRowClassName(params.row.type)
+                : 'type' in params.row
+                ? getRowClassName(params.row.type)
+                : ''
             }
           />
         </Paper>
@@ -283,7 +288,7 @@ const ReviewLink = () => {
           )}
         </Stack>
         <Paper>
-          <CustomDataGrid
+          <CustomDataGrid<AnyRecord>
             rows={
               payload?.notificationId
                 ? candidateGoldenRecords || []
@@ -327,25 +332,18 @@ const ReviewLink = () => {
         <UnlinkingDialog
           isOpen={isNewGoldenRecordDialogOpen}
           onClose={() => handleModalCancel()}
-          onConfirm={() => createGoldenRecord(canditateUID)}
+          onConfirm={() => createGoldenRecord(canditateUID, RESOLUTION_TYPES.RELINKED_NEW)}
         />
         <CloseNotificationDialog
           isOpen={isAcceptLinkDialogOpen}
           onClose={handleModalCancel}
-          onConfirm={() =>
-            linkToCandidateRecord(
-              goldenRecord?.uid || '',
-              NotificationState.Accepted
-            )
-          }
+          onConfirm={() => linkToCandidateRecord(goldenRecord?.uid, RESOLUTION_TYPES.APPROVED)}
         />
         <LinkRecordsDialog
           isOpen={isLinkRecordDialogOpen}
           data={tableData}
           onClose={handleModalCancel}
-          onConfirm={() =>
-            linkToCandidateRecord(canditateUID, NotificationState.Actioned)
-          }
+          onConfirm={() => linkToCandidateRecord(canditateUID, RESOLUTION_TYPES.RELINKED)}
         />
       </Stack>
     </Container>

@@ -2,6 +2,7 @@ package org.jembi.jempi.async_receiver;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -36,8 +37,7 @@ public final class Main {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
-   public static void main(final String[] args)
-         throws InterruptedException, ExecutionException, IOException {
+   public static void main(final String[] args) throws InterruptedException, ExecutionException, IOException {
       new Main().run();
    }
 
@@ -67,8 +67,7 @@ public final class Main {
 
    private void sendToKafka(
          final String key,
-         final InteractionEnvelop interactionEnvelop)
-         throws InterruptedException, ExecutionException {
+         final InteractionEnvelop interactionEnvelop) throws InterruptedException, ExecutionException {
       try {
          interactionEnvelopProducer.produceSync(key, interactionEnvelop);
       } catch (NullPointerException ex) {
@@ -76,46 +75,66 @@ public final class Main {
       }
    }
 
+   private long getRowSize(final String[] values) {
+      long size = 0;
+
+      for (String str : values) {
+         if (str != null) {
+            size += 24 + (str.length() * 2L);
+         }
+      }
+      return size;
+   }
+
    private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
-         final var reader = Files.newBufferedReader(Paths.get(fileName));
+         final var filePathUri = Paths.get(fileName);
+         final var reader = Files.newBufferedReader(filePathUri);
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
          final var uuid = UUID.randomUUID().toString();
+         final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
-         final var csvParser = CSVFormat
-               .DEFAULT
-               .builder()
-               .setHeader()
-               .setSkipHeaderRecord(true)
-               .setIgnoreEmptyLines(true)
-               .setNullString(null)
-               .build()
-               .parse(reader);
+         final var csvParser = CSVFormat.DEFAULT.builder()
+                                                .setHeader()
+                                                .setSkipHeaderRecord(true)
+                                                .setIgnoreEmptyLines(true)
+                                                .setNullString(null)
+                                                .build()
+                                                .parse(reader);
 
          int index = 0;
-         sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL, fileName,
-                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+         sendToKafka(uuid,
+                     new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
+                                            tag,
+                                            String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                            null));
          for (CSVRecord csvRecord : csvParser) {
-            sendToKafka(UUID.randomUUID().toString(),
-                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION, fileName,
-                                               String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                               new Interaction(null,
-                                                               CustomAsyncHelper.customSourceId(csvRecord),
-                                                               CustomAsyncHelper.customUniqueInteractionData(csvRecord),
-                                                               CustomAsyncHelper.customDemographicData(csvRecord))));
+            final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
+                                                                  tag,
+                                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                                  new Interaction(null,
+                                                                                  CustomAsyncHelper.customSourceId(csvRecord),
+                                                                                  CustomAsyncHelper.customUniqueInteractionData(
+                                                                                        csvRecord),
+                                                                                  CustomAsyncHelper.customDemographicData(
+                                                                                        csvRecord)));
+
+            sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
          }
-         sendToKafka(uuid, new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL, fileName,
-                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index), null));
+         sendToKafka(uuid,
+                     new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
+                                            tag,
+                                            String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                            null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
 
-   private void handleEvent(final WatchEvent<?> event)
-         throws InterruptedException, ExecutionException {
+   private void handleEvent(final WatchEvent<?> event) throws InterruptedException, ExecutionException {
       WatchEvent.Kind<?> kind = event.kind();
       LOGGER.info("EVENT: {}", kind);
       if (ENTRY_CREATE.equals(kind)) {
@@ -143,12 +162,11 @@ public final class Main {
    }
 
    private void run() throws InterruptedException, ExecutionException, IOException {
-      LOGGER.info("KAFKA: {} {}",
-                  AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_CLIENT_ID);
+      LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                         GlobalConstants.TOPIC_INTERACTION_ASYNC_ETL,
-                                                         keySerializer(), valueSerializer(),
+                                                         GlobalConstants.TOPIC_INTERACTION_ETL,
+                                                         keySerializer(),
+                                                         valueSerializer(),
                                                          AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
          final var csvDir = Path.of("./csv");

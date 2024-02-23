@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
   AppBar,
   Box,
@@ -17,6 +17,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile'
 import JembiLogo from './JembiLogo'
 import NavigationMenu from './NavigationMenu'
 import { Link } from 'react-router-dom'
+import { useConfig } from 'hooks/useConfig'
 
 const LabeledIconBox = ({
   icon,
@@ -55,6 +56,7 @@ const navigationItems = [
 
 const NavigationBar = () => {
   const container = window?.document?.body
+  const { config } = useConfig()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleDrawerToggle = () => {
@@ -62,15 +64,17 @@ const NavigationBar = () => {
   }
   const drawer = (
     <>
-      {/* <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
-        <JembiLogo />
-      </div> */}
+      {config.showBrandLogo && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <JembiLogo />
+        </div>
+      )}
       <Divider />
       <Box
         sx={{
@@ -140,23 +144,31 @@ const NavigationBar = () => {
               width: { xs: '100%', md: 'auto' }
             }}
           >
-            {/* <JembiLogo /> */}
+            {config.showBrandLogo && <JembiLogo />}
           </Box>
           <Box
             sx={{
-              display: { xs: 'none', md: 'grid' },
-              gridTemplateColumns: 'repeat(4, auto)',
+              display: { xs: 'none', md: 'flex' },
               fontWeight: '500',
+              justifyContent: 'start',
+              alignItems: 'end',
+              width: '100%',
               gap: 3
             }}
           >
-            {navigationItems.map(item => (
-              <LabeledIconBox
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                link={item.link}
-              />
+            {navigationItems.map((item, index) => (
+              <Box
+                sx={{
+                  ml: index < navigationItems.length - 1 ? 0 : 'auto'
+                }}
+              >
+                <LabeledIconBox
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  link={item.link}
+                />
+              </Box>
             ))}
           </Box>
           <NavigationMenu />

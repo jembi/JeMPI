@@ -12,7 +12,8 @@ public record Notification(
       MatchData linkedTo,
       List<MatchData> candidates) {
    public enum NotificationType {
-      THRESHOLD("Threshold"),
+      ABOVE_THRESHOLD("Above Threshold"),
+      BELOW_THRESHOLD("Below Threshold"),
       MARGIN("Margin"),
       UPDATE("Update");
 

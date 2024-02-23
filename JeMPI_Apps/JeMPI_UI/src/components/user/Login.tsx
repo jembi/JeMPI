@@ -1,12 +1,11 @@
 import { Person } from '@mui/icons-material'
 import { Box, Button, Card, Container, Typography } from '@mui/material'
-import { useAuth } from '../../hooks/useAuth'
+import { AuthChecker, useAuth } from '../../hooks/useAuth'
 import logo from './JeMPI.png'
 
-const Login = () => {
+const LoginPage = () => {
   const { signInWithKeyCloak } = useAuth()
 
-  // const location = useLocation()
   return (
     <Container
       maxWidth={false}
@@ -91,6 +90,14 @@ const Login = () => {
         </Box>
       </Card>
     </Container>
+  )
+}
+
+const Login = () => {
+  return (
+    <AuthChecker>
+      <LoginPage></LoginPage>
+    </AuthChecker>
   )
 }
 

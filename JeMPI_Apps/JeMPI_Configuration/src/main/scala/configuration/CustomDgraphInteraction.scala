@@ -4,18 +4,19 @@ import java.io.{File, PrintWriter}
 
 private object CustomDgraphInteraction {
 
-  private val classLocation = "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
+  private val classLocation =
+    "../JeMPI_LibMPI/src/main/java/org/jembi/jempi/libmpi/dgraph"
   private val customClassName = "CustomDgraphInteraction"
   private val packageText = "org.jembi.jempi.libmpi.dgraph"
 
   def generate(config: Config): Unit =
-    val classFile: String = classLocation + File.separator + customClassName + ".java"
+    val classFile: String =
+      classLocation + File.separator + customClassName + ".java"
     println("Creating " + classFile)
     val file: File = new File(classFile)
     val writer: PrintWriter = new PrintWriter(file)
 
-    writer.println(
-      s"""package $packageText;
+    writer.println(s"""package $packageText;
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
@@ -60,35 +61,41 @@ private object CustomDgraphInteraction {
 
     def interactionFields(): String =
 
-      def mapField(fieldName: String, fieldType: String): String = s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${fieldName.toUpperCase}) ${Utils.javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
+      def mapField(fieldName: String, fieldType: String): String =
+        s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${fieldName.toUpperCase}) ${Utils
+            .javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
 
-      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => mapField(f.fieldName, f.fieldType))
-          .mkString("\n") + "\n"
+      val f1 =
+        if (config.uniqueInteractionFields.isEmpty) ""
+        else
+          config.uniqueInteractionFields.get
+            .map(f => mapField(f.fieldName, f.fieldType))
+            .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config
-        .demographicFields
+      val f2 = config.demographicFields
         .map(f => mapField(f.fieldName, f.fieldType))
-        .mkString("\n")
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
     end interactionFields
 
     def interactionConstructorArguments(): String =
-      val f1 = if (config.uniqueInteractionFields.isEmpty) "" else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => s"""${" " * 11}interaction.uniqueInteractionData().${Utils.snakeCaseToCamelCase(f.fieldName)}(),""")
-          .mkString("\n") + "\n"
+      val f1 =
+        if (config.uniqueInteractionFields.isEmpty) ""
+        else
+          config.uniqueInteractionFields.get
+            .map(f =>
+              s"""${" " * 11}interaction.uniqueInteractionData().${Utils
+                  .snakeCaseToCamelCase(f.fieldName)}(),"""
+            )
+            .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config
-        .demographicFields
-        .map(f => s"""${" " * 11}interaction.demographicData().${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
+      val f2 = config.demographicFields
+        .map(f =>
+          s"""${" " * 11}interaction.demographicData().${Utils
+              .snakeCaseToCamelCase(f.fieldName)},"""
+        )
+        .mkString(sys.props("line.separator"))
 
       f1 + f2
     end interactionConstructorArguments
@@ -97,21 +104,22 @@ private object CustomDgraphInteraction {
       if (config.uniqueInteractionFields.isEmpty)
         ""
       else
-        config
-          .uniqueInteractionFields
-          .get
-          .map(f => s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-          .mkString("\n")
+        config.uniqueInteractionFields.get
+          .map(f =>
+            s"""${" " * 63}this.${Utils.snakeCaseToCamelCase(f.fieldName)},"""
+          )
+          .mkString(sys.props("line.separator"))
           .trim
           .dropRight(1)
       end if
     end uniqueArguments
 
     def demographicArguments(): String =
-      config
-        .demographicFields
-        .map(f => s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},""")
-        .mkString("\n")
+      config.demographicFields
+        .map(f =>
+          s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},"""
+        )
+        .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
     end demographicArguments
