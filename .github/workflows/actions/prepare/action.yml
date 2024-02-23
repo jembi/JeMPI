@@ -1,0 +1,33 @@
+name: Prepare
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/workflows/actions/cached-dependencies
+      id: cache-dependencies
+    - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+      name: Set up Node
+      uses: ./.github/workflows/actions/install-node
+      with:
+        node-version: 20
+    - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+      name: Set up SDKMan
+      uses: ./.github/workflows/actions/install-sdkman
+    - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+      name: Set up Java
+      uses: ./.github/workflows/actions/sdkman-installer
+      with:
+        candidate: java
+        version: '21.0.1-tem'
+    - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+      name: Set up Maven
+      uses: ./.github/workflows/actions/sdkman-installer
+      with:
+        candidate: maven
+        version: '3.9.5'
+    - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+      name: Set Scala Build Tools
+      uses: ./.github/workflows/actions/sdkman-installer
+      with:
+        candidate: sbt
+        version: '1.9.8'
