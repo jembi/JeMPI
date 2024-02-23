@@ -256,7 +256,8 @@ object CustomDgraphQueries {
 
     def emitRuleTemplate(name: String, rule: Rule): Unit = {
 
-      case class VarMeta(func:String, 
+      case class VarMeta(astName: String,
+                         func:String, 
                          funcParam: Option[Function1[String, String]],
                          funcName: String,
                          distance:Option[Integer])
@@ -276,11 +277,31 @@ object CustomDgraphQueries {
       val expression: Ast.Expression = ParseRule.parse(text)
 
 
-      def addMeta(v: String, metaInfo: VarMeta ): Unit = {
+      def addMeta(v: String, 
+                  astName: String,
+                  func:String, 
+                  funcParam: Option[Function1[String, String]],
+                  distance:Option[Integer]): String = {
+
           if (!varsMeta.contains(v)){
              varsMeta += (v -> List[VarMeta]())
           }
-          varsMeta = varsMeta + (v -> (varsMeta(v) :+ metaInfo))
+
+          val existingMeta =  varsMeta(v).find(m => {
+                                                    m.astName == astName && 
+                                                    m.func == func &&
+                                                    m.funcParam.toString == funcParam.toString &&
+                                                    m.distance.toString == distance.toString
+                                                  })
+
+          if (existingMeta.isDefined){
+            return existingMeta.get.funcName
+          }
+          else{
+            val newMeta = VarMeta(astName, func, funcParam, getFuncIndex(), distance)
+            varsMeta = varsMeta + (v -> (varsMeta(v) :+ newMeta ))
+            return newMeta.funcName
+          }
       }
 
       def getFuncIndex(): String ={
@@ -307,18 +328,15 @@ object CustomDgraphQueries {
           case Ast.Not(x) =>
             "NOT (" + main_func(x) + ")"
           case Ast.Match(variable, distance) =>
-            val uidName = getFuncIndex()
-            addMeta(variable.name, VarMeta("match", None, uidName, Option(distance)))
+            val uidName = addMeta(variable.name, "match", "match", None, Option(distance))
             "uid(" + uidName + ")"
           case Ast.Eq(variable) =>
-            val uidName = getFuncIndex()
-            addMeta(variable.name, VarMeta("eq", None, uidName, None))
+            val uidName = addMeta(variable.name, "eq", "eq", None, None)
             "uid(" + uidName + ")"
           case Ast.Null(variable) =>
-            val uidName = getFuncIndex()
-            addMeta(variable.name, VarMeta("eq", Option(new Function1[String, String] {
+            val uidName = addMeta(variable.name, "null", "eq", Option(new Function1[String, String] {
                                                           def apply(x: String): String = "\"\""
-                                                        }), uidName, None))
+                                                        }), None)
             "uid(" + uidName + ")"
           case _ =>
             "ERROR"
