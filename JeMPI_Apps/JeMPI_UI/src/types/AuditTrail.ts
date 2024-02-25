@@ -4,16 +4,14 @@ export interface AuditTrail {
   interaction_id: string
   golden_id: string
   entry: string
-  score: number
+  linkingRule: LinkingRule
 }
 
 export interface AuditTrailEntries {
   entries: Array<AuditTrail>
 }
 
-export const MatchingRule = {
-  DETERMINISTIC: 'DETERMINISTIC',
-  PROBABLISTIC: 'PROBABLISTIC',
-  UNKNOWN: ''
-} as const;
-
+export interface LinkingRule {
+    text: string
+    matchType: string
+}

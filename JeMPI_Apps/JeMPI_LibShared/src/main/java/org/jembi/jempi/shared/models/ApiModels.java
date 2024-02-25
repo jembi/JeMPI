@@ -315,7 +315,9 @@ public abstract class ApiModels {
                          x.interactionID(),
                          x.goldenID(),
                          x.event(),
-                         x.score()))
+                         new ApiLinkingRule(
+                                 String.format("Matched with score %s", x.score()), x.linkingRule().name())
+                 ))
                  .toList());
       }
 
@@ -326,7 +328,8 @@ public abstract class ApiModels {
               @JsonProperty("interaction_id") String interactionId,
               @JsonProperty("golden_id") String goldenId,
               @JsonProperty("entry") String entry,
-              @JsonProperty("score") Float score) {
+              @JsonProperty("linkingRule") ApiLinkingRule linkingRule
+              ) {
                
               }
       }
@@ -351,6 +354,12 @@ public abstract class ApiModels {
               String stan,
               LinkInfo linkInfo,
               List<ExternalLinkCandidate> externalLinkCandidateList) {
+      }
+
+      public record ApiLinkingRule(
+              String text,
+              String matchType
+      ) {
       }
 
 }

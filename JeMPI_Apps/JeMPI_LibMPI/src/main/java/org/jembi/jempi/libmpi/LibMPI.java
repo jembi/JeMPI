@@ -58,19 +58,42 @@ public final class LibMPI {
          final String interactionID,
          final String goldenID,
          final String event,
-         final Float score) {
+         final Float score,
+         final LinkingRule linkingRule) {
       topicAuditEvents.produceAsync(goldenID,
                                     new AuditEvent(new Timestamp(System.currentTimeMillis()),
                                                    null,
                                                    interactionID,
                                                    goldenID,
                                                    event,
-                                                   score),
+                                                   score,
+                                                   linkingRule),
                                     ((metadata, exception) -> {
                                        if (exception != null) {
                                           LOGGER.error(exception.getLocalizedMessage(), exception);
                                        }
                                     }));
+
+   }
+
+   private void sendAuditEvent(
+           final String interactionID,
+           final String goldenID,
+           final String event,
+           final Float score) {
+      topicAuditEvents.produceAsync(goldenID,
+              new AuditEvent(new Timestamp(System.currentTimeMillis()),
+                      null,
+                      interactionID,
+                      goldenID,
+                      event,
+                      score,
+                      LinkingRule.UNMATCHED),
+              ((metadata, exception) -> {
+                 if (exception != null) {
+                    LOGGER.error(exception.getLocalizedMessage(), exception);
+                 }
+              }));
 
    }
 
@@ -322,7 +345,9 @@ public final class LibMPI {
          final Interaction interaction,
          final LibMPIClientInterface.GoldenIdScore goldenIdScore,
          final boolean deterministicValidation,
-         final float probabilisticValidation) {
+         final float probabilisticValidation,
+         final LinkingRule linkingRule
+   ) {
       final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
@@ -332,7 +357,8 @@ public final class LibMPI {
                                       + "Probabilistic(%.3f)",
                                       result.score(),
                                       deterministicValidation,
-                                      probabilisticValidation), result.score());
+                                      probabilisticValidation), result.score(),
+                                       linkingRule);
       } else {
          sendAuditEvent(interaction.interactionId(),
                         goldenIdScore.goldenId(),

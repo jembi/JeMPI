@@ -3,6 +3,7 @@ package org.jembi.jempi.libapi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.AuditEvent;
+import org.jembi.jempi.shared.models.LinkingRule;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,7 +44,8 @@ final class PsqlAuditTrail {
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
             final var score = rs.getFloat(7);
-            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score));
+            final var linkingRule = LinkingRule.valueOf(rs.getString(8));
+            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score, linkingRule));
          }
       } catch (Exception e) {
          LOGGER.error(e);
@@ -69,7 +71,8 @@ final class PsqlAuditTrail {
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
             final var score = rs.getFloat(7);
-            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score));
+            final var linkingRule = LinkingRule.valueOf(rs.getString(8));
+            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score, linkingRule));
          }
       } catch (Exception e) {
          LOGGER.error(e);

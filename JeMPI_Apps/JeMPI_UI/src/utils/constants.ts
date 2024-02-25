@@ -1,7 +1,6 @@
 import { GridColDef } from '@mui/x-data-grid'
 import { CustomSearchQuery, SearchParameter } from 'types/SimpleSearch'
 import { formatDate } from './formatters'
-import { MatchingRule } from 'types/AuditTrail'
 
 export enum ACTIONS {
   newnewUserCreated,
@@ -95,22 +94,12 @@ export const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
     flex: 1
   },
   {
-    field: 'score',
+    field: 'linkingRule',
     headerName: 'Matching Type',
-    valueFormatter: ({ value }) => extractMatchingRule(value),
+    valueFormatter: ({ value }) => value.matchType,
     sortable: false,
     disableColumnMenu: true,
     headerClassName: 'super-app-theme--header',
     flex: 1
   }
 ]
-
-const extractMatchingRule = (score: number) => {
-  if (score === 1.0) {
-    return MatchingRule.DETERMINISTIC;
-  } else if (score > 0.0 && score < 1.0) {
-    return MatchingRule.PROBABLISTIC;
-  } else {
-    return MatchingRule.UNKNOWN
-  }
-};
