@@ -263,8 +263,8 @@ public abstract class ApiModels {
    }
 
    public record ApiExpandedInteraction(
-           ApiInteraction interaction,
-           List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
+         ApiInteraction interaction,
+         List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
       public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
          return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
                  expandedInteraction.goldenRecordsWithScore()
@@ -290,8 +290,8 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiInteractionWithScore(
-           ApiInteraction interaction,
-           Float score) {
+         ApiInteraction interaction,
+         Float score) {
       static ApiInteractionWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
          return new ApiInteractionWithScore(ApiInteraction.fromInteraction(interactionWithScore.interaction()),
                  interactionWithScore.score());
@@ -349,16 +349,16 @@ public abstract class ApiModels {
 
       }
 
-      public record ApiExtendedLinkInfo(
-              String stan,
-              LinkInfo linkInfo,
-              List<ExternalLinkCandidate> externalLinkCandidateList) {
+    public record ApiExtendedLinkInfo(
+            String stan,
+            LinkInfo linkInfo,
+            List<ExternalLinkCandidate> externalLinkCandidateList) {
       }
 
-      public record ApiLinkingRule(
-           String text,
+   public record ApiLinkingRule(
+         String text,
           String matchType
       ) {
-      }
+   }
 
 }
