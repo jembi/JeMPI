@@ -322,12 +322,12 @@ public abstract class ApiModels {
 
       @JsonInclude(JsonInclude.Include.NON_NULL)
       public record AuditEntry(
-              @JsonProperty("inserted_at") String insertedAt,
-              @JsonProperty("created_at") String createdAt,
-              @JsonProperty("interaction_id") String interactionId,
-              @JsonProperty("golden_id") String goldenId,
-              @JsonProperty("entry") String entry,
-              @JsonProperty("linkingRule") ApiLinkingRule linkingRule
+            @JsonProperty("inserted_at") String insertedAt,
+            @JsonProperty("created_at") String createdAt,
+            @JsonProperty("interaction_id") String interactionId,
+            @JsonProperty("golden_id") String goldenId,
+            @JsonProperty("entry") String entry,
+            @JsonProperty("linkingRule") ApiLinkingRule linkingRule
               ) {
                
               }
