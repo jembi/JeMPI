@@ -35,7 +35,6 @@ public abstract class ApiModels {
    }
 
    public record ApiError(
-
            @JsonProperty("module") String module,
            @JsonProperty("class") String klass,
            @JsonProperty("line_number") Integer lineNumber) {
