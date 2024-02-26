@@ -333,26 +333,26 @@ public abstract class ApiModels {
               }
       }
 
-      public record ApiCalculateScoresRequest(
-              String interactionId,
-              List<String> goldenIds) {
-      }
+    public record ApiCalculateScoresRequest(
+         String interactionId,
+         List<String> goldenIds) {
+   }
 
-      public record ApiCalculateScoresResponse(
-              String interactionId,
-              List<ApiScore> scores) {
+   public record ApiCalculateScoresResponse(
+         String interactionId,
+         List<ApiScore> scores) {
 
-         public record ApiScore(
-                 String goldenId,
-                 float score) {
+      public record ApiScore(
+            String goldenId,
+            float score) {
          }
 
       }
 
     public record ApiExtendedLinkInfo(
-            String stan,
-            LinkInfo linkInfo,
-            List<ExternalLinkCandidate> externalLinkCandidateList) {
+         String stan,
+         LinkInfo linkInfo,
+         List<ExternalLinkCandidate> externalLinkCandidateList) {
       }
 
    public record ApiLinkingRule(
