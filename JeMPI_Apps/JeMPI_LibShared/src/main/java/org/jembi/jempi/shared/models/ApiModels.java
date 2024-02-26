@@ -35,14 +35,14 @@ public abstract class ApiModels {
    }
 
    public record ApiError(
-           @JsonProperty("module") String module,
-           @JsonProperty("class") String klass,
-           @JsonProperty("line_number") Integer lineNumber) {
+        @JsonProperty("module") String module,
+        @JsonProperty("class") String klass,
+        @JsonProperty("line_number") Integer lineNumber) {
 
       public ApiError() {
          this(Thread.currentThread().getStackTrace()[3].getModuleName(),
-                 Thread.currentThread().getStackTrace()[3].getClassName(),
-                 Thread.currentThread().getStackTrace()[3].getLineNumber());
+              Thread.currentThread().getStackTrace()[3].getClassName(),
+              Thread.currentThread().getStackTrace()[3].getLineNumber());
       }
 
 
