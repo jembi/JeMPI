@@ -35,6 +35,7 @@ public abstract class ApiModels {
    }
 
    public record ApiError(
+
          @JsonProperty("module") String module,
          @JsonProperty("class") String klass,
          @JsonProperty("line_number") Integer lineNumber) {
@@ -195,7 +196,7 @@ public abstract class ApiModels {
 
    public record ApiInteractionsPaginatedResultSet(
          List<ApiInteraction> data,
-        ApiPagination pagination) implements ApiPaginatedResultSet {
+         ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiInteractionsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<Interaction> resultSet) {
          final var data = resultSet.data().stream().map(ApiInteraction::fromInteraction).toList();
@@ -221,8 +222,8 @@ public abstract class ApiModels {
             final PaginatedGIDsWithInteractionCount resultSet) {
          final var data = resultSet.data().stream().toList();
          return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data,
-                 InteractionCount.fromInteractionCount(resultSet.interactionCount()),
-                 ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+                                                                         InteractionCount.fromInteractionCount(resultSet.interactionCount()),
+                                                                         ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
@@ -234,9 +235,9 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
       static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
-                 goldenRecord.sourceId(),
-                 goldenRecord.customUniqueGoldenRecordData(),
-                 goldenRecord.demographicData());
+                                    goldenRecord.sourceId(),
+                                    goldenRecord.customUniqueGoldenRecordData(),
+                                    goldenRecord.demographicData());
       }
    }
 
@@ -246,7 +247,7 @@ public abstract class ApiModels {
          Float score) {
       static ApiGoldenRecordWithScore fromGoldenRecordWithScore(final GoldenRecordWithScore goldenRecordWithScore) {
          return new ApiGoldenRecordWithScore(ApiGoldenRecord.fromGoldenRecord(goldenRecordWithScore.goldenRecord()),
-                 goldenRecordWithScore.score());
+                                             goldenRecordWithScore.score());
       }
    }
 
@@ -255,10 +256,10 @@ public abstract class ApiModels {
          List<ApiInteractionWithScore> interactionsWithScore) {
       public static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
          return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
-                 expandedGoldenRecord.interactionsWithScore()
-                         .stream()
-                         .map(ApiInteractionWithScore::fromPatientRecordWithScore)
-                         .toList());
+                                            expandedGoldenRecord.interactionsWithScore()
+                                                                .stream()
+                                                                .map(ApiInteractionWithScore::fromPatientRecordWithScore)
+                                                                .toList());
       }
    }
 
@@ -267,10 +268,10 @@ public abstract class ApiModels {
          List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
       public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
          return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
-                 expandedInteraction.goldenRecordsWithScore()
-                         .stream()
-                         .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                         .toList());
+                                           expandedInteraction.goldenRecordsWithScore()
+                                                              .stream()
+                                                              .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                              .toList());
       }
    }
 
@@ -282,9 +283,9 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
-                 interaction.sourceId(),
-                 interaction.uniqueInteractionData(),
-                 interaction.demographicData());
+                                   interaction.sourceId(),
+                                   interaction.uniqueInteractionData(),
+                                   interaction.demographicData());
       }
    }
 
@@ -294,7 +295,7 @@ public abstract class ApiModels {
          Float score) {
       static ApiInteractionWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
          return new ApiInteractionWithScore(ApiInteraction.fromInteraction(interactionWithScore.interaction()),
-                 interactionWithScore.score());
+                                            interactionWithScore.score());
       }
    }
 
@@ -309,17 +310,18 @@ public abstract class ApiModels {
       public static ApiAuditTrail fromAuditTrail(final List<AuditEvent> trail) {
          final var apiDateFormat = new SimpleDateFormat(DATE_PATTERN);
          return new ApiAuditTrail(trail.stream()
-                 .map(x -> new AuditEntry(apiDateFormat.format(x.insertedAt()),
-                         apiDateFormat.format(x.createdAt()),
-                         x.interactionID(),
-                         x.goldenID(),
-                         x.event(),
-                         new ApiLinkingRule(
-                                 String.format("Matched with score %s", x.score()),
-                                  x.linkingRule().name())
-                 ))
-                 .toList());
+                                       .map(x -> new AuditEntry(apiDateFormat.format(x.insertedAt()),
+                                                                apiDateFormat.format(x.createdAt()),
+                                                                x.interactionID(),
+                                                                x.goldenID(),
+                                                                x.event(),
+                                               new ApiLinkingRule(
+                                                       String.format("Matched with score %s", x.score()),
+                                                       x.linkingRule().name())
+                                               ))
+                                       .toList());
       }
+
       @JsonInclude(JsonInclude.Include.NON_NULL)
       public record AuditEntry(
             @JsonProperty("inserted_at") String insertedAt,
@@ -328,12 +330,11 @@ public abstract class ApiModels {
             @JsonProperty("golden_id") String goldenId,
             @JsonProperty("entry") String entry,
             @JsonProperty("linkingRule") ApiLinkingRule linkingRule
-              ) {
-               
-              }
+            ) {
       }
+   }
 
-    public record ApiCalculateScoresRequest(
+   public record ApiCalculateScoresRequest(
          String interactionId,
          List<String> goldenIds) {
    }
@@ -345,20 +346,20 @@ public abstract class ApiModels {
       public record ApiScore(
             String goldenId,
             float score) {
-         }
-
       }
 
-    public record ApiExtendedLinkInfo(
+   }
+
+   public record ApiExtendedLinkInfo(
          String stan,
          LinkInfo linkInfo,
          List<ExternalLinkCandidate> externalLinkCandidateList) {
-      }
+   }
 
    public record ApiLinkingRule(
-         String text,
-          String matchType
-      ) {
+           String text,
+           String matchType
+   ) {
    }
 
 }
