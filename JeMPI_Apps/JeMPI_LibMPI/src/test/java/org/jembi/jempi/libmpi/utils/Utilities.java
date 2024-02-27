@@ -10,6 +10,7 @@ import org.jembi.jempi.shared.models.*;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -37,10 +38,6 @@ public class Utilities {
         return libMpi;
     }
 
-    public static void SetRules(String ruleId) {
-
-    }
-
     public static Interaction interactionFromDemographicData(final String interactionId, final CustomDemographicData demographicData){
         return new Interaction(interactionId == null ?  UUID.randomUUID().toString() : interactionId,
                 new CustomSourceId(UUID.randomUUID().toString(), null, null),
@@ -53,9 +50,13 @@ public class Utilities {
         libMPI.dropAll();
         libMPI.createSchema();
     }
-    public static void AddData(CustomDemographicData customDemographicData){
+    public static void AddData(List<CustomDemographicData> customDemographicData){
         LibMPI libMPI = getLibMPI();
-        libMPI.createInteractionAndLinkToClonedGoldenRecord(interactionFromDemographicData(null, customDemographicData), -1.0F);
+
+        for (CustomDemographicData customDemographicDatum : customDemographicData) {
+            libMPI.createInteractionAndLinkToClonedGoldenRecord(interactionFromDemographicData(null, customDemographicDatum), -1.0F);
+        }
+
     }
 
     public static void AddDataFromCSV(String dataId, Boolean cleanPrevious) {
