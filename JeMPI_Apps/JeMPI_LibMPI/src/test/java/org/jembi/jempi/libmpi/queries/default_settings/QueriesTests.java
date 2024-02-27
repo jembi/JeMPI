@@ -61,11 +61,108 @@ public class QueriesTests {
                 "123456")));
     }
 
-    void testCanFindCandidatesMultipleeterministically() {
+    @Test
+    void testCanFindCandidatesMultipleDeterministically() {
+        Utilities.AddData(List.of(
+                new CustomDemographicData(
+                        "name1",
+                        "familyName1",
+                        "male",
+                        "dob1",
+                        "city1",
+                        "phoneNumber1",
+                        "123456"),
+                new CustomDemographicData(
+                        "name2",
+                        "familyName2",
+                        "male",
+                        "dob2",
+                        "city2",
+                        "phoneNumber2",
+                        "785445")));
 
+
+        LibMPI libMPI = Utilities.getLibMPI();
+
+        // Deterministically givenName, familyName, phoneNumber
+        List<GoldenRecord>  gRS = libMPI.findLinkCandidates(new CustomDemographicData(
+                "name2",
+                "familyName2",
+                "unknown",
+                "unknown",
+                "unknown",
+                "phoneNumber2",
+                "unknown"));
+
+        QueryUtilities.expectGRSearchResultToMatch(gRS, List.of(new CustomDemographicData(
+                "name2",
+                "familyName2",
+                "male",
+                "dob2",
+                "city2",
+                "phoneNumber2",
+                "785445")));
+
+        // Deterministically givenName, familyName, phoneNumber - 0
+        List<GoldenRecord> gRS2 = libMPI.findLinkCandidates(new CustomDemographicData(
+                "1111",
+                "3333",
+                "unknown",
+                "unknown",
+                "unknown",
+                "2222",
+                "unknown"));
+
+        QueryUtilities.expectGRSearchResultToMatch(gRS2, List.of());
     }
+    @Test
+    void testCanFindCandidatesProbabilistically() {
+        Utilities.AddData(List.of(
+                new CustomDemographicData(
+                        "name1",
+                        "familyName1",
+                        "male",
+                        "dob1",
+                        "city1",
+                        "phoneNumber1",
+                        "123456"),
+                new CustomDemographicData(
+                        "name2",
+                        "familyName2",
+                        "male",
+                        "dob2",
+                        "city2",
+                        "phoneNumber2",
+                        "785445")));
 
-    void testCanFindCandidatesProbalistically() {
+        LibMPI libMPI = Utilities.getLibMPI();
+        // Deterministically givenName, familyName, phoneNumber - 0
+        List<GoldenRecord> gRS2 = libMPI.findLinkCandidates(new CustomDemographicData(
+                "name",
+                "familyName",
+                "male",
+                "unknown",
+                "city",
+                "unknown",
+                "unknown"));
 
+        QueryUtilities.expectGRSearchResultToMatch(gRS2, List.of(
+                new CustomDemographicData(
+                        "name1",
+                        "familyName1",
+                        "male",
+                        "dob1",
+                        "city1",
+                        "phoneNumber1",
+                        "123456"),
+                new CustomDemographicData(
+                        "name2",
+                        "familyName2",
+                        "male",
+                        "dob2",
+                        "city2",
+                        "phoneNumber2",
+                        "785445")
+        ));
     }
 }

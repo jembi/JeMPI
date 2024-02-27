@@ -15,21 +15,24 @@ public class QueryUtilities {
 
         if (queryGoldenRecords.isEmpty()){
             assertTrue(expectedDemographicData.isEmpty());
+        } else {
+            assertEquals(queryGoldenRecords.size(), expectedDemographicData.size());
+
+            Class<? extends CustomDemographicData> clazz = queryGoldenRecords.get(0).demographicData().getClass();
+            Field[] fields = clazz.getDeclaredFields();
+
+            queryGoldenRecords.stream().map(GoldenRecord::demographicData).forEach(g -> {
+                CustomDemographicData expectedObject = expectedDemographicData.get(idx[0]++);
+                for (Field field : fields) {
+                    try {
+                        assertEquals(field.get(g), field.get(expectedObject));
+                    } catch (IllegalAccessException e){
+                        fail();
+                    }
+                }
+            });
         }
 
-        assertEquals(queryGoldenRecords.size(), expectedDemographicData.size());
-        Class<? extends CustomDemographicData> clazz = queryGoldenRecords.get(0).demographicData().getClass();
-        Field[] fields = clazz.getDeclaredFields();
 
-        queryGoldenRecords.stream().map(GoldenRecord::demographicData).forEach(g -> {
-            CustomDemographicData expectedObject = expectedDemographicData.get(idx[0]++);
-            for (Field field : fields) {
-                try {
-                    assertEquals(field.get(g), field.get(expectedObject));
-                } catch (IllegalAccessException e){
-                    fail();
-                }
-            }
-        });
     }
 }
