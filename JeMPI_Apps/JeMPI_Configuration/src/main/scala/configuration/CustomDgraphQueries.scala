@@ -175,14 +175,14 @@ object CustomDgraphQueries {
         expr match {
           case Ast.Or(x) =>
             "("
-              + (for (k <- x.zipWithIndex)
+              + (for (k <- x.filter(v => !v.isInstanceOf[Ast.Null]).zipWithIndex)
                 yield
                   if (k._2 == 0) expression(k._1)
                   else " && " + expression(k._1)).mkString
               + ")"
           case Ast.And(x) =>
             "("
-              + (for (k <- x.zipWithIndex)
+              + (for (k <- x.filter(v => !v.isInstanceOf[Ast.Null]).zipWithIndex)
                 yield
                   if (k._2 == 0) expression(k._1)
                   else " || " + expression(k._1)).mkString
@@ -193,6 +193,8 @@ object CustomDgraphQueries {
             Utils.snakeCaseToCamelCase(variable.name) + "IsBlank"
           case Ast.Eq(variable) =>
             Utils.snakeCaseToCamelCase(variable.name) + "IsBlank"
+          case Ast.Null (variable) =>
+            "false"
           case _ =>
             "ERROR"
         }
