@@ -315,11 +315,11 @@ public abstract class ApiModels {
                          x.goldenID(),
                          x.event(),
                          new ApiLinkingRule(
-                                 String.format("Matched with score %s", x.score()), x.linkingRule().name())
+                                 String.format("Matched with score %s", x.score()),
+                                  x.linkingRule().name())
                  ))
                  .toList());
       }
-
       @JsonInclude(JsonInclude.Include.NON_NULL)
       public record AuditEntry(
               @JsonProperty("inserted_at") String insertedAt,

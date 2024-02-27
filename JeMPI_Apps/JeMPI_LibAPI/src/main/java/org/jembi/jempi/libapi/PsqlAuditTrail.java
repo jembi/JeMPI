@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
 
@@ -44,7 +45,8 @@ final class PsqlAuditTrail {
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
             final var score = rs.getFloat(7);
-            final var linkingRule = LinkingRule.valueOf(rs.getString(8));
+            final var linkingRuleName = Optional.ofNullable(rs.getString(8));
+            final var linkingRule = linkingRuleName.map(LinkingRule::valueOf).orElse(LinkingRule.UNMATCHED);
             list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score, linkingRule));
          }
       } catch (Exception e) {
@@ -71,7 +73,8 @@ final class PsqlAuditTrail {
             final var goldenID = rs.getString(5);
             final var event = rs.getString(6);
             final var score = rs.getFloat(7);
-            final var linkingRule = LinkingRule.valueOf(rs.getString(8));
+            final var linkingRuleName = Optional.ofNullable(rs.getString(8));
+            final var linkingRule = linkingRuleName.map(LinkingRule::valueOf).orElse(LinkingRule.UNMATCHED);
             list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event, score, linkingRule));
          }
       } catch (Exception e) {
