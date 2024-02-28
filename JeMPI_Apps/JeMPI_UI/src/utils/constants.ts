@@ -94,7 +94,7 @@ export const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
     flex: 1
   },
   {
-    field: 'linkingRule',
+    field: 'linking_rule',
     headerName: 'Matching Type',
     valueFormatter: ({ value }) => value.matchType,
     sortable: false,

@@ -4,7 +4,7 @@ export interface AuditTrail {
   interaction_id: string
   golden_id: string
   entry: string
-  linkingRule: LinkingRule
+  linking_rule: LinkingRule
 }
 
 export interface AuditTrailEntries {

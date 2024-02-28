@@ -327,7 +327,7 @@ public abstract class ApiModels {
             @JsonProperty("interaction_id") String interactionId,
             @JsonProperty("golden_id") String goldenId,
             @JsonProperty("entry") String entry,
-            @JsonProperty("linkingRule") ApiLinkingRule linkingRule
+            @JsonProperty("linking_rule") ApiLinkingRule linkingRule
             ) {
       }
    }

@@ -188,7 +188,7 @@ const auditTrail: AuditTrail[] = [
     interaction_id: '0x1627',
     golden_id: '0x1628',
     entry: 'Interaction -> New GoldenRecord (1.000000)',
-    linkingRule: {
+    linking_rule: {
       text: "",
       matchType: "DETERMINISTIC"
     }
@@ -199,7 +199,7 @@ const auditTrail: AuditTrail[] = [
     interaction_id: '0x1627',
     golden_id: '0x1628',
     entry: 'Interaction -> New GoldenRecord (1.000000)',
-    linkingRule: {
+    linking_rule: {
       text: "",
       matchType: "DETERMINISTIC"
     }
@@ -210,7 +210,7 @@ const auditTrail: AuditTrail[] = [
     interaction_id: '0x1627',
     golden_id: '0x1628',
     entry: 'Interaction -> New GoldenRecord (1.000000)',
-    linkingRule: {
+    linking_rule: {
       text: "",
       matchType: "DETERMINISTIC"
     }
