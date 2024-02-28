@@ -315,9 +315,7 @@ public abstract class ApiModels {
                                                                 x.interactionID(),
                                                                 x.goldenID(),
                                                                 x.event(),
-                                               new ApiLinkingRule(
-                                                       String.format("Matched with score %s", x.score()),
-                                                       x.linkingRule().name())
+                                               toApiModel(getDeserializedEventData(x.eventData()))
                                                ))
                                        .toList());
       }
@@ -362,4 +360,22 @@ public abstract class ApiModels {
    ) {
    }
 
+   private static LinkingAuditDetails getDeserializedEventData(final String eventData) {
+      try {
+         return OBJECT_MAPPER.readValue(eventData, LinkingAuditDetails.class);
+      } catch (JsonProcessingException e) {
+         LOGGER.error("Failed to deserialize event data", e);
+         return null;
+      }
+   }
+
+   private static ApiLinkingRule toApiModel(final LinkingAuditDetails linkingAuditDetails) {
+      if (linkingAuditDetails == null) {
+          return null;
+      }
+      return new ApiLinkingRule(
+              String.format("Matched with score %s", linkingAuditDetails.score()),
+              linkingAuditDetails.linkingRule().name()
+      );
+   }
 }

@@ -5,8 +5,7 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     interactionID  VARCHAR(64),
     goldenID       VARCHAR(64),
     event          VARCHAR(256),
-    score          FLOAT DEFAULT -1.0,
-    linkingRule    VARCHAR(14) DEFAULT 'UNMATCHED',
+    eventData      VARCHAR(256),
     CONSTRAINT PKEY_AUDIT_TRAIL PRIMARY KEY (id)
 );
 

@@ -11,6 +11,5 @@ public record AuditEvent(
       String interactionID,
       String goldenID,
       String event,
-      Float score,
-      LinkingRule linkingRule) {
+      String eventData) {
 }

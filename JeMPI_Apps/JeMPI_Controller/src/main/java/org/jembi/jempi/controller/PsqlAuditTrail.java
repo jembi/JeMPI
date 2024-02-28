@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.AuditEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.SQLException;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRA
 
 final class PsqlAuditTrail {
    private static final Logger LOGGER = LogManager.getLogger(PsqlAuditTrail.class);
+   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
    private final PsqlClient psqlClient;
 
    PsqlAuditTrail() {
@@ -55,17 +57,18 @@ final class PsqlAuditTrail {
 
    void addAuditEvent(final AuditEvent event) {
       psqlClient.connect(AppConfig.POSTGRESQL_AUDIT_DB);
-      try (var preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT, """
-                                                                                          INSERT INTO %s (createdAt, interactionID, goldenID, event, score, linkingRule)
-                                                                                          VALUES (?, ?, ?, ?, ?, ?);
+
+      try (
+              var preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT, """
+                                                                                          INSERT INTO %s (createdAt, interactionID, goldenID, event, eventData)
+                                                                                          VALUES (?, ?, ?, ?, ?);
                                                                                           """, PSQL_TABLE_AUDIT_TRAIL)
                                                                      .stripIndent())) {
          preparedStatement.setTimestamp(1, event.createdAt());
          preparedStatement.setString(2, event.interactionID());
          preparedStatement.setString(3, event.goldenID());
          preparedStatement.setString(4, event.event());
-         preparedStatement.setFloat(5, event.score());
-         preparedStatement.setString(6, event.linkingRule().name());
+         preparedStatement.setString(5, event.eventData());
          preparedStatement.executeUpdate();
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
