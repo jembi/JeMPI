@@ -358,4 +358,20 @@ public final class LibMPI {
       return result;
    }
 
+   /*
+    * *****************************************************************************
+    * *
+    * Hooks
+    * *****************************************************************************
+    * *
+    */
+
+    public Boolean beforeLinkingHook() {
+       return LibMPIIndexesManager.updateBeforeLinking(client);
+    }
+
+   public Boolean afterLinkingHook() {
+      return LibMPIIndexesManager.updateAfterLinking(client);
+   }
+
 }

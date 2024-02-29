@@ -164,6 +164,15 @@
       }
     }
   ],
+  "indexes": {
+    "linking": [
+      "national_id",
+      "given_name",
+      "family_name",
+      "phone_number"
+    ],
+    "matching": []
+  },
   "rules": {
     "link": {
       "deterministic": {
