@@ -37,3 +37,4 @@ jobs:
         docker-host: ${{ vars.DOCKER_LOCAL_HOST_NAME }}
         docker-username: ${{ secrets.DOCKER_LOCAL_USER_NAME }}
         docker-password: ${{ secrets.DOCKER_LOCAL_PASSWORD }}
+        docker-namespace: ${{ vars.DOCKER_LOCAL_NAMESPACE }}

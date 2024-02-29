@@ -52,3 +52,4 @@ jobs:
         docker-host: "docker.io"
         docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
         docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        docker-namespace: ${{ vars.DOCKER_HUB_NAMESPACE }}

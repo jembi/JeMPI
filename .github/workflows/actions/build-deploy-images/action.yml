@@ -10,6 +10,8 @@ inputs:
     required: true
   docker-password:
     required: true
+  docker-namespace:
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -23,3 +25,4 @@ runs:
         docker-username: ${{ inputs.docker-username }}
         docker-password: ${{ inputs.docker-password }}
         docker-host: ${{ inputs.docker-host }}
+        docker-namespace: ${{ inputs.docker-namespace }}
