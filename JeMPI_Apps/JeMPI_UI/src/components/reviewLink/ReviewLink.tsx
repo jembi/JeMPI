@@ -75,6 +75,9 @@ const ReviewLink = () => {
   } = useLinkReview(payload, refineSearchQuery, candidateThreshold)
   const { linkRecords, createNewGoldenRecord } = useRelink()
 
+  const shouldDisableCreateGoldenRecordButton = (): boolean =>
+  !(goldenRecord && goldenRecord?.linkRecords.length > 1);
+
   const mutateNotification = useMutation({
     mutationFn: (request: NotificationRequest) =>
       apiClient.updateNotification(request),
@@ -320,6 +323,7 @@ const ReviewLink = () => {
           <Button
             variant="outlined"
             onClick={() => setIsNewGoldenRecordDialogOpen(true)}
+            disabled={shouldDisableCreateGoldenRecordButton()}
           >
             Create new golden record
           </Button>
