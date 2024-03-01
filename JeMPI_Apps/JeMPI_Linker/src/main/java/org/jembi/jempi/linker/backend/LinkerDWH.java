@@ -160,12 +160,12 @@ public final class LinkerDWH {
                final var workCandidate = candidates.parallelStream()
                                                    .unordered()
                                                    .map(candidate -> new WorkCandidate(candidate,
-                                                      LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                      interaction.demographicData()),
+                                                      LinkerUtils.calcNormalizedScore(
+                                                              candidate.demographicData(),
+                                                              interaction.demographicData()),
                                                       LinkerUtils.determineLinkingRule(
-                                                             candidate.demographicData(),
-                                                             interaction.demographicData()
-                                                      )
+                                                              candidate.demographicData(),
+                                                              interaction.demographicData())
                                                    ))
                                                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                                    .collect(Collectors.toCollection(ArrayList::new))
@@ -209,8 +209,7 @@ public final class LinkerDWH {
                                                                interaction.demographicData()),
                                                          LinkerUtils.determineLinkingRule(
                                                                  candidate.demographicData(),
-                                                                 interaction.demographicData()
-                                                         )
+                                                                 interaction.demographicData())
                      ))
                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                      .collect(Collectors.toCollection(ArrayList::new));

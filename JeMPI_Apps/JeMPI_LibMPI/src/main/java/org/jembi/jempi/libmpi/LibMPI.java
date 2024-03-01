@@ -365,11 +365,13 @@ public final class LibMPI {
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
-                        String.format(Locale.ROOT, "Interaction -> New GoldenRecord (%f)", score), new LinkingAuditDetails(score, LinkingRule.UNMATCHED));
+                        String.format(Locale.ROOT, "Interaction -> New GoldenRecord (%f)", score),
+                 new LinkingAuditDetails(score, LinkingRule.UNMATCHED));
       } else {
          sendAuditEvent(interaction.interactionId(),
                         null,
-                        String.format(Locale.ROOT, "Interaction -> error linking to new GoldenRecord (%f)", score), new LinkingAuditDetails(score, LinkingRule.UNMATCHED));
+                        String.format(Locale.ROOT, "Interaction -> error linking to new GoldenRecord (%f)", score),
+                 new LinkingAuditDetails(score, LinkingRule.UNMATCHED));
       }
       return result;
    }
