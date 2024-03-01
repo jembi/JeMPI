@@ -11,6 +11,7 @@ public final class LinkerUtils {
 
    private LinkerUtils() {
    }
+
    public static float calcNormalizedScore(
          final CustomDemographicData goldenRecord,
          final CustomDemographicData interaction) {
@@ -18,7 +19,6 @@ public final class LinkerUtils {
          return 1.0F;
       }
       return CustomLinkerProbabilistic.linkProbabilisticScore(goldenRecord, interaction);
-
    }
 
    public static LinkingRule determineLinkingRule(
@@ -28,6 +28,5 @@ public final class LinkerUtils {
             return LinkingRule.DETERMINISTIC;
         }
         return LinkingRule.PROBABILISTIC;
-    }
-
+   }
 }

@@ -160,12 +160,12 @@ public final class LinkerDWH {
                final var workCandidate = candidates.parallelStream()
                                                    .unordered()
                                                    .map(candidate -> new WorkCandidate(candidate,
-                                                                                       LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                                                       interaction.demographicData()),
-                                                                                      LinkerUtils.determineLinkingRule(
-                                                                                              candidate.demographicData(),
-                                                                                              interaction.demographicData()
-                                                                                      )
+                                                      LinkerUtils.calcNormalizedScore(candidate.demographicData(),
+                                                                                      interaction.demographicData()),
+                                                      LinkerUtils.determineLinkingRule(
+                                                             candidate.demographicData(),
+                                                             interaction.demographicData()
+                                                      )
                                                    ))
                                                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                                    .collect(Collectors.toCollection(ArrayList::new))
@@ -284,7 +284,7 @@ public final class LinkerDWH {
                                                                                    linkToGoldenId,
                                                                                    validated1,
                                                                                    validated2,
-                                                                                    firstCandidate.linkingRule());
+                                                                                   firstCandidate.linkingRule());
 
                   if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                      sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
