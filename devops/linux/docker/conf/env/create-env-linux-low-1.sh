@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export USE_LOCAL_REGISTRY=${USE_LOCAL_REGISTRY:-"true"}
+
 export PROJECT_PATH_APPS_ROOT=$(builtin cd ../../../../../; pwd)
 export PROJECT_PATH_UI=${PROJECT_PATH_APPS_ROOT}/JeMPI_Apps/JeMPI_UI
 export PROJECT_DIR=$(builtin cd ../../; pwd)
