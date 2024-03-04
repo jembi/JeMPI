@@ -1,0 +1,41 @@
+version: '3.8'
+
+networks:
+  backend:
+    name: backend
+    external: true
+  frontend:
+    name: frontend
+    external: true
+
+services:
+  scylladb:
+    image: scylladb/scylla
+    ports:
+      - published: 9042
+        target: 9042
+        protocol: tcp
+        mode: host
+      - published: 7000
+        target: 7000
+        protocol: tcp
+        mode: host
+      - published: 7001
+        target: 7001
+        protocol: tcp
+        mode: host
+      - published: 7199
+        target: 7199
+        protocol: tcp
+        mode: host
+      - published: 9160
+        target: 9160
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: ${DATA_SCYLLADB_DIR}
+        target: /var/lib/scylla
+        read_only: true
+    environment:
+      - SCYLLA_LOG_LEVEL=info  # Adjust log level as needed

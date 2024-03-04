@@ -93,6 +93,12 @@
             <artifactId>commons-text</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.scylladb</groupId>
+            <artifactId>java-driver-core</artifactId>
+            <version>4.14.1.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

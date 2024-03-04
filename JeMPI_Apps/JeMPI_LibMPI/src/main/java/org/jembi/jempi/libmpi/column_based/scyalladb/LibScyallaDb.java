@@ -1,5 +1,6 @@
 package org.jembi.jempi.libmpi.column_based.scyalladb;
 
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 
@@ -9,22 +10,85 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.shared.models.*;
 
+import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
-
+import com.datastax.oss.driver.api.core.CqlSession;
 
 public final class LibScyallaDb implements LibMPIClientInterface {
 
     private static final Logger LOGGER = LogManager.getLogger(LibScyallaDb.class);
     private final LibMPIClientInterface baseClient;
+    private  CqlSession scyallDbClient;
 
     public LibScyallaDb(final LibMPIClientInterface baseClientIn) {
         this.baseClient = baseClientIn;
         LOGGER.info("{}", "LibDgraph ScyallaDb");
+        this.connectToScyllaDB("0.0.0.0", 9042);
+        this.createScyllaDBSchema();
+
     }
 
+    private void connectToScyllaDB(final String node, final Integer port) {
+        CqlSessionBuilder b = CqlSession.builder().addContactPoint(new InetSocketAddress(node, port)).withLocalDatacenter("datacenter1");
+        scyallDbClient = b.build();
+
+    }
+
+    private void createScyllaDBSchema() {
+        for (String query : getSchema()) {
+            scyallDbClient.execute(query);
+        }
+
+    }
+    private List<String> getSchema() {
+        return List.of("""
+                CREATE KEYSPACE IF NOT EXISTS jempi WITH replication =
+                    {'class': 'SimpleStrategy', 'replication_factor' : 1};
+                """,
+                """
+                    CREATE TYPE IF NOT EXISTS jempi.sourceId (
+                      facility text,
+                      patient text
+                    );
+                """,
+                """
+                 CREATE TABLE IF NOT EXISTS jempi.GoldenRecord (
+                      source_id uuid,
+                      aux_date_created timestamp,
+                      aux_auto_update_enabled boolean,
+                      aux_id text,
+                      given_name text,
+                      family_name text,
+                      gender text,
+                      dob text,
+                      city text,
+                      phone_number text,
+                      national_id text,
+                      interactions uuid,
+                      PRIMARY KEY (source_id)
+                    );
+                 """,
+                """
+                  CREATE TABLE IF NOT EXISTS jempi.Interaction (
+                      source_id uuid,
+                      aux_date_created timestamp,
+                      aux_id text,
+                      aux_clinical_data text,
+                      given_name text,
+                      family_name text,
+                      gender text,
+                      dob text,
+                      city text,
+                      phone_number text,
+                      national_id text,
+                      PRIMARY KEY (source_id)
+                    );
+                  """
+                );
+    }
 
     /*
      * *******************************************************
