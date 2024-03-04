@@ -9,7 +9,7 @@ import org.jembi.jempi.shared.models.GoldenRecord;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record CustomDgraphGoldenRecord(
+public record CustomDgraphGoldenRecord(
       @JsonProperty("uid") String goldenId,
       @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
@@ -23,7 +23,7 @@ record CustomDgraphGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId) {
 
-   GoldenRecord toGoldenRecord() {
+   public GoldenRecord toGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
                               this.sourceId() != null
                                  ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()

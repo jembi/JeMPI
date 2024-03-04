@@ -111,6 +111,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <version>8.10.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

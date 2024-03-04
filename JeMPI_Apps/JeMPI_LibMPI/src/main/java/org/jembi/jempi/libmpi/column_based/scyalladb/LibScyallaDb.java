@@ -1,18 +1,30 @@
 package org.jembi.jempi.libmpi.column_based.scyalladb;
 
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.XMLResponseParser;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrInputDocument;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.dgraph.CustomDgraphGoldenRecord;
+import org.jembi.jempi.libmpi.dgraph.DgraphGoldenRecords;
 import org.jembi.jempi.shared.models.*;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
@@ -23,16 +35,25 @@ import com.datastax.oss.driver.api.core.CqlSession;
 public final class LibScyallaDb implements LibMPIClientInterface {
 
     private static final String KEY_SPACE = "jempi";
+    private static final String SOLR_CORE = "jempi";
     private static final Logger LOGGER = LogManager.getLogger(LibScyallaDb.class);
     private final LibMPIClientInterface baseClient;
-    private  CqlSession scyallDbClient;
+    private CqlSession scyallDbClient;
+    private HttpSolrClient solr;
 
     public LibScyallaDb(final LibMPIClientInterface baseClientIn) {
         this.baseClient = baseClientIn;
         LOGGER.info("{}", "LibDgraph ScyallaDb");
         this.connectToScyllaDB("0.0.0.0", 9042);
         this.createScyllaDBSchema();
+        this.loadSolr("0.0.0.0", 8983);
 
+    }
+
+    private void loadSolr(final String node, final Integer port) {
+        String urlString = String.format("http://%s:%d/solr/%s", node, port, LibScyallaDb.SOLR_CORE);
+        solr = new HttpSolrClient.Builder(urlString).build();
+        solr.setParser(new XMLResponseParser());
     }
 
     private void connectToScyllaDB(final String node, final Integer port) {
@@ -42,7 +63,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
     }
 
     private void createScyllaDBSchema() {
-        //scyallDbClient.execute(String.format("DROP KEYSPACE IF EXISTS %s", LibScyallaDb.KEY_SPACE));
+        scyallDbClient.execute(String.format("DROP KEYSPACE IF EXISTS %s", LibScyallaDb.KEY_SPACE));
         for (String query : getSchema()) {
             scyallDbClient.execute(query);
         }
@@ -81,7 +102,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
                       phone_number text,
                       national_id text,
                       interactions uuid,
-                      PRIMARY KEY ((national_id, phone_number, given_name, family_name), uid)
+                      PRIMARY KEY (national_id, uid)
                     );
                  """,
                 """
@@ -98,7 +119,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
                       city text,
                       phone_number text,
                       national_id text,
-                      PRIMARY KEY ((national_id, phone_number, given_name, family_name), uid)
+                      PRIMARY KEY (national_id, uid)
                     );
                   """
                 );
@@ -119,6 +140,59 @@ public final class LibScyallaDb implements LibMPIClientInterface {
         return baseClient.countGoldenRecords();
     }
 
+    private DgraphGoldenRecords rowsToInteraction(final List<Row> diResults) {
+        return new DgraphGoldenRecords(diResults.stream().map(v ->
+            new CustomDgraphGoldenRecord(
+                    v.getUuid("uid").toString(),
+                    null,
+                    LocalDateTime.ofInstant(v.getInstant("aux_date_created"),  ZoneId.systemDefault()),
+                    v.getBoolean("aux_auto_update_enabled"),
+                    v.getString("aux_id"),
+                    v.getString("given_name"),
+                    v.getString("family_name"),
+                    v.getString("gender"),
+                    v.getString("dob"),
+                    v.getString("city"),
+                    v.getString("phone_number"),
+                    v.getString("national_id")
+                )
+        ).toList());
+    }
+    private void findLinkCandidatesInternalProbablistcally(final CustomDemographicData demographicData) {
+        SolrQuery query = new SolrQuery();
+        query.set("q", String.format("given_name:'%s' AND family_name:'%s' AND phone_number:'%s' AND city:'%s'",
+                demographicData.givenName, demographicData.familyName, demographicData.phoneNumber, demographicData.city));
+        QueryResponse response = solr.query(query);
+    }
+    private DgraphGoldenRecords findLinkCandidatesInternalDeterminstacally(final CustomDemographicData demographicData) {
+        // todo: Move to Custom
+        var d1 = SimpleStatement.builder("SELECT * FROM jempi.GoldenRecord WHERE national_id = :national_id")
+                .addNamedValue("national_id", demographicData.nationalId).build();
+
+        var d2 = SimpleStatement.builder(" SELECT * FROM jempi.GoldenRecord WHERE given_name = :given_name and family_name = :family_name and phone_number = :phone_number ALLOW FILTERING")
+                .addNamedValue("given_name", demographicData.givenName)
+                .addNamedValue("family_name", demographicData.familyName)
+                .addNamedValue("phone_number", demographicData.phoneNumber).build();
+
+        for (SimpleStatement q : List.of(d1, d2)) {
+            ResultSet r = scyallDbClient.execute(q);
+            List<Row> diResults = r.all();
+            if (!diResults.isEmpty()) {
+                return rowsToInteraction(diResults);
+            }
+        }
+
+        return null;
+
+    }
+    private List<GoldenRecord> findLinkCandidatesInternal(final CustomDemographicData demographicData) {
+        for (DgraphGoldenRecords record : List.of(findLinkCandidatesInternalDeterminstacally(demographicData))) {
+            if (record != null) {
+                return record.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+            }
+        }
+        return List.of();
+    }
     public Interaction findInteraction(final String interactionId) {
         return baseClient.findInteraction(interactionId);
     }
@@ -155,7 +229,8 @@ public final class LibScyallaDb implements LibMPIClientInterface {
     }
 
     public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
-        return dbSwitchS(() -> baseClient.findLinkCandidates(demographicData), null);
+        return dbSwitchS(() -> baseClient.findLinkCandidates(demographicData),
+                () -> findLinkCandidatesInternal(demographicData));
     }
 
     public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
@@ -419,7 +494,29 @@ public final class LibScyallaDb implements LibMPIClientInterface {
                 .build();
 
         scyallDbClient.execute(statement);
+        addToSolr(uidToUse, interaction);
         return uidToUse;
+    }
+
+    private void addToSolr(final UUID uidToUse, final CustomDemographicData interaction) {
+
+        SolrInputDocument document = new SolrInputDocument();
+        document.addField("uid", uidToUse.toString());
+        document.addField("given_name", interaction.givenName);
+        document.addField("family_name", interaction.familyName);
+        document.addField("city", interaction.city);
+        document.addField("dob", interaction.dob);
+        document.addField("phoneNumber", interaction.phoneNumber);
+        document.addField("national_id", interaction.nationalId);
+        try {
+            solr.add(document);
+            solr.commit();
+        } catch (SolrServerException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
     public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
             final Interaction interaction,

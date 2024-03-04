@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record DgraphGoldenRecords(@JsonProperty("all") List<CustomDgraphGoldenRecord> all) {
+public record DgraphGoldenRecords(@JsonProperty("all") List<CustomDgraphGoldenRecord> all) {
 }
