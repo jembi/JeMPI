@@ -79,9 +79,12 @@ $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-a
 
 
 
+
+
 # 
 # build UI apps
 #
+
 
 
 # BUILD UI
@@ -101,6 +104,11 @@ Push-Location ..\..\..\JeMPI_Apps
   mvn package
 Pop-Location
 
+#
+# Start BootStrapper and Create databases
+#
+.\bootstrapper.ps1 -Wait
+#
 
 #
 # start async receiver
