@@ -59,5 +59,5 @@ source $JEMPI_HOME/devops/windows/base-docker-wsl/c-registry-2-push-hub-images.s
 # Build and reboot the entire stack
 echo "Build and reboot the entire stack"
 # yes | source $JEMPI_HOME/devops/windows/base-docker-wsl/z-stack-2-reboot-hub-images.sh
-yes | source $JEMPI_HOME/devops/windows/base-docker-wsl/z-stack-2-reboot-hub-images-db-init
+yes | source $JEMPI_HOME/devops/windows/base-docker-wsl/z-stack-2-reboot-hub-images-db-init.sh
 
