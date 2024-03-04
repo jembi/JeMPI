@@ -1,6 +1,7 @@
 package org.jembi.jempi.libmpi.column_based.scyalladb;
 
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 
@@ -12,13 +13,16 @@ import org.jembi.jempi.shared.models.*;
 
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 
 public final class LibScyallaDb implements LibMPIClientInterface {
 
+    private static final String KEY_SPACE = "jempi";
     private static final Logger LOGGER = LogManager.getLogger(LibScyallaDb.class);
     private final LibMPIClientInterface baseClient;
     private  CqlSession scyallDbClient;
@@ -38,24 +42,33 @@ public final class LibScyallaDb implements LibMPIClientInterface {
     }
 
     private void createScyllaDBSchema() {
+        //scyallDbClient.execute(String.format("DROP KEYSPACE IF EXISTS %s", LibScyallaDb.KEY_SPACE));
         for (String query : getSchema()) {
             scyallDbClient.execute(query);
         }
 
     }
     private List<String> getSchema() {
-        return List.of("""
-                CREATE KEYSPACE IF NOT EXISTS jempi WITH replication =
+
+        /*
+         IMPORTANT: Understanding primary key is cassandra/sycalladb
+         */
+
+        return List.of(String.format("""
+                CREATE KEYSPACE IF NOT EXISTS %s WITH replication =
                     {'class': 'SimpleStrategy', 'replication_factor' : 1};
-                """,
+                """, LibScyallaDb.KEY_SPACE),
                 """
-                    CREATE TYPE IF NOT EXISTS jempi.sourceId (
+                    CREATE TABLE IF NOT EXISTS jempi.sourceId (
                       facility text,
-                      patient text
+                      patient text,
+                      uid uuid,
+                      PRIMARY KEY ((facility, patient), uid)
                     );
                 """,
                 """
                  CREATE TABLE IF NOT EXISTS jempi.GoldenRecord (
+                      uid uuid,
                       source_id uuid,
                       aux_date_created timestamp,
                       aux_auto_update_enabled boolean,
@@ -68,11 +81,12 @@ public final class LibScyallaDb implements LibMPIClientInterface {
                       phone_number text,
                       national_id text,
                       interactions uuid,
-                      PRIMARY KEY (source_id)
+                      PRIMARY KEY ((national_id, phone_number, given_name, family_name), uid)
                     );
                  """,
                 """
                   CREATE TABLE IF NOT EXISTS jempi.Interaction (
+                      uid uuid,
                       source_id uuid,
                       aux_date_created timestamp,
                       aux_id text,
@@ -84,7 +98,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
                       city text,
                       phone_number text,
                       national_id text,
-                      PRIMARY KEY (source_id)
+                      PRIMARY KEY ((national_id, phone_number, given_name, family_name), uid)
                     );
                   """
                 );
@@ -267,10 +281,170 @@ public final class LibScyallaDb implements LibMPIClientInterface {
         return dbSwitchS(() -> baseClient.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore), null);
     }
 
+    private UUID getSourceId(final Interaction interaction) {
+        var sourceId = interaction.sourceId();
+        var results = scyallDbClient.execute(
+                "SELECT * FROM jempi.sourceId WHERE facility = ? and patient = ?",
+                        sourceId.facility() == null ? "" : sourceId.facility(), sourceId.patient() == null ? "" : sourceId.patient() );
+
+        UUID uuid = UUID.randomUUID();
+        var row = results.all();
+        if (row.isEmpty()) {
+            scyallDbClient.execute(
+                    "INSERT INTO jempi.sourceId (uid, facility, patient) VALUES (?, ?, ?)",
+                            uuid, sourceId.facility() == null ? "" : sourceId.facility(), sourceId.patient() == null ? "" : sourceId.patient());
+        } else {
+            uuid = row.get(0).getUuid("uid");
+        }
+        return uuid;
+    }
+
+    private record InsertInteractionResult(
+            UUID interactionUID,
+            UUID sourceUID) {
+    }
+    private InsertInteractionResult insertInteraction(final Interaction interaction) {
+
+        final String insertQuery = """
+                INSERT INTO jempi.Interaction (
+                    uid,
+                    source_id,
+                    aux_date_created,
+                    aux_id,
+                    aux_clinical_data,
+                    given_name,
+                    family_name,
+                    gender,
+                    dob,
+                    city,
+                    phone_number,
+                    national_id
+                )
+                VALUES (
+                    :uid,
+                    :source_id,
+                    :aux_date_created,
+                    :aux_id,
+                    :aux_clinical_data,
+                    :given_name,
+                    :family_name,
+                    :gender,
+                    :dob,
+                    :city,
+                    :phone_number,
+                    :national_id
+                );
+            """;
+        var sourceId = getSourceId(interaction);
+        var uniqueInteractionData = interaction.uniqueInteractionData();
+        var demographicData = interaction.demographicData();
+
+        var uidToUse = UUID.randomUUID();
+        SimpleStatement statement = SimpleStatement.builder(insertQuery)
+                .addNamedValue("uid", uidToUse)
+                .addNamedValue("source_id", sourceId)
+                .addNamedValue("aux_date_created", uniqueInteractionData.auxDateCreated().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .addNamedValue("aux_id", uniqueInteractionData.auxId())
+                .addNamedValue("aux_clinical_data", uniqueInteractionData.auxClinicalData())
+                .addNamedValue("given_name", demographicData.givenName)
+                .addNamedValue("family_name", demographicData.familyName)
+                .addNamedValue("gender", demographicData.gender)
+                .addNamedValue("dob", demographicData.dob)
+                .addNamedValue("city", demographicData.city)
+                .addNamedValue("phone_number", demographicData.phoneNumber)
+                .addNamedValue("national_id", demographicData.nationalId)
+                .build();
+
+        scyallDbClient.execute(statement);
+
+        return new InsertInteractionResult(uidToUse, sourceId);
+    }
+
+    private UUID cloneGoldenRecordFromInteraction(
+            final CustomDemographicData interaction,
+            final UUID interactionUID,
+            final UUID sourceUID,
+            final float score,
+            final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
+
+
+        final String insertQuery = """
+                INSERT INTO jempi.GoldenRecord (
+                    uid,
+                    source_id,
+                    aux_date_created,
+                    aux_id,
+                    aux_auto_update_enabled,
+                    given_name,
+                    family_name,
+                    gender,
+                    dob,
+                    city,
+                    phone_number,
+                    national_id,
+                    interactions
+                )
+                VALUES (
+                    :uid,
+                    :source_id,
+                    :aux_date_created,
+                    :aux_id,
+                    :aux_auto_update_enabled,
+                    :given_name,
+                    :family_name,
+                    :gender,
+                    :dob,
+                    :city,
+                    :phone_number,
+                    :national_id,
+                    :interactions
+                );
+            """;
+
+        var uidToUse = UUID.randomUUID();
+        SimpleStatement statement = SimpleStatement.builder(insertQuery)
+                .addNamedValue("uid", uidToUse)
+                .addNamedValue("source_id", sourceUID)
+                .addNamedValue("aux_date_created", customUniqueGoldenRecordData.auxDateCreated().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .addNamedValue("aux_id", customUniqueGoldenRecordData.auxId())
+                .addNamedValue("aux_auto_update_enabled", customUniqueGoldenRecordData.auxAutoUpdateEnabled())
+                .addNamedValue("given_name", interaction.givenName)
+                .addNamedValue("family_name", interaction.familyName)
+                .addNamedValue("gender", interaction.gender)
+                .addNamedValue("dob", interaction.dob)
+                .addNamedValue("city", interaction.city)
+                .addNamedValue("phone_number", interaction.phoneNumber)
+                .addNamedValue("national_id", interaction.nationalId)
+                .addNamedValue("interactions", interactionUID)
+                .build();
+
+        scyallDbClient.execute(statement);
+        return uidToUse;
+    }
     public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
             final Interaction interaction,
             final float score) {
-        return dbSwitchS(() -> baseClient.createInteractionAndLinkToClonedGoldenRecord(interaction, score), null);
+        return dbSwitchS(() -> baseClient.createInteractionAndLinkToClonedGoldenRecord(interaction, score),
+                            () -> {
+                                var result = insertInteraction(interaction);
+                                if (result.interactionUID == null) {
+                                    LOGGER.error("Failed to insert interaction");
+                                    return null;
+                                }
+                                final var grUID = cloneGoldenRecordFromInteraction(interaction.demographicData(),
+                                        result.interactionUID,
+                                        result.sourceUID,
+                                        1.0F,
+                                        new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()));
+
+                                if (grUID == null) {
+                                    LOGGER.error("Failed to insert golden record");
+                                    return null;
+                                }
+
+                                return new LinkInfo(grUID.toString(), result.interactionUID.toString(), result.sourceUID.toString(), 1.0F);
+
+                            });
     }
 
     public void startTransaction() {

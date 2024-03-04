@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.libmpi.column_based.scyalladb.LibScyallaDb;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
@@ -23,7 +24,6 @@ public final class LibMPI {
    private final LibMPIClientInterface client;
 
    private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
-
    public LibMPI(
          final Level level,
          final String[] host,
@@ -36,7 +36,7 @@ public final class LibMPI {
                                                new StringSerializer(),
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
-      client = new LibDgraph(level, host, port);
+      client = new LibScyallaDb(new LibDgraph(level, host, port));
    }
 
    public LibMPI(
