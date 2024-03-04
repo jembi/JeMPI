@@ -155,7 +155,7 @@ $etl_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'etl_stderr.txt'
-                            -RedirectStandardOutput 'etl_stdout.txt'
+                            # -RedirectStandardOutput 'etl_stdout.txt'
 $etl_handle | Export-Clixml -Path (Join-Path './' 'etl_handle.xml')
 
 
@@ -197,7 +197,7 @@ $controller_handle = Start-Process -FilePath java `
                                    -Verbose `
                                    -PassThru `
                                    -RedirectStandardError 'controller_stderr.txt'
-                                   -RedirectStandardOutput 'controller_stdout.txt'
+                                  #  -RedirectStandardOutput 'controller_stdout.txt'
 $controller_handle | Export-Clixml -Path (Join-Path './' 'controller_handle.xml')
 
 
@@ -243,7 +243,7 @@ $linker_handle = Start-Process -FilePath java `
                                -Verbose `
                                -PassThru `
                                -RedirectStandardError 'linker_stderr.txt'
-                               -RedirectStandardOutput 'linker_stdout.txt'
+                              #  -RedirectStandardOutput 'linker_stdout.txt'
 $linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
 
 
@@ -285,5 +285,5 @@ $api_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'api_stderr.txt'
-                           -RedirectStandardOutput 'api_stdout.txt'
+                          #  -RedirectStandardOutput 'api_stdout.txt'
 $api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')

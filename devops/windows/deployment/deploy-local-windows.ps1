@@ -38,6 +38,11 @@ function  installApp() {
 Start-Process wsl.exe -WindowStyle Normal
 # Wait for WSL to start
 
+Push-Location $currentPath/devops/windows/deployment/common
+    Write-Host "Current directory: $PWD.path"
+    .\allow_port.ps1 -Wait
+Pop-Location
+
 
 # Display menu options
 Write-Host "Select an option for local deployment:"
@@ -52,7 +57,6 @@ Write-Host "8. Install Prerequisites."
 
 # Get user input
 $choice = Read-Host "Enter the number of your choice"
-
 $wslPath = wsl.exe pwd
 Write-Host "Path in WSL:- $wslPath"
 # Process the user's choice
