@@ -74,6 +74,10 @@ object CustomLinkerDeterministic {
             val left = field + "L"
             val right = field + "R"
             s"isMatch($left, $right)"
+          case Ast.Null(variable) =>
+            val field = Utils.snakeCaseToCamelCase(variable.name)
+            val left = field + "L"
+            s"StringUtils.isBlank($left)"
           case _ =>
             "ERROR"
         }
@@ -89,15 +93,19 @@ object CustomLinkerDeterministic {
              |""".stripMargin)
       } else {
         val z = map.zipWithIndex
+        var definedProperties: List[String] = List()
         z.foreach((map, index) => {
           val expression: Ast.Expression = ParseRule.parse(map._2.text)
           val expr_1 = checkNullExpression(expression)
           map._2.vars.foreach(v => {
             val field = Utils.snakeCaseToCamelCase(v)
-            val left = field + "L"
-            val right = field + "R"
-            writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
-            writer.println(" " * 6 + s"final var $right = interaction.$field;")
+            if (!definedProperties.contains(field)){
+              val left = field + "L"
+              val right = field + "R"
+              writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
+              writer.println(" " * 6 + s"final var $right = interaction.$field;")
+              definedProperties = definedProperties :+ field
+            }
           })
           if (index < z.size - 1) {
             writer.println(s"""      if ($expr_1) {

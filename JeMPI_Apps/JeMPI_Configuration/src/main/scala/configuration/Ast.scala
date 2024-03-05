@@ -16,4 +16,6 @@ object Ast {
 
   case class Eq(name: Variable) extends Expression
 
+  case class Null(name: Variable) extends Expression
+
 }
