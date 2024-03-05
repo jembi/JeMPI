@@ -86,6 +86,20 @@ private object CustomDgraphIndexes {
               write_field_with_index(field, "Interaction", indexPropsOpt.get.props, 30)
             }
           })
+
+          val index_to_remove = config.demographicFields.filter(f => !index_names.contains(f.fieldName))
+          index_to_remove.foreach(field => {
+              val indexGoldenRecord = field.indexGoldenRecord.getOrElse("")
+              val indexInteraction = field.indexInteraction.getOrElse("")
+
+              if (indexGoldenRecord != "") {
+                write_field_without_index(field, "GoldenRecord", indexGoldenRecord, 29)
+              }
+
+              if (indexInteraction != "") {
+                write_field_without_index(field, "Interaction", indexInteraction, 30)
+              }
+            })
         }
 
         writer.println(
@@ -117,6 +131,8 @@ private object CustomDgraphIndexes {
                   write_func(field, "Interaction", indexInteraction, 30)
                 }
               })
+
+              removeUniqueIndexes()
 
             writer.println(
               s"""
@@ -150,7 +166,22 @@ private object CustomDgraphIndexes {
         )
       }
 
-  }
+      def removeUniqueIndexes(): Unit = {
+        List(config.indexes.linking, config.indexes.matching).foreach(indexsObjOption => {
+          if (indexsObjOption.isDefined) {
+            val indexsObj = indexsObjOption.get
 
+            val index_names = indexsObj.keySet
+            val uniqueIndexes = config.demographicFields.filter(f => index_names.contains(f.fieldName) && f.indexGoldenRecord.getOrElse("") == "" && f.indexInteraction.getOrElse("") == "")
+
+            uniqueIndexes.foreach(field => {
+              write_field_without_index(field, "GoldenRecord", "", 29)
+              write_field_without_index(field, "Interaction", "", 30)
+            })
+
+          }
+        })
+      }
+  }
 
 }

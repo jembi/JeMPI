@@ -408,7 +408,6 @@ final class DgraphMutations {
 
    public Option<MpiGeneralError> loadLinkingIndexes() {
       try {
-         deleteAllIndexes();
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_LINKING_INDEXES).build();
          DgraphClient.getInstance().alter(operation);
          final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
@@ -423,7 +422,6 @@ final class DgraphMutations {
 
    public Option<MpiGeneralError> loadDefaultIndexes() {
       try {
-         deleteAllIndexes();
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_DEFAULT_INDEXES).build();
          DgraphClient.getInstance().alter(operation);
          final var mySchema = DgraphProto.Operation.newBuilder().getSchema();

@@ -45,6 +45,13 @@ final class CustomDgraphIndexes {
 
          GoldenRecord.national_id:                  string    @index(exact,trigram)              .
          Interaction.national_id:                   string    @index(exact,trigram)              .
+         GoldenRecord.given_name:                   string                                       .
+         Interaction.given_name:                    string                                       .
+         GoldenRecord.family_name:                  string                                       .
+         Interaction.family_name:                   string                                       .
+         GoldenRecord.gender:                       string                                       .
+         GoldenRecord.city:                         string                                       .
+         GoldenRecord.phone_number:                 string                                       .
 
          """;
 
