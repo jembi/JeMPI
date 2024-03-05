@@ -151,9 +151,11 @@ public interface LibMPIClientInterface {
          Interaction interaction,
          float score);
 
-   Boolean deleteAllIndexes();
-   Boolean createIndexes(List<String> indexes);
-   Boolean deleteIndexes(List<String> indexes);
+   Option<MpiGeneralError> deleteAllIndexes();
+   Option<MpiGeneralError> loadLinkingIndexes();
+   Option<MpiGeneralError> loadDefaultIndexes();
+   Boolean shouldUpdateLinkingIndexes();
+
 
    record GoldenIdScore(
          String goldenId,

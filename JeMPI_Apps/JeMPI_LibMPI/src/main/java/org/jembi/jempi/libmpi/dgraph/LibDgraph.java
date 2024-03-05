@@ -267,8 +267,8 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    @Override
-   public Boolean deleteAllIndexes() {
-      return null;
+   public Option<MpiGeneralError> deleteAllIndexes() {
+      return dgraphMutations.deleteAllIndexes();
    }
 
    @Override

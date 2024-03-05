@@ -391,6 +391,54 @@ final class DgraphMutations {
       return result != null;
    }
 
+
+   public Option<MpiGeneralError> deleteAllIndexes() {
+      try {
+         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.REMOVE_ALL_INDEXES).build();
+         DgraphClient.getInstance().alter(operation);
+         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
+         LOGGER.trace("{}", mySchema);
+         return Option.none();
+      } catch (RuntimeException ex) {
+         LOGGER.trace("{}", CustomDgraphIndexes.REMOVE_ALL_INDEXES);
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+         return Option.of(new MpiServiceError.GeneralError("Removing indexes error"));
+      }
+   }
+
+   public Option<MpiGeneralError> loadLinkingIndexes() {
+      try {
+         deleteAllIndexes();
+         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_LINKING_INDEXES).build();
+         DgraphClient.getInstance().alter(operation);
+         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
+         LOGGER.trace("{}", mySchema);
+         return Option.none();
+      } catch (RuntimeException ex) {
+         LOGGER.trace("{}", CustomDgraphIndexes.LOAD_LINKING_INDEXES);
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+         return Option.of(new MpiServiceError.GeneralError("Loading linking indexes error"));
+      }
+   }
+
+   public Option<MpiGeneralError> loadDefaultIndexes() {
+      try {
+         deleteAllIndexes();
+         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_DEFAULT_INDEXES).build();
+         DgraphClient.getInstance().alter(operation);
+         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
+         LOGGER.trace("{}", mySchema);
+         return Option.none();
+      } catch (RuntimeException ex) {
+         LOGGER.warn("{}", CustomDgraphIndexes.LOAD_DEFAULT_INDEXES);
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+         return Option.of(new MpiServiceError.GeneralError("Loading default indexes error"));
+      }
+   }
+   public Boolean shouldUpdateLinkingIndexes() {
+      return CustomDgraphIndexes.shouldUpdateLinkingIndexes();
+   }
+
    private record InsertInteractionResult(
          String interactionUID,
          String sourceUID) {

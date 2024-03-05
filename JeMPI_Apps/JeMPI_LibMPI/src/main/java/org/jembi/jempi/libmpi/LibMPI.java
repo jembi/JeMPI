@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
-import org.jembi.jempi.libmpi.lib.index_manager.LibMPIIndexesManager;
+import org.jembi.jempi.libmpi.lib.hooks.HooksRunner;
 import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
@@ -23,7 +23,7 @@ public final class LibMPI {
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
    private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
-   private final LibMPIIndexesManager clientIndexManager;
+   private final HooksRunner hooksRunner;
 
    public LibMPI(
          final Level level,
@@ -38,7 +38,7 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       client = new LibDgraph(level, host, port);
-      clientIndexManager = this.loadIndexManager(client);
+      hooksRunner = new HooksRunner(client);
    }
 
    public LibMPI(
@@ -54,12 +54,9 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       client = new LibPostgresql(URL, USR, PSW);
-      clientIndexManager = this.loadIndexManager(client);
+      hooksRunner = new HooksRunner(client);
    }
 
-   private LibMPIIndexesManager loadIndexManager(final LibMPIClientInterface client) {
-       return new LibMPIIndexesManager(client);
-   }
    private void sendAuditEvent(
          final String interactionID,
          final String goldenID,
@@ -372,12 +369,12 @@ public final class LibMPI {
     * *
     */
 
-    public Boolean beforeLinkingHook() {
-       return clientIndexManager.updateBeforeLinking();
+    public List<MpiHookError> beforeLinkingHook() {
+       return hooksRunner.beforeLinkingHook();
     }
 
-   public Boolean afterLinkingHook() {
-      return clientIndexManager.updateAfterLinking();
+   public List<MpiHookError> afterLinkingHook() {
+      return hooksRunner.afterLinkingHook();
    }
 
 }
