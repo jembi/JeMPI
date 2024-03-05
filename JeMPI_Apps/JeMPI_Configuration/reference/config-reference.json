@@ -165,13 +165,11 @@
     }
   ],
   "indexes": {
-    "linking": [
-      "national_id",
-      "given_name",
-      "family_name",
-      "phone_number"
-    ],
-    "matching": []
+    "linking": {
+      "national_id": {
+        "props": "@index(exact,trigram)"
+      }
+    }
   },
   "rules": {
     "link": {
