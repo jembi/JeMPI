@@ -1,7 +1,7 @@
 package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
-import org.jembi.jempi.em.CustomFields.FIELDS
+import org.jembi.jempi.em.CustomFields.{FIELDS, LINK_COLS}
 import org.jembi.jempi.em.Utils._
 
 import java.lang.Math.log
@@ -16,6 +16,7 @@ object EM_Task extends LazyLogging {
 
     val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
+        CustomFields.LINK_COLS,
         Map[String, Long](),
         interactions.head,
         interactions.tail
@@ -142,9 +143,13 @@ object EM_Task extends LazyLogging {
         .map(x => x.tallies)
         .fold(Tallies())((x, y) => addTallies(x, y))
       val newMU = computeMU(tallies)
-      FIELDS.zipWithIndex.foreach(x =>
-        printTalliesAndMU(x._1.name, tallies.colTally(x._2), newMU(x._2))
-      )
+      for (i <- LINK_COLS.indices) {
+        printTalliesAndMU(
+          FIELDS.apply(LINK_COLS.apply(i)).name,
+          tallies.colTally(i),
+          newMU(i)
+        )
+      }
       if (LOCK_U) {
         runEM(iterations + 1, mergeMU(newMU, currentMU), gamma)
       } else {

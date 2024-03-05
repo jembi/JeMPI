@@ -1,12 +1,21 @@
 package org.jembi.jempi.em
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.fasterxml.jackson.module.scala.{
+  ClassTagExtensions,
+  DefaultScalaModule
+}
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
 import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig}
-import org.jembi.jempi.em.kafka.Config.{CFG_KAFKA_APPLICATION_ID, CFG_KAFKA_BOOTSTRAP_SERVERS, CFG_KAFKA_CLIENT_ID, CFG_KAFKA_TOPIC_INTERACTION_EM}
+import org.jembi.jempi.em.CustomFields.LINK_COLS
+import org.jembi.jempi.em.kafka.Config.{
+  CFG_KAFKA_APPLICATION_ID,
+  CFG_KAFKA_BOOTSTRAP_SERVERS,
+  CFG_KAFKA_CLIENT_ID,
+  CFG_KAFKA_TOPIC_INTERACTION_EM
+}
 import org.jembi.jempi.em.kafka.Producer
 
 import java.util.Properties
@@ -85,9 +94,10 @@ object EM_Scala extends LazyLogging {
         )
       val (mu, ms) = Profile.profile(EM_Task.run(interactions_))
 
-      CustomFields.FIELDS.zipWithIndex.foreach(x =>
-        Utils.printMU(x._1.name, mu(x._2))
-      )
+      for (i <- LINK_COLS.indices) {
+        Utils.printMU(CustomFields.FIELDS.apply(LINK_COLS.apply(i)).name, mu(i))
+      }
+
       logger.info(s"$ms ms")
       Producer.send(tag, mu);
     }

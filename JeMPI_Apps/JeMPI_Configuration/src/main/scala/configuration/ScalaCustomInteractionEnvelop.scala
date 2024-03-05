@@ -12,9 +12,7 @@ object ScalaCustomInteractionEnvelop {
 
   def generate(config: Config): Any = {
 
-    val muList =
-      for (t <- config.demographicFields.filter(f => f.linkMetaData.isDefined))
-        yield t
+    val muList = for (t <- config.demographicFields) yield t
 
     def fieldDefs(): String =
       muList.zipWithIndex
@@ -50,7 +48,6 @@ object ScalaCustomInteractionEnvelop {
       writer.println(s"""
                         |import com.fasterxml.jackson.annotation.JsonIgnoreProperties
                         |
-                        |
                         |@JsonIgnoreProperties(ignoreUnknown = true)
                         |case class ${custom_className}(
                         |    contentType: String,
@@ -81,7 +78,6 @@ object ScalaCustomInteractionEnvelop {
     } else {
       writer.println(s"""
            |import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-           |
            |
            |@JsonIgnoreProperties(ignoreUnknown = true)
            |case class ${custom_className}(
