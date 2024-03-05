@@ -266,6 +266,21 @@ public final class LibDgraph implements LibMPIClientInterface {
       return dgraphMutations.addNewDGraphInteraction(interaction);
    }
 
+   @Override
+   public Boolean deleteAllIndexes() {
+      return null;
+   }
+
+   @Override
+   public Boolean createIndexes(final List<String> indexes) {
+      return null;
+   }
+
+   @Override
+   public Boolean deleteIndexes(final List<String> indexes) {
+      return null;
+   }
+
    public void startTransaction() {
       DgraphClient.getInstance().startTransaction();
    }
