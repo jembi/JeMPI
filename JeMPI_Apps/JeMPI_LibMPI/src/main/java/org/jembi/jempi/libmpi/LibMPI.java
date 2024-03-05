@@ -369,11 +369,11 @@ public final class LibMPI {
     * *
     */
 
-    public List<MpiHookError> beforeLinkingHook() {
+    public List<MpiGeneralError> beforeLinkingHook() {
        return hooksRunner.beforeLinkingHook();
     }
 
-   public List<MpiHookError> afterLinkingHook() {
+   public List<MpiGeneralError> afterLinkingHook() {
       return hooksRunner.afterLinkingHook();
    }
 

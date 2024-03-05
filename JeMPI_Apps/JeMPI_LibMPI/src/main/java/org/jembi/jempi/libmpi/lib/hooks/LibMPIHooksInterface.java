@@ -4,8 +4,8 @@ import io.vavr.control.Option;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 
 public interface LibMPIHooksInterface {
-    Option<? extends MpiGeneralError> beforeLinkingHook();
-    Option<? extends MpiGeneralError> afterLinkingHook();
+    Option<MpiGeneralError> beforeLinkingHook();
+    Option<MpiGeneralError> afterLinkingHook();
 }
 
 

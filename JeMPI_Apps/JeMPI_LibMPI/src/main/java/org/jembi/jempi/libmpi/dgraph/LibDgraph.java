@@ -272,13 +272,18 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    @Override
-   public Boolean createIndexes(final List<String> indexes) {
-      return null;
+   public Option<MpiGeneralError> loadLinkingIndexes() {
+      return dgraphMutations.loadLinkingIndexes();
    }
 
    @Override
-   public Boolean deleteIndexes(final List<String> indexes) {
-      return null;
+   public Option<MpiGeneralError> loadDefaultIndexes() {
+      return dgraphMutations.loadDefaultIndexes();
+   }
+
+   @Override
+   public Boolean shouldUpdateLinkingIndexes() {
+      return dgraphMutations.shouldUpdateLinkingIndexes();
    }
 
    public void startTransaction() {

@@ -4,31 +4,28 @@ import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
-import org.jembi.jempi.libmpi.MpiHookError;
-import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.libmpi.MpiGeneralError;
 
 import java.util.List;
 
 public final class HooksRunner {
 
-    private LibMPIClientInterface client;
-    private List<LibMPIHooksInterface> hooks;
+    private final List<LibMPIHooksInterface> hooks;
 
     private static final Logger LOGGER = LogManager.getLogger(HooksRunner.class);
     public HooksRunner(final LibMPIClientInterface clientIn) {
-        this.client = clientIn;
-        this.hooks = HooksRegistry.get(client);
+        this.hooks = HooksRegistry.get(clientIn);
     }
 
-    private void processResults(final Option<MpiHookError> result, final List<MpiHookError> hookResults) {
+    private void processResults(final Option<MpiGeneralError> result, final List<MpiGeneralError> hookResults) {
         if (!result.isEmpty()) {
-            MpiHookError error = result.get();
+            MpiGeneralError error = result.get();
             LOGGER.error(error);
             hookResults.add(error);
         }
     }
-    public List<MpiHookError> beforeLinkingHook() {
-        List<MpiHookError> hookResults = List.of();
+    public List<MpiGeneralError> beforeLinkingHook() {
+        List<MpiGeneralError> hookResults = List.of();
 
         for (LibMPIHooksInterface hook : this.hooks) {
             processResults(hook.beforeLinkingHook(), hookResults);
@@ -36,8 +33,8 @@ public final class HooksRunner {
         return hookResults;
     }
 
-    public List<MpiHookError> afterLinkingHook() {
-        List<MpiHookError> hookResults = List.of();
+    public List<MpiGeneralError> afterLinkingHook() {
+        List<MpiGeneralError> hookResults = List.of();
         for (LibMPIHooksInterface hook : this.hooks) {
             processResults(hook.beforeLinkingHook(), hookResults);
         }
