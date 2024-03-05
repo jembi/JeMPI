@@ -297,13 +297,18 @@ public final class LibPostgresql implements LibMPIClientInterface {
    }
 
    @Override
-   public Boolean createIndexes(List<String> indexes) {
+   public Option<MpiGeneralError> loadLinkingIndexes() {
       return null;
    }
 
    @Override
-   public Boolean deleteIndexes(List<String> indexes) {
+   public Option<MpiGeneralError> loadDefaultIndexes() {
       return null;
+   }
+
+   @Override
+   public Boolean shouldUpdateLinkingIndexes() {
+      return false;
    }
 
    public void startTransaction() {

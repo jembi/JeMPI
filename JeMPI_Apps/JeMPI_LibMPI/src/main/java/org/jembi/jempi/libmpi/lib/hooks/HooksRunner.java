@@ -36,7 +36,7 @@ public final class HooksRunner {
     public List<MpiGeneralError> afterLinkingHook() {
         List<MpiGeneralError> hookResults = List.of();
         for (LibMPIHooksInterface hook : this.hooks) {
-            processResults(hook.beforeLinkingHook(), hookResults);
+            processResults(hook.afterLinkingHook(), hookResults);
         }
         return hookResults;
     }
