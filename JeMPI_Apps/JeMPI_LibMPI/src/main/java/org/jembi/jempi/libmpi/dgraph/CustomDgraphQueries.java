@@ -22,7 +22,9 @@ final class CustomDgraphQueries {
    private static final String QUERY_LINK_DETERMINISTIC_A =
          """
          query query_link_deterministic_a($national_id: string) {
-            all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.national_id, $national_id)) {
+            all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.national_id, 
+              $national_id
+              )) {
                uid
                GoldenRecord.source_id {
                   uid
@@ -44,13 +46,19 @@ final class CustomDgraphQueries {
    private static final String QUERY_LINK_DETERMINISTIC_B =
          """
          query query_link_deterministic_b($given_name: string, $family_name: string, $phone_number: string) {
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.given_name, $given_name)) {
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.given_name, 
+              $given_name
+              )) {
                A as uid
             }
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.family_name, $family_name)) {
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.family_name, 
+              $family_name
+              )) {
                B as uid
             }
-            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.phone_number, $phone_number)) {
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.phone_number, 
+              $phone_number
+              )) {
                C as uid
             }
             all(func:type(GoldenRecord)) @filter(uid(A) AND uid(B) AND uid(C)) {
@@ -75,20 +83,30 @@ final class CustomDgraphQueries {
    private static final String QUERY_LINK_PROBABILISTIC =
          """
          query query_link_probabilistic($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.given_name, $given_name, 3)) {
-               A as uid
-            }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.family_name, $family_name, 3)) {
-               B as uid
-            }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.city, $city, 3)) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.city, 
+              $city, 3
+              )) {
                C as uid
             }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.phone_number, $phone_number, 2)) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.phone_number, 
+              $phone_number, 2
+              )) {
                D as uid
             }
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.national_id, $national_id, 3)) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.family_name, 
+              $family_name, 3
+              )) {
+               B as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.national_id, 
+              $national_id, 3
+              )) {
                E as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.given_name, 
+              $given_name, 3
+              )) {
+               A as uid
             }
             all(func:type(GoldenRecord)) @filter(((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) OR uid(D) OR uid(E)) {
                uid
