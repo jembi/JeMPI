@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS audit_trail (
     interactionID  VARCHAR(64),
     goldenID       VARCHAR(64),
     event          VARCHAR(256),
-    eventData      VARCHAR(256),
+    eventData      TEXT,
+    eventType      VARCHAR(256),
     CONSTRAINT PKEY_AUDIT_TRAIL PRIMARY KEY (id)
 );
 CREATE INDEX IF NOT EXISTS idx_gid ON audit_trail(goldenID);

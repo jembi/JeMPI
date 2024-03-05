@@ -1,6 +1,5 @@
 package org.jembi.jempi.libmpi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -12,20 +11,18 @@ import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-
-import java.sql.Timestamp;
+import org.jembi.jempi.shared.utils.AuditTrailUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class LibMPI {
 
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
 
-   private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
+   private final MyKafkaProducer<String, ExpandedAuditEvent> topicAuditEvents;
+   private final AuditTrailUtil auditTrailUtil;
 
    public LibMPI(
          final Level level,
@@ -40,6 +37,7 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       client = new LibDgraph(level, host, port);
+      auditTrailUtil = new AuditTrailUtil(topicAuditEvents);
    }
 
    public LibMPI(
@@ -55,36 +53,15 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       client = new LibPostgresql(URL, USR, PSW);
+      auditTrailUtil = new AuditTrailUtil(topicAuditEvents);
    }
 
-   private <T> void sendAuditEvent(
+   private void sendAuditEvent(
            final String interactionID,
            final String goldenID,
            final String event,
-           final T eventData) {
-
-      var serializedEventData = getSerializedEventData(eventData);
-      topicAuditEvents.produceAsync(goldenID,
-              new AuditEvent(new Timestamp(System.currentTimeMillis()),
-                      null,
-                      interactionID,
-                      goldenID,
-                      event,
-                      serializedEventData),
-              (metadata, exception) -> {
-                 if (exception != null) {
-                    LOGGER.error(exception.getMessage(), exception);
-                 }
-              });
-   }
-
-   private <T> String getSerializedEventData(final T eventData) {
-      try {
-         return eventData != null ? OBJECT_MAPPER.writeValueAsString(eventData) : null;
-      } catch(JsonProcessingException e) {
-         LOGGER.error("Failed to serialize event data", e);
-         return null;
-      }
+           final LinkingAuditDetails eventData) {
+           auditTrailUtil.sendAuditEvent(interactionID, goldenID, event, eventData, AuditEventType.LINKING_EVENT);
    }
 
    /*

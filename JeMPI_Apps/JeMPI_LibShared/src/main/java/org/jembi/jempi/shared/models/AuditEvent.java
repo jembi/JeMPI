@@ -10,6 +10,6 @@ public record AuditEvent(
       Timestamp insertedAt,
       String interactionID,
       String goldenID,
-      String event,
-      String eventData) {
+      String event
+) {
 }

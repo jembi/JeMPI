@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
@@ -307,15 +308,15 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiAuditTrail(
          List<AuditEntry> entries) {
-      public static ApiAuditTrail fromAuditTrail(final List<AuditEvent> trail) {
+      public static ApiAuditTrail fromAuditTrail(final List<ExpandedAuditEvent> trail) {
          final var apiDateFormat = new SimpleDateFormat(DATE_PATTERN);
          return new ApiAuditTrail(trail.stream()
-                                       .map(x -> new AuditEntry(apiDateFormat.format(x.insertedAt()),
-                                                                apiDateFormat.format(x.createdAt()),
-                                                                x.interactionID(),
-                                                                x.goldenID(),
-                                                                x.event(),
-                                               toApiModel(getDeserializedEventData(x.eventData()))
+                                       .map(x -> new AuditEntry(apiDateFormat.format(x.event().insertedAt()),
+                                                                apiDateFormat.format(x.event().createdAt()),
+                                                                x.event().interactionID(),
+                                                                x.event().goldenID(),
+                                                                x.event().event(),
+                                               toApiModel((LinkingAuditDetails) getDeserializedEventData(x))
                                                ))
                                        .toList());
       }
@@ -360,14 +361,21 @@ public abstract class ApiModels {
    ) {
    }
 
-   private static LinkingAuditDetails getDeserializedEventData(final String eventData) {
+   private static Object getDeserializedEventData(final ExpandedAuditEvent event) {
       try {
-         return OBJECT_MAPPER.readValue(eventData, LinkingAuditDetails.class);
+          if (Objects.requireNonNull(event.eventType()) == AuditEventType.LINKING_EVENT) {
+              return deserializeEventData(event.eventData(), LinkingAuditDetails.class);
+          }
+          return null;
       } catch (JsonProcessingException e) {
          LOGGER.error("Failed to deserialize event data", e);
-         return null;
       }
+      return null;
    }
+   private static <T> T deserializeEventData(final String eventData, final Class<T> valueType) throws JsonProcessingException {
+      return OBJECT_MAPPER.readValue(eventData, valueType);
+   }
+
 
    private static ApiLinkingRule toApiModel(final LinkingAuditDetails linkingAuditDetails) {
       if (linkingAuditDetails == null) {
