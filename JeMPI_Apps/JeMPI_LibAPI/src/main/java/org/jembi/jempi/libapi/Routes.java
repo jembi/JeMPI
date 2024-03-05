@@ -130,7 +130,7 @@ public final class Routes {
       return entity(Jackson.unmarshaller(NotificationResolution.class),
               obj -> onComplete(Ask.patchIidNewGidLink(actorSystem,
                                       backEnd,
-                                      obj.newGoldenId(),
+                                      obj.currentGoldenId(),
                                       obj.interactionId()),
                               result -> result.isSuccess()
                                       ? result.get()
