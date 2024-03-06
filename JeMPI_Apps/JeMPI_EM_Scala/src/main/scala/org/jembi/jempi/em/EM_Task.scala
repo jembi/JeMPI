@@ -1,7 +1,7 @@
 package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
-import org.jembi.jempi.em.CustomFields.{FIELDS, LINK_COLS}
+import org.jembi.jempi.em.CustomFields.FIELDS
 import org.jembi.jempi.em.Utils._
 
 import java.lang.Math.log
@@ -12,11 +12,11 @@ import scala.util.Random
 
 object EM_Task extends LazyLogging {
 
-  def run(interactions: ParVector[ArraySeq[String]]): ArraySeq[MU] = {
+  def run(xxxCols: ArraySeq[Int], interactions: ParVector[ArraySeq[String]]): ArraySeq[MU] = {
 
     val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
-        CustomFields.LINK_COLS,
+        xxxCols,
         Map[String, Long](),
         interactions.head,
         interactions.tail
@@ -62,14 +62,15 @@ object EM_Task extends LazyLogging {
         )
       )
       logger.info(s"$ms1 ms")
-      runEM(0, lockedU.map(x => MU(0.8, x.u)), gamma)
+      runEM(xxxCols, 0, lockedU.map(x => MU(0.8, x.u)), gamma)
     } else {
-      runEM(0, for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001), gamma)
+      runEM(xxxCols, 0, for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001), gamma)
     }
   }
 
   @tailrec
   private def runEM(
+      xxxCols: ArraySeq[Int],
       iterations: Int,
       currentMU: ArraySeq[MU],
       gamma: Map[String, Long]
@@ -143,17 +144,17 @@ object EM_Task extends LazyLogging {
         .map(x => x.tallies)
         .fold(Tallies())((x, y) => addTallies(x, y))
       val newMU = computeMU(tallies)
-      for (i <- LINK_COLS.indices) {
+      for (i <- xxxCols.indices) {
         printTalliesAndMU(
-          FIELDS.apply(LINK_COLS.apply(i)).name,
+          FIELDS.apply(xxxCols.apply(i)).name,
           tallies.colTally(i),
           newMU(i)
         )
       }
       if (LOCK_U) {
-        runEM(iterations + 1, mergeMU(newMU, currentMU), gamma)
+        runEM(xxxCols, iterations + 1, mergeMU(newMU, currentMU), gamma)
       } else {
-        runEM(iterations + 1, newMU, gamma)
+        runEM(xxxCols, iterations + 1, newMU, gamma)
       }
     }
   }
