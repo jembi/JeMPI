@@ -3,7 +3,6 @@ package org.jembi.jempi.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jembi.jempi.shared.models.ExpandedAuditEvent;
 
 import java.sql.SQLException;
@@ -13,7 +12,6 @@ import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRA
 
 final class PsqlAuditTrail {
    private static final Logger LOGGER = LogManager.getLogger(PsqlAuditTrail.class);
-   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
    private final PsqlClient psqlClient;
 
    PsqlAuditTrail() {
