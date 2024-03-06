@@ -25,7 +25,7 @@ private object CustomDgraphIndexes {
            |   }
            |
            |    public static Boolean shouldUpdateLinkingIndexes() {
-           |        return true;
+           |        return ${get_should_update_linking_indexes()};
            |    }
            |""".stripMargin);
 
@@ -41,6 +41,17 @@ private object CustomDgraphIndexes {
       writer.flush()
       writer.close()
 
+
+      def get_should_update_linking_indexes(): String = {
+        if (config.rules.link.isDefined){
+          val linkRules = config.rules.link.get
+          if (linkRules.deterministic.isDefined && !linkRules.probabilistic.isDefined){
+            return "true"
+          }
+        }
+
+        return "false"
+      }
 
       def get_default_indexes(): Unit = {
         write_out_indexs_fields("LOAD_DEFAULT_INDEXES", write_field_with_index)

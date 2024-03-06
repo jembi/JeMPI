@@ -7,7 +7,7 @@ final class CustomDgraphIndexes {
    }
 
     public static Boolean shouldUpdateLinkingIndexes() {
-        return true;
+        return false;
     }
 
    static final String LOAD_DEFAULT_INDEXES =
