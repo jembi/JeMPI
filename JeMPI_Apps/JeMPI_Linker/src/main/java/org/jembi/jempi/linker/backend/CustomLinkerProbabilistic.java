@@ -86,21 +86,21 @@ final class CustomLinkerProbabilistic {
       return 0.0F;
    }
    public static void updateMU(final CustomMU mu) {
-      if (mu.givenName().m() > mu.givenName().u()
-          && mu.familyName().m() > mu.familyName().u()
-          && mu.gender().m() > mu.gender().u()
-          && mu.dob().m() > mu.dob().u()
-          && mu.city().m() > mu.city().u()
-          && mu.phoneNumber().m() > mu.phoneNumber().u()
-          && mu.nationalId().m() > mu.nationalId().u()) {
+      if (mu.customLinkMU().givenName().m() > mu.customLinkMU().givenName().u()
+          && mu.customLinkMU().familyName().m() > mu.customLinkMU().familyName().u()
+          && mu.customLinkMU().gender().m() > mu.customLinkMU().gender().u()
+          && mu.customLinkMU().dob().m() > mu.customLinkMU().dob().u()
+          && mu.customLinkMU().city().m() > mu.customLinkMU().city().u()
+          && mu.customLinkMU().phoneNumber().m() > mu.customLinkMU().phoneNumber().u()
+          && mu.customLinkMU().nationalId().m() > mu.customLinkMU().nationalId().u()) {
          updatedLinkFields = new LinkFields(
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.givenName().m(), mu.givenName().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.familyName().m(), mu.familyName().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.gender().m(), mu.gender().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.dob().m(), mu.dob().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.city().m(), mu.city().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.phoneNumber().m(), mu.phoneNumber().u()),
-            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.nationalId().m(), mu.nationalId().u()));
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().givenName().m(), mu.customLinkMU().givenName().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().familyName().m(), mu.customLinkMU().familyName().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().gender().m(), mu.customLinkMU().gender().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().dob().m(), mu.customLinkMU().dob().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().city().m(), mu.customLinkMU().city().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().phoneNumber().m(), mu.customLinkMU().phoneNumber().u()),
+            new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), mu.customLinkMU().nationalId().m(), mu.customLinkMU().nationalId().u()));
       }
    }
 

@@ -253,9 +253,9 @@ object CustomLinkerProbabilistic {
       linkMuList.zipWithIndex.foreach((field, idx) =>
                                         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
                                         if (idx == 0)
-                                          writer.print(" " * 6 + s"if (mu.$fieldName().m() > mu.$fieldName().u()")
+                                          writer.print(" " * 6 + s"if (mu.customLinkMU().$fieldName().m() > mu.customLinkMU().$fieldName().u()")
                                         else
-                                          writer.print(" " * 10 + s"&& mu.$fieldName().m() > mu.$fieldName().u()")
+                                          writer.print(" " * 10 + s"&& mu.customLinkMU().$fieldName().m() > mu.customLinkMU().$fieldName().u()")
                                         end if
                                         if (idx + 1 < linkMuList.length)
                                           writer.println()
@@ -276,7 +276,7 @@ object CustomLinkerProbabilistic {
 
                                           writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${
                                             if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
-                                          }${extractComparisonList(comparisonLevels)}), mu.$fieldName().m(), mu.$fieldName().u())")
+                                          }${extractComparisonList(comparisonLevels)}), mu.customLinkMU().$fieldName().m(), mu.customLinkMU().$fieldName().u())")
                                           if (idx + 1 < linkMuList.length)
                                             writer.println(",")
                                           else

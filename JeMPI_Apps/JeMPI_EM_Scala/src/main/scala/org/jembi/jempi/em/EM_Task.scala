@@ -12,7 +12,10 @@ import scala.util.Random
 
 object EM_Task extends LazyLogging {
 
-  def run(xxxCols: ArraySeq[Int], interactions: ParVector[ArraySeq[String]]): ArraySeq[MU] = {
+  def run(
+      xxxCols: ArraySeq[Int],
+      interactions: ParVector[ArraySeq[String]]
+  ): ArraySeq[MU] = {
 
     val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
@@ -51,7 +54,7 @@ object EM_Task extends LazyLogging {
         randIndexes.map(idx => interactions(idx)).toVector
       )
       val (tallies2, ms1) = Profile.profile(
-        scan(isPairMatch2(0.92), randInteractions)
+        scan(xxxCols, isPairMatch2(0.92), randInteractions)
       )
       val lockedU = computeMU(tallies2)
       FIELDS.zipWithIndex.foreach(x =>
@@ -64,7 +67,12 @@ object EM_Task extends LazyLogging {
       logger.info(s"$ms1 ms")
       runEM(xxxCols, 0, lockedU.map(x => MU(0.8, x.u)), gamma)
     } else {
-      runEM(xxxCols, 0, for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001), gamma)
+      runEM(
+        xxxCols,
+        0,
+        for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001),
+        gamma
+      )
     }
   }
 
@@ -142,7 +150,7 @@ object EM_Task extends LazyLogging {
         gamma_.map(x => x._1 -> computeGammaMetrics(x._2._1, x._2._2))
       val tallies = mapGammaMetrics.values
         .map(x => x.tallies)
-        .fold(Tallies())((x, y) => addTallies(x, y))
+        .fold(new Tallies(xxxCols.length))((x, y) => addTallies(x, y))
       val newMU = computeMU(tallies)
       for (i <- xxxCols.indices) {
         printTalliesAndMU(
@@ -160,6 +168,7 @@ object EM_Task extends LazyLogging {
   }
 
   private def scan(
+      xxxCols: ArraySeq[Int],
       isMatch: (ArraySeq[String], ArraySeq[String]) => ContributionSplit,
       interactions: ParVector[ArraySeq[String]]
   ): Tallies = {
@@ -200,7 +209,7 @@ object EM_Task extends LazyLogging {
       ): Tallies = {
         interactions
           .map(right => tallyFieldsContribution(left, right))
-          .fold(Tallies()) { (x, y) => addTallies(x, y) }
+          .fold(new Tallies(xxxCols.length)) { (x, y) => addTallies(x, y) }
       }
 
       if (right.isEmpty) {
@@ -215,7 +224,7 @@ object EM_Task extends LazyLogging {
 
     }
 
-    outerLoop(new Tallies, interactions.head, interactions.tail)
+    outerLoop(new Tallies(xxxCols.length), interactions.head, interactions.tail)
   }
 
 }

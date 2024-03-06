@@ -4,17 +4,28 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CustomMU(String tag,
-                       Probability givenName,
-                       Probability familyName,
-                       Probability gender,
-                       Probability dob,
-                       Probability city,
-                       Probability phoneNumber,
-                       Probability nationalId) {
+                       CustomLinkMU customLinkMU,
+                       CustomValidateMU customValidateMU,
+                       CustomMatchMU customMatchMU) {
 
    public static final Boolean SEND_INTERACTIONS_TO_EM = true;
 
    public record Probability(float m, float u) {
+   }
+
+   public record CustomLinkMU(Probability givenName,
+                              Probability familyName,
+                              Probability gender,
+                              Probability dob,
+                              Probability city,
+                              Probability phoneNumber,
+                              Probability nationalId) {
+   }
+
+   public record CustomValidateMU(Probability dummy) {
+   }
+
+   public record CustomMatchMU(Probability dummy) {
    }
 
 }
