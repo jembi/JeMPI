@@ -13,8 +13,9 @@ object ScalaCustomMU {
   def generate(config: Config): Any = {
 
     def fieldDefs(): String =
-      config.demographicFields.zipWithIndex
-        .map((f, i) => {
+      config.demographicFields
+        .filter(f => f.linkMetaData.isDefined)
+        .map(f => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
           s"""${" " * 4}${fieldName}: Probability,"""
         })
@@ -24,7 +25,9 @@ object ScalaCustomMU {
     end fieldDefs
 
     def probSeqDefs(): String =
-      config.demographicFields.zipWithIndex
+      config.demographicFields
+        .filter(f => f.linkMetaData.isDefined)
+        .zipWithIndex
         .map((f, i) => {
           s"""${" " * 12}Probability(muSeq.apply(${i}).m, muSeq.apply(${i}).u),"""
         })

@@ -12,11 +12,54 @@ object ScalaCustomFields {
 
   def generate(config: Config): Any = {
 
-    def fieldDefs(): String =
+    def colFieldDefs(): String =
       config.demographicFields.zipWithIndex
         .map((f, i) => {
+          val colName = "COL_" + Utils.camelCaseToSnakeCase(f.fieldName)
+          s"""${" " * 2}private val ${colName.toUpperCase()} = ${i}"""
+        })
+        .mkString(sys.props("line.separator"))
+    end colFieldDefs
+
+    def colLinkFieldDefs(): String =
+      config.demographicFields
+        .filter(f => f.linkMetaData.isDefined)
+        .map(f => {
+          val colName = "  COL_" + Utils.camelCaseToSnakeCase(f.fieldName)
+          s"""${" " * 2}${colName.toUpperCase()},"""
+        })
+        .mkString(sys.props("line.separator"))
+        .dropRight(1)
+    end colLinkFieldDefs
+
+    def colValidateFieldDefs(): String =
+      config.demographicFields
+        .filter(f => f.validateMetaData.isDefined)
+        .map(f => {
+          val colName = "  COL_" + Utils.camelCaseToSnakeCase(f.fieldName)
+          s"""${" " * 2}${colName.toUpperCase()},"""
+        })
+        .mkString(sys.props("line.separator"))
+        .dropRight(1)
+    end colValidateFieldDefs
+
+    def colMatchFieldDefs(): String =
+      config.demographicFields
+        .filter(f => f.matchMetaData.isDefined)
+        .map(f => {
+          val colName = "  COL_" + Utils.camelCaseToSnakeCase(f.fieldName)
+          s"""${" " * 2}${colName.toUpperCase()},"""
+        })
+        .mkString(sys.props("line.separator"))
+        .dropRight(1)
+    end colMatchFieldDefs
+
+    def fieldDefs(): String =
+      config.demographicFields
+        .map(f => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
-          s"""${" " * 4}Field("${fieldName}", ${i}),"""
+          val colName = "COL_" + Utils.camelCaseToSnakeCase(f.fieldName)
+          s"""${" " * 4}Field("${fieldName}", ${colName.toUpperCase()}),"""
         })
         .mkString(sys.props("line.separator"))
         .trim
@@ -35,8 +78,22 @@ object ScalaCustomFields {
       |
       |object CustomFields {
       |
+      |${colFieldDefs()}
+      |
       |  val FIELDS: ArraySeq[Field] = ArraySeq(
       |    ${fieldDefs()}
+      |  )
+      |
+      |  val LINK_COLS: ArraySeq[Int] = ArraySeq(
+      |${colLinkFieldDefs()}
+      |  )
+      |
+      |  val VALIDATE_COLS: ArraySeq[Int] = ArraySeq(
+      |${colValidateFieldDefs()}
+      |  )
+      |
+      |  val MATCH_COLS: ArraySeq[Int] = ArraySeq(
+      |${colMatchFieldDefs()}
       |  )
       |
       |}
