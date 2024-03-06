@@ -8,6 +8,7 @@ object Gamma {
 
   @tailrec
   def getGamma(
+      cols: ArraySeq[Int],
       gamma: Map[String, Long],
       left: ArraySeq[String],
       right: ParVector[ArraySeq[String]]
@@ -32,7 +33,7 @@ object Gamma {
       }
 
       val gamma: ParVector[String] =
-        interactions.map(right => gammaKey(left, right))
+        interactions.map(right => gammaKey(cols, left, right))
       gamma.aggregate(Map[String, Long]())(sequenceOp, combineOp)
     }
 
@@ -40,6 +41,7 @@ object Gamma {
       gamma
     } else {
       getGamma(
+        cols,
         gamma ++ innerLoop(left, right)
           .map { case (k: String, v: Long) =>
             k -> (v + gamma.getOrElse(k, 0L))
@@ -51,10 +53,13 @@ object Gamma {
   }
 
   private def gammaKey(
+      cols : ArraySeq[Int],
       left: ArraySeq[String],
       right: ArraySeq[String]
   ): String = {
-    val key: ArraySeq[Int] = (left zip right).map { case (l, r) =>
+    val left_ = cols.map(i => left.apply(i))
+    val right_ = cols.map(i => right.apply(i))
+    val key: ArraySeq[Int] = (left_ zip right_).map { case (l, r) =>
       if (l.isEmpty || r.isEmpty) {
         Utils.GAMMA_TAG_MISSING
       } else if (l.equals(r)) {
