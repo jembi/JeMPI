@@ -110,6 +110,7 @@ final class CustomLinkerProbabilistic {
          CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
          updatedLinkFields = null;
      }
+
    }
 
 }
