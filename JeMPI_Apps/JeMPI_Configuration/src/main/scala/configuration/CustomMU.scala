@@ -44,7 +44,8 @@ private object CustomMU {
          |   public record CustomLinkMU(""".stripMargin)
     val linkMargin = 30
     if (linkFilteredFields.length == 0)
-      writer.println(s"""Probability dummy) {}""".stripMargin)
+      writer.println(s"""Probability dummy) {
+           |   }""".stripMargin)
     else
       linkFilteredFields.zipWithIndex.foreach { case (f, i) =>
         val parameterName = Utils.snakeCaseToCamelCase(f.fieldName)
