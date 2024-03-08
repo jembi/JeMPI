@@ -114,6 +114,13 @@
         },
         "QUERY_LINK_DETERMINISTIC_B": {
           "vars": [
+            "national_id",
+            "phone_number"
+          ],
+          "text": "null(national_id) and eq(phone_number)"
+        },
+        "QUERY_LINK_DETERMINISTIC_C": {
+          "vars": [
             "given_name",
             "family_name",
             "phone_number"
