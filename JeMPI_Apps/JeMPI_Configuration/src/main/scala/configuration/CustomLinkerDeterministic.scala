@@ -76,8 +76,8 @@ object CustomLinkerDeterministic {
             s"isMatch($left, $right)"
           case Ast.Null(variable) =>
             val field = Utils.snakeCaseToCamelCase(variable.name)
-            val left = field + "L"
-            s"StringUtils.isBlank($left)"
+            val right = field + "R"
+            s"StringUtils.isBlank($right)"
           case _ =>
             "ERROR"
         }
@@ -99,11 +99,15 @@ object CustomLinkerDeterministic {
           val expr_1 = checkNullExpression(expression)
           map._2.vars.foreach(v => {
             val field = Utils.snakeCaseToCamelCase(v)
-            if (!definedProperties.contains(field)){
+            if (!definedProperties.contains(field)) {
               val left = field + "L"
               val right = field + "R"
-              writer.println(" " * 6 + s"final var $left = goldenRecord.$field;")
-              writer.println(" " * 6 + s"final var $right = interaction.$field;")
+              writer.println(
+                " " * 6 + s"final var $left = goldenRecord.$field;"
+              )
+              writer.println(
+                " " * 6 + s"final var $right = interaction.$field;"
+              )
               definedProperties = definedProperties :+ field
             }
           })
