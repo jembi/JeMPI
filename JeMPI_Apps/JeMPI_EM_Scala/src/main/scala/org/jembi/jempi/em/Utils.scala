@@ -2,7 +2,6 @@ package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
 import Jaro.jaro
-import org.jembi.jempi.em.CustomFields.{FIELDS, LINK_COLS}
 
 import scala.collection.immutable.ArraySeq
 

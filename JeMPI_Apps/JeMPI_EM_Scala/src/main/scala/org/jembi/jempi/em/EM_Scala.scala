@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.scala.{
   ClassTagExtensions,
   DefaultScalaModule
 }
+
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
@@ -92,14 +93,33 @@ object EM_Scala extends LazyLogging {
         interactions.map((fields: Array[String]) =>
           ArraySeq.unsafeWrapArray(fields)
         )
-      val (mu, ms) = Profile.profile(EM_Task.run(interactions_))
+      var linkResults: (ArraySeq[MU], Double) = (null, 0.0)
+      var validateResults: (ArraySeq[MU], Double) = (null, 0.0)
+      var matchResults: (ArraySeq[MU], Double) = (null, 0.0)
 
-      for (i <- LINK_COLS.indices) {
-        Utils.printMU(CustomFields.FIELDS.apply(LINK_COLS.apply(i)).name, mu(i))
+      if (CustomFields.LINK_COLS.length > 1) {
+        linkResults =
+          Profile.profile(EM_Task.run(CustomFields.LINK_COLS, interactions_))
+      }
+      if (CustomFields.VALIDATE_COLS.length > 1) {
+        validateResults = Profile.profile(
+          EM_Task.run(CustomFields.VALIDATE_COLS, interactions_)
+        )
+      }
+      if (CustomFields.MATCH_COLS.length > 1) {
+        matchResults =
+          Profile.profile(EM_Task.run(CustomFields.MATCH_COLS, interactions_))
       }
 
-      logger.info(s"$ms ms")
-      Producer.send(tag, mu);
+      for (i <- LINK_COLS.indices) {
+        Utils.printMU(
+          CustomFields.FIELDS.apply(LINK_COLS.apply(i)).name,
+          linkResults._1(i)
+        )
+      }
+
+      logger.info(s"${linkResults._2} ms")
+      Producer.send(tag, linkResults._1, validateResults._1, matchResults._1);
     }
 
   }
