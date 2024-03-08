@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.scala.{
   ClassTagExtensions,
   DefaultScalaModule
 }
+
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
