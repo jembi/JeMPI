@@ -1,43 +1,41 @@
 package org.jembi.jempi.shared.utils;
 
 import java.sql.Timestamp;
+import java.util.UUID;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.AuditEvent;
-import org.jembi.jempi.shared.models.AuditEventType;
-import org.jembi.jempi.shared.models.ExpandedAuditEvent;
+import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class AuditTrailUtil {
-    private MyKafkaProducer<String, ExpandedAuditEvent> topicAuditEvents = null;
+    private MyKafkaProducer<String, AuditEvent> topicAuditEvents = null;
     private static final Logger LOGGER = LogManager.getLogger(AuditTrailUtil.class);
 
-    public AuditTrailUtil(final MyKafkaProducer<String, ExpandedAuditEvent> topicAuditEvents) {
+    public AuditTrailUtil(final MyKafkaProducer<String, AuditEvent> topicAuditEvents) {
         this.topicAuditEvents = topicAuditEvents;
     }
 
     public <T> void sendAuditEvent(
-            final String interactionID,
-            final String goldenID,
-            final String event,
-            final T eventData,
-            final AuditEventType eventType) {
+            final GlobalConstants.AuditEventType eventType,
+            final T eventData) {
 
-        var serializedEventData = getSerializedEventData(eventData);
+
         var auditEvent = new AuditEvent(
                 new Timestamp(System.currentTimeMillis()),
                 null,
-                interactionID,
-                goldenID,
-                event
+                eventType,
+                getSerializedEventData(eventData)
         );
+        LOGGER.info("Creating Audit Event {} ", auditEvent.toString());
 
-        topicAuditEvents.produceAsync(goldenID,
-             new ExpandedAuditEvent(auditEvent, eventType, serializedEventData),
+        topicAuditEvents.produceAsync(UUID.randomUUID().toString(),
+                auditEvent,
                 (metadata, exception) -> {
                     if (exception != null) {
                         LOGGER.error(exception.getMessage(), exception);
@@ -45,7 +43,7 @@ public final class AuditTrailUtil {
                 });
     }
 
-    private <T> String getSerializedEventData(final T eventData) {
+    public static <T> String getSerializedEventData(final T eventData) {
         try {
             return eventData != null ? OBJECT_MAPPER.writeValueAsString(eventData) : null;
         } catch (JsonProcessingException e) {
@@ -53,4 +51,9 @@ public final class AuditTrailUtil {
             return null;
         }
     }
+
+    public static <T> T getDeserializeEventData(final String eventData, final Class<T> valueType) throws JsonProcessingException {
+        return OBJECT_MAPPER.readValue(eventData, valueType);
+    }
+
 }

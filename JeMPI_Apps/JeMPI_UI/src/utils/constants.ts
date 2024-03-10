@@ -96,7 +96,6 @@ export const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
   {
     field: 'linking_rule',
     headerName: 'Matching Type',
-    valueFormatter: ({ value }) => value.matchType,
     sortable: false,
     disableColumnMenu: true,
     headerClassName: 'super-app-theme--header',

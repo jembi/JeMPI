@@ -505,7 +505,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String uid) implements Event {
    }
 
-   public record GetGoldenRecordAuditTrailResponse(List<ExpandedAuditEvent> auditTrail) {
+   public record GetGoldenRecordAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
    }
 
    public record GetInteractionAuditTrailRequest(
@@ -519,7 +519,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
            ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
    }
 
-   public record GetInteractionAuditTrailResponse(List<ExpandedAuditEvent> auditTrail) {
+   public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
    }
 
 

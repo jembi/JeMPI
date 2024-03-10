@@ -188,10 +188,8 @@ const auditTrail: AuditTrail[] = [
     interaction_id: '0x1627',
     golden_id: '0x1628',
     entry: 'Interaction -> New GoldenRecord (1.000000)',
-    linking_rule: {
-      text: "",
-      matchType: "DETERMINISTIC"
-    }
+    score: 0,
+    linking_rule:  "DETERMINISTIC" 
   },
   {
     inserted_at: '2023-09-05 14:46:51.000991',
@@ -199,10 +197,8 @@ const auditTrail: AuditTrail[] = [
     interaction_id: '0x1627',
     golden_id: '0x1628',
     entry: 'Interaction -> New GoldenRecord (1.000000)',
-    linking_rule: {
-      text: "",
-      matchType: "DETERMINISTIC"
-    }
+    score: 0,
+    linking_rule:  "DETERMINISTIC" 
   },
   {
     inserted_at: '2023-09-05 14:46:51.000991',
@@ -210,10 +206,8 @@ const auditTrail: AuditTrail[] = [
     interaction_id: '0x1627',
     golden_id: '0x1628',
     entry: 'Interaction -> New GoldenRecord (1.000000)',
-    linking_rule: {
-      text: "",
-      matchType: "DETERMINISTIC"
-    }
+    score: 0,
+    linking_rule:  "DETERMINISTIC" 
   }
 ]
 

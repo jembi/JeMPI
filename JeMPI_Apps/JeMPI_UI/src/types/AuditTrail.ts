@@ -4,14 +4,10 @@ export interface AuditTrail {
   interaction_id: string
   golden_id: string
   entry: string
-  linking_rule: LinkingRule
+  score: number
+  linking_rule: string
 }
 
 export interface AuditTrailEntries {
   entries: Array<AuditTrail>
-}
-
-export interface LinkingRule {
-    text: string
-    matchType: string
 }

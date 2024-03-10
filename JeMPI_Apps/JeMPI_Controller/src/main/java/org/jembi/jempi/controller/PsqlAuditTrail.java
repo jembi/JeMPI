@@ -3,7 +3,7 @@ package org.jembi.jempi.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.ExpandedAuditEvent;
+import org.jembi.jempi.shared.models.AuditEvent;
 
 import java.sql.SQLException;
 import java.util.Locale;
@@ -53,21 +53,18 @@ final class PsqlAuditTrail {
 */
    }
 
-   void addAuditEvent(final ExpandedAuditEvent expandedAuditEvent) {
+   void addAuditEvent(final AuditEvent auditEvent) {
       psqlClient.connect(AppConfig.POSTGRESQL_AUDIT_DB);
 
       try (var preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT, """
-                                                                                          INSERT INTO %s (createdAt, interactionID, goldenID, event, eventData, eventType)
-                                                                                          VALUES (?, ?, ?, ?, ?, ?);
+                                                                                          INSERT INTO %s (createdAt, eventType, eventData)
+                                                                                          VALUES (?, ?, ?);
                                                                                           """, PSQL_TABLE_AUDIT_TRAIL)
-                                                                     .stripIndent())) {
-         var event = expandedAuditEvent.event();
-         preparedStatement.setTimestamp(1, event.createdAt());
-         preparedStatement.setString(2, event.interactionID());
-         preparedStatement.setString(3, event.goldenID());
-         preparedStatement.setString(4, event.event());
-         preparedStatement.setString(5, expandedAuditEvent.eventData());
-         preparedStatement.setString(6, expandedAuditEvent.eventType().name());
+              .stripIndent())) {
+
+         preparedStatement.setTimestamp(1, auditEvent.createdAt());
+         preparedStatement.setString(2, auditEvent.eventType().name());
+         preparedStatement.setString(3, auditEvent.eventData());
          preparedStatement.executeUpdate();
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);

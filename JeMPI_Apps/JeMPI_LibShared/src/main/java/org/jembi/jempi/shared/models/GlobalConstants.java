@@ -74,6 +74,12 @@ public final class GlobalConstants {
 
 
    public static final String DEFAULT_LINKER_GLOBAL_STORE_NAME = "linker";
+
+   public  enum AuditEventType {
+      LINKING_EVENT,
+      UNKNOWN_EVENT
+   }
+
    private GlobalConstants() {
    }
 

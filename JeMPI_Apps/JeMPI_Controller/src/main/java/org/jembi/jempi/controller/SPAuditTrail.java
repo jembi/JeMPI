@@ -12,7 +12,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.ExpandedAuditEvent;
+import org.jembi.jempi.shared.models.AuditEvent;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -32,11 +32,11 @@ public final class SPAuditTrail {
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID + "-AUDIT_TRAIL");
       props.put(StreamsConfig.POLL_MS_CONFIG, 50);
       final Serde<String> stringSerde = Serdes.String();
-      final Serializer<ExpandedAuditEvent> auditEventSerializer = new JsonPojoSerializer<>();
-      final Deserializer<ExpandedAuditEvent> auditEventDeserializer = new JsonPojoDeserializer<>(ExpandedAuditEvent.class);
-      final Serde<ExpandedAuditEvent> auditEventSerde = Serdes.serdeFrom(auditEventSerializer, auditEventDeserializer);
+      final Serializer<AuditEvent> auditEventSerializer = new JsonPojoSerializer<>();
+      final Deserializer<AuditEvent> auditEventDeserializer = new JsonPojoDeserializer<>(AuditEvent.class);
+      final Serde<AuditEvent> auditEventSerde = Serdes.serdeFrom(auditEventSerializer, auditEventDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, ExpandedAuditEvent> auditEventKStream =
+      final KStream<String, AuditEvent> auditEventKStream =
             streamsBuilder.stream(GlobalConstants.TOPIC_AUDIT_TRAIL, Consumed.with(stringSerde, auditEventSerde));
       auditEventKStream.foreach((key, value) -> psqlAuditTrail.addAuditEvent(value));
       final var auditTrailKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
