@@ -1,6 +1,6 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.13"
 
 lazy val root = (project in file("."))
   .settings(
@@ -12,17 +12,17 @@ lazy val root = (project in file("."))
       // https://mvnrepository.com/artifact/com.typesafe.scala-logging/scala-logging
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
       // https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams
-      "org.apache.kafka" % "kafka-streams" % "3.6.1",
+      "org.apache.kafka" % "kafka-streams" % "3.7.0",
       // https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients
-      "org.apache.kafka" % "kafka-clients" % "3.6.1",
+      "org.apache.kafka" % "kafka-clients" % "3.7.0",
       // https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams-scala
-      "org.apache.kafka" %% "kafka-streams-scala" % "3.6.1",
+      "org.apache.kafka" %% "kafka-streams-scala" % "3.7.0",
       // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.16.1",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.16.1",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.1",
       // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-      "ch.qos.logback" % "logback-classic" % "1.4.14"
+      "ch.qos.logback" % "logback-classic" % "1.5.3"
     ),
     assembly / assemblyJarName := "em-scala-fatjar-1.0.jar",
     assembly / assemblyMergeStrategy := {
