@@ -18,7 +18,7 @@ import scala.collection.immutable.ArraySeq
 
 object Producer {
 
-  def send(tag: String, muSeq: ArraySeq[MU]): Unit = {
+  def send(tag: String, muSeqLink: ArraySeq[MU], muSeqValidate: ArraySeq[MU], muSeqMatch: ArraySeq[MU]): Unit = {
     val mapper = new ObjectMapper() with ClassTagExtensions
     mapper.registerModule(DefaultScalaModule)
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -36,7 +36,7 @@ object Producer {
 
     val producer = new KafkaProducer[String, String](props)
 
-    val customMU = CustomMU.fromArraySeq(tag, muSeq)
+    val customMU = CustomMU.fromArraySeq(tag, muSeqLink, muSeqValidate, muSeqMatch)
 
     val json = mapper.writeValueAsString(customMU)
 
