@@ -2,7 +2,6 @@ package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
 import Jaro.jaro
-import org.jembi.jempi.em.CustomFields.FIELDS
 
 import scala.collection.immutable.ArraySeq
 
@@ -108,7 +107,7 @@ object Utils extends LazyLogging {
 
     Tallies(
       ArraySeq
-        .range(0, FIELDS.length) // x.colTally.length)
+        .range(0, x.colTally.length)
         .map(idx => addTally(x.colTally(idx), y.colTally(idx)))
     )
   }

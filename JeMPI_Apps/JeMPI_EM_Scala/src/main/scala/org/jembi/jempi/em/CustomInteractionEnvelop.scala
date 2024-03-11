@@ -3,7 +3,6 @@ package org.jembi.jempi.em
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class CustomInteractionEnvelop(
     contentType: String,
