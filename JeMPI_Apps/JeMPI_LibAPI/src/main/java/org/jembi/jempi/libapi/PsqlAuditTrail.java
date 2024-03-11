@@ -29,10 +29,10 @@ final class PsqlAuditTrail {
    List<ApiModels.ApiAuditTrail.LinkingAuditEntry> goldenRecordAuditTrail(final String uid) {
       psqlClient.connect();
       final var list = new ArrayList<ApiModels.ApiAuditTrail.LinkingAuditEntry>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
-                                                                                    "SELECT * FROM %s WHERE eventType = ?  " +
-                                                                                           "AND eventData like CONCAT( '%%',?,'%%')",
-                                                                                            PSQL_TABLE_AUDIT_TRAIL))) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(
+                                                                                Locale.ROOT,
+                                                                                "SELECT * FROM %s WHERE eventType = ?  " + "AND eventData like CONCAT( '%%',?,'%%')",
+                                                                                PSQL_TABLE_AUDIT_TRAIL))) {
          preparedStatement.setString(1, GlobalConstants.AuditEventType.LINKING_EVENT.name());
          preparedStatement.setString(2, uid);
          ResultSet rs = preparedStatement.executeQuery();
@@ -67,9 +67,9 @@ final class PsqlAuditTrail {
    List<ApiModels.ApiAuditTrail.LinkingAuditEntry> interactionRecordAuditTrail(final String uid) {
       psqlClient.connect();
       final var list = new ArrayList<ApiModels.ApiAuditTrail.LinkingAuditEntry>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
-                                                                                    "SELECT * FROM %s WHERE eventType = ? " +
-                                                                                    " AND eventData like CONCAT('%%',?,'%%')",
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(
+                                                                                    Locale.ROOT,
+                                                                                    "SELECT * FROM %s WHERE eventType = ? " + " AND eventData like CONCAT('%%',?,'%%')",
                                                                                     PSQL_TABLE_AUDIT_TRAIL))) {
          preparedStatement.setString(1, GlobalConstants.AuditEventType.LINKING_EVENT.name());
          preparedStatement.setString(2, uid);
