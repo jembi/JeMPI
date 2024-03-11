@@ -60,8 +60,7 @@ final class PsqlAuditTrail {
                                                                                           INSERT INTO %s (createdAt, eventType, eventData)
                                                                                           VALUES (?, ?, ?);
                                                                                           """, PSQL_TABLE_AUDIT_TRAIL)
-              .stripIndent())) {
-
+                                                                      .stripIndent())) {
          preparedStatement.setTimestamp(1, auditEvent.createdAt());
          preparedStatement.setString(2, auditEvent.eventType().name());
          preparedStatement.setString(3, auditEvent.eventData());

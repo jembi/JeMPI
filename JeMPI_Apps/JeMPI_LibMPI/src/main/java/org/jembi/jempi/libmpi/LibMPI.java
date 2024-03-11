@@ -255,11 +255,21 @@ public final class LibMPI {
          final String newValue) {
       final var result = client.updateGoldenRecordField(goldenId, fieldName, newValue);
       if (result) {
-         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT, "%s: '%s' -> '%s'", fieldName, oldValue, newValue), -1.0F, LinkingRule.UNMATCHED);
+         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
+                 "%s: '%s' -> '%s'",
+                 fieldName,
+                 oldValue,
+                 newValue),
+                 -1.0F,
+                 LinkingRule.UNMATCHED);
       } else {
-         sendAuditEvent(interactionId,
-                 goldenId,
-                 String.format(Locale.ROOT, "%s: error updating '%s' -> '%s'", fieldName, oldValue, newValue), -1.0F, LinkingRule.UNMATCHED);
+         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
+                "%s: error updating '%s' -> '%s'",
+                fieldName,
+                oldValue,
+                newValue),
+                -1.0F,
+                LinkingRule.UNMATCHED);
       }
       return result;
    }
@@ -280,7 +290,11 @@ public final class LibMPI {
       } else {
          sendAuditEvent(interactionId,
                  currentGoldenId,
-                 String.format(Locale.ROOT, "Interaction -> update GoldenID error: old(%s) [%f]", currentGoldenId, score), score, LinkingRule.UNMATCHED);
+                 String.format(Locale.ROOT,
+                         "Interaction -> update GoldenID error: old(%s) [%f]",
+                         currentGoldenId, score),
+                         score,
+                         LinkingRule.UNMATCHED);
       }
       return result;
    }
@@ -345,12 +359,14 @@ public final class LibMPI {
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
                  result.goldenUID(),
-                 String.format(Locale.ROOT, "Interaction -> New GoldenRecord (%f)", score),
+                 String.format(Locale.ROOT,
+                         "Interaction -> New GoldenRecord (%f)", score),
                  score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interaction.interactionId(),
                  null,
-                 String.format(Locale.ROOT, "Interaction -> error linking to new GoldenRecord (%f)", score),
+                 String.format(Locale.ROOT,
+                         "Interaction -> error linking to new GoldenRecord (%f)", score),
                  score, LinkingRule.UNMATCHED);
       }
       return result;

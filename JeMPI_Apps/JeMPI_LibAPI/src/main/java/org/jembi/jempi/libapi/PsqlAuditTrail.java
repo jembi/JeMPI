@@ -29,16 +29,17 @@ final class PsqlAuditTrail {
    List<ApiModels.ApiAuditTrail.LinkingAuditEntry> goldenRecordAuditTrail(final String uid) {
       psqlClient.connect();
       final var list = new ArrayList<ApiModels.ApiAuditTrail.LinkingAuditEntry>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
-              String.format(Locale.ROOT, "SELECT * FROM %s WHERE eventType = ?  AND eventData like CONCAT( '%%',?,'%%')", PSQL_TABLE_AUDIT_TRAIL)
-      )) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
+                                                                                    "SELECT * FROM %s WHERE eventType = ?  " +
+                                                                                           "AND eventData like CONCAT( '%%',?,'%%')",
+                                                                                            PSQL_TABLE_AUDIT_TRAIL))) {
          preparedStatement.setString(1, GlobalConstants.AuditEventType.LINKING_EVENT.name());
          preparedStatement.setString(2, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
             final var insertTime = rs.getString(2);
             final var createdTime = rs.getString(3);
-            final  var eventType = rs.getString(4);
+            final var eventType = rs.getString(4);
             final var eventData = rs.getString(5);
 
             if (Objects.equals(eventType, GlobalConstants.AuditEventType.LINKING_EVENT.name())) {
@@ -66,16 +67,17 @@ final class PsqlAuditTrail {
    List<ApiModels.ApiAuditTrail.LinkingAuditEntry> interactionRecordAuditTrail(final String uid) {
       psqlClient.connect();
       final var list = new ArrayList<ApiModels.ApiAuditTrail.LinkingAuditEntry>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
-              String.format(Locale.ROOT, "SELECT * FROM %s WHERE eventType = ?  AND eventData like CONCAT('%%',?,'%%')", PSQL_TABLE_AUDIT_TRAIL)
-      )) {
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
+                                                                                    "SELECT * FROM %s WHERE eventType = ? " +
+                                                                                    " AND eventData like CONCAT('%%',?,'%%')",
+                                                                                    PSQL_TABLE_AUDIT_TRAIL))) {
          preparedStatement.setString(1, GlobalConstants.AuditEventType.LINKING_EVENT.name());
          preparedStatement.setString(2, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
             final var insertTime = rs.getString(2);
             final var createdTime = rs.getString(3);
-            final  var eventType = rs.getString(4);
+            final var eventType = rs.getString(4);
             final var eventData = rs.getString(5);
 
             if (Objects.equals(eventType, GlobalConstants.AuditEventType.LINKING_EVENT.name())) {
