@@ -281,12 +281,12 @@ public final class LibMPI {
       final var result = client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
       if (result.isRight()) {
          sendAuditEvent(interactionId,
-                      result.get().goldenUID(),
-                      String.format(Locale.ROOT,
-                                   "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
-                                    currentGoldenId,
-                                    result.get().goldenUID(),
-                                    score), score, LinkingRule.UNMATCHED);
+                        result.get().goldenUID(),
+                        String.format(Locale.ROOT,
+                                      "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
+                                      currentGoldenId,
+                                      result.get().goldenUID(),
+                                      score), score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interactionId,
                        currentGoldenId,
@@ -315,12 +315,12 @@ public final class LibMPI {
                                      score), score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interactionID,
-                       newGoldenID,
-                       String.format(Locale.ROOT,
-                                     "Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
-                                     goldenID,
-                                     newGoldenID,
-                                     score), score, LinkingRule.UNMATCHED);
+                        newGoldenID,
+                        String.format(Locale.ROOT,
+                                      "Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
+                                      goldenID,
+                                      newGoldenID,
+                                      score), score, LinkingRule.UNMATCHED);
       }
       return result;
    }
@@ -336,17 +336,17 @@ public final class LibMPI {
          sendAuditEvent(result.interactionUID(),
                         result.goldenUID(),
                         String.format(Locale.ROOT,
-                                     "Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), "
-                                     + "Probabilistic(%.3f)",
-                                     result.score(),
-                                     deterministicValidation,
-                                     probabilisticValidation), result.score(), linkingRule);
+                                      "Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), "
+                                      + "Probabilistic(%.3f)",
+                                      result.score(),
+                                      deterministicValidation,
+                                      probabilisticValidation), result.score(), linkingRule);
       } else {
          sendAuditEvent(interaction.interactionId(),
-                      goldenIdScore.goldenId(),
-                      String.format(Locale.ROOT,
-                                    "Interaction -> error linking to existing GoldenRecord (%.5f)",
-                                    goldenIdScore.score()), goldenIdScore.score(), linkingRule);
+                        goldenIdScore.goldenId(),
+                        String.format(Locale.ROOT,
+                                      "Interaction -> error linking to existing GoldenRecord (%.5f)",
+                                      goldenIdScore.score()), goldenIdScore.score(), linkingRule);
       }
       return result;
 
