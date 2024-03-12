@@ -194,10 +194,10 @@ public abstract class ApiModels {
    }
 
    public record ApiInteractionsPaginatedResultSet(
-          List<ApiInteraction> data,
-          ApiPagination pagination) implements ApiPaginatedResultSet {
+        List<ApiInteraction> data,
+        ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiInteractionsPaginatedResultSet fromLibMPIPaginatedResultSet(
-             final LibMPIPaginatedResultSet<Interaction> resultSet) {
+            final LibMPIPaginatedResultSet<Interaction> resultSet) {
          final var data = resultSet.data().stream().map(ApiInteraction::fromInteraction).toList();
          return new ApiInteractionsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
