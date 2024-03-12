@@ -267,10 +267,10 @@ public abstract class ApiModels {
         List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
       public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
          return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
-                 expandedInteraction.goldenRecordsWithScore()
-                         .stream()
-                         .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                         .toList());
+                                            expandedInteraction.goldenRecordsWithScore()
+                                                    .stream()
+                                                    .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                    .toList());
       }
    }
 
