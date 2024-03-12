@@ -281,20 +281,20 @@ public final class LibMPI {
       final var result = client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
       if (result.isRight()) {
          sendAuditEvent(interactionId,
-                 result.get().goldenUID(),
-                 String.format(Locale.ROOT,
-                         "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
-                         currentGoldenId,
-                         result.get().goldenUID(),
-                         score), score, LinkingRule.UNMATCHED);
+                       result.get().goldenUID(),
+                       String.format(Locale.ROOT,
+                               "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
+                               currentGoldenId,
+                               result.get().goldenUID(),
+                               score), score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interactionId,
-                 currentGoldenId,
-                 String.format(Locale.ROOT,
-                         "Interaction -> update GoldenID error: old(%s) [%f]",
-                         currentGoldenId, score),
-                         score,
-                         LinkingRule.UNMATCHED);
+                       currentGoldenId,
+                       String.format(Locale.ROOT,
+                               "Interaction -> update GoldenID error: old(%s) [%f]",
+                               currentGoldenId, score),
+                               score,
+                               LinkingRule.UNMATCHED);
       }
       return result;
    }
@@ -334,19 +334,19 @@ public final class LibMPI {
       final var result = client.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
-                 result.goldenUID(),
-                 String.format(Locale.ROOT,
-                         "Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), "
-                                 + "Probabilistic(%.3f)",
-                         result.score(),
-                         deterministicValidation,
-                         probabilisticValidation), result.score(), linkingRule);
+                       result.goldenUID(),
+                       String.format(Locale.ROOT,
+                               "Interaction -> Existing GoldenRecord (%.5f)  /  Validation: Deterministic(%s), "
+                                       + "Probabilistic(%.3f)",
+                               result.score(),
+                               deterministicValidation,
+                               probabilisticValidation), result.score(), linkingRule);
       } else {
          sendAuditEvent(interaction.interactionId(),
-                 goldenIdScore.goldenId(),
-                 String.format(Locale.ROOT,
-                         "Interaction -> error linking to existing GoldenRecord (%.5f)",
-                         goldenIdScore.score()), goldenIdScore.score(), linkingRule);
+                       goldenIdScore.goldenId(),
+                       String.format(Locale.ROOT,
+                               "Interaction -> error linking to existing GoldenRecord (%.5f)",
+                               goldenIdScore.score()), goldenIdScore.score(), linkingRule);
       }
       return result;
 

@@ -194,8 +194,8 @@ public abstract class ApiModels {
    }
 
    public record ApiInteractionsPaginatedResultSet(
-        List<ApiInteraction> data,
-        ApiPagination pagination) implements ApiPaginatedResultSet {
+         List<ApiInteraction> data,
+         ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiInteractionsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<Interaction> resultSet) {
          final var data = resultSet.data().stream().map(ApiInteraction::fromInteraction).toList();
@@ -263,14 +263,14 @@ public abstract class ApiModels {
    }
 
    public record ApiExpandedInteraction(
-        ApiInteraction interaction,
-        List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
+         ApiInteraction interaction,
+         List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
       public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
          return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
-                 expandedInteraction.goldenRecordsWithScore()
-                         .stream()
-                         .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                         .toList());
+                                           expandedInteraction.goldenRecordsWithScore()
+                                                              .stream()
+                                                              .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                              .toList());
       }
    }
 
