@@ -240,11 +240,11 @@ public final class Routes {
                                                         Timestamp.valueOf(startDate),
                                                         Timestamp.valueOf(endDate),
                                                         Stream.of(states.split(",")).map(String::trim).toList()),
-                                                  result -> result.isSuccess()
-                                                          ? complete(StatusCodes.OK,
+                                               result -> result.isSuccess()
+                                                 ? complete(StatusCodes.OK,
                                                           result.get(),
                                                           JSON_MARSHALLER)
-                                                          : complete(StatusCodes.IM_A_TEAPOT)))))));
+                                                 : complete(StatusCodes.IM_A_TEAPOT)))))));
    }
 
    public static Route getExpandedGoldenRecordsUsingParameterList(
@@ -616,10 +616,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
-          final String linkerIP,
-          final Integer linkerPort,
-          final Http http,
-          final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -720,9 +720,9 @@ public final class Routes {
    }
 
    public static Route postCrFind(
-          final String linkerIP,
-          final Integer linkerPort,
-          final Http http) {
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class), apiCrFind -> {
          LOGGER.debug("{}", apiCrFind);
          try {
