@@ -50,9 +50,9 @@ public final class Routes {
    }
 
    public static Route patchGoldenRecord(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final String goldenId) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd,
+          final String goldenId) {
       return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
               payload -> payload != null
                       ? onComplete(Ask.patchGoldenRecord(actorSystem, backEnd, goldenId, payload), result -> {
@@ -71,8 +71,8 @@ public final class Routes {
    }
 
    public static Route countRecords(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countRecords(actorSystem, backEnd),
               result -> result.isSuccess()
                       ? complete(StatusCodes.OK,
@@ -83,8 +83,8 @@ public final class Routes {
    }
 
    public static Route getGidsPaged(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("offset",
               offset -> parameter("length",
                       length -> onComplete(Ask.getGidsPaged(actorSystem,
@@ -97,8 +97,8 @@ public final class Routes {
    }
 
    public static Route getGoldenRecordAuditTrail(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("gid",
               uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
                       result -> result.isSuccess()
@@ -109,8 +109,8 @@ public final class Routes {
    }
 
    public static Route getInteractionAuditTrail(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("iid",
               uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
                       result -> result.isSuccess()
@@ -186,8 +186,8 @@ public final class Routes {
    }
 
    public static Route countGoldenRecords(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countGoldenRecords(actorSystem, backEnd),
               result -> result.isSuccess()
                       ? result.get()
@@ -201,8 +201,8 @@ public final class Routes {
    }
 
    public static Route countInteractions(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countInteractions(actorSystem, backEnd),
               result -> result.isSuccess()
                       ? result.get()
@@ -225,31 +225,31 @@ public final class Routes {
    }
 
    public static Route getNotifications(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return
-              parameter("limit", limit ->
-                      parameter("offset", offset ->
-                              parameter("startDate", startDate ->
-                                      parameter("endDate", endDate ->
-                                              parameter("states", states ->
-                                                      onComplete(Ask.getNotifications(actorSystem,
-                                                                      backEnd,
-                                                                      Integer.parseInt(limit),
-                                                                      Integer.parseInt(offset),
-                                                                      Timestamp.valueOf(startDate),
-                                                                      Timestamp.valueOf(endDate),
-                                                                      Stream.of(states.split(",")).map(String::trim).toList()),
-                                                              result -> result.isSuccess()
-                                                                      ? complete(StatusCodes.OK,
-                                                                      result.get(),
-                                                                      JSON_MARSHALLER)
-                                                                      : complete(StatusCodes.IM_A_TEAPOT)))))));
+            parameter("limit", limit ->
+                  parameter("offset", offset ->
+                        parameter("startDate", startDate ->
+                              parameter("endDate", endDate ->
+                                    parameter("states", states ->
+                                          onComplete(Ask.getNotifications(actorSystem,
+                                                        backEnd,
+                                                        Integer.parseInt(limit),
+                                                        Integer.parseInt(offset),
+                                                        Timestamp.valueOf(startDate),
+                                                        Timestamp.valueOf(endDate),
+                                                        Stream.of(states.split(",")).map(String::trim).toList()),
+                                                                                                       result -> result.isSuccess()
+                                                                                                              ? complete(StatusCodes.OK,
+                                                                                                              result.get(),
+                                                                                                              JSON_MARSHALLER)
+                                                                                                              : complete(StatusCodes.IM_A_TEAPOT)))))));
    }
 
    public static Route getExpandedGoldenRecordsUsingParameterList(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return parameterList(params -> {
          final var goldenIds = params.stream().map(PARAM_STRING).toList();
          return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
@@ -268,8 +268,8 @@ public final class Routes {
    }
 
    public static Route getExpandedGoldenRecordsFromUsingCSV(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uidList", items -> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
          return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, uidList),
@@ -288,8 +288,8 @@ public final class Routes {
    }
 
    public static Route getExpandedInteractionsUsingCSV(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uidList", items -> {
          final var iidList = Stream.of(items.split(",")).map(String::trim).toList();
          return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, iidList),
@@ -308,9 +308,9 @@ public final class Routes {
    }
 
    public static Route getExpandedGoldenRecord(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final String gid) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd,
+          final String gid) {
       return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, gid),
               result -> result.isSuccess()
                       ? result.get()
@@ -325,9 +325,9 @@ public final class Routes {
    }
 
    public static Route getInteraction(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final String iid) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd,
+          final String iid) {
       return onComplete(Ask.getInteraction(actorSystem, backEnd, iid),
               result -> result.isSuccess()
                       ? result.get()
@@ -341,8 +341,8 @@ public final class Routes {
    }
 
    public static Route postUpdateNotification(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(NotificationRequest.class),
               obj -> onComplete(Ask.postUpdateNotification(actorSystem, backEnd, obj), response -> {
                  if (response.isSuccess()) {
@@ -355,8 +355,8 @@ public final class Routes {
    }
 
    public static Route postUploadCsvFile(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       return withSizeLimit(1024 * 1024 * 2048, () -> storeUploadedFile("csv",
               (info) -> {
                  try {
@@ -377,9 +377,9 @@ public final class Routes {
    }
 
    public static Route postSimpleSearch(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final RecordType recordType) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd,
+          final RecordType recordType) {
       LOGGER.info("Simple search on {}", recordType);
       return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class), searchParameters -> onComplete(() -> {
          if (recordType == RecordType.GoldenRecord) {
@@ -398,8 +398,8 @@ public final class Routes {
    }
 
    public static Route postFilterGids(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
 //      final ObjectMapper objectMapper = new ObjectMapper();
 //      objectMapper.registerModule(new JavaTimeModule());
@@ -415,8 +415,8 @@ public final class Routes {
    }
 
    public static Route postFilterGidsWithInteractionCount(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
 //      final ObjectMapper objectMapper = new ObjectMapper();
 //      objectMapper.registerModule(new JavaTimeModule());
@@ -434,9 +434,9 @@ public final class Routes {
    }
 
    public static Route postCustomSearch(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final RecordType recordType) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd,
+          final RecordType recordType) {
       return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class), searchParameters -> onComplete(() -> {
          if (recordType == RecordType.GoldenRecord) {
             return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
@@ -454,10 +454,10 @@ public final class Routes {
    }
 
    public static CompletionStage<HttpResponse> proxyPostCalculateScores(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.ApiCalculateScoresRequest body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.ApiCalculateScoresRequest body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -470,9 +470,9 @@ public final class Routes {
    }
 
    public static Route proxyPostCalculateScores(
-           final String linkerIp,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIp,
+          final Integer linkerPort,
+          final Http http) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class), obj -> {
          try {
             return onComplete(proxyPostCalculateScores(linkerIp, linkerPort, http, obj),
@@ -538,10 +538,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> proxyGetCandidatesWithScore(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final String iid) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final String iid) throws JsonProcessingException {
       final var uri = Uri.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -583,9 +583,9 @@ public final class Routes {
    }
 
    public static Route proxyGetCandidatesWithScore(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http) {
       return parameter("iid", iid -> {
          try {
             return onComplete(proxyGetCandidatesWithScore(linkerIP, linkerPort, http, iid),
@@ -600,10 +600,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> patchCrUpdateFieldsProxy(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.ApiCrUpdateFieldsRequest body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.ApiCrUpdateFieldsRequest body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -616,10 +616,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrRegisterProxy(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -632,10 +632,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postLinkInteractionProxy(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.LinkInteractionSyncBody body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.LinkInteractionSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -648,10 +648,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postLinkInteractionToGidProxy(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.LinkInteractionToGidSyncBody body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.LinkInteractionToGidSyncBody body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -664,10 +664,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrCandidatesProxy(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.ApiCrCandidatesRequest body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.ApiCrCandidatesRequest body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -683,10 +683,10 @@ public final class Routes {
    }
 
    private static CompletionStage<HttpResponse> postCrFindProxy(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http,
-           final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http,
+          final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
       final var request = HttpRequest.create(String.format(Locale.ROOT,
                       "http://%s:%d/JeMPI/%s",
                       linkerIP,
@@ -702,9 +702,9 @@ public final class Routes {
    }
 
    public static Route patchCrUpdateFields(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class), apiCrUpdateFields -> {
          LOGGER.debug("{}", apiCrUpdateFields);
          try {
@@ -738,9 +738,9 @@ public final class Routes {
    }
 
    public static Route postCrCandidates(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class), apiCrCandidates -> {
          LOGGER.debug("{}", apiCrCandidates);
          try {
@@ -756,9 +756,9 @@ public final class Routes {
    }
 
    public static Route postCrRegister(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class), apiCrRegister -> {
          LOGGER.debug("{}", apiCrRegister);
          try {
@@ -774,9 +774,9 @@ public final class Routes {
    }
 
    public static Route postLinkInteraction(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionSyncBody.class), linkInteractionSyncBody -> {
          try {
             return onComplete(postLinkInteractionProxy(linkerIP, linkerPort, http, linkInteractionSyncBody),
@@ -791,9 +791,9 @@ public final class Routes {
    }
 
    public static Route postLinkInteractionToGid(
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
+          final String linkerIP,
+          final Integer linkerPort,
+          final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionToGidSyncBody.class),
               apiLinkInteractionToGid -> {
                  try {
@@ -809,14 +809,14 @@ public final class Routes {
    }
 
    public static Route createCoreAPIRoutes(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final String jsonFields,
-           final String linkerIP,
-           final Integer linkerPort,
-           final String controllerIP,
-           final Integer controllerPort,
-           final Http http) {
+          final ActorSystem<Void> actorSystem,
+          final ActorRef<BackEnd.Event> backEnd,
+          final String jsonFields,
+          final String linkerIP,
+          final Integer linkerPort,
+          final String controllerIP,
+          final Integer controllerPort,
+          final Http http) {
       return concat(post(() -> concat(path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
                               () -> Routes.postUpdateNotification(actorSystem, backEnd)),
                       path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH).slash(segment(Pattern.compile(
