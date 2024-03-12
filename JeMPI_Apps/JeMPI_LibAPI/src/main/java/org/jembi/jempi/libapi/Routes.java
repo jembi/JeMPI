@@ -96,7 +96,7 @@ public final class Routes {
                                                                       : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
    }
 
-   public static Route  public static Route getGoldenRecordAuditTrail(
+   public static Route getGoldenRecordAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("gid",
@@ -119,69 +119,70 @@ public final class Routes {
                                                           JSON_MARSHALLER)
                                                : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
+
    public static Route patchIidNewGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String controllerIp,
-         final Integer controllerPort,
-         final Http http) {
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String controllerIp,
+           final Integer controllerPort,
+           final Http http) {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
-                    obj -> onComplete(Ask.patchIidNewGidLink(actorSystem,
-                                                             backEnd,
-                                                             obj.currentGoldenId(),
-                                                             obj.interactionId()),
-                                      result -> result.isSuccess()
-                                            ? result.get()
-                                                    .linkInfo()
-                                                    .mapLeft(Routes::mapError)
-                                                    .fold(error -> error,
-                                                          linkInfo ->  onComplete(processOnNotificationResolution(
-                                                                                        controllerIp,
-                                                                                        controllerPort,
-                                                                                        http,
-                                                                                        new NotificationResolutionProcessorData(obj, linkInfo)),
-                                                                                  r ->  complete(
-                                                                                        StatusCodes.OK,
-                                                                                        linkInfo,
-                                                                                        JSON_MARSHALLER))
-                                                         )
-                                            : complete(StatusCodes.IM_A_TEAPOT))
-                   );
+              obj -> onComplete(Ask.patchIidNewGidLink(actorSystem,
+                                      backEnd,
+                                      obj.currentGoldenId(),
+                                      obj.interactionId()),
+                              result -> result.isSuccess()
+                                      ? result.get()
+                                      .linkInfo()
+                                      .mapLeft(Routes::mapError)
+                                      .fold(error -> error,
+                                              linkInfo ->  onComplete(processOnNotificationResolution(
+                                                              controllerIp,
+                                                              controllerPort,
+                                                              http,
+                                                              new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r ->  complete(
+                                                              StatusCodes.OK,
+                                                              linkInfo,
+                                                              JSON_MARSHALLER))
+                                      )
+                                      : complete(StatusCodes.IM_A_TEAPOT))
+              );
    }
 
    public static Route patchIidGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String controllerIp,
-         final Integer controllerPort,
-         final Http http) {
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String controllerIp,
+           final Integer controllerPort,
+           final Http http) {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
-                    obj -> onComplete(Ask.patchIidGidLink(
-                                            actorSystem,
-                                            backEnd,
-                                            obj.currentGoldenId(),
-                                            obj.newGoldenId(),
-                                            obj.interactionId(),
-                                            obj.score()),
-                                      result -> result.isSuccess()
-                                            ? result.get()
-                                                    .linkInfo()
-                                                    .mapLeft(Routes::mapError)
-                                                    .fold(error -> error,
-                                                          linkInfo ->  onComplete(processOnNotificationResolution(
-                                                                                        controllerIp,
-                                                                                        controllerPort,
-                                                                                        http,
-                                                                                        new NotificationResolutionProcessorData(obj, linkInfo)),
-                                                                                  r ->  complete(
-                                                                                        StatusCodes.OK,
-                                                                                        linkInfo,
-                                                                                        JSON_MARSHALLER))
-                                                         )
-                                            : complete(StatusCodes.IM_A_TEAPOT))
-                   );
+              obj -> onComplete(Ask.patchIidGidLink(
+                              actorSystem,
+                              backEnd,
+                              obj.currentGoldenId(),
+                              obj.newGoldenId(),
+                              obj.interactionId(),
+                              obj.score()),
+                      result -> result.isSuccess()
+                              ? result.get()
+                              .linkInfo()
+                              .mapLeft(Routes::mapError)
+                              .fold(error -> error,
+                                      linkInfo ->  onComplete(processOnNotificationResolution(
+                                                      controllerIp,
+                                                      controllerPort,
+                                                      http,
+                                                      new NotificationResolutionProcessorData(obj, linkInfo)),
+                                              r ->  complete(
+                                                      StatusCodes.OK,
+                                                      linkInfo,
+                                                      JSON_MARSHALLER))
+                              )
+                              : complete(StatusCodes.IM_A_TEAPOT))
+      );
    }
 
    public static Route countGoldenRecords(
@@ -233,17 +234,17 @@ public final class Routes {
                               parameter("endDate", endDate ->
                                     parameter("states", states ->
                                           onComplete(Ask.getNotifications(actorSystem,
-                                                                          backEnd,
-                                                                          Integer.parseInt(limit),
-                                                                          Integer.parseInt(offset),
-                                                                          Timestamp.valueOf(startDate),
-                                                                          Timestamp.valueOf(endDate),
-                                                                          Stream.of(states.split(",")).map(String::trim).toList()),
-                                                     result -> result.isSuccess()
-                                                           ? complete(StatusCodes.OK,
-                                                                      result.get(),
-                                                                      JSON_MARSHALLER)
-                                                           : complete(StatusCodes.IM_A_TEAPOT)))))));
+                                                                    backEnd,
+                                                                    Integer.parseInt(limit),
+                                                                    Integer.parseInt(offset),
+                                                                    Timestamp.valueOf(startDate),
+                                                                    Timestamp.valueOf(endDate),
+                                                                    Stream.of(states.split(",")).map(String::trim).toList()),
+                                               result -> result.isSuccess()
+                                                     ? complete(StatusCodes.OK,
+                                                                result.get(),
+                                                                JSON_MARSHALLER)
+                                                     : complete(StatusCodes.IM_A_TEAPOT)))))));
    }
 
    public static Route getExpandedGoldenRecordsUsingParameterList(
@@ -357,22 +358,22 @@ public final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return withSizeLimit(1024 * 1024 * 2048, () -> storeUploadedFile("csv",
-                                                                       (info) -> {
-                                                                          try {
-                                                                             return File.createTempFile("import-", ".csv");
-                                                                          } catch (Exception e) {
-                                                                             LOGGER.error(e.getMessage(), e);
-                                                                             return null;
-                                                                          }
-                                                                       },
-                                                                       (info, file) -> onComplete(Ask.postUploadCsvFile(actorSystem,
-                                                                                                                        backEnd,
-                                                                                                                        info,
-                                                                                                                        file),
-                                                                                                  response -> response.isSuccess()
-                                                                                                        ? complete(StatusCodes.OK)
-                                                                                                        : complete(ApiModels.getHttpErrorResponse(
-                                                                                                              StatusCodes.IM_A_TEAPOT)))));
+                                                                    (info) -> {
+                                                                       try {
+                                                                          return File.createTempFile("import-", ".csv");
+                                                                       } catch (Exception e) {
+                                                                          LOGGER.error(e.getMessage(), e);
+                                                                          return null;
+                                                                       }
+                                                                    },
+                                                                    (info, file) -> onComplete(Ask.postUploadCsvFile(actorSystem,
+                                                                                                                     backEnd,
+                                                                                                                     info,
+                                                                                                                     file),
+                                                                                               response -> response.isSuccess()
+                                                                                                     ? complete(StatusCodes.OK)
+                                                                                                     : complete(ApiModels.getHttpErrorResponse(
+                                                                                                           StatusCodes.IM_A_TEAPOT)))));
    }
 
    public static Route postSimpleSearch(
@@ -486,53 +487,53 @@ public final class Routes {
    }
 
    public static Route getDashboardData(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String controllerIp,
-         final Integer controllerPort,
-         final Http http) {
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final String controllerIp,
+           final Integer controllerPort,
+           final Http http) {
 
       final var request = HttpRequest
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  controllerIp,
-                                  controllerPort,
-                                  GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA))
-            .withMethod(HttpMethods.GET);
+              .create(String.format(Locale.ROOT,
+                      "http://%s:%d/JeMPI/%s",
+                      controllerIp,
+                      controllerPort,
+                      GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA))
+              .withMethod(HttpMethods.GET);
 
       CompletableFuture<BackEnd.SQLDashboardDataResponse> sqlDashboardDataFuture = Ask.getSQLDashboardData(actorSystem, backEnd).toCompletableFuture();
       CompletableFuture<HttpResponse> dashboardDataFuture = http.singleRequest(request).toCompletableFuture();
       return onComplete(
-            CompletableFuture.allOf(
-                  sqlDashboardDataFuture,
-                  dashboardDataFuture
-                                   ),
-            result -> {
-               if (result.isSuccess()) {
-                  HttpResponse dashboardDataResponse = dashboardDataFuture.join();
-                  if (dashboardDataResponse.status() != StatusCodes.OK) {
-                     LOGGER.error("Error getting dashboard data ");
-                     return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-                  }
+              CompletableFuture.allOf(
+                       sqlDashboardDataFuture,
+                       dashboardDataFuture
+                      ),
+              result -> {
+                 if (result.isSuccess()) {
+                    HttpResponse dashboardDataResponse = dashboardDataFuture.join();
+                    if (dashboardDataResponse.status() != StatusCodes.OK) {
+                       LOGGER.error("Error getting dashboard data ");
+                       return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                    }
 
-                  String responseBody = null;
-                  try {
-                     responseBody = Unmarshaller.entityToString().unmarshal(dashboardDataResponse.entity(), actorSystem).
-                                                toCompletableFuture().get(2, TimeUnit.SECONDS);
-                  } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                     LOGGER.error("Error getting dashboard data ", e);
-                     return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-                  }
+                    String responseBody = null;
+                    try {
+                       responseBody = Unmarshaller.entityToString().unmarshal(dashboardDataResponse.entity(), actorSystem).
+                               toCompletableFuture().get(2, TimeUnit.SECONDS);
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                       LOGGER.error("Error getting dashboard data ", e);
+                       return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                    }
 
-                  Map<String, Object> dashboardDataResults = Map.ofEntries(Map.entry("sqlDashboardData", sqlDashboardDataFuture.join()),
-                                                                           Map.entry("dashboardData", responseBody));
+                    Map<String, Object> dashboardDataResults = Map.ofEntries(Map.entry("sqlDashboardData", sqlDashboardDataFuture.join()),
+                                                                              Map.entry("dashboardData", responseBody));
 
-                  return complete(StatusCodes.OK, dashboardDataResults, JSON_MARSHALLER);
-               } else {
-                  LOGGER.error("Error getting dashboard data ", result.failed().get());
-                  return complete(StatusCodes.INTERNAL_SERVER_ERROR);
-               }
-            });
+                    return complete(StatusCodes.OK, dashboardDataResults, JSON_MARSHALLER);
+                 } else {
+                    LOGGER.error("Error getting dashboard data ", result.failed().get());
+                    return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                 }
+              });
 
    }
 
@@ -553,19 +554,19 @@ public final class Routes {
    }
 
    private static CompletionStage<Boolean> processOnNotificationResolution(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final NotificationResolutionProcessorData body) {
+           final String linkerIP,
+           final Integer linkerPort,
+           final Http http,
+           final NotificationResolutionProcessorData body) {
       try {
          final var request = HttpRequest
-               .create(String.format(Locale.ROOT,
-                                     "http://%s:%d/JeMPI/%s",
-                                     linkerIP,
-                                     linkerPort,
-                                     GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION))
-               .withMethod(HttpMethods.POST)
-               .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
+                 .create(String.format(Locale.ROOT,
+                         "http://%s:%d/JeMPI/%s",
+                         linkerIP,
+                         linkerPort,
+                         GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION))
+                 .withMethod(HttpMethods.POST)
+                 .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
          final var stage = http.singleRequest(request);
          return stage.thenApply(response -> {
             if (response.status() != StatusCodes.OK) {
@@ -851,9 +852,9 @@ public final class Routes {
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                            () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
-                                           () -> Routes.patchIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
+                                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
                                       path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
-                                           () -> Routes.patchIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)))),
+                                              () -> Routes.patchIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)))),
                     patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
                                        path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
@@ -887,11 +888,10 @@ public final class Routes {
                                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                            "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
-                                     path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                                    path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
                                           () -> Routes.getDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                           () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
    }
-
 
 }
