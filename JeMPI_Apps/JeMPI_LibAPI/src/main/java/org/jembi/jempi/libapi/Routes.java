@@ -50,9 +50,9 @@ public final class Routes {
    }
 
    public static Route patchGoldenRecord(
-          final ActorSystem<Void> actorSystem,
-          final ActorRef<BackEnd.Event> backEnd,
-          final String goldenId) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String goldenId) {
       return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
               payload -> payload != null
                       ? onComplete(Ask.patchGoldenRecord(actorSystem, backEnd, goldenId, payload), result -> {
@@ -71,8 +71,8 @@ public final class Routes {
    }
 
    public static Route countRecords(
-          final ActorSystem<Void> actorSystem,
-          final ActorRef<BackEnd.Event> backEnd) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countRecords(actorSystem, backEnd),
               result -> result.isSuccess()
                       ? complete(StatusCodes.OK,

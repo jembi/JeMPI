@@ -251,8 +251,8 @@ public abstract class ApiModels {
    }
 
    public record ApiExpandedGoldenRecord(
-          ApiGoldenRecord goldenRecord,
-          List<ApiInteractionWithScore> interactionsWithScore) {
+         ApiGoldenRecord goldenRecord,
+         List<ApiInteractionWithScore> interactionsWithScore) {
       public static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
          return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
                  expandedGoldenRecord.interactionsWithScore()
