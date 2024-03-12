@@ -35,9 +35,9 @@ public abstract class ApiModels {
 
    public record ApiError(
 
-        @JsonProperty("module") String module,
-        @JsonProperty("class") String klass,
-        @JsonProperty("line_number") Integer lineNumber) {
+         @JsonProperty("module") String module,
+         @JsonProperty("class") String klass,
+         @JsonProperty("line_number") Integer lineNumber) {
 
       public ApiError() {
          this(Thread.currentThread().getStackTrace()[3].getModuleName(),
@@ -267,10 +267,10 @@ public abstract class ApiModels {
          List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
       public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
          return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
-                                            expandedInteraction.goldenRecordsWithScore()
-                                                    .stream()
-                                                    .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                                                    .toList());
+                                           expandedInteraction.goldenRecordsWithScore()
+                                                              .stream()
+                                                              .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                              .toList());
       }
    }
 
