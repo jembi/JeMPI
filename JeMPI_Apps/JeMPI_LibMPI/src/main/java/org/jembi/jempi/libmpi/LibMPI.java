@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+import org.jembi.jempi.libmpi.lib.hooks.HooksRunner;
 import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
@@ -20,9 +21,9 @@ public final class LibMPI {
 
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
-
    private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
    private final AuditTrailUtil auditTrailUtil;
+   private final HooksRunner hooksRunner;
 
    public LibMPI(
          final Level level,
@@ -38,6 +39,7 @@ public final class LibMPI {
                                                kafkaClientId);
       client = new LibDgraph(level, host, port);
       auditTrailUtil = new AuditTrailUtil(topicAuditEvents);
+      hooksRunner = new HooksRunner(client);
    }
 
    public LibMPI(
@@ -54,6 +56,7 @@ public final class LibMPI {
                                                kafkaClientId);
       client = new LibPostgresql(URL, USR, PSW);
       auditTrailUtil = new AuditTrailUtil(topicAuditEvents);
+      hooksRunner = new HooksRunner(client);
    }
 
    private void sendAuditEvent(
@@ -370,6 +373,22 @@ public final class LibMPI {
                  score, LinkingRule.UNMATCHED);
       }
       return result;
+   }
+
+   /*
+    * *****************************************************************************
+    * *
+    * Hooks
+    * *****************************************************************************
+    * *
+    */
+
+    public List<MpiGeneralError> beforeLinkingHook() {
+       return hooksRunner.beforeLinkingHook();
+    }
+
+   public List<MpiGeneralError> afterLinkingHook() {
+      return hooksRunner.afterLinkingHook();
    }
 
 }

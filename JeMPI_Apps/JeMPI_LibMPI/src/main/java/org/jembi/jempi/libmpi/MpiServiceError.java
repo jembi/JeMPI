@@ -52,5 +52,4 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          String error,
          String interactionID) implements MpiServiceError {
    }
-
 }

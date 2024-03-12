@@ -56,10 +56,16 @@ case class Rules(
     matchNotification: Option[AllRules]
 )
 
+case class IndexProps(props: String)
+case class Indexes(
+    linking: Option[Map[String, IndexProps]],
+    matching: Option[Map[String, IndexProps]]
+)
 case class Config(
     uniqueInteractionFields: Option[Array[UniqueField]],
     uniqueGoldenRecordFields: Option[Array[UniqueField]],
     additionalNodes: Option[Array[AdditionalNode]],
     demographicFields: Array[DemographicField],
+    indexes: Indexes,
     rules: Rules
 )
