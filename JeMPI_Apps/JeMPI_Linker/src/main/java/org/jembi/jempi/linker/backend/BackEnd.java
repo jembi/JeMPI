@@ -106,6 +106,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    @Override
    public Receive<Request> createReceive() {
       return newReceiveBuilder().onMessage(AsyncLinkInteractionRequest.class, this::asyncLinkInteractionHandler)
+                                .onMessage(AsyncMatchInteractionRequest.class, this::asyncMatchInteractionHandler)
                                 .onMessage(SyncLinkInteractionRequest.class, this::syncLinkInteractionHandler)
 //                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
                                 .onMessage(CalculateScoresRequest.class, this::calculateScoresHandler)
@@ -200,6 +201,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
+      }
+      return Behaviors.withTimers(timers -> {
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
+         return Behaviors.same();
+      });
+   }
+
+   private Behavior<Request> asyncMatchInteractionHandler(final AsyncMatchInteractionRequest req) {
+      if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+         return Behaviors.withTimers(timers -> {
+            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));
+            req.replyTo.tell(new AsyncMatchInteractionResponse(null));
+            return Behaviors.same();
+         });
+      }
+      // to-do: Consider if LinkInfo is nevessary
+      final var linkInfo =
+              LinkerDWH.matchInteraction(libMPI,
+                      req.batchInteraction.interaction(),
+                      null,
+                      AppConfig.LINKER_MATCH_THRESHOLD,
+                      req.batchInteraction.stan());
+      if (linkInfo.isLeft()) {
+         req.replyTo.tell(new AsyncMatchInteractionResponse(linkInfo.getLeft()));
+      } else {
+         req.replyTo.tell(new AsyncMatchInteractionResponse(null));
       }
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
@@ -332,6 +359,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record AsyncLinkInteractionResponse(LinkInfo linkInfo) implements Response {
+   }
+
+   public record AsyncMatchInteractionRequest(
+           ActorRef<AsyncMatchInteractionResponse> replyTo,
+           String key,
+           InteractionEnvelop batchInteraction) implements Request {
+   }
+
+   public record AsyncMatchInteractionResponse(LinkInfo linkInfo) implements Response {
    }
 
    public record RunStartStopHooksRequest(

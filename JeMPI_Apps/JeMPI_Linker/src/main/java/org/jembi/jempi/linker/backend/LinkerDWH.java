@@ -118,6 +118,52 @@ public final class LinkerDWH {
       });
    }
 
+   public static Either<LinkInfo, List<ExternalLinkCandidate>> matchInteraction(
+           final LibMPI libMPI,
+           final Interaction interaction,
+           final ExternalLinkRange externalLinkRange,
+           final float matchThreshold_,
+           final String envelopStan) {
+      libMPI.startTransaction();
+      if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
+         final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
+         LOGGER.debug("Match Candidates {} ", candidates.size());
+         if (candidates.isEmpty()) {
+            try {
+               final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
+               final var f = """
+                                MATCH NOTIFICATION NO CANDIDATE
+                                {}""";
+               LOGGER.info(f, i);
+            } catch (JsonProcessingException e) {
+               LOGGER.error(e.getLocalizedMessage(), e);
+            }
+         } else {
+            final var workCandidate = candidates.parallelStream()
+                    .unordered()
+                    .map(candidate -> new WorkCandidate(candidate,
+                            LinkerUtils.calcNormalizedScore(candidate.demographicData(),
+                                    interaction.demographicData())))
+                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                    .collect(Collectors.toCollection(ArrayList::new))
+                    .getFirst();
+            try {
+               final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
+               final var g = OBJECT_MAPPER.writeValueAsString(workCandidate.goldenRecord().demographicData());
+               final var f = """
+                                MATCH NOTIFICATION
+                                {}
+                                {}""";
+               LOGGER.info(f, i, g);
+            } catch (JsonProcessingException e) {
+               LOGGER.error(e.getLocalizedMessage(), e);
+            }
+         }
+      }
+      libMPI.closeTransaction();
+      return Either.right(List.of());
+   }
+
    // +
    public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
@@ -142,44 +188,7 @@ public final class LinkerDWH {
       }
 
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
-         libMPI.startTransaction();
-         if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || CustomLinkerProbabilistic.PROBABILISTIC_DO_MATCHING) {
-            final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
-            LOGGER.debug("Match Candidates {} ", candidates.size());
-            if (candidates.isEmpty()) {
-               try {
-                  final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
-                  final var f = """
-                                MATCH NOTIFICATION NO CANDIDATE
-                                {}""";
-                  LOGGER.info(f, i);
-               } catch (JsonProcessingException e) {
-                  LOGGER.error(e.getLocalizedMessage(), e);
-               }
-            } else {
-               final var workCandidate = candidates.parallelStream()
-                                                   .unordered()
-                                                   .map(candidate -> new WorkCandidate(candidate,
-                                                                                       LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                                                       interaction.demographicData())))
-                                                   .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                                   .collect(Collectors.toCollection(ArrayList::new))
-                                                   .getFirst();
-               try {
-                  final var i = OBJECT_MAPPER.writeValueAsString(interaction.demographicData());
-                  final var g = OBJECT_MAPPER.writeValueAsString(workCandidate.goldenRecord().demographicData());
-                  final var f = """
-                                MATCH NOTIFICATION
-                                {}
-                                {}""";
-                  LOGGER.info(f, i, g);
-               } catch (JsonProcessingException e) {
-                  LOGGER.error(e.getLocalizedMessage(), e);
-               }
-            }
-         }
-         libMPI.closeTransaction();
-         return Either.right(List.of());
+         sendKafkaTopic();
       } else {
          LinkInfo linkInfo = null;
          final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
