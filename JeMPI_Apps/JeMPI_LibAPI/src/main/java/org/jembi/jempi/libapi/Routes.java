@@ -216,8 +216,8 @@ public final class Routes {
    }
 
    public static Route getGidsAll(
-          final ActorSystem<Void> actorSystem,
-          final ActorRef<BackEnd.Event> backEnd) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.getGidsAll(actorSystem, backEnd),
               result -> result.isSuccess()
                       ? complete(StatusCodes.OK, result.get(), JSON_MARSHALLER)
