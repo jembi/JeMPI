@@ -221,8 +221,8 @@ public abstract class ApiModels {
             final PaginatedGIDsWithInteractionCount resultSet) {
          final var data = resultSet.data().stream().toList();
          return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data,
-                 InteractionCount.fromInteractionCount(resultSet.interactionCount()),
-                 ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+                                                                         InteractionCount.fromInteractionCount(resultSet.interactionCount()),
+                                                                         ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
@@ -234,9 +234,9 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
       static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
-                 goldenRecord.sourceId(),
-                 goldenRecord.customUniqueGoldenRecordData(),
-                 goldenRecord.demographicData());
+                                    goldenRecord.sourceId(),
+                                    goldenRecord.customUniqueGoldenRecordData(),
+                                    goldenRecord.demographicData());
       }
    }
 
@@ -246,7 +246,7 @@ public abstract class ApiModels {
          Float score) {
       static ApiGoldenRecordWithScore fromGoldenRecordWithScore(final GoldenRecordWithScore goldenRecordWithScore) {
          return new ApiGoldenRecordWithScore(ApiGoldenRecord.fromGoldenRecord(goldenRecordWithScore.goldenRecord()),
-                 goldenRecordWithScore.score());
+                                             goldenRecordWithScore.score());
       }
    }
 
@@ -255,10 +255,10 @@ public abstract class ApiModels {
          List<ApiInteractionWithScore> interactionsWithScore) {
       public static ApiExpandedGoldenRecord fromExpandedGoldenRecord(final ExpandedGoldenRecord expandedGoldenRecord) {
          return new ApiExpandedGoldenRecord(ApiGoldenRecord.fromGoldenRecord(expandedGoldenRecord.goldenRecord()),
-                 expandedGoldenRecord.interactionsWithScore()
-                         .stream()
-                         .map(ApiInteractionWithScore::fromPatientRecordWithScore)
-                         .toList());
+                                            expandedGoldenRecord.interactionsWithScore()
+                                                                .stream()
+                                                                .map(ApiInteractionWithScore::fromPatientRecordWithScore)
+                                                                .toList());
       }
    }
 
@@ -267,10 +267,10 @@ public abstract class ApiModels {
          List<ApiGoldenRecordWithScore> goldenRecordsWithScore) {
       public static ApiExpandedInteraction fromExpandedInteraction(final ExpandedInteraction expandedInteraction) {
          return new ApiExpandedInteraction(ApiInteraction.fromInteraction(expandedInteraction.interaction()),
-                                           expandedInteraction.goldenRecordsWithScore()
-                                                              .stream()
-                                                              .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
-                                                              .toList());
+                                            expandedInteraction.goldenRecordsWithScore()
+                                                    .stream()
+                                                    .map(ApiGoldenRecordWithScore::fromGoldenRecordWithScore)
+                                                    .toList());
       }
    }
 
@@ -282,9 +282,9 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
-                 interaction.sourceId(),
-                 interaction.uniqueInteractionData(),
-                 interaction.demographicData());
+                                   interaction.sourceId(),
+                                   interaction.uniqueInteractionData(),
+                                   interaction.demographicData());
       }
    }
 
@@ -294,7 +294,7 @@ public abstract class ApiModels {
          Float score) {
       static ApiInteractionWithScore fromPatientRecordWithScore(final InteractionWithScore interactionWithScore) {
          return new ApiInteractionWithScore(ApiInteraction.fromInteraction(interactionWithScore.interaction()),
-                 interactionWithScore.score());
+                                            interactionWithScore.score());
       }
    }
 
