@@ -307,12 +307,12 @@ public final class LibMPI {
       final var result = client.updateLink(goldenID, newGoldenID, interactionID, score);
       if (result.isRight()) {
          sendAuditEvent(interactionID,
-                       newGoldenID,
-                       String.format(Locale.ROOT,
-                                     "Interaction -> update GoldenID: old(%s) new(%s) [%f]",
-                                     goldenID,
-                                     newGoldenID,
-                                     score), score, LinkingRule.UNMATCHED);
+                        newGoldenID,
+                        String.format(Locale.ROOT,
+                                      "Interaction -> update GoldenID: old(%s) new(%s) [%f]",
+                                      goldenID,
+                                      newGoldenID,
+                                      score), score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interactionID,
                         newGoldenID,
