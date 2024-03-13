@@ -13,11 +13,11 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
-public final class AuditTrailUtil {
+public final class AuditTrailBridge {
     private MyKafkaProducer<String, AuditEvent> topicAuditEvents = null;
-    private static final Logger LOGGER = LogManager.getLogger(AuditTrailUtil.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuditTrailBridge.class);
 
-    public AuditTrailUtil(final MyKafkaProducer<String, AuditEvent> topicAuditEvents) {
+    public AuditTrailBridge(final MyKafkaProducer<String, AuditEvent> topicAuditEvents) {
         this.topicAuditEvents = topicAuditEvents;
     }
 
@@ -51,9 +51,7 @@ public final class AuditTrailUtil {
             return null;
         }
     }
-
     public static <T> T getDeserializeEventData(final String eventData, final Class<T> valueType) throws JsonProcessingException {
         return OBJECT_MAPPER.readValue(eventData, valueType);
     }
-
 }

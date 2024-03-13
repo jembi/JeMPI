@@ -12,7 +12,7 @@ import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-import org.jembi.jempi.shared.utils.AuditTrailUtil;
+import org.jembi.jempi.shared.utils.AuditTrailBridge;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -22,8 +22,8 @@ public final class LibMPI {
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
    private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
-   private final AuditTrailUtil auditTrailUtil;
    private final HooksRunner hooksRunner;
+   private final AuditTrailBridge auditTrailUtil;
 
    public LibMPI(
          final Level level,
@@ -38,7 +38,7 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       client = new LibDgraph(level, host, port);
-      auditTrailUtil = new AuditTrailUtil(topicAuditEvents);
+      auditTrailUtil = new AuditTrailBridge(topicAuditEvents);
       hooksRunner = new HooksRunner(client);
    }
 
@@ -55,7 +55,7 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       client = new LibPostgresql(URL, USR, PSW);
-      auditTrailUtil = new AuditTrailUtil(topicAuditEvents);
+      auditTrailUtil = new AuditTrailBridge(topicAuditEvents);
       hooksRunner = new HooksRunner(client);
    }
 

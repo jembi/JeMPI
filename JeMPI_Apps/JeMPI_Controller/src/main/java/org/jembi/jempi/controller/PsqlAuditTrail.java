@@ -6,6 +6,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.AuditEvent;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Locale;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
@@ -58,12 +59,12 @@ final class PsqlAuditTrail {
 
       try (var preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT, """
                                                                                           INSERT INTO %s (createdAt, eventType, eventData)
-                                                                                          VALUES (?, ?, ?);
+                                                                                          VALUES (?, ?, ?::json);
                                                                                           """, PSQL_TABLE_AUDIT_TRAIL)
                                                                       .stripIndent())) {
          preparedStatement.setTimestamp(1, auditEvent.createdAt());
          preparedStatement.setString(2, auditEvent.eventType().name());
-         preparedStatement.setString(3, auditEvent.eventData());
+         preparedStatement.setObject(3, auditEvent.eventData(), Types.OTHER);
          preparedStatement.executeUpdate();
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
