@@ -76,26 +76,28 @@ public final class HttpServer extends AllDirectives {
    }
 
    private Route onNotificationResolution(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(NotificationResolutionProcessorData.class),
-              obj -> onComplete(BackEnd.askOnNotificationResolution(actorSystem, backEnd, obj), response -> {
-                 if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
-                    return complete(StatusCodes.OK);
-                 } else {
-                    return complete(StatusCodes.IM_A_TEAPOT);
-                 }
-              }));
+                    obj -> onComplete(BackEnd.askOnNotificationResolution(actorSystem, backEnd, obj), response -> {
+                       if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
+                          return complete(StatusCodes.OK);
+                       } else {
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(GlobalConstants.IM_A_TEA_POT);
+                       }
+                    }));
    }
 
    private Route routeDashboardData(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(BackEnd.askGetDashboardData(actorSystem, backEnd), response -> {
          if (response.isSuccess()) {
             return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
          } else {
-            return complete(StatusCodes.IM_A_TEAPOT);
+            LOGGER.warn("IM_A_TEAPOT");
+            return complete(GlobalConstants.IM_A_TEA_POT);
          }
       });
    }
@@ -105,12 +107,18 @@ public final class HttpServer extends AllDirectives {
          try {
             LOGGER.debug("{}", obj);
             return onComplete(postLinkInteraction(obj),
-                              response -> response.isSuccess()
-                                    ? complete(response.get())
-                                    : complete(StatusCodes.IM_A_TEAPOT));
+                              response -> {
+                                 if (!response.isSuccess()) {
+                                    LOGGER.warn("IM_A_TEAPOT");
+                                 }
+                                 return response.isSuccess()
+                                       ? complete(response.get())
+                                       : complete(GlobalConstants.IM_A_TEA_POT);
+                              });
          } catch (JsonProcessingException e) {
+            LOGGER.warn("IM_A_TEAPOT");
             LOGGER.error(e.getLocalizedMessage(), e);
-            return complete(StatusCodes.IM_A_TEAPOT);
+            return complete(GlobalConstants.IM_A_TEA_POT);
          }
       });
    }
@@ -119,21 +127,32 @@ public final class HttpServer extends AllDirectives {
       return entity(Jackson.unmarshaller(ApiModels.LinkInteractionToGidSyncBody.class), obj -> {
          try {
             return onComplete(postLinkInteractionToGid(obj),
-                              response -> response.isSuccess()
-                                    ? complete(response.get())
-                                    : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)));
+                              response -> {
+                                 if (!response.isSuccess()) {
+                                    LOGGER.warn("IM_A_TEAPOT");
+                                 }
+                                 return response.isSuccess()
+                                       ? complete(response.get())
+                                       : complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              });
          } catch (JsonProcessingException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
          }
-         return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+         LOGGER.warn("IM_A_TEAPOT");
+         return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
       });
    }
 
    private Route routeMU() {
       return onComplete(getMU(),
-                        response -> response.isSuccess()
-                              ? complete(response.get())
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        response -> {
+                           if (!response.isSuccess()) {
+                              LOGGER.warn("IM_A_TEAPOT");
+                           }
+                           return response.isSuccess()
+                                 ? complete(response.get())
+                                 : complete(GlobalConstants.IM_A_TEA_POT);
+                        });
    }
 
    private Route createRoute(
@@ -144,11 +163,11 @@ public final class HttpServer extends AllDirectives {
                                                             this::routeLinkInteraction),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
                                                             this::routeLinkInteractionToGid),
-                                                        path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
-                                                                () -> onNotificationResolution(actorSystem, backEnd)))),
+                                                       path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
+                                                            () -> onNotificationResolution(actorSystem, backEnd)))),
                                      get(() -> concat(path("mu", this::routeMU),
                                                       path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                                                              () -> routeDashboardData(actorSystem, backEnd))
+                                                           () -> routeDashboardData(actorSystem, backEnd))
                                                      ))));
    }
 
