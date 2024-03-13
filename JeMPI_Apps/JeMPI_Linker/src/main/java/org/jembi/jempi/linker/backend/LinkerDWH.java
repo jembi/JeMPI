@@ -17,6 +17,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -170,7 +171,8 @@ public final class LinkerDWH {
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
          final float matchThreshold_,
-         final String envelopStan) {
+         final String envelopStan,
+         final Consumer<Interaction> forwarder) {
 
 //      if (LOGGER.isTraceEnabled()) {
 //         LOGGER.trace("{}", envelopStan);
@@ -188,7 +190,12 @@ public final class LinkerDWH {
       }
 
       if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
-         sendKafkaTopic();
+         if (forwarder != null) {
+            forwarder.accept(interaction);
+            return Either.right(List.of());
+         } else {
+            return matchInteraction(libMPI, interaction, externalLinkRange, matchThreshold_, envelopStan);
+         }
       } else {
          LinkInfo linkInfo = null;
          final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();

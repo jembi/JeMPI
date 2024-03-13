@@ -14,6 +14,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -52,7 +53,6 @@ public final class SPInteractions {
 
       if (interactionEnvelop.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL
               || interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-         forwardtoMatching
          final var completableFuture = Ask.runStartEndHooks(system, backEnd, key, interactionEnvelop).toCompletableFuture();
          try {
             List<MpiGeneralError> hookErrors = completableFuture.get(65, TimeUnit.SECONDS).hooksResults();
@@ -110,7 +110,7 @@ public final class SPInteractions {
               new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> matchStream =
-              streamsBuilder.stream(topic, Consumed.with(stringSerde, interactionEnvelopSerde));
+              streamsBuilder.stream(GlobalConstants.TOPIC_NOTIFICATIONS, Consumed.with(stringSerde, interactionEnvelopSerde));
       matchStream.foreach((key, matchEnvelop) -> {
          matchPatient(system, backEnd, key, matchEnvelop);
          if (matchEnvelop.contentType() == BATCH_END_SENTINEL) {
