@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
-import { AuditTrailEntries } from '../types/AuditTrail'
+import { AuditTrail } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
   ApiSearchResponse,
@@ -345,8 +345,8 @@ export class ApiClient {
 
   async getGoldenRecordAuditTrail(gid: string) {
     const {
-      data: { entries }
-    } = await this.client.get<AuditTrailEntries>(
+      data
+    } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
       {
         params: {
@@ -354,13 +354,13 @@ export class ApiClient {
         }
       }
     )
-    return entries
+    return data
   }
 
   async getInteractionAuditTrail(iid: string) {
     const {
-      data: { entries }
-    } = await this.client.get<AuditTrailEntries>(
+      data
+    } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_INTERACTION_AUDIT_TRAIL,
       {
         params: {
@@ -368,7 +368,7 @@ export class ApiClient {
         }
       }
     )
-    return entries
+    return data
   }
 
   async validateOAuth(oauthParams: OAuthParams) {
