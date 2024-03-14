@@ -1,0 +1,131 @@
+version: '3'
+services:
+  dgraph:
+    image: dgraph/standalone:latest
+    volumes:
+      - dgraph_data:/dgraph
+    ports:
+      - "8080:8080"
+      - "9080:9080"
+    networks:
+      - dgraph-network
+  dgraph-ratel:
+    image: dgraph/ratel:latest
+    ports:
+      - "8000:8000"
+    networks:
+      - dgraph-network
+  kafka:
+    image: docker.io/bitnami/kafka:3.6
+    hostname: kafka0
+    container_name: kafka0
+    ports:
+      - "9097:9097"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@localhost:9093
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9097,CONTROLLER://:9093,PLAINTEXT_OTHER://:29092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT_OTHER://kafka0:29092,PLAINTEXT://localhost:9097
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_OTHER:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    networks:
+      - dgraph-network
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 7474:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka0:29092
+    depends_on:
+      - kafka
+    networks:
+      - dgraph-network
+  postgres:
+    image: 'bitnami/postgresql:15.4.0'
+    ports:
+      - '5435:5432'
+    volumes:
+      - 'postgres_data:/conf'
+    environment:
+      POSTGRESQL_USERNAME: 'postgres'
+      POSTGRESQL_PASSWORD: 'postgres'
+      POSTGRESQL_DATABASE: 'notifications'
+      ALLOW_EMPTY_PASSWORD: 'no'
+    networks:
+      - dgraph-network
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    networks:
+      - dgraph-network
+  scylla-manager:
+    image: scylladb/scylla-manager:latest
+    networks:
+      - dgraph-network
+    depends_on:
+      - scylla-manager-db
+  scylla-manager-db:
+    image: scylladb/scylla:latest
+    volumes:
+      - scyllamanagerdb:/var/lib/scylla
+    networks:
+      - dgraph-network
+    command: --smp 1 --memory 1G
+  scylladb:
+    image: scylladb/scylla
+    container_name: scylla-db
+    ports:
+      - "9042:9042"  # CQL port
+      - "7000:7000"  # Internode communication port
+      - "7001:7001"  # SSL internode communication port
+      - "7199:7199"  # JMX port
+      - "9160:9160"  # Thrift client port
+    networks:
+      - dgraph-network
+    volumes:
+      - scylladb:/var/lib/scylla
+    environment:
+      - SCYLLA_LOG_LEVEL=info  # Adjust log level as needed
+  solr:
+    image: solr:latest
+    ports:
+      - "8983:8983"
+    networks:
+      - dgraph-network
+    volumes:
+      - solr_data:/var/solr/data
+    environment:
+      SOLR_HEAP: "512m"
+
+volumes:
+  kafka_data:
+    driver: local
+  postgres_data:
+    driver: local
+  dgraph_data:
+    driver: local
+  scylladb:
+    driver: local
+  scyllamanagerdb:
+    driver: local
+  solr_data:
+    driver: local
+
+networks:
+  dgraph-network:
+    driver: bridge
