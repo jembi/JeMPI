@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    static MyKafkaProducer<String, Notification> topicNotifications;
+
+   static MyKafkaProducer<String, InteractionEnvelop> matchingInteractions;
    private final Executor ec;
    private LibMPI libMPI = null;
 
@@ -52,6 +55,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                  new StringSerializer(),
                                                  new JsonPojoSerializer<>(),
                                                  AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+
+      matchingInteractions = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+              GlobalConstants.TOPIC_INTERACTION_LINKER_MATCHING,
+              new StringSerializer(),
+              new JsonPojoSerializer<>(),
+              AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private BackEnd(
@@ -106,6 +115,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    @Override
    public Receive<Request> createReceive() {
       return newReceiveBuilder().onMessage(AsyncLinkInteractionRequest.class, this::asyncLinkInteractionHandler)
+                                .onMessage(AsyncMatchInteractionRequest.class, this::asyncMatchInteractionHandler)
                                 .onMessage(SyncLinkInteractionRequest.class, this::syncLinkInteractionHandler)
 //                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
                                 .onMessage(CalculateScoresRequest.class, this::calculateScoresHandler)
@@ -143,8 +153,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> runStartStopHooks(final RunStartStopHooksRequest req) {
+   private Behavior<Request> runStartStopHooks(final RunStartStopHooksRequest req) throws ExecutionException, InterruptedException {
       List<MpiGeneralError> hookRunErrors = List.of();
+
+      matchingInteractions.produceSync(req.key, req.batchInteraction);
 
       if (req.batchInteraction.contentType() == BATCH_START_SENTINEL) {
          hookRunErrors = libMPI.beforeLinkingHook();
@@ -171,7 +183,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                          request.link.matchThreshold() == null
                                                                ? AppConfig.LINKER_MATCH_THRESHOLD
                                                                : request.link.matchThreshold(),
-                                                         request.link.stan());
+                                                         request.link.stan(),
+                                                         null);
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isLeft()
                                                                  ? listLinkInfo.getLeft()
@@ -182,7 +195,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
+   private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) throws ExecutionException, InterruptedException {
       if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));
@@ -190,16 +203,51 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             return Behaviors.same();
          });
       }
+
       final var linkInfo =
             LinkerDWH.linkInteraction(libMPI,
                                       req.batchInteraction.interaction(),
                                       null,
                                       AppConfig.LINKER_MATCH_THRESHOLD,
-                                      req.batchInteraction.stan());
+                                      req.batchInteraction.stan(),
+                                      (final Interaction interaction) -> {
+                                         try {
+                                            BackEnd.matchingInteractions.produceSync(req.key, req.batchInteraction);
+                                         } catch (ExecutionException e) {
+                                            throw new RuntimeException(e);
+                                         } catch (InterruptedException e) {
+                                            throw new RuntimeException(e);
+                                         }
+                                      });
       if (linkInfo.isLeft()) {
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
       } else {
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
+      }
+      return Behaviors.withTimers(timers -> {
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
+         return Behaviors.same();
+      });
+   }
+
+   private Behavior<Request> asyncMatchInteractionHandler(final AsyncMatchInteractionRequest req) {
+      if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+         return Behaviors.withTimers(timers -> {
+            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));
+            req.replyTo.tell(new AsyncMatchInteractionResponse(null));
+            return Behaviors.same();
+         });
+      }
+      final var linkInfo =
+              LinkerDWH.matchInteraction(libMPI,
+                      req.batchInteraction.interaction(),
+                      null,
+                      AppConfig.LINKER_MATCH_THRESHOLD,
+                      req.batchInteraction.stan());
+      if (linkInfo.isRight()) {
+         req.replyTo.tell(new AsyncMatchInteractionResponse(true));
+      } else {
+         req.replyTo.tell(new AsyncMatchInteractionResponse(false));
       }
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
@@ -332,6 +380,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record AsyncLinkInteractionResponse(LinkInfo linkInfo) implements Response {
+   }
+
+   public record AsyncMatchInteractionRequest(
+           ActorRef<AsyncMatchInteractionResponse> replyTo,
+           String key,
+           InteractionEnvelop batchInteraction) implements Request {
+   }
+
+   public record AsyncMatchInteractionResponse(Boolean matched) implements Response {
    }
 
    public record RunStartStopHooksRequest(
