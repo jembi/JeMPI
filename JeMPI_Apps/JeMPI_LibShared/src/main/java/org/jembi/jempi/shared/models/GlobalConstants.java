@@ -1,5 +1,8 @@
 package org.jembi.jempi.shared.models;
 
+import akka.http.javadsl.model.StatusCode;
+import akka.http.javadsl.model.StatusCodes;
+
 public final class GlobalConstants {
 
    public static final String TOPIC_INTERACTION_ETL = "JeMPI-interaction-etl";
