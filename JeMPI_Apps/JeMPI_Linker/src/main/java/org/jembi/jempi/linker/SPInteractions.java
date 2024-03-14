@@ -20,6 +20,7 @@ import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -45,24 +46,30 @@ public final class SPInteractions {
       return new SPInteractions(topic_);
    }
 
+   private void linkPatientProcess(final ActorSystem<Void> system, final ActorRef<BackEnd.Request> backEnd, final String key, final InteractionEnvelop interactionEnvelop) {
+      final var completableFuture = Ask.runStartEndHooks(system, backEnd, key, interactionEnvelop).toCompletableFuture();
+      try {
+         List<MpiGeneralError> hookErrors = completableFuture.get(65, TimeUnit.SECONDS).hooksResults();
+         if (!hookErrors.isEmpty()) {
+            LOGGER.error(hookErrors);
+         }
+      } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+         this.closingLinkingStream();
+      }
+   }
    private void linkPatient(
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final InteractionEnvelop interactionEnvelop) {
 
-      if (interactionEnvelop.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL
-              || interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-         final var completableFuture = Ask.runStartEndHooks(system, backEnd, key, interactionEnvelop).toCompletableFuture();
-         try {
-            List<MpiGeneralError> hookErrors = completableFuture.get(65, TimeUnit.SECONDS).hooksResults();
-            if (!hookErrors.isEmpty()) {
-               LOGGER.error(hookErrors);
-            }
-         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            LOGGER.error(ex.getLocalizedMessage(), ex);
-            this.closingLinkingStream();
-         }
+      if (interactionEnvelop.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL) {
+         LOGGER.info(String.format("SPInteractions Stream Processor -> Starting linking for tag '%s'", interactionEnvelop.tag()));
+         linkPatientProcess(system, backEnd, key, interactionEnvelop);
+      } else if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+         LOGGER.info(String.format("SPInteractions Stream Processor -> Ended linking for tag '%s'", interactionEnvelop.tag()));
+         linkPatientProcess(system, backEnd, key, interactionEnvelop);
       }
 
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
@@ -110,10 +117,11 @@ public final class SPInteractions {
               new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> matchStream =
-              streamsBuilder.stream(GlobalConstants.TOPIC_NOTIFICATIONS, Consumed.with(stringSerde, interactionEnvelopSerde));
+              streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_LINKER_MATCHING, Consumed.with(stringSerde, interactionEnvelopSerde));
       matchStream.foreach((key, matchEnvelop) -> {
          matchPatient(system, backEnd, key, matchEnvelop);
          if (matchEnvelop.contentType() == BATCH_END_SENTINEL) {
+            LOGGER.info(String.format("SPInteractions Stream Processor -> Ended matching for tag '%s'", matchEnvelop.tag()));
             this.closingMatchingStream();
          }
       });
@@ -130,9 +138,8 @@ public final class SPInteractions {
       interactionStream.foreach((key, interactionEnvelop) -> {
          linkPatient(system, backEnd, key, interactionEnvelop);
          if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-            LOGGER.info("SPInteractions Stream Processor -> Starting matching processor");
+            LOGGER.info(String.format("SPInteractions Stream Processor -> Starting matching for tag '%s'", interactionEnvelop.tag()));
             matchingStream.start();
-            this.closingLinkingStream();
          }
       });
       return streamsBuilder;
@@ -142,9 +149,8 @@ public final class SPInteractions {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd) {
       LOGGER.info("SPInteractions Stream Processor");
-      final Properties props = loadConfig();
-      matchingEnvelopeKafkaStream = new KafkaStreams(getMatchingStream(system, backEnd).build(), props);
-      interactionEnvelopKafkaStreams = new KafkaStreams(getLinkingStream(system, backEnd, matchingEnvelopeKafkaStream).build(), props);
+      matchingEnvelopeKafkaStream = new KafkaStreams(getMatchingStream(system, backEnd).build(), loadConfig(topic));
+      interactionEnvelopKafkaStreams = new KafkaStreams(getLinkingStream(system, backEnd, matchingEnvelopeKafkaStream).build(), loadConfig(GlobalConstants.TOPIC_INTERACTION_LINKER_MATCHING));
       interactionEnvelopKafkaStreams.cleanUp();
       LOGGER.info("SPInteractions Stream Processor -> Starting linking processor");
       interactionEnvelopKafkaStreams.start();
@@ -158,13 +164,13 @@ public final class SPInteractions {
 
    private void closingMatchingStream() {
       LOGGER.info("SPInteractions Stream Processor -> Closing matching processor");
-      interactionEnvelopKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
+      matchingEnvelopeKafkaStream.close(new KafkaStreams.CloseOptions().leaveGroup(true).timeout(Duration.ofSeconds(2)));
    }
 
-   private Properties loadConfig() {
+   private Properties loadConfig(final String inTopic) {
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_INTERACTIONS + topic);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_INTERACTIONS + inTopic);
       return props;
    }
 
