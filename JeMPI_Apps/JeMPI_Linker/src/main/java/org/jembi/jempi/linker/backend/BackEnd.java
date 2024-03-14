@@ -238,17 +238,16 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             return Behaviors.same();
          });
       }
-      // to-do: Consider if LinkInfo is nevessary
       final var linkInfo =
               LinkerDWH.matchInteraction(libMPI,
                       req.batchInteraction.interaction(),
                       null,
                       AppConfig.LINKER_MATCH_THRESHOLD,
                       req.batchInteraction.stan());
-      if (linkInfo.isLeft()) {
-         req.replyTo.tell(new AsyncMatchInteractionResponse(linkInfo.getLeft()));
+      if (linkInfo.isRight()) {
+         req.replyTo.tell(new AsyncMatchInteractionResponse(true));
       } else {
-         req.replyTo.tell(new AsyncMatchInteractionResponse(null));
+         req.replyTo.tell(new AsyncMatchInteractionResponse(false));
       }
       return Behaviors.withTimers(timers -> {
          timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
@@ -389,7 +388,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
            InteractionEnvelop batchInteraction) implements Request {
    }
 
-   public record AsyncMatchInteractionResponse(LinkInfo linkInfo) implements Response {
+   public record AsyncMatchInteractionResponse(Boolean matched) implements Response {
    }
 
    public record RunStartStopHooksRequest(

@@ -97,10 +97,11 @@ public final class SPInteractions {
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
          return;
       }
+
       final var completableFuture = Ask.matchInteraction(system, backEnd, key, interactionEnvelop).toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
-         if (reply.linkInfo() == null) {
+         if (!reply.matched()) {
             LOGGER.error("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
