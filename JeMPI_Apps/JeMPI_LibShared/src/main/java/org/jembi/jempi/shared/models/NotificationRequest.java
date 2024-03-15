@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record NotificationRequest(
       @JsonProperty("notificationId") String notificationId,
-      @JsonProperty("state") String state) {
+      @JsonProperty("state") String state,
+      @JsonProperty("currentGoldenId") String currentGoldenId) {
 
 }

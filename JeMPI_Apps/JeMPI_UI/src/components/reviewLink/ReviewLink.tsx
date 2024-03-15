@@ -89,10 +89,11 @@ const ReviewLink = () => {
     }
   })
 
-  const updateNotification = () => {
+  const updateNotification = (currentGoldenId: string) => {
     mutateNotification.mutate(
       {
-        notificationId: payload?.notificationId
+        notificationId: payload?.notificationId,
+        currentGoldenId: currentGoldenId,
       },
       {
         onSuccess: () => {
@@ -117,7 +118,7 @@ const ReviewLink = () => {
       {
         onSuccess: data => {
           if (payload?.notificationId) {
-            updateNotification()
+            updateNotification(goldenRecord ? goldenRecord.uid : '')
           }
           enqueueSnackbar('New record linked', {
             variant: 'success'
@@ -153,7 +154,7 @@ const ReviewLink = () => {
         {
           onSuccess: () => {
             if (payload?.notificationId) {
-              updateNotification()
+              updateNotification(goldenRecord.uid)
               navigate('/notifications')
             } else {
               navigate(`/record-details/${id}`)

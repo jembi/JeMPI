@@ -167,13 +167,19 @@ final class PsqlNotifications {
    }
 
    void updateNotificationState(
-         final String id) throws SQLException {
+         final String notificationId,
+         final String currentGoldenId) throws SQLException {
       psqlClient.connect();
       try (Statement stmt = psqlClient.createStatement()) {
-         ResultSet rs = stmt.executeQuery(String.format(Locale.ROOT,
+        stmt.executeQuery(String.format(Locale.ROOT,
                                                         "update notification set state = '%s' where id = '%s'",
                                                         "CLOSED",
-                                                        id));
+                                                        notificationId));
+         stmt.executeQuery(String.format(Locale.ROOT,
+                                                        "update notification set golden_id = '%s' where id = '%s'",
+                                                        currentGoldenId,
+                                                        notificationId));
+         LOGGER.info("Updated notification {} with new currentGoldenId {} ", notificationId, currentGoldenId);
          psqlClient.commit();
       }
    }

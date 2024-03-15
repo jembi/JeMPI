@@ -65,7 +65,7 @@ const NotificationWorklist = () => {
         endDateFilter.format('YYYY-MM-DD HH:mm:ss'),
         selectedStates
       ),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     keepPreviousData: true
   })
 
