@@ -158,7 +158,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
                 )
         ).toList());
     }
-    private void findLinkCandidatesInternalProbablistcally(final CustomDemographicData demographicData) {
+    private void findLinkCandidatesInternalProbablistcally(final CustomDemographicData demographicData) throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery();
         query.set("q", String.format("given_name:'%s' AND family_name:'%s' AND phone_number:'%s' AND city:'%s'",
                 demographicData.givenName, demographicData.familyName, demographicData.phoneNumber, demographicData.city));
@@ -206,46 +206,46 @@ public final class LibScyallaDb implements LibMPIClientInterface {
     }
 
     public GoldenRecord findGoldenRecord(final String goldenId) {
-        return dbSwitchS(() -> baseClient.findGoldenRecord(goldenId), null);
+        return dbSwitchS(() -> baseClient.findGoldenRecord(goldenId), null, false);
     }
 
     public List<GoldenRecord> findGoldenRecords(final List<String> ids) {
-        return dbSwitchS(() -> baseClient.findGoldenRecords(ids), null);
+        return dbSwitchS(() -> baseClient.findGoldenRecords(ids), null, false);
     }
 
     public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
-        return dbSwitchS(() -> baseClient.findExpandedGoldenRecords(goldenIds), null);
+        return dbSwitchS(() -> baseClient.findExpandedGoldenRecords(goldenIds), null, false);
     }
 
     @Override
     public List<String> findGoldenIds() {
-        return dbSwitchS(baseClient::findGoldenIds, null);
+        return dbSwitchS(baseClient::findGoldenIds, null, false);
     }
 
     public List<String> fetchGoldenIds(
             final long offset,
             final long length) {
-        return dbSwitchS(() -> baseClient.fetchGoldenIds(offset, length), null);
+        return dbSwitchS(() -> baseClient.fetchGoldenIds(offset, length), null, false);
     }
 
     public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
         return dbSwitchS(() -> baseClient.findLinkCandidates(demographicData),
-                () -> findLinkCandidatesInternal(demographicData));
+                () -> findLinkCandidatesInternal(demographicData), false);
     }
 
     public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
-        return dbSwitchS(() -> baseClient.findMatchCandidates(demographicData), null);
+        return dbSwitchS(() -> baseClient.findMatchCandidates(demographicData), null, false);
     }
 
     public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
-        return dbSwitchS(() -> baseClient.findGoldenRecords(request), null);
+        return dbSwitchS(() -> baseClient.findGoldenRecords(request), null, false);
     }
 
     public boolean setScore(
             final String interactionUID,
             final String goldenRecordUid,
             final float score) {
-        return dbSwitchS(() -> baseClient.setScore(interactionUID, goldenRecordUid, score), null);
+        return dbSwitchS(() -> baseClient.setScore(interactionUID, goldenRecordUid, score), null, false);
     }
 
     public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -254,7 +254,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final Integer limit,
             final String sortBy,
             final Boolean sortAsc) {
-        return dbSwitchS(() -> baseClient.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc), null);
+        return dbSwitchS(() -> baseClient.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc), null, false);
 
     }
 
@@ -264,7 +264,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final Integer limit,
             final String sortBy,
             final Boolean sortAsc) {
-        return dbSwitchS(() -> baseClient.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc), null);
+        return dbSwitchS(() -> baseClient.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc), null, false);
     }
 
     public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
@@ -273,7 +273,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final Integer limit,
             final String sortBy,
             final Boolean sortAsc) {
-        return dbSwitchS(() -> baseClient.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc), null);
+        return dbSwitchS(() -> baseClient.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc), null, false);
     }
 
     public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
@@ -282,21 +282,21 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final Integer limit,
             final String sortBy,
             final Boolean sortAsc) {
-        return dbSwitchS(() -> baseClient.customSearchInteractions(params, offset, limit, sortBy, sortAsc), null);
+        return dbSwitchS(() -> baseClient.customSearchInteractions(params, offset, limit, sortBy, sortAsc), null, false);
     }
 
     public LibMPIPaginatedResultSet<String> filterGids(
             final List<ApiModels.ApiSearchParameter> params,
             final LocalDateTime createdAt,
             final PaginationOptions paginationOptions) {
-        return dbSwitchS(() -> baseClient.filterGids(params, createdAt, paginationOptions), null);
+        return dbSwitchS(() -> baseClient.filterGids(params, createdAt, paginationOptions), null, false);
     }
 
     public PaginatedGIDsWithInteractionCount filterGidsWithInteractionCount(
             final List<ApiModels.ApiSearchParameter> params,
             final LocalDateTime createdAt,
             final PaginationOptions paginationOptions) {
-        return dbSwitchS(() -> baseClient.filterGidsWithInteractionCount(params, createdAt, paginationOptions), null);
+        return dbSwitchS(() -> baseClient.filterGidsWithInteractionCount(params, createdAt, paginationOptions), null, false);
     }
 
 
@@ -310,7 +310,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final String goldenId,
             final String fieldName,
             final String val) {
-        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null);
+        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null, true);
 
     }
 
@@ -318,28 +318,28 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final String goldenId,
             final String fieldName,
             final Boolean val) {
-        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null);
+        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null, true);
     }
 
     public boolean updateGoldenRecordField(
             final String goldenId,
             final String fieldName,
             final Double val) {
-        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null);
+        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null, true);
     }
 
     public boolean updateGoldenRecordField(
             final String goldenId,
             final String fieldName,
             final Long val) {
-        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null);
+        return dbSwitchS(() -> baseClient.updateGoldenRecordField(goldenId, fieldName, val), null, true);
     }
 
     public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
             final String goldenUID,
             final String interactionUID,
             final float score) {
-        return dbSwitchS(() -> baseClient.linkToNewGoldenRecord(goldenUID, interactionUID, score), null);
+        return dbSwitchS(() -> baseClient.linkToNewGoldenRecord(goldenUID, interactionUID, score), null, true);
     }
 
     public Either<MpiGeneralError, LinkInfo> updateLink(
@@ -347,20 +347,20 @@ public final class LibScyallaDb implements LibMPIClientInterface {
             final String newGoldenUID,
             final String interactionUID,
             final float score) {
-        return dbSwitchS(() -> baseClient.updateLink(goldenUID, newGoldenUID, interactionUID, score), null);
+        return dbSwitchS(() -> baseClient.updateLink(goldenUID, newGoldenUID, interactionUID, score), null, true);
     }
 
     public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
             final Interaction interaction,
             final GoldenIdScore goldenIdScore) {
-        return dbSwitchS(() -> baseClient.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore), null);
+        return dbSwitchS(() -> baseClient.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore), null, true);
     }
 
     private UUID getSourceId(final Interaction interaction) {
         var sourceId = interaction.sourceId();
         var results = scyallDbClient.execute(
                 "SELECT * FROM jempi.sourceId WHERE facility = ? and patient = ?",
-                        sourceId.facility() == null ? "" : sourceId.facility(), sourceId.patient() == null ? "" : sourceId.patient() );
+                        sourceId.facility() == null ? "" : sourceId.facility(), sourceId.patient() == null ? "" : sourceId.patient());
 
         UUID uuid = UUID.randomUUID();
         var row = results.all();
@@ -541,7 +541,7 @@ public final class LibScyallaDb implements LibMPIClientInterface {
 
                                 return new LinkInfo(grUID.toString(), result.interactionUID.toString(), result.sourceUID.toString(), 1.0F);
 
-                            });
+                            }, true);
     }
 
     public void startTransaction() {
@@ -559,19 +559,25 @@ public final class LibScyallaDb implements LibMPIClientInterface {
      */
 
     public Option<MpiGeneralError> dropAll() {
-        return dbSwitchS(baseClient::dropAll, null);
+        return dbSwitchS(baseClient::dropAll, null, true);
     }
 
     public Option<MpiGeneralError> dropAllData() {
-        return dbSwitchS(baseClient::dropAllData, null);
+        return dbSwitchS(baseClient::dropAllData, null, true);
     }
 
     public Option<MpiGeneralError> createSchema() {
-        return dbSwitchS(baseClient::createSchema, null);
+        return dbSwitchS(baseClient::createSchema, null, true);
     }
 
-    private <T> T dbSwitchS(final Supplier<T> func1, final Supplier<T> func2) {
-        if (func2 != null) {
+    private <T> T dbSwitchS(final Supplier<T> func1, final Supplier<T> func2, final Boolean isMutation) {
+        if (Boolean.TRUE.equals(isMutation)) {
+            T resultFunc1 = func1.get();
+            if (func2 != null) {
+                return func2.get();
+            }
+            return resultFunc1;
+        } else if (func2 != null) {
             return func2.get();
         }
         return func1.get();
