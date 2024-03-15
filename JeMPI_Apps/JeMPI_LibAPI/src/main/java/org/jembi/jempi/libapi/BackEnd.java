@@ -435,7 +435,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         psqlNotifications.updateNotificationState(request.notificationId);
+         psqlNotifications.updateNotificationState(request.notificationId, request.currentGoldenId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
@@ -608,7 +608,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record PostUpdateNotificationRequest(
          ActorRef<PostUpdateNotificationResponse> replyTo,
-         String notificationId) implements Event {
+         String notificationId,
+         String currentGoldenId) implements Event {
    }
 
    public record PostUpdateNotificationResponse() implements EventResponse {
