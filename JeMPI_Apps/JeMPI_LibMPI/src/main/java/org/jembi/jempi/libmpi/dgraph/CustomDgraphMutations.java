@@ -1,5 +1,6 @@
 package org.jembi.jempi.libmpi.dgraph;
 
+import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
@@ -11,6 +12,23 @@ import java.util.UUID;
 final class CustomDgraphMutations {
 
    private CustomDgraphMutations() {
+   }
+
+    static String createSourceIdTriple(final CustomSourceId sourceId) {
+      final String uuid = UUID.randomUUID().toString();
+      return String.format(Locale.ROOT,
+                           """
+                           _:%s  <SourceId.facility>                      %s                    .
+                           _:%s  <SourceId.patient>                       %s                    .
+                           _:%s  <SourceId.aux_clinical_data>             %s                    .
+
+                           _:%s  <dgraph.type>                               "SourceId"         .
+                           """,
+                           uuid, AppUtils.quotedValue(sourceId.facility()),
+                           uuid, AppUtils.quotedValue(sourceId.patient()),
+                           uuid, AppUtils.quotedValue(sourceId.aux_clinical_data()),
+
+                           uuid);
    }
 
    static String createInteractionTriple(

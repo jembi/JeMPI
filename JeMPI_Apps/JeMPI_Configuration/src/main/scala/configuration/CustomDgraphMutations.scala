@@ -17,6 +17,7 @@ private object CustomDgraphMutations {
     val writer: PrintWriter = new PrintWriter(file)
     writer.println(s"""package $packageText;
          |
+         |import org.jembi.jempi.shared.models.CustomSourceId;
          |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
          |import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
          |import org.jembi.jempi.shared.models.CustomDemographicData;
@@ -28,6 +29,17 @@ private object CustomDgraphMutations {
          |final class $custom_className {
          |
          |   private $custom_className() {
+         |   }
+         |
+         |    static String createSourceIdTriple(final CustomSourceId sourceId) {
+         |      final String uuid = UUID.randomUUID().toString();
+         |      return String.format(Locale.ROOT,
+         |                           \"\"\"
+         |${sourceIdFields()}
+         |${" " * 27}_:%s  <dgraph.type>                               \"SourceId\"         .
+         |${" " * 27}\"\"\",
+         |${sourceIdArguments()}
+         |${" " * 27}uuid);
          |   }
          |
          |   static String createInteractionTriple(
@@ -82,6 +94,46 @@ private object CustomDgraphMutations {
         case "Bool"     => "^^<xs:boolean>"
         case "DateTime" => "^^<xs:dateTime>"
     end castAs
+
+    def sourceIdFields(): String = {
+
+      if (!config.additionalNodes.isDefined){
+        return ""
+      }
+
+      val sourceIdNode = config.additionalNodes.get.find(n => n.nodeName == "SourceId")
+
+      if (sourceIdNode.isDefined){
+        return sourceIdNode.get.fields.map(f => {
+          val c = castAs(f.fieldType)
+           s"""${" " * 27}_:%s  <SourceId.${f.fieldName}>${" " * (30 - f.fieldName.length)}%s$c${" " * (20 - c.length)}."""
+        }).mkString(sys.props("line.separator")) + sys.props("line.separator")
+      }
+
+      return ""
+
+    }
+
+    def sourceIdArguments(): String = {
+      def mapCommonField(f: AdditionalNodeField): String = {
+        return
+          s"""AppUtils.quotedValue(sourceId.${f.fieldName}())${checkToString(f.fieldType)}"""
+      }
+
+      if (!config.additionalNodes.isDefined) {
+        return ""
+      }
+
+      val sourceIdNode = config.additionalNodes.get.find(n => n.nodeName == "SourceId")
+
+      if (sourceIdNode.isDefined) {
+        return sourceIdNode.get.fields.map(f => {
+            s"""${" " * 27}uuid, ${mapCommonField(f)},"""
+        }).mkString(sys.props("line.separator")) + sys.props("line.separator")
+      }
+
+      return ""
+    }
 
     def interactionFields(): String =
 

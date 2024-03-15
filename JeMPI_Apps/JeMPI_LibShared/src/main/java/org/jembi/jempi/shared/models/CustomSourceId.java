@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record CustomSourceId(
       String uid,
       String facility,
-      String patient) {
+      String patient,
+      String aux_clinical_data) {
 }
 

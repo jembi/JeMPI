@@ -54,21 +54,6 @@ final class DgraphMutations {
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
-   private String createSourceIdTriple(final CustomSourceId sourceId) {
-      final String uuid = UUID.randomUUID().toString();
-      return String.format(Locale.ROOT,
-                           """
-                           _:%s  <SourceId.facility>                 %s          .
-                           _:%s  <SourceId.patient>                  %s          .
-                           _:%s  <dgraph.type>                      "SourceId"   .
-                           """,
-                           uuid,
-                           AppUtils.quotedValue(sourceId.facility()),
-                           uuid,
-                           AppUtils.quotedValue(sourceId.patient()),
-                           uuid);
-   }
-
    private DgraphSourceIds getSourceId(final CustomSourceId sourceId) {
       if (StringUtils.isBlank(sourceId.facility()) || StringUtils.isBlank(sourceId.patient())) {
          return new DgraphSourceIds(List.of());
@@ -205,7 +190,7 @@ final class DgraphMutations {
 
    private InsertInteractionResult insertInteraction(final Interaction interaction) {
       final DgraphProto.Mutation sourceIdMutation = DgraphProto.Mutation.newBuilder()
-                                                                        .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
+                                                                        .setSetNquads(ByteString.copyFromUtf8(CustomDgraphMutations.createSourceIdTriple(
                                                                               interaction.sourceId())))
                                                                         .build();
       final var sourceId = getSourceId(interaction.sourceId()).all();

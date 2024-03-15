@@ -44,6 +44,11 @@
           "fieldName": "patient",
           "fieldType": "String",
           "csvCol": 9
+        },
+        {
+          "fieldName": "aux_clinical_data",
+          "fieldType": "String",
+          "csvCol": 10
         }
       ]
     }
