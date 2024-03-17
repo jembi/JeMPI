@@ -11,7 +11,9 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static akka.http.javadsl.server.Directives.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -50,15 +52,20 @@ final class Routes {
       return parameter("iid",
                        patientId -> entity(Jackson.unmarshaller(CustomMU.class),
                                            mu -> onComplete(Ask.findCandidates(actorSystem, backEnd, patientId),
-                                                            result -> result.isSuccess()
-                                                                  ? result.get()
-                                                                          .candidates()
-                                                                          .mapLeft(Routes::mapError)
-                                                                          .fold(error -> error,
-                                                                                candidateList -> complete(StatusCodes.OK,
-                                                                                                          candidateList,
-                                                                                                          Jackson.marshaller()))
-                                                                  : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT)))));
+                                                            result -> {
+                                                               if (!result.isSuccess()) {
+                                                                  LOGGER.warn("IM_A_TEAPOT");
+                                                               }
+                                                               return result.isSuccess()
+                                                                     ? result.get()
+                                                                             .candidates()
+                                                                             .mapLeft(Routes::mapError)
+                                                                             .fold(error -> error,
+                                                                                   candidateList -> complete(StatusCodes.OK,
+                                                                                                             candidateList,
+                                                                                                             Jackson.marshaller()))
+                                                                     : complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                            })));
    }
 
    static Route proxyPostLinkInteractionToGID(
@@ -66,9 +73,14 @@ final class Routes {
          final ActorRef<BackEnd.Request> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.LinkInteractionToGidSyncBody.class),
                     obj -> onComplete(Ask.postLinkPatientToGid(actorSystem, backEnd, obj),
-                                      response -> response.isSuccess()
-                                            ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
-                                            : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
+                                      response -> {
+                                         if (!response.isSuccess()) {
+                                            LOGGER.warn("IM_A_TEAPOT");
+                                         }
+                                         return response.isSuccess()
+                                               ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
+                                               : complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                      }));
    }
 
    static Route proxyPostCalculateScores(
@@ -76,9 +88,14 @@ final class Routes {
          final ActorRef<BackEnd.Request> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class),
                     obj -> onComplete(Ask.postCalculateScores(actorSystem, backEnd, obj),
-                                      response -> response.isSuccess()
-                                            ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
-                                            : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
+                                      response -> {
+                                         if (!response.isSuccess()) {
+                                            LOGGER.warn("IM_A_TEAPOT");
+                                         }
+                                         return response.isSuccess()
+                                               ? complete(StatusCodes.OK, response.get(), Jackson.marshaller())
+                                               : complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                      }));
    }
 
    static Route proxyGetCrCandidates(
@@ -95,7 +112,8 @@ final class Routes {
                                           new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                           Jackson.marshaller(OBJECT_MAPPER));
                        } else {
-                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                     }));
    }
@@ -114,7 +132,8 @@ final class Routes {
                                           new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                           Jackson.marshaller(OBJECT_MAPPER));
                        } else {
-                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                     }));
    }
@@ -135,7 +154,8 @@ final class Routes {
                                              Jackson.marshaller(OBJECT_MAPPER));
                           }
                        } else {
-                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                     }));
    }
@@ -153,7 +173,8 @@ final class Routes {
                                                                             eventLinkPatientSyncRsp.externalLinkCandidateList()),
                                           Jackson.marshaller());
                        } else {
-                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                     }));
    }
@@ -174,7 +195,8 @@ final class Routes {
                                              Jackson.marshaller());
                           }
                        } else {
-                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                     }));
    }

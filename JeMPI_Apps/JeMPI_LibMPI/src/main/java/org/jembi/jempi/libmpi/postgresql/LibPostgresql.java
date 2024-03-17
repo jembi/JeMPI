@@ -291,6 +291,26 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return new LinkInfo(gid.toString(), iid.toString(), null, score);
    }
 
+   @Override
+   public Option<MpiGeneralError> deleteAllIndexes() {
+      return null;
+   }
+
+   @Override
+   public Option<MpiGeneralError> loadLinkingIndexes() {
+      return null;
+   }
+
+   @Override
+   public Option<MpiGeneralError> loadDefaultIndexes() {
+      return null;
+   }
+
+   @Override
+   public Boolean shouldUpdateLinkingIndexes() {
+      return false;
+   }
+
    public void startTransaction() {
       PostgresqlClient.getInstance().startTransaction();
    }

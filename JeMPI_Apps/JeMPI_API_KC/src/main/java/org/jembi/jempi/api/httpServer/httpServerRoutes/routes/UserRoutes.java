@@ -43,7 +43,8 @@ public final class UserRoutes extends ApiHttpServerRouteEntries {
                              return complete(StatusCodes.FORBIDDEN);
                           }
                        } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          LOGGER.warn("IM_A_TEAPOT");
+                          return complete(GlobalConstants.IM_A_TEA_POT);
                        }
                     }));
    }
