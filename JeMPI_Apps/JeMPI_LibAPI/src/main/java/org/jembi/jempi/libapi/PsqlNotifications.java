@@ -38,6 +38,7 @@ final class PsqlNotifications {
     * @param states The state of notification.
     * @return A {@link MatchesForReviewResult} object containing the matches and related information.
     */
+
    MatchesForReviewResult getMatchesForReview(
          final int limit,
          final int offset,
@@ -166,21 +167,20 @@ final class PsqlNotifications {
       }
    }
 
-   void updateNotificationState(
-         final String notificationId,
-         final String currentGoldenId) throws SQLException {
+   void updateNotificationState(final String notificationId, final String currentGoldenId) throws SQLException {
       psqlClient.connect();
-      try (Statement stmt = psqlClient.createStatement()) {
-        stmt.executeQuery(String.format(Locale.ROOT,
-                                                        "update notification set state = '%s' where id = '%s'",
-                                                        "CLOSED",
-                                                        notificationId));
-         stmt.executeQuery(String.format(Locale.ROOT,
-                                                        "update notification set golden_id = '%s' where id = '%s'",
-                                                        currentGoldenId,
-                                                        notificationId));
-         LOGGER.info("Updated notification {} with new currentGoldenId {} ", notificationId, currentGoldenId);
-         psqlClient.commit();
+      String sql = String.format(Locale.ROOT, "update notification set state = '%s', golden_id = '%s' where id = '%s'",
+                                                      "CLOSED",
+                                                      currentGoldenId,
+                                                      notificationId);
+      try (PreparedStatement stmt = psqlClient.prepareStatement(sql)) {
+         int rowsAffected = stmt.executeUpdate();
+         if (rowsAffected > 0) {
+            LOGGER.info("Updated notification {} with new currentGoldenId {}", notificationId, currentGoldenId);
+            psqlClient.commit();
+         } else {
+            LOGGER.warn("Notification with ID {} not found", notificationId);
+         }
       }
    }
 

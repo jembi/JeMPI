@@ -331,6 +331,7 @@ public final class Ask {
             .ask(backEnd,
                  replyTo -> new BackEnd.PostUpdateNotificationRequest(replyTo,
                                                                       notificationRequest.notificationId(),
+                                                                      notificationRequest.oldGoldenId(),
                                                                       notificationRequest.currentGoldenId()),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());

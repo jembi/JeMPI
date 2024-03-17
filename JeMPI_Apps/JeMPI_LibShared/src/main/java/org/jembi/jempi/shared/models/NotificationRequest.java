@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record NotificationRequest(
       @JsonProperty("notificationId") String notificationId,
       @JsonProperty("state") String state,
+      @JsonProperty("oldGoldenId") String oldGoldenId,
       @JsonProperty("currentGoldenId") String currentGoldenId) {
 
 }
