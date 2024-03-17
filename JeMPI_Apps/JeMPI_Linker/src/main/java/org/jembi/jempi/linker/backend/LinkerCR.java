@@ -60,6 +60,13 @@ final class LinkerCR {
       }
    }
 
+   static Interaction applyAutoCreateFunctions(final Interaction interaction) {
+      return new Interaction(interaction.interactionId(),
+                             interaction.sourceId(),
+                             interaction.uniqueInteractionData(),
+                             new CustomDemographicData(interaction.demographicData()));
+   }
+
    static Either<MpiGeneralError, LinkInfo> crRegister(
          final LibMPI libMPI,
          final ApiModels.ApiCrRegisterRequest crRegister) {
@@ -74,7 +81,7 @@ final class LinkerCR {
             final var interaction =
                   new Interaction(null, crRegister.sourceId(), crRegister.uniqueInteractionData(), crRegister.demographicData());
             final var linkInfo =
-                  libMPI.createInteractionAndLinkToClonedGoldenRecord(CustomLinkerBackEnd.applyAutoCreateFunctions(interaction),
+                  libMPI.createInteractionAndLinkToClonedGoldenRecord(applyAutoCreateFunctions(interaction),
                                                                       1.0F);
             return Either.right(linkInfo);
          } else {

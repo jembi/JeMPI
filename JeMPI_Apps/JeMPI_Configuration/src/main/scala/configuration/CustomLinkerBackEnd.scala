@@ -29,6 +29,7 @@ object CustomLinkerBackEnd {
         .mkString(sys.props("line.separator"))
     }
 
+    /*
     def createApplyFunctions(): String = {
 
       def applyFields(): String = {
@@ -59,8 +60,10 @@ object CustomLinkerBackEnd {
          |${" " * 3}                          interaction.uniqueInteractionData(),
          |${" " * 3}                          new CustomDemographicData(${applyFields()}));
          |${" " * 3}}""".stripMargin
+
     }
 
+     */
     config.demographicFields
       .filter(f => f.linkMetaData.isDefined)
       .foreach(f => {
@@ -87,14 +90,12 @@ object CustomLinkerBackEnd {
          |
          |${createGenerateFunctions()}
          |
-         |   ${createApplyFunctions()}
-         |
          |   static void updateGoldenRecordFields(
          |         final LibMPI libMPI,
          |         final float threshold,
          |         final String interactionId,
          |         final String goldenId) {
-         |      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).get(0);
+         |      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).getFirst();
          |      final var goldenRecord = expandedGoldenRecord.goldenRecord();
          |      final var demographicData = goldenRecord.demographicData();
          |      var k = 0;
@@ -105,13 +106,15 @@ object CustomLinkerBackEnd {
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
         s"""${" " * 6}k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-           |${" " * 6}                                            "$fieldName", demographicData.$fieldName, CustomDemographicData::get${fieldName
-            .charAt(0)
-            .toUpper}${fieldName.substring(1)})
+           |${" " * 6}                                            "$fieldName", demographicData.$fieldName,
+           |${" " * 6}                                            expandedGoldenRecord.interactionsWithScore()
+           |${" " * 6}                                                                .stream()
+           |${" " * 6}                                                                .map(rec -> rec.interaction().demographicData().$fieldName))
            |${" " * 12}? 1
            |${" " * 12}: 0;""".stripMargin
       )
     })
+
     writer.println(s"""
          |${" " * 6}if (k > 0) {
          |${" " * 6}  LinkerDWH.helperUpdateInteractionsScore(libMPI, threshold, expandedGoldenRecord);

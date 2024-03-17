@@ -61,7 +61,7 @@ private object CustomPatient {
       )
     }
     writer.println()
-    for (field <- config.demographicFields) {
+    /*    for (field <- config.demographicFields) {
       val typeString = field.fieldType
       val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
       writer.println(
@@ -73,7 +73,7 @@ private object CustomPatient {
            |""".stripMargin
       )
     }
-
+     */
     writer.println(
       s"""${" " * indent * 1}public $customClassNameCustomDemographicData() {""".stripMargin
     )
@@ -82,6 +82,20 @@ private object CustomPatient {
          |${" " * indent * 1}}
          |""".stripMargin
     )
+
+    writer.print(
+      s"""${" " * indent * 1}public $customClassNameCustomDemographicData(final $customClassNameCustomDemographicData demographicData) {"""
+    )
+    config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
+      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+      writer.print(
+        s"""
+           |${" " * indent * 2}this.$fieldName = demographicData.$fieldName;""".stripMargin
+      )
+    }
+    writer.println(s"""
+         |${" " * indent * 1}}
+         |""".stripMargin)
 
     writer.println(
       s"""${" " * indent * 1}public $customClassNameCustomDemographicData(""".stripMargin
