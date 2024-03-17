@@ -398,8 +398,14 @@ public final class Routes {
                         final ActorRef<BackEnd.Event> backEnd) {
                 return withSizeLimit(1024 * 1024 * 2048, () -> entity(Unmarshaller.entityToString(),
                                 formData -> {
+
+
+
                                         String queriesConfigString = extractQueriesFromFormData(formData);
+
+                                        LOGGER.warn("formData -> " + formData);
                                         LOGGER.warn("Received config string -> " + queriesConfigString);
+
 
                                         return storeUploadedFile("csv",
                                                         (info) -> {
@@ -422,6 +428,7 @@ public final class Routes {
 
                                 }));
         }
+
 
         private static String extractQueriesFromFormData(final String formData) {
                 String[] parts = formData.split("\n------WebKitFormBoundary");
