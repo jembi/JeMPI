@@ -111,16 +111,12 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("gid",
                        uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
-                                         result -> {
-                                            if (!result.isSuccess()) {
-                                               LOGGER.warn("IM_A_TEAPOT");
-                                            }
-                                            return result.isSuccess()
-                                                  ? complete(StatusCodes.OK,
-                                                             ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
-                                                             JSON_MARSHALLER)
-                                                  : complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
-                                         }));
+                                         result -> result.isSuccess()
+                                               ? complete(StatusCodes.OK,
+                                                          result.get().auditTrail(),
+                                                          JSON_MARSHALLER)
+                                               : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
+
    }
 
    public static Route getInteractionAuditTrail(
@@ -128,16 +124,11 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("iid",
                        uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
-                                         result -> {
-                                            if (!result.isSuccess()) {
-                                               LOGGER.warn("IM_A_TEAPOT");
-                                            }
-                                            return result.isSuccess()
-                                                  ? complete(StatusCodes.OK,
-                                                             ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
-                                                             JSON_MARSHALLER)
-                                                  : complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
-                                         }));
+                                         result -> result.isSuccess()
+                                               ? complete(StatusCodes.OK,
+                                                          result.get().auditTrail(),
+                                                          JSON_MARSHALLER)
+                                               : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
 
    public static Route patchIidNewGidLink(

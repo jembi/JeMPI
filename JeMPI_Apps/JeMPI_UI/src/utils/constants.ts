@@ -92,5 +92,13 @@ export const AUDIT_TRAIL_COLUMNS: GridColDef[] = [
     disableColumnMenu: true,
     headerClassName: 'super-app-theme--header',
     flex: 1
+  },
+  {
+    field: 'linking_rule',
+    headerName: 'Matching Type',
+    sortable: false,
+    disableColumnMenu: true,
+    headerClassName: 'super-app-theme--header',
+    flex: 1
   }
 ]
