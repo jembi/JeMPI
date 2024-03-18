@@ -16,7 +16,7 @@ public final class LibMPIIndexesHooks extends BaseHook {
 
     @Override
     public Option<MpiGeneralError> beforeLinkingHook() {
-        if (client.shouldUpdateLinkingIndexes()) {
+        if (Boolean.TRUE.equals(client.shouldUpdateLinkingIndexes())) {
             LOGGER.info("Updating indexes for linking.");
             return client.loadLinkingIndexes();
         }
@@ -25,7 +25,7 @@ public final class LibMPIIndexesHooks extends BaseHook {
 
     @Override
     public Option<MpiGeneralError> afterLinkingHook() {
-        if (client.shouldUpdateLinkingIndexes()) {
+        if (Boolean.TRUE.equals(client.shouldUpdateLinkingIndexes())) {
             LOGGER.info("Adding default indexes after linking.");
             return client.loadDefaultIndexes();
         }

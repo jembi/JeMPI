@@ -201,6 +201,13 @@
       "indexGoldenRecord": "@index(exact)"
     }
   ],
+  "indexes": {
+    "linking": {
+      "national_id": {
+        "props": "@index(exact)"
+      }
+    }
+  },
   "rules": {
     "link": {
       "deterministic": {
