@@ -9,6 +9,8 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 
 import java.util.Locale;
 
+import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+
 public final class CustomLinkerMU {
 
    private static final Logger LOGGER = LogManager.getLogger(CustomLinkerMU.class);
@@ -52,26 +54,26 @@ public final class CustomLinkerMU {
    void updateMatchSums(
          final CustomDemographicData patient,
          final CustomDemographicData goldenRecord) {
-      updateMatchedPair(fields.givenName, patient.givenName, goldenRecord.givenName);
-      updateMatchedPair(fields.familyName, patient.familyName, goldenRecord.familyName);
-      updateMatchedPair(fields.gender, patient.gender, goldenRecord.gender);
-      updateMatchedPair(fields.dob, patient.dob, goldenRecord.dob);
-      updateMatchedPair(fields.city, patient.city, goldenRecord.city);
-      updateMatchedPair(fields.phoneNumber, patient.phoneNumber, goldenRecord.phoneNumber);
-      updateMatchedPair(fields.nationalId, patient.nationalId, goldenRecord.nationalId);
+      updateMatchedPair(fields.givenName, patient.fields.get(GIVEN_NAME).value(), goldenRecord.fields.get(GIVEN_NAME).value());
+      updateMatchedPair(fields.familyName, patient.fields.get(FAMILY_NAME).value(), goldenRecord.fields.get(FAMILY_NAME).value());
+      updateMatchedPair(fields.gender, patient.fields.get(GENDER).value(), goldenRecord.fields.get(GENDER).value());
+      updateMatchedPair(fields.dob, patient.fields.get(DOB).value(), goldenRecord.fields.get(DOB).value());
+      updateMatchedPair(fields.city, patient.fields.get(CITY).value(), goldenRecord.fields.get(CITY).value());
+      updateMatchedPair(fields.phoneNumber, patient.fields.get(PHONE_NUMBER).value(), goldenRecord.fields.get(PHONE_NUMBER).value());
+      updateMatchedPair(fields.nationalId, patient.fields.get(NATIONAL_ID).value(), goldenRecord.fields.get(NATIONAL_ID).value());
       LOGGER.debug("{}", fields);
    }
 
    void updateMissmatchSums(
          final CustomDemographicData patient,
          final CustomDemographicData goldenRecord) {
-      updateUnMatchedPair(fields.givenName, patient.givenName, goldenRecord.givenName);
-      updateUnMatchedPair(fields.familyName, patient.familyName, goldenRecord.familyName);
-      updateUnMatchedPair(fields.gender, patient.gender, goldenRecord.gender);
-      updateUnMatchedPair(fields.dob, patient.dob, goldenRecord.dob);
-      updateUnMatchedPair(fields.city, patient.city, goldenRecord.city);
-      updateUnMatchedPair(fields.phoneNumber, patient.phoneNumber, goldenRecord.phoneNumber);
-      updateUnMatchedPair(fields.nationalId, patient.nationalId, goldenRecord.nationalId);
+      updateUnMatchedPair(fields.givenName, patient.fields.get(GIVEN_NAME).value(), goldenRecord.fields.get(GIVEN_NAME).value());
+      updateUnMatchedPair(fields.familyName, patient.fields.get(FAMILY_NAME).value(), goldenRecord.fields.get(FAMILY_NAME).value());
+      updateUnMatchedPair(fields.gender, patient.fields.get(GENDER).value(), goldenRecord.fields.get(GENDER).value());
+      updateUnMatchedPair(fields.dob, patient.fields.get(DOB).value(), goldenRecord.fields.get(DOB).value());
+      updateUnMatchedPair(fields.city, patient.fields.get(CITY).value(), goldenRecord.fields.get(CITY).value());
+      updateUnMatchedPair(fields.phoneNumber, patient.fields.get(PHONE_NUMBER).value(), goldenRecord.fields.get(PHONE_NUMBER).value());
+      updateUnMatchedPair(fields.nationalId, patient.fields.get(NATIONAL_ID).value(), goldenRecord.fields.get(NATIONAL_ID).value());
       LOGGER.debug("{}", fields);
    }
 

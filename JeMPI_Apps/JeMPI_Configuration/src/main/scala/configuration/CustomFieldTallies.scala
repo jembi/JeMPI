@@ -48,7 +48,8 @@ private object CustomFieldTallies {
       config.demographicFields
         .map(f => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
-          s"""${" " * 36}getFieldTally(recordsMatch, left.${fieldName}, right.${fieldName}),"""
+          s"""${" " * 36}getFieldTally(recordsMatch, left.fields.get(${f.fieldName.toUpperCase}).value(),
+             |${" " * 64}right.fields.get(${f.fieldName.toUpperCase}).value()),""".stripMargin
         })
         .mkString(sys.props("line.separator"))
         .trim
@@ -67,6 +68,8 @@ private object CustomFieldTallies {
          |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
          |import org.apache.logging.log4j.LogManager;
          |import org.apache.logging.log4j.Logger;
+         |
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |public record $customClassName(
          |      ${fieldParameters()}) {

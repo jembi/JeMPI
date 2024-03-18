@@ -25,6 +25,8 @@ private object CustomDgraphMutations {
          |import java.util.Locale;
          |import java.util.UUID;
          |
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+         |
          |final class $custom_className {
          |
          |   private $custom_className() {
@@ -114,9 +116,9 @@ private object CustomDgraphMutations {
       end mapUniqueField
 
       def mapCommonField(f: DemographicField): String =
-        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(
-            f.fieldName
-          )})${checkToString(f.fieldType)}"""
+        s"""AppUtils.quotedValue(demographicData.fields.get(${f.fieldName.toUpperCase}).value())${checkToString(
+            f.fieldType
+          )}"""
       end mapCommonField
 
       val f1 =
@@ -166,9 +168,9 @@ private object CustomDgraphMutations {
       end mapUniqueField
 
       def mapDemographicField(f: DemographicField): String =
-        s"""AppUtils.quotedValue(demographicData.${Utils.snakeCaseToCamelCase(
-            f.fieldName
-          )})${checkToString(f.fieldType)}"""
+        s"""AppUtils.quotedValue(demographicData.fields.get(${f.fieldName.toUpperCase}).value())${checkToString(
+            f.fieldType
+          )}"""
       end mapDemographicField
 
       val f1 =

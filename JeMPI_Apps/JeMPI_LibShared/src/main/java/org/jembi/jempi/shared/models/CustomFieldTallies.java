@@ -5,6 +5,8 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+
 public record CustomFieldTallies(
       FieldTally givenName,
       FieldTally familyName,
@@ -66,13 +68,20 @@ public record CustomFieldTallies(
          final boolean recordsMatch,
          final CustomDemographicData left,
          final CustomDemographicData right) {
-      return new CustomFieldTallies(getFieldTally(recordsMatch, left.givenName, right.givenName),
-                                    getFieldTally(recordsMatch, left.familyName, right.familyName),
-                                    getFieldTally(recordsMatch, left.gender, right.gender),
-                                    getFieldTally(recordsMatch, left.dob, right.dob),
-                                    getFieldTally(recordsMatch, left.city, right.city),
-                                    getFieldTally(recordsMatch, left.phoneNumber, right.phoneNumber),
-                                    getFieldTally(recordsMatch, left.nationalId, right.nationalId));
+      return new CustomFieldTallies(getFieldTally(recordsMatch, left.fields.get(GIVEN_NAME).value(),
+                                                                right.fields.get(GIVEN_NAME).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(FAMILY_NAME).value(),
+                                                                right.fields.get(FAMILY_NAME).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(GENDER).value(),
+                                                                right.fields.get(GENDER).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(DOB).value(),
+                                                                right.fields.get(DOB).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(CITY).value(),
+                                                                right.fields.get(CITY).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(PHONE_NUMBER).value(),
+                                                                right.fields.get(PHONE_NUMBER).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(NATIONAL_ID).value(),
+                                                                right.fields.get(NATIONAL_ID).value()));
    }
 
    public void logFieldMU() {

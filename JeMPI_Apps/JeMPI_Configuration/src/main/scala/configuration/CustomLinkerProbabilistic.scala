@@ -43,6 +43,7 @@ object CustomLinkerProbabilistic {
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
          |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |final class $custom_className {
          |
@@ -184,7 +185,7 @@ object CustomLinkerProbabilistic {
       linkMuList.zipWithIndex.foreach((field, _) =>
                                         val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
                                         writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
-                                        writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentLinkFields" +
+                                        writer.println(" " * 54 + s"goldenRecord.fields.get(${field.fieldName.toUpperCase}).value(), interaction.fields.get(${field.fieldName.toUpperCase}).value(), currentLinkFields" +
                                                        s".$fieldName);"))
       if (!linkMuList.isEmpty)
         writer.println(
@@ -212,7 +213,7 @@ object CustomLinkerProbabilistic {
         validateMuList.foreach(field => {
           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
           writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
-          writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentValidateFields" +
+          writer.println(" " * 54 + s"goldenRecord.fields.get(${field.fieldName.toUpperCase}).value(), interaction.fields.get(${field.fieldName.toUpperCase}).value(), currentValidateFields" +
                          s".$fieldName);")
         })
         writer.print(
@@ -238,7 +239,7 @@ object CustomLinkerProbabilistic {
         matchNotificationMuList.foreach(field =>
                                           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
                                           writer.println(" " * 6 + "LinkerProbabilistic.updateMetricsForStringField(metrics,")
-                                          writer.println(" " * 54 + s"goldenRecord.$fieldName, interaction.$fieldName, currentMatchNotificationFields" +
+                                          writer.println(" " * 54 + s"goldenRecord.fields.get(${field.fieldName.toUpperCase}).value(), interaction.fields.get(${field.fieldName.toUpperCase}).value(), currentMatchNotificationFields" +
                                                          s".$fieldName);")
                                         )
         writer.print(

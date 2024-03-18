@@ -28,7 +28,7 @@ object CustomLinkerDeterministic {
              |             || """.stripMargin)
         rule._2.vars.zipWithIndex.foreach((field, var_idx) =>
           writer.print(
-            s"StringUtils.isNotBlank(interaction.${Utils.snakeCaseToCamelCase(field)})${
+            s"StringUtils.isNotBlank(interaction.fields.get(${field.toUpperCase}).value())${
                 if (var_idx + 1 < rule._2.vars.length)
                   s"${sys.props("line.separator")}${" " * 13}&& "
                 else ""
@@ -103,10 +103,10 @@ object CustomLinkerDeterministic {
               val left = field + "L"
               val right = field + "R"
               writer.println(
-                " " * 6 + s"final var $left = goldenRecord.$field;"
+                " " * 6 + s"final var $left = goldenRecord.fields.get(${v.toUpperCase}).value();"
               )
               writer.println(
-                " " * 6 + s"final var $right = interaction.$field;"
+                " " * 6 + s"final var $right = interaction.fields.get(${v.toUpperCase}).value();"
               )
               definedProperties = definedProperties :+ field
             }
@@ -131,6 +131,8 @@ object CustomLinkerDeterministic {
          |import org.apache.commons.lang3.StringUtils;
          |
          |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |final class $custom_className {
          |

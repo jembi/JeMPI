@@ -38,6 +38,8 @@ object CustomLinkerMU {
            |
            |import java.util.Locale;
            |
+           |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+           |
            |public final class $custom_className {
            |
            |   private static final Logger LOGGER = LogManager.getLogger($custom_className.class);
@@ -86,7 +88,7 @@ object CustomLinkerMU {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
-            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName" +
+            s"      updateMatchedPair(fields.$fieldName, patient.fields.get(${mu.fieldName.toUpperCase}).value(), goldenRecord.fields.get(${mu.fieldName.toUpperCase}).value()" +
               s");"
           )
         })
@@ -101,7 +103,7 @@ object CustomLinkerMU {
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName);"
+          s"      updateUnMatchedPair(fields.$fieldName, patient.fields.get(${mu.fieldName.toUpperCase}).value(), goldenRecord.fields.get(${mu.fieldName.toUpperCase}).value());"
         )
       })
       writer.println("""      LOGGER.debug("{}", fields);

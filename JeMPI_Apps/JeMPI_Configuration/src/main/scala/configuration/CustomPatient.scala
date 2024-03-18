@@ -20,7 +20,7 @@ private object CustomPatient {
   private val classCustomUniqueInteractionDataFile: String =
     classLocation + File.separator + customClassNameCustomUniqueInteractionData + ".java"
 
-  private val indent = 3
+  private val indent = 4
 
   def generate(config: Config): Unit =
     generateDemographicData(config)
@@ -50,55 +50,44 @@ private object CustomPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
+         |import java.util.ArrayList;
+         |import java.util.Arrays;
+         |import java.util.List;
+         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public class $customClassNameCustomDemographicData {
+         |
          |""".stripMargin)
-    config.demographicFields.zipWithIndex.foreach { case (field, _) =>
-      val typeString = field.fieldType
-      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+    config.demographicFields.zipWithIndex.foreach { case (field, i) =>
       writer.println(
-        s"""${" " * (indent * 1)}public final $typeString $fieldName;"""
+        s"""${" " * (indent * 1)}public static final int ${field.fieldName.toUpperCase} = $i;"""
       )
     }
-    writer.println()
-    /*    for (field <- config.demographicFields) {
-      val typeString = field.fieldType
-      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-      writer.println(
-        s"""${" " * (indent * 1)}public final $typeString get${fieldName
-            .charAt(0)
-            .toUpper}${fieldName.substring(1)}() {
-           |${" " * (indent * 2)}return $fieldName;
-           |${" " * (indent * 1)}}
-           |""".stripMargin
-      )
-    }
-     */
     writer.println(
-      s"""${" " * indent * 1}public $customClassNameCustomDemographicData() {""".stripMargin
-    )
-    writer.println(
-      s"""${" " * indent * 2}this(${"null, " * (config.demographicFields.length - 1)}null);
-         |${" " * indent * 1}}
-         |""".stripMargin
-    )
-
-    writer.print(
-      s"""${" " * indent * 1}public $customClassNameCustomDemographicData(final $customClassNameCustomDemographicData demographicData) {"""
-    )
-    config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
-      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-      writer.print(
-        s"""
-           |${" " * indent * 2}this.$fieldName = demographicData.$fieldName;""".stripMargin
-      )
-    }
-    writer.println(s"""
-         |${" " * indent * 1}}
-         |""".stripMargin)
-
-    writer.println(
-      s"""${" " * indent * 1}public $customClassNameCustomDemographicData(""".stripMargin
+      s"""
+         |    public final List<Field> fields;
+         |   
+         |    public $customClassNameCustomDemographicData() {
+         |        fields = new ArrayList<>();
+         |    }
+         |
+         |    public $customClassNameCustomDemographicData(final $customClassNameCustomDemographicData demographicData) {
+         |        fields = demographicData.fields.stream().toList();
+         |    }
+         |
+         |    private CustomDemographicData(final List<Field> fields) {
+         |        this.fields = fields;
+         |    }
+         |
+         |    public CustomDemographicData clean() {
+         |        return new CustomDemographicData(fields.stream()
+         |                                               .map(x -> new Field(x.tag, x.value.trim()
+         |                                                                                 .toLowerCase()
+         |                                                                                 .replaceAll("\\\\W", "")))
+         |                                               .toList());
+         |    }
+         |
+         |    public $customClassNameCustomDemographicData(""".stripMargin
     )
     config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
       val typeString = field.fieldType
@@ -108,22 +97,25 @@ private object CustomPatient {
                          else ") {"
                        }""".stripMargin)
     }
-    config.demographicFields.zipWithIndex.foreach { case (field, _) =>
-      //        val typeString = field.fieldType
+    writer.println(
+      s"""      fields = new ArrayList<>(Arrays.asList(""".stripMargin
+    )
+    config.demographicFields.zipWithIndex.foreach { case (field, i) =>
       val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
       writer.println(
-        s"""${" " * indent * 3}this.$fieldName = $fieldName;""".stripMargin
+        s"""${" " * indent * 3}new Field("$fieldName", $fieldName)${
+            if (i < config.demographicFields.length - 1) ',' else "));"
+          }""".stripMargin
       )
     }
-    writer.println(s"""${" " * indent * 1}}
+    writer.print(s"""    }
          |
-         |   public $customClassNameCustomDemographicData clean() {
-         |      return new $customClassNameCustomDemographicData(${cleanedFields(
-                       config
-                     )});
+         |   public record Field(
+         |         String tag,
+         |         String value) {
          |   }
-         |
-         |}""".stripMargin)
+         |}
+         |""".stripMargin)
     writer.flush()
     writer.close()
 

@@ -12,6 +12,7 @@ import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARIT
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
 import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
+import static org.jembi.jempi.shared.models.CustomDemographicData.*;
 
 final class CustomLinkerProbabilistic {
 
@@ -57,19 +58,19 @@ final class CustomLinkerProbabilistic {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.givenName, interaction.givenName, currentLinkFields.givenName);
+                                                      goldenRecord.fields.get(GIVEN_NAME).value(), interaction.fields.get(GIVEN_NAME).value(), currentLinkFields.givenName);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.familyName, interaction.familyName, currentLinkFields.familyName);
+                                                      goldenRecord.fields.get(FAMILY_NAME).value(), interaction.fields.get(FAMILY_NAME).value(), currentLinkFields.familyName);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.gender, interaction.gender, currentLinkFields.gender);
+                                                      goldenRecord.fields.get(GENDER).value(), interaction.fields.get(GENDER).value(), currentLinkFields.gender);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.dob, interaction.dob, currentLinkFields.dob);
+                                                      goldenRecord.fields.get(DOB).value(), interaction.fields.get(DOB).value(), currentLinkFields.dob);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.city, interaction.city, currentLinkFields.city);
+                                                      goldenRecord.fields.get(CITY).value(), interaction.fields.get(CITY).value(), currentLinkFields.city);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.phoneNumber, interaction.phoneNumber, currentLinkFields.phoneNumber);
+                                                      goldenRecord.fields.get(PHONE_NUMBER).value(), interaction.fields.get(PHONE_NUMBER).value(), currentLinkFields.phoneNumber);
       LinkerProbabilistic.updateMetricsForStringField(metrics,
-                                                      goldenRecord.nationalId, interaction.nationalId, currentLinkFields.nationalId);
+                                                      goldenRecord.fields.get(NATIONAL_ID).value(), interaction.fields.get(NATIONAL_ID).value(), currentLinkFields.nationalId);
       return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
 
    }

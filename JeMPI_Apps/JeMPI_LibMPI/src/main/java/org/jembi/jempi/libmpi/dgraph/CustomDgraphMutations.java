@@ -8,6 +8,8 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+
 final class CustomDgraphMutations {
 
    private CustomDgraphMutations() {
@@ -37,13 +39,13 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxId()),
                            uuid, AppUtils.quotedValue(uniqueInteractionData.auxClinicalData()),
-                           uuid, AppUtils.quotedValue(demographicData.givenName),
-                           uuid, AppUtils.quotedValue(demographicData.familyName),
-                           uuid, AppUtils.quotedValue(demographicData.gender),
-                           uuid, AppUtils.quotedValue(demographicData.dob),
-                           uuid, AppUtils.quotedValue(demographicData.city),
-                           uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(GIVEN_NAME).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(FAMILY_NAME).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(GENDER).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(DOB).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(CITY).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(PHONE_NUMBER).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(NATIONAL_ID).value()),
                            uuid);
    }
 
@@ -74,13 +76,13 @@ final class CustomDgraphMutations {
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString()),
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString()),
                            uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId()),
-                           uuid, AppUtils.quotedValue(demographicData.givenName),
-                           uuid, AppUtils.quotedValue(demographicData.familyName),
-                           uuid, AppUtils.quotedValue(demographicData.gender),
-                           uuid, AppUtils.quotedValue(demographicData.dob),
-                           uuid, AppUtils.quotedValue(demographicData.city),
-                           uuid, AppUtils.quotedValue(demographicData.phoneNumber),
-                           uuid, AppUtils.quotedValue(demographicData.nationalId),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(GIVEN_NAME).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(FAMILY_NAME).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(GENDER).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(DOB).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(CITY).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(PHONE_NUMBER).value()),
+                           uuid, AppUtils.quotedValue(demographicData.fields.get(NATIONAL_ID).value()),
                            uuid, interactionUID, score,
                            uuid);
    }

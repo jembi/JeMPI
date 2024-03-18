@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+
+import static org.jembi.jempi.shared.models.CustomDemographicData.*;
 import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 
 final class CustomDgraphQueries {
@@ -128,17 +130,17 @@ final class CustomDgraphQueries {
          """;
 
    private static DgraphGoldenRecords queryLinkDeterministicA(final CustomDemographicData demographicData) {
-      if (StringUtils.isBlank(demographicData.nationalId)) {
+      if (StringUtils.isBlank(demographicData.fields.get(NATIONAL_ID).value())) {
          return new DgraphGoldenRecords(List.of());
       }
-      final Map<String, String> map = Map.of("$national_id", demographicData.nationalId);
+      final Map<String, String> map = Map.of("$national_id", demographicData.fields.get(NATIONAL_ID).value());
       return runGoldenRecordsQuery(QUERY_LINK_DETERMINISTIC_A, map);
    }
 
    private static DgraphGoldenRecords queryLinkDeterministicB(final CustomDemographicData demographicData) {
-      final var givenName = demographicData.givenName;
-      final var familyName = demographicData.familyName;
-      final var phoneNumber = demographicData.phoneNumber;
+      final var givenName = demographicData.fields.get(GIVEN_NAME).value();
+      final var familyName = demographicData.fields.get(FAMILY_NAME).value();
+      final var phoneNumber = demographicData.fields.get(PHONE_NUMBER).value();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
@@ -161,11 +163,11 @@ final class CustomDgraphQueries {
    }
 
    private static DgraphGoldenRecords queryLinkProbabilistic(final CustomDemographicData demographicData) {
-      final var givenName = demographicData.givenName;
-      final var familyName = demographicData.familyName;
-      final var city = demographicData.city;
-      final var phoneNumber = demographicData.phoneNumber;
-      final var nationalId = demographicData.nationalId;
+      final var givenName = demographicData.fields.get(GIVEN_NAME).value();
+      final var familyName = demographicData.fields.get(FAMILY_NAME).value();
+      final var city = demographicData.fields.get(CITY).value();
+      final var phoneNumber = demographicData.fields.get(PHONE_NUMBER).value();
+      final var nationalId = demographicData.fields.get(NATIONAL_ID).value();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var cityIsBlank = StringUtils.isBlank(city);
