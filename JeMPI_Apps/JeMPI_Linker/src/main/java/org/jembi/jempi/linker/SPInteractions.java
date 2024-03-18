@@ -11,14 +11,12 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +46,7 @@ public final class SPInteractions {
          final String key,
          final InteractionEnvelop interactionEnvelop) {
 
+/*
       if (interactionEnvelop.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL
               || interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
          final var completableFuture = Ask.runStartEndHooks(system, backEnd, key, interactionEnvelop).toCompletableFuture();
@@ -61,6 +60,7 @@ public final class SPInteractions {
             this.close();
          }
       }
+*/
 
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
 

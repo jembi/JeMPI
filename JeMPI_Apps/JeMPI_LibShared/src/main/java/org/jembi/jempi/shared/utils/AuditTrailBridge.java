@@ -32,7 +32,7 @@ public final class AuditTrailBridge {
                 eventType,
                 getSerializedEventData(eventData)
         );
-        LOGGER.info("Creating Audit Event {} ", auditEvent.toString());
+//        LOGGER.info("Creating Audit Event {} ", auditEvent.toString());
 
         topicAuditEvents.produceAsync(UUID.randomUUID().toString(),
                 auditEvent,
