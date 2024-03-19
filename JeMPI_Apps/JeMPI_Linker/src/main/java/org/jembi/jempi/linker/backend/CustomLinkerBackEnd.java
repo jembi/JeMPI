@@ -15,55 +15,63 @@ public final class CustomLinkerBackEnd {
 
 
 
-   public static Interaction applyAutoCreateFunctions(final Interaction interaction) {
-      return new Interaction(interaction.interactionId(),
-                             interaction.sourceId(),
-                             interaction.uniqueInteractionData(),
-                             new CustomDemographicData(interaction.demographicData().givenName,
-                                                       interaction.demographicData().familyName,
-                                                       interaction.demographicData().gender,
-                                                       interaction.demographicData().dob,
-                                                       interaction.demographicData().city,
-                                                       interaction.demographicData().phoneNumber,
-                                                       interaction.demographicData().nationalId));
-   }
-
    static void updateGoldenRecordFields(
          final LibMPI libMPI,
          final float threshold,
          final String interactionId,
          final String goldenId) {
-      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).get(0);
+      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).getFirst();
       final var goldenRecord = expandedGoldenRecord.goldenRecord();
       final var demographicData = goldenRecord.demographicData();
       var k = 0;
 
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "givenName", demographicData.givenName, CustomDemographicData::getGivenName)
+                                                  "givenName", demographicData.givenName,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().givenName))
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "familyName", demographicData.familyName, CustomDemographicData::getFamilyName)
+                                                  "familyName", demographicData.familyName,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().familyName))
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "gender", demographicData.gender, CustomDemographicData::getGender)
+                                                  "gender", demographicData.gender,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().gender))
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "dob", demographicData.dob, CustomDemographicData::getDob)
+                                                  "dob", demographicData.dob,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().dob))
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "city", demographicData.city, CustomDemographicData::getCity)
+                                                  "city", demographicData.city,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().city))
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "phoneNumber", demographicData.phoneNumber, CustomDemographicData::getPhoneNumber)
+                                                  "phoneNumber", demographicData.phoneNumber,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().phoneNumber))
             ? 1
             : 0;
       k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                  "nationalId", demographicData.nationalId, CustomDemographicData::getNationalId)
+                                                  "nationalId", demographicData.nationalId,
+                                                  expandedGoldenRecord.interactionsWithScore()
+                                                                      .stream()
+                                                                      .map(rec -> rec.interaction().demographicData().nationalId))
             ? 1
             : 0;
 
