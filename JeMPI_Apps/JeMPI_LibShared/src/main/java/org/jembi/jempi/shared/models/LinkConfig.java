@@ -12,10 +12,12 @@ public class LinkConfig {
     private Double windowSize;
 
     public LinkConfig() {
+        this(null, null, null, null, null, null);
     }
 
-    public LinkConfig(Boolean reporting, Integer computing, Double leftMargin, Double threshold, Double rightMargin,
-            Double windowSize) {
+    public LinkConfig(final Boolean reporting, final Integer computing, final Double leftMargin, final Double threshold,
+            final Double rightMargin,
+            final Double windowSize) {
         this.reporting = reporting;
         this.computing = computing;
         this.leftMargin = leftMargin;
@@ -24,55 +26,31 @@ public class LinkConfig {
         this.windowSize = windowSize;
     }
 
-    public Boolean getReporting() {
+    public final Boolean getReporting() {
         return reporting;
     }
 
-    public void setReporting(Boolean reporting) {
-        this.reporting = reporting;
-    }
-
-    public Integer getComputing() {
+    public final Integer getComputing() {
         return computing;
     }
 
-    public void setComputing(Integer computing) {
-        this.computing = computing;
-    }
-
-    public Double getLeftMargin() {
+    public final Double getLeftMargin() {
         return leftMargin;
     }
 
-    public void setLeftMargin(Double leftMargin) {
-        this.leftMargin = leftMargin;
-    }
-
-    public Double getThreshold() {
+    public final Double getThreshold() {
         return threshold;
     }
 
-    public void setThreshold(Double threshold) {
-        this.threshold = threshold;
-    }
-
-    public Double getRightMargin() {
+    public final Double getRightMargin() {
         return rightMargin;
     }
 
-    public void setRightMargin(Double rightMargin) {
-        this.rightMargin = rightMargin;
-    }
-
-    public Double getWindowSize() {
+    public final Double getWindowSize() {
         return windowSize;
     }
 
-    public void setWindowSize(Double windowSize) {
-        this.windowSize = windowSize;
-    }
-
-    public static LinkConfig fromString(String str) {
+    public static LinkConfig fromString(final String str) {
         LinkConfig config = new LinkConfig();
         String[] pairs = str.split(",");
         for (String pair : pairs) {
@@ -97,6 +75,8 @@ public class LinkConfig {
                     break;
                 case "windowSize":
                     config.windowSize = Double.parseDouble(value);
+                    break;
+                default:
                     break;
             }
         }
