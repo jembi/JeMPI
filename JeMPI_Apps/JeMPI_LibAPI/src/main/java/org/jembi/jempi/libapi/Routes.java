@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import static akka.http.javadsl.server.Directives.*;
 import static akka.http.javadsl.server.PathMatchers.segment;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+import java.io.*;
 
 public final class Routes {
 
@@ -396,39 +397,48 @@ public final class Routes {
         public static Route postUploadCsvFile(
                         final ActorSystem<Void> actorSystem,
                         final ActorRef<BackEnd.Event> backEnd) {
-                return withSizeLimit(1024 * 1024 * 2048, () -> entity(Unmarshaller.entityToString(),
-                                formData -> {
+                return withSizeLimit(1024 * 1024 * 2048,
+                                () -> withoutSizeLimit(() -> entity(Unmarshaller.entityToString(),
+                                                formData -> {
+                                                        String queriesConfigString = extractQueriesFromFormData(
+                                                                        formData);
 
-
-
-                                        String queriesConfigString = extractQueriesFromFormData(formData);
-
-                                        LOGGER.warn("formData -> " + formData);
-                                        LOGGER.warn("Received config string -> " + queriesConfigString);
-
-
-                                        return storeUploadedFile("csv",
-                                                        (info) -> {
-                                                                try {
-                                                                        return File.createTempFile("import-", ".csv");
-                                                                } catch (Exception e) {
-                                                                        LOGGER.error(e.getMessage(), e);
-                                                                        return null;
-                                                                }
-                                                        },
-                                                        (info, file) -> onComplete(Ask.postUploadCsvFile(actorSystem,
-                                                                        backEnd,
-                                                                        info,
-                                                                        file),
-                                                                        response -> response.isSuccess()
-                                                                                        ? complete(StatusCodes.OK)
-                                                                                        : complete(ApiModels
-                                                                                                        .getHttpErrorResponse(
-                                                                                                                        StatusCodes.IM_A_TEAPOT))));
-
-                                }));
+                                                        return storeUploadedFile("csv",
+                                                                        (info) -> {
+                                                                                try {
+                                                                                        File file = File.createTempFile(
+                                                                                                        "import-",
+                                                                                                        ".txt");
+                                                                                        FileWriter writer = new FileWriter(
+                                                                                                        file);
+                                                                                        writer.write(queriesConfigString); // Write
+                                                                                                                           // queriesConfigString
+                                                                                                                           // to
+                                                                                                                           // the
+                                                                                                                           // first
+                                                                                                                           // line
+                                                                                        writer.write("\n"); // Add a new
+                                                                                                            // line
+                                                                                        writer.flush();
+                                                                                        writer.close();
+                                                                                        return file;
+                                                                                } catch (Exception e) {
+                                                                                        LOGGER.error(e.getMessage(), e);
+                                                                                        return null;
+                                                                                }
+                                                                        },
+                                                                        (info, file) -> onComplete(
+                                                                                        Ask.postUploadCsvFile(
+                                                                                                        actorSystem,
+                                                                                                        backEnd, info,
+                                                                                                        file),
+                                                                                        response -> response.isSuccess()
+                                                                                                        ? complete(StatusCodes.OK)
+                                                                                                        : complete(ApiModels
+                                                                                                                        .getHttpErrorResponse(
+                                                                                                                                        StatusCodes.IM_A_TEAPOT))));
+                                                })));
         }
-
 
         private static String extractQueriesFromFormData(final String formData) {
                 String[] parts = formData.split("\n------WebKitFormBoundary");
@@ -441,6 +451,9 @@ public final class Routes {
                 }
                 return null;
         }
+
+        // "{queries : "reporting: false,computing: 0,leftMargin: 0.65, threshold: 0.7,
+        // rightMargin: 0.75,windowSize: 0.1"}"
 
         // public static Route postUploadCsvFile(
         // final ActorSystem<Void> actorSystem,

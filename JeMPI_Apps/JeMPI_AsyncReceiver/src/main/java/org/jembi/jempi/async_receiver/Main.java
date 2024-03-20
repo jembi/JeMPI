@@ -13,18 +13,19 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.LinkConfig;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public final class Main {
@@ -55,12 +56,12 @@ public final class Main {
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
          return String.format(Locale.ROOT,
-                              "rec-%010d-%s-%d",
-                              Integer.parseInt(rNumber),
-                              klass,
-                              (("org".equals(klass) || "aaa".equals(klass))
-                                     ? 0
-                                     : Integer.parseInt(dNumber)));
+               "rec-%010d-%s-%d",
+               Integer.parseInt(rNumber),
+               klass,
+               (("org".equals(klass) || "aaa".equals(klass))
+                     ? 0
+                     : Integer.parseInt(dNumber)));
       }
       return in;
    }
@@ -86,7 +87,7 @@ public final class Main {
       return size;
    }
 
-   private void apacheReadCSV(final String fileName)
+   private void apacheReadCSV(final String fileName, LinkConfig linkerConfig)
          throws InterruptedException, ExecutionException {
       try {
          final var filePathUri = Paths.get(fileName);
@@ -98,37 +99,38 @@ public final class Main {
          final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
          final var csvParser = CSVFormat.DEFAULT.builder()
-                                                .setHeader()
-                                                .setSkipHeaderRecord(true)
-                                                .setIgnoreEmptyLines(true)
-                                                .setNullString(null)
-                                                .build()
-                                                .parse(reader);
+               .setHeader()
+               .setSkipHeaderRecord(true)
+               .setIgnoreEmptyLines(true)
+               .setNullString(null)
+               .build()
+               .parse(reader);
 
          int index = 0;
          sendToKafka(uuid,
-                     new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
-                                            tag,
-                                            String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                            null));
+               new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
+                     tag,
+                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                     null));
          for (CSVRecord csvRecord : csvParser) {
             final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
-                                                                  tag,
-                                                                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                                                  new Interaction(null,
-                                                                                  CustomAsyncHelper.customSourceId(csvRecord),
-                                                                                  CustomAsyncHelper.customUniqueInteractionData(
-                                                                                        csvRecord),
-                                                                                  CustomAsyncHelper.customDemographicData(
-                                                                                        csvRecord)));
+                  tag,
+                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                  new Interaction(null,
+                        CustomAsyncHelper.customSourceId(csvRecord),
+                        CustomAsyncHelper.customUniqueInteractionData(
+                              csvRecord),
+                        CustomAsyncHelper.customDemographicData(
+                              csvRecord),
+                        linkerConfig));
 
             sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
          }
          sendToKafka(uuid,
-                     new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
-                                            tag,
-                                            String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                            null));
+               new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
+                     tag,
+                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                     null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -142,15 +144,33 @@ public final class Main {
          Path filename = ev.context();
          String name = filename.toString();
          LOGGER.info("A new file {} was created", filename);
-         if (name.endsWith(".csv")) {
-            LOGGER.info("Process CSV file: {}", filename);
-            apacheReadCSV("csv/" + filename);
+         if (name.endsWith(".txt")) {
+            LOGGER.info("Start reading txt: {}", filename);
+            String txtFilePath = "txt/" + filename;
+            try {
+               LinkConfig config = readAndRemoveFirstLine(txtFilePath);
+               Path path = Paths.get(txtFilePath);
+               Path newFilePath = path.resolveSibling(path.getFileName().toString().replace(".txt", ".csv"));
+               String newFilePathString = newFilePath.toString();
+               apacheReadCSV(newFilePathString, config);
+            } catch (IOException e) {
+               e.printStackTrace();
+            }
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       } else if (ENTRY_DELETE.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       }
+   }
+
+   private LinkConfig readAndRemoveFirstLine(String txtFilePath) throws IOException {
+      Path path = Paths.get(txtFilePath);
+      List<String> lines = Files.readAllLines(path);
+      String firstLine = lines.get(0);
+      lines.remove(0);
+      Files.write(path, lines);
+      return LinkConfig.fromString(firstLine);
    }
 
    private Serializer<String> keySerializer() {
@@ -164,13 +184,13 @@ public final class Main {
    private void run() throws InterruptedException, ExecutionException, IOException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                         GlobalConstants.TOPIC_INTERACTION_ETL,
-                                                         keySerializer(),
-                                                         valueSerializer(),
-                                                         AppConfig.KAFKA_CLIENT_ID);
+            GlobalConstants.TOPIC_INTERACTION_ETL,
+            keySerializer(),
+            valueSerializer(),
+            AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-         final var csvDir = Path.of("./csv");
-         csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+         final var tempTxtDir = Path.of("./txt");
+         tempTxtDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
          for (;;) {
             WatchKey key = watchService.take();
             for (WatchEvent<?> event : key.pollEvents()) {
