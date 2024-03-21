@@ -31,27 +31,14 @@ object CustomLinkerProbabilistic {
     writer.println(s"""package $packageText;""")
     writer.println(
       s"""
-         |import org.apache.logging.log4j.LogManager;
-         |import org.apache.logging.log4j.Logger;
+         |import org.jembi.jempi.shared.config.Config;
          |import org.jembi.jempi.shared.models.CustomMU;
-         |import org.jembi.jempi.shared.models.DemographicData;
          |
-         |import java.util.Arrays;
+         |import java.util.Collections;
          |import java.util.List;
-         |
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.EXACT_SIMILARITY;
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JACCARD_SIMILARITY;
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_SIMILARITY;
-         |import static org.jembi.jempi.linker.backend.LinkerProbabilistic.JARO_WINKLER_SIMILARITY;
-         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |final class $custom_className {
          |
-         |   private static final Logger LOGGER = LogManager.getLogger(${custom_className}.class);
-         |   static final int METRIC_MIN = 0;
-         |   static final int METRIC_MAX = 1;
-         |   static final int METRIC_SCORE = 2;
-         |   static final int METRIC_MISSING_PENALTY = 3;
          |   static final boolean PROBABILISTIC_DO_LINKING = ${
         if (config.demographicFields.exists(x => x.linkMetaData.isDefined)) "true"
         else "false"
@@ -59,40 +46,44 @@ object CustomLinkerProbabilistic {
          |   static final boolean PROBABILISTIC_DO_VALIDATING = ${if (config.demographicFields.exists(x => x.validateMetaData.isDefined)) "true" else "false"};
          |   static final boolean PROBABILISTIC_DO_MATCHING = ${if (config.demographicFields.exists(x => x.matchMetaData.isDefined)) "true" else "false"};
          |
-         |${if (linkMuList.isEmpty) "" else "   static LinkFields updatedLinkFields = null;"}
-         |${if (validateMuList.isEmpty) "" else "   static ValidateFields updatedValidateFields = null;"}
-         |${if (matchNotificationMuList.isEmpty) "" else "   static MatchNotificationFields updatedMatchNotificationFields = null;"}
          |
          |   private $custom_className() {
          |   }
          |""".stripMargin)
 
+    //         |${if (linkMuList.isEmpty) "" else "   static LinkFields updatedLinkFields = null;"}
+    //         |${if (validateMuList.isEmpty) "" else "   static ValidateFields updatedValidateFields = null;"}
+    //         |${if (matchNotificationMuList.isEmpty) "" else "   static MatchNotificationFields updatedMatchNotificationFields = null;"}
+
+
     // generateGetMU()
-    if (!linkMuList.isEmpty) {
-      generateFieldsRecord("LinkFields", linkMuList)
-    }
-    if (!validateMuList.isEmpty) {
-      generateFieldsRecord("ValidateFields", validateMuList)
-    }
-    if (!matchNotificationMuList.isEmpty) {
-      generateFieldsRecord("MatchNotificationFields", matchNotificationMuList)
-    }
+//    if (!linkMuList.isEmpty) {
+//      generateFieldsRecord("LinkFields", linkMuList)
+//    }
+//    if (!validateMuList.isEmpty) {
+//      generateFieldsRecord("ValidateFields", validateMuList)
+//    }
+//    if (!matchNotificationMuList.isEmpty) {
+//      generateFieldsRecord("MatchNotificationFields", matchNotificationMuList)
+//    }
+//
+//    if (!linkMuList.isEmpty) {
+//      generateCurrentFields("LinkFields", "currentLinkFields", true, linkMuList)
+//    }
+//    if (!validateMuList.isEmpty) {
+//      generateCurrentFields("ValidateFields", "currentValidateFields", false, validateMuList)
+//    }
+//    if (!matchNotificationMuList.isEmpty) {
+//      generateCurrentFields("MatchNotificationFields", "currentMatchNotificationFields", false, matchNotificationMuList)
+//    }
 
-    if (!linkMuList.isEmpty) {
-      generateCurrentFields("LinkFields", "currentLinkFields", true, linkMuList)
-    }
-    if (!validateMuList.isEmpty) {
-      generateCurrentFields("ValidateFields", "currentValidateFields", false, validateMuList)
-    }
-    if (!matchNotificationMuList.isEmpty) {
-      generateCurrentFields("MatchNotificationFields", "currentMatchNotificationFields", false, matchNotificationMuList)
-    }
-
-    linkProbabilisticScore()
-    validateProbabilisticScore()
-    matchNotificationProbabilisticScore()
-    updateMU()
-    checkUpdatedMU()
+//    linkProbabilisticScore()
+//    validateProbabilisticScore()
+//    matchNotificationProbabilisticScore()
+    toLinkProbabilisticFieldList()
+    toValidateProbabilisticFieldList()
+    toMatchProbabilisticFieldList()
+//    checkUpdatedMU()
 
     writer.println("}")
     writer.flush()
@@ -249,159 +240,181 @@ object CustomLinkerProbabilistic {
       writer.println("   }")
     end matchNotificationProbabilisticScore
 
-    def updateMU(): Unit =
-      writer.println("   public static void updateMU(final CustomMU mu) {")
-      if (!linkMuList.isEmpty)
-        linkMuList.zipWithIndex.foreach((field, idx) =>
-                                        val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-                                        if (idx == 0)
-                                          writer.print(" " * 6 + s"if (mu.customLinkMU().$fieldName().m() > mu.customLinkMU().$fieldName().u()")
-                                        else
-                                          writer.print(" " * 10 + s"&& mu.customLinkMU().$fieldName().m() > mu.customLinkMU().$fieldName().u()")
-                                        end if
-                                        if (idx + 1 < linkMuList.length)
-                                          writer.println()
-                                        else
-                                          writer.println(") {")
-                                        end if
-                                      )
-        writer.println(" " * 9 + "updatedLinkFields = new LinkFields(")
-        linkMuList.zipWithIndex.foreach((field, idx) =>
-                                          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-                                          val comparison = field.linkMetaData.get.comparison
-                                          val comparisonLevels = field.linkMetaData.get.comparisonLevels
-
-                                          def extractComparisonList(levels: List[Double]): String = {
-                                            levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
-                                          }
-
-                                          writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${
-                                            if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
-                                          }${extractComparisonList(comparisonLevels)}), mu.customLinkMU().$fieldName().m(), mu.customLinkMU().$fieldName().u())")
-                                          if (idx + 1 < linkMuList.length)
-                                            writer.println(",")
-                                          else
-                                            writer.println(");")
-                                          end if
-                                        )
-        writer.println(" " * 6 + "}")
+    def toLinkProbabilisticFieldList(): Unit =
+      writer.println("   static List<LinkerProbabilistic.ProbabilisticField> toLinkProbabilisticFieldList(final CustomMU.CustomLinkMU mu) {")
+      if (linkMuList.length > 0)
+         linkMuList.zipWithIndex.foreach((field, idx) =>
+                                           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                           if (idx == 0)
+                                             writer.print(" " * 6 + s"if (mu.$fieldName().m() > mu.$fieldName().u()")
+                                           else
+                                             writer.print(" " * 10 + s"&& mu.$fieldName().m() > mu.$fieldName().u()")
+                                           end if
+                                           if (idx + 1 < linkMuList.length)
+                                             writer.println()
+                                           else
+                                             writer.println(") {")
+                                           end if
+                                         )
+           writer.println(" " * 9 + "return List.of(")
+           linkMuList.zipWithIndex.foreach((field, idx) =>
+                                             val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                             writer.print(
+                                               s"""${" " * 12}new LinkerProbabilistic
+                                                  |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get($idx)
+                                                  |${" " * 15}                                                                                                   .similarityScore()),
+                                                  |${" " * 15}                     Config.LINKER.probabilisticLinkFields.get($idx).comparisonLevels(),
+                                                  |${" " * 15}                     mu.$fieldName().m(),
+                                                  |${" " * 15}                     mu.$fieldName().u())""".stripMargin)
+                                             if (idx + 1 < linkMuList.length)
+                                               writer.println(",")
+                                             else
+                                               writer.println(");")
+                                             end if
+                                           )
+           writer.println(
+             s"""      } else {
+                |         return Collections.emptyList();
+                |      }
+                |    }
+                |""".stripMargin)
+      else
+        writer.println(
+          s"""      return Collections.emptyList();
+             |   }
+             |""".stripMargin)
       end if
+    end toLinkProbabilisticFieldList
 
-      if (!validateMuList.isEmpty)
+    def toValidateProbabilisticFieldList(): Unit =
+      writer.println("   static List<LinkerProbabilistic.ProbabilisticField> toValidateProbabilisticFieldList(final CustomMU.CustomValidateMU mu) {")
+      if (validateMuList.length > 0)
         validateMuList.zipWithIndex.foreach((field, idx) =>
-                                          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-                                          if (idx == 0)
-                                            writer.print(" " * 6 + s"if (mu.customValidateMU().$fieldName().m() > mu.customValidateMU().$fieldName().u()")
-                                          else
-                                            writer.print(" " * 10 + s"&& mu.customValidateMU().$fieldName().m() > mu.customValidateMU().$fieldName().u()")
-                                          end if
-                                          if (idx + 1 < validateMuList.length)
-                                            writer.println()
-                                          else
-                                            writer.println(") {")
-                                          end if
-                                        )
-        writer.println(" " * 9 + "updatedValidateFields = new ValidateFields(")
-        validateMuList.zipWithIndex.foreach((field, idx) =>
-                                          val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-                                          val comparison = field.validateMetaData.get.comparison
-                                          val comparisonLevels = field.validateMetaData.get.comparisonLevels
+                                           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                           if (idx == 0)
+                                             writer.print(" " * 6 + s"if (mu.$fieldName().m() > mu.$fieldName().u()")
+                                           else
+                                             writer.print(" " * 10 + s"&& mu.$fieldName().m() > mu.$fieldName().u()")
+                                           end if
+                                           if (idx + 1 < validateMuList.length)
+                                             writer.println()
+                                           else
+                                             writer.println(") {")
+                                           end if
+                                         )
+         writer.println(" " * 9 + "return List.of(")
+         validateMuList.zipWithIndex.foreach((field, idx) =>
+                                           val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                           writer.print(
+                                             s"""${" " * 12}new LinkerProbabilistic
+                                                |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticValidateFields.get($idx)
+                                                |${" " * 15}                                                                                                       .similarityScore()),
+                                                |${" " * 15}                     Config.LINKER.probabilisticValidateFields.get($idx).comparisonLevels(),
+                                                |${" " * 15}                     mu.$fieldName().m(),
+                                                |${" " * 15}                     mu.$fieldName().u())""".stripMargin)
+                                           if (idx + 1 < validateMuList.length)
+                                             writer.println(",")
+                                           else
+                                             writer.println(");")
+                                           end if
+                                         )
 
-                                          def extractComparisonList(levels: List[Double]): String = {
-                                            levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
-                                          }
-
-                                          writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${
-                                            if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
-                                          }${extractComparisonList(comparisonLevels)}), mu.customValidateMU().$fieldName().m(), mu.customValidateMU().$fieldName().u())")
-                                          if (idx + 1 < validateMuList.length)
-                                            writer.println(",")
-                                          else
-                                            writer.println(");")
-                                          end if
-                                        )
-        writer.println(" " * 6 + "}")
+         writer.println(s"""
+         |     } else {
+         |        return Collections.emptyList();
+         |     }
+         |   }
+         |""".stripMargin)
+      else
+        writer.println(
+          s"""      return Collections.emptyList();
+            |   }
+          |""".stripMargin)
       end if
+    end toValidateProbabilisticFieldList
 
-      if (!matchNotificationMuList.isEmpty)
-        matchNotificationMuList.zipWithIndex.foreach((field, idx) =>
-                                              val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-                                              if (idx == 0)
-                                                writer.print(" " * 6 + s"if (mu.customMatchMU().$fieldName().m() > mu.customMatchMU().$fieldName().u()")
-                                              else
-                                                writer.print(" " * 10 + s"&& mu.customMatchMU().$fieldName().m() > mu.customMatchMU().$fieldName().u()")
-                                              end if
-                                              if (idx + 1 < matchNotificationMuList.length)
-                                                writer.println()
-                                              else
-                                                writer.println(") {")
-                                              end if
-                                            )
-        writer.println(" " * 9 + "updatedMatchNotificationFields = new MatchNotificationFields(")
-        matchNotificationMuList.zipWithIndex.foreach((field, idx) =>
-                                              val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
-                                              val comparison = field.matchMetaData.get.comparison
-                                              val comparisonLevels = field.matchMetaData.get.comparisonLevels
-
-                                              def extractComparisonList(levels: List[Double]): String = {
-                                                levels.map(level => s""" ${level.toString}F""".stripMargin).mkString(",").trim
-                                              }
-
-                                              writer.print(" " * 12 + s"new LinkerProbabilistic.Field($comparison, ${
-                                                if (comparisonLevels.length == 1) "List.of(" else "Arrays.asList("
-                                              }${extractComparisonList(comparisonLevels)}), mu.customMatchMU().$fieldName().m(), mu.customMatchMU().$fieldName().u())")
-                                              if (idx + 1 < matchNotificationMuList.length)
-                                                writer.println(",")
-                                              else
-                                                writer.println(");")
-                                              end if
-                                            )
-        writer.println(" " * 6 + "}")
-      end if
-
-
-      writer.println("   }")
-      writer.println()
-
-    end updateMU
-
+    def toMatchProbabilisticFieldList(): Unit =
+       writer.println("   static List<LinkerProbabilistic.ProbabilisticField> toMatchProbabilisticFieldList(final CustomMU.CustomMatchMU mu) {")
+       if (matchNotificationMuList.length > 0)
+          matchNotificationMuList.zipWithIndex.foreach((field, idx) =>
+                                                val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                                if (idx == 0)
+                                                  writer.print(" " * 6 + s"if (mu.$fieldName().m() > mu.$fieldName().u()")
+                                                else
+                                                  writer.print(" " * 10 + s"&& mu.$fieldName().m() > mu.$fieldName().u()")
+                                                end if
+                                                if (idx + 1 < matchNotificationMuList.length)
+                                                  writer.println()
+                                                else
+                                                  writer.println(") {")
+                                                end if
+                                              )
+          writer.println(" " * 9 + "return List.of(")
+          matchNotificationMuList.zipWithIndex.foreach((field, idx) =>
+                                                val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+                                                writer.print(
+                                                  s"""${" " * 12}new LinkerProbabilistic
+                                                     |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticMatchNotificationFields.get($idx)
+                                                     |${" " * 15}                                                                                                                .similarityScore()),
+                                                     |${" " * 15}                     Config.LINKER.probabilisticMatchNotificationFields.get($idx).comparisonLevels(),
+                                                     |${" " * 15}                     mu.$fieldName().m(),
+                                                     |${" " * 15}                     mu.$fieldName().u())""".stripMargin)
+                                                if (idx + 1 < matchNotificationMuList.length)
+                                                  writer.println(",")
+                                                else
+                                                  writer.println(");")
+                                                end if
+                                              )
+          writer.println(s"""
+               |     } else {
+               |        return Collections.emptyList();
+               |     }
+               |   }
+               |""".stripMargin)
+       else
+         writer.println(
+           s"""      return Collections.emptyList();
+              |   }
+              |""".stripMargin)
+       end if
+    end toMatchProbabilisticFieldList
 
     def checkUpdatedMU(): Unit =
-
-      def generateCode(): String =
-        val s1 = (if (linkMuList.length > 0)
-          s"""      if (updatedLinkFields != null) {
-              |         LOGGER.info("Using updated Link MU values: {}", updatedLinkFields);
-              |         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
-              |         updatedLinkFields = null;
-              |     }
-              |""".stripMargin else "")
-
-        val s2 = (if (validateMuList.length > 0)
-          s"""     if (updatedValidateFields != null) {
-             |         LOGGER.info("Using updated Validate MU values: {}", updatedValidateFields);
-             |         CustomLinkerProbabilistic.currentValidateFields = updatedValidateFields;
-             |         updatedValidateFields = null;
-             |     }
-             |""".stripMargin else "")
-
-        val s3 = (if (matchNotificationMuList.length > 0)
-          s"""     if (updatedMatchNotificationFields != null) {
-             |         LOGGER.info("Using updated MatchNotification MU values: {}", updatedMatchNotificationFields);
-             |         CustomLinkerProbabilistic.currentMatchNotificationFields = updatedMatchNotificationFields;
-             |         updatedMatchNotificationFields = null;
-             |     }""".stripMargin else "")
-
-        s1 + s2 + s3
-      end generateCode
-
-      writer.println(
-        s"""   public static void checkUpdatedLinkMU() {
-           |${if (linkMuList.length > 0) generateCode() else ""}
-           |   }
-           |""".stripMargin)
-    end checkUpdatedMU
-
-  }
+    
+        def generateCode(): String =
+          val s1 = (if (linkMuList.length > 0)
+            s"""      if (updatedLinkFields != null) {
+                |         LOGGER.info("Using updated Link MU values: {}", updatedLinkFields);
+                |         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
+                |         updatedLinkFields = null;
+                |     }
+                |""".stripMargin else "")
+    
+          val s2 = (if (validateMuList.length > 0)
+            s"""     if (updatedValidateFields != null) {
+               |         LOGGER.info("Using updated Validate MU values: {}", updatedValidateFields);
+               |         CustomLinkerProbabilistic.currentValidateFields = updatedValidateFields;
+               |         updatedValidateFields = null;
+               |     }
+               |""".stripMargin else "")
+    
+          val s3 = (if (matchNotificationMuList.length > 0)
+            s"""     if (updatedMatchNotificationFields != null) {
+               |         LOGGER.info("Using updated MatchNotification MU values: {}", updatedMatchNotificationFields);
+               |         CustomLinkerProbabilistic.currentMatchNotificationFields = updatedMatchNotificationFields;
+               |         updatedMatchNotificationFields = null;
+               |     }""".stripMargin else "")
+    
+          s1 + s2 + s3
+        end generateCode
+    
+        writer.println(
+          s"""   public static void checkUpdatedLinkMU() {
+             |${if (linkMuList.length > 0) generateCode() else ""}
+             |   }
+             |""".stripMargin)
+      end checkUpdatedMU
+    
+    }
 
 }

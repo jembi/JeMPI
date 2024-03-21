@@ -12,16 +12,35 @@ public final class LinkerUtils {
    private LinkerUtils() {
    }
 
-   public static float calcNormalizedScore(
+
+   public static float calcNormalizedMatchScore(
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      if (CustomLinkerDeterministic.matchNotificationDeterministicMatch(goldenRecord, interaction)) {
+         return 1.0F;
+      }
+      return LinkerProbabilistic.matchProbabilisticScore(goldenRecord, interaction);
+   }
+
+   public static float calcNormalizedValidateScore(
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      if (CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord, interaction)) {
+         return 1.0F;
+      }
+      return LinkerProbabilistic.validateProbabilisticScore(goldenRecord, interaction);
+   }
+
+   public static float calcNormalizedLinkScore(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
       if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
-      return CustomLinkerProbabilistic.linkProbabilisticScore(goldenRecord, interaction);
+      return LinkerProbabilistic.linkProbabilisticScore(goldenRecord, interaction);
    }
 
-   public static LinkingRule determineLinkingRule(
+   public static LinkingRule determineLinkRule(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
       if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
@@ -29,4 +48,15 @@ public final class LinkerUtils {
       }
       return LinkingRule.PROBABILISTIC;
    }
+
+   public static LinkingRule determineMatchRule(
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      if (CustomLinkerDeterministic.matchNotificationDeterministicMatch(goldenRecord, interaction)) {
+         return LinkingRule.DETERMINISTIC;
+      }
+      return LinkingRule.PROBABILISTIC;
+   }
+
+
 }

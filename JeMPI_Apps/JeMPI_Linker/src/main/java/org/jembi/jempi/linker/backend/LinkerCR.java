@@ -51,8 +51,8 @@ final class LinkerCR {
          return candidates.parallelStream()
                           .unordered()
                           .map(candidate -> new WorkCandidate(candidate,
-                                                              LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                              demographicData)))
+                                                              LinkerUtils.calcNormalizedLinkScore(candidate.demographicData(),
+                                                                                                  demographicData)))
                           .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                           .filter(x -> x.score >= candidateThreshold)
                           .map(x -> x.goldenRecord)

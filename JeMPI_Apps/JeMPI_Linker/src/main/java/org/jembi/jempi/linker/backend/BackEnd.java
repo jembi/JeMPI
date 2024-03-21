@@ -243,7 +243,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       final var scores = goldenRecords.parallelStream()
                                       .unordered()
                                       .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                             LinkerUtils.calcNormalizedScore(
+                                                                                                             LinkerUtils.calcNormalizedLinkScore(
                                                                                                                    goldenRecord.demographicData(),
                                                                                                                    interaction.demographicData())))
                                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
@@ -255,7 +255,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
 
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
-      CustomLinkerProbabilistic.updateMU(req.mu);
+      LinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
@@ -295,9 +295,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record RunStartStopHooksRequest(
-           ActorRef<RunStartStopHooksResponse> replyTo,
-           String key,
-           InteractionEnvelop batchInteraction) implements Request {
+         ActorRef<RunStartStopHooksResponse> replyTo,
+         String key,
+         InteractionEnvelop batchInteraction) implements Request {
    }
 
    public record RunStartStopHooksResponse(List<MpiGeneralError> hooksResults) implements Response {

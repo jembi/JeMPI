@@ -51,8 +51,8 @@ public final class Main {
    private void run() {
       LOGGER.info("KAFKA: {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       try {
-         final var json = OBJECT_MAPPER.writeValueAsString(Config.INPUT_INTERFACE);
-         LOGGER.info("Input Interface Config: {}", json);
+         final var json = OBJECT_MAPPER.writeValueAsString(Config.LINKER);
+         LOGGER.info("Linker Config: {}", json);
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
