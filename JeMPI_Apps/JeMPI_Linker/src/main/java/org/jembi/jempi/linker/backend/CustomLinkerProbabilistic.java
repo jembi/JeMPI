@@ -2,8 +2,8 @@ package org.jembi.jempi.linker.backend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,8 +53,8 @@ final class CustomLinkerProbabilistic {
          new LinkerProbabilistic.Field(JARO_WINKLER_SIMILARITY, List.of(0.92F), 0.8441029F, 2.0E-7F));
 
    static float linkProbabilisticScore(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
       LinkerProbabilistic.updateMetricsForStringField(metrics,
@@ -76,14 +76,14 @@ final class CustomLinkerProbabilistic {
    }
 
    static float validateProbabilisticScore(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       return 0.0F;
    }
 
    static float matchNotificationProbabilisticScore(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       return 0.0F;
    }
    public static void updateMU(final CustomMU mu) {

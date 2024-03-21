@@ -115,7 +115,36 @@ public final class LinkerDWH {
       });
    }
 
-   // +
+   private static void updateGoldenRecordFields(
+         final LibMPI libMPI,
+         final float threshold,
+         final String interactionId,
+         final String goldenId) {
+      final var expandedGoldenRecord = libMPI.findExpandedGoldenRecords(List.of(goldenId)).getFirst();
+      final var goldenRecord = expandedGoldenRecord.goldenRecord();
+      final var demographicData = goldenRecord.demographicData();
+      var k = 0;
+
+      for (int f = 0; f < demographicData.fields.size(); f++) {
+         final int finalF = f;
+         k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
+                                                      demographicData.fields.get(finalF).tag(),
+                                                      demographicData.fields.get(finalF).value(),
+                                                      expandedGoldenRecord.interactionsWithScore()
+                                                                          .stream()
+                                                                          .map(rec -> rec
+                                                                                .interaction()
+                                                                                .demographicData().fields.get(finalF)
+                                                                                                         .value()))
+               ? 1
+               : 0;
+      }
+      if (k > 0) {
+         LinkerDWH.helperUpdateInteractionsScore(libMPI, threshold, expandedGoldenRecord);
+      }
+
+   }
+
    public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
@@ -153,12 +182,12 @@ public final class LinkerDWH {
                final var workCandidate = candidates.parallelStream()
                                                    .unordered()
                                                    .map(candidate -> new WorkCandidate(candidate,
-                                                      LinkerUtils.calcNormalizedScore(
-                                                              candidate.demographicData(),
-                                                              interaction.demographicData()),
-                                                      LinkerUtils.determineLinkingRule(
-                                                              candidate.demographicData(),
-                                                              interaction.demographicData())
+                                                                                       LinkerUtils.calcNormalizedScore(
+                                                                                             candidate.demographicData(),
+                                                                                             interaction.demographicData()),
+                                                                                       LinkerUtils.determineLinkingRule(
+                                                                                             candidate.demographicData(),
+                                                                                             interaction.demographicData())
                                                    ))
                                                    .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                                                    .collect(Collectors.toCollection(ArrayList::new))
@@ -201,8 +230,8 @@ public final class LinkerDWH {
                                                                candidate.demographicData(),
                                                                interaction.demographicData()),
                                                          LinkerUtils.determineLinkingRule(
-                                                                 candidate.demographicData(),
-                                                                 interaction.demographicData())
+                                                               candidate.demographicData(),
+                                                               interaction.demographicData())
                      ))
                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                      .collect(Collectors.toCollection(ArrayList::new));
@@ -289,10 +318,10 @@ public final class LinkerDWH {
                                                                  .collect(Collectors.toCollection(ArrayList::new)));
                   }
                   if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
-                     CustomLinkerBackEnd.updateGoldenRecordFields(libMPI,
-                                                                  matchThreshold,
-                                                                  linkInfo.interactionUID(),
-                                                                  linkInfo.goldenUID());
+                     updateGoldenRecordFields(libMPI,
+                                              matchThreshold,
+                                              linkInfo.interactionUID(),
+                                              linkInfo.goldenUID());
                   }
                   final var marginCandidates = new ArrayList<Notification.MatchData>();
                   if (candidatesInExternalLinkRange.isEmpty() && candidatesAboveMatchThreshold.size() > 1) {

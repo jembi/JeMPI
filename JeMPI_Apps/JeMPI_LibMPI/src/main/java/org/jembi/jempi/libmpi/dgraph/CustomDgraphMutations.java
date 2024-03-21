@@ -2,7 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
@@ -17,7 +17,7 @@ final class CustomDgraphMutations {
 
    static String createInteractionTriple(
          final CustomUniqueInteractionData uniqueInteractionData,
-         final CustomDemographicData demographicData,
+         final DemographicData demographicData,
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
       return String.format(Locale.ROOT,
@@ -51,7 +51,7 @@ final class CustomDgraphMutations {
 
    static String createLinkedGoldenRecordTriple(
          final CustomUniqueGoldenRecordData uniqueGoldenRecordData,
-         final CustomDemographicData demographicData,
+         final DemographicData demographicData,
          final String interactionUID,
          final String sourceUID,
          final float score) {

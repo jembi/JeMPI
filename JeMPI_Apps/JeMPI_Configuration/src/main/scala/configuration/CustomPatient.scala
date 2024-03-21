@@ -52,10 +52,9 @@ private object CustomPatient {
          |
          |import java.util.ArrayList;
          |import java.util.Arrays;
-         |import java.util.List;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
-         |public class $customClassNameCustomDemographicData {
+         |public final class $customClassNameCustomDemographicData {
          |
          |""".stripMargin)
     config.demographicFields.zipWithIndex.foreach { case (field, i) =>
@@ -65,29 +64,10 @@ private object CustomPatient {
     }
     writer.println(
       s"""
-         |    public final List<Field> fields;
-         |   
-         |    public $customClassNameCustomDemographicData() {
-         |        fields = new ArrayList<>();
+         |    private $customClassNameCustomDemographicData() {
          |    }
-         |
-         |    public $customClassNameCustomDemographicData(final $customClassNameCustomDemographicData demographicData) {
-         |        fields = demographicData.fields.stream().toList();
-         |    }
-         |
-         |    private CustomDemographicData(final List<Field> fields) {
-         |        this.fields = fields;
-         |    }
-         |
-         |    public CustomDemographicData clean() {
-         |        return new CustomDemographicData(fields.stream()
-         |                                               .map(x -> new Field(x.tag, x.value.trim()
-         |                                                                                 .toLowerCase()
-         |                                                                                 .replaceAll("\\\\W", "")))
-         |                                               .toList());
-         |    }
-         |
-         |    public $customClassNameCustomDemographicData(""".stripMargin
+         |    
+         |    public static DemographicData fromCustomDemographicFields(""".stripMargin
     )
     config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
       val typeString = field.fieldType
@@ -98,22 +78,55 @@ private object CustomPatient {
                        }""".stripMargin)
     }
     writer.println(
-      s"""      fields = new ArrayList<>(Arrays.asList(""".stripMargin
+      s"""      return new DemographicData(new ArrayList<>(Arrays.asList(""".stripMargin
     )
     config.demographicFields.zipWithIndex.foreach { case (field, i) =>
       val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
       writer.println(
-        s"""${" " * indent * 3}new Field("$fieldName", $fieldName)${
-            if (i < config.demographicFields.length - 1) ',' else "));"
+        s"""${" " * indent * 3}new DemographicData.Field("$fieldName", $fieldName)${
+            if (i < config.demographicFields.length - 1) ',' else ")));"
           }""".stripMargin
       )
     }
-    writer.print(s"""    }
+    writer.print(s"""    }""")
+
+    writer.print(s"""
          |
-         |   public record Field(
-         |         String tag,
-         |         String value) {
+         |    @JsonInclude(JsonInclude.Include.NON_NULL)
+         |    public static class ${customClassNameCustomDemographicData}API {
+         |""".stripMargin)
+    config.demographicFields.zipWithIndex.foreach { case (field, _) =>
+      val typeString = field.fieldType
+      val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
+      writer.println(
+        s"""        public final $typeString $fieldName;"""
+      )
+    }
+
+    writer.print(s"""
+         |      public CustomDemographicDataAPI(
+         |            final String givenName,
+         |            final String familyName,
+         |            final String gender,
+         |            final String dob,
+         |            final String city,
+         |            final String phoneNumber,
+         |            final String nationalId) {
+         |         this.givenName = givenName;
+         |         this.familyName = familyName;
+         |         this.gender = gender;
+         |         this.dob = dob;
+         |         this.city = city;
+         |         this.phoneNumber = phoneNumber;
+         |         this.nationalId = nationalId;
+         |      }
+         |
+         |      public CustomDemographicDataAPI() {
+         |         this(${"null, " * (config.demographicFields.length - 1)}null);
+         |      }
+         |
          |   }
+         |
          |}
          |""".stripMargin)
     writer.flush()

@@ -43,7 +43,7 @@ final class LinkerCR {
    private static List<GoldenRecord> crMatchedCandidates(
          final LibMPI libMPI,
          final float candidateThreshold,
-         final CustomDemographicData demographicData) {
+         final DemographicData demographicData) {
       final var candidates = libMPI.findLinkCandidates(demographicData);
       if (candidates.isEmpty()) {
          return List.of();
@@ -64,7 +64,7 @@ final class LinkerCR {
       return new Interaction(interaction.interactionId(),
                              interaction.sourceId(),
                              interaction.uniqueInteractionData(),
-                             new CustomDemographicData(interaction.demographicData()));
+                             new DemographicData(interaction.demographicData()));
    }
 
    static Either<MpiGeneralError, LinkInfo> crRegister(

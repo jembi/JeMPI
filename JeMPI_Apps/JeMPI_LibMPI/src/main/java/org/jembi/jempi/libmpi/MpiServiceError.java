@@ -1,6 +1,6 @@
 package org.jembi.jempi.libmpi;
 
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.List;
 
@@ -36,8 +36,8 @@ public sealed interface MpiServiceError extends MpiGeneralError {
    }
 
    record CRClientExistsError(
-         List<CustomDemographicData> exists,
-         CustomDemographicData request) implements MpiServiceError {
+         List<DemographicData> exists,
+         DemographicData request) implements MpiServiceError {
    }
 
    record CRUpdateFieldError(

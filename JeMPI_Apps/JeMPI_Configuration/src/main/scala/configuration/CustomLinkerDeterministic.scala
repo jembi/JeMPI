@@ -20,7 +20,7 @@ object CustomLinkerDeterministic {
     def emitCanApplyLinking(rules: Map[String, Rule]): Unit = {
       writer.print(
         s"""   static boolean canApplyLinking(
-           |         final CustomDemographicData interaction) {
+           |         final DemographicData interaction) {
            |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin
       )
       rules.zipWithIndex.foreach((rule, rule_idx) => {
@@ -84,8 +84,8 @@ object CustomLinkerDeterministic {
       }
 
       writer.println(s"""   static boolean $funcName(
-           |         final CustomDemographicData goldenRecord,
-           |         final CustomDemographicData interaction) {""".stripMargin)
+           |         final DemographicData goldenRecord,
+           |         final DemographicData interaction) {""".stripMargin)
 
       if (map.isEmpty) {
         writer.println(s"""      return false;
@@ -129,8 +129,7 @@ object CustomLinkerDeterministic {
       s"""package $packageText;
          |
          |import org.apache.commons.lang3.StringUtils;
-         |
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.DemographicData;
          |
          |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |

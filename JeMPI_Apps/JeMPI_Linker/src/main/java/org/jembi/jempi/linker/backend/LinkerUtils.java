@@ -2,7 +2,7 @@ package org.jembi.jempi.linker.backend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.LinkingRule;
 
 public final class LinkerUtils {
@@ -13,8 +13,8 @@ public final class LinkerUtils {
    }
 
    public static float calcNormalizedScore(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
@@ -22,11 +22,11 @@ public final class LinkerUtils {
    }
 
    public static LinkingRule determineLinkingRule(
-            final CustomDemographicData goldenRecord,
-            final CustomDemographicData interaction) {
-        if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
-            return LinkingRule.DETERMINISTIC;
-        }
-        return LinkingRule.PROBABILISTIC;
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
+         return LinkingRule.DETERMINISTIC;
+      }
+      return LinkingRule.PROBABILISTIC;
    }
 }

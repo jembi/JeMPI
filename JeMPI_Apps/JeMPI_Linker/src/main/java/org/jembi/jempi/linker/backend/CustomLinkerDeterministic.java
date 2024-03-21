@@ -1,8 +1,7 @@
 package org.jembi.jempi.linker.backend;
 
 import org.apache.commons.lang3.StringUtils;
-
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import static org.jembi.jempi.shared.models.CustomDemographicData.*;
 
@@ -22,7 +21,7 @@ final class CustomLinkerDeterministic {
    }
 
    static boolean canApplyLinking(
-         final CustomDemographicData interaction) {
+         final DemographicData interaction) {
       return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
              || StringUtils.isNotBlank(interaction.fields.get(NATIONAL_ID).value())
              || StringUtils.isNotBlank(interaction.fields.get(GIVEN_NAME).value())
@@ -31,8 +30,8 @@ final class CustomLinkerDeterministic {
    }
 
    static boolean linkDeterministicMatch(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       final var nationalIdL = goldenRecord.fields.get(NATIONAL_ID).value();
       final var nationalIdR = interaction.fields.get(NATIONAL_ID).value();
       if (isMatch(nationalIdL, nationalIdR)) {
@@ -48,14 +47,14 @@ final class CustomLinkerDeterministic {
    }
 
    static boolean validateDeterministicMatch(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       return false;
    }
 
    static boolean matchNotificationDeterministicMatch(
-         final CustomDemographicData goldenRecord,
-         final CustomDemographicData interaction) {
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
       return false;
    }
 

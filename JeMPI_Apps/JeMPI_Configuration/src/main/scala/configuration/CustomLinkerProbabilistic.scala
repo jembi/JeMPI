@@ -33,8 +33,8 @@ object CustomLinkerProbabilistic {
       s"""
          |import org.apache.logging.log4j.LogManager;
          |import org.apache.logging.log4j.Logger;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.CustomMU;
+         |import org.jembi.jempi.shared.models.DemographicData;
          |
          |import java.util.Arrays;
          |import java.util.List;
@@ -173,8 +173,8 @@ object CustomLinkerProbabilistic {
     def linkProbabilisticScore(): Unit =
       writer.println(
         """   static float linkProbabilisticScore(
-          |         final CustomDemographicData goldenRecord,
-          |         final CustomDemographicData interaction) {""".stripMargin)
+          |         final DemographicData goldenRecord,
+          |         final DemographicData interaction) {""".stripMargin)
       if (linkMuList.isEmpty)
         writer.println("""      return 0.0F;""".stripMargin)
       else
@@ -200,8 +200,8 @@ object CustomLinkerProbabilistic {
     def validateProbabilisticScore(): Unit =
       writer.println(
         """   static float validateProbabilisticScore(
-          |         final CustomDemographicData goldenRecord,
-          |         final CustomDemographicData interaction) {""".stripMargin)
+          |         final DemographicData goldenRecord,
+          |         final DemographicData interaction) {""".stripMargin)
 
       if (validateMuList.isEmpty)
         writer.println("      return 0.0F;")
@@ -227,8 +227,8 @@ object CustomLinkerProbabilistic {
       writer.println(
         """
           |   static float matchNotificationProbabilisticScore(
-          |         final CustomDemographicData goldenRecord,
-          |         final CustomDemographicData interaction) {""".stripMargin)
+          |         final DemographicData goldenRecord,
+          |         final DemographicData interaction) {""".stripMargin)
       if (matchNotificationMuList.isEmpty)
         writer.println("      return 0.0F;")
       else

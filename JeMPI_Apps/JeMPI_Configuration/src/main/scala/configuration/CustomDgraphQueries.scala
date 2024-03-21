@@ -21,7 +21,7 @@ object CustomDgraphQueries {
          |
          |import io.vavr.Function1;
          |import org.apache.commons.lang3.StringUtils;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.DemographicData;
          |
          |import java.util.LinkedList;
          |import java.util.List;
@@ -29,17 +29,18 @@ object CustomDgraphQueries {
          |
          |
          |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+         |
          |import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
          |
          |final class $custom_className {
          |
-         |   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
+         |   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
          |      List.of(${getDeterministicFunctions(config.rules.link.get)});
          |""".stripMargin)
 
     if (config.rules.matchNotification.isDefined) {
       writer.println(
-        s"""   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+        s"""   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of(${getDeterministicFunctions(
             config.rules.matchNotification.get
           )});
@@ -47,7 +48,7 @@ object CustomDgraphQueries {
       )
     } else {
       writer.println(
-        s"""   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+        s"""   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of();
            |""".stripMargin
       )
@@ -150,7 +151,7 @@ object CustomDgraphQueries {
     ): Unit = {
       writer.println(
         s"""   static List<CustomDgraphGoldenRecord> find${funcQualifier}Candidates(
-           |      final CustomDemographicData interaction) {
+           |      final DemographicData interaction) {
            |      var result = DgraphQueries.deterministicFilter($filterList, interaction);
            |      if (!result.isEmpty()) {
            |         return result;
@@ -213,7 +214,7 @@ object CustomDgraphQueries {
       if (vars.length == 1)
         val v = vars(0)
         writer.println(
-          s"""   private static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {
+          s"""   private static DgraphGoldenRecords $functionName(final DemographicData demographicData) {
              |      if (StringUtils.isBlank(demographicData.fields.get(${v.toUpperCase}).value())) {
              |         return new DgraphGoldenRecords(List.of());
              |      }
@@ -225,7 +226,7 @@ object CustomDgraphQueries {
       else
         val expr = expression(ParseRule.parse(text))
         writer.println(
-          s"   private static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {"
+          s"   private static DgraphGoldenRecords $functionName(final DemographicData demographicData) {"
         )
         vars.foreach(v => {
           val camelCaseVarName = Utils.snakeCaseToCamelCase(v)

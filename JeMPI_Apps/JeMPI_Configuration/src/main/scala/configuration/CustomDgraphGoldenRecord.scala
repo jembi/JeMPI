@@ -37,7 +37,7 @@ private object CustomDgraphGoldenRecord {
          |                                 ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
          |                                 : List.of(),
          |                              new CustomUniqueGoldenRecordData(${uniqueArguments()}),
-         |                              new CustomDemographicData(${demographicArguments()}));
+         |                              CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
          |}
@@ -84,7 +84,7 @@ private object CustomDgraphGoldenRecord {
     def demographicArguments(): String =
       config.demographicFields
         .map(f =>
-          s"""${" " * 56}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),"""
+          s"""${" " * 80}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),"""
         )
         .mkString(sys.props("line.separator"))
         .trim

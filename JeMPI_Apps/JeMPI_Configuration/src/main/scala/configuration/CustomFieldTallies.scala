@@ -120,8 +120,8 @@ private object CustomFieldTallies {
          |
          |   public static CustomFieldTallies map(
          |         final boolean recordsMatch,
-         |         final CustomDemographicData left,
-         |         final CustomDemographicData right) {
+         |         final DemographicData left,
+         |         final DemographicData right) {
          |      return new CustomFieldTallies(${getFieldTally()});
          |   }
          |

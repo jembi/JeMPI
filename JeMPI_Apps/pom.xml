@@ -99,7 +99,7 @@
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin -->
         <version.org.springframework.boot.spring-boot-maven-plugin>
-            3.1.4
+            3.2.3
         </version.org.springframework.boot.spring-boot-maven-plugin>
 
     </properties>
@@ -458,6 +458,7 @@
                 <version>${version.org.apache.maven.plugins.maven-checkstyle-plugin}</version>
             </plugin>
 
+            <!-- this plugin compiles java files -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

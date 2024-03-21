@@ -1,5 +1,6 @@
 package org.jembi.jempi.async_receiver;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
@@ -9,11 +10,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -26,6 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
+import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
 
@@ -65,6 +71,13 @@ public final class Main {
       return in;
    }
 
+   private static DemographicData demographicData(final CSVRecord csvRecord) {
+      return new DemographicData(INPUT_INTERFACE.demographicDataCsvCols.stream()
+                                                                       .map(f -> new DemographicData.Field(AppUtils.snakeToCamelCase(
+                                                                             f.getLeft()), csvRecord.get(f.getRight())))
+                                                                       .toList());
+   }
+
    private void sendToKafka(
          final String key,
          final InteractionEnvelop interactionEnvelop) throws InterruptedException, ExecutionException {
@@ -86,8 +99,7 @@ public final class Main {
       return size;
    }
 
-   private void apacheReadCSV(final String fileName)
-         throws InterruptedException, ExecutionException {
+   private void apacheReadCSV(final String fileName) throws InterruptedException, ExecutionException {
       try {
          final var filePathUri = Paths.get(fileName);
          final var reader = Files.newBufferedReader(filePathUri);
@@ -119,8 +131,7 @@ public final class Main {
                                                                                   CustomAsyncHelper.customSourceId(csvRecord),
                                                                                   CustomAsyncHelper.customUniqueInteractionData(
                                                                                         csvRecord),
-                                                                                  CustomAsyncHelper.customDemographicData(
-                                                                                        csvRecord)));
+                                                                                  demographicData(csvRecord)));
 
             sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
          }
@@ -163,6 +174,12 @@ public final class Main {
 
    private void run() throws InterruptedException, ExecutionException, IOException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
+      try {
+         final var json = OBJECT_MAPPER.writeValueAsString(Config.INPUT_INTERFACE);
+         LOGGER.info("Input Interface Config: {}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ETL,
                                                          keySerializer(),
@@ -171,13 +188,13 @@ public final class Main {
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
          final var csvDir = Path.of("./csv");
          csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
-         for (;;) {
+         do {
             WatchKey key = watchService.take();
             for (WatchEvent<?> event : key.pollEvents()) {
                handleEvent(event);
             }
             key.reset();
-         }
+         } while (true);
       } catch (IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       } catch (InterruptedException e) {

@@ -49,7 +49,7 @@ private object CustomDgraphInteraction {
          |                                   ? this.sourceId().toSourceId()
          |                                   : null,
          |                             new CustomUniqueInteractionData(${uniqueArguments()}),
-         |                             new CustomDemographicData(${demographicArguments()}));
+         |                             CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
          |   InteractionWithScore toInteractionWithScore() {
@@ -118,7 +118,7 @@ private object CustomDgraphInteraction {
     def demographicArguments(): String =
       config.demographicFields
         .map(f =>
-          s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},"""
+          s"""${" " * 79}this.${Utils.snakeCaseToCamelCase(f.fieldName)},"""
         )
         .mkString(sys.props("line.separator"))
         .trim

@@ -1,6 +1,6 @@
 package org.jembi.jempi.libmpi.postgresql;
 
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.UUID;
 
@@ -9,7 +9,7 @@ record NodeInteraction(
       UUID uid,
       InteractionData data) implements Node {
 
-   NodeInteraction(final CustomDemographicData demographicData) {
+   NodeInteraction(final DemographicData demographicData) {
       this(NodeType.INTERACTION, null, new InteractionData(demographicData));
    }
 

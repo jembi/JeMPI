@@ -34,7 +34,7 @@ object CustomLinkerMU {
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
-           |import org.jembi.jempi.shared.models.CustomDemographicData;
+           |import org.jembi.jempi.shared.models.DemographicData;
            |
            |import java.util.Locale;
            |
@@ -82,8 +82,8 @@ object CustomLinkerMU {
            |""".stripMargin)
 
       writer.println(s"""   void updateMatchSums(
-           |         final CustomDemographicData patient,
-           |         final CustomDemographicData goldenRecord) {""".stripMargin)
+           |         final DemographicData patient,
+           |         final DemographicData goldenRecord) {""".stripMargin)
       if (muList.nonEmpty) {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
@@ -98,8 +98,8 @@ object CustomLinkerMU {
       }
 
       writer.println(s"""   void updateMissmatchSums(
-           |         final CustomDemographicData patient,
-           |         final CustomDemographicData goldenRecord) {""".stripMargin)
+           |         final DemographicData patient,
+           |         final DemographicData goldenRecord) {""".stripMargin)
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(

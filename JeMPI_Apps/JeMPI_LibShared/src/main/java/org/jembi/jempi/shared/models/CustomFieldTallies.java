@@ -66,8 +66,8 @@ public record CustomFieldTallies(
 
    public static CustomFieldTallies map(
          final boolean recordsMatch,
-         final CustomDemographicData left,
-         final CustomDemographicData right) {
+         final DemographicData left,
+         final DemographicData right) {
       return new CustomFieldTallies(getFieldTally(recordsMatch, left.fields.get(GIVEN_NAME).value(),
                                                                 right.fields.get(GIVEN_NAME).value()),
                                     getFieldTally(recordsMatch, left.fields.get(FAMILY_NAME).value(),

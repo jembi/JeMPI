@@ -18,7 +18,6 @@ private object CustomAsyncHelper {
     writer.println(s"""package $packageText;
          |
          |import org.apache.commons.csv.CSVRecord;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.CustomSourceId;
          |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
          |
@@ -31,11 +30,6 @@ private object CustomAsyncHelper {
          |
          |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
          |      return new CustomUniqueInteractionData(${customUniqueInteractionArguments()});
-         |   }
-         |
-         |   static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
-         |      return new CustomDemographicData(
-         |${demographicFields()});
          |   }
          |
          |${

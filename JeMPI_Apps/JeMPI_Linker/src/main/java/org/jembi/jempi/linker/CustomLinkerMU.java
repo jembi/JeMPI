@@ -5,7 +5,7 @@ import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.Locale;
 
@@ -52,8 +52,8 @@ public final class CustomLinkerMU {
    }
 
    void updateMatchSums(
-         final CustomDemographicData patient,
-         final CustomDemographicData goldenRecord) {
+         final DemographicData patient,
+         final DemographicData goldenRecord) {
       updateMatchedPair(fields.givenName, patient.fields.get(GIVEN_NAME).value(), goldenRecord.fields.get(GIVEN_NAME).value());
       updateMatchedPair(fields.familyName, patient.fields.get(FAMILY_NAME).value(), goldenRecord.fields.get(FAMILY_NAME).value());
       updateMatchedPair(fields.gender, patient.fields.get(GENDER).value(), goldenRecord.fields.get(GENDER).value());
@@ -65,8 +65,8 @@ public final class CustomLinkerMU {
    }
 
    void updateMissmatchSums(
-         final CustomDemographicData patient,
-         final CustomDemographicData goldenRecord) {
+         final DemographicData patient,
+         final DemographicData goldenRecord) {
       updateUnMatchedPair(fields.givenName, patient.fields.get(GIVEN_NAME).value(), goldenRecord.fields.get(GIVEN_NAME).value());
       updateUnMatchedPair(fields.familyName, patient.fields.get(FAMILY_NAME).value(), goldenRecord.fields.get(FAMILY_NAME).value());
       updateUnMatchedPair(fields.gender, patient.fields.get(GENDER).value(), goldenRecord.fields.get(GENDER).value());

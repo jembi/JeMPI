@@ -7,6 +7,6 @@ public record Interaction(
       String interactionId,
       CustomSourceId sourceId,
       CustomUniqueInteractionData uniqueInteractionData,
-      CustomDemographicData demographicData) {
+      DemographicData demographicData) {
 }
 

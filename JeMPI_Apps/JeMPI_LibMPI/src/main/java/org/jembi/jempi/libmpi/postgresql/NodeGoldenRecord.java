@@ -1,6 +1,6 @@
 package org.jembi.jempi.libmpi.postgresql;
 
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.UUID;
 
@@ -9,7 +9,7 @@ record NodeGoldenRecord(
       UUID uid,
       GoldenRecordData data) implements Node {
 
-   NodeGoldenRecord(final CustomDemographicData demographicData) {
+   NodeGoldenRecord(final DemographicData demographicData) {
       this(NodeType.GOLDEN_RECORD, null, new GoldenRecordData(demographicData));
    }
 

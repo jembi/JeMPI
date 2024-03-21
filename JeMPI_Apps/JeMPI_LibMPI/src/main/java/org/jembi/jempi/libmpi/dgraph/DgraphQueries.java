@@ -239,10 +239,10 @@ final class DgraphQueries {
    }
 
    static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(
-         final List<Function1<CustomDemographicData, DgraphGoldenRecords>> listFunction,
-         final CustomDemographicData interaction) {
+         final List<Function1<DemographicData, DgraphGoldenRecords>> listFunction,
+         final DemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : listFunction) {
+      for (Function1<DemographicData, DgraphGoldenRecords> deterministicFunction : listFunction) {
          final var block = deterministicFunction.apply(interaction);
          if (!block.all().isEmpty()) {
             final var list = block.all();
@@ -363,8 +363,8 @@ final class DgraphQueries {
    }
 
    private static String getSimpleSearchQueryFilters(
-           final RecordType recordType,
-           final List<ApiModels.ApiSearchParameter> parameters) {
+         final RecordType recordType,
+         final List<ApiModels.ApiSearchParameter> parameters) {
       List<String> gqlFilters = new ArrayList<>();
       for (ApiModels.ApiSearchParameter param : parameters) {
          if (!param.value().isEmpty()) {
@@ -373,16 +373,16 @@ final class DgraphQueries {
             String value = param.value();
             if (distance == -1) {
                if (value.contains("_")) {
-                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
-                          + "\") AND le("
-                          + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
+                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0,
+                                                                                                 value.indexOf("_")) + "\") "
+                                 + "AND" + " le(" + recordType + "." + fieldName + ", \"" + value.substring(
+                        value.indexOf("_") + 1) + "\")");
                } else {
                   gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
                }
             } else if (distance == 0) {
                if (value.contains("_")) {
-                  gqlFilters.add(
-                          "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
+                  gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
                } else {
                   gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
                }

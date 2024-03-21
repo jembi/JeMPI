@@ -63,7 +63,7 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrCandidatesRequest(
          Float candidateThreshold,
-         CustomDemographicData demographicData) {
+         DemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -99,7 +99,7 @@ public abstract class ApiModels {
          Float candidateThreshold,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData demographicData) {
+         DemographicData demographicData) {
    }
 
 
@@ -110,7 +110,7 @@ public abstract class ApiModels {
          Float matchThreshold,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData demographicData) {
+         DemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -118,7 +118,7 @@ public abstract class ApiModels {
          String stan,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData demographicData,
+         DemographicData demographicData,
          String gid) {
    }
 
@@ -231,12 +231,12 @@ public abstract class ApiModels {
          String uid,
          List<CustomSourceId> sourceId,
          CustomUniqueGoldenRecordData uniqueGoldenRecordData,
-         CustomDemographicData demographicData) {
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
       static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
                                     goldenRecord.sourceId(),
                                     goldenRecord.customUniqueGoldenRecordData(),
-                                    goldenRecord.demographicData());
+                                    DemographicData.fromCustomDemographicData(goldenRecord.demographicData()));
       }
    }
 
@@ -279,12 +279,12 @@ public abstract class ApiModels {
          String uid,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData demographicData) {
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
                                    interaction.sourceId(),
                                    interaction.uniqueInteractionData(),
-                                   interaction.demographicData());
+                                   DemographicData.fromCustomDemographicData(interaction.demographicData()));
       }
    }
 
@@ -305,18 +305,17 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiAuditTrail(
-           List<LinkingAuditEntry> entries) {
+         List<LinkingAuditEntry> entries) {
 
       @JsonInclude(JsonInclude.Include.NON_NULL)
       public record LinkingAuditEntry(
-             @JsonProperty("inserted_at") String insertedAt,
-             @JsonProperty("created_at") String createdAt,
-             @JsonProperty("interaction_id") String interactionId,
-             @JsonProperty("golden_id") String goldenId,
-             @JsonProperty("entry") String entry,
-             @JsonProperty("score") Float score,
-             @JsonProperty("linking_rule") String linkingRule
-      ) {
+            @JsonProperty("inserted_at") String insertedAt,
+            @JsonProperty("created_at") String createdAt,
+            @JsonProperty("interaction_id") String interactionId,
+            @JsonProperty("golden_id") String goldenId,
+            @JsonProperty("entry") String entry,
+            @JsonProperty("score") Float score,
+            @JsonProperty("linking_rule") String linkingRule) {
       }
    }
 
