@@ -19,7 +19,7 @@ final class LinkerCR {
    private LinkerCR() {
    }
 
-   static List<GoldenRecord> crFind(
+   static Either<List<GoldenRecord>, MpiGeneralError> crFind(
          final LibMPI libMPI,
          final ApiModels.ApiCrFindRequest crFindData) {
       if (LOGGER.isTraceEnabled()) {

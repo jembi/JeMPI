@@ -165,7 +165,7 @@ public final class LibMPI {
       return client.findMatchCandidates(demographicData);
    }
 
-   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       return client.findGoldenRecords(request);
    }
 
