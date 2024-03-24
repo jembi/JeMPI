@@ -185,7 +185,7 @@ const NotificationWorklist = () => {
                           notificationId: params.row.id,
                           notificationType: params.row.type,
                           patient_id: params.row.patient_id,
-                          golden_id: params.row.golden_id,
+                          golden_id: params.row.current_golden_id,
                           score: params.row.score,
                           candidates: params.row.candidates
                         }
