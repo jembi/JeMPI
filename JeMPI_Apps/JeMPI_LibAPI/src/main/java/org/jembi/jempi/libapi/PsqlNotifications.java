@@ -11,7 +11,7 @@ final class PsqlNotifications {
 
    private static final String NOTIFICATION_TABLE_NAME = "notification";
    private static final String QUERY = """
-                                       SELECT patient_id, id, names, created, state,type, score, golden_id
+                                       SELECT patient_id, id, names, created, state,type, score, old_golden_id, current_golden_id
                                        FROM notification
                                        WHERE created BETWEEN ? AND ? AND state IN (?, ?)
                                        ORDER BY created
@@ -167,10 +167,11 @@ final class PsqlNotifications {
       }
    }
 
-   void updateNotificationState(final String notificationId, final String currentGoldenId) throws SQLException {
+   void updateNotificationState(final String notificationId, final String oldGoldenId, final String currentGoldenId) throws SQLException {
       psqlClient.connect();
-      String sql = String.format(Locale.ROOT, "update notification set state = '%s', golden_id = '%s' where id = '%s'",
+      String sql = String.format(Locale.ROOT, "update notification set state = '%s', old_golden_id = '%s', current_golden_id = '%s' where id = '%s'",
                                                       "CLOSED",
+                                                      oldGoldenId,
                                                       currentGoldenId,
                                                       notificationId);
       try (PreparedStatement stmt = psqlClient.prepareStatement(sql)) {

@@ -28,8 +28,8 @@ final class PsqlNotifications {
          final String dID) throws SQLException {
 
       psqlClient.connect(AppConfig.POSTGRESQL_NOTIFICATIONS_DB);
-      String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, golden_id, score) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      String sql = "INSERT INTO notification (id, type, state, names, created, patient_id, old_golden_id, current_golden_id, score) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
       try (PreparedStatement pstmt = psqlClient.prepareStatement(sql)) {
          psqlClient.setAutoCommit(false);
          pstmt.setObject(1, id);
@@ -39,7 +39,8 @@ final class PsqlNotifications {
          pstmt.setTimestamp(5, created);
          pstmt.setString(6, dID);
          pstmt.setString(7, gID);
-         pstmt.setFloat(8, score);
+         pstmt.setString(8, gID);
+         pstmt.setFloat(9, score);
          pstmt.executeUpdate();
       } catch (SQLException e) {
          LOGGER.error("Error executing INSERT statement: {}", e.getMessage(), e);

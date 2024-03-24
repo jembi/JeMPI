@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS Notification
     State VARCHAR(50),
     Patient_Id VARCHAR(50),
     Names VARCHAR(100),
-    Golden_Id VARCHAR(50),
+    Old_Golden_Id VARCHAR(50),
+    Current_Golden_Id VARCHAR(50),
     Score Numeric
 );
 
