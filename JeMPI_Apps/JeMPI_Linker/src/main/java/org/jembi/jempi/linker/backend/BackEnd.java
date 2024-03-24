@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
 import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_START_SENTINEL;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
@@ -132,8 +134,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> crFind(final CrFindRequest req) {
+      try {
+         final var json = OBJECT_MAPPER.writeValueAsString(req.crFindData());
+         LOGGER.debug("{}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       final var goldenRecords = LinkerCR.crFind(libMPI, req.crFindData);
-      req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords)));
+      if (goldenRecords.isLeft()) {
+         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.getLeft())));
+      } else {
+         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.swap().getLeft())));
+      }
       return Behaviors.same();
    }
 
@@ -335,9 +347,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record RunStartStopHooksRequest(
-           ActorRef<RunStartStopHooksResponse> replyTo,
-           String key,
-           InteractionEnvelop batchInteraction) implements Request {
+         ActorRef<RunStartStopHooksResponse> replyTo,
+         String key,
+         InteractionEnvelop batchInteraction) implements Request {
    }
 
    public record RunStartStopHooksResponse(List<MpiGeneralError> hooksResults) implements Response {

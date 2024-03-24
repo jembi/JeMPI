@@ -98,9 +98,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
-   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       final var goldenRecords = DgraphQueries.findGoldenRecords(request);
-      return goldenRecords.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+      if (goldenRecords.isLeft()) {
+         return Either.left(goldenRecords.getLeft().all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
+      } else {
+         return Either.right(goldenRecords.swap().getLeft());
+      }
    }
 
    private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(

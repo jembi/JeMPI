@@ -78,6 +78,7 @@ public final class GlobalConstants {
 
    public static final String DEFAULT_LINKER_GLOBAL_STORE_NAME = "linker";
    public static final StatusCode IM_A_TEA_POT = StatusCodes.IM_A_TEAPOT;
+   public static final String IM_A_TEA_POT_LOG = "IM_A_TEA_POT";
 
    public  enum AuditEventType {
       LINKING_EVENT,
