@@ -66,12 +66,12 @@ object ScalaCustomInteractionEnvelop {
                         |case class UniqueInteractionData(auxId: String)
                         |
                         |@JsonIgnoreProperties(ignoreUnknown = true)
-                        |case class DemographicData(
-                        |    ${fieldDefs()}
-                        |) {
+                        |case class MyField(tag: String, value: String)
                         |
-                        |   def toArray: Array[String] =
-                        |      Array(${fieldList()})
+                        |@JsonIgnoreProperties(ignoreUnknown = true)
+                        |case class DemographicData(fields: Array[MyField]) {
+                        |
+                        |   def toArray: Array[String] = fields.map(f => f.value)
                         |
                         |}
                         |""".stripMargin)
@@ -96,13 +96,14 @@ object ScalaCustomInteractionEnvelop {
            |@JsonIgnoreProperties(ignoreUnknown = true)
            |case class UniqueInteractionData(auxId: String)
            |
-           |@JsonIgnoreProperties(ignoreUnknown = true)
-           |case class DemographicData(
-           |    ${fieldDefs()}
-           |) {
            |
-           |   def toArray: Array[String] =
-           |      Array(${fieldList()})
+           |@JsonIgnoreProperties(ignoreUnknown = true)
+           |case class MyField(tag: String, value: String)
+           |
+           |@JsonIgnoreProperties(ignoreUnknown = true)
+           |case class DemographicData(fields: Array[MyField]) {
+           |
+           |   def toArray: Array[String] = fields.map(f => f.value)
            |
            |}
            |""".stripMargin)

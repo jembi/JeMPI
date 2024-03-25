@@ -3,8 +3,8 @@ package org.jembi.jempi.libmpi.postgresql;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
+import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
 import java.sql.PreparedStatement;
@@ -153,7 +153,7 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var goldenRecordData = new GoldenRecordData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            final var goldenRecordData = new GoldenRecordData(OBJECT_MAPPER.readValue(json, DemographicData.class));
             list.add(new NodeGoldenRecord(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), goldenRecordData));
          }
          return list;
@@ -175,7 +175,7 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var interactionData = new InteractionData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            final var interactionData = new InteractionData(OBJECT_MAPPER.readValue(json, DemographicData.class));
             list.add(new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), interactionData));
          }
          return list;
@@ -192,7 +192,7 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var goldenRecordData = new GoldenRecordData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            final var goldenRecordData = new GoldenRecordData(OBJECT_MAPPER.readValue(json, DemographicData.class));
             list.add(new GoldenRecord(id, null, new CustomUniqueGoldenRecordData(null), goldenRecordData));
          }
          return list;
@@ -202,7 +202,7 @@ public final class PostgresqlQueries {
       }
    }
 
-   public static List<GoldenRecord> findCandidates(final CustomDemographicData customDemographicData) {
+   public static List<GoldenRecord> findCandidates(final DemographicData customDemographicData) {
       return List.of();
 /*
       if (!(StringUtils.isBlank(customDemographicData.phoneNumber)
@@ -228,7 +228,7 @@ public final class PostgresqlQueries {
          if (rs.next()) {
             final var id = rs.getString("id");
             final var goldenRecordData =
-                  new GoldenRecordData(OBJECT_MAPPER.readValue(rs.getString("fields"), CustomDemographicData.class));
+                  new GoldenRecordData(OBJECT_MAPPER.readValue(rs.getString("fields"), DemographicData.class));
             return new NodeGoldenRecord(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), goldenRecordData);
          }
          return null;
@@ -248,7 +248,7 @@ public final class PostgresqlQueries {
          if (rs.next()) {
             final var id = rs.getString("id");
             final var interactionData =
-                  new InteractionData(OBJECT_MAPPER.readValue(rs.getString("fields"), CustomDemographicData.class));
+                  new InteractionData(OBJECT_MAPPER.readValue(rs.getString("fields"), DemographicData.class));
             return new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), interactionData);
          }
          return null;

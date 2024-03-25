@@ -34,9 +34,11 @@ object CustomLinkerMU {
            |import org.apache.commons.text.similarity.JaroWinklerSimilarity;
            |import org.apache.logging.log4j.LogManager;
            |import org.apache.logging.log4j.Logger;
-           |import org.jembi.jempi.shared.models.CustomDemographicData;
+           |import org.jembi.jempi.shared.models.DemographicData;
            |
            |import java.util.Locale;
+           |
+           |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
            |
            |public final class $custom_className {
            |
@@ -80,13 +82,13 @@ object CustomLinkerMU {
            |""".stripMargin)
 
       writer.println(s"""   void updateMatchSums(
-           |         final CustomDemographicData patient,
-           |         final CustomDemographicData goldenRecord) {""".stripMargin)
+           |         final DemographicData patient,
+           |         final DemographicData goldenRecord) {""".stripMargin)
       if (muList.nonEmpty) {
         muList.foreach(mu => {
           val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
           writer.println(
-            s"      updateMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName" +
+            s"      updateMatchedPair(fields.$fieldName, patient.fields.get(${mu.fieldName.toUpperCase}).value(), goldenRecord.fields.get(${mu.fieldName.toUpperCase}).value()" +
               s");"
           )
         })
@@ -96,12 +98,12 @@ object CustomLinkerMU {
       }
 
       writer.println(s"""   void updateMissmatchSums(
-           |         final CustomDemographicData patient,
-           |         final CustomDemographicData goldenRecord) {""".stripMargin)
+           |         final DemographicData patient,
+           |         final DemographicData goldenRecord) {""".stripMargin)
       muList.foreach(mu => {
         val fieldName = Utils.snakeCaseToCamelCase(mu.fieldName)
         writer.println(
-          s"      updateUnMatchedPair(fields.$fieldName, patient.$fieldName, goldenRecord.$fieldName);"
+          s"      updateUnMatchedPair(fields.$fieldName, patient.fields.get(${mu.fieldName.toUpperCase}).value(), goldenRecord.fields.get(${mu.fieldName.toUpperCase}).value());"
         )
       })
       writer.println("""      LOGGER.debug("{}", fields);

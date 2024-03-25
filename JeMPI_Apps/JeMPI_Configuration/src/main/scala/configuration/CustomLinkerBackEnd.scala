@@ -83,6 +83,8 @@ object CustomLinkerBackEnd {
          |import java.util.List;
          |import java.util.function.Supplier;
          |
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+         |
          |public final class $custom_className {
          |
          |   private $custom_className() {
@@ -106,10 +108,11 @@ object CustomLinkerBackEnd {
       val fieldName = Utils.snakeCaseToCamelCase(field_name)
       writer.println(
         s"""${" " * 6}k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-           |${" " * 6}                                            "$fieldName", demographicData.$fieldName,
-           |${" " * 6}                                            expandedGoldenRecord.interactionsWithScore()
-           |${" " * 6}                                                                .stream()
-           |${" " * 6}                                                                .map(rec -> rec.interaction().demographicData().$fieldName))
+           |${" " * 6}                                             demographicData.fields.get(${f.fieldName.toUpperCase}).tag(),
+           |${" " * 6}                                             demographicData.fields.get(${f.fieldName.toUpperCase}).value(),
+           |${" " * 6}                                             expandedGoldenRecord.interactionsWithScore()
+           |${" " * 6}                                                                 .stream()
+           |${" " * 6}                                                                 .map(rec -> rec.interaction().demographicData().fields.get(${f.fieldName.toUpperCase}).value()))
            |${" " * 12}? 1
            |${" " * 12}: 0;""".stripMargin
       )

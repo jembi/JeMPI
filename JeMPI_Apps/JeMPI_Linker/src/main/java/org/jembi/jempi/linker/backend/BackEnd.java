@@ -7,7 +7,6 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
 import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_START_SENTINEL;
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
@@ -134,18 +132,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> crFind(final CrFindRequest req) {
-      try {
-         final var json = OBJECT_MAPPER.writeValueAsString(req.crFindData());
-         LOGGER.debug("{}", json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
       final var goldenRecords = LinkerCR.crFind(libMPI, req.crFindData);
-      if (goldenRecords.isLeft()) {
-         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.getLeft())));
-      } else {
-         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.swap().getLeft())));
-      }
+      req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords)));
       return Behaviors.same();
    }
 
@@ -219,46 +207,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       });
    }
 
-/*
-   private Behavior<Request> syncLinkInteractionToGidHandler(final SyncLinkInteractionToGidRequest request) {
-      final LinkInfo linkInfo;
-      final var interaction = request.link.interaction();
-      final var gid = request.link.gid();
-      try {
-         // Check if we have new M&U values
-         LinkerProbabilistic.checkUpdatedMU();
-
-         libMPI.startTransaction();
-         if (StringUtils.isBlank(gid)) {
-            linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
-         } else {
-            final var goldenRecord = libMPI.findGoldenRecord(gid);
-            if (goldenRecord == null) {
-               LOGGER.error("Golden Record for GID {} is null", gid);
-               linkInfo = null;
-            } else {
-               final var validated1 = CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
-                                                                                           interaction.demographicData());
-               final var validated2 = CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
-                                                                                           interaction.demographicData());
-
-               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
-                                                                                new LibMPIClientInterface.GoldenIdScore(gid,
-                                                                                                                        3.0F),
-                                                                                validated1, validated2);
-               if (Boolean.TRUE.equals(goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
-                  CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, 0.0F, linkInfo.interactionUID(), gid);
-               }
-            }
-         }
-      } finally {
-         libMPI.closeTransaction();
-      }
-      request.replyTo.tell(new SyncLinkInteractionToGidResponse(request.link.stan(), linkInfo));
-      return Behaviors.same();
-   }
-*/
-
    private Behavior<Request> workTimeHandler(final WorkTimeRequest request) {
       LOGGER.info("WORK TIME");
       return Behaviors.same();
@@ -295,7 +243,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       final var scores = goldenRecords.parallelStream()
                                       .unordered()
                                       .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                             LinkerUtils.calcNormalizedScore(
+                                                                                                             LinkerUtils.calcNormalizedLinkScore(
                                                                                                                    goldenRecord.demographicData(),
                                                                                                                    interaction.demographicData())))
                                       .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
@@ -307,7 +255,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
 
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
-      CustomLinkerProbabilistic.updateMU(req.mu);
+      LinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }

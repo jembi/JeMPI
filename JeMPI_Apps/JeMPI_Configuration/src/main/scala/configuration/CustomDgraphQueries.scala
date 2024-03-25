@@ -21,23 +21,26 @@ object CustomDgraphQueries {
          |
          |import io.vavr.Function1;
          |import org.apache.commons.lang3.StringUtils;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import org.jembi.jempi.shared.models.DemographicData;
          |
          |import java.util.LinkedList;
          |import java.util.List;
          |import java.util.Map;
          |
+         |
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+         |
          |import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
          |
          |final class $custom_className {
          |
-         |   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
+         |   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
          |      List.of(${getDeterministicFunctions(config.rules.link.get)});
          |""".stripMargin)
 
     if (config.rules.matchNotification.isDefined) {
       writer.println(
-        s"""   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+        s"""   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of(${getDeterministicFunctions(
             config.rules.matchNotification.get
           )});
@@ -45,7 +48,7 @@ object CustomDgraphQueries {
       )
     } else {
       writer.println(
-        s"""   static final List<Function1<CustomDemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+        s"""   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of();
            |""".stripMargin
       )
@@ -148,7 +151,7 @@ object CustomDgraphQueries {
     ): Unit = {
       writer.println(
         s"""   static List<CustomDgraphGoldenRecord> find${funcQualifier}Candidates(
-           |      final CustomDemographicData interaction) {
+           |      final DemographicData interaction) {
            |      var result = DgraphQueries.deterministicFilter($filterList, interaction);
            |      if (!result.isEmpty()) {
            |         return result;
@@ -175,14 +178,18 @@ object CustomDgraphQueries {
         expr match {
           case Ast.Or(x) =>
             "("
-              + (for (k <- x.filter(v => !v.isInstanceOf[Ast.Null]).zipWithIndex)
+              + (for (
+                k <- x.filter(v => !v.isInstanceOf[Ast.Null]).zipWithIndex
+              )
                 yield
                   if (k._2 == 0) expression(k._1)
                   else " && " + expression(k._1)).mkString
               + ")"
           case Ast.And(x) =>
             "("
-              + (for (k <- x.filter(v => !v.isInstanceOf[Ast.Null]).zipWithIndex)
+              + (for (
+                k <- x.filter(v => !v.isInstanceOf[Ast.Null]).zipWithIndex
+              )
                 yield
                   if (k._2 == 0) expression(k._1)
                   else " || " + expression(k._1)).mkString
@@ -193,7 +200,7 @@ object CustomDgraphQueries {
             Utils.snakeCaseToCamelCase(variable.name) + "IsBlank"
           case Ast.Eq(variable) =>
             Utils.snakeCaseToCamelCase(variable.name) + "IsBlank"
-          case Ast.Null (variable) =>
+          case Ast.Null(variable) =>
             "false"
           case _ =>
             "ERROR"
@@ -207,13 +214,11 @@ object CustomDgraphQueries {
       if (vars.length == 1)
         val v = vars(0)
         writer.println(
-          s"""   private static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {
-             |      if (StringUtils.isBlank(demographicData.${Utils
-              .snakeCaseToCamelCase(v)})) {
+          s"""   private static DgraphGoldenRecords $functionName(final DemographicData demographicData) {
+             |      if (StringUtils.isBlank(demographicData.fields.get(${v.toUpperCase}).value())) {
              |         return new DgraphGoldenRecords(List.of());
              |      }
-             |      final Map<String, String> map = Map.of("$$$v", demographicData.${Utils
-              .snakeCaseToCamelCase(v)});
+             |      final Map<String, String> map = Map.of("$$$v", demographicData.fields.get(${v.toUpperCase}).value());
              |      return runGoldenRecordsQuery($name, map);
              |   }
              |""".stripMargin
@@ -221,12 +226,12 @@ object CustomDgraphQueries {
       else
         val expr = expression(ParseRule.parse(text))
         writer.println(
-          s"   private static DgraphGoldenRecords $functionName(final CustomDemographicData demographicData) {"
+          s"   private static DgraphGoldenRecords $functionName(final DemographicData demographicData) {"
         )
         vars.foreach(v => {
           val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
           writer.println(
-            s"      final var $camelCaseVarName = demographicData.$camelCaseVarName;"
+            s"      final var $camelCaseVarName = demographicData.fields.get(${v.toUpperCase}).value();"
           )
         })
         vars.foreach(v => {
@@ -258,57 +263,59 @@ object CustomDgraphQueries {
 
     def emitRuleTemplate(name: String, rule: Rule): Unit = {
 
-      case class VarMeta(astName: String,
-                         func:String, 
-                         funcParam: Option[Function1[String, String]],
-                         funcName: String,
-                         distance:Option[Integer])
+      case class VarMeta(
+          astName: String,
+          func: String,
+          funcParam: Option[Function1[String, String]],
+          funcName: String,
+          distance: Option[Integer]
+      )
 
       val vars = for (v <- rule.vars) yield v
       var varsMeta = Map[String, List[VarMeta]]()
 
       vars.foreach(v => {
-        if (!varsMeta.contains(v)){
-             varsMeta += (v -> List[VarMeta]())
-          }
+        if (!varsMeta.contains(v)) {
+          varsMeta += (v -> List[VarMeta]())
+        }
       })
 
-      
-      var currentFuncIndex:Int = -1 
+      var currentFuncIndex: Int = -1
       val text = rule.text
       val expression: Ast.Expression = ParseRule.parse(text)
 
+      def addMeta(
+          v: String,
+          astName: String,
+          func: String,
+          funcParam: Option[Function1[String, String]],
+          distance: Option[Integer]
+      ): String = {
 
-      def addMeta(v: String, 
-                  astName: String,
-                  func:String, 
-                  funcParam: Option[Function1[String, String]],
-                  distance:Option[Integer]): String = {
+        if (!varsMeta.contains(v)) {
+          varsMeta += (v -> List[VarMeta]())
+        }
 
-          if (!varsMeta.contains(v)){
-             varsMeta += (v -> List[VarMeta]())
-          }
+        val existingMeta = varsMeta(v).find(m => {
+          m.astName == astName &&
+          m.func == func &&
+          m.funcParam.toString == funcParam.toString &&
+          m.distance.toString == distance.toString
+        })
 
-          val existingMeta =  varsMeta(v).find(m => {
-                                                    m.astName == astName && 
-                                                    m.func == func &&
-                                                    m.funcParam.toString == funcParam.toString &&
-                                                    m.distance.toString == distance.toString
-                                                  })
-
-          if (existingMeta.isDefined){
-            return existingMeta.get.funcName
-          }
-          else{
-            val newMeta = VarMeta(astName, func, funcParam, getFuncIndex(), distance)
-            varsMeta = varsMeta + (v -> (varsMeta(v) :+ newMeta ))
-            return newMeta.funcName
-          }
+        if (existingMeta.isDefined) {
+          return existingMeta.get.funcName
+        } else {
+          val newMeta =
+            VarMeta(astName, func, funcParam, getFuncIndex(), distance)
+          varsMeta = varsMeta + (v -> (varsMeta(v) :+ newMeta))
+          return newMeta.funcName
+        }
       }
 
-      def getFuncIndex(): String ={
-         currentFuncIndex = currentFuncIndex + 1
-         return ("A".head + currentFuncIndex).toChar.toString
+      def getFuncIndex(): String = {
+        currentFuncIndex = currentFuncIndex + 1
+        return ("A".head + currentFuncIndex).toChar.toString
       }
 
       def main_func(expression: Ast.Expression): String = {
@@ -330,41 +337,51 @@ object CustomDgraphQueries {
           case Ast.Not(x) =>
             "NOT (" + main_func(x) + ")"
           case Ast.Match(variable, distance) =>
-            val uidName = addMeta(variable.name, "match", "match", None, Option(distance))
+            val uidName =
+              addMeta(variable.name, "match", "match", None, Option(distance))
             "uid(" + uidName + ")"
           case Ast.Eq(variable) =>
             val uidName = addMeta(variable.name, "eq", "eq", None, None)
             "uid(" + uidName + ")"
           case Ast.Null(variable) =>
-            val uidName = addMeta(variable.name, "null", "eq", Option(new Function1[String, String] {
-                                                          def apply(x: String): String = "\"\""
-                                                        }), None)
+            val uidName = addMeta(
+              variable.name,
+              "null",
+              "eq",
+              Option(new Function1[String, String] {
+                def apply(x: String): String = "\"\""
+              }),
+              None
+            )
             "uid(" + uidName + ")"
           case _ =>
             "ERROR"
         }
       }
 
-      def getFilterParams(v: String, metaInfo: VarMeta):String = {
+      def getFilterParams(v: String, metaInfo: VarMeta): String = {
         if (metaInfo.funcParam.isDefined) {
           return metaInfo.funcParam.get.apply(v)
         }
 
         return s"""
               $$$v${
-                if (metaInfo.distance.isDefined) ", " + metaInfo.distance.get
-                else
-                  ""
-              }
+            if (metaInfo.distance.isDefined) ", " + metaInfo.distance.get
+            else
+              ""
+          }
               """
-      }  
+      }
 
       def createScalerFunc(): Unit = {
         varsMeta.foreach((v, mL) => {
           val m = mL(0)
           val fn = m.func
           writer.println(
-            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v, m)})) {
+            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(
+                v,
+                m
+              )})) {
                |${" " * 15}uid
                |${" " * 15}GoldenRecord.source_id {
                |${" " * 18}uid
@@ -384,14 +401,17 @@ object CustomDgraphQueries {
 
       def createFilterFunc(all_func_str: String): Unit = {
         varsMeta.foreach((v, mL) => {
-           mL.foreach(m => {
-              val fn = m.func
-              writer.println(
-                s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(v, m)})) {
+          mL.foreach(m => {
+            val fn = m.func
+            writer.println(
+              s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(
+                  v,
+                  m
+                )})) {
                   |${" " * 15}${m.funcName} as uid
                   |${" " * 12}}""".stripMargin
-              )
-           })
+            )
+          })
         })
 
         writer.println(s"""${" " * 12}all(func:type(GoldenRecord)) @filter${
@@ -430,14 +450,15 @@ object CustomDgraphQueries {
       })
       writer.println(") {")
 
-      if (varsMeta.size == 1 && varsMeta.values.headOption.get.size < 2) 
+      if (varsMeta.size == 1 && varsMeta.values.headOption.get.size < 2)
         createScalerFunc()
       else
         createFilterFunc(all_func_str)
       end if
+
       writer.println(s"""${" " * 9}}
-           |${" " * 9}\"\"\";
-           |""".stripMargin)
+                        |${" " * 9}\"\"\";
+                        |""".stripMargin)
     }
 
     def emitMergeCandidates(): Unit = {

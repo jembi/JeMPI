@@ -20,7 +20,7 @@ object CustomLinkerDeterministic {
     def emitCanApplyLinking(rules: Map[String, Rule]): Unit = {
       writer.print(
         s"""   static boolean canApplyLinking(
-           |         final CustomDemographicData interaction) {
+           |         final DemographicData interaction) {
            |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin
       )
       rules.zipWithIndex.foreach((rule, rule_idx) => {
@@ -28,7 +28,7 @@ object CustomLinkerDeterministic {
              |             || """.stripMargin)
         rule._2.vars.zipWithIndex.foreach((field, var_idx) =>
           writer.print(
-            s"StringUtils.isNotBlank(interaction.${Utils.snakeCaseToCamelCase(field)})${
+            s"StringUtils.isNotBlank(interaction.fields.get(${field.toUpperCase}).value())${
                 if (var_idx + 1 < rule._2.vars.length)
                   s"${sys.props("line.separator")}${" " * 13}&& "
                 else ""
@@ -84,8 +84,8 @@ object CustomLinkerDeterministic {
       }
 
       writer.println(s"""   static boolean $funcName(
-           |         final CustomDemographicData goldenRecord,
-           |         final CustomDemographicData interaction) {""".stripMargin)
+           |         final DemographicData goldenRecord,
+           |         final DemographicData interaction) {""".stripMargin)
 
       if (map.isEmpty) {
         writer.println(s"""      return false;
@@ -103,10 +103,10 @@ object CustomLinkerDeterministic {
               val left = field + "L"
               val right = field + "R"
               writer.println(
-                " " * 6 + s"final var $left = goldenRecord.$field;"
+                " " * 6 + s"final var $left = goldenRecord.fields.get(${v.toUpperCase}).value();"
               )
               writer.println(
-                " " * 6 + s"final var $right = interaction.$field;"
+                " " * 6 + s"final var $right = interaction.fields.get(${v.toUpperCase}).value();"
               )
               definedProperties = definedProperties :+ field
             }
@@ -129,8 +129,9 @@ object CustomLinkerDeterministic {
       s"""package $packageText;
          |
          |import org.apache.commons.lang3.StringUtils;
+         |import org.jembi.jempi.shared.models.DemographicData;
          |
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |final class $custom_className {
          |

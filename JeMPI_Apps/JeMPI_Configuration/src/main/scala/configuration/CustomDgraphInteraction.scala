@@ -25,6 +25,8 @@ private object CustomDgraphInteraction {
          |import org.jembi.jempi.shared.models.CustomDemographicData;
          |import org.jembi.jempi.shared.models.Interaction;
          |
+         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
          |      @JsonProperty("uid") String interactionId,
@@ -47,7 +49,7 @@ private object CustomDgraphInteraction {
          |                                   ? this.sourceId().toSourceId()
          |                                   : null,
          |                             new CustomUniqueInteractionData(${uniqueArguments()}),
-         |                             new CustomDemographicData(${demographicArguments()}));
+         |                             CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
          |   InteractionWithScore toInteractionWithScore() {
@@ -92,8 +94,7 @@ private object CustomDgraphInteraction {
 
       val f2 = config.demographicFields
         .map(f =>
-          s"""${" " * 11}interaction.demographicData().${Utils
-              .snakeCaseToCamelCase(f.fieldName)},"""
+          s"""${" " * 11}interaction.demographicData().fields.get(${f.fieldName.toUpperCase}).value(),"""
         )
         .mkString(sys.props("line.separator"))
 
@@ -117,7 +118,7 @@ private object CustomDgraphInteraction {
     def demographicArguments(): String =
       config.demographicFields
         .map(f =>
-          s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)},"""
+          s"""${" " * 79}this.${Utils.snakeCaseToCamelCase(f.fieldName)},"""
         )
         .mkString(sys.props("line.separator"))
         .trim

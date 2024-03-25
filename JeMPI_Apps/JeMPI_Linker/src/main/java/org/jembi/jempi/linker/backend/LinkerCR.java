@@ -19,7 +19,7 @@ final class LinkerCR {
    private LinkerCR() {
    }
 
-   static Either<List<GoldenRecord>, MpiGeneralError> crFind(
+   static List<GoldenRecord> crFind(
          final LibMPI libMPI,
          final ApiModels.ApiCrFindRequest crFindData) {
       if (LOGGER.isTraceEnabled()) {
@@ -43,7 +43,7 @@ final class LinkerCR {
    private static List<GoldenRecord> crMatchedCandidates(
          final LibMPI libMPI,
          final float candidateThreshold,
-         final CustomDemographicData demographicData) {
+         final DemographicData demographicData) {
       final var candidates = libMPI.findLinkCandidates(demographicData);
       if (candidates.isEmpty()) {
          return List.of();
@@ -51,8 +51,8 @@ final class LinkerCR {
          return candidates.parallelStream()
                           .unordered()
                           .map(candidate -> new WorkCandidate(candidate,
-                                                              LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                              demographicData)))
+                                                              LinkerUtils.calcNormalizedLinkScore(candidate.demographicData(),
+                                                                                                  demographicData)))
                           .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                           .filter(x -> x.score >= candidateThreshold)
                           .map(x -> x.goldenRecord)
@@ -64,7 +64,7 @@ final class LinkerCR {
       return new Interaction(interaction.interactionId(),
                              interaction.sourceId(),
                              interaction.uniqueInteractionData(),
-                             new CustomDemographicData(interaction.demographicData()));
+                             new DemographicData(interaction.demographicData()));
    }
 
    static Either<MpiGeneralError, LinkInfo> crRegister(

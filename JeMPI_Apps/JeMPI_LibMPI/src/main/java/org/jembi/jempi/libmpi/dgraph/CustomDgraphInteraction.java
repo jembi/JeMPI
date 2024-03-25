@@ -7,6 +7,8 @@ import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.Interaction;
 
+import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphInteraction(
       @JsonProperty("uid") String interactionId,
@@ -31,13 +33,13 @@ record CustomDgraphInteraction(
            interaction.uniqueInteractionData().auxDateCreated(),
            interaction.uniqueInteractionData().auxId(),
            interaction.uniqueInteractionData().auxClinicalData(),
-           interaction.demographicData().givenName,
-           interaction.demographicData().familyName,
-           interaction.demographicData().gender,
-           interaction.demographicData().dob,
-           interaction.demographicData().city,
-           interaction.demographicData().phoneNumber,
-           interaction.demographicData().nationalId,
+           interaction.demographicData().fields.get(GIVEN_NAME).value(),
+           interaction.demographicData().fields.get(FAMILY_NAME).value(),
+           interaction.demographicData().fields.get(GENDER).value(),
+           interaction.demographicData().fields.get(DOB).value(),
+           interaction.demographicData().fields.get(CITY).value(),
+           interaction.demographicData().fields.get(PHONE_NUMBER).value(),
+           interaction.demographicData().fields.get(NATIONAL_ID).value(),
            score);
    }
 
@@ -49,13 +51,13 @@ record CustomDgraphInteraction(
                              new CustomUniqueInteractionData(this.auxDateCreated,
                                                                this.auxId,
                                                                this.auxClinicalData),
-                             new CustomDemographicData(this.givenName,
-                                                       this.familyName,
-                                                       this.gender,
-                                                       this.dob,
-                                                       this.city,
-                                                       this.phoneNumber,
-                                                       this.nationalId));
+                             CustomDemographicData.fromCustomDemographicFields(this.givenName,
+                                                                               this.familyName,
+                                                                               this.gender,
+                                                                               this.dob,
+                                                                               this.city,
+                                                                               this.phoneNumber,
+                                                                               this.nationalId));
    }
 
    InteractionWithScore toInteractionWithScore() {

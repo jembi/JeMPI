@@ -2,6 +2,7 @@ package org.jembi.jempi.libapi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.utils.AppUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -26,14 +27,6 @@ public final class JsonFieldsConfig {
       }
    }
 
-   private String snakeToCamelCase(final String str) {
-      String[] words = str.split("_");
-      String result = words[0];
-      for (int i = 1; i < words.length; i++) {
-         result += words[i].substring(0, 1).toUpperCase() + words[i].substring(1);
-      }
-      return result;
-   }
 
    private JSONArray buildFieldsResponsePayload(
          final JSONArray systemFields,
@@ -52,7 +45,7 @@ public final class JsonFieldsConfig {
          // Convert field names from snake case to camel case
          JSONObject field = (JSONObject) customField;
          String fieldName = (String) field.get("fieldName");
-         field.put("fieldName", snakeToCamelCase(fieldName));
+         field.put("fieldName", AppUtils.snakeToCamelCase(fieldName));
          // Remove extra attributes
          field.remove("indexGoldenRecord");
          field.remove("indexPatient");

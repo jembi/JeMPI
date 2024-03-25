@@ -7,7 +7,9 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.List;
@@ -15,18 +17,79 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.log;
-import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.*;
 
 public final class LinkerProbabilistic {
-
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
+   private static final int METRIC_MIN = 0;
+   private static final int METRIC_MAX = 1;
+   private static final int METRIC_SCORE = 2;
+   private static final int METRIC_MISSING_PENALTY = 3;
    private static final Logger LOGGER = LogManager.getLogger(LinkerProbabilistic.class);
    private static final double LOG2 = java.lang.Math.log(2.0);
    private static final float MISSING_PENALTY = 0.925F;
+   static List<ProbabilisticField> currentProbabilisticLinkFields = Config.LINKER.probabilisticLinkFields
+         .stream()
+         .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
+         .toList();
+   static List<ProbabilisticField> currentProbabilisticValidateFields = Config.LINKER.probabilisticValidateFields
+         .stream()
+         .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
+         .toList();
+   static List<ProbabilisticField> currentProbabilisticMatchFields = Config.LINKER.probabilisticMatchNotificationFields
+         .stream()
+         .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
+         .toList();
+
+   static List<ProbabilisticField> updatedProbabilisticLinkFields = null;
+   static List<ProbabilisticField> updatedProbabilisticValidateFields = null;
+   static List<ProbabilisticField> updatedProbabilisticMatchFields = null;
+
    private LinkerProbabilistic() {
+   }
+
+   static SimilarityScore<Double> getSimilarityFunction(final String func) {
+      if ("JARO_WINKLER_SIMILARITY".equals(func)) {
+         return JARO_WINKLER_SIMILARITY;
+      } else {
+         return JACCARD_SIMILARITY;
+      }
+   }
+
+   public static void updateMU(final CustomMU mu) {
+      final var linkProbabilisticFieldList = CustomLinkerProbabilistic.toLinkProbabilisticFieldList(mu.customLinkMU());
+      final var validateProbabilisticFieldList =
+            CustomLinkerProbabilistic.toValidateProbabilisticFieldList(mu.customValidateMU());
+      final var matchProbabilisticFieldList = CustomLinkerProbabilistic.toMatchProbabilisticFieldList(mu.customMatchMU());
+      if (linkProbabilisticFieldList != null) {
+         updatedProbabilisticLinkFields = linkProbabilisticFieldList;
+      }
+      if (validateProbabilisticFieldList != null) {
+         updatedProbabilisticValidateFields = validateProbabilisticFieldList;
+      }
+      if (matchProbabilisticFieldList != null) {
+         updatedProbabilisticMatchFields = matchProbabilisticFieldList;
+      }
+   }
+
+   public static void checkUpdatedLinkMU() {
+      if (updatedProbabilisticLinkFields != null) {
+         LOGGER.info("Using updated Link MU values: {}", updatedProbabilisticLinkFields);
+         currentProbabilisticLinkFields = updatedProbabilisticLinkFields;
+         updatedProbabilisticLinkFields = null;
+      }
+      if (updatedProbabilisticValidateFields != null) {
+         LOGGER.info("Using updated Validate MU values: {}", updatedProbabilisticValidateFields);
+         currentProbabilisticValidateFields = updatedProbabilisticValidateFields;
+         updatedProbabilisticValidateFields = null;
+      }
+      if (updatedProbabilisticMatchFields != null) {
+         LOGGER.info("Using updated Match MU values: {}", updatedProbabilisticMatchFields);
+         currentProbabilisticMatchFields = updatedProbabilisticMatchFields;
+         updatedProbabilisticMatchFields = null;
+      }
    }
 
    private static float limitProbability(final float p) {
@@ -51,7 +114,7 @@ public final class LinkerProbabilistic {
    public static float fieldScore(
          final String left,
          final String right,
-         final Field field) {
+         final ProbabilisticField field) {
       final var score = field.similarityScore.apply(left, right);
       for (int i = 0; i < field.weights.size(); i++) {
          if (score >= field.comparisonLevels.get(i)) {
@@ -64,7 +127,7 @@ public final class LinkerProbabilistic {
    public static FieldScoreInfo fieldScoreInfo(
          final String left,
          final String right,
-         final Field field) {
+         final ProbabilisticField field) {
       final var score = field.similarityScore.apply(left, right);
       for (int i = 0; i < field.weights.size(); i++) {
          if (score >= field.comparisonLevels.get(i)) {
@@ -77,30 +140,67 @@ public final class LinkerProbabilistic {
 
    }
 
-   public static CustomMU.Probability getProbability(final Field field) {
-      return new CustomMU.Probability(field.m(), field.u());
+   static float matchProbabilisticScore(
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      // min, max, score, missingPenalty
+      final float[] metrics = {0, 0, 0, 1.0F};
+      for (int i = 0; i < Config.LINKER.probabilisticMatchNotificationFields.size(); i++) {
+         updateMetricsForStringField(metrics,
+                                     goldenRecord.fields.get(Config.LINKER.probabilisticMatchNotificationFields.get(i)
+                                                                                                               .demographicDataIndex())
+                                                        .value(),
+                                     interaction.fields.get(Config.LINKER.probabilisticMatchNotificationFields.get(i)
+                                                                                                              .demographicDataIndex())
+                                                       .value(),
+                                     currentProbabilisticMatchFields.get(i));
+      }
+      return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
    }
 
-//   public static void checkUpdatedMU() {
-//      if (updatedLinkFields != null) {
-//         LOGGER.info("Using updated MU values: {}", updatedLinkFields);
-//         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
-//         updatedLinkFields = null;
-//      }
-//   }
+   static float validateProbabilisticScore(
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      // min, max, score, missingPenalty
+      final float[] metrics = {0, 0, 0, 1.0F};
+      for (int i = 0; i < Config.LINKER.probabilisticValidateFields.size(); i++) {
+         updateMetricsForStringField(metrics,
+                                     goldenRecord.fields.get(Config.LINKER.probabilisticValidateFields.get(i)
+                                                                                                      .demographicDataIndex())
+                                                        .value(),
+                                     interaction.fields.get(Config.LINKER.probabilisticValidateFields.get(i)
+                                                                                                     .demographicDataIndex())
+                                                       .value(),
+                                     currentProbabilisticValidateFields.get(i));
+      }
+      return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
+   }
+
+   static float linkProbabilisticScore(
+         final DemographicData goldenRecord,
+         final DemographicData interaction) {
+      // min, max, score, missingPenalty
+      final float[] metrics = {0, 0, 0, 1.0F};
+      for (int i = 0; i < Config.LINKER.probabilisticLinkFields.size(); i++) {
+         updateMetricsForStringField(metrics,
+                                     goldenRecord.fields.get(Config.LINKER.probabilisticLinkFields.get(i).demographicDataIndex())
+                                                        .value(),
+                                     interaction.fields.get(Config.LINKER.probabilisticLinkFields.get(i).demographicDataIndex())
+                                                       .value(),
+                                     currentProbabilisticLinkFields.get(i));
+      }
+      return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
+   }
+
+   public static CustomMU.Probability getProbability(final ProbabilisticField field) {
+      return new CustomMU.Probability(field.m(), field.u());
+   }
 
    public static void updateMetricsForStringField(
          final float[] metrics,
          final String left,
          final String right,
-         final Field field) {
-//      if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
-//         metrics[0] += field.min;
-//         metrics[1] += field.max;
-//         metrics[2] += fieldScore(left, right, field);
-//      } else {
-//         metrics[3] *= MISSING_PENALTY;
-//      }
+         final ProbabilisticField field) {
       metrics[METRIC_MIN] += field.min;
       metrics[METRIC_MAX] += field.max;
       if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
@@ -193,8 +293,7 @@ public final class LinkerProbabilistic {
 
    }
 
-
-   public record Field(
+   public record ProbabilisticField(
          SimilarityScore<Double> similarityScore,
          List<Float> comparisonLevels,
          List<Float> weights,
@@ -202,14 +301,14 @@ public final class LinkerProbabilistic {
          float u,
          float min,
          float max) {
-      public Field {
+      public ProbabilisticField {
          m = limitProbability(m);
          u = limitProbability(u);
          min = fieldScore(false, m, u);
          max = fieldScore(true, m, u);
       }
 
-      public Field(
+      public ProbabilisticField(
             final SimilarityScore<Double> func_,
             final List<Float> comparisonLevels_,
             final float m_,

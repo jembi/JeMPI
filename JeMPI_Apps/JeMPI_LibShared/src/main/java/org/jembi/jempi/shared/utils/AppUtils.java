@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -65,7 +66,7 @@ public final class AppUtils implements Serializable {
       }
    }
 
-   public static String getNames(final CustomDemographicData demographicData) {
+   public static String getNames(final DemographicData demographicData) {
       ArrayList<String> names = new ArrayList<>();
 
       for (Method method : CustomDemographicData.class.getMethods()) {
@@ -85,6 +86,15 @@ public final class AppUtils implements Serializable {
       } else {
          return StringUtils.join(names, ",");
       }
+   }
+
+   public static String snakeToCamelCase(final String str) {
+      String[] words = str.split("_");
+      StringBuilder result = new StringBuilder(words[0]);
+      for (int i = 1; i < words.length; i++) {
+         result.append(words[i].substring(0, 1).toUpperCase()).append(words[i].substring(1));
+      }
+      return result.toString();
    }
 
    public static String autoGenerateId() {

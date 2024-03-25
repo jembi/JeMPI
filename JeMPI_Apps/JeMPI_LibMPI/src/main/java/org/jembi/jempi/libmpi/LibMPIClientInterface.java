@@ -56,9 +56,9 @@ public interface LibMPIClientInterface {
          long offset,
          long length);
 
-   List<GoldenRecord> findLinkCandidates(CustomDemographicData demographicData);
+   List<GoldenRecord> findLinkCandidates(DemographicData demographicData);
 
-   List<GoldenRecord> findMatchCandidates(CustomDemographicData demographicData);
+   List<GoldenRecord> findMatchCandidates(DemographicData demographicData);
 
    LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<ApiModels.ApiSearchParameter> params,
@@ -98,7 +98,7 @@ public interface LibMPIClientInterface {
          LocalDateTime createdAt,
          PaginationOptions paginationOptions);
 
-   Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(ApiModels.ApiCrFindRequest request);
+   List<GoldenRecord> findGoldenRecords(ApiModels.ApiCrFindRequest request);
 
    /*
     * *****************************************************************************

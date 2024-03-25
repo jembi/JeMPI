@@ -6,8 +6,6 @@ import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.MpiGeneralError;
-import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -241,10 +239,10 @@ final class DgraphQueries {
    }
 
    static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(
-         final List<Function1<CustomDemographicData, DgraphGoldenRecords>> listFunction,
-         final CustomDemographicData interaction) {
+         final List<Function1<DemographicData, DgraphGoldenRecords>> listFunction,
+         final DemographicData interaction) {
       final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : listFunction) {
+      for (Function1<DemographicData, DgraphGoldenRecords> deterministicFunction : listFunction) {
          final var block = deterministicFunction.apply(interaction);
          if (!block.all().isEmpty()) {
             final var list = block.all();
@@ -375,16 +373,16 @@ final class DgraphQueries {
             String value = param.value();
             if (distance == -1) {
                if (value.contains("_")) {
-                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
-                                 + "\") AND le("
-                                 + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
+                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0,
+                                                                                                 value.indexOf("_")) + "\") "
+                                 + "AND" + " le(" + recordType + "." + fieldName + ", \"" + value.substring(
+                        value.indexOf("_") + 1) + "\")");
                } else {
                   gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
                }
             } else if (distance == 0) {
                if (value.contains("_")) {
-                  gqlFilters.add(
-                        "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
+                  gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
                } else {
                   gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
                }
@@ -607,116 +605,66 @@ final class DgraphQueries {
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   static Either<DgraphGoldenRecords, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
-      final var setFunctions = new HashSet<String>();
-      setFunctions.add("eq");
-      setFunctions.add("match");
-      final var setOperators = new HashSet<String>();
-      setOperators.add("and");
-      setOperators.add("or");
-      try {
-         final var operand = req.operand();
-         final var queryBuilder = new StringBuilder("query query_1 ($").append(camelToSnake(operand.name())).append(":string");
-         if (req.operands() != null) {
-            for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
-               queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
-            }
-         }
-         queryBuilder.append(") {\n\n");
-         char alias = 'A';
-         if (!setFunctions.contains(operand.fn())) {
-            throw new InvalidFunctionException(String.format("Invalid function: %s", operand.fn()));
-         }
-         if (operand.fn().equals("match")) {
-            if (operand.distance() == null) {
-               throw new InvalidFunctionException("no distance parameter");
-            } else if (operand.distance() < 0 || operand.distance() > 5) {
-               throw new InvalidFunctionException(String.format("distance error: 0 < %d <= 5", operand.distance()));
-            }
-         }
-         queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
-                     .append(operand.fn())
-                     .append("(GoldenRecord.")
-                     .append(camelToSnake(operand.name()))
-                     .append(", $")
-                     .append(camelToSnake(operand.name()))
-                     .append(operand.fn().equals("match")
-                                   ? String.format(Locale.ROOT, ", %d", operand.distance())
-                                   : "")
-                     .append(")) {\n    ")
-                     .append(alias)
-                     .append(" as uid\n  }\n\n");
+   static DgraphGoldenRecords findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
 
-         if (req.operands() != null) {
-            for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
-               if (!setFunctions.contains(o.operand().fn())) {
-                  throw new InvalidFunctionException(String.format("Invalid function: %s", o.operand().fn()));
-               }
-               if (o.operand().fn().equals("match")) {
-                  if (o.operand().distance() == null) {
-                     throw new InvalidFunctionException("no distance parameter");
-                  } else if (o.operand().distance() < 0 || o.operand().distance() > 5) {
-                     throw new InvalidFunctionException(String.format("distance error: 0 < %d <= 5", o.operand().distance()));
-                  }
-               }
-               if (!setOperators.contains(o.operator())) {
-                  throw new InvalidOperatorException(String.format("Invalid operator: %s", o.operator()));
-               }
-               queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
-                           .append(o.operand().fn())
-                           .append("(GoldenRecord.")
-                           .append(camelToSnake(o.operand().name()))
-                           .append(", $")
-                           .append(camelToSnake(o.operand().name()))
-                           .append(o.operand().fn().equals("match")
-                                         ? String.format(Locale.ROOT, ", %d", o.operand().distance())
-                                         : "")
-                           .append(")) {\n    ")
-                           .append(++alias)
-                           .append(" as uid\n  }\n\n");
-            }
+      final var op = req.operand();
+      StringBuilder queryBuilder = new StringBuilder("query query_1 ($").append(camelToSnake(op.name())).append(":string");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
+            queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
          }
-
-         alias = 'A';
-         queryBuilder.append("  all(func:type(GoldenRecord)) @filter(uid(A)");
-         if (req.operands() != null) {
-            for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
-               queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
-            }
-         }
-         queryBuilder.append(") {\n").append(GOLDEN_RECORD_FIELD_NAMES).append("  }\n}\n");
-         final var query = queryBuilder.toString();
-         final var map = new HashMap<String, String>();
-         map.put("$" + camelToSnake(operand.name()), operand.value());
-         for (var o : req.operands()) {
-            map.put("$" + camelToSnake(o.operand().name()), o.operand().value());
-         }
-         LOGGER.debug("%n{}", query);
-         LOGGER.debug("{}", map);
-
-
-         final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
-         LOGGER.debug("{}", dgraphGoldenRecords);
-         return Either.left(dgraphGoldenRecords);
-      } catch (InvalidFunctionException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-         return Either.right(new MpiServiceError.InvalidFunctionError(e.getMessage()));
-      } catch (InvalidOperatorException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-         return Either.right(new MpiServiceError.InvalidOperatorError(e.getLocalizedMessage()));
       }
-   }
+      queryBuilder.append(") {\n\n");
+      char alias = 'A';
+      queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                  .append(op.fn())
+                  .append("(GoldenRecord.")
+                  .append(camelToSnake(op.name()))
+                  .append(", $")
+                  .append(camelToSnake(op.name()))
+                  .append(op.fn().equals("match")
+                                ? String.format(Locale.ROOT, ", %d", op.distance())
+                                : "")
+                  .append(")) {\n    ")
+                  .append(alias)
+                  .append(" as uid\n  }\n\n");
 
-   private static class InvalidFunctionException extends Exception {
-      InvalidFunctionException(final String errorMessage) {
-         super(errorMessage);
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+            queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
+                        .append(o.operand().fn())
+                        .append("(GoldenRecord.")
+                        .append(camelToSnake(o.operand().name()))
+                        .append(", $")
+                        .append(camelToSnake(o.operand().name()))
+                        .append(o.operand().fn().equals("match")
+                                      ? String.format(Locale.ROOT, ", %d", o.operand().distance())
+                                      : "")
+                        .append(")) {\n    ")
+                        .append(++alias)
+                        .append(" as uid\n  }\n\n");
+         }
       }
-   }
 
-   private static class InvalidOperatorException extends Exception {
-      InvalidOperatorException(final String errorMessage) {
-         super(errorMessage);
+      alias = 'A';
+      queryBuilder.append("  all(func:type(GoldenRecord)) @filter(uid(A)");
+      if (req.operands() != null) {
+         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
+            queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
+         }
       }
+      queryBuilder.append(") {\n").append(GOLDEN_RECORD_FIELD_NAMES).append("  }\n}\n");
+      final var query = queryBuilder.toString();
+      final var map = new HashMap<String, String>();
+      map.put("$" + camelToSnake(op.name()), op.value());
+      for (var o : req.operands()) {
+         map.put("$" + camelToSnake(o.operand().name()), o.operand().value());
+      }
+      LOGGER.debug("{}", "\n" + query);
+      LOGGER.debug("{}", map);
+      final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
+      LOGGER.debug("{}", dgraphGoldenRecords);
+      return dgraphGoldenRecords;
    }
 
 

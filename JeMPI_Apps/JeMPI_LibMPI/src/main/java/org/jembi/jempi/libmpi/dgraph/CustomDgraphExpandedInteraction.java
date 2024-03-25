@@ -31,13 +31,13 @@ record CustomDgraphExpandedInteraction(
                              new CustomUniqueInteractionData(this.auxDateCreated(),
                                                                this.auxId(),
                                                                this.auxClinicalData()),
-                             new CustomDemographicData(this.givenName(),
-                                                       this.familyName(),
-                                                       this.gender(),
-                                                       this.dob(),
-                                                       this.city(),
-                                                       this.phoneNumber(),
-                                                       this.nationalId()));
+                             CustomDemographicData.fromCustomDemographicFields(this.givenName(),
+                                                                               this.familyName(),
+                                                                               this.gender(),
+                                                                               this.dob(),
+                                                                               this.city(),
+                                                                               this.phoneNumber(),
+                                                                               this.nationalId()));
    }
 
    ExpandedInteraction toExpandedInteraction() {

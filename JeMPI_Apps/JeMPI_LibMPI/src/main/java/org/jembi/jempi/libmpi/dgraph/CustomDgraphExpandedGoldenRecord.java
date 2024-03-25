@@ -33,13 +33,13 @@ record CustomDgraphExpandedGoldenRecord(
                               new CustomUniqueGoldenRecordData(this.auxDateCreated(),
                                                                this.auxAutoUpdateEnabled(),
                                                                this.auxId()),
-                              new CustomDemographicData(this.givenName(),
-                                                        this.familyName(),
-                                                        this.gender(),
-                                                        this.dob(),
-                                                        this.city(),
-                                                        this.phoneNumber(),
-                                                        this.nationalId()));
+                              CustomDemographicData.fromCustomDemographicFields(this.givenName(),
+                                                                                this.familyName(),
+                                                                                this.gender(),
+                                                                                this.dob(),
+                                                                                this.city(),
+                                                                                this.phoneNumber(),
+                                                                                this.nationalId()));
    }
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {

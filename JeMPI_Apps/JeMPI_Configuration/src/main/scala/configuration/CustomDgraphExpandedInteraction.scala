@@ -37,7 +37,7 @@ private object CustomDgraphExpandedInteraction {
          |      return new Interaction(this.interactionId(),
          |                             this.sourceId().toSourceId(),
          |                             new CustomUniqueInteractionData(${uniqueArguments()}),
-         |                             new CustomDemographicData(${demographicArguments()}));
+         |                             CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
          |   ExpandedInteraction toExpandedInteraction() {
@@ -89,7 +89,7 @@ private object CustomDgraphExpandedInteraction {
     def demographicArguments(): String =
       config.demographicFields
         .map(f =>
-          s"""${" " * 55}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),"""
+          s"""${" " * 79}this.${Utils.snakeCaseToCamelCase(f.fieldName)}(),"""
         )
         .mkString(sys.props("line.separator"))
         .trim

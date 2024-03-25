@@ -3,6 +3,7 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -25,6 +26,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+
 public final class SPMU {
 
    private static final Logger LOGGER = LogManager.getLogger(SPMU.class);
@@ -39,7 +42,11 @@ public final class SPMU {
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final CustomMU mu) {
-      LOGGER.info("New MU set: {}/{}", key, mu);
+      try {
+         LOGGER.info("New MU set: {}/{}", key, OBJECT_MAPPER.writeValueAsString(mu));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
 
       final SPInteractions spInteractions = SPInteractions.create(mu.tag());
       spInteractions.open(system, backEnd);

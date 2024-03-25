@@ -222,7 +222,7 @@ final class DgraphMutations {
    }
 
    private String cloneGoldenRecordFromInteraction(
-         final CustomDemographicData interaction,
+         final DemographicData interaction,
          final String interactionUID,
          final String sourceUID,
          final float score,

@@ -1,7 +1,6 @@
 package org.jembi.jempi.async_receiver;
 
 import org.apache.commons.csv.CSVRecord;
-import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
 
@@ -26,17 +25,6 @@ final class CustomAsyncHelper {
       return new CustomUniqueInteractionData(java.time.LocalDateTime.now(),
                                              Main.parseRecordNumber(csvRecord.get(AUX_ID_COL_NUM)),
                                              csvRecord.get(AUX_CLINICAL_DATA_COL_NUM));
-   }
-
-   static CustomDemographicData customDemographicData(final CSVRecord csvRecord) {
-      return new CustomDemographicData(
-         csvRecord.get(GIVEN_NAME_COL_NUM),
-         csvRecord.get(FAMILY_NAME_COL_NUM),
-         csvRecord.get(GENDER_COL_NUM),
-         csvRecord.get(DOB_COL_NUM),
-         csvRecord.get(CITY_COL_NUM),
-         csvRecord.get(PHONE_NUMBER_COL_NUM),
-         csvRecord.get(NATIONAL_ID_COL_NUM));
    }
 
    static CustomSourceId customSourceId(final CSVRecord csvRecord) {

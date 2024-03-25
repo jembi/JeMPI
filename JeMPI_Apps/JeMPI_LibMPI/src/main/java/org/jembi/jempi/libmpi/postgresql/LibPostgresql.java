@@ -126,17 +126,17 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return Collections.emptyList();
    }
 
-   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+   public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
       return PostgresqlQueries.findCandidates(demographicData);
    }
 
-   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+   public List<GoldenRecord> findMatchCandidates(final DemographicData demographicData) {
       return List.of();
    }
 
-   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       LOGGER.error("Not implemented");
-      return Either.left(Collections.emptyList());
+      return Collections.emptyList();
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

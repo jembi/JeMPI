@@ -1,11 +1,11 @@
 package org.jembi.jempi.libmpi.postgresql;
 
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
-final class InteractionData extends CustomDemographicData implements NodeData {
+final class InteractionData extends DemographicData implements NodeData {
 
-   InteractionData(final CustomDemographicData customDemographicData) {
-      super(customDemographicData);
+   InteractionData(final DemographicData demographicData) {
+      super(demographicData);
    }
 
 }
