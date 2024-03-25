@@ -111,17 +111,6 @@ final class Ask {
                             actorSystem.scheduler());
    }
 
-   static CompletionStage<BackEnd.RunStartStopHooksResponse> runStartEndHooks(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Request> backEnd,
-           final String key,
-           final InteractionEnvelop batchInteraction) {
-      return AskPattern.ask(backEnd,
-              replyTo -> new BackEnd.RunStartStopHooksRequest(replyTo, key, batchInteraction),
-              java.time.Duration.ofSeconds(60),
-              actorSystem.scheduler());
-   }
-
    static CompletionStage<BackEnd.FindCandidatesWithScoreResponse> findCandidates(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,

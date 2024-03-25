@@ -27,7 +27,6 @@ public final class LinkerConfig {
    public final List<FieldProbabilisticMetaData> probabilisticValidateFields;
    public final List<FieldProbabilisticMetaData> probabilisticMatchNotificationFields;
 
-
    LinkerConfig(final JsonConfig jsonConfig) {
       probabilisticLinkFields = IntStream
             .range(0, jsonConfig.demographicFields().size())
@@ -66,15 +65,77 @@ public final class LinkerConfig {
             })
             .toList();
 
+      generateDeterministicPrograms(jsonConfig);
+
+   }
+
+   private static boolean isMatch(
+         final String left,
+         final String right) {
+      return StringUtils.isNotBlank(left) && StringUtils.equals(left, right);
+   }
+
+   private static void eq(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = arguments.left.get(arguments.field).value();
+      final var r = arguments.right.get(arguments.field).value();
+      evalStack.push(isMatch(l, r));
+   }
+
+   private static void switched(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var p1L = arguments.left.get(arguments.field).value();
+      final var p1R = arguments.right.get(arguments.field).value();
+      final var p2L = arguments.left.get(arguments.aux).value();
+      final var p2R = arguments.right.get(arguments.aux).value();
+      evalStack.push(isMatch(p1L, p1R) && isMatch(p2L, p2R)
+                     || isMatch(p1L, p2R) && isMatch(p2L, p1R));
+   }
+
+   private static void match(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = arguments.left.get(arguments.field).value();
+      final var r = arguments.right.get(arguments.field).value();
+      evalStack.push(!StringUtils.isEmpty(l)
+                     && !StringUtils.isEmpty(r)
+                     && DISTANCE.apply(l, r) <= arguments.aux);
+   }
+
+   private static void isNull(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      evalStack.push(StringUtils.isEmpty(arguments.left.get(arguments.field).value()));
+   }
+
+   private static void andOperator(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = evalStack.pop();
+      final var r = evalStack.pop();
+      evalStack.push(l && r);
+   }
+
+   private static void orOperator(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = evalStack.pop();
+      final var r = evalStack.pop();
+      evalStack.push(l || r);
+   }
+
+   private void generateDeterministicPrograms(final JsonConfig jsonConfig) {
       for (DeterministicRule deterministicRule : jsonConfig.rules().link().deterministic()) {
-         final var given = Arrays.asList(deterministicRule.text().split(" "));
-         final var computed = shuntingYard(given);
+         final var infix = Arrays.asList(deterministicRule.text().split(" "));
+         final var rpn = shuntingYard(infix);
          LOGGER.debug("{}", deterministicRule.text());
-         LOGGER.debug("{}", given);
-         LOGGER.debug("{}", computed);
+         LOGGER.debug("{}", infix);
+         LOGGER.debug("{}", rpn);
          final List<Operation> program = new ArrayList<>();
          var stackDepth = 0;
-         for (final String s : computed) {
+         for (final String s : rpn) {
             if (s.startsWith("eq")) {
                final var pattern = Pattern.compile("^eq\\((?<field>\\w+)\\)$");
                final var matcher = pattern.matcher(s);
@@ -130,62 +191,6 @@ public final class LinkerConfig {
          }
       }
 
-   }
-
-   static void eq(
-         final Deque<Boolean> evalStack,
-         final Arguments arguments) {
-      final var l = arguments.left.get(arguments.field).value();
-      final var r = arguments.right.get(arguments.field).value();
-      evalStack.push(!StringUtils.isEmpty(l)
-                     && !StringUtils.isEmpty(r)
-                     && l.equals(r));
-   }
-
-   static void switched(
-         final Deque<Boolean> evalStack,
-         final Arguments arguments) {
-      final var lIdx = arguments.left.get(arguments.field).value();
-      final var rIdx = arguments.right.get(arguments.field).value();
-      final var lP1 = arguments.left.get(arguments.aux).value();
-      final var rP1 = arguments.right.get(arguments.aux).value();
-      evalStack.push(!StringUtils.isEmpty(lIdx)
-                     && !StringUtils.isEmpty(rIdx)
-                     && !StringUtils.isEmpty(lP1)
-                     && !StringUtils.isEmpty(rP1)
-                     && ((lIdx.equals(rIdx) && lP1.equals(rP1)) || (lIdx.equals(rP1) && lP1.equals(rIdx))));
-   }
-
-   static void match(
-         final Deque<Boolean> evalStack,
-         final Arguments arguments) {
-      final var l = arguments.left.get(arguments.field).value();
-      final var r = arguments.right.get(arguments.field).value();
-      evalStack.push(!StringUtils.isEmpty(l)
-                     && !StringUtils.isEmpty(r)
-                     && DISTANCE.apply(l, r) <= arguments.aux);
-   }
-
-   static void isNull(
-         final Deque<Boolean> evalStack,
-         final Arguments arguments) {
-      evalStack.push(StringUtils.isEmpty(arguments.left.get(arguments.field).value()));
-   }
-
-   static void andOperator(
-         final Deque<Boolean> evalStack,
-         final Arguments arguments) {
-      final var l = evalStack.pop();
-      final var r = evalStack.pop();
-      evalStack.push(l && r);
-   }
-
-   static void orOperator(
-         final Deque<Boolean> evalStack,
-         final Arguments arguments) {
-      final var l = evalStack.pop();
-      final var r = evalStack.pop();
-      evalStack.push(l || r);
    }
 
    private int fieldIndexOf(

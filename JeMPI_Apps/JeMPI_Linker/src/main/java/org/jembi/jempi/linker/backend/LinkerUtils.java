@@ -12,7 +12,6 @@ public final class LinkerUtils {
    private LinkerUtils() {
    }
 
-
    public static float calcNormalizedMatchScore(
          final DemographicData goldenRecord,
          final DemographicData interaction) {

@@ -28,9 +28,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_START_SENTINEL;
-
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
@@ -117,7 +114,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
-                                .onMessage(RunStartStopHooksRequest.class, this::runStartStopHooks)
                                 .build();
    }
 
@@ -140,18 +136,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
       final var result = LinkerCR.crUpdateField(libMPI, req.crUpdateFields);
       req.replyTo.tell(new CrUpdateFieldResponse(result));
-      return Behaviors.same();
-   }
-
-   private Behavior<Request> runStartStopHooks(final RunStartStopHooksRequest req) {
-      List<MpiGeneralError> hookRunErrors = List.of();
-
-      if (req.batchInteraction.contentType() == BATCH_START_SENTINEL) {
-         hookRunErrors = libMPI.beforeLinkingHook();
-      } else if (req.batchInteraction.contentType() == BATCH_END_SENTINEL) {
-         hookRunErrors = libMPI.afterLinkingHook();
-      }
-      req.replyTo.tell(new RunStartStopHooksResponse(hookRunErrors));
       return Behaviors.same();
    }
 
@@ -292,15 +276,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record AsyncLinkInteractionResponse(LinkInfo linkInfo) implements Response {
-   }
-
-   public record RunStartStopHooksRequest(
-         ActorRef<RunStartStopHooksResponse> replyTo,
-         String key,
-         InteractionEnvelop batchInteraction) implements Request {
-   }
-
-   public record RunStartStopHooksResponse(List<MpiGeneralError> hooksResults) implements Response {
    }
 
    public record EventUpdateMUReq(
