@@ -151,12 +151,6 @@ public interface LibMPIClientInterface {
          Interaction interaction,
          float score);
 
-   Option<MpiGeneralError> deleteAllIndexes();
-   Option<MpiGeneralError> loadLinkingIndexes();
-   Option<MpiGeneralError> loadDefaultIndexes();
-   Boolean shouldUpdateLinkingIndexes();
-
-
    record GoldenIdScore(
          String goldenId,
          float score) {
