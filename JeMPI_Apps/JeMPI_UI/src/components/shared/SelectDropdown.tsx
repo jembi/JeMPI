@@ -70,13 +70,12 @@ const SelectDropdown = <T extends string>({
         value={selectedValuesList}
         onChange={handleChange}
         input={<OutlinedInput label={label} />}
-        renderValue={selected => {
-          return (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                <Chip  key={selected.toString()} label={selected} />
-            </Box>
-          );
-        }}
+        renderValue={selected => (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              <Chip  key={selected.toString()} label={selected} />
+          </Box>
+          )
+        }
         MenuProps={MenuProps}
       >
         {listValues.map(value => (
