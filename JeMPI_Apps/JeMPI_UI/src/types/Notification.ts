@@ -19,7 +19,8 @@ export interface GoldenRecordCandidate {
 
 export enum NotificationState {
   OPEN = 'OPEN',
-  CLOSED = 'CLOSED'
+  CLOSED = 'CLOSED',
+  ALL = 'ALL'
 }
 
 export type NotificationType = 'THRESHOLD' | 'MARGIN' | 'UPDATE'

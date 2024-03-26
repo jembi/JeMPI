@@ -30,18 +30,20 @@ function getStyles(value: string, personName: readonly string[], theme: Theme) {
   }
 }
 
-type MultiSelectProps<T extends string> = {
+type SelectDropdownProps<T extends string> = {
   listValues: T[]
   label: string
   defaultSelectedValues: T[]
   setSelectedValues: Dispatch<SetStateAction<T[]>>
+  multiple: boolean
 }
-const MultiSelect = <T extends string>({
+const SelectDropdown = <T extends string>({
   listValues,
   label,
   defaultSelectedValues,
-  setSelectedValues
-}: MultiSelectProps<T>) => {
+  setSelectedValues,
+  multiple
+}: SelectDropdownProps<T>) => {
   const theme = useTheme()
   const [selectedValuesList, setSelectedValuesList] = useState(
     defaultSelectedValues
@@ -59,22 +61,22 @@ const MultiSelect = <T extends string>({
   }, [selectedValuesList])
   return (
     <FormControl>
-      <InputLabel id="multiple-status-label">{label}</InputLabel>
+      <InputLabel id="single-status-label">{label}</InputLabel>
       <Select
         sx={{ minWidth: 300, maxHeight: 55 }}
-        labelId="multiple-status-label"
-        id="multiple-chip"
-        multiple
+        labelId="single-status-label"
+        id="single-chip"
+        multiple={multiple}
         value={selectedValuesList}
         onChange={handleChange}
         input={<OutlinedInput label={label} />}
-        renderValue={selected => (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {selected.map(value => (
-              <Chip key={value} label={value} />
-            ))}
-          </Box>
-        )}
+        renderValue={selected => {
+          return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <Chip  key={selected.toString()} label={selected} />
+            </Box>
+          );
+        }}
         MenuProps={MenuProps}
       >
         {listValues.map(value => (
@@ -91,4 +93,4 @@ const MultiSelect = <T extends string>({
   )
 }
 
-export default MultiSelect
+export default SelectDropdown

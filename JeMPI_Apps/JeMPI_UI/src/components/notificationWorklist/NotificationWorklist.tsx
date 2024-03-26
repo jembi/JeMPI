@@ -27,7 +27,7 @@ import { useConfig } from 'hooks/useConfig'
 import CustomPagination from 'components/shared/CustomDataGridPagination'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import MultiSelect from 'components/shared/MultiSelect'
+import SelectDropdown from 'components/shared/SelectDropdown'
 
 const NotificationWorklist = () => {
   const navigate = useNavigate()
@@ -117,11 +117,12 @@ const NotificationWorklist = () => {
                 }
               }}
             />
-            <MultiSelect
-              listValues={[NotificationState.OPEN, NotificationState.CLOSED]}
+            <SelectDropdown
+              listValues={[NotificationState.ALL, NotificationState.OPEN, NotificationState.CLOSED]}
               label="States"
               setSelectedValues={setSelectedStates}
               defaultSelectedValues={[NotificationState.OPEN]}
+              multiple={false}
             />
             <Button variant="contained" onClick={() => refetch()} size="large">
               Filter
