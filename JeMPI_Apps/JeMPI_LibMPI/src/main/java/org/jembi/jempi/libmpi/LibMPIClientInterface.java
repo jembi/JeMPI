@@ -98,7 +98,7 @@ public interface LibMPIClientInterface {
          LocalDateTime createdAt,
          PaginationOptions paginationOptions);
 
-   List<GoldenRecord> findGoldenRecords(ApiModels.ApiCrFindRequest request);
+   Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(ApiModels.ApiCrFindRequest request);
 
    /*
     * *****************************************************************************
@@ -150,6 +150,12 @@ public interface LibMPIClientInterface {
    LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          Interaction interaction,
          float score);
+
+   Option<MpiGeneralError> deleteAllIndexes();
+   Option<MpiGeneralError> loadLinkingIndexes();
+   Option<MpiGeneralError> loadDefaultIndexes();
+   Boolean shouldUpdateLinkingIndexes();
+
 
    record GoldenIdScore(
          String goldenId,

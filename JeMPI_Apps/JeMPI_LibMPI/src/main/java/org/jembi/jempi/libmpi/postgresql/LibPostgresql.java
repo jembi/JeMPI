@@ -134,9 +134,9 @@ public final class LibPostgresql implements LibMPIClientInterface {
       return List.of();
    }
 
-   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       LOGGER.error("Not implemented");
-      return Collections.emptyList();
+      return Either.left(Collections.emptyList());
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -289,6 +289,26 @@ public final class LibPostgresql implements LibMPIClientInterface {
       Edge.createEdge(gid, iid, Edge.EdgeName.GID2IID, new FacetScore(score));
 
       return new LinkInfo(gid.toString(), iid.toString(), null, score);
+   }
+
+   @Override
+   public Option<MpiGeneralError> deleteAllIndexes() {
+      return null;
+   }
+
+   @Override
+   public Option<MpiGeneralError> loadLinkingIndexes() {
+      return null;
+   }
+
+   @Override
+   public Option<MpiGeneralError> loadDefaultIndexes() {
+      return null;
+   }
+
+   @Override
+   public Boolean shouldUpdateLinkingIndexes() {
+      return false;
    }
 
    public void startTransaction() {

@@ -602,3 +602,4 @@ services:
       placement:
         constraints:
           - node.labels.name == ${PLACEMENT_UI}
+

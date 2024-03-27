@@ -45,7 +45,25 @@ public final class SPInteractions {
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final InteractionEnvelop interactionEnvelop) {
+
+/*
+      if (interactionEnvelop.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL
+              || interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+         final var completableFuture = Ask.runStartEndHooks(system, backEnd, key, interactionEnvelop).toCompletableFuture();
+         try {
+            List<MpiGeneralError> hookErrors = completableFuture.get(65, TimeUnit.SECONDS).hooksResults();
+            if (!hookErrors.isEmpty()) {
+               LOGGER.error(hookErrors);
+            }
+         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            LOGGER.error(ex.getLocalizedMessage(), ex);
+            this.close();
+         }
+      }
+*/
+
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
+
          return;
       }
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop).toCompletableFuture();

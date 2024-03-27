@@ -23,13 +23,7 @@ private object CustomPostgresqlInteraction {
          |final class $customClassName extends CustomDemographicData implements NodeData {
          |
          |   $customClassName(final CustomDemographicData customDemographicData) {
-         |      super(${fields
-          .map(field =>
-            s"""customDemographicData.${Utils.snakeCaseToCamelCase(
-                field.fieldName
-              )}"""
-          )
-          .mkString(s",${sys.props("line.separator")}            ")});
+         |      super(customDemographicData);
          |   }
          |
          |}

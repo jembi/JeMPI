@@ -98,9 +98,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
-   public List<GoldenRecord> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       final var goldenRecords = DgraphQueries.findGoldenRecords(request);
-      return goldenRecords.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+      if (goldenRecords.isLeft()) {
+         return Either.left(goldenRecords.getLeft().all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
+      } else {
+         return Either.right(goldenRecords.swap().getLeft());
+      }
    }
 
    private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(
@@ -264,6 +268,26 @@ public final class LibDgraph implements LibMPIClientInterface {
          final Interaction interaction,
          final float score) {
       return dgraphMutations.addNewDGraphInteraction(interaction);
+   }
+
+   @Override
+   public Option<MpiGeneralError> deleteAllIndexes() {
+      return dgraphMutations.deleteAllIndexes();
+   }
+
+   @Override
+   public Option<MpiGeneralError> loadLinkingIndexes() {
+      return dgraphMutations.loadLinkingIndexes();
+   }
+
+   @Override
+   public Option<MpiGeneralError> loadDefaultIndexes() {
+      return dgraphMutations.loadDefaultIndexes();
+   }
+
+   @Override
+   public Boolean shouldUpdateLinkingIndexes() {
+      return dgraphMutations.shouldUpdateLinkingIndexes();
    }
 
    public void startTransaction() {

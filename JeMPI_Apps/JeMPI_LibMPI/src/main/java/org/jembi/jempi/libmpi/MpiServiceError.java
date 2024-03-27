@@ -40,6 +40,16 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          CustomDemographicData request) implements MpiServiceError {
    }
 
+   record InvalidFunctionError(
+         String error
+         ) implements MpiServiceError {
+   }
+
+   record InvalidOperatorError(
+         String error
+   ) implements MpiServiceError {
+   }
+
    record CRUpdateFieldError(
          String goldenId,
          List<String> fields) implements MpiServiceError {

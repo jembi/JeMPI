@@ -153,7 +153,7 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var goldenRecordData = new CustomGoldenRecordData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            final var goldenRecordData = new GoldenRecordData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
             list.add(new NodeGoldenRecord(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), goldenRecordData));
          }
          return list;
@@ -175,7 +175,7 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var interactionData = new CustomInteractionData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            final var interactionData = new InteractionData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
             list.add(new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), interactionData));
          }
          return list;
@@ -192,7 +192,7 @@ public final class PostgresqlQueries {
          while (rs.next()) {
             final var id = rs.getString("id");
             final var json = rs.getString("fields");
-            final var goldenRecordData = new CustomGoldenRecordData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
+            final var goldenRecordData = new GoldenRecordData(OBJECT_MAPPER.readValue(json, CustomDemographicData.class));
             list.add(new GoldenRecord(id, null, new CustomUniqueGoldenRecordData(null), goldenRecordData));
          }
          return list;
@@ -228,7 +228,7 @@ public final class PostgresqlQueries {
          if (rs.next()) {
             final var id = rs.getString("id");
             final var goldenRecordData =
-                  new CustomGoldenRecordData(OBJECT_MAPPER.readValue(rs.getString("fields"), CustomDemographicData.class));
+                  new GoldenRecordData(OBJECT_MAPPER.readValue(rs.getString("fields"), CustomDemographicData.class));
             return new NodeGoldenRecord(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), goldenRecordData);
          }
          return null;
@@ -248,7 +248,7 @@ public final class PostgresqlQueries {
          if (rs.next()) {
             final var id = rs.getString("id");
             final var interactionData =
-                  new CustomInteractionData(OBJECT_MAPPER.readValue(rs.getString("fields"), CustomDemographicData.class));
+                  new InteractionData(OBJECT_MAPPER.readValue(rs.getString("fields"), CustomDemographicData.class));
             return new NodeInteraction(Node.NodeType.valueOf(rs.getString("type")), UUID.fromString(id), interactionData);
          }
          return null;
