@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.jembi.jempi.shared.utils.AppUtils.camelToSnake;
+
 final class DgraphMutations {
 
    private static final Logger LOGGER = LogManager.getLogger(DgraphMutations.class);
@@ -248,9 +250,6 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
-   String camelToSnake(final String str) {
-      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
-   }
 
    boolean updateGoldenRecordField(
          final String goldenId,

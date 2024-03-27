@@ -60,17 +60,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return list.stream().map(CustomDgraphExpandedInteraction::toExpandedInteraction).toList();
    }
 
-   public GoldenRecord findGoldenRecord(final String goldenId) {
-      final var rec = DgraphQueries.findDgraphGoldenRecord(goldenId);
-      if (rec == null) {
-         return null;
-      }
-      return rec.toGoldenRecord();
-   }
-
-   public List<GoldenRecord> findGoldenRecords(final List<String> ids) {
+   public Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final List<String> ids) {
       final var list = DgraphQueries.findGoldenRecords(ids);
-      return list.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+      if (list.isRight()) {
+         return Either.right(list.get().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
+      } else {
+         return Either.left(list.getLeft());
+      }
    }
 
    public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
@@ -98,12 +94,12 @@ public final class LibDgraph implements LibMPIClientInterface {
       return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
    }
 
-   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       final var goldenRecords = DgraphQueries.findGoldenRecords(request);
-      if (goldenRecords.isLeft()) {
-         return Either.left(goldenRecords.getLeft().all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
+      if (goldenRecords.isRight()) {
+         return Either.right(goldenRecords.get().all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
       } else {
-         return Either.right(goldenRecords.swap().getLeft());
+         return Either.left(goldenRecords.getLeft());
       }
    }
 
@@ -113,7 +109,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          return null;
       }
       final var data = list.all().stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
-      final var pagination = list.pagination().get(0);
+      final var pagination = list.pagination().getFirst();
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 

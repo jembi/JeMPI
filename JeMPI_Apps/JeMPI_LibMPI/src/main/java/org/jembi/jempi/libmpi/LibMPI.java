@@ -7,11 +7,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.dgraph.LibDgraph;
-import org.jembi.jempi.libmpi.postgresql.LibPostgresql;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AuditTrailBridge;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -39,28 +39,12 @@ public final class LibMPI {
       auditTrailUtil = new AuditTrailBridge(topicAuditEvents);
    }
 
-   public LibMPI(
-         final String URL,
-         final String USR,
-         final String PSW,
-         final String kafkaBootstrapServers,
-         final String kafkaClientId) {
-      LOGGER.info("{}", "LibMPI Constructor");
-      topicAuditEvents = new MyKafkaProducer<>(kafkaBootstrapServers,
-                                               GlobalConstants.TOPIC_AUDIT_TRAIL,
-                                               new StringSerializer(),
-                                               new JsonPojoSerializer<>(),
-                                               kafkaClientId);
-      client = new LibPostgresql(URL, USR, PSW);
-      auditTrailUtil = new AuditTrailBridge(topicAuditEvents);
-   }
-
    private void sendAuditEvent(
-           final String interactionID,
-           final String goldenID,
-           final String message,
-           final float score,
-           final LinkingRule linkingRule) {
+         final String interactionID,
+         final String goldenID,
+         final String message,
+         final float score,
+         final LinkingRule linkingRule) {
 
       LinkingAuditEventData linkingEvent = new LinkingAuditEventData(message, interactionID, goldenID, score, linkingRule);
       auditTrailUtil.sendAuditEvent(GlobalConstants.AuditEventType.LINKING_EVENT, linkingEvent);
@@ -123,18 +107,26 @@ public final class LibMPI {
       return client.findExpandedInteractions(interactionIDs);
    }
 
-   public GoldenRecord findGoldenRecord(final String goldenId) {
-      return client.findGoldenRecord(goldenId);
+   public Either<MpiGeneralError, GoldenRecord> findGoldenRecord(final String goldenId) {
+      final var records = client.findGoldenRecords(List.of(goldenId));
+      if (records.isRight()) {
+         if (!records.get().isEmpty()) {
+            return Either.right(records.get().getFirst());
+         } else {
+            return Either.left(new MpiServiceError.CRGidDoesNotExistError(goldenId));
+         }
+      }
+      return Either.left(records.getLeft());
    }
 
-   public List<GoldenRecord> findGoldenRecords(final List<String> goldenIds) {
+   public Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final List<String> goldenIds) {
       return client.findGoldenRecords(goldenIds);
    }
 
    public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
       final var records = client.findExpandedGoldenRecords(List.of(goldenId));
       if (!records.isEmpty()) {
-         return records.get(0);
+         return records.getFirst();
       }
       return null;
    }
@@ -161,8 +153,8 @@ public final class LibMPI {
       return client.findMatchCandidates(demographicData);
    }
 
-   public Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest request) {
-      return client.findGoldenRecords(request);
+   public Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+      return client.apiCrFindGoldenRecords(request);
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -230,9 +222,17 @@ public final class LibMPI {
          final float newScore) {
       final var result = client.setScore(interactionID, goldenID, newScore);
       if (result) {
-         sendAuditEvent(interactionID, goldenID, String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore), newScore, LinkingRule.UNMATCHED);
+         sendAuditEvent(interactionID,
+                        goldenID,
+                        String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore),
+                        newScore,
+                        LinkingRule.UNMATCHED);
       } else {
-         sendAuditEvent(interactionID, goldenID, String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore), newScore, LinkingRule.UNMATCHED);
+         sendAuditEvent(interactionID,
+                        goldenID,
+                        String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore),
+                        newScore,
+                        LinkingRule.UNMATCHED);
 
       }
       return result;
@@ -255,20 +255,20 @@ public final class LibMPI {
       final var result = client.updateGoldenRecordField(goldenId, fieldName, newValue);
       if (result) {
          sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
-                 "%s: '%s' -> '%s'",
-                 fieldName,
-                 oldValue,
-                 newValue),
-                 -1.0F,
-                 LinkingRule.UNMATCHED);
+                                                               "%s: '%s' -> '%s'",
+                                                               fieldName,
+                                                               oldValue,
+                                                               newValue),
+                        -1.0F,
+                        LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
-                "%s: error updating '%s' -> '%s'",
-                fieldName,
-                oldValue,
-                newValue),
-                -1.0F,
-                LinkingRule.UNMATCHED);
+                                                               "%s: error updating '%s' -> '%s'",
+                                                               fieldName,
+                                                               oldValue,
+                                                               newValue),
+                        -1.0F,
+                        LinkingRule.UNMATCHED);
       }
       return result;
    }
@@ -288,12 +288,12 @@ public final class LibMPI {
                                       score), score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interactionId,
-                       currentGoldenId,
-                       String.format(Locale.ROOT,
-                               "Interaction -> update GoldenID error: old(%s) [%f]",
-                               currentGoldenId, score),
-                               score,
-                               LinkingRule.UNMATCHED);
+                        currentGoldenId,
+                        String.format(Locale.ROOT,
+                                      "Interaction -> update GoldenID error: old(%s) [%f]",
+                                      currentGoldenId, score),
+                        score,
+                        LinkingRule.UNMATCHED);
       }
       return result;
    }
@@ -357,16 +357,16 @@ public final class LibMPI {
       final var result = client.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
       if (result != null) {
          sendAuditEvent(result.interactionUID(),
-                 result.goldenUID(),
-                 String.format(Locale.ROOT,
-                         "Interaction -> New GoldenRecord (%f)", score),
-                 score, LinkingRule.UNMATCHED);
+                        result.goldenUID(),
+                        String.format(Locale.ROOT,
+                                      "Interaction -> New GoldenRecord (%f)", score),
+                        score, LinkingRule.UNMATCHED);
       } else {
          sendAuditEvent(interaction.interactionId(),
-                 null,
-                 String.format(Locale.ROOT,
-                         "Interaction -> error linking to new GoldenRecord (%f)", score),
-                 score, LinkingRule.UNMATCHED);
+                        null,
+                        String.format(Locale.ROOT,
+                                      "Interaction -> error linking to new GoldenRecord (%f)", score),
+                        score, LinkingRule.UNMATCHED);
       }
       return result;
    }

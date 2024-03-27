@@ -116,6 +116,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
+                                .onMessage(CrLinkUpdateRequest.class, this::crLinkUpdate)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
                                 .build();
    }
@@ -138,10 +139,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       final var goldenRecords = LinkerCR.crFind(libMPI, req.crFindData);
-      if (goldenRecords.isLeft()) {
-         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.getLeft())));
+      if (goldenRecords.isRight()) {
+         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.get())));
       } else {
-         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.swap().getLeft())));
+         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.getLeft())));
       }
       return Behaviors.same();
    }
@@ -155,6 +156,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       final var result = LinkerCR.crRegister(libMPI, req.crRegister);
       req.replyTo.tell(new CrRegisterResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkUpdate(final CrLinkUpdateRequest req) {
+      final var result = LinkerCR.crLinkUpdate(libMPI, req.crLinkUpdate);
+      req.replyTo.tell(new CrLinkUpdateResponse(result));
       return Behaviors.same();
    }
 
@@ -277,16 +284,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> calculateScoresHandler(final CalculateScoresRequest request) {
       final var interaction = libMPI.findInteraction(request.calculateScoresRequest.interactionId());
       final var goldenRecords = libMPI.findGoldenRecords(request.calculateScoresRequest.goldenIds());
-      final var scores = goldenRecords.parallelStream()
-                                      .unordered()
-                                      .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                             LinkerUtils.calcNormalizedScore(
-                                                                                                                   goldenRecord.demographicData(),
-                                                                                                                   interaction.demographicData())))
-                                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                      .collect(Collectors.toCollection(ArrayList::new));
-      request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
-                                                                                                scores)));
+      if (goldenRecords.isLeft()) {
+         final var scores = goldenRecords.get().parallelStream()
+                                         .unordered()
+                                         .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
+                                                                                                                LinkerUtils.calcNormalizedScore(
+                                                                                                                      goldenRecord.demographicData(),
+                                                                                                                      interaction.demographicData())))
+                                         .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                         .collect(Collectors.toCollection(ArrayList::new));
+         request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
+                                                                                                   scores)));
+      } else {
+         request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(null, List.of())));
+      }
       return Behaviors.same();
    }
 
@@ -389,6 +400,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record CrRegisterResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkUpdateRequest(
+         ApiModels.ApiCrLinkUpdateRequest crLinkUpdate,
+         ActorRef<CrLinkUpdateResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkUpdateResponse(
          Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 

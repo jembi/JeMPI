@@ -40,6 +40,15 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          CustomDemographicData request) implements MpiServiceError {
    }
 
+   record CRGidDoesNotExistError(
+         String gid) implements MpiServiceError {
+   }
+
+   record CRLinkUpdateError(
+         CustomDemographicData interaction) implements MpiServiceError {
+   }
+
+
    record InvalidFunctionError(
          String error
          ) implements MpiServiceError {

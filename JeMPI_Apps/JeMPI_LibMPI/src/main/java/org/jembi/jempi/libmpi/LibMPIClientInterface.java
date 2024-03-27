@@ -44,9 +44,7 @@ public interface LibMPIClientInterface {
 
    List<ExpandedInteraction> findExpandedInteractions(List<String> interactionIDs);
 
-   GoldenRecord findGoldenRecord(String goldenId);
-
-   List<GoldenRecord> findGoldenRecords(List<String> goldenIds);
+   Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(List<String> goldenIds);
 
    List<ExpandedGoldenRecord> findExpandedGoldenRecords(List<String> goldenIds);
 
@@ -98,7 +96,7 @@ public interface LibMPIClientInterface {
          LocalDateTime createdAt,
          PaginationOptions paginationOptions);
 
-   Either<List<GoldenRecord>, MpiGeneralError> findGoldenRecords(ApiModels.ApiCrFindRequest request);
+   Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(ApiModels.ApiCrFindRequest request);
 
    /*
     * *****************************************************************************

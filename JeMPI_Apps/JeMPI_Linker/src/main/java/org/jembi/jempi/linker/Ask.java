@@ -3,12 +3,16 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 
 import java.util.concurrent.CompletionStage;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class Ask {
 
@@ -65,6 +69,34 @@ final class Ask {
                                                                                java.time.Duration.ofSeconds(10),
                                                                                actorSystem.scheduler());
       return stage.thenApply(response -> {
+         if (response.linkInfo().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.linkInfo().get());
+         }
+         return response;
+      });
+   }
+
+   static CompletionStage<BackEnd.CrLinkUpdateResponse> postCrLinkUpdate(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrLinkUpdateRequest body) {
+      final CompletionStage<BackEnd.CrLinkUpdateResponse> stage = AskPattern.ask(backEnd,
+                                                                                 replyTo -> new BackEnd.CrLinkUpdateRequest(body,
+                                                                                                                            replyTo),
+                                                                                 java.time.Duration.ofSeconds(10),
+                                                                                 actorSystem.scheduler());
+      return stage.thenApply(response -> {
+         try {
+            if (response.linkInfo().isLeft()) {
+               LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(response.linkInfo().getLeft()));
+            } else {
+               LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(response.linkInfo().get()));
+            }
+         } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+         }
          if (response.linkInfo().isLeft()) {
             LOGGER.debug("ERROR");
          } else {
@@ -148,7 +180,6 @@ final class Ask {
                                                                               actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
-
 
 
 //   static CompletionStage<BackEnd.EventGetMURsp> getMU(

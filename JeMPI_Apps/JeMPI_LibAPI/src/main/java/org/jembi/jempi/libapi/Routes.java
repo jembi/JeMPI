@@ -716,6 +716,29 @@ public final class Routes {
       return stage.thenApply(response -> response);
    }
 
+   private static CompletionStage<HttpResponse> postCrLinkUpdateProxy(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.ApiCrLinkUpdateRequest body) throws JsonProcessingException {
+      final HttpRequest request;
+      final byte[] json;
+      try {
+         json = OBJECT_MAPPER.writeValueAsBytes(body);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         throw e;
+      }
+      request = HttpRequest.create(String.format(Locale.ROOT,
+                                                 "http://%s:%d/JeMPI/%s",
+                                                 linkerIP,
+                                                 linkerPort,
+                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_UPDATE))
+                           .withMethod(HttpMethods.POST)
+                           .withEntity(ContentTypes.APPLICATION_JSON, json);
+      return http.singleRequest(request).thenApply(response -> response);
+   }
+
    private static CompletionStage<HttpResponse> postLinkInteractionProxy(
          final String linkerIP,
          final Integer linkerPort,
@@ -904,6 +927,28 @@ public final class Routes {
                     });
    }
 
+   private static Route postCrLinkUpdate(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkUpdateRequest.class),
+                    obj -> {
+                       try {
+                          return onComplete(postCrLinkUpdateProxy(linkerIP, linkerPort, http, obj),
+                                            response -> {
+                                               if (!response.isSuccess()) {
+                                                  LOGGER.warn(IM_A_TEA_POT_LOG);
+                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                               }
+                                               return complete(response.get());
+                                            });
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
+                       }
+                    });
+   }
+
    private static Route postLinkInteraction(
          final String linkerIP,
          final Integer linkerPort,
@@ -985,6 +1030,8 @@ public final class Routes {
                                            () -> Routes.postLinkInteractionToGid(linkerIP, linkerPort, http)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
                                            () -> Routes.postCrRegister(linkerIP, linkerPort, http)),
+                                      path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_UPDATE,
+                                           () -> Routes.postCrLinkUpdate(linkerIP, linkerPort, http)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
                                            () -> Routes.postCrFind(linkerIP, linkerPort, http)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
@@ -1031,8 +1078,6 @@ public final class Routes {
                                           () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
                                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
                                           () -> Routes.getNotifications(actorSystem, backEnd)),
-                                     path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                                           "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
                                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
                                            "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
                                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),

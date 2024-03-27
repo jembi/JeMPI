@@ -8,6 +8,7 @@ import akka.http.javadsl.model.RequestEntity;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
@@ -46,9 +47,12 @@ final class Routes {
          case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, JSON_MARSHALLER);
          case MpiServiceError.CRClientExistsError e -> complete(StatusCodes.CONFLICT, e, JSON_MARSHALLER);
          case MpiServiceError.CRUpdateFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
+         case MpiServiceError.CRGidDoesNotExistError e -> complete(StatusCodes.NOT_FOUND, e, JSON_MARSHALLER);
+         case MpiServiceError.CRLinkUpdateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
          case MpiServiceError.CRMissingFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
          case MpiServiceError.InvalidFunctionError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
          case MpiServiceError.InvalidOperatorError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
+         case MpiServiceError.GeneralError e -> complete(StatusCodes.INTERNAL_SERVER_ERROR, e, JSON_MARSHALLER);
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }
@@ -156,6 +160,43 @@ final class Routes {
                        } else {
                           return complete(StatusCodes.OK,
                                           new ApiModels.ApiCrRegisterResponse(rsp.linkInfo().get()),
+                                          Jackson.marshaller(OBJECT_MAPPER));
+                       }
+                    }));
+   }
+
+   static Route proxyPostCrLinkUpdate(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkUpdateRequest.class),
+                    obj -> onComplete(Ask.postCrLinkUpdate(actorSystem, backEnd, obj), response -> {
+                       if (!response.isSuccess()) {
+                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                       }
+                       final var rsp = response.get();
+                       try {
+                          if (rsp.linkInfo().isLeft()) {
+                             LOGGER.warn("{}", OBJECT_MAPPER.writeValueAsString(rsp.linkInfo().getLeft()));
+                          } else {
+                             LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(rsp.linkInfo().get()));
+                          }
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                       }
+                       if (rsp.linkInfo().isLeft()) {
+                          final var error = rsp.linkInfo().getLeft();
+                          try {
+                             LOGGER.warn("Error: {}", OBJECT_MAPPER.writeValueAsString(error));
+                          } catch (JsonProcessingException e) {
+                             LOGGER.error(e.getLocalizedMessage(), e);
+                          }
+                          return mapError(error);
+                       } else {
+                          final var result = rsp.linkInfo().get();
+                          LOGGER.debug("OK: {}", result);
+                          return complete(StatusCodes.OK,
+                                          new ApiModels.ApiCrLinkUpdateResponse(result),
                                           Jackson.marshaller(OBJECT_MAPPER));
                        }
                     }));

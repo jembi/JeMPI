@@ -102,6 +102,13 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkUpdateRequest(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionSyncBody(
@@ -125,6 +132,10 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterResponse(LinkInfo linkInfo) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkUpdateResponse(LinkInfo linkInfo) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
