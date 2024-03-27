@@ -13,7 +13,9 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.CustomMU;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.UploadConfig;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -30,6 +32,7 @@ public final class SPInteractions {
    private static final Logger LOGGER = LogManager.getLogger(SPInteractions.class);
    private final String topic;
    private KafkaStreams interactionEnvelopKafkaStreams;
+   private KafkaStreams uploadConfigKafkaStreams;
 
    private SPInteractions(final String topic_) {
       LOGGER.info("SPInteractions constructor");
@@ -44,11 +47,13 @@ public final class SPInteractions {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final InteractionEnvelop interactionEnvelop) {
+         final InteractionEnvelop interactionEnvelop,
+         final UploadConfig uploadConfig) {
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
          return;
       }
-      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop).toCompletableFuture();
+      final var completableFuture =
+            Ask.linkInteraction(system, backEnd, key, interactionEnvelop, uploadConfig).toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
@@ -56,7 +61,7 @@ public final class SPInteractions {
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
-         this.close();
+         this.closeInteractionStream();
       }
 
    }
@@ -67,26 +72,45 @@ public final class SPInteractions {
       LOGGER.info("SPInteractions Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
+      final UploadConfig[] uploadConfig = {null};
+      final var uploadConfigSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
+                                                     new JsonPojoDeserializer<>(UploadConfig.class));
       final var interactionEnvelopSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
                                                            new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> interactionStream =
             streamsBuilder.stream(topic, Consumed.with(stringSerde, interactionEnvelopSerde));
+      final KStream<String, UploadConfig> uploadConfigStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_UPLOAD_CONFIG, Consumed.with(stringSerde, uploadConfigSerde));
+      uploadConfigStream.foreach((key, config) -> {
+         uploadConfig[0] = config;
+         //todo: remove logging
+         LOGGER.info(config);
+         this.closeUploadConfigStream();
+      });
       interactionStream.foreach((key, interactionEnvelop) -> {
-         linkPatient(system, backEnd, key, interactionEnvelop);
+         linkPatient(system, backEnd, key, interactionEnvelop, uploadConfig[0]);
          if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-            this.close();
+            this.closeInteractionStream();
          }
       });
       interactionEnvelopKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionEnvelopKafkaStreams.cleanUp();
       interactionEnvelopKafkaStreams.start();
+      uploadConfigKafkaStreams = new KafkaStreams(streamsBuilder.build(), loadConfig());
+      uploadConfigKafkaStreams.cleanUp();
+      uploadConfigKafkaStreams.start();
       LOGGER.info("KafkaStreams started");
    }
 
-   private void close() {
+   private void closeInteractionStream() {
       LOGGER.info("Stream closed");
       interactionEnvelopKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
+   }
+
+   private void closeUploadConfigStream() {
+      LOGGER.info("UploadConfig Stream closed");
+      uploadConfigKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
    }
 
    private Properties loadConfig() {
