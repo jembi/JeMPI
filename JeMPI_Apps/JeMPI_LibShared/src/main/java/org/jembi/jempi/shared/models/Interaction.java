@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record Interaction(
-            String interactionId,
-            CustomSourceId sourceId,
-            CustomUniqueInteractionData uniqueInteractionData,
-            CustomDemographicData demographicData,
-            LinkConfig linkerConfig) {
+        String interactionId,
+        CustomSourceId sourceId,
+        CustomUniqueInteractionData uniqueInteractionData,
+        CustomDemographicData demographicData) {
 }

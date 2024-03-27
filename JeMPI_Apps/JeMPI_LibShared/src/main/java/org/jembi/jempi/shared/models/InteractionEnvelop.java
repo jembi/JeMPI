@@ -8,12 +8,14 @@ public record InteractionEnvelop(
       String tag,
       String stan,
       // System Trace Audit Number
-      Interaction interaction) {
+      Interaction interaction,
+      LinkConfig linkerConfig) {
 
    public enum ContentType {
       BATCH_START_SENTINEL(ContentType.MESSAGE_START_VALUE),
       BATCH_END_SENTINEL(ContentType.MESSAGE_END_VALUE),
       BATCH_INTERACTION(ContentType.MESSAGE_INTERACTION_VALUE);
+
       public static final int MESSAGE_START_VALUE = 1;
       public static final int MESSAGE_END_VALUE = 2;
       public static final int MESSAGE_INTERACTION_VALUE = 3;
@@ -26,5 +28,3 @@ public record InteractionEnvelop(
    }
 
 }
-
-

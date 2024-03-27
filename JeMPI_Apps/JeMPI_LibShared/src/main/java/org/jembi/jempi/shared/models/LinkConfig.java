@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class LinkConfig {
     private Boolean reporting;
     private Integer computing;
-    private Double leftMargin;
+    private Double leftMargin; // low
     private Double threshold;
-    private Double rightMargin;
+    private Double rightMargin; // high
     private Double windowSize;
 
     public LinkConfig() {

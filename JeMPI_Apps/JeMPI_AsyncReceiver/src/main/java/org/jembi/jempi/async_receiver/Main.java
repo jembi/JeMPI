@@ -112,6 +112,7 @@ public final class Main {
                     new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
                             tag,
                             String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                            null,
                             null));
             for (CSVRecord csvRecord : csvParser) {
                 final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
@@ -122,8 +123,8 @@ public final class Main {
                                 CustomAsyncHelper.customUniqueInteractionData(
                                         csvRecord),
                                 CustomAsyncHelper.customDemographicData(
-                                        csvRecord),
-                                linkerConfig));
+                                        csvRecord)),
+                        null);
 
                 sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
             }
@@ -131,7 +132,7 @@ public final class Main {
                     new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
                             tag,
                             String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                            null));
+                            null, null));
         } catch (IOException ex) {
             LOGGER.error(ex.getLocalizedMessage(), ex);
         }
@@ -153,6 +154,7 @@ public final class Main {
                     Path path = Paths.get(txtFilePath);
                     Path newFilePath = path.resolveSibling(path.getFileName().toString().replace(".txt", ".csv"));
                     String newFilePathString = newFilePath.toString();
+                    // write a method to send linker config to new kafka topic
                     apacheReadCSV(newFilePathString, config);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -192,7 +194,7 @@ public final class Main {
         try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
             final var tempTxtDir = Path.of("./txt");
             tempTxtDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
-            for (; ; ) {
+            for (;;) {
                 WatchKey key = watchService.take();
                 for (WatchEvent<?> event : key.pollEvents()) {
                     handleEvent(event);

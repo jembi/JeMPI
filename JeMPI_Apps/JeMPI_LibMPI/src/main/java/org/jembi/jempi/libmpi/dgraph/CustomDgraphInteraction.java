@@ -27,35 +27,35 @@ record CustomDgraphInteraction(
          final Interaction interaction,
          final Float score) {
       this(interaction.interactionId(),
-           new DgraphSourceId(interaction.sourceId()),
-           interaction.uniqueInteractionData().auxDateCreated(),
-           interaction.uniqueInteractionData().auxId(),
-           interaction.uniqueInteractionData().auxClinicalData(),
-           interaction.demographicData().givenName,
-           interaction.demographicData().familyName,
-           interaction.demographicData().gender,
-           interaction.demographicData().dob,
-           interaction.demographicData().city,
-           interaction.demographicData().phoneNumber,
-           interaction.demographicData().nationalId,
-           score);
+            new DgraphSourceId(interaction.sourceId()),
+            interaction.uniqueInteractionData().auxDateCreated(),
+            interaction.uniqueInteractionData().auxId(),
+            interaction.uniqueInteractionData().auxClinicalData(),
+            interaction.demographicData().givenName,
+            interaction.demographicData().familyName,
+            interaction.demographicData().gender,
+            interaction.demographicData().dob,
+            interaction.demographicData().city,
+            interaction.demographicData().phoneNumber,
+            interaction.demographicData().nationalId,
+            score);
    }
 
    Interaction toInteraction() {
       return new Interaction(this.interactionId(),
-                             this.sourceId() != null
-                                   ? this.sourceId().toSourceId()
-                                   : null,
-                             new CustomUniqueInteractionData(this.auxDateCreated,
-                                                               this.auxId,
-                                                               this.auxClinicalData),
-                             new CustomDemographicData(this.givenName,
-                                                       this.familyName,
-                                                       this.gender,
-                                                       this.dob,
-                                                       this.city,
-                                                       this.phoneNumber,
-                                                       this.nationalId));
+            this.sourceId() != null
+                  ? this.sourceId().toSourceId()
+                  : null,
+            new CustomUniqueInteractionData(this.auxDateCreated,
+                  this.auxId,
+                  this.auxClinicalData),
+            new CustomDemographicData(this.givenName,
+                  this.familyName,
+                  this.gender,
+                  this.dob,
+                  this.city,
+                  this.phoneNumber,
+                  this.nationalId));
    }
 
    InteractionWithScore toInteractionWithScore() {
@@ -63,4 +63,3 @@ record CustomDgraphInteraction(
    }
 
 }
-

@@ -8,6 +8,7 @@ TOPIC_MU_CONTROLLER="JeMPI-mu-controller"
 TOPIC_MU_LINKER="JeMPI-mu-linker"
 TOPIC_AUDIT_TRAIL="JeMPI-audit-trail"
 TOPIC_NOTIFICATIONS="JeMPI-notifications"
+#  add config kafka topics
 
 declare -a TOPICS=(
   $TOPIC_INTERACTION_ETL
