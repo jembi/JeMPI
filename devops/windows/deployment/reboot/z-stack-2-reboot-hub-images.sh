@@ -9,7 +9,7 @@ source ./helper/scripts/d-stack-08-rm.sh
 source ./helper/scripts/d-stack-09-wait-removed.sh
 
 echo "Waiting for Down stack..."
-sleep 20
+sleep 60
 
 echo
 echo "Up app containers"
