@@ -7,6 +7,5 @@ public record Interaction(
             String interactionId,
             CustomSourceId sourceId,
             CustomUniqueInteractionData uniqueInteractionData,
-            CustomDemographicData demographicData,
-            LinkConfig linkerConfig) {
+            CustomDemographicData demographicData) {
 }

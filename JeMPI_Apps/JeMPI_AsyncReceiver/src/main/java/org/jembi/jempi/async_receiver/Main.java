@@ -1,5 +1,6 @@
 package org.jembi.jempi.async_receiver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
@@ -13,14 +14,13 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.LinkConfig;
+import org.jembi.jempi.shared.models.UploadConfig;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +33,7 @@ public final class Main {
    private static final Logger LOGGER = LogManager.getLogger(Main.class.getName());
 
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
+   private MyKafkaProducer<String, UploadConfig> uploadConfigProducer;
 
    public Main() {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
@@ -66,11 +67,21 @@ public final class Main {
       return in;
    }
 
-   private void sendToKafka(
+   private void sendInteractionToKafka(
          final String key,
          final InteractionEnvelop interactionEnvelop) throws InterruptedException, ExecutionException {
       try {
          interactionEnvelopProducer.produceSync(key, interactionEnvelop);
+      } catch (NullPointerException ex) {
+         LOGGER.error(ex.getLocalizedMessage(), ex);
+      }
+   }
+
+   private void sendUploadConfigToKafka(
+         final String key,
+         final UploadConfig config) throws InterruptedException, ExecutionException {
+      try {
+         uploadConfigProducer.produceSync(key, config);
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -87,7 +98,7 @@ public final class Main {
       return size;
    }
 
-   private void apacheReadCSV(final String fileName, LinkConfig linkerConfig)
+   private void apacheReadCSV(final String fileName)
          throws InterruptedException, ExecutionException {
       try {
          final var filePathUri = Paths.get(fileName);
@@ -107,8 +118,8 @@ public final class Main {
                .parse(reader);
 
          int index = 0;
-         sendToKafka(uuid,
-               new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
+         sendInteractionToKafka(uuid,
+                                new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
                      tag,
                      String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                      null));
@@ -121,18 +132,29 @@ public final class Main {
                         CustomAsyncHelper.customUniqueInteractionData(
                               csvRecord),
                         CustomAsyncHelper.customDemographicData(
-                              csvRecord),
-                        linkerConfig));
+                              csvRecord)));
 
-            sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
+            sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
          }
-         sendToKafka(uuid,
-               new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
+         sendInteractionToKafka(uuid,
+                                new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
                      tag,
                      String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                      null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
+      }
+   }
+
+   private void readQueriesTxt(final String fileName)
+         throws InterruptedException, ExecutionException {
+      try {
+         final var uuid = UUID.randomUUID().toString();
+         var lines = Files.readAllLines(Path.of(fileName));
+         var config = new ObjectMapper().readValue(lines.getFirst(), UploadConfig.class);
+         sendUploadConfigToKafka(uuid, config);
+      } catch (IOException e) {
+         LOGGER.error("Failed to read uploadConfig.txt" + e.getLocalizedMessage());
       }
    }
 
@@ -145,17 +167,11 @@ public final class Main {
          String name = filename.toString();
          LOGGER.info("A new file {} was created", filename);
          if (name.endsWith(".txt")) {
-            LOGGER.info("Start reading txt: {}", filename);
-            String txtFilePath = "txt/" + filename;
-            try {
-               LinkConfig config = readAndRemoveFirstLine(txtFilePath);
-               Path path = Paths.get(txtFilePath);
-               Path newFilePath = path.resolveSibling(path.getFileName().toString().replace(".txt", ".csv"));
-               String newFilePathString = newFilePath.toString();
-               apacheReadCSV(newFilePathString, config);
-            } catch (IOException e) {
-               e.printStackTrace();
-            }
+            readQueriesTxt("csv/" + filename);
+         }
+         if (name.endsWith(".csv")) {
+            LOGGER.info("Process CSV file: {}", filename);
+            apacheReadCSV("csv/" + filename);
          }
       } else if (ENTRY_MODIFY.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
@@ -164,33 +180,32 @@ public final class Main {
       }
    }
 
-   private LinkConfig readAndRemoveFirstLine(String txtFilePath) throws IOException {
-      Path path = Paths.get(txtFilePath);
-      List<String> lines = Files.readAllLines(path);
-      String firstLine = lines.get(0);
-      lines.remove(0);
-      Files.write(path, lines);
-      return LinkConfig.fromString(firstLine);
-   }
-
    private Serializer<String> keySerializer() {
       return new StringSerializer();
    }
 
-   private Serializer<InteractionEnvelop> valueSerializer() {
+   private Serializer<InteractionEnvelop> interactionSerializer() {
+      return new JsonPojoSerializer<>();
+   }
+   private Serializer<UploadConfig> uploadConfigSerializer() {
       return new JsonPojoSerializer<>();
    }
 
    private void run() throws InterruptedException, ExecutionException, IOException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-            GlobalConstants.TOPIC_INTERACTION_ETL,
-            keySerializer(),
-            valueSerializer(),
-            AppConfig.KAFKA_CLIENT_ID);
+                                                         GlobalConstants.TOPIC_INTERACTION_ETL,
+                                                         keySerializer(),
+                                                         interactionSerializer(),
+                                                         AppConfig.KAFKA_CLIENT_ID);
+      uploadConfigProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                   GlobalConstants.TOPIC_UPLOAD_CONFIG,
+                                                   keySerializer(),
+                                                   uploadConfigSerializer(),
+                                                   AppConfig.KAFKA_CLIENT_ID);
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-         final var tempTxtDir = Path.of("./txt");
-         tempTxtDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+         final var csvDir = Path.of("./csv");
+         csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
          for (;;) {
             WatchKey key = watchService.take();
             for (WatchEvent<?> event : key.pollEvents()) {

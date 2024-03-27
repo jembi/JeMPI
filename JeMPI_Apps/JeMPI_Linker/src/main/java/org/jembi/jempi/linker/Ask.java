@@ -104,9 +104,10 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final InteractionEnvelop batchInteraction) {
+         final InteractionEnvelop batchInteraction,
+         final UploadConfig uploadConfig) {
       return AskPattern.ask(backEnd,
-                            replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction),
+                            replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction, uploadConfig),
                             java.time.Duration.ofSeconds(60),
                             actorSystem.scheduler());
    }

@@ -447,7 +447,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       File file = request.file();
       try {
          String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
-         Files.copy(file.toPath(), Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName()));
+         var path = Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName());
+         if (request.config != null) {
+            Files.write(Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName()
+                                  + "-uploadConfig.txt"), request.config.getBytes());
+         }
+         Files.copy(file.toPath(), path);
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
@@ -666,7 +671,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileRequest(
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
-         File file) implements Event {
+         File file,
+         String config) implements Event {
    }
 
    public record PostUploadCsvFileResponse() implements EventResponse {
