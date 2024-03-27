@@ -60,7 +60,7 @@ final class LinkerCR {
       }
    }
 
-   static Interaction applyAutoCreateFunctions(final Interaction interaction) {
+   private static Interaction applyAutoCreateFunctions(final Interaction interaction) {
       return new Interaction(interaction.interactionId(),
                              interaction.sourceId(),
                              interaction.uniqueInteractionData(),
