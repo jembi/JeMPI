@@ -330,7 +330,9 @@ public final class Ask {
       CompletionStage<BackEnd.PostUpdateNotificationResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.PostUpdateNotificationRequest(replyTo,
-                                                                      notificationRequest.notificationId()),
+                                                                      notificationRequest.notificationId(),
+                                                                      notificationRequest.oldGoldenId(),
+                                                                      notificationRequest.currentGoldenId()),
                  java.time.Duration.ofSeconds(11),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

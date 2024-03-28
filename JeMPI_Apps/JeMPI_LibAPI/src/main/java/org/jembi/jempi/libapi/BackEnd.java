@@ -435,8 +435,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         psqlNotifications.updateNotificationState(request.notificationId);
-      } catch (SQLException exception) {
+         libMPI.startTransaction();
+         psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId, request.currentGoldenId);
+         libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
+         libMPI.closeTransaction();
+     } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
       request.replyTo.tell(new PostUpdateNotificationResponse());
@@ -608,7 +611,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record PostUpdateNotificationRequest(
          ActorRef<PostUpdateNotificationResponse> replyTo,
-         String notificationId) implements Event {
+         String notificationId,
+         String oldGoldenId,
+         String currentGoldenId) implements Event {
    }
 
    public record PostUpdateNotificationResponse() implements EventResponse {
