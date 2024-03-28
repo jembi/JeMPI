@@ -155,7 +155,7 @@ const ReviewLink = () => {
         {
           onSuccess: () => {
             if (payload?.notificationId) {
-              updateNotification(id, goldenRecord.uid)
+              updateNotification(id, goldenRecord ? goldenRecord.uid : '')
               navigate('/notifications')
             } else {
               navigate(`/record-details/${id}`)
