@@ -119,6 +119,7 @@ export class ApiClient {
     const { data } = await this.client.get<DashboardData>(
       ROUTES.GET_DASHBOARD_DATA
     )
+    console.log('data', data)
     return data
   }
 

@@ -587,8 +587,10 @@ public final class Routes {
 
                   String responseBody = null;
                   try {
+                     LOGGER.info("DASHBOARD RESPONSE BODY");
                      responseBody = Unmarshaller.entityToString().unmarshal(dashboardDataResponse.entity(), actorSystem).
                                                 toCompletableFuture().get(2, TimeUnit.SECONDS);
+                     LOGGER.info("DASHBOARD RESPONSE BODY {}", responseBody);
                   } catch (InterruptedException | ExecutionException | TimeoutException e) {
                      LOGGER.error("Error getting dashboard data ", e);
                      return complete(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -597,7 +599,7 @@ public final class Routes {
                   Map<String, Object> dashboardDataResults =
                         Map.ofEntries(Map.entry("sqlDashboardData", sqlDashboardDataFuture.join()),
                                       Map.entry("dashboardData", responseBody));
-
+                  LOGGER.info("DASHBOARD DATA {}", dashboardDataResults);
                   return complete(StatusCodes.OK, dashboardDataResults, JSON_MARSHALLER);
                } else {
                   LOGGER.error("Error getting dashboard data ", result.failed().get());

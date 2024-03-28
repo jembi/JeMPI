@@ -16,13 +16,13 @@ export interface DashboadDataContextValue {
 const DashboardDataContext = React.createContext<DashboadDataContextValue | null>(null)
 DashboardDataContext.displayName = 'DashboardDataContext'
 
-export interface DashboaedDataProviderProps {
+export interface DashboardDataProviderProps {
   children: React.ReactNode
 }
 
 export const DashboardDataProvider = ({
   children
-}: DashboaedDataProviderProps): JSX.Element => {
+}: DashboardDataProviderProps): JSX.Element => {
 
     const { apiClient, config } = useConfig()
     const { enqueueSnackbar } = useSnackbar()
@@ -39,8 +39,9 @@ export const DashboardDataProvider = ({
             return r
         }),
     refetchOnWindowFocus: false,
-    // TODO: Consider updating later
     refetchInterval: 3000,
+    cacheTime: 5 * 60 * 1000, 
+    staleTime: 10 * 60 * 1000,
   })
 
 

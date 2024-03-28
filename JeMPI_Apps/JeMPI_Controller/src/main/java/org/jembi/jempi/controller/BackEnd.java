@@ -45,7 +45,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final ActorRef<BackEnd.Event> backEnd) {
       final CompletionStage<BackEnd.DashboardDataResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new DashboardDataRequest(replyTo),
+                 DashboardDataRequest::new,
                  java.time.Duration.ofSeconds(6),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -81,6 +81,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getDashboardDataHandler(final DashboardDataRequest request) {
+      LOGGER.info("Backend request {} ", request);
       final var dashboardData = new HashMap<String, Object>();
       final var linkStatsMeta = LinkStatsMetaCache.get();
       if (linkStatsMeta != null) {
