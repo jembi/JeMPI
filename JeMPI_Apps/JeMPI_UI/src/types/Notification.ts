@@ -6,7 +6,8 @@ export default interface Notification {
   names: string
   patient_id: string | null
   status: NotificationState
-  golden_id: string
+  old_golden_id: string
+  current_golden_id: string
   score: number
   linkedTo?: GoldenRecordCandidate
   candidates?: GoldenRecordCandidate[]

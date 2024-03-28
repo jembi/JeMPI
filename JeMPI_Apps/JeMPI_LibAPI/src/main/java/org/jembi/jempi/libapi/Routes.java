@@ -892,7 +892,7 @@ public final class Routes {
                        try {
                           return onComplete(postCrCandidatesProxy(linkerIP, linkerPort, http, obj),
                                             response -> {
-                                               if (response.isSuccess()) {
+                                               if (!response.isSuccess()) {
                                                   LOGGER.warn(IM_A_TEA_POT_LOG);
                                                   return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                                                }

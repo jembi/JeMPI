@@ -371,4 +371,24 @@ public final class LibMPI {
       return result;
    }
 
+   /*
+    * *****************************************************************************
+    * *
+    * Notifications
+    * *****************************************************************************
+    * *
+    */
+
+   public void sendUpdatedNotificationEvent(
+         final String notificationId,
+         final String oldGoldenId,
+         final String currentGoldenId) {
+      final var message = String.format(
+            "Notification -> new GoldenID: old(%s) new(%s), new State: old(OPEN) new(CLOSED)",
+            oldGoldenId,
+            currentGoldenId);
+      final var eventData = new NotificationAuditEventData(message, notificationId);
+      auditTrailUtil.sendAuditEvent(GlobalConstants.AuditEventType.NOTIFICATION_EVENT, eventData);
+   }
+
 }
