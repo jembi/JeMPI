@@ -29,8 +29,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_START_SENTINEL;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
@@ -109,7 +107,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public Receive<Request> createReceive() {
       return newReceiveBuilder().onMessage(AsyncLinkInteractionRequest.class, this::asyncLinkInteractionHandler)
                                 .onMessage(SyncLinkInteractionRequest.class, this::syncLinkInteractionHandler)
-//                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
+//                              .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
                                 .onMessage(CalculateScoresRequest.class, this::calculateScoresHandler)
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
@@ -118,8 +116,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
+                                .onMessage(CrLinkUpdateRequest.class, this::crLinkUpdate)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
-                                .onMessage(RunStartStopHooksRequest.class, this::runStartStopHooks)
                                 .build();
    }
 
@@ -141,10 +139,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       final var goldenRecords = LinkerCR.crFind(libMPI, req.crFindData);
-      if (goldenRecords.isLeft()) {
-         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.getLeft())));
+      if (goldenRecords.isRight()) {
+         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.get())));
       } else {
-         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.swap().getLeft())));
+         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.getLeft())));
       }
       return Behaviors.same();
    }
@@ -155,21 +153,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> runStartStopHooks(final RunStartStopHooksRequest req) {
-      List<MpiGeneralError> hookRunErrors = List.of();
-
-      if (req.batchInteraction.contentType() == BATCH_START_SENTINEL) {
-         hookRunErrors = libMPI.beforeLinkingHook();
-      } else if (req.batchInteraction.contentType() == BATCH_END_SENTINEL) {
-         hookRunErrors = libMPI.afterLinkingHook();
-      }
-      req.replyTo.tell(new RunStartStopHooksResponse(hookRunErrors));
-      return Behaviors.same();
-   }
-
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       final var result = LinkerCR.crRegister(libMPI, req.crRegister);
       req.replyTo.tell(new CrRegisterResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkUpdate(final CrLinkUpdateRequest req) {
+      final var result = LinkerCR.crLinkUpdate(libMPI, req.crLinkUpdate);
+      req.replyTo.tell(new CrLinkUpdateResponse(result));
       return Behaviors.same();
    }
 
@@ -292,16 +284,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> calculateScoresHandler(final CalculateScoresRequest request) {
       final var interaction = libMPI.findInteraction(request.calculateScoresRequest.interactionId());
       final var goldenRecords = libMPI.findGoldenRecords(request.calculateScoresRequest.goldenIds());
-      final var scores = goldenRecords.parallelStream()
-                                      .unordered()
-                                      .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                             LinkerUtils.calcNormalizedScore(
-                                                                                                                   goldenRecord.demographicData(),
-                                                                                                                   interaction.demographicData())))
-                                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                      .collect(Collectors.toCollection(ArrayList::new));
-      request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
-                                                                                                scores)));
+      if (goldenRecords.isLeft()) {
+         final var scores = goldenRecords.get().parallelStream()
+                                         .unordered()
+                                         .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
+                                                                                                                LinkerUtils.calcNormalizedScore(
+                                                                                                                      goldenRecord.demographicData(),
+                                                                                                                      interaction.demographicData())))
+                                         .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                         .collect(Collectors.toCollection(ArrayList::new));
+         request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
+                                                                                                   scores)));
+      } else {
+         request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(null, List.of())));
+      }
       return Behaviors.same();
    }
 
@@ -346,15 +342,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public record AsyncLinkInteractionResponse(LinkInfo linkInfo) implements Response {
    }
 
-   public record RunStartStopHooksRequest(
-         ActorRef<RunStartStopHooksResponse> replyTo,
-         String key,
-         InteractionEnvelop batchInteraction) implements Request {
-   }
-
-   public record RunStartStopHooksResponse(List<MpiGeneralError> hooksResults) implements Response {
-   }
-
    public record EventUpdateMUReq(
          CustomMU mu,
          ActorRef<EventUpdateMURsp> replyTo) implements Request {
@@ -362,12 +349,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    public record EventUpdateMURsp(boolean rc) implements Response {
    }
-
-//   public record EventGetMUReq(ActorRef<EventGetMURsp> replyTo) implements Request {
-//   }
-//
-//   public record EventGetMURsp(CustomMU mu) implements Response {
-//   }
 
    public record CalculateScoresRequest(
          ApiModels.ApiCalculateScoresRequest calculateScoresRequest,
@@ -419,6 +400,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record CrRegisterResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkUpdateRequest(
+         ApiModels.ApiCrLinkUpdateRequest crLinkUpdate,
+         ActorRef<CrLinkUpdateResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkUpdateResponse(
          Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 

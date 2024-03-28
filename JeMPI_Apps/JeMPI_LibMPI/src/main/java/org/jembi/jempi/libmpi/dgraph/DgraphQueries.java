@@ -270,15 +270,17 @@ final class DgraphQueries {
       }
    }
 
-   static List<CustomDgraphGoldenRecord> findGoldenRecords(final List<String> ids) {
-      final String query = String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, String.join(",", ids));
+   static Either<MpiGeneralError, List<CustomDgraphGoldenRecord>> findGoldenRecords(final List<String> ids) {
+      final var idListAsString = String.join(",", ids);
+      final String query = String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, idListAsString);
+      LOGGER.debug("{}", query);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = AppUtils.OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
-         return records.all();
+         return Either.right(records.all());
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
-         return List.of();
+         return Either.left(new MpiServiceError.CRGidDoesNotExistError(idListAsString));
       }
    }
 
@@ -607,7 +609,7 @@ final class DgraphQueries {
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   static Either<DgraphGoldenRecords, MpiGeneralError> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
+   static Either<MpiGeneralError, DgraphGoldenRecords> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
       final var setFunctions = new HashSet<String>();
       setFunctions.add("eq");
       setFunctions.add("match");
@@ -697,13 +699,13 @@ final class DgraphQueries {
 
          final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
          LOGGER.debug("{}", dgraphGoldenRecords);
-         return Either.left(dgraphGoldenRecords);
+         return Either.right(dgraphGoldenRecords);
       } catch (InvalidFunctionException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         return Either.right(new MpiServiceError.InvalidFunctionError(e.getMessage()));
+         return Either.left(new MpiServiceError.InvalidFunctionError(e.getMessage()));
       } catch (InvalidOperatorException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         return Either.right(new MpiServiceError.InvalidOperatorError(e.getLocalizedMessage()));
+         return Either.left(new MpiServiceError.InvalidOperatorError(e.getLocalizedMessage()));
       }
    }
 

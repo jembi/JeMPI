@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.jembi.jempi.shared.utils.AppUtils.camelToSnake;
+
 final class DgraphMutations {
 
    private static final Logger LOGGER = LogManager.getLogger(DgraphMutations.class);
@@ -248,9 +250,6 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
-   String camelToSnake(final String str) {
-      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
-   }
 
    boolean updateGoldenRecordField(
          final String goldenId,
@@ -389,52 +388,6 @@ final class DgraphMutations {
          LOGGER.trace("set score: {} {} {}", interactionUid, goldenRecordUid, score);
       }
       return result != null;
-   }
-
-
-   public Option<MpiGeneralError> deleteAllIndexes() {
-      try {
-         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.REMOVE_ALL_INDEXES).build();
-         DgraphClient.getInstance().alter(operation);
-         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
-         LOGGER.trace("{}", mySchema);
-         return Option.none();
-      } catch (RuntimeException ex) {
-         LOGGER.trace("{}", CustomDgraphIndexes.REMOVE_ALL_INDEXES);
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         return Option.of(new MpiServiceError.GeneralError("Removing indexes error"));
-      }
-   }
-
-   public Option<MpiGeneralError> loadLinkingIndexes() {
-      try {
-         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_LINKING_INDEXES).build();
-         DgraphClient.getInstance().alter(operation);
-         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
-         LOGGER.trace("{}", mySchema);
-         return Option.none();
-      } catch (RuntimeException ex) {
-         LOGGER.trace("{}", CustomDgraphIndexes.LOAD_LINKING_INDEXES);
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         return Option.of(new MpiServiceError.GeneralError("Loading linking indexes error"));
-      }
-   }
-
-   public Option<MpiGeneralError> loadDefaultIndexes() {
-      try {
-         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_DEFAULT_INDEXES).build();
-         DgraphClient.getInstance().alter(operation);
-         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
-         LOGGER.trace("{}", mySchema);
-         return Option.none();
-      } catch (RuntimeException ex) {
-         LOGGER.warn("{}", CustomDgraphIndexes.LOAD_DEFAULT_INDEXES);
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         return Option.of(new MpiServiceError.GeneralError("Loading default indexes error"));
-      }
-   }
-   public Boolean shouldUpdateLinkingIndexes() {
-      return CustomDgraphIndexes.shouldUpdateLinkingIndexes();
    }
 
    private record InsertInteractionResult(

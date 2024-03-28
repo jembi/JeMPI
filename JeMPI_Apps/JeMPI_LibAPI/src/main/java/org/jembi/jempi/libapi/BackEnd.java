@@ -15,7 +15,6 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +24,10 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -107,15 +109,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String kafkaBootstrapServers,
          final String kafkaClientId,
          final Level debugLevel) {
-      if (!AppUtils.isNullOrEmpty(Arrays.stream(dgraphHosts).toList())) {
-         libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
-      } else {
-         libMPI = new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", pgIP, pgPort, pgAuditDb),
-                             pgUser,
-                             pgPassword,
-                             kafkaBootstrapServers,
-                             kafkaClientId);
-      }
+      libMPI = new LibMPI(debugLevel, dgraphHosts, dgraphPorts, kafkaBootstrapServers, kafkaClientId);
    }
 
    @Override
@@ -241,8 +235,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
-      MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(), request.offset(),
-            request.startDate(), request.endDate(), request.states());
+      MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(),
+                                                                            request.offset(),
+                                                                            request.startDate(),
+                                                                            request.endDate(),
+                                                                            request.states());
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
                                                         result.getSkippedRecords(),
                                                         result.getNotifications()));
@@ -300,10 +297,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          libMPI.startTransaction();
          expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenId);
          libMPI.closeTransaction();
-      } catch (Exception exception) {
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
                       request.goldenId,
-                      exception.getMessage());
+                      e.getMessage());
       }
 
       if (expandedGoldenRecord == null) {
@@ -450,7 +448,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       File file = request.file();
       try {
          String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
-         Files.copy(file.toPath(), Paths.get((userCSVPath != null ? userCSVPath : "/app/csv") + "/" + file.getName()));
+         Files.copy(file.toPath(),
+                    Paths.get((userCSVPath != null
+                                     ? userCSVPath
+                                     : "/app/csv") + "/" + file.getName()));
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
@@ -464,7 +465,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> getSqlDashboardDataHandler(final SQLDashboardDataRequest request) {
       int openNotifications = psqlNotifications.getNotificationCount("OPEN");
       int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
-      request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications, closedNotifications))));
+      request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications,
+                                                                                                   closedNotifications))));
       return Behaviors.same();
    }
 
@@ -516,10 +518,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String uid) implements Event {
    }
 
-   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) { }
+   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) {
+   }
 
    public record SQLDashboardDataRequest(
-           ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
+         ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
    }
 
    public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {

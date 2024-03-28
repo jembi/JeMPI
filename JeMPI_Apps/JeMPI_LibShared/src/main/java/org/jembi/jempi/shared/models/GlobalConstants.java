@@ -53,6 +53,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT = "filter-gids-interaction";
 
    public static final String SEGMENT_PROXY_POST_CR_REGISTER = "cr-register";
+   public static final String SEGMENT_PROXY_POST_CR_LINK_UPDATE = "cr-link-update";
    public static final String SEGMENT_PROXY_POST_CR_FIND = "cr-find";
    public static final String SEGMENT_PROXY_POST_CR_CANDIDATES = "cr-candidates";
    public static final String SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS = "cr-update-fields";
