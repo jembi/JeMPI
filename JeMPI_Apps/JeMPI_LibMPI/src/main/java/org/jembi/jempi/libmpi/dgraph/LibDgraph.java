@@ -55,6 +55,18 @@ public final class LibDgraph implements LibMPIClientInterface {
       return List.of();
    }
 
+   public List<CustomSourceId> findSourceId(
+         final String facility,
+         final String patient) {
+      return DgraphQueries.findSourceIdList(facility, patient);
+   }
+
+   public List<ExpandedSourceId> findExpandedSourceIdList(
+         final String facility,
+         final String patient) {
+      return DgraphQueries.findExpandedSourceIdList(facility, patient);
+   }
+
    public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIds) {
       final var list = DgraphQueries.findExpandedInteractions(interactionIds);
       return list.stream().map(CustomDgraphExpandedInteraction::toExpandedInteraction).toList();

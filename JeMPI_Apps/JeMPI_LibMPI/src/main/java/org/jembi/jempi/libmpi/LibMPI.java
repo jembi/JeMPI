@@ -94,6 +94,13 @@ public final class LibMPI {
       return client.countGoldenRecords();
    }
 
+   public List<CustomSourceId> findSourceId(final String facility, final String patient) {
+      return client.findSourceId(facility, patient);
+   }
+
+   public List<ExpandedSourceId> findExpandedSourceIdList(final String facility, final String patient) {
+      return client.findExpandedSourceIdList(facility, patient);
+   }
 
    public Interaction findInteraction(final String iid) {
       return client.findInteraction(iid);

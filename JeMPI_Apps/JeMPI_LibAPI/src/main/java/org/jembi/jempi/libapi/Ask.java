@@ -57,6 +57,19 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.FindExpandedSourceIdResponse> findExpandedSourceId(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String facility,
+         final String client) {
+      CompletionStage<BackEnd.FindExpandedSourceIdResponse> stage =
+            AskPattern.ask(backEnd,
+                           replyTo -> new BackEnd.FindExpandedSourceIdRequest(replyTo, facility, client),
+                           java.time.Duration.ofSeconds(30),
+                           actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetNotificationsResponse> getNotifications(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -191,14 +204,14 @@ public final class Ask {
    }
 
    static CompletionStage<BackEnd.SQLDashboardDataResponse> getSQLDashboardData(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd
-   ) {
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd
+                                                                               ) {
       final CompletionStage<BackEnd.SQLDashboardDataResponse> stage = AskPattern
-              .ask(backEnd,
-                      replyTo -> new BackEnd.SQLDashboardDataRequest(replyTo),
-                      java.time.Duration.ofSeconds(6),
-                      actorSystem.scheduler());
+            .ask(backEnd,
+                 replyTo -> new BackEnd.SQLDashboardDataRequest(replyTo),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 

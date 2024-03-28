@@ -122,6 +122,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return builder.onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
                     .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
                     .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
+                    .onMessage(FindExpandedSourceIdRequest.class, this::findExpandedSourceIdHandler)
                     .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
                     .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
                     .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
@@ -276,10 +277,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> countRecordsHandler(final CountRecordsRequest request) {
       libMPI.startTransaction();
-      var recs = libMPI.countGoldenRecords();
-      var docs = libMPI.countInteractions();
+      final var recs = libMPI.countGoldenRecords();
+      final var docs = libMPI.countInteractions();
       libMPI.closeTransaction();
       request.replyTo.tell(new CountRecordsResponse(recs, docs));
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> findExpandedSourceIdHandler(final FindExpandedSourceIdRequest request) {
+      libMPI.startTransaction();
+      final var sourceIdList = libMPI.findExpandedSourceIdList(request.facility, request.client);
+      libMPI.closeTransaction();
+      request.replyTo.tell(new FindExpandedSourceIdResponse(sourceIdList));
+
       return Behaviors.same();
    }
 
@@ -437,7 +447,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId, request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
          libMPI.closeTransaction();
-     } catch (SQLException exception) {
+      } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
       request.replyTo.tell(new PostUpdateNotificationResponse());
@@ -533,6 +543,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record GetGidsAllResponse(List<String> records) implements EventResponse {
+   }
+
+   public record FindExpandedSourceIdRequest(
+         ActorRef<FindExpandedSourceIdResponse> replyTo,
+         String facility,
+         String client) implements Event {
+   }
+
+   public record FindExpandedSourceIdResponse(List<ExpandedSourceId> records) implements EventResponse {
    }
 
    public record GetExpandedGoldenRecordRequest(

@@ -308,12 +308,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-
-//   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
-//      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
-//      return Behaviors.same();
-//   }
-
    private enum TeaTimeRequest implements Request {
       INSTANCE
    }

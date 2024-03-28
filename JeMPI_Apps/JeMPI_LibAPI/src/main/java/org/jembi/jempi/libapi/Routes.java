@@ -258,6 +258,27 @@ public final class Routes {
                         });
    }
 
+   private static Route postFindSourceId(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("facility",
+                       facility -> parameter("client",
+                                             client -> onComplete(Ask.findExpandedSourceId(actorSystem,
+                                                                                   backEnd,
+                                                                                   facility,
+                                                                                   client),
+                                                                  result -> {
+                                                                     if (!result.isSuccess()) {
+                                                                        LOGGER.warn(IM_A_TEA_POT_LOG);
+                                                                        return complete(ApiModels.getHttpErrorResponse(
+                                                                              GlobalConstants.IM_A_TEA_POT));
+                                                                     }
+                                                                     return complete(StatusCodes.OK,
+                                                                                     result.get(),
+                                                                                     JSON_MARSHALLER);
+                                                                  })));
+   }
+
    private static Route getNotifications(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -1036,6 +1057,8 @@ public final class Routes {
                                            () -> Routes.postCrFind(linkerIP, linkerPort, http)),
                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
                                            () -> Routes.postCrCandidates(linkerIP, linkerPort, http)),
+                                      path(GlobalConstants.SEGMENT_POST_FIND_SOURCE_ID,
+                                           () -> Routes.postFindSourceId(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                            () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                                       path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,

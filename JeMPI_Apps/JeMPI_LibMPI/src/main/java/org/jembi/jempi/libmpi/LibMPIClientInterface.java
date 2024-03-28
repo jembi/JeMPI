@@ -38,6 +38,14 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
+   List<CustomSourceId> findSourceId(
+         String facility,
+         String client);
+
+   List<ExpandedSourceId> findExpandedSourceIdList(
+         String facility,
+         String client);
+
    Interaction findInteraction(String interactionID);
 
    List<Interaction> findInteractions(List<String> interactionIDs);

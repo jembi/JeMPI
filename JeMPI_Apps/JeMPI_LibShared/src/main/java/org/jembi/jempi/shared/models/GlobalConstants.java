@@ -31,6 +31,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_GET_GIDS_ALL = "gids-all";
    public static final String SEGMENT_GET_GIDS_PAGED = "gids-paged";
    public static final String SEGMENT_GET_INTERACTION = "interaction";
+
+   public static final String SEGMENT_POST_FIND_SOURCE_ID = "find-source-id";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORD = "expanded-golden-record";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expanded-golden-records";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expanded-golden-records-csv";
