@@ -283,7 +283,11 @@ public final class LibMPI {
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String currentGoldenId,
          final String interactionId,
-         final float score) {
+         final Float score) {
+      if (score == null) {
+         LOGGER.error("Missing score");
+         return Either.left(new MpiServiceError.NoScoreGivenError("Missing Score"));
+      }
       final var result = client.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
       if (result.isRight()) {
          sendAuditEvent(interactionId,
@@ -309,8 +313,13 @@ public final class LibMPI {
          final String goldenID,
          final String newGoldenID,
          final String interactionID,
-         final float score) {
+         final Float score) {
+      if (score == null) {
+         LOGGER.error("No score");
+         return Either.left(new MpiServiceError.NoScoreGivenError("No score"));
+      }
       final var result = client.updateLink(goldenID, newGoldenID, interactionID, score);
+
       if (result.isRight()) {
          sendAuditEvent(interactionID,
                         newGoldenID,

@@ -48,6 +48,7 @@ public final class Routes {
          case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
          case MpiServiceError.InvalidFunctionError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
          case MpiServiceError.InvalidOperatorError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
+         case MpiServiceError.NoScoreGivenError e -> complete(StatusCodes.PARTIAL_CONTENT, e, JSON_MARSHALLER);
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }
@@ -95,8 +96,7 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("offset",
                        offset -> parameter("length",
-                                           length -> onComplete(Ask.getGidsPaged(actorSystem,
-                                                                                 backEnd,
+                                           length -> onComplete(Ask.getGidsPaged(actorSystem, backEnd,
                                                                                  Long.parseLong(offset),
                                                                                  Long.parseLong(length)),
                                                                 result -> {
@@ -115,11 +115,8 @@ public final class Routes {
       return parameter("gid",
                        uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
                                          result -> result.isSuccess()
-                                               ? complete(StatusCodes.OK,
-                                                          result.get().auditTrail(),
-                                                          JSON_MARSHALLER)
+                                               ? complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER)
                                                : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
-
    }
 
    private static Route getInteractionAuditTrail(
@@ -128,13 +125,11 @@ public final class Routes {
       return parameter("iid",
                        uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
                                          result -> result.isSuccess()
-                                               ? complete(StatusCodes.OK,
-                                                          result.get().auditTrail(),
-                                                          JSON_MARSHALLER)
+                                               ? complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER)
                                                : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
    }
 
-   private static Route patchIidNewGidLink(
+   private static Route postIidNewGidLink(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String controllerIp,
@@ -142,34 +137,28 @@ public final class Routes {
          final Http http) {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
-                    obj -> onComplete(Ask.patchIidNewGidLink(actorSystem,
-                                                             backEnd,
-                                                             obj.currentGoldenId(),
-                                                             obj.interactionId()),
-                                      result -> {
-                                         if (!result.isSuccess()) {
-                                            LOGGER.warn(IM_A_TEA_POT_LOG);
-                                            return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
-                                         }
-                                         return result.get()
-                                                      .linkInfo()
-                                                      .mapLeft(Routes::mapError)
-                                                      .fold(error -> error,
-                                                            linkInfo -> onComplete(processOnNotificationResolution(
-                                                                                         controllerIp,
-                                                                                         controllerPort,
-                                                                                         http,
-                                                                                         new NotificationResolutionProcessorData(obj, linkInfo)),
-                                                                                   r -> complete(
-                                                                                         StatusCodes.OK,
-                                                                                         linkInfo,
-                                                                                         JSON_MARSHALLER))
-                                                           );
-                                      })
+                    obj -> onComplete(
+                          Ask.postIidNewGidLink(actorSystem, backEnd, obj.currentGoldenId(), obj.interactionId()),
+                          result -> {
+                             if (!result.isSuccess()) {
+                                LOGGER.warn(IM_A_TEA_POT_LOG);
+                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                             }
+                             return result.get()
+                                          .linkInfo()
+                                          .mapLeft(Routes::mapError)
+                                          .fold(error -> error,
+                                                linkInfo -> onComplete(
+                                                      processOnNotificationResolution(
+                                                            controllerIp, controllerPort, http,
+                                                            new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
+                                               );
+                          })
                    );
    }
 
-   private static Route patchIidGidLink(
+   private static Route postIidGidLink(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String controllerIp,
@@ -177,33 +166,25 @@ public final class Routes {
          final Http http) {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
-                    obj -> onComplete(Ask.patchIidGidLink(
-                                            actorSystem,
-                                            backEnd,
-                                            obj.currentGoldenId(),
-                                            obj.newGoldenId(),
-                                            obj.interactionId(),
-                                            obj.score()),
-                                      result -> {
-                                         if (!result.isSuccess()) {
-                                            LOGGER.warn(IM_A_TEA_POT_LOG);
-                                            return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
-                                         }
-                                         return result.get()
-                                                      .linkInfo()
-                                                      .mapLeft(Routes::mapError)
-                                                      .fold(error -> error,
-                                                            linkInfo -> onComplete(processOnNotificationResolution(
-                                                                                         controllerIp,
-                                                                                         controllerPort,
-                                                                                         http,
-                                                                                         new NotificationResolutionProcessorData(obj, linkInfo)),
-                                                                                   r -> complete(
-                                                                                         StatusCodes.OK,
-                                                                                         linkInfo,
-                                                                                         JSON_MARSHALLER))
-                                                           );
-                                      })
+                    obj -> onComplete(
+                          Ask.postIidGidLink(actorSystem, backEnd, obj.currentGoldenId(), obj.newGoldenId(),
+                                             obj.interactionId(), obj.score()),
+                          result -> {
+                             if (!result.isSuccess()) {
+                                LOGGER.warn(IM_A_TEA_POT_LOG);
+                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                             }
+                             return result.get()
+                                          .linkInfo()
+                                          .mapLeft(Routes::mapError)
+                                          .fold(error -> error,
+                                                linkInfo -> onComplete(
+                                                      processOnNotificationResolution(
+                                                            controllerIp, controllerPort, http,
+                                                            new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
+                                               );
+                          })
                    );
    }
 
@@ -258,15 +239,15 @@ public final class Routes {
                         });
    }
 
-   private static Route postFindSourceId(
+   private static Route postCrFindSourceId(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("facility",
                        facility -> parameter("client",
                                              client -> onComplete(Ask.findExpandedSourceId(actorSystem,
-                                                                                   backEnd,
-                                                                                   facility,
-                                                                                   client),
+                                                                                           backEnd,
+                                                                                           facility,
+                                                                                           client),
                                                                   result -> {
                                                                      if (!result.isSuccess()) {
                                                                         LOGGER.warn(IM_A_TEA_POT_LOG);
@@ -737,11 +718,11 @@ public final class Routes {
       return stage.thenApply(response -> response);
    }
 
-   private static CompletionStage<HttpResponse> postCrLinkUpdateProxy(
+   private static CompletionStage<HttpResponse> postCrLinkToGidUpdateProxy(
          final String linkerIP,
          final Integer linkerPort,
          final Http http,
-         final ApiModels.ApiCrLinkUpdateRequest body) throws JsonProcessingException {
+         final ApiModels.ApiCrLinkToGidUpdateRequest body) throws JsonProcessingException {
       final HttpRequest request;
       final byte[] json;
       try {
@@ -754,7 +735,53 @@ public final class Routes {
                                                  "http://%s:%d/JeMPI/%s",
                                                  linkerIP,
                                                  linkerPort,
-                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_UPDATE))
+                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE))
+                           .withMethod(HttpMethods.POST)
+                           .withEntity(ContentTypes.APPLICATION_JSON, json);
+      return http.singleRequest(request).thenApply(response -> response);
+   }
+
+   private static CompletionStage<HttpResponse> postCrLinkBySourceIdProxy(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.ApiCrLinkBySourceIdRequest body) throws JsonProcessingException {
+      final HttpRequest request;
+      final byte[] json;
+      try {
+         json = OBJECT_MAPPER.writeValueAsBytes(body);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         throw e;
+      }
+      request = HttpRequest.create(String.format(Locale.ROOT,
+                                                 "http://%s:%d/JeMPI/%s",
+                                                 linkerIP,
+                                                 linkerPort,
+                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID))
+                           .withMethod(HttpMethods.POST)
+                           .withEntity(ContentTypes.APPLICATION_JSON, json);
+      return http.singleRequest(request).thenApply(response -> response);
+   }
+
+   private static CompletionStage<HttpResponse> postCrLinkBySourceIdUpdateProxy(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.ApiCrLinkBySourceIdUpdateRequest body) throws JsonProcessingException {
+      final HttpRequest request;
+      final byte[] json;
+      try {
+         json = OBJECT_MAPPER.writeValueAsBytes(body);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         throw e;
+      }
+      request = HttpRequest.create(String.format(Locale.ROOT,
+                                                 "http://%s:%d/JeMPI/%s",
+                                                 linkerIP,
+                                                 linkerPort,
+                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE))
                            .withMethod(HttpMethods.POST)
                            .withEntity(ContentTypes.APPLICATION_JSON, json);
       return http.singleRequest(request).thenApply(response -> response);
@@ -784,6 +811,7 @@ public final class Routes {
       return stage.thenApply(response -> response);
    }
 
+/*
    private static CompletionStage<HttpResponse> postLinkInteractionToGidProxy(
          final String linkerIP,
          final Integer linkerPort,
@@ -807,6 +835,7 @@ public final class Routes {
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
+*/
 
    private static CompletionStage<HttpResponse> postCrCandidatesProxy(
          final String linkerIP,
@@ -948,14 +977,58 @@ public final class Routes {
                     });
    }
 
-   private static Route postCrLinkUpdate(
+   private static Route postCrLinkToGidUpdate(
          final String linkerIP,
          final Integer linkerPort,
          final Http http) {
-      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkUpdateRequest.class),
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkToGidUpdateRequest.class),
                     obj -> {
                        try {
-                          return onComplete(postCrLinkUpdateProxy(linkerIP, linkerPort, http, obj),
+                          return onComplete(postCrLinkToGidUpdateProxy(linkerIP, linkerPort, http, obj),
+                                            response -> {
+                                               if (!response.isSuccess()) {
+                                                  LOGGER.warn(IM_A_TEA_POT_LOG);
+                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                               }
+                                               return complete(response.get());
+                                            });
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
+                       }
+                    });
+   }
+
+   private static Route postCrLinkBySourceId(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkBySourceIdRequest.class),
+                    obj -> {
+                       try {
+                          return onComplete(postCrLinkBySourceIdProxy(linkerIP, linkerPort, http, obj),
+                                            response -> {
+                                               if (!response.isSuccess()) {
+                                                  LOGGER.warn(IM_A_TEA_POT_LOG);
+                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                               }
+                                               return complete(response.get());
+                                            });
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
+                       }
+                    });
+   }
+
+   private static Route postCrLinkBySourceIdUpdate(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkBySourceIdUpdateRequest.class),
+                    obj -> {
+                       try {
+                          return onComplete(postCrLinkBySourceIdUpdateProxy(linkerIP, linkerPort, http, obj),
                                             response -> {
                                                if (!response.isSuccess()) {
                                                   LOGGER.warn(IM_A_TEA_POT_LOG);
@@ -992,6 +1065,7 @@ public final class Routes {
                     });
    }
 
+/*
    private static Route postLinkInteractionToGid(
          final String linkerIP,
          final Integer linkerPort,
@@ -1013,6 +1087,7 @@ public final class Routes {
                        }
                     });
    }
+*/
 
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,
@@ -1023,95 +1098,83 @@ public final class Routes {
          final String controllerIP,
          final Integer controllerPort,
          final Http http) {
-      return concat(post(() -> concat(path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
-                                           () -> Routes.postUpdateNotification(actorSystem, backEnd)),
-                                      path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH).slash(segment(Pattern.compile(
-                                                 "^(golden|patient)$"))),
-                                           type -> Routes.postSimpleSearch(actorSystem,
-                                                                           backEnd,
-                                                                           type.equals("golden")
-                                                                                 ? RecordType.GoldenRecord
-                                                                                 : RecordType.Interaction)),
-                                      path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH).slash(segment(Pattern.compile(
-                                                 "^(golden|patient)$"))),
-                                           type -> Routes.postCustomSearch(actorSystem,
-                                                                           backEnd,
-                                                                           type.equals("golden")
-                                                                                 ? RecordType.GoldenRecord
-                                                                                 : RecordType.Interaction)),
-                                      path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
-                                           () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
-                                           () -> Routes.proxyPostCalculateScores(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
-                                           () -> Routes.postFilterGids(actorSystem, backEnd)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
-                                           () -> Routes.postLinkInteraction(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-                                           () -> Routes.postLinkInteractionToGid(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
-                                           () -> Routes.postCrRegister(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_UPDATE,
-                                           () -> Routes.postCrLinkUpdate(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
-                                           () -> Routes.postCrFind(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
-                                           () -> Routes.postCrCandidates(linkerIP, linkerPort, http)),
-                                      path(GlobalConstants.SEGMENT_POST_FIND_SOURCE_ID,
-                                           () -> Routes.postFindSourceId(actorSystem, backEnd)),
-                                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
-                                           () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
-                                      path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
-                                           () -> Routes.patchIidNewGidLink(actorSystem,
-                                                                           backEnd,
-                                                                           controllerIP,
-                                                                           controllerPort,
-                                                                           http)),
-                                      path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
-                                           () -> Routes.patchIidGidLink(actorSystem,
-                                                                        backEnd,
-                                                                        controllerIP,
-                                                                        controllerPort,
-                                                                        http)))),
-                    patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                                             "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
-                                       path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
-                                            () -> Routes.patchCrUpdateFields(linkerIP, linkerPort, http)))),
-                    get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
-                                          () -> Routes.countGoldenRecords(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
-                                          () -> Routes.countInteractions(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> Routes.countRecords(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_GIDS_ALL, () -> Routes.getGidsAll(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_GIDS_PAGED,
-                                          () -> Routes.getGidsPaged(actorSystem, backEnd)),
-                                     path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                                           "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
-                                     path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                                           "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
-                                     path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
-                                          () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
-                                          () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
-                                          () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
-                                          () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
-                                          () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
-                                     path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
-                                          () -> Routes.getNotifications(actorSystem, backEnd)),
-                                     path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                                           "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
-                                     path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
-                                     path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                                          () -> Routes.getDashboardData(actorSystem,
-                                                                        backEnd,
-                                                                        controllerIP,
-                                                                        controllerPort,
-                                                                        http)),
-                                     path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                                          () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
+      return concat(post(() -> concat(
+
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                               () -> Routes.proxyPostCalculateScores(linkerIP, linkerPort, http)),
+                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH).slash(segment(Pattern.compile(
+                                     "^(golden|patient)$"))),
+                               type -> Routes.postSimpleSearch(actorSystem, backEnd, type.equals("golden")
+                                     ? RecordType.GoldenRecord
+                                     : RecordType.Interaction)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                               () -> Routes.postLinkInteraction(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
+                               () -> Routes.postCrRegister(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
+                               () -> Routes.postCrFind(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
+                               () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
+                               () -> Routes.postCrCandidates(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE,
+                               () -> Routes.postCrLinkToGidUpdate(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
+                               () -> Routes.postCrLinkBySourceId(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
+                               () -> Routes.postCrLinkBySourceIdUpdate(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
+                               () -> Routes.postIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
+                               () -> Routes.postIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
+
+                          path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
+                               () -> Routes.postUpdateNotification(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
+                                     ? RecordType.GoldenRecord
+                                     : RecordType.Interaction)),
+                          path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
+                               () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
+                               () -> Routes.postFilterGids(actorSystem, backEnd)),
+//                        path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
+//                             () -> Routes.postLinkInteractionToGid(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
+                               () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
+                    patch(() -> concat(
+                          path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                               gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
+                          path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
+                               () -> Routes.patchCrUpdateFields(linkerIP, linkerPort, http)))),
+                    get(() -> concat(
+                          path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
+                          path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS, () -> Routes.countInteractions(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
+                               () -> Routes.countGoldenRecords(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> Routes.countRecords(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_GIDS_ALL, () -> Routes.getGidsAll(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_GIDS_PAGED, () -> Routes.getGidsPaged(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
+                                "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
+                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
+                               () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
+                               () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
+                               () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
+                                "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
+                          path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
+                               () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
+                               () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                               () -> Routes.getDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
+                          path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,       // <------------------------ CHECK
+                               () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
    }
 
 }

@@ -1,5 +1,6 @@
 package org.jembi.jempi.libmpi.dgraph;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.protobuf.ByteString;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 import static org.jembi.jempi.shared.utils.AppUtils.camelToSnake;
 
 final class DgraphMutations {
@@ -209,7 +211,8 @@ final class DgraphMutations {
                                                                         .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
                                                                               interaction.sourceId())))
                                                                         .build();
-      final var sourceIdList = DgraphQueries.findSourceIdList(interaction.sourceId().facility(), interaction.sourceId().patient());
+      final var sourceIdList =
+            DgraphQueries.findSourceIdList(interaction.sourceId().facility(), interaction.sourceId().patient());
       final var sourceIdUid = !sourceIdList.isEmpty()
             ? sourceIdList.getFirst().uid()
             : DgraphClient.getInstance().doMutateTransaction(sourceIdMutation);
@@ -277,15 +280,26 @@ final class DgraphMutations {
    Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String currentGoldenId,
          final String interactionId,
-         final float score) {
+         final Float score) {
 
+      if (score == null) {
+         LOGGER.error("Missing score");
+         return Either.left(new MpiServiceError.NoScoreGivenError("Missing Score"));
+      }
+      LOGGER.debug("{}", currentGoldenId);
       final var goldenUidInteractionUidList = DgraphQueries.findExpandedGoldenIds(currentGoldenId);
-      if (goldenUidInteractionUidList.isEmpty() || !goldenUidInteractionUidList.contains(interactionId)) {
+      try {
+         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(goldenUidInteractionUidList));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      if (AppUtils.isNullOrEmpty(goldenUidInteractionUidList) || !goldenUidInteractionUidList.contains(interactionId)) {
          return Either.left(new MpiServiceError.GoldenIdInteractionConflictError("Interaction not linked to GoldenRecord",
                                                                                  currentGoldenId,
                                                                                  interactionId));
       }
       final var count = goldenUidInteractionUidList.size();
+      LOGGER.debug("Interaction count: {}", count);
 
       final var interaction = DgraphQueries.findInteraction(interactionId);
       if (interaction == null) {
@@ -315,8 +329,18 @@ final class DgraphMutations {
          final String goldenId,
          final String newGoldenId,
          final String interactionId,
-         final float score) {
+         final Float score) {
+      LOGGER.debug("{} {} {} {}", goldenId, newGoldenId, interactionId, score);
+      if (score == null) {
+         LOGGER.error("Missing error");
+         return Either.left(new MpiServiceError.NoScoreGivenError("Missing Score"));
+      }
       final var goldenUidInteractionUidList = DgraphQueries.findExpandedGoldenIds(goldenId);
+      try {
+         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(goldenUidInteractionUidList));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       if (goldenUidInteractionUidList.isEmpty() || !goldenUidInteractionUidList.contains(interactionId)) {
          return Either.left(new MpiServiceError.GoldenIdInteractionConflictError("Interaction not linked to GoldenRecord",
                                                                                  goldenId,

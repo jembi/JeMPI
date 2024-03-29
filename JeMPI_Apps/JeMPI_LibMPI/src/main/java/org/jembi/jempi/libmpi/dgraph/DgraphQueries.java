@@ -98,7 +98,6 @@ final class DgraphQueries {
       return new DgraphReverseGoldenRecordListFromSourceId(List.of());
    }
 
-
    static DgraphInteractions runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
@@ -207,11 +206,15 @@ final class DgraphQueries {
                                                       }""", goldenId);
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+         LOGGER.debug("{}", json);
          final var response = OBJECT_MAPPER.readValue(json, DgraphUidUidList.class);
-         if (response.list().size() == 1) {
-            final var list = new ArrayList<String>();
-            response.list().get(0).list().forEach(x -> list.add(x.uid()));
-            return list;
+         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(response));
+         if (AppUtils.isNullOrEmpty(response.list())) {
+            LOGGER.debug("Null of empty");
+            return List.of();
+         }
+         if (response.list().size() == 1 && !AppUtils.isNullOrEmpty(response.list().getFirst().list())) {
+            return response.list().getFirst().list().stream().map(DgraphUid::uid).toList();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
@@ -336,7 +339,6 @@ final class DgraphQueries {
    static Either<MpiGeneralError, List<CustomDgraphGoldenRecord>> findGoldenRecords(final List<String> ids) {
       final var idListAsString = String.join(",", ids);
       final String query = String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, idListAsString);
-      LOGGER.debug("{}", query);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);

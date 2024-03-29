@@ -78,6 +78,7 @@ final class Routes {
                                                             })));
    }
 
+/*
    static Route proxyPostLinkInteractionToGID(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
@@ -91,6 +92,7 @@ final class Routes {
                                          return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
                                       }));
    }
+*/
 
    static Route proxyPostCalculateScores(
          final ActorSystem<Void> actorSystem,
@@ -165,11 +167,85 @@ final class Routes {
                     }));
    }
 
-   static Route proxyPostCrLinkUpdate(
+   static Route proxyPostCrLinkToGidUpdate(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkUpdateRequest.class),
-                    obj -> onComplete(Ask.postCrLinkUpdate(actorSystem, backEnd, obj), response -> {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkToGidUpdateRequest.class),
+                    obj -> onComplete(Ask.postCrLinkToGidUpdate(actorSystem, backEnd, obj), response -> {
+                       if (!response.isSuccess()) {
+                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                       }
+                       final var rsp = response.get();
+                       try {
+                          if (rsp.linkInfo().isLeft()) {
+                             LOGGER.warn("{}", OBJECT_MAPPER.writeValueAsString(rsp.linkInfo().getLeft()));
+                          } else {
+                             LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(rsp.linkInfo().get()));
+                          }
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                       }
+                       if (rsp.linkInfo().isLeft()) {
+                          final var error = rsp.linkInfo().getLeft();
+                          try {
+                             LOGGER.warn("Error: {}", OBJECT_MAPPER.writeValueAsString(error));
+                          } catch (JsonProcessingException e) {
+                             LOGGER.error(e.getLocalizedMessage(), e);
+                          }
+                          return mapError(error);
+                       } else {
+                          final var result = rsp.linkInfo().get();
+                          LOGGER.debug("OK: {}", result);
+                          return complete(StatusCodes.OK,
+                                          new ApiModels.ApiCrLinkUpdateResponse(result),
+                                          Jackson.marshaller(OBJECT_MAPPER));
+                       }
+                    }));
+   }
+
+   static Route proxyPostCrLinkBySourceId(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkBySourceIdRequest.class),
+                    obj -> onComplete(Ask.postCrLinkBySourceId(actorSystem, backEnd, obj), response -> {
+                       if (!response.isSuccess()) {
+                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                       }
+                       final var rsp = response.get();
+                       try {
+                          if (rsp.linkInfo().isLeft()) {
+                             LOGGER.warn("{}", OBJECT_MAPPER.writeValueAsString(rsp.linkInfo().getLeft()));
+                          } else {
+                             LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(rsp.linkInfo().get()));
+                          }
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                       }
+                       if (rsp.linkInfo().isLeft()) {
+                          final var error = rsp.linkInfo().getLeft();
+                          try {
+                             LOGGER.warn("Error: {}", OBJECT_MAPPER.writeValueAsString(error));
+                          } catch (JsonProcessingException e) {
+                             LOGGER.error(e.getLocalizedMessage(), e);
+                          }
+                          return mapError(error);
+                       } else {
+                          final var result = rsp.linkInfo().get();
+                          LOGGER.debug("OK: {}", result);
+                          return complete(StatusCodes.OK,
+                                          new ApiModels.ApiCrLinkUpdateResponse(result),
+                                          Jackson.marshaller(OBJECT_MAPPER));
+                       }
+                    }));
+   }
+
+   static Route proxyPostCrLinkBySourceIdUpdate(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkBySourceIdUpdateRequest.class),
+                    obj -> onComplete(Ask.postCrLinkBySourceIdUpdate(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
                           LOGGER.warn(IM_A_TEA_POT_LOG);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));

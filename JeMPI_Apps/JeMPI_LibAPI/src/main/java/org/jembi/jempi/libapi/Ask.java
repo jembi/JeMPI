@@ -168,38 +168,37 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.PatchIidGidLinkResponse> patchIidGidLink(
+   static CompletionStage<BackEnd.PostIidGidLinkResponse> postIidGidLink(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String currentGoldenId,
          final String newGoldenId,
          final String patientId,
          final Float score) {
-      final CompletionStage<BackEnd.PatchIidGidLinkResponse> stage = AskPattern.ask(backEnd,
-                                                                                    replyTo -> new BackEnd.PatchIidGidLinkRequest(
-                                                                                          replyTo,
-                                                                                          currentGoldenId,
-                                                                                          newGoldenId,
-                                                                                          patientId,
-                                                                                          score),
-                                                                                    java.time.Duration.ofSeconds(6),
-                                                                                    actorSystem.scheduler());
+      LOGGER.debug("{} {} {} {}", currentGoldenId, newGoldenId, patientId, score);
+      final CompletionStage<BackEnd.PostIidGidLinkResponse> stage = AskPattern.ask(backEnd,
+                                                                                   replyTo -> new BackEnd.PostIidGidLinkRequest(
+                                                                                         replyTo,
+                                                                                         currentGoldenId,
+                                                                                         newGoldenId,
+                                                                                         patientId,
+                                                                                         score),
+                                                                                   java.time.Duration.ofSeconds(6),
+                                                                                   actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.PatchIidNewGidLinkResponse> patchIidNewGidLink(
+   static CompletionStage<BackEnd.PostIidNewGidLinkResponse> postIidNewGidLink(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String currentGoldenId,
          final String patientId) {
-      final CompletionStage<BackEnd.PatchIidNewGidLinkResponse> stage = AskPattern.ask(backEnd,
-                                                                                       replyTo -> new BackEnd.PatchIidNewGidLinkRequest(
-                                                                                             replyTo,
-                                                                                             currentGoldenId,
-                                                                                             patientId,
-                                                                                             2.0F),
-                                                                                       java.time.Duration.ofSeconds(6),
-                                                                                       actorSystem.scheduler());
+      LOGGER.debug("{} {}", currentGoldenId, patientId);
+      final CompletionStage<BackEnd.PostIidNewGidLinkResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.PostIidNewGidLinkRequest(replyTo, currentGoldenId, patientId, 2.0F),
+                 java.time.Duration.ofSeconds(6),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -209,7 +208,7 @@ public final class Ask {
                                                                                ) {
       final CompletionStage<BackEnd.SQLDashboardDataResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.SQLDashboardDataRequest(replyTo),
+                 BackEnd.SQLDashboardDataRequest::new,
                  java.time.Duration.ofSeconds(6),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

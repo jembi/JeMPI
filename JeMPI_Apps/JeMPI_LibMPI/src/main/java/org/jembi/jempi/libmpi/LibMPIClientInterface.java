@@ -116,7 +116,7 @@ public interface LibMPIClientInterface {
    boolean setScore(
          String interactionUID,
          String goldenRecordUid,
-         float score);
+         Float score);
 
    boolean updateGoldenRecordField(
          String goldenId,
@@ -141,13 +141,13 @@ public interface LibMPIClientInterface {
    Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          String currentGoldenId,
          String interactionId,
-         float score);
+         Float score);
 
    Either<MpiGeneralError, LinkInfo> updateLink(
          String goldenId,
          String newGoldenId,
          String interactionId,
-         float score);
+         Float score);
 
    LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          Interaction interaction,
@@ -155,11 +155,11 @@ public interface LibMPIClientInterface {
 
    LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          Interaction interaction,
-         float score);
+         Float score);
 
    record GoldenIdScore(
          String goldenId,
-         float score) {
+         Float score) {
    }
 
 }

@@ -5,6 +5,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -133,8 +136,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
                     .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
                     .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
-                    .onMessage(PatchIidGidLinkRequest.class, this::patchIidGidLinkHandler)
-                    .onMessage(PatchIidNewGidLinkRequest.class, this::patchIidNewGidLinkHandler)
+                    .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
+                    .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
                     .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
                     .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
                     .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
@@ -409,15 +412,31 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> patchIidGidLinkHandler(final PatchIidGidLinkRequest request) {
-      var result = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
-      request.replyTo.tell(new PatchIidGidLinkResponse(result));
+   private Behavior<Event> postIidGidLinkHandler(final PostIidGidLinkRequest request) {
+      LOGGER.debug("{} {} {} {}", request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+      final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+      try {
+         LOGGER.debug("{}", linkInfo.isLeft()
+               ? OBJECT_MAPPER.writeValueAsString(linkInfo.getLeft())
+               : OBJECT_MAPPER.writeValueAsString(linkInfo.get()));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      request.replyTo.tell(new PostIidGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
 
-   private Behavior<Event> patchIidNewGidLinkHandler(final PatchIidNewGidLinkRequest request) {
-      var linkInfo = libMPI.linkToNewGoldenRecord(request.currentGoldenId, request.patientId, request.score);
-      request.replyTo.tell(new PatchIidNewGidLinkResponse(linkInfo));
+   private Behavior<Event> postIidNewGidLinkHandler(final PostIidNewGidLinkRequest request) {
+      LOGGER.debug("{} {} {}", request.currentGoldenId, request.patientId, request.score);
+      final var linkInfo = libMPI.linkToNewGoldenRecord(request.currentGoldenId, request.patientId, request.score);
+      try {
+         LOGGER.debug("{}", linkInfo.isLeft()
+               ? OBJECT_MAPPER.writeValueAsString(linkInfo.getLeft())
+               : OBJECT_MAPPER.writeValueAsString(linkInfo.get()));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      request.replyTo.tell(new PostIidNewGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
 
@@ -435,7 +454,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getGidsPagedHandler(final GetGidsPagedRequest request) {
       libMPI.startTransaction();
-      var recs = libMPI.fetchGoldenIds(request.offset, request.length);
+      final var recs = libMPI.fetchGoldenIds(request.offset, request.length);
       request.replyTo.tell(new GetGidsPagedResponse(recs));
       libMPI.closeTransaction();
       return Behaviors.same();
@@ -455,7 +474,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
-      File file = request.file();
+      final File file = request.file();
       try {
          String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
          Files.copy(file.toPath(),
@@ -473,8 +492,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getSqlDashboardDataHandler(final SQLDashboardDataRequest request) {
-      int openNotifications = psqlNotifications.getNotificationCount("OPEN");
-      int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
+      final int openNotifications = psqlNotifications.getNotificationCount("OPEN");
+      final int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
       request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications,
                                                                                                    closedNotifications))));
       return Behaviors.same();
@@ -610,25 +629,25 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PatchGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
    }
 
-   public record PatchIidGidLinkRequest(
-         ActorRef<PatchIidGidLinkResponse> replyTo,
+   public record PostIidGidLinkRequest(
+         ActorRef<PostIidGidLinkResponse> replyTo,
          String currentGoldenId,
          String newGoldenId,
          String patientId,
          Float score) implements Event {
    }
 
-   public record PatchIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
+   public record PostIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
-   public record PatchIidNewGidLinkRequest(
-         ActorRef<PatchIidNewGidLinkResponse> replyTo,
+   public record PostIidNewGidLinkRequest(
+         ActorRef<PostIidNewGidLinkResponse> replyTo,
          String currentGoldenId,
          String patientId,
-         float score) implements Event {
+         Float score) implements Event {
    }
 
-   public record PatchIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
+   public record PostIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
    public record PostUpdateNotificationRequest(

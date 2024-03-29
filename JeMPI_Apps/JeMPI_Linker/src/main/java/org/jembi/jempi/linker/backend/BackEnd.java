@@ -116,7 +116,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
-                                .onMessage(CrLinkUpdateRequest.class, this::crLinkUpdate)
+                                .onMessage(CrLinkToGidUpdateRequest.class, this::crLinkToGidUpdate)
+                                .onMessage(CrLinkBySourceIdRequest.class, this::crLinkBySourceId)
+                                .onMessage(CrLinkBySourceIdUpdateRequest.class, this::crLinkBySourceIdUpdate)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
                                 .build();
    }
@@ -159,9 +161,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> crLinkUpdate(final CrLinkUpdateRequest req) {
-      final var result = LinkerCR.crLinkUpdate(libMPI, req.crLinkUpdate);
-      req.replyTo.tell(new CrLinkUpdateResponse(result));
+   private Behavior<Request> crLinkToGidUpdate(final CrLinkToGidUpdateRequest req) {
+      final var result = LinkerCR.crLinkToGidUpdate(libMPI, req.crLinkToGidUpdate);
+      req.replyTo.tell(new CrLinkToGidUpdateResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkBySourceId(final CrLinkBySourceIdRequest req) {
+      final var result = LinkerCR.crLinkBySourceId(libMPI, req.crLinkBySourceId);
+      req.replyTo.tell(new CrLinkBySourceIdResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkBySourceIdUpdate(final CrLinkBySourceIdUpdateRequest req) {
+      final var result = LinkerCR.crLinkBySourceIdUpdate(libMPI, req.crLinkBySourceIdUpdate);
+      req.replyTo.tell(new CrLinkBySourceIdUpdateResponse(result));
       return Behaviors.same();
    }
 
@@ -284,7 +298,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> calculateScoresHandler(final CalculateScoresRequest request) {
       final var interaction = libMPI.findInteraction(request.calculateScoresRequest.interactionId());
       final var goldenRecords = libMPI.findGoldenRecords(request.calculateScoresRequest.goldenIds());
-      if (goldenRecords.isLeft()) {
+      if (goldenRecords.isRight()) {
          final var scores = goldenRecords.get().parallelStream()
                                          .unordered()
                                          .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
@@ -366,6 +380,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          List<ExternalLinkCandidate> externalLinkCandidateList) implements Response {
    }
 
+/*
    public record SyncLinkInteractionToGidRequest(
          ApiModels.LinkInteractionToGidSyncBody link,
          ActorRef<SyncLinkInteractionToGidResponse> replyTo) implements Request {
@@ -375,6 +390,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          String stan,
          LinkInfo linkInfo) implements Response {
    }
+*/
 
    public record FindCandidatesWithScoreRequest(
          ActorRef<FindCandidatesWithScoreResponse> replyTo,
@@ -397,12 +413,30 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 
-   public record CrLinkUpdateRequest(
-         ApiModels.ApiCrLinkUpdateRequest crLinkUpdate,
-         ActorRef<CrLinkUpdateResponse> replyTo) implements Request {
+   public record CrLinkToGidUpdateRequest(
+         ApiModels.ApiCrLinkToGidUpdateRequest crLinkToGidUpdate,
+         ActorRef<CrLinkToGidUpdateResponse> replyTo) implements Request {
    }
 
-   public record CrLinkUpdateResponse(
+   public record CrLinkToGidUpdateResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkBySourceIdRequest(
+         ApiModels.ApiCrLinkBySourceIdRequest crLinkBySourceId,
+         ActorRef<CrLinkBySourceIdResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkBySourceIdResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkBySourceIdUpdateRequest(
+         ApiModels.ApiCrLinkBySourceIdUpdateRequest crLinkBySourceIdUpdate,
+         ActorRef<CrLinkBySourceIdUpdateResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkBySourceIdUpdateResponse(
          Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 
