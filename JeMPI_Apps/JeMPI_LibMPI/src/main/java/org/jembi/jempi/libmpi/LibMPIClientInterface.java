@@ -16,9 +16,7 @@ public interface LibMPIClientInterface {
     * *****************************************************************************
     * *
     */
-   void startTransaction();
-
-   void closeTransaction();
+   void connect();
 
    Option<MpiGeneralError> dropAll();
 

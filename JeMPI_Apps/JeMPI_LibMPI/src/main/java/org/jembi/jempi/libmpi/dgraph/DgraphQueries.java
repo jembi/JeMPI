@@ -55,22 +55,19 @@ final class DgraphQueries {
            }
          }
          """;
-
+   private static final String RECORD_GOLDEN_UID_INTERACTION_UID_LIST =
+         """
+         query recordGoldenUidInteractionUidList($gid: string) {
+           list(func: uid($gid)) {
+             uid
+             list: GoldenRecord.interactions {
+               uid
+             }
+           }
+         }""";
 
    private DgraphQueries() {
    }
-
-//   private static DgraphSourceIds runSourceIdQuery(final String query) {
-//      try {
-//         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
-//         if (!StringUtils.isBlank(json)) {
-//            return AppUtils.OBJECT_MAPPER.readValue(json, DgraphSourceIds.class);
-//         }
-//      } catch (JsonProcessingException e) {
-//         LOGGER.error(e.getLocalizedMessage(), e);
-//      }
-//      return new DgraphSourceIds(List.of());
-//   }
 
    private static DgraphSourceIds runSourceIdQuery(
          final Map<String, String> vars) {
@@ -195,22 +192,12 @@ final class DgraphQueries {
    }
 
    static List<String> findExpandedGoldenIds(final String goldenId) {
-      final String query = String.format(Locale.ROOT, """
-                                                      query recordGoldenUidInteractionUidList() {
-                                                          list(func: uid(%s)) {
-                                                              uid
-                                                              list: GoldenRecord.interactions {
-                                                                  uid
-                                                              }
-                                                          }
-                                                      }""", goldenId);
       try {
-         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
-         LOGGER.debug("{}", json);
+         final Map<String, String> map = new HashMap<>();
+         map.put("$gid", goldenId);
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(RECORD_GOLDEN_UID_INTERACTION_UID_LIST, map);
          final var response = OBJECT_MAPPER.readValue(json, DgraphUidUidList.class);
-         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(response));
          if (AppUtils.isNullOrEmpty(response.list())) {
-            LOGGER.debug("Null of empty");
             return List.of();
          }
          if (response.list().size() == 1 && !AppUtils.isNullOrEmpty(response.list().getFirst().list())) {
@@ -349,9 +336,6 @@ final class DgraphQueries {
       }
    }
 
-//   private static String camelToSnake(final String str) {
-//      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
-//   }
 
 /*
    private static List<String> findRecordFieldNamesByType(final RecordType recordType) {
@@ -537,8 +521,6 @@ final class DgraphQueries {
       gql += gqlPagination;
       gql += "}";
 
-      LOGGER.debug("Search Golden Records Query {}", gql);
-      LOGGER.debug("Search Golden Records Variables {}", gqlVars);
       return runExpandedGoldenRecordsQuery(gql, gqlVars);
    }
 
@@ -548,7 +530,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Simple Search Golden Records Params {}", params);
       String gqlFilters = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
@@ -562,7 +543,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Custom Search Golden Records Params {}", payloads);
       String gqlFilters = getCustomSearchQueryFilters(RecordType.GoldenRecord, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
@@ -588,8 +568,6 @@ final class DgraphQueries {
       gql += gqlPagination;
       gql += "}";
 
-      LOGGER.debug("Simple Search Interactions Query {}", gql);
-      LOGGER.debug("Simple Search Interactions Variables {}", gqlVars);
       return runInteractionsQuery(gql, gqlVars);
    }
 
@@ -623,8 +601,6 @@ final class DgraphQueries {
       gql += gqlPagination;
       gql += "}";
 
-      LOGGER.debug("Filter Gids Query {}", gql);
-      LOGGER.debug("Filter Gids Variables {}", gqlVars);
       return Boolean.TRUE.equals(getInteractionCount)
             ? Either.right(runFilterGidsWithInteractionCountQuery(gql, gqlVars))
             : Either.left(runfilterGidsQuery(gql, gqlVars));
@@ -635,7 +611,6 @@ final class DgraphQueries {
          final LocalDateTime createdAt,
          final PaginationOptions paginationOptions,
          final Boolean getInteractionCount) {
-      LOGGER.debug("Filter Gids Params {}", params);
       String dateFilter = String.format(Locale.ROOT, "le(GoldenRecord.aux_date_created,\"%s\")", createdAt);
       String filter = getSimpleSearchQueryFilters(RecordType.GoldenRecord, params);
       String gqlFilters = !filter.isEmpty()
@@ -652,7 +627,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Simple Search Interactions Params {}", params);
       String gqlFilters = getSimpleSearchQueryFilters(RecordType.Interaction, params);
       List<String> gqlArgs = getSimpleSearchQueryArguments(params);
       HashMap<String, String> gqlVars = getSimpleSearchQueryVariables(params);
@@ -666,7 +640,6 @@ final class DgraphQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.debug("Simple Search Interactions Params {}", payloads);
       String gqlFilters = getCustomSearchQueryFilters(RecordType.Interaction, payloads);
       List<String> gqlArgs = getCustomSearchQueryArguments(payloads);
       HashMap<String, String> gqlVars = getCustomSearchQueryVariables(payloads);
@@ -786,12 +759,8 @@ final class DgraphQueries {
          for (var o : req.operands()) {
             map.put("$" + AppUtils.camelToSnake(o.operand().name()), o.operand().value());
          }
-         LOGGER.debug("%n{}", query);
-         LOGGER.debug("{}", map);
-
 
          final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
-         LOGGER.debug("{}", dgraphGoldenRecords);
          return Either.right(dgraphGoldenRecords);
       } catch (InvalidFunctionException e) {
          LOGGER.error(e.getLocalizedMessage(), e);

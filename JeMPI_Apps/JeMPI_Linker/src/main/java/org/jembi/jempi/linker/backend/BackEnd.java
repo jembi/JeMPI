@@ -37,6 +37,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    static MyKafkaProducer<String, Notification> topicNotifications;
+
+   static {
+      topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                 GlobalConstants.TOPIC_NOTIFICATIONS,
+                                                 new StringSerializer(),
+                                                 new JsonPojoSerializer<>(),
+                                                 AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+   }
+
    private final Executor ec;
    private LibMPI libMPI = null;
 
@@ -45,13 +54,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
-         openMPI(true);
+         openMPI();
       }
-      topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                 GlobalConstants.TOPIC_NOTIFICATIONS,
-                                                 new StringSerializer(),
-                                                 new JsonPojoSerializer<>(),
-                                                 AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private BackEnd(
@@ -82,25 +86,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 //      return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
 //   }
 
-   private void openMPI(final boolean useDGraph) {
-      if (useDGraph) {
-         final var host = AppConfig.getDGraphHosts();
-         final var port = AppConfig.getDGraphPorts();
-         libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
-                             host,
-                             port,
-                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
-      } else {
-         libMPI = null;
-//         new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig
-//         .POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
-//                             AppConfig.POSTGRESQL_USER,
-//                             AppConfig.POSTGRESQL_PASSWORD,
-//                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-//                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
-      }
-      libMPI.startTransaction();
+   private void openMPI() {
+      final var host = AppConfig.getDGraphHosts();
+      final var port = AppConfig.getDGraphPorts();
+      libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
+                          host,
+                          port,
+                          AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                          "CLIENT_ID_LINKER-" + UUID.randomUUID());
    }
 
    @Override
@@ -336,11 +329,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public interface Response {
    }
 
-   private record WorkCandidate(
-         GoldenRecord goldenRecord,
-         float score) {
-   }
-
    public record AsyncLinkInteractionRequest(
          ActorRef<AsyncLinkInteractionResponse> replyTo,
          String key,
@@ -379,18 +367,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          LinkInfo linkInfo,
          List<ExternalLinkCandidate> externalLinkCandidateList) implements Response {
    }
-
-/*
-   public record SyncLinkInteractionToGidRequest(
-         ApiModels.LinkInteractionToGidSyncBody link,
-         ActorRef<SyncLinkInteractionToGidResponse> replyTo) implements Request {
-   }
-
-   public record SyncLinkInteractionToGidResponse(
-         String stan,
-         LinkInfo linkInfo) implements Response {
-   }
-*/
 
    public record FindCandidatesWithScoreRequest(
          ActorRef<FindCandidatesWithScoreResponse> replyTo,

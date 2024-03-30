@@ -5,7 +5,6 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -29,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -157,9 +154,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
-      libMPI.startTransaction();
       var recs = libMPI.simpleSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
-      libMPI.closeTransaction();
       request.replyTo.tell(new PostSearchGoldenRecordsResponse(recs));
       return Behaviors.same();
    }
@@ -171,9 +166,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
-      libMPI.startTransaction();
       var recs = libMPI.customSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
-      libMPI.closeTransaction();
       request.replyTo.tell(new PostSearchGoldenRecordsResponse(recs));
       return Behaviors.same();
    }
@@ -185,9 +178,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
-      libMPI.startTransaction();
       var recs = libMPI.simpleSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
-      libMPI.closeTransaction();
       request.replyTo.tell(new PostSearchInteractionsResponse(recs));
       return Behaviors.same();
    }
@@ -199,9 +190,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       Integer limit = payload.limit();
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
-      libMPI.startTransaction();
       var recs = libMPI.customSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
-      libMPI.closeTransaction();
       request.replyTo.tell(new PostSearchInteractionsResponse(recs));
       return Behaviors.same();
    }
@@ -215,9 +204,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       PaginationOptions paginationOptions = new PaginationOptions(offset, limit, sortBy, sortAsc);
-      libMPI.startTransaction();
       var recs = libMPI.filterGids(parameters, createdAt, paginationOptions);
-      libMPI.closeTransaction();
       request.replyTo.tell(new PostFilterGidsResponse(recs));
       return Behaviors.same();
    }
@@ -231,9 +218,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       PaginationOptions paginationOptions = new PaginationOptions(offset, limit, sortBy, sortAsc);
-      libMPI.startTransaction();
       var recs = libMPI.filterGidsWithInteractionCount(parameters, createdAt, paginationOptions);
-      libMPI.closeTransaction();
       request.replyTo.tell(new PostFilterGidsWithInteractionCountResponse(recs));
       return Behaviors.same();
    }
@@ -252,10 +237,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> countGoldenRecordsHandler(final CountGoldenRecordsRequest request) {
       try {
-         libMPI.startTransaction();
          final long count = libMPI.countGoldenRecords();
-         libMPI.closeTransaction();
-
          request.replyTo.tell(new CountGoldenRecordsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countGoldenRecords failed with error message: {}", exception.getMessage());
@@ -266,10 +248,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> countInteractionsHandler(final CountInteractionsRequest request) {
       try {
-         libMPI.startTransaction();
          final long count = libMPI.countInteractions();
-         libMPI.closeTransaction();
-
          request.replyTo.tell(new CountInteractionsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
@@ -279,37 +258,29 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> countRecordsHandler(final CountRecordsRequest request) {
-      libMPI.startTransaction();
       final var recs = libMPI.countGoldenRecords();
       final var docs = libMPI.countInteractions();
-      libMPI.closeTransaction();
       request.replyTo.tell(new CountRecordsResponse(recs, docs));
       return Behaviors.same();
    }
 
    private Behavior<Event> findExpandedSourceIdHandler(final FindExpandedSourceIdRequest request) {
-      libMPI.startTransaction();
       final var sourceIdList = libMPI.findExpandedSourceIdList(request.facility, request.client);
-      libMPI.closeTransaction();
       request.replyTo.tell(new FindExpandedSourceIdResponse(sourceIdList));
 
       return Behaviors.same();
    }
 
    private Behavior<Event> getGidsAllHandler(final GetGidsAllRequest request) {
-      libMPI.startTransaction();
       var recs = libMPI.findGoldenIds();
       request.replyTo.tell(new GetGidsAllResponse(recs));
-      libMPI.closeTransaction();
       return Behaviors.same();
    }
 
    private Behavior<Event> getExpandedGoldenRecordHandler(final GetExpandedGoldenRecordRequest request) {
       ExpandedGoldenRecord expandedGoldenRecord = null;
       try {
-         libMPI.startTransaction();
          expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenId);
-         libMPI.closeTransaction();
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
@@ -324,16 +295,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
       }
-
       return Behaviors.same();
    }
 
    private Behavior<Event> getExpandedGoldenRecordsHandler(final GetExpandedGoldenRecordsRequest request) {
       List<ExpandedGoldenRecord> goldenRecords = null;
       try {
-         libMPI.startTransaction();
          goldenRecords = libMPI.findExpandedGoldenRecords(request.goldenIds);
-         libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecords failed for goldenIds: {} with error: {}",
                       request.goldenIds,
@@ -347,16 +315,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
-
       return Behaviors.same();
    }
 
    private Behavior<Event> getExpandedInteractionsHandler(final GetExpandedInteractionsRequest request) {
       List<ExpandedInteraction> expandedInteractions = null;
       try {
-         libMPI.startTransaction();
          expandedInteractions = libMPI.findExpandedInteractions(request.patientIds);
-         libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
                       request.patientIds,
@@ -376,9 +341,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> getInteractionHandler(final GetInteractionRequest request) {
       Interaction interaction = null;
       try {
-         libMPI.startTransaction();
          interaction = libMPI.findInteraction(request.iid);
-         libMPI.closeTransaction();
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid, exception.getMessage());
       }
@@ -390,14 +353,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } else {
          request.replyTo.tell(new GetInteractionResponse(Either.right(interaction)));
       }
-
       return Behaviors.same();
    }
 
    private Behavior<Event> patchGoldenRecordHandler(final PatchGoldenRecordRequest request) {
       final var fields = request.fields();
       final var goldenId = request.goldenId;
-      libMPI.startTransaction();
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
          final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(), field.newValue());
@@ -408,34 +369,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          }
       }
       request.replyTo.tell(new PatchGoldenRecordResponse(updatedFields));
-      libMPI.closeTransaction();
       return Behaviors.same();
    }
 
    private Behavior<Event> postIidGidLinkHandler(final PostIidGidLinkRequest request) {
-      LOGGER.debug("{} {} {} {}", request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
       final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
-      try {
-         LOGGER.debug("{}", linkInfo.isLeft()
-               ? OBJECT_MAPPER.writeValueAsString(linkInfo.getLeft())
-               : OBJECT_MAPPER.writeValueAsString(linkInfo.get()));
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
       request.replyTo.tell(new PostIidGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
 
    private Behavior<Event> postIidNewGidLinkHandler(final PostIidNewGidLinkRequest request) {
-      LOGGER.debug("{} {} {}", request.currentGoldenId, request.patientId, request.score);
       final var linkInfo = libMPI.linkToNewGoldenRecord(request.currentGoldenId, request.patientId, request.score);
-      try {
-         LOGGER.debug("{}", linkInfo.isLeft()
-               ? OBJECT_MAPPER.writeValueAsString(linkInfo.getLeft())
-               : OBJECT_MAPPER.writeValueAsString(linkInfo.get()));
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
       request.replyTo.tell(new PostIidNewGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
@@ -453,19 +397,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getGidsPagedHandler(final GetGidsPagedRequest request) {
-      libMPI.startTransaction();
       final var recs = libMPI.fetchGoldenIds(request.offset, request.length);
       request.replyTo.tell(new GetGidsPagedResponse(recs));
-      libMPI.closeTransaction();
       return Behaviors.same();
    }
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         libMPI.startTransaction();
          psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId, request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
-         libMPI.closeTransaction();
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
@@ -476,7 +416,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       final File file = request.file();
       try {
-         String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
+         final String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
          Files.copy(file.toPath(),
                     Paths.get((userCSVPath != null
                                      ? userCSVPath

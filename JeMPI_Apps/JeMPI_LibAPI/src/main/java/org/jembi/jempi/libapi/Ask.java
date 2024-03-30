@@ -193,7 +193,6 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final String currentGoldenId,
          final String patientId) {
-      LOGGER.debug("{} {}", currentGoldenId, patientId);
       final CompletionStage<BackEnd.PostIidNewGidLinkResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.PostIidNewGidLinkRequest(replyTo, currentGoldenId, patientId, 2.0F),

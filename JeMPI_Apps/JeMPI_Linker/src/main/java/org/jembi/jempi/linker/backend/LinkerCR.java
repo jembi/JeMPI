@@ -28,7 +28,8 @@ final class LinkerCR {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", crFindData);
       }
-      return libMPI.apiCrFindGoldenRecords(crFindData);
+      final var res = libMPI.apiCrFindGoldenRecords(crFindData);
+      return res;
    }
 
    static List<GoldenRecord> crCandidates(
@@ -101,7 +102,6 @@ final class LinkerCR {
       if (req.uniqueInteractionData().auxDateCreated() == null) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
-         libMPI.startTransaction();
          final var grec = libMPI.findGoldenRecord(req.gid());
          if (grec.isLeft()) {
             return Either.left(grec.getLeft());
@@ -148,7 +148,6 @@ final class LinkerCR {
       if (req.uniqueInteractionData().auxDateCreated() == null) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
-         libMPI.startTransaction();
          final var grec = libMPI.findExpandedSourceIdList(req.sourceId().facility(), req.sourceId().patient());
          if (AppUtils.isNullOrEmpty(grec) || grec.isEmpty() || grec.getFirst().goldenRecords().isEmpty()) {
             return Either.left(new MpiServiceError.CRGidDoesNotExistError("No Golden Record"));
@@ -191,7 +190,6 @@ final class LinkerCR {
       if (req.uniqueInteractionData().auxDateCreated() == null) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
-         libMPI.startTransaction();
          final var grec = libMPI.findExpandedSourceIdList(req.sourceId().facility(), req.sourceId().patient());
          if (AppUtils.isNullOrEmpty(grec) || grec.isEmpty() || grec.getFirst().goldenRecords().isEmpty()) {
             return Either.left(new MpiServiceError.CRGidDoesNotExistError("No Golden Record"));
@@ -254,7 +252,6 @@ final class LinkerCR {
             fail.add(field.name());
          }
       });
-      LOGGER.debug("{}", success);
       if (fail.isEmpty()) {
          return Either.right(new BackEnd.CrUpdateFieldResponse.UpdateFieldResponse(crUpdateFields.goldenId(), pass, fail));
       } else {
@@ -269,7 +266,6 @@ final class LinkerCR {
          final String iid,
          final CustomDemographicData interaction) {
       for (Field f : CustomDemographicData.class.getDeclaredFields()) {
-         LOGGER.debug("{}", f.getName());
          String gField = null;
          String iField = null;
          try {
@@ -284,11 +280,9 @@ final class LinkerCR {
               && !gField.equals(iField))
              ||
              (StringUtils.isBlank(gField) && !StringUtils.isEmpty(iField))) {
-            LOGGER.debug("{} {} {}", f.getName(), gField, iField);
             libMPI.updateGoldenRecordField(iid, gid, f.getName(), gField, iField);
          }
       }
-      LOGGER.debug("done with sync");
    }
 
    private static boolean checkNull(final CustomDemographicData demographicData) throws IllegalAccessException {

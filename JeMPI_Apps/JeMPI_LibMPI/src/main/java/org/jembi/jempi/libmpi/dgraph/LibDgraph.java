@@ -259,7 +259,6 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String goldenUID,
          final String interactionUID,
          final Float score) {
-      LOGGER.debug("{} {} {}", goldenUID, interactionUID, score);
       return dgraphMutations.linkToNewGoldenRecord(goldenUID, interactionUID, score);
    }
 
@@ -283,21 +282,18 @@ public final class LibDgraph implements LibMPIClientInterface {
       return dgraphMutations.addNewDGraphInteraction(interaction);
    }
 
-   public void startTransaction() {
-      DgraphClient.getInstance().startTransaction();
-   }
-
-   public void closeTransaction() {
-      DgraphClient.getInstance().closeTransaction();
-   }
-
    /*
     * *******************************************************
     * DATABASE
     * *******************************************************
     */
 
+   public void connect() {
+      DgraphClient.getInstance().connect();
+   }
+
    public Option<MpiGeneralError> dropAll() {
+      connect();
       try {
          DgraphClient.getInstance().alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
          return Option.none();
@@ -308,6 +304,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public Option<MpiGeneralError> dropAllData() {
+      connect();
       try {
          DgraphClient.getInstance().alter(DgraphProto.Operation.newBuilder().setDropOp(DATA).build());
          return Option.none();
@@ -318,6 +315,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public Option<MpiGeneralError> createSchema() {
+      connect();
       return dgraphMutations.createSchema();
    }
 

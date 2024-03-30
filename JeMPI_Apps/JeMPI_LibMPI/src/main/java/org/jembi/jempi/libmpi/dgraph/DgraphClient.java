@@ -43,7 +43,7 @@ public final class DgraphClient {
     * *
     */
 
-   void startTransaction() {
+   void connect() {
       if (dgraphClient == null) {
          var hostList = new ArrayList<DgraphClient.AlphaHost>();
          for (int i = 0; i < host.length; i++) {
@@ -63,9 +63,6 @@ public final class DgraphClient {
             LOGGER.error("Cannot create client");
          }
       }
-   }
-
-   void closeTransaction() {
    }
 
    void zapTransaction() {
@@ -113,7 +110,7 @@ public final class DgraphClient {
                LOGGER.warn("{}", ex.getLocalizedMessage());
                zapTransaction();
                sleep();
-               startTransaction();
+               connect();
                done = false;
             }
          } catch (RuntimeException ex) {
@@ -124,14 +121,14 @@ public final class DgraphClient {
                LOGGER.error(ex.getLocalizedMessage(), ex);
                zapTransaction();
                sleep();
-               startTransaction();
+               connect();
                return null;
             } else {
                LOGGER.warn("{}", ex.getLocalizedMessage(), ex);
                done = false;
                zapTransaction();
                sleep();
-               startTransaction();
+               connect();
             }
          } finally {
             txn.discard();
@@ -160,7 +157,7 @@ public final class DgraphClient {
                LOGGER.error(ex.getLocalizedMessage(), ex);
                zapTransaction();
                sleep();
-               startTransaction();
+               connect();
                return null;
             } else {
                LOGGER.error(ex.getLocalizedMessage(), ex);
@@ -168,7 +165,7 @@ public final class DgraphClient {
                done = false;
                zapTransaction();
                sleep();
-               startTransaction();
+               connect();
             }
          } finally {
             txn.discard();
