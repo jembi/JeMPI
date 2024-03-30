@@ -16,6 +16,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -77,15 +78,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.setup(context -> new BackEnd(context, lib));
    }
 
-//   private static float calcNormalizedScore(
-//         final CustomDemographicData goldenRecord,
-//         final CustomDemographicData interaction) {
-//      if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
-//         return 1.0F;
-//      }
-//      return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
-//   }
-
    private void openMPI() {
       final var host = AppConfig.getDGraphHosts();
       final var port = AppConfig.getDGraphPorts();
@@ -113,6 +105,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrLinkBySourceIdRequest.class, this::crLinkBySourceId)
                                 .onMessage(CrLinkBySourceIdUpdateRequest.class, this::crLinkBySourceIdUpdate)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
+                                .onMessage(FindCandidatesWithScoreRequest.class, this::findCandidateWithScoreHandler)
                                 .build();
    }
 
@@ -172,6 +165,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
+   private Behavior<Request> findCandidateWithScoreHandler(final FindCandidatesWithScoreRequest req) {
+      LOGGER.warn("findCandidateWithScoreHandler not implemented");
+      final var result = new MpiServiceError.NotImplementedError("findCandidateWithScore not implemented");
+      req.replyTo.tell(new FindCandidatesWithScoreResponse(Either.left(result)));
+      return Behaviors.same();
+   }
+
    private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
       final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
                                                          new Interaction(null,
@@ -196,7 +196,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
       if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return Behaviors.withTimers(timers -> {
-            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));
+            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                    TeaTimeRequest.INSTANCE,
+                                    Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
             req.replyTo.tell(new AsyncLinkInteractionResponse(null));
             return Behaviors.same();
          });
@@ -213,7 +215,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
       }
       return Behaviors.withTimers(timers -> {
-         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                 TeaTimeRequest.INSTANCE,
+                                 Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
          return Behaviors.same();
       });
    }
@@ -283,7 +287,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          // POST TO LAB
       });
       return Behaviors.withTimers(timers -> {
-         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, WorkTimeRequest.INSTANCE, Duration.ofSeconds(5));
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                 WorkTimeRequest.INSTANCE,
+                                 Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
          return Behaviors.same();
       });
    }

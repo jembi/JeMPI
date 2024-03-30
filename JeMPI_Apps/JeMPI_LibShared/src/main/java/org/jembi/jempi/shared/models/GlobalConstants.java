@@ -61,21 +61,27 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_GET_DASHBOARD_DATA = "dashboard-data";
    public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "on-notification-resolution";
    public static final String SEGMENT_PROXY_POST_LINK_INTERACTION = "link-interaction";
-//   public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID = "link-interaction-to-gid";
+   //   public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID = "link-interaction-to-gid";
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "current-user";
 
    public static final StatusCode IM_A_TEA_POT = StatusCodes.IM_A_TEAPOT;
-   public static final String IM_A_TEA_POT_LOG = "IM_A_TEA_POT";
+      // TIMEOUTS
+   public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;
+   public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;
+   public static final int TIMEOUT_DGRAPH_QUERY_SECS = (TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS * TIMEOUT_DGRAPH_RECONNECT_RETRIES);
+   public static final int TIMEOUT_GENERAL_SECS = 60;
+   public static final int TIMEOUT_TEA_TIME_SECS = 5;
 
-   public  enum AuditEventType {
+
+   private GlobalConstants() {
+   }
+
+   public enum AuditEventType {
       LINKING_EVENT,
       NOTIFICATION_EVENT,
       UNKNOWN_EVENT
-   }
-
-   private GlobalConstants() {
    }
 
 }

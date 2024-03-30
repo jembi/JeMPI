@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 
 import java.util.concurrent.CompletionStage;
@@ -26,7 +27,7 @@ final class Ask {
       CompletionStage<BackEnd.CrCandidatesResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrCandidatesRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.goldenRecords().isLeft()) {
@@ -45,7 +46,7 @@ final class Ask {
       CompletionStage<BackEnd.CrFindResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrFindRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.goldenRecords().isLeft()) {
@@ -64,7 +65,7 @@ final class Ask {
       final CompletionStage<BackEnd.CrRegisterResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrRegisterRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.linkInfo().isLeft()) {
@@ -83,7 +84,7 @@ final class Ask {
       final CompletionStage<BackEnd.CrLinkToGidUpdateResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrLinkToGidUpdateRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.linkInfo().isLeft()) {
@@ -102,7 +103,7 @@ final class Ask {
       final CompletionStage<BackEnd.CrLinkBySourceIdResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrLinkBySourceIdRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.linkInfo().isLeft()) {
@@ -121,7 +122,7 @@ final class Ask {
       final CompletionStage<BackEnd.CrLinkBySourceIdUpdateResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrLinkBySourceIdUpdateRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.linkInfo().isLeft()) {
@@ -140,7 +141,7 @@ final class Ask {
       CompletionStage<BackEnd.CrUpdateFieldResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CrUpdateFieldRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(10),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
@@ -153,7 +154,7 @@ final class Ask {
       CompletionStage<BackEnd.SyncLinkInteractionResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.SyncLinkInteractionRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(11),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
@@ -165,7 +166,7 @@ final class Ask {
          final InteractionEnvelop batchInteraction) {
       return AskPattern.ask(backEnd,
                             replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction),
-                            java.time.Duration.ofSeconds(60),
+                            java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                             actorSystem.scheduler());
    }
 
@@ -176,7 +177,7 @@ final class Ask {
       CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, iid),
-                 java.time.Duration.ofSeconds(5),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
@@ -202,7 +203,7 @@ final class Ask {
       CompletionStage<BackEnd.CalculateScoresResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.CalculateScoresRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(11),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }

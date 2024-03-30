@@ -15,11 +15,9 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static akka.http.javadsl.server.Directives.*;
-import static org.jembi.jempi.shared.models.GlobalConstants.IM_A_TEA_POT_LOG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class Routes {
@@ -61,21 +59,21 @@ final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return parameter("iid",
-                       patientId -> entity(Jackson.unmarshaller(CustomMU.class),
-                                           mu -> onComplete(Ask.findCandidates(actorSystem, backEnd, patientId),
-                                                            result -> {
-                                                               if (!result.isSuccess()) {
-                                                                  LOGGER.warn(IM_A_TEA_POT_LOG);
-                                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
-                                                               }
-                                                               return result.get()
-                                                                            .candidates()
-                                                                            .mapLeft(Routes::mapError)
-                                                                            .fold(error -> error,
-                                                                                  candidateList -> complete(StatusCodes.OK,
-                                                                                                            candidateList,
-                                                                                                            Jackson.marshaller()));
-                                                            })));
+                       iid -> onComplete(Ask.findCandidates(actorSystem, backEnd, iid),
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
+                                               LOGGER.error(e.getLocalizedMessage(), e);
+                                               return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                            }
+                                            return result.get()
+                                                         .candidates()
+                                                         .mapLeft(Routes::mapError)
+                                                         .fold(error -> error,
+                                                               candidateList -> complete(StatusCodes.OK,
+                                                                                         candidateList,
+                                                                                         Jackson.marshaller()));
+                                         }));
    }
 
 /*
@@ -101,7 +99,8 @@ final class Routes {
                     obj -> onComplete(Ask.postCalculateScores(actorSystem, backEnd, obj),
                                       response -> {
                                          if (!response.isSuccess()) {
-                                            LOGGER.warn(IM_A_TEA_POT_LOG);
+                                            final var e = response.failed().get();
+                                            LOGGER.error(e.getLocalizedMessage(), e);
                                             return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                                          }
                                          return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
@@ -114,7 +113,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
                     obj -> onComplete(Ask.getCrCandidates(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
@@ -133,7 +133,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
                     obj -> onComplete(Ask.getCrFind(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
@@ -153,7 +154,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
                     obj -> onComplete(Ask.postCrRegister(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
@@ -173,7 +175,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkToGidUpdateRequest.class),
                     obj -> onComplete(Ask.postCrLinkToGidUpdate(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
@@ -210,7 +213,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkBySourceIdRequest.class),
                     obj -> onComplete(Ask.postCrLinkBySourceId(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
@@ -247,7 +251,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrLinkBySourceIdUpdateRequest.class),
                     obj -> onComplete(Ask.postCrLinkBySourceIdUpdate(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
@@ -284,7 +289,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionSyncBody.class),
                     obj -> onComplete(Ask.postLinkInteraction(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var eventLinkPatientSyncRsp = response.get();
@@ -302,7 +308,8 @@ final class Routes {
       return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
                     obj -> onComplete(Ask.patchCrUpdateField(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
-                          LOGGER.warn(IM_A_TEA_POT_LOG);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
                        }
                        final var rsp = response.get();
