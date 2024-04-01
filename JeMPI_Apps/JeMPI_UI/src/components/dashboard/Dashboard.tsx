@@ -2,8 +2,6 @@ import {
   Box,
   Container,
   Grid,
-  LinearProgress,
-  LinearProgressProps,
   Stack,
   Tab,
   Tabs,
@@ -54,8 +52,6 @@ const tabProps = (index: number) => {
 
 const Dashboard = () => {
   const dashboardData = useDashboardData()
-
-  console.log("Dash board",dashboardData)
   const [currentTabIndex, setCurrentTabIndex] = useState(0)
   const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIndex(newValue)

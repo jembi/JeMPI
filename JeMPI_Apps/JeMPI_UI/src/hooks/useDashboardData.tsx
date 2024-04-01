@@ -6,7 +6,7 @@ import { DashboardData } from 'types/BackendResponse'
 import { useSnackbar } from 'notistack'
 
 
-export interface DashboadDataContextValue {
+export interface DashboardDataContextValue {
     data: DashboardData | undefined,
     isLoading: boolean,
     isError: boolean,
@@ -14,7 +14,7 @@ export interface DashboadDataContextValue {
 }
     
 
-const DashboardDataContext = React.createContext<DashboadDataContextValue | null>(null)
+const DashboardDataContext = React.createContext<DashboardDataContextValue | null>(null)
 DashboardDataContext.displayName = 'DashboardDataContext'
 
 export interface DashboardDataProviderProps {
@@ -39,7 +39,7 @@ export const DashboardDataProvider = ({
             r.dashboardData = JSON.parse(r.dashboardData)
             return r
         }),
-    refetchInterval: 5 * 60 *1000,
+    refetchInterval: 5 * 60 * 1000,
     cacheTime: 5 * 60 * 1000, 
     staleTime: 5 * 60 * 1000,
   })

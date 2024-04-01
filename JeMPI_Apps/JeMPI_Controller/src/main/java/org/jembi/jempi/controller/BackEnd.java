@@ -45,7 +45,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final ActorRef<BackEnd.Event> backEnd) {
       final CompletionStage<BackEnd.DashboardDataResponse> stage = AskPattern
             .ask(backEnd,
-                 DashboardDataRequest::new,
+                 replyTo -> new DashboardDataRequest(replyTo),
                  java.time.Duration.ofSeconds(6),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
