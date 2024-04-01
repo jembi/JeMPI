@@ -5,6 +5,7 @@ import { useConfig } from './useConfig'
 import { DashboardData } from 'types/BackendResponse'
 import { useSnackbar } from 'notistack'
 
+
 export interface DashboadDataContextValue {
     data: DashboardData | undefined,
     isLoading: boolean,
@@ -38,10 +39,9 @@ export const DashboardDataProvider = ({
             r.dashboardData = JSON.parse(r.dashboardData)
             return r
         }),
-    refetchOnWindowFocus: false,
-    refetchInterval: 3000,
+    refetchInterval: 5 * 60 *1000,
     cacheTime: 5 * 60 * 1000, 
-    staleTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
   })
 
 
