@@ -70,6 +70,9 @@ public sealed interface MpiServiceError extends MpiGeneralError {
    record GeneralError(String error) implements MpiServiceError {
    }
 
+   record InternalError(String message) implements MpiServiceError {
+   }
+
    record CandidatesNotFoundError(
          String error,
          String interactionID) implements MpiServiceError {

@@ -116,7 +116,7 @@ public final class LinkerDWH {
    }
 
    // +
-   public static Either<LinkInfo, List<ExternalLinkCandidate>> linkInteraction(
+   static Either<List<ExternalLinkCandidate>, LinkInfo> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
          final ExternalLinkRange externalLinkRange,
@@ -175,7 +175,7 @@ public final class LinkerDWH {
                }
             }
          }
-         return Either.right(List.of());
+         return Either.left(List.of());
       } else {
          LinkInfo linkInfo = null;
          final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
@@ -319,8 +319,8 @@ public final class LinkerDWH {
                                             }));
 
          return linkInfo == null
-               ? Either.right(externalLinkCandidateList)
-               : Either.left(linkInfo);
+               ? Either.left(externalLinkCandidateList)
+               : Either.right(linkInfo);
       }
    }
 

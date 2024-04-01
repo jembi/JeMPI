@@ -5,12 +5,10 @@ import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.server.AllDirectives;
-import akka.http.javadsl.server.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.util.concurrent.CompletionStage;
 
@@ -35,10 +33,11 @@ final class HttpServer extends AllDirectives {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd) {
       final Http http = Http.get(system);
-      binding = http.newServerAt("0.0.0.0", AppConfig.LINKER_HTTP_PORT).bind(this.createRoute(system, backEnd));
+      binding = http.newServerAt("0.0.0.0", AppConfig.LINKER_HTTP_PORT).bind(Routes.createRoute(system, backEnd));
       LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.LINKER_HTTP_PORT);
    }
 
+/*
    private Route createRoute(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
@@ -67,6 +66,7 @@ final class HttpServer extends AllDirectives {
                                                       path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                                            () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd))))));
    }
+*/
 
 
 }

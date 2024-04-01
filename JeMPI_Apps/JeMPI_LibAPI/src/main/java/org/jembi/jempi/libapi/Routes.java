@@ -45,6 +45,14 @@ public final class Routes {
          case MpiServiceError.InvalidFunctionError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
          case MpiServiceError.InvalidOperatorError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
          case MpiServiceError.NoScoreGivenError e -> complete(StatusCodes.PARTIAL_CONTENT, e, JSON_MARSHALLER);
+         case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, JSON_MARSHALLER);
+         case MpiServiceError.CRClientExistsError e -> complete(StatusCodes.CONFLICT, e, JSON_MARSHALLER);
+         case MpiServiceError.CRUpdateFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
+         case MpiServiceError.CRGidDoesNotExistError e -> complete(StatusCodes.NOT_FOUND, e, JSON_MARSHALLER);
+         case MpiServiceError.CRLinkUpdateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
+         case MpiServiceError.CRMissingFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
+         case MpiServiceError.GeneralError e -> complete(StatusCodes.INTERNAL_SERVER_ERROR, e, JSON_MARSHALLER);
+         case MpiServiceError.InternalError e -> complete(StatusCodes.INTERNAL_SERVER_ERROR, e, JSON_MARSHALLER);
          default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
       };
    }
@@ -142,7 +150,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return complete(StatusCodes.OK,
                                            new ApiModels.ApiNumberOfRecords(result.get().goldenRecords(),
@@ -163,8 +171,7 @@ public final class Routes {
                                                                    if (!result.isSuccess()) {
                                                                       final var e = result.failed().get();
                                                                       LOGGER.error(e.getLocalizedMessage(), e);
-                                                                      return complete(ApiModels.getHttpErrorResponse(
-                                                                            GlobalConstants.IM_A_TEA_POT));
+                                                                      return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                                    }
                                                                    return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                                                                 })));
@@ -198,7 +205,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .count()
@@ -218,7 +225,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .count()
@@ -238,7 +245,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                         });
@@ -257,8 +264,7 @@ public final class Routes {
                                                                      if (!result.isSuccess()) {
                                                                         final var e = result.failed().get();
                                                                         LOGGER.error(e.getLocalizedMessage(), e);
-                                                                        return complete(ApiModels.getHttpErrorResponse(
-                                                                              GlobalConstants.IM_A_TEA_POT));
+                                                                        return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                                      }
                                                                      return complete(StatusCodes.OK,
                                                                                      result.get(),
@@ -288,7 +294,7 @@ public final class Routes {
                                                         if (!result.isSuccess()) {
                                                            final var e = result.failed().get();
                                                            LOGGER.error(e.getLocalizedMessage(), e);
-                                                           return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                           return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                         }
                                                         return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                                                      }))))));
@@ -304,7 +310,7 @@ public final class Routes {
                               if (!result.isSuccess()) {
                                  final var e = result.failed().get();
                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                 return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                               }
                               return result.get()
                                            .expandedGoldenRecords()
@@ -329,7 +335,7 @@ public final class Routes {
                               if (!result.isSuccess()) {
                                  final var e = result.failed().get();
                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                 return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                               }
                               return result.get()
                                            .expandedGoldenRecords()
@@ -354,7 +360,7 @@ public final class Routes {
                               if (!result.isSuccess()) {
                                  final var e = result.failed().get();
                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                 return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                               }
                               return result.get()
                                            .expandedPatientRecords()
@@ -378,7 +384,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .goldenRecord()
@@ -400,7 +406,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .patient()
@@ -420,7 +426,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -448,7 +454,7 @@ public final class Routes {
                                                             if (!response.isSuccess()) {
                                                                final var e = response.failed().get();
                                                                LOGGER.error(e.getLocalizedMessage(), e);
-                                                               return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                             }
                                                             return complete(StatusCodes.OK);
                                                          })));
@@ -469,7 +475,7 @@ public final class Routes {
          if (!response.isSuccess()) {
             final var e = response.failed().get();
             LOGGER.error(e.getLocalizedMessage(), e);
-            return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
          }
          return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
       }));
@@ -484,7 +490,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -501,7 +507,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -521,7 +527,7 @@ public final class Routes {
          if (!response.isSuccess()) {
             final var e = response.failed().get();
             LOGGER.error(e.getLocalizedMessage(), e);
-            return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
          }
          return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
 

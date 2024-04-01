@@ -3,28 +3,24 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.marshallers.jackson.Jackson;
-import akka.http.javadsl.marshalling.Marshaller;
-import akka.http.javadsl.model.RequestEntity;
 import akka.http.javadsl.model.StatusCode;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.Route;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static akka.http.javadsl.server.Directives.*;
+import static org.jembi.jempi.linker.MapError.mapError;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class Routes {
 
    private static final Logger LOGGER = LogManager.getLogger(Routes.class);
-
-   private static final Marshaller<Object, RequestEntity> JSON_MARSHALLER = Jackson.marshaller(OBJECT_MAPPER);
 
    private Routes() {
    }
@@ -36,43 +32,24 @@ final class Routes {
       return code;
    }
 
-   static Route mapError(final MpiGeneralError obj) {
-      return switch (obj) {
-         case MpiServiceError.InteractionIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GoldenIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, JSON_MARSHALLER);
-         case MpiServiceError.CRClientExistsError e -> complete(StatusCodes.CONFLICT, e, JSON_MARSHALLER);
-         case MpiServiceError.CRUpdateFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.CRGidDoesNotExistError e -> complete(StatusCodes.NOT_FOUND, e, JSON_MARSHALLER);
-         case MpiServiceError.CRLinkUpdateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.CRMissingFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.InvalidFunctionError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
-         case MpiServiceError.InvalidOperatorError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
-         case MpiServiceError.GeneralError e -> complete(StatusCodes.INTERNAL_SERVER_ERROR, e, JSON_MARSHALLER);
-         default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
-      };
-   }
-
    static Route proxyGetCandidatesWithScore(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return parameter("iid",
                        iid -> onComplete(Ask.findCandidates(actorSystem, backEnd, iid),
-                                         result -> {
-                                            if (!result.isSuccess()) {
-                                               final var e = result.failed().get();
+                                         response -> {
+                                            if (!response.isSuccess()) {
+                                               final var e = response.failed().get();
                                                LOGGER.error(e.getLocalizedMessage(), e);
-                                               return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                             }
-                                            return result.get()
-                                                         .candidates()
-                                                         .mapLeft(Routes::mapError)
-                                                         .fold(error -> error,
-                                                               candidateList -> complete(StatusCodes.OK,
-                                                                                         candidateList,
-                                                                                         Jackson.marshaller()));
+                                            return response.get()
+                                                           .candidates()
+                                                           .mapLeft(MapError::mapError)
+                                                           .fold(error -> error,
+                                                                 candidateList -> complete(StatusCodes.OK,
+                                                                                           candidateList,
+                                                                                           Jackson.marshaller()));
                                          }));
    }
 
@@ -101,7 +78,7 @@ final class Routes {
                                          if (!response.isSuccess()) {
                                             final var e = response.failed().get();
                                             LOGGER.error(e.getLocalizedMessage(), e);
-                                            return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                          }
                                          return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
                                       }));
@@ -115,7 +92,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        if (rsp.goldenRecords().isLeft()) {
@@ -135,7 +112,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        if (rsp.goldenRecords().isLeft()) {
@@ -156,7 +133,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        if (rsp.linkInfo().isLeft()) {
@@ -177,7 +154,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        try {
@@ -215,7 +192,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        try {
@@ -253,7 +230,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        try {
@@ -291,7 +268,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var eventLinkPatientSyncRsp = response.get();
                        return complete(StatusCodes.OK,
@@ -310,7 +287,7 @@ final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        final var rsp = response.get();
                        if (rsp.response().isLeft()) {
@@ -322,6 +299,35 @@ final class Routes {
                                           Jackson.marshaller());
                        }
                     }));
+   }
+
+   static Route createRoute(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return pathPrefix("JeMPI",
+                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
+                                                      () -> proxyPatchCrUpdateField(actorSystem, backEnd))),
+                                     post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                                                            () -> proxyPostLinkInteraction(actorSystem, backEnd)),
+//                                                     path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
+//                                                            () -> proxyPostLinkInteractionToGID(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                                                            () -> proxyPostCalculateScores(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
+                                                            () -> proxyGetCrCandidates(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
+                                                            () -> proxyGetCrFind(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
+                                                            () -> proxyPostCrRegister(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE,
+                                                            () -> proxyPostCrLinkToGidUpdate(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
+                                                            () -> proxyPostCrLinkBySourceId(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
+                                                            () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
+                                     get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
+                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
+                                                           () -> proxyGetCandidatesWithScore(actorSystem, backEnd))))));
    }
 
 

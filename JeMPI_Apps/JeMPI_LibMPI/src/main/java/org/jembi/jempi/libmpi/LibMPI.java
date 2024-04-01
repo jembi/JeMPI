@@ -252,13 +252,13 @@ public final class LibMPI {
                         goldenID,
                         String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore),
                         newScore,
-                        LinkingRule.UNMATCHED);
+                        LinkingRule.UPDATE);
       } else {
          sendAuditEvent(interactionID,
                         goldenID,
                         String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore),
                         newScore,
-                        LinkingRule.UNMATCHED);
+                        LinkingRule.UPDATE);
 
       }
       return result;
@@ -288,7 +288,7 @@ public final class LibMPI {
                                                                oldValue,
                                                                newValue),
                         -1.0F,
-                        LinkingRule.UNMATCHED);
+                        LinkingRule.UPDATE);
       } else {
          sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
                                                                "%s: error updating '%s' -> '%s'",
@@ -296,7 +296,7 @@ public final class LibMPI {
                                                                oldValue,
                                                                newValue),
                         -1.0F,
-                        LinkingRule.UNMATCHED);
+                        LinkingRule.UPDATE);
       }
       return result;
    }
@@ -318,7 +318,7 @@ public final class LibMPI {
                                       "Interaction -> new GoldenID: old(%s) new(%s) [%f]",
                                       currentGoldenId,
                                       result.get().goldenUID(),
-                                      score), score, LinkingRule.UNMATCHED);
+                                      score), score, LinkingRule.NOTIFICATION);
       } else {
          sendAuditEvent(interactionId,
                         currentGoldenId,
@@ -326,7 +326,7 @@ public final class LibMPI {
                                       "Interaction -> update GoldenID error: old(%s) [%f]",
                                       currentGoldenId, score),
                         score,
-                        LinkingRule.UNMATCHED);
+                        LinkingRule.NOTIFICATION);
       }
       return result;
    }
@@ -350,7 +350,7 @@ public final class LibMPI {
                                       "Interaction -> update GoldenID: old(%s) new(%s) [%f]",
                                       goldenID,
                                       newGoldenID,
-                                      score), score, LinkingRule.UNMATCHED);
+                                      score), score, LinkingRule.NOTIFICATION);
       } else {
          sendAuditEvent(interactionID,
                         newGoldenID,
@@ -358,7 +358,7 @@ public final class LibMPI {
                                       "Interaction -> update GoldenID error: old(%s) new(%s) [%f]",
                                       goldenID,
                                       newGoldenID,
-                                      score), score, LinkingRule.UNMATCHED);
+                                      score), score, LinkingRule.NOTIFICATION);
       }
       return result;
    }
@@ -400,13 +400,13 @@ public final class LibMPI {
                         result.goldenUID(),
                         String.format(Locale.ROOT,
                                       "Interaction -> New GoldenRecord (%f)", score),
-                        score, LinkingRule.UNMATCHED);
+                        score, LinkingRule.NEW);
       } else {
          sendAuditEvent(interaction.interactionId(),
                         null,
                         String.format(Locale.ROOT,
                                       "Interaction -> error linking to new GoldenRecord (%f)", score),
-                        score, LinkingRule.UNMATCHED);
+                        score, LinkingRule.NEW);
       }
       return result;
    }

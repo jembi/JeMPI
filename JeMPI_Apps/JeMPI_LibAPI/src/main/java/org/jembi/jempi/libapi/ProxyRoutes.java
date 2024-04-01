@@ -13,6 +13,7 @@ import akka.stream.ConnectionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 import static akka.http.javadsl.server.Directives.*;
+import static org.jembi.jempi.libapi.MapError.mapError;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class ProxyRoutes {
@@ -68,7 +70,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -115,7 +117,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -163,7 +165,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -212,7 +214,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -261,7 +263,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -307,7 +309,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -353,7 +355,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -399,7 +401,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -445,7 +447,7 @@ public final class ProxyRoutes {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
                                                   LOGGER.error(e.getLocalizedMessage(), e);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                }
                                                return complete(response.get());
                                             });
@@ -486,7 +488,7 @@ public final class ProxyRoutes {
                                                } else {
                                                   LOGGER.error(e.getLocalizedMessage(), e);
                                                }
-                                               return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                             }
                                             return complete(response.get());
                                          }));

@@ -1,8 +1,5 @@
 package org.jembi.jempi.shared.models;
 
-import akka.http.javadsl.model.StatusCode;
-import akka.http.javadsl.model.StatusCodes;
-
 public final class GlobalConstants {
 
    public static final String TOPIC_INTERACTION_ETL = "JeMPI-interaction-etl";
@@ -66,8 +63,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "current-user";
 
-   public static final StatusCode IM_A_TEA_POT = StatusCodes.IM_A_TEAPOT;
-      // TIMEOUTS
+   //   public static final StatusCode IM_A_TEA_POT = StatusCodes.IM_A_TEAPOT;
+   // TIMEOUTS
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;
    public static final int TIMEOUT_DGRAPH_QUERY_SECS = (TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS * TIMEOUT_DGRAPH_RECONNECT_RETRIES);

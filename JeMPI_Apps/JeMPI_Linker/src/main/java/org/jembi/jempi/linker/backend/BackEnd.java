@@ -184,11 +184,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                                : request.link.matchThreshold(),
                                                          request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
-                                                           listLinkInfo.isLeft()
-                                                                 ? listLinkInfo.getLeft()
-                                                                 : null,
                                                            listLinkInfo.isRight()
                                                                  ? listLinkInfo.get()
+                                                                 : null,
+                                                           listLinkInfo.isLeft()
+                                                                 ? listLinkInfo.getLeft()
                                                                  : null));
       return Behaviors.same();
    }
@@ -209,8 +209,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                       null,
                                       AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
-      if (linkInfo.isLeft()) {
-         req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
+      if (linkInfo.isRight()) {
+         req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));
       } else {
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
       }

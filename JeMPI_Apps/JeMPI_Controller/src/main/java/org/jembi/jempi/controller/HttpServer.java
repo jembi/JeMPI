@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
@@ -19,6 +20,7 @@ import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 
+import static org.jembi.jempi.controller.MapError.mapError;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class HttpServer extends AllDirectives {
@@ -85,8 +87,9 @@ public final class HttpServer extends AllDirectives {
                        if (response.isSuccess() && Boolean.TRUE.equals(response.get().updated())) {
                           return complete(StatusCodes.OK);
                        } else {
-                          LOGGER.warn("IM_A_TEAPOT");
-                          return complete(GlobalConstants.IM_A_TEA_POT);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                     }));
    }
@@ -98,8 +101,9 @@ public final class HttpServer extends AllDirectives {
          if (response.isSuccess()) {
             return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
          } else {
-            LOGGER.warn("IM_A_TEAPOT");
-            return complete(GlobalConstants.IM_A_TEA_POT);
+            final var e = response.failed().get();
+            LOGGER.error(e.getLocalizedMessage(), e);
+            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
          }
       });
    }
@@ -111,16 +115,15 @@ public final class HttpServer extends AllDirectives {
             return onComplete(postLinkInteraction(obj),
                               response -> {
                                  if (!response.isSuccess()) {
-                                    LOGGER.warn("IM_A_TEAPOT");
+                                    final var e = response.failed().get();
+                                    LOGGER.error(e.getLocalizedMessage(), e);
+                                    return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                  }
-                                 return response.isSuccess()
-                                       ? complete(response.get())
-                                       : complete(GlobalConstants.IM_A_TEA_POT);
+                                 return complete(response.get());
                               });
          } catch (JsonProcessingException e) {
-            LOGGER.warn("IM_A_TEAPOT");
             LOGGER.error(e.getLocalizedMessage(), e);
-            return complete(GlobalConstants.IM_A_TEA_POT);
+            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
          }
       });
    }
@@ -151,11 +154,11 @@ public final class HttpServer extends AllDirectives {
       return onComplete(getMU(),
                         response -> {
                            if (!response.isSuccess()) {
-                              LOGGER.warn("IM_A_TEAPOT");
+                              final var e = response.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
-                           return response.isSuccess()
-                                 ? complete(response.get())
-                                 : complete(GlobalConstants.IM_A_TEA_POT);
+                           return complete(response.get());
                         });
    }
 
