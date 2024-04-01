@@ -587,7 +587,6 @@ public final class Routes {
 
                   String responseBody = null;
                   try {
-                     LOGGER.info("DASHBOARD RESPONSE BODY");
                      responseBody = Unmarshaller.entityToString().unmarshal(dashboardDataResponse.entity(), actorSystem).
                                                 toCompletableFuture().get(2, TimeUnit.SECONDS);
                   } catch (InterruptedException | ExecutionException | TimeoutException e) {

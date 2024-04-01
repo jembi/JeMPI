@@ -81,7 +81,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getDashboardDataHandler(final DashboardDataRequest request) {
-      LOGGER.info("Backend request {} ", request);
       final var dashboardData = new HashMap<String, Object>();
       final var linkStatsMeta = LinkStatsMetaCache.get();
       if (linkStatsMeta != null) {
