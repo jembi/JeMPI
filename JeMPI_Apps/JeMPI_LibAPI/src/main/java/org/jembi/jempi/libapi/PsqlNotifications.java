@@ -11,7 +11,7 @@ final class PsqlNotifications {
 
    private static final String NOTIFICATION_TABLE_NAME = "notification";
    private static final String QUERY = """
-                                       SELECT patient_id, id, names, created, state,type, score, golden_id
+                                       SELECT patient_id, id, names, created, state,type, score, old_golden_id, current_golden_id
                                        FROM notification
                                        WHERE created BETWEEN ? AND ? AND state IN (?, ?)
                                        ORDER BY created
@@ -38,6 +38,7 @@ final class PsqlNotifications {
     * @param states The state of notification.
     * @return A {@link MatchesForReviewResult} object containing the matches and related information.
     */
+
    MatchesForReviewResult getMatchesForReview(
          final int limit,
          final int offset,
@@ -166,15 +167,21 @@ final class PsqlNotifications {
       }
    }
 
-   void updateNotificationState(
-         final String id) throws SQLException {
+   void updateNotificationState(final String notificationId, final String oldGoldenId, final String currentGoldenId) throws SQLException {
       psqlClient.connect();
-      try (Statement stmt = psqlClient.createStatement()) {
-         ResultSet rs = stmt.executeQuery(String.format(Locale.ROOT,
-                                                        "update notification set state = '%s' where id = '%s'",
-                                                        "CLOSED",
-                                                        id));
-         psqlClient.commit();
+      String sql = String.format(Locale.ROOT, "update notification set state = '%s', old_golden_id = '%s', current_golden_id = '%s' where id = '%s'",
+                                                      "CLOSED",
+                                                      oldGoldenId,
+                                                      currentGoldenId,
+                                                      notificationId);
+      try (PreparedStatement stmt = psqlClient.prepareStatement(sql)) {
+         int rowsAffected = stmt.executeUpdate();
+         if (rowsAffected > 0) {
+            LOGGER.info("Updated notification {} with new currentGoldenId {}", notificationId, currentGoldenId);
+            psqlClient.commit();
+         } else {
+            LOGGER.warn("Notification with ID {} not found", notificationId);
+         }
       }
    }
 
