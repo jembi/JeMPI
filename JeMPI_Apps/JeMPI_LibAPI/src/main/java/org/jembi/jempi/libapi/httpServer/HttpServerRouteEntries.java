@@ -4,7 +4,7 @@ public abstract class HttpServerRouteEntries<R, S> implements IHttpServerRouteEn
 
    protected S httpServer = null;
 
-   public HttpServerRouteEntries(final S ihttpServer) {
+   protected HttpServerRouteEntries(final S ihttpServer) {
       this.httpServer = ihttpServer;
    }
 

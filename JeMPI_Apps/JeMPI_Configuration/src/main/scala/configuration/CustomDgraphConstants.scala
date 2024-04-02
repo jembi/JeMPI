@@ -450,7 +450,7 @@ private object CustomDgraphConstants {
       writer.println(
         s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
            |         \"\"\"
-           |         GoldenRecord.source_id:                [uid]                                        .""".stripMargin
+           |         GoldenRecord.source_id:                [uid]     @reverse                           .""".stripMargin
       )
       if (config.uniqueGoldenRecordFields.isDefined) {
         config.uniqueGoldenRecordFields.get.foreach(field => {
