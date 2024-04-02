@@ -37,7 +37,6 @@ object Main {
     CustomDgraphGoldenRecord.generate(config)
     CustomDgraphExpandedGoldenRecord.generate(config)
     CustomDgraphExpandedInteraction.generate(config)
-    CustomDgraphIndexes.generate(config)
     CustomDgraphMutations.generate(config)
     CustomDgraphQueries.generate(config)
     CustomLinkerDeterministic.generate(config)

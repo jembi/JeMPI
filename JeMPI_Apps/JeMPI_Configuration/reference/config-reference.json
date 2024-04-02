@@ -164,13 +164,6 @@
       }
     }
   ],
-  "indexes": {
-    "linking": {
-      "national_id": {
-        "props": "@index(exact,trigram)"
-      }
-    }
-  },
   "rules": {
     "link": {
       "deterministic": {

@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -28,8 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_END_SENTINEL;
-import static org.jembi.jempi.shared.models.InteractionEnvelop.ContentType.BATCH_START_SENTINEL;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
@@ -37,6 +38,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
    static MyKafkaProducer<String, Notification> topicNotifications;
+
+   static {
+      topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                 GlobalConstants.TOPIC_NOTIFICATIONS,
+                                                 new StringSerializer(),
+                                                 new JsonPojoSerializer<>(),
+                                                 AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
+   }
+
    private final Executor ec;
    private LibMPI libMPI = null;
 
@@ -45,13 +55,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
       ec = context.getSystem().dispatchers().lookup(DispatcherSelector.fromConfig("my-blocking-dispatcher"));
       if (libMPI == null) {
-         openMPI(true);
+         openMPI();
       }
-      topicNotifications = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                 GlobalConstants.TOPIC_NOTIFICATIONS,
-                                                 new StringSerializer(),
-                                                 new JsonPojoSerializer<>(),
-                                                 AppConfig.KAFKA_CLIENT_ID_NOTIFICATIONS);
    }
 
    private BackEnd(
@@ -73,41 +78,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.setup(context -> new BackEnd(context, lib));
    }
 
-//   private static float calcNormalizedScore(
-//         final CustomDemographicData goldenRecord,
-//         final CustomDemographicData interaction) {
-//      if (CustomLinkerDeterministic.linkDeterministicMatch(goldenRecord, interaction)) {
-//         return 1.0F;
-//      }
-//      return CustomLinkerProbabilistic.probabilisticScore(goldenRecord, interaction);
-//   }
-
-   private void openMPI(final boolean useDGraph) {
-      if (useDGraph) {
-         final var host = AppConfig.getDGraphHosts();
-         final var port = AppConfig.getDGraphPorts();
-         libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
-                             host,
-                             port,
-                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
-      } else {
-         libMPI = null;
-//         new LibMPI(String.format(Locale.ROOT, "jdbc:postgresql://%s:%d/%s", AppConfig.POSTGRESQL_IP, AppConfig
-//         .POSTGRESQL_PORT, AppConfig.POSTGRESQL_DATABASE),
-//                             AppConfig.POSTGRESQL_USER,
-//                             AppConfig.POSTGRESQL_PASSWORD,
-//                             AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-//                             "CLIENT_ID_LINKER-" + UUID.randomUUID());
-      }
-      libMPI.startTransaction();
+   private void openMPI() {
+      final var host = AppConfig.getDGraphHosts();
+      final var port = AppConfig.getDGraphPorts();
+      libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
+                          host,
+                          port,
+                          AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                          "CLIENT_ID_LINKER-" + UUID.randomUUID());
    }
 
    @Override
    public Receive<Request> createReceive() {
       return newReceiveBuilder().onMessage(AsyncLinkInteractionRequest.class, this::asyncLinkInteractionHandler)
                                 .onMessage(SyncLinkInteractionRequest.class, this::syncLinkInteractionHandler)
-//                                .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
+//                              .onMessage(SyncLinkInteractionToGidRequest.class, this::syncLinkInteractionToGidHandler)
                                 .onMessage(CalculateScoresRequest.class, this::calculateScoresHandler)
                                 .onMessage(TeaTimeRequest.class, this::teaTimeHandler)
                                 .onMessage(WorkTimeRequest.class, this::workTimeHandler)
@@ -116,8 +101,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrCandidatesRequest.class, this::crCandidates)
                                 .onMessage(CrFindRequest.class, this::crFind)
                                 .onMessage(CrRegisterRequest.class, this::crRegister)
+                                .onMessage(CrLinkToGidUpdateRequest.class, this::crLinkToGidUpdate)
+                                .onMessage(CrLinkBySourceIdRequest.class, this::crLinkBySourceId)
+                                .onMessage(CrLinkBySourceIdUpdateRequest.class, this::crLinkBySourceIdUpdate)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
-                                .onMessage(RunStartStopHooksRequest.class, this::runStartStopHooks)
+                                .onMessage(FindCandidatesWithScoreRequest.class, this::findCandidateWithScoreHandler)
                                 .build();
    }
 
@@ -132,8 +120,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> crFind(final CrFindRequest req) {
+      try {
+         final var json = OBJECT_MAPPER.writeValueAsString(req.crFindData());
+         LOGGER.debug("{}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       final var goldenRecords = LinkerCR.crFind(libMPI, req.crFindData);
-      req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords)));
+      if (goldenRecords.isRight()) {
+         req.replyTo.tell(new CrFindResponse(Either.right(goldenRecords.get())));
+      } else {
+         req.replyTo.tell(new CrFindResponse(Either.left(goldenRecords.getLeft())));
+      }
       return Behaviors.same();
    }
 
@@ -143,21 +141,34 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       return Behaviors.same();
    }
 
-   private Behavior<Request> runStartStopHooks(final RunStartStopHooksRequest req) {
-      List<MpiGeneralError> hookRunErrors = List.of();
-
-      if (req.batchInteraction.contentType() == BATCH_START_SENTINEL) {
-         hookRunErrors = libMPI.beforeLinkingHook();
-      } else if (req.batchInteraction.contentType() == BATCH_END_SENTINEL) {
-         hookRunErrors = libMPI.afterLinkingHook();
-      }
-      req.replyTo.tell(new RunStartStopHooksResponse(hookRunErrors));
-      return Behaviors.same();
-   }
-
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
       final var result = LinkerCR.crRegister(libMPI, req.crRegister);
       req.replyTo.tell(new CrRegisterResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkToGidUpdate(final CrLinkToGidUpdateRequest req) {
+      final var result = LinkerCR.crLinkToGidUpdate(libMPI, req.crLinkToGidUpdate);
+      req.replyTo.tell(new CrLinkToGidUpdateResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkBySourceId(final CrLinkBySourceIdRequest req) {
+      final var result = LinkerCR.crLinkBySourceId(libMPI, req.crLinkBySourceId);
+      req.replyTo.tell(new CrLinkBySourceIdResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> crLinkBySourceIdUpdate(final CrLinkBySourceIdUpdateRequest req) {
+      final var result = LinkerCR.crLinkBySourceIdUpdate(libMPI, req.crLinkBySourceIdUpdate);
+      req.replyTo.tell(new CrLinkBySourceIdUpdateResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> findCandidateWithScoreHandler(final FindCandidatesWithScoreRequest req) {
+      LOGGER.warn("findCandidateWithScoreHandler not implemented");
+      final var result = new MpiServiceError.NotImplementedError("findCandidateWithScore not implemented");
+      req.replyTo.tell(new FindCandidatesWithScoreResponse(Either.left(result)));
       return Behaviors.same();
    }
 
@@ -173,11 +184,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                                : request.link.matchThreshold(),
                                                          request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
-                                                           listLinkInfo.isLeft()
-                                                                 ? listLinkInfo.getLeft()
-                                                                 : null,
                                                            listLinkInfo.isRight()
                                                                  ? listLinkInfo.get()
+                                                                 : null,
+                                                           listLinkInfo.isLeft()
+                                                                 ? listLinkInfo.getLeft()
                                                                  : null));
       return Behaviors.same();
    }
@@ -185,7 +196,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
       if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
          return Behaviors.withTimers(timers -> {
-            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(5));
+            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                    TeaTimeRequest.INSTANCE,
+                                    Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
             req.replyTo.tell(new AsyncLinkInteractionResponse(null));
             return Behaviors.same();
          });
@@ -196,13 +209,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                       null,
                                       AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
-      if (linkInfo.isLeft()) {
-         req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.getLeft()));
+      if (linkInfo.isRight()) {
+         req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));
       } else {
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
       }
       return Behaviors.withTimers(timers -> {
-         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, TeaTimeRequest.INSTANCE, Duration.ofSeconds(10));
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                 TeaTimeRequest.INSTANCE,
+                                 Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
          return Behaviors.same();
       });
    }
@@ -272,7 +287,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          // POST TO LAB
       });
       return Behaviors.withTimers(timers -> {
-         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, WorkTimeRequest.INSTANCE, Duration.ofSeconds(5));
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                 WorkTimeRequest.INSTANCE,
+                                 Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
          return Behaviors.same();
       });
    }
@@ -280,16 +297,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> calculateScoresHandler(final CalculateScoresRequest request) {
       final var interaction = libMPI.findInteraction(request.calculateScoresRequest.interactionId());
       final var goldenRecords = libMPI.findGoldenRecords(request.calculateScoresRequest.goldenIds());
-      final var scores = goldenRecords.parallelStream()
-                                      .unordered()
-                                      .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                             LinkerUtils.calcNormalizedScore(
-                                                                                                                   goldenRecord.demographicData(),
-                                                                                                                   interaction.demographicData())))
-                                      .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
-                                      .collect(Collectors.toCollection(ArrayList::new));
-      request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
-                                                                                                scores)));
+      if (goldenRecords.isRight()) {
+         final var scores = goldenRecords.get().parallelStream()
+                                         .unordered()
+                                         .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
+                                                                                                                LinkerUtils.calcNormalizedScore(
+                                                                                                                      goldenRecord.demographicData(),
+                                                                                                                      interaction.demographicData())))
+                                         .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
+                                         .collect(Collectors.toCollection(ArrayList::new));
+         request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(request.calculateScoresRequest.interactionId(),
+                                                                                                   scores)));
+      } else {
+         request.replyTo.tell(new CalculateScoresResponse(new ApiModels.ApiCalculateScoresResponse(null, List.of())));
+      }
       return Behaviors.same();
    }
 
@@ -299,12 +320,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
-
-
-//   private Behavior<Request> eventGetMUReqHandler(final EventGetMUReq req) {
-//      req.replyTo.tell(new EventGetMURsp(CustomLinkerProbabilistic.getMU()));
-//      return Behaviors.same();
-//   }
 
    private enum TeaTimeRequest implements Request {
       INSTANCE
@@ -320,11 +335,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public interface Response {
    }
 
-   private record WorkCandidate(
-         GoldenRecord goldenRecord,
-         float score) {
-   }
-
    public record AsyncLinkInteractionRequest(
          ActorRef<AsyncLinkInteractionResponse> replyTo,
          String key,
@@ -334,15 +344,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public record AsyncLinkInteractionResponse(LinkInfo linkInfo) implements Response {
    }
 
-   public record RunStartStopHooksRequest(
-           ActorRef<RunStartStopHooksResponse> replyTo,
-           String key,
-           InteractionEnvelop batchInteraction) implements Request {
-   }
-
-   public record RunStartStopHooksResponse(List<MpiGeneralError> hooksResults) implements Response {
-   }
-
    public record EventUpdateMUReq(
          CustomMU mu,
          ActorRef<EventUpdateMURsp> replyTo) implements Request {
@@ -350,12 +351,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    public record EventUpdateMURsp(boolean rc) implements Response {
    }
-
-//   public record EventGetMUReq(ActorRef<EventGetMURsp> replyTo) implements Request {
-//   }
-//
-//   public record EventGetMURsp(CustomMU mu) implements Response {
-//   }
 
    public record CalculateScoresRequest(
          ApiModels.ApiCalculateScoresRequest calculateScoresRequest,
@@ -379,16 +374,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          List<ExternalLinkCandidate> externalLinkCandidateList) implements Response {
    }
 
-   public record SyncLinkInteractionToGidRequest(
-         ApiModels.LinkInteractionToGidSyncBody link,
-         ActorRef<SyncLinkInteractionToGidResponse> replyTo) implements Request {
-   }
-
-   public record SyncLinkInteractionToGidResponse(
-         String stan,
-         LinkInfo linkInfo) implements Response {
-   }
-
    public record FindCandidatesWithScoreRequest(
          ActorRef<FindCandidatesWithScoreResponse> replyTo,
          String iid) implements Request {
@@ -407,6 +392,33 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record CrRegisterResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkToGidUpdateRequest(
+         ApiModels.ApiCrLinkToGidUpdateRequest crLinkToGidUpdate,
+         ActorRef<CrLinkToGidUpdateResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkToGidUpdateResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkBySourceIdRequest(
+         ApiModels.ApiCrLinkBySourceIdRequest crLinkBySourceId,
+         ActorRef<CrLinkBySourceIdResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkBySourceIdResponse(
+         Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
+   }
+
+   public record CrLinkBySourceIdUpdateRequest(
+         ApiModels.ApiCrLinkBySourceIdUpdateRequest crLinkBySourceIdUpdate,
+         ActorRef<CrLinkBySourceIdUpdateResponse> replyTo) implements Request {
+   }
+
+   public record CrLinkBySourceIdUpdateResponse(
          Either<MpiGeneralError, LinkInfo> linkInfo) implements Response {
    }
 

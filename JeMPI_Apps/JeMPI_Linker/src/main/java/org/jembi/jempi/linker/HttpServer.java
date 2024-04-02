@@ -5,12 +5,10 @@ import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
 import akka.http.javadsl.server.AllDirectives;
-import akka.http.javadsl.server.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.util.concurrent.CompletionStage;
 
@@ -35,10 +33,11 @@ final class HttpServer extends AllDirectives {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd) {
       final Http http = Http.get(system);
-      binding = http.newServerAt("0.0.0.0", AppConfig.LINKER_HTTP_PORT).bind(this.createRoute(system, backEnd));
+      binding = http.newServerAt("0.0.0.0", AppConfig.LINKER_HTTP_PORT).bind(Routes.createRoute(system, backEnd));
       LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.LINKER_HTTP_PORT);
    }
 
+/*
    private Route createRoute(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
@@ -47,8 +46,8 @@ final class HttpServer extends AllDirectives {
                                                       () -> Routes.proxyPatchCrUpdateField(actorSystem, backEnd))),
                                      post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
                                                             () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-                                                            () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
+//                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
+//                                                            () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
                                                             () -> Routes.proxyPostCalculateScores(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
@@ -56,11 +55,18 @@ final class HttpServer extends AllDirectives {
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
                                                             () -> Routes.proxyGetCrFind(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
-                                                            () -> Routes.proxyPostCrRegister(actorSystem, backEnd)))),
+                                                            () -> Routes.proxyPostCrRegister(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE,
+                                                            () -> Routes.proxyPostCrLinkToGidUpdate(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
+                                                            () -> Routes.proxyPostCrLinkBySourceId(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
+                                                            () -> Routes.proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
                                      get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
                                                       path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
                                                            () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd))))));
    }
+*/
 
 
 }
