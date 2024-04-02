@@ -8,6 +8,8 @@ import {
 
 export interface NotificationRequest {
   notificationId: string
+  oldGoldenId: string
+  currentGoldenId: string
 }
 
 export interface LinkRequest {
