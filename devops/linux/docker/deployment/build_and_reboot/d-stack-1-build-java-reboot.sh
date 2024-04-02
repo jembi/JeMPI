@@ -2,7 +2,7 @@
 
 set -e
 set -u
-
+source ../../conf.env
 echo
 echo "Down stacks"
 source ../scripts/d-stack-rm.sh
