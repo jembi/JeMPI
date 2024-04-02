@@ -103,8 +103,22 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrLinkUpdateRequest(
+   public record ApiCrLinkToGidUpdateRequest(
          String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdUpdateRequest(
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
          CustomDemographicData demographicData) {
@@ -120,6 +134,7 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
    }
 
+/*
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionToGidSyncBody(
          String stan,
@@ -128,7 +143,7 @@ public abstract class ApiModels {
          CustomDemographicData demographicData,
          String gid) {
    }
-
+*/
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterResponse(LinkInfo linkInfo) {

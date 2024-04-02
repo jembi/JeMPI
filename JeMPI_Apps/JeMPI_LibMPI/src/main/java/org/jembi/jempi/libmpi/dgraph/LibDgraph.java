@@ -10,6 +10,7 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,6 +56,18 @@ public final class LibDgraph implements LibMPIClientInterface {
       return List.of();
    }
 
+   public List<CustomSourceId> findSourceId(
+         final String facility,
+         final String patient) {
+      return DgraphQueries.findSourceIdList(facility, patient);
+   }
+
+   public List<ExpandedSourceId> findExpandedSourceIdList(
+         final String facility,
+         final String patient) {
+      return DgraphQueries.findExpandedSourceIdList(facility, patient);
+   }
+
    public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIds) {
       final var list = DgraphQueries.findExpandedInteractions(interactionIds);
       return list.stream().map(CustomDgraphExpandedInteraction::toExpandedInteraction).toList();
@@ -71,6 +84,9 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
       final var list = DgraphQueries.getExpandedGoldenRecords(goldenIds);
+      if (list == null || list.isEmpty() || AppUtils.isNullOrEmpty(list)) {
+         return List.of();
+      }
       return list.stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
    }
 
@@ -141,13 +157,6 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new PaginatedGIDsWithInteractionCount(data, pagination, interactionCount);
    }
 
-   public boolean setScore(
-         final String interactionUID,
-         final String goldenRecordUid,
-         final float score) {
-      return dgraphMutations.setScore(interactionUID, goldenRecordUid, score);
-   }
-
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
@@ -211,6 +220,13 @@ public final class LibDgraph implements LibMPIClientInterface {
     * *******************************************************
     */
 
+   public boolean setScore(
+         final String interactionUID,
+         final String goldenRecordUid,
+         final Float score) {
+      return dgraphMutations.setScore(interactionUID, goldenRecordUid, score);
+   }
+
    public boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
@@ -242,7 +258,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    public Either<MpiGeneralError, LinkInfo> linkToNewGoldenRecord(
          final String goldenUID,
          final String interactionUID,
-         final float score) {
+         final Float score) {
       return dgraphMutations.linkToNewGoldenRecord(goldenUID, interactionUID, score);
    }
 
@@ -250,7 +266,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          final String goldenUID,
          final String newGoldenUID,
          final String interactionUID,
-         final float score) {
+         final Float score) {
       return dgraphMutations.updateLink(goldenUID, newGoldenUID, interactionUID, score);
    }
 
@@ -262,16 +278,8 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
-         final float score) {
+         final Float score) {
       return dgraphMutations.addNewDGraphInteraction(interaction);
-   }
-
-   public void startTransaction() {
-      DgraphClient.getInstance().startTransaction();
-   }
-
-   public void closeTransaction() {
-      DgraphClient.getInstance().closeTransaction();
    }
 
    /*
@@ -280,7 +288,12 @@ public final class LibDgraph implements LibMPIClientInterface {
     * *******************************************************
     */
 
+   public void connect() {
+      DgraphClient.getInstance().connect();
+   }
+
    public Option<MpiGeneralError> dropAll() {
+      connect();
       try {
          DgraphClient.getInstance().alter(DgraphProto.Operation.newBuilder().setDropAll(true).build());
          return Option.none();
@@ -291,6 +304,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public Option<MpiGeneralError> dropAllData() {
+      connect();
       try {
          DgraphClient.getInstance().alter(DgraphProto.Operation.newBuilder().setDropOp(DATA).build());
          return Option.none();
@@ -301,6 +315,7 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public Option<MpiGeneralError> createSchema() {
+      connect();
       return dgraphMutations.createSchema();
    }
 

@@ -3,16 +3,14 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 
 import java.util.concurrent.CompletionStage;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class Ask {
 
@@ -26,11 +24,11 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCrCandidatesRequest body) {
-      CompletionStage<BackEnd.CrCandidatesResponse> stage = AskPattern.ask(backEnd,
-                                                                           replyTo -> new BackEnd.CrCandidatesRequest(body,
-                                                                                                                      replyTo),
-                                                                           java.time.Duration.ofSeconds(10),
-                                                                           actorSystem.scheduler());
+      CompletionStage<BackEnd.CrCandidatesResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrCandidatesRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.goldenRecords().isLeft()) {
             LOGGER.debug("ERROR");
@@ -45,10 +43,11 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCrFindRequest body) {
-      CompletionStage<BackEnd.CrFindResponse> stage = AskPattern.ask(backEnd,
-                                                                     replyTo -> new BackEnd.CrFindRequest(body, replyTo),
-                                                                     java.time.Duration.ofSeconds(10),
-                                                                     actorSystem.scheduler());
+      CompletionStage<BackEnd.CrFindResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrFindRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.goldenRecords().isLeft()) {
             LOGGER.debug("ERROR");
@@ -63,11 +62,11 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCrRegisterRequest body) {
-      final CompletionStage<BackEnd.CrRegisterResponse> stage = AskPattern.ask(backEnd,
-                                                                               replyTo -> new BackEnd.CrRegisterRequest(body,
-                                                                                                                        replyTo),
-                                                                               java.time.Duration.ofSeconds(10),
-                                                                               actorSystem.scheduler());
+      final CompletionStage<BackEnd.CrRegisterResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrRegisterRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> {
          if (response.linkInfo().isLeft()) {
             LOGGER.debug("ERROR");
@@ -78,25 +77,54 @@ final class Ask {
       });
    }
 
-   static CompletionStage<BackEnd.CrLinkUpdateResponse> postCrLinkUpdate(
+   static CompletionStage<BackEnd.CrLinkToGidUpdateResponse> postCrLinkToGidUpdate(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
-         final ApiModels.ApiCrLinkUpdateRequest body) {
-      final CompletionStage<BackEnd.CrLinkUpdateResponse> stage = AskPattern.ask(backEnd,
-                                                                                 replyTo -> new BackEnd.CrLinkUpdateRequest(body,
-                                                                                                                            replyTo),
-                                                                                 java.time.Duration.ofSeconds(10),
-                                                                                 actorSystem.scheduler());
+         final ApiModels.ApiCrLinkToGidUpdateRequest body) {
+      final CompletionStage<BackEnd.CrLinkToGidUpdateResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrLinkToGidUpdateRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> {
-         try {
-            if (response.linkInfo().isLeft()) {
-               LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(response.linkInfo().getLeft()));
-            } else {
-               LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(response.linkInfo().get()));
-            }
-         } catch (JsonProcessingException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+         if (response.linkInfo().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.linkInfo().get());
          }
+         return response;
+      });
+   }
+
+   static CompletionStage<BackEnd.CrLinkBySourceIdResponse> postCrLinkBySourceId(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrLinkBySourceIdRequest body) {
+      final CompletionStage<BackEnd.CrLinkBySourceIdResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrLinkBySourceIdRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> {
+         if (response.linkInfo().isLeft()) {
+            LOGGER.debug("ERROR");
+         } else {
+            LOGGER.debug("{}", response.linkInfo().get());
+         }
+         return response;
+      });
+   }
+
+   static CompletionStage<BackEnd.CrLinkBySourceIdUpdateResponse> postCrLinkBySourceIdUpdate(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCrLinkBySourceIdUpdateRequest body) {
+      final CompletionStage<BackEnd.CrLinkBySourceIdUpdateResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrLinkBySourceIdUpdateRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> {
          if (response.linkInfo().isLeft()) {
             LOGGER.debug("ERROR");
          } else {
@@ -110,11 +138,11 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCrUpdateFieldsRequest body) {
-      CompletionStage<BackEnd.CrUpdateFieldResponse> stage = AskPattern.ask(backEnd,
-                                                                            replyTo -> new BackEnd.CrUpdateFieldRequest(body,
-                                                                                                                        replyTo),
-                                                                            java.time.Duration.ofSeconds(10),
-                                                                            actorSystem.scheduler());
+      CompletionStage<BackEnd.CrUpdateFieldResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CrUpdateFieldRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -123,12 +151,11 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.LinkInteractionSyncBody body) {
-      CompletionStage<BackEnd.SyncLinkInteractionResponse> stage = AskPattern.ask(backEnd,
-                                                                                  replyTo -> new BackEnd.SyncLinkInteractionRequest(
-                                                                                        body,
-                                                                                        replyTo),
-                                                                                  java.time.Duration.ofSeconds(11),
-                                                                                  actorSystem.scheduler());
+      CompletionStage<BackEnd.SyncLinkInteractionResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.SyncLinkInteractionRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
@@ -139,7 +166,7 @@ final class Ask {
          final InteractionEnvelop batchInteraction) {
       return AskPattern.ask(backEnd,
                             replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction),
-                            java.time.Duration.ofSeconds(60),
+                            java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                             actorSystem.scheduler());
    }
 
@@ -147,37 +174,37 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final String iid) {
-      CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern.ask(backEnd,
-                                                                                      replyTo -> new BackEnd.FindCandidatesWithScoreRequest(
-                                                                                            replyTo,
-                                                                                            iid),
-                                                                                      java.time.Duration.ofSeconds(5),
-                                                                                      actorSystem.scheduler());
+      CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, iid),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
+/*
    static CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> postLinkPatientToGid(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.LinkInteractionToGidSyncBody body) {
-      CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> stage = AskPattern.ask(backEnd,
-                                                                                       replyTo -> new BackEnd.SyncLinkInteractionToGidRequest(
-                                                                                             body,
-                                                                                             replyTo),
-                                                                                       java.time.Duration.ofSeconds(11),
-                                                                                       actorSystem.scheduler());
+      CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.SyncLinkInteractionToGidRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(11),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
+*/
 
    static CompletionStage<BackEnd.CalculateScoresResponse> postCalculateScores(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCalculateScoresRequest body) {
-      CompletionStage<BackEnd.CalculateScoresResponse> stage = AskPattern.ask(backEnd,
-                                                                              replyTo -> new BackEnd.CalculateScoresRequest(body,
-                                                                                                                            replyTo),
-                                                                              java.time.Duration.ofSeconds(11),
-                                                                              actorSystem.scheduler());
+      CompletionStage<BackEnd.CalculateScoresResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CalculateScoresRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
+                 actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 

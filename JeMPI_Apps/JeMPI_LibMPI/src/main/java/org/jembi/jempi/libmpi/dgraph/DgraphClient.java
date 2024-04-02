@@ -7,6 +7,7 @@ import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public final class DgraphClient {
     * *
     */
 
-   void startTransaction() {
+   void connect() {
       if (dgraphClient == null) {
          var hostList = new ArrayList<DgraphClient.AlphaHost>();
          for (int i = 0; i < host.length; i++) {
@@ -65,10 +66,7 @@ public final class DgraphClient {
       }
    }
 
-   void closeTransaction() {
-   }
-
-   void zapTransaction() {
+   void disconnect() {
       if (dgraphClient != null) {
          dgraphClient.shutdown();
          dgraphClient = null;
@@ -77,7 +75,7 @@ public final class DgraphClient {
 
    private void sleep() {
       try {
-         Thread.sleep(2000);
+         Thread.sleep(GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS * 1000L);
       } catch (InterruptedException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
@@ -91,7 +89,7 @@ public final class DgraphClient {
          final String query,
          final Map<String, String> vars) {
       String json = null;
-      int retry = 20;
+      int retry = GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_RETRIES;
       boolean done;
       do {
          final var txn = dgraphClient.newReadOnlyTransaction();
@@ -111,9 +109,9 @@ public final class DgraphClient {
                return null;
             } else {
                LOGGER.warn("{}", ex.getLocalizedMessage());
-               zapTransaction();
+               disconnect();
                sleep();
-               startTransaction();
+               connect();
                done = false;
             }
          } catch (RuntimeException ex) {
@@ -122,16 +120,16 @@ public final class DgraphClient {
                LOGGER.warn("{}", vars);
                LOGGER.warn("{}", query);
                LOGGER.error(ex.getLocalizedMessage(), ex);
-               zapTransaction();
+               disconnect();
                sleep();
-               startTransaction();
+               connect();
                return null;
             } else {
                LOGGER.warn("{}", ex.getLocalizedMessage(), ex);
                done = false;
-               zapTransaction();
+               disconnect();
                sleep();
-               startTransaction();
+               connect();
             }
          } finally {
             txn.discard();
@@ -143,7 +141,7 @@ public final class DgraphClient {
    String doMutateTransaction(final DgraphProto.Mutation mutation) {
       String uid = null;
       boolean done;
-      int retry = 20;
+      int retry = GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_RETRIES;
       do {
          done = true;
          final var txn = dgraphClient.newTransaction();
@@ -158,17 +156,17 @@ public final class DgraphClient {
          } catch (RuntimeException ex) {
             if (--retry == 0) {
                LOGGER.error(ex.getLocalizedMessage(), ex);
-               zapTransaction();
+               disconnect();
                sleep();
-               startTransaction();
+               connect();
                return null;
             } else {
                LOGGER.error(ex.getLocalizedMessage(), ex);
                LOGGER.debug("{}", mutation.toByteString());
                done = false;
-               zapTransaction();
+               disconnect();
                sleep();
-               startTransaction();
+               connect();
             }
          } finally {
             txn.discard();

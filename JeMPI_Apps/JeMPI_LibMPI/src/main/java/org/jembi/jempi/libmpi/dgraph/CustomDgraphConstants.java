@@ -330,7 +330,7 @@ public final class CustomDgraphConstants {
            
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
          """
-         GoldenRecord.source_id:                [uid]                                        .
+         GoldenRecord.source_id:                [uid]     @reverse                           .
          GoldenRecord.aux_date_created:         datetime                                     .
          GoldenRecord.aux_auto_update_enabled:  bool                                         .
          GoldenRecord.aux_id:                   string                                       .

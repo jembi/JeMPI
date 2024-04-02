@@ -12,9 +12,11 @@ import org.jembi.jempi.api.httpServer.httpServerRoutes.ApiHttpServerRouteEntries
 import org.jembi.jempi.api.keyCloak.KeyCloakAuthenticator;
 import org.jembi.jempi.api.keyCloak.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.user.UserSession;
+import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static akka.http.javadsl.server.Directives.*;
+import static org.jembi.jempi.libapi.MapError.mapError;
 
 public final class UserRoutes extends ApiHttpServerRouteEntries {
    private static final Logger LOGGER = LogManager.getLogger(UserRoutes.class);
@@ -43,8 +45,9 @@ public final class UserRoutes extends ApiHttpServerRouteEntries {
                              return complete(StatusCodes.FORBIDDEN);
                           }
                        } else {
-                          LOGGER.warn("IM_A_TEAPOT");
-                          return complete(GlobalConstants.IM_A_TEA_POT);
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                     }));
    }
