@@ -40,8 +40,8 @@ export const DashboardDataProvider = ({
             return r
         }),
     refetchInterval: config.refetchInterval,
-    cacheTime: 5 * 60 * 1000, 
-    staleTime: 5 * 60 * 1000,
+    cacheTime: config.cacheTime,
+    staleTime: config.staleTime,
   })
 
 

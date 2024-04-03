@@ -14,7 +14,13 @@ export const getTestEnvConfig = () => {
         ),
         showBrandLogo: process.env.REACT_APP_SHOW_BRAND_LOGO === 'true',
         refetchInterval: +(
-          process.env.REACT_APP_REFETCH_INTERVAL || 3000
+        process.env.REACT_APP_REFETCH_INTERVAL || 3000
+        ),
+        cacheTime: +(
+          process.env.REACT_APP_CACHE_TIME || 3000
+        ),
+        staleTime: +(
+          process.env.REACT_APP_CACHE_TIME || 3000
         )
       } 
 }

@@ -8,7 +8,9 @@ export type Config = {
   useSso: boolean
   maxUploadCsvSize: number
   showBrandLogo: boolean,
-  refetchInterval: number
+  refetchInterval: number,
+  cacheTime: number,
+  staleTime: number
 }
 
 export default async function getConfig() {
@@ -28,7 +30,9 @@ export default async function getConfig() {
       useSso: conf.useSso,
       maxUploadCsvSize: conf.maxUploadCsvSize,
       showBrandLogo: conf.showBrandLogo,
-      refetchInterval: conf.refetchInterval
+      refetchInterval: conf.refetchInterval,
+      cacheTime: conf.cacheTime,
+      staleTime: conf.staleTime
     } as Config
   } catch {
     // eslint-disable-next-line no-console
@@ -51,7 +55,13 @@ export default async function getConfig() {
       showBrandLogo: process.env.REACT_APP_SHOW_BRAND_LOGO === 'true',
       refetchInterval: +(
         process.env.REACT_APP_REFETCH_INTERVAL || 5 * 60 * 1000
-      )
+      ),
+      cacheTime: +(
+        process.env.REACT_APP_CACHE_TIME || 5 * 60 * 1000
+      ),
+      staleTime: +(
+        process.env.REACT_APP_STALE_TIME || 5 * 60 * 1000
+      ),
     }
   }
 }
