@@ -20,7 +20,7 @@ export const getTestEnvConfig = () => {
           process.env.REACT_APP_CACHE_TIME || 3000
         ),
         staleTime: +(
-          process.env.REACT_APP_CACHE_TIME || 3000
+          process.env.REACT_APP_STALE_TIME || 3000
         )
       } 
 }
