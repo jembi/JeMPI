@@ -9,7 +9,6 @@ import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
@@ -36,28 +35,6 @@ public final class Routes {
    private Routes() {
    }
 
-   static Route mapError(final MpiGeneralError obj) {
-      return switch (obj) {
-         case MpiServiceError.InteractionIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GoldenIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.InvalidFunctionError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
-         case MpiServiceError.InvalidOperatorError e -> complete(StatusCodes.UNPROCESSABLE_ENTITY, e, JSON_MARSHALLER);
-         case MpiServiceError.NoScoreGivenError e -> complete(StatusCodes.PARTIAL_CONTENT, e, JSON_MARSHALLER);
-         case MpiServiceError.NotImplementedError e -> complete(StatusCodes.NOT_IMPLEMENTED, e, JSON_MARSHALLER);
-         case MpiServiceError.CRClientExistsError e -> complete(StatusCodes.CONFLICT, e, JSON_MARSHALLER);
-         case MpiServiceError.CRUpdateFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.CRGidDoesNotExistError e -> complete(StatusCodes.NOT_FOUND, e, JSON_MARSHALLER);
-         case MpiServiceError.CRLinkUpdateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.CRMissingFieldError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GeneralError e -> complete(StatusCodes.INTERNAL_SERVER_ERROR, e, JSON_MARSHALLER);
-         case MpiServiceError.InternalError e -> complete(StatusCodes.INTERNAL_SERVER_ERROR, e, JSON_MARSHALLER);
-         default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
-      };
-   }
-
-
    private static Route postIidNewGidLink(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -76,7 +53,7 @@ public final class Routes {
                              }
                              return result.get()
                                           .linkInfo()
-                                          .mapLeft(Routes::mapError)
+                                          .mapLeft(MapError::mapError)
                                           .fold(error -> error,
                                                 linkInfo -> onComplete(
                                                       processOnNotificationResolution(
@@ -107,7 +84,7 @@ public final class Routes {
                              }
                              return result.get()
                                           .linkInfo()
-                                          .mapLeft(Routes::mapError)
+                                          .mapLeft(MapError::mapError)
                                           .fold(error -> error,
                                                 linkInfo -> onComplete(
                                                       processOnNotificationResolution(
@@ -150,7 +127,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return complete(StatusCodes.OK,
                                            new ApiModels.ApiNumberOfRecords(result.get().goldenRecords(),
@@ -171,7 +148,7 @@ public final class Routes {
                                                                    if (!result.isSuccess()) {
                                                                       final var e = result.failed().get();
                                                                       LOGGER.error(e.getLocalizedMessage(), e);
-                                                                      return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                                                      return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                                    }
                                                                    return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                                                                 })));
@@ -205,11 +182,11 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .count()
-                                        .mapLeft(Routes::mapError)
+                                        .mapLeft(MapError::mapError)
                                         .fold(error -> error,
                                               count -> complete(StatusCodes.OK,
                                                                 new ApiModels.ApiGoldenRecordCount(count),
@@ -225,11 +202,11 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .count()
-                                        .mapLeft(Routes::mapError)
+                                        .mapLeft(MapError::mapError)
                                         .fold(error -> error,
                                               count -> complete(StatusCodes.OK,
                                                                 new ApiModels.ApiInteractionCount(count),
@@ -245,7 +222,7 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                         });
@@ -264,7 +241,8 @@ public final class Routes {
                                                                      if (!result.isSuccess()) {
                                                                         final var e = result.failed().get();
                                                                         LOGGER.error(e.getLocalizedMessage(), e);
-                                                                        return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                                                        return MapError.mapError(new MpiServiceError.InternalError(
+                                                                              e.getLocalizedMessage()));
                                                                      }
                                                                      return complete(StatusCodes.OK,
                                                                                      result.get(),
@@ -294,7 +272,7 @@ public final class Routes {
                                                         if (!result.isSuccess()) {
                                                            final var e = result.failed().get();
                                                            LOGGER.error(e.getLocalizedMessage(), e);
-                                                           return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                                           return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                         }
                                                         return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                                                      }))))));
@@ -310,11 +288,11 @@ public final class Routes {
                               if (!result.isSuccess()) {
                                  final var e = result.failed().get();
                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                 return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                               }
                               return result.get()
                                            .expandedGoldenRecords()
-                                           .mapLeft(Routes::mapError)
+                                           .mapLeft(MapError::mapError)
                                            .fold(error -> error,
                                                  expandedGoldenRecords -> complete(StatusCodes.OK,
                                                                                    expandedGoldenRecords.stream()
@@ -335,11 +313,11 @@ public final class Routes {
                               if (!result.isSuccess()) {
                                  final var e = result.failed().get();
                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                 return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                               }
                               return result.get()
                                            .expandedGoldenRecords()
-                                           .mapLeft(Routes::mapError)
+                                           .mapLeft(MapError::mapError)
                                            .fold(error -> error,
                                                  expandedGoldenRecords -> complete(StatusCodes.OK,
                                                                                    expandedGoldenRecords.stream()
@@ -360,11 +338,11 @@ public final class Routes {
                               if (!result.isSuccess()) {
                                  final var e = result.failed().get();
                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                 return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                               }
                               return result.get()
                                            .expandedPatientRecords()
-                                           .mapLeft(Routes::mapError)
+                                           .mapLeft(MapError::mapError)
                                            .fold(error -> error,
                                                  expandedPatientRecords -> complete(StatusCodes.OK,
                                                                                     expandedPatientRecords.stream()
@@ -384,11 +362,11 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .goldenRecord()
-                                        .mapLeft(Routes::mapError)
+                                        .mapLeft(MapError::mapError)
                                         .fold(error -> error,
                                               goldenRecord -> complete(StatusCodes.OK,
                                                                        ApiModels.ApiExpandedGoldenRecord
@@ -406,11 +384,11 @@ public final class Routes {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
                               LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                            }
                            return result.get()
                                         .patient()
-                                        .mapLeft(Routes::mapError)
+                                        .mapLeft(MapError::mapError)
                                         .fold(error -> error,
                                               patientRecord -> complete(StatusCodes.OK,
                                                                         ApiModels.ApiInteraction.fromInteraction(patientRecord),
@@ -426,7 +404,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                          return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -454,7 +432,7 @@ public final class Routes {
                                                             if (!response.isSuccess()) {
                                                                final var e = response.failed().get();
                                                                LOGGER.error(e.getLocalizedMessage(), e);
-                                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                                               return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                                             }
                                                             return complete(StatusCodes.OK);
                                                          })));
@@ -475,7 +453,7 @@ public final class Routes {
          if (!response.isSuccess()) {
             final var e = response.failed().get();
             LOGGER.error(e.getLocalizedMessage(), e);
-            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+            return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
          }
          return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
       }));
@@ -490,7 +468,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                          return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -507,7 +485,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                          return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -527,7 +505,7 @@ public final class Routes {
          if (!response.isSuccess()) {
             final var e = response.failed().get();
             LOGGER.error(e.getLocalizedMessage(), e);
-            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+            return MapError.mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
          }
          return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
 

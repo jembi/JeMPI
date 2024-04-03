@@ -16,17 +16,24 @@ pushd .
     em-scala
     linker
     api
-    api_kc
+    api-kc
     ui
   )
 
   for APP in ${APPS[@]}; do
     SERVICE=${STACK_NAME}_${APP}
     NAME=`docker ps -f name=$SERVICE --format "{{.Names}}"`
-    echo $SERVICE
     if [ -n "$NAME" ]; then
       echo $SERVICE
       docker service scale $SERVICE=0
+#     docker wait $NAME
+    fi
+  done
+  for APP in ${APPS[@]}; do
+    SERVICE=${STACK_NAME}_${APP}
+    NAME=`docker ps -f name=$SERVICE --format "{{.Names}}"`
+    if [ -n "$NAME" ]; then
+      echo $SERVICE
       docker wait $NAME
     fi
   done
