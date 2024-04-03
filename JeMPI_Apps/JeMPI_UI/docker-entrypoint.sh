@@ -10,6 +10,7 @@ export KC_FRONTEND_URL=${KC_FRONTEND_URL:-""}
 export KC_REALM_NAME=${KC_REALM_NAME:-""}
 export KC_JEMPI_CLIENT_ID=${KC_JEMPI_CLIENT_ID:-""}
 export REACT_APP_SHOW_BRAND_LOGO=${REACT_APP_SHOW_BRAND_LOGO:-"false"}
+export REACT_APP_REFETCH_INTERVAL=${REACT_APP_REFETCH_INTERVAL:-"3000"}
 
 cat /app/config-template.json | envsubst | tee /app/config.json 
 

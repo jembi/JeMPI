@@ -12,6 +12,9 @@ export const getTestEnvConfig = () => {
         maxUploadCsvSize: +(
           process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES || 128
         ),
-        showBrandLogo: process.env.REACT_APP_SHOW_BRAND_LOGO === 'true'
+        showBrandLogo: process.env.REACT_APP_SHOW_BRAND_LOGO === 'true',
+        refetchInterval: +(
+          process.env.REACT_APP_REFETCH_INTERVAL || 3000
+        )
       } 
 }

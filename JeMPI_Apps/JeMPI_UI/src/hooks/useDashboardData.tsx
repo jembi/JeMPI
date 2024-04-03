@@ -39,7 +39,7 @@ export const DashboardDataProvider = ({
             r.dashboardData = JSON.parse(r.dashboardData)
             return r
         }),
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: config.refetchInterval,
     cacheTime: 5 * 60 * 1000, 
     staleTime: 5 * 60 * 1000,
   })

@@ -8,5 +8,6 @@
   "KeyCloakUrl": "${KC_FRONTEND_URL}",
   "KeyCloakRealm": "${KC_REALM_NAME}",
   "KeyCloakClientId": "${KC_JEMPI_CLIENT_ID}",
-  "showBrandLogo": ${REACT_APP_SHOW_BRAND_LOGO}
+  "showBrandLogo": ${REACT_APP_SHOW_BRAND_LOGO},
+  "refetchInterval": ${REACT_APP_REFETCH_INTERVAL}
 }
