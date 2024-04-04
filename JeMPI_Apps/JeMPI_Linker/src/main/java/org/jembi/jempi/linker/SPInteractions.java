@@ -84,8 +84,6 @@ public final class SPInteractions {
             streamsBuilder.stream(GlobalConstants.TOPIC_UPLOAD_CONFIG, Consumed.with(stringSerde, uploadConfigSerde));
       uploadConfigStream.foreach((key, config) -> {
          uploadConfig[0] = config;
-         //todo: remove logging
-         LOGGER.info(config);
          this.closeUploadConfigStream();
       });
       interactionStream.foreach((key, interactionEnvelop) -> {
@@ -109,7 +107,6 @@ public final class SPInteractions {
    }
 
    private void closeUploadConfigStream() {
-      LOGGER.info("UploadConfig Stream closed");
       uploadConfigKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
    }
 
