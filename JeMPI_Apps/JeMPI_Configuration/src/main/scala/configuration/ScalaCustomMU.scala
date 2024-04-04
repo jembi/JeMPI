@@ -12,26 +12,77 @@ object ScalaCustomMU {
 
   def generate(config: Config): Any = {
 
-    def fieldDefs(): String =
-      config.demographicFields.zipWithIndex
-        .map((f, i) => {
+    def linkFieldDefs(): String =
+      config.demographicFields
+        .filter(f => f.linkMetaData.isDefined)
+        .map(f => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
-          s"""${" " * 4}${fieldName}: Probability,"""
+          s"""${" " * 2}${fieldName}: Probability,"""
         })
         .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
-    end fieldDefs
+    end linkFieldDefs
 
-    def probSeqDefs(): String =
-      config.demographicFields.zipWithIndex
-        .map((f, i) => {
-          s"""${" " * 12}Probability(muSeq.apply(${i}).m, muSeq.apply(${i}).u),"""
+    def validateFieldDefs(): String =
+      config.demographicFields
+        .filter(f => f.validateMetaData.isDefined)
+        .map(f => {
+          val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
+          s"""${" " * 2}${fieldName}: Probability,"""
         })
         .mkString(sys.props("line.separator"))
         .trim
         .dropRight(1)
-    end probSeqDefs
+    end validateFieldDefs
+
+    def matchFieldDefs(): String =
+      config.demographicFields
+        .filter(f => f.matchMetaData.isDefined)
+        .map(f => {
+          val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
+          s"""${" " * 2}${fieldName}: Probability,"""
+        })
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
+    end matchFieldDefs
+
+    def linkProbSeqDefs(): String =
+      config.demographicFields
+        .filter(f => f.linkMetaData.isDefined)
+        .zipWithIndex
+        .map((f, i) => {
+          s"""${" " * 8}Probability(muSeqLink.apply(${i}).m, muSeqLink.apply(${i}).u),"""
+        })
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
+    end linkProbSeqDefs
+
+    def validateProbSeqDefs(): String =
+      config.demographicFields
+        .filter(f => f.validateMetaData.isDefined)
+        .zipWithIndex
+        .map((f, i) => {
+          s"""${" " * 8}Probability(muSeqValidate.apply(${i}).m, muSeqValidate.apply(${i}).u),"""
+        })
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
+    end validateProbSeqDefs
+
+    def matchProbSeqDefs(): String =
+      config.demographicFields
+        .filter(f => f.matchMetaData.isDefined)
+        .zipWithIndex
+        .map((f, i) => {
+          s"""${" " * 8}Probability(muSeqMatch.apply(${i}).m, muSeqMatch.apply(${i}).u),"""
+        })
+        .mkString(sys.props("line.separator"))
+        .trim
+        .dropRight(1)
+    end matchProbSeqDefs
 
     val classFile: String =
       classLocation + File.separator + custom_className + ".scala"
@@ -51,17 +102,39 @@ object ScalaCustomMU {
          |import scala.collection.immutable.ArraySeq
          |
          |case class ${custom_className}(
-         |    tag: String,
-         |    ${fieldDefs()}
+         |  tag: String,
+         |  customLinkMU: CustomLinkMU,
+         |  customValidateMU: CustomValidateMU,
+         |  customMatchMU: CustomMatchMU
+         |)
+         |
+         |case class CustomLinkMU(
+         |  ${linkFieldDefs()}
+         |)
+         |
+         |case class CustomValidateMU(
+         |  ${validateFieldDefs()}
+         |)
+         |
+         |case class CustomMatchMU(
+         |  ${matchFieldDefs()}
          |)
          |
          |object ${custom_className} {
          |
-         |    def fromArraySeq(tag: String, muSeq: ArraySeq[MU]): CustomMU =
-         |        CustomMU(
-         |            tag,
-         |            ${probSeqDefs()}
-         |        )
+         |  def fromArraySeq(tag: String, muSeqLink: ArraySeq[MU], muSeqValidate: ArraySeq[MU], muSeqMatch: ArraySeq[MU]): CustomMU =
+         |    CustomMU(
+         |      tag,
+         |      CustomLinkMU(
+         |        ${linkProbSeqDefs()}
+         |      ),
+         |      CustomValidateMU(
+         |        ${validateProbSeqDefs()}
+         |      ),
+         |      CustomMatchMU(
+         |        ${matchProbSeqDefs()}
+         |      )
+         |    )
          |
          |}
          |""".stripMargin)

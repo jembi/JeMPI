@@ -18,6 +18,9 @@ sleep 2
 
 echo
 echo Up app containers
+source ../scripts/d-stack-wait-removed.sh
+sleep 2
+echo Up app containers
 source ../scripts/d-stack-deploy-0.sh
 sleep 2
 source ../scripts/d-stack-up-hub-containers.sh

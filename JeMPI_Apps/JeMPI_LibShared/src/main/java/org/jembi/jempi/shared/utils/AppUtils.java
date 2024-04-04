@@ -100,4 +100,8 @@ public final class AppUtils implements Serializable {
       public static final AppUtils INSTANCE = new AppUtils();
    }
 
+   public static String camelToSnake(final String str) {
+      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+   }
+
 }

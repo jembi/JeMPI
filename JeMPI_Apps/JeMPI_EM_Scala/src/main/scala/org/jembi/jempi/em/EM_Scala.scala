@@ -1,12 +1,22 @@
 package org.jembi.jempi.em
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.fasterxml.jackson.module.scala.{
+  ClassTagExtensions,
+  DefaultScalaModule
+}
+
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
 import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig}
-import org.jembi.jempi.em.kafka.Config.{CFG_KAFKA_APPLICATION_ID, CFG_KAFKA_BOOTSTRAP_SERVERS, CFG_KAFKA_CLIENT_ID, CFG_KAFKA_TOPIC_INTERACTION_EM}
+import org.jembi.jempi.em.CustomFields.LINK_COLS
+import org.jembi.jempi.em.kafka.Config.{
+  CFG_KAFKA_APPLICATION_ID,
+  CFG_KAFKA_BOOTSTRAP_SERVERS,
+  CFG_KAFKA_CLIENT_ID,
+  CFG_KAFKA_TOPIC_INTERACTION_EM
+}
 import org.jembi.jempi.em.kafka.Producer
 
 import java.util.Properties
@@ -83,13 +93,33 @@ object EM_Scala extends LazyLogging {
         interactions.map((fields: Array[String]) =>
           ArraySeq.unsafeWrapArray(fields)
         )
-      val (mu, ms) = Profile.profile(EM_Task.run(interactions_))
+      var linkResults: (ArraySeq[MU], Double) = (null, 0.0)
+      var validateResults: (ArraySeq[MU], Double) = (null, 0.0)
+      var matchResults: (ArraySeq[MU], Double) = (null, 0.0)
 
-      CustomFields.FIELDS.zipWithIndex.foreach(x =>
-        Utils.printMU(x._1.name, mu(x._2))
-      )
-      logger.info(s"$ms ms")
-      Producer.send(tag, mu);
+      if (CustomFields.LINK_COLS.length > 1) {
+        linkResults =
+          Profile.profile(EM_Task.run(CustomFields.LINK_COLS, interactions_))
+      }
+      if (CustomFields.VALIDATE_COLS.length > 1) {
+        validateResults = Profile.profile(
+          EM_Task.run(CustomFields.VALIDATE_COLS, interactions_)
+        )
+      }
+      if (CustomFields.MATCH_COLS.length > 1) {
+        matchResults =
+          Profile.profile(EM_Task.run(CustomFields.MATCH_COLS, interactions_))
+      }
+
+      for (i <- LINK_COLS.indices) {
+        Utils.printMU(
+          CustomFields.FIELDS.apply(LINK_COLS.apply(i)).name,
+          linkResults._1(i)
+        )
+      }
+
+      logger.info(s"${linkResults._2} ms")
+      Producer.send(tag, linkResults._1, validateResults._1, matchResults._1);
     }
 
   }

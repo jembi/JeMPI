@@ -38,12 +38,22 @@ const NOTIFICATIONS_COLUMNS: GridColDef[] = [
     filterable: false
   },
   {
-    field: 'golden_id',
-    headerName: 'Golden ID',
+    field: 'old_golden_id',
+    headerName: 'Initial Golden ID',
     type: 'number',
     flex: 1,
     headerClassName: 'super-app-theme--header',
-    filterable: false
+    filterable: false,
+    hideable: true
+  },
+  {
+    field: 'current_golden_id',
+    headerName: 'Current Golden ID',
+    type: 'number',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    filterable: false,
+    hideable: true
   },
   {
     field: 'score',

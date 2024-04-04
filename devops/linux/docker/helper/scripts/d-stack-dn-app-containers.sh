@@ -16,7 +16,7 @@ pushd .
     em-scala
     linker
     api
-    api_kc
+    api-kc
     ui
   )
 

@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
-import { AuditTrailEntries } from '../types/AuditTrail'
+import { AuditTrail } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
   ApiSearchResponse,
@@ -27,7 +27,7 @@ import {
   DemographicData,
   PatientRecord
 } from 'types/PatientRecord'
-import { Notifications } from 'types/Notification'
+import { Notifications, NotificationState} from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
@@ -95,7 +95,8 @@ export class ApiClient {
     endDay: string,
     states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
+    const notificationState = states.includes(NotificationState.ALL.toString()) ? [NotificationState.CLOSED, NotificationState.OPEN] : states;
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${notificationState}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 
@@ -345,8 +346,8 @@ export class ApiClient {
 
   async getGoldenRecordAuditTrail(gid: string) {
     const {
-      data: { entries }
-    } = await this.client.get<AuditTrailEntries>(
+      data
+    } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
       {
         params: {
@@ -354,13 +355,13 @@ export class ApiClient {
         }
       }
     )
-    return entries
+    return data
   }
 
   async getInteractionAuditTrail(iid: string) {
     const {
-      data: { entries }
-    } = await this.client.get<AuditTrailEntries>(
+      data
+    } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_INTERACTION_AUDIT_TRAIL,
       {
         params: {
@@ -368,7 +369,7 @@ export class ApiClient {
         }
       }
     )
-    return entries
+    return data
   }
 
   async validateOAuth(oauthParams: OAuthParams) {

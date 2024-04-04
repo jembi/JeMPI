@@ -8,10 +8,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.libmpi.LibMPI;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.NotificationResolutionProcessorData;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -19,9 +22,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private static final String SINGLE_TIMER_TIMEOUT_KEY = "SingleTimerTimeOutKey";
 
+   private LibMPI libMPI = null;
+
    private BackEnd(final ActorContext<Event> context) {
       super(context);
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+      if (libMPI == null) {
+         openMPI();
+      }
    }
 
    public static Behavior<Event> create() {
@@ -35,7 +43,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final CompletionStage<BackEnd.OnNotificationResolutionResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new OnNotificationResolutionRequest(replyTo, notificationResolutionDetails),
-                 java.time.Duration.ofSeconds(6),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
@@ -46,9 +54,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final CompletionStage<BackEnd.DashboardDataResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new DashboardDataRequest(replyTo),
-                 java.time.Duration.ofSeconds(6),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
+   }
+
+   private void openMPI() {
+      final var host = AppConfig.getDGraphHosts();
+      final var port = AppConfig.getDGraphPorts();
+      libMPI = new LibMPI(AppConfig.GET_LOG_LEVEL,
+                          host,
+                          port,
+                          AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                          "CLIENT_ID_CONTROLLER-" + UUID.randomUUID());
    }
 
    public void close() {
@@ -70,7 +88,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> eventTeaTimeHandler(final EventTeaTime request) {
       LOGGER.info("TEA TIME");
       return Behaviors.withTimers(timers -> {
-         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY, EventWorkTime.INSTANCE, Duration.ofSeconds(5));
+         timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                 EventWorkTime.INSTANCE,
+                                 Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
          return Behaviors.same();
       });
    }
@@ -84,7 +104,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var dashboardData = new HashMap<String, Object>();
       final var linkStatsMeta = LinkStatsMetaCache.get();
       if (linkStatsMeta != null) {
-         dashboardData.put("linker_stats", new LinkerStats(123L, 456L));
+         dashboardData.put("linker_stats", new LinkerStats(libMPI.countGoldenRecords(), libMPI.countInteractions()));
          dashboardData.put("m_and_u", CustomControllerDashboardMU.fromCustomFieldTallies(linkStatsMeta.customFieldTallies()));
          final var tp = linkStatsMeta.confusionMatrix().TP();
          final var fp = linkStatsMeta.confusionMatrix().FP();

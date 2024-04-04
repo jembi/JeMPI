@@ -10,7 +10,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,6 +102,27 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkToGidUpdateRequest(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdUpdateRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionSyncBody(
@@ -114,6 +134,7 @@ public abstract class ApiModels {
          CustomDemographicData demographicData) {
    }
 
+/*
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionToGidSyncBody(
          String stan,
@@ -122,10 +143,14 @@ public abstract class ApiModels {
          CustomDemographicData demographicData,
          String gid) {
    }
-
+*/
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterResponse(LinkInfo linkInfo) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkUpdateResponse(LinkInfo linkInfo) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -306,25 +331,18 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiAuditTrail(
-         List<AuditEntry> entries) {
-      public static ApiAuditTrail fromAuditTrail(final List<AuditEvent> trail) {
-         final var apiDateFormat = new SimpleDateFormat(DATE_PATTERN);
-         return new ApiAuditTrail(trail.stream()
-                                       .map(x -> new AuditEntry(apiDateFormat.format(x.insertedAt()),
-                                                                apiDateFormat.format(x.createdAt()),
-                                                                x.interactionID(),
-                                                                x.goldenID(),
-                                                                x.event()))
-                                       .toList());
-      }
+           List<LinkingAuditEntry> entries) {
 
       @JsonInclude(JsonInclude.Include.NON_NULL)
-      public record AuditEntry(
-            @JsonProperty("inserted_at") String insertedAt,
-            @JsonProperty("created_at") String createdAt,
-            @JsonProperty("interaction_id") String interactionId,
-            @JsonProperty("golden_id") String goldenId,
-            @JsonProperty("entry") String entry) {
+      public record LinkingAuditEntry(
+             @JsonProperty("inserted_at") String insertedAt,
+             @JsonProperty("created_at") String createdAt,
+             @JsonProperty("interaction_id") String interactionId,
+             @JsonProperty("golden_id") String goldenId,
+             @JsonProperty("entry") String entry,
+             @JsonProperty("score") Float score,
+             @JsonProperty("linking_rule") String linkingRule
+      ) {
       }
    }
 

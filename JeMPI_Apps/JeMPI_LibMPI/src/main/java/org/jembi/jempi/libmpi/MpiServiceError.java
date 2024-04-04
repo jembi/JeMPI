@@ -10,6 +10,10 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          String error) implements MpiServiceError {
    }
 
+   record NoScoreGivenError(
+         String error) implements MpiServiceError {
+   }
+
    record InteractionIdDoesNotExistError(
          String error,
          String interactionID) implements MpiServiceError {
@@ -40,12 +44,33 @@ public sealed interface MpiServiceError extends MpiGeneralError {
          CustomDemographicData request) implements MpiServiceError {
    }
 
+   record CRGidDoesNotExistError(
+         String gid) implements MpiServiceError {
+   }
+
+   record CRLinkUpdateError(
+         CustomDemographicData interaction) implements MpiServiceError {
+   }
+
+   record InvalidFunctionError(
+         String error
+         ) implements MpiServiceError {
+   }
+
+   record InvalidOperatorError(
+         String error
+   ) implements MpiServiceError {
+   }
+
    record CRUpdateFieldError(
          String goldenId,
          List<String> fields) implements MpiServiceError {
    }
 
    record GeneralError(String error) implements MpiServiceError {
+   }
+
+   record InternalError(String message) implements MpiServiceError {
    }
 
    record CandidatesNotFoundError(

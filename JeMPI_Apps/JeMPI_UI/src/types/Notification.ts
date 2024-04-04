@@ -6,7 +6,8 @@ export default interface Notification {
   names: string
   patient_id: string | null
   status: NotificationState
-  golden_id: string
+  old_golden_id: string
+  current_golden_id: string
   score: number
   linkedTo?: GoldenRecordCandidate
   candidates?: GoldenRecordCandidate[]
@@ -19,7 +20,8 @@ export interface GoldenRecordCandidate {
 
 export enum NotificationState {
   OPEN = 'OPEN',
-  CLOSED = 'CLOSED'
+  CLOSED = 'CLOSED',
+  ALL = 'ALL'
 }
 
 export type NotificationType = 'THRESHOLD' | 'MARGIN' | 'UPDATE'

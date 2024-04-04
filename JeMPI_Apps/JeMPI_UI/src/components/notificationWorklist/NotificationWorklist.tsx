@@ -27,7 +27,7 @@ import { useConfig } from 'hooks/useConfig'
 import CustomPagination from 'components/shared/CustomDataGridPagination'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import MultiSelect from 'components/shared/MultiSelect'
+import SelectDropdown from 'components/shared/SelectDropdown'
 
 const NotificationWorklist = () => {
   const navigate = useNavigate()
@@ -65,7 +65,7 @@ const NotificationWorklist = () => {
         endDateFilter.format('YYYY-MM-DD HH:mm:ss'),
         selectedStates
       ),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     keepPreviousData: true
   })
 
@@ -117,11 +117,12 @@ const NotificationWorklist = () => {
                 }
               }}
             />
-            <MultiSelect
-              listValues={[NotificationState.OPEN, NotificationState.CLOSED]}
+            <SelectDropdown
+              listValues={[NotificationState.ALL, NotificationState.OPEN, NotificationState.CLOSED]}
               label="States"
               setSelectedValues={setSelectedStates}
               defaultSelectedValues={[NotificationState.OPEN]}
+              multiple={false}
             />
             <Button variant="contained" onClick={() => refetch()} size="large">
               Filter
@@ -185,7 +186,7 @@ const NotificationWorklist = () => {
                           notificationId: params.row.id,
                           notificationType: params.row.type,
                           patient_id: params.row.patient_id,
-                          golden_id: params.row.golden_id,
+                          golden_id: params.row.current_golden_id,
                           score: params.row.score,
                           candidates: params.row.candidates
                         }

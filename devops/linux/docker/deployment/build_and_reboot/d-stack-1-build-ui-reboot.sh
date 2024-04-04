@@ -5,7 +5,7 @@ set -u
 
 echo
 echo "Down stacks"
-source ../../helper/scripts/d-stack-rm.sh
+source ../scripts/d-stack-rm.sh
 
 echo
 echo "Build Apps"
