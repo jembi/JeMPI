@@ -47,26 +47,8 @@ public final class SPInteractions {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final InteractionEnvelop interactionEnvelop) {
-
-      /*
-       * if (interactionEnvelop.contentType() ==
-       * InteractionEnvelop.ContentType.BATCH_START_SENTINEL
-       * || interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-       * final var completableFuture = Ask.runStartEndHooks(system, backEnd, key,
-       * interactionEnvelop).toCompletableFuture();
-       * try {
-       * List<MpiGeneralError> hookErrors = completableFuture.get(65,
-       * TimeUnit.SECONDS).hooksResults();
-       * if (!hookErrors.isEmpty()) {
-       * LOGGER.error(hookErrors);
-       * }
-       * } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-       * LOGGER.error(ex.getLocalizedMessage(), ex);
-       * this.close();
-       * }
-       * }
-       */
+         final InteractionEnvelop interactionEnvelop,
+         final UploadConfig uploadConfig) {
 
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
 
@@ -92,7 +74,7 @@ public final class SPInteractions {
       LOGGER.info("SPInteractions Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
-      final UploadConfig[] uploadConfig = { null };
+      final UploadConfig[] uploadConfig = {null};
       final var uploadConfigSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
             new JsonPojoDeserializer<>(UploadConfig.class));
       final var interactionEnvelopSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
