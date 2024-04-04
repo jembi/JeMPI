@@ -459,7 +459,7 @@ public final class Routes {
         public static Route postUploadCsvFile(
                         final ActorSystem<Void> actorSystem,
                         final ActorRef<BackEnd.Event> backEnd) {
-                return withSizeLimit(1024 * 1024 * 2048,
+                return withSizeLimit(1024L * 1024 * 2048,
                                 () -> formField("queries", queries -> storeUploadedFile("csv",
                                                 (info) -> {
                                                         try {
@@ -739,7 +739,7 @@ public final class Routes {
                                                                                 backEnd, controllerIP, controllerPort,
                                                                                 http)),
                                                 path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES, // <------------------------
-                                                                                                               // CHECK
+                                                                // CHECK
                                                                 () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP,
                                                                                 linkerPort, http)),
 
