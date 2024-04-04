@@ -22,7 +22,6 @@ public class DgraphDataBootstrapper extends DataBootstrapper {
    @Override
    public Boolean createSchema() {
       LOGGER.info("Loading DGraph schema data.");
-      libDgraph.startTransaction();
       libDgraph.createSchema();
       return true;
    }
@@ -30,7 +29,6 @@ public class DgraphDataBootstrapper extends DataBootstrapper {
    @Override
    public Boolean deleteData() {
       LOGGER.info("Deleting DGraph data and schemas.");
-      libDgraph.startTransaction();
       libDgraph.dropAll();
       return true;
    }

@@ -10,12 +10,12 @@ import java.util.List;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-public final class InputInterface {
+public final class InputInterfaceConfig {
 
-   private static final Logger LOGGER = LogManager.getLogger(InputInterface.class);
+   private static final Logger LOGGER = LogManager.getLogger(InputInterfaceConfig.class);
    public final List<Pair<String, Integer>> demographicDataCsvCols;
 
-   InputInterface(final JsonConfig jsonConfig) {
+   InputInterfaceConfig(final JsonConfig jsonConfig) {
       demographicDataCsvCols =
             jsonConfig.demographicFields().stream().map(f -> Pair.of(f.fieldName(), f.source().csvCol())).toList();
       try {

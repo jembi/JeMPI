@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GlobalConstants;
@@ -30,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
-import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE;
+import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
@@ -72,10 +71,10 @@ public final class Main {
    }
 
    private static DemographicData demographicData(final CSVRecord csvRecord) {
-      return new DemographicData(INPUT_INTERFACE.demographicDataCsvCols.stream()
-                                                                       .map(f -> new DemographicData.Field(AppUtils.snakeToCamelCase(
-                                                                             f.getLeft()), csvRecord.get(f.getRight())))
-                                                                       .toList());
+      return new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataCsvCols.stream()
+                                                                              .map(f -> new DemographicData.Field(AppUtils.snakeToCamelCase(
+                                                                                    f.getLeft()), csvRecord.get(f.getRight())))
+                                                                              .toList());
    }
 
    private void sendToKafka(
@@ -175,7 +174,7 @@ public final class Main {
    private void run() throws InterruptedException, ExecutionException, IOException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
       try {
-         final var json = OBJECT_MAPPER.writeValueAsString(Config.INPUT_INTERFACE);
+         final var json = OBJECT_MAPPER.writeValueAsString(INPUT_INTERFACE_CONFIG);
          LOGGER.info("Input Interface Config: {}", json);
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);

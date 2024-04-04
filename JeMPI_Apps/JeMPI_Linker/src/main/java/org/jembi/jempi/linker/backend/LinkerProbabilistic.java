@@ -7,7 +7,6 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -17,6 +16,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.log;
+import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
 
 public final class LinkerProbabilistic {
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
@@ -30,15 +30,15 @@ public final class LinkerProbabilistic {
    private static final Logger LOGGER = LogManager.getLogger(LinkerProbabilistic.class);
    private static final double LOG2 = java.lang.Math.log(2.0);
    private static final float MISSING_PENALTY = 0.925F;
-   static List<ProbabilisticField> currentProbabilisticLinkFields = Config.LINKER.probabilisticLinkFields
+   static List<ProbabilisticField> currentProbabilisticLinkFields = LINKER_CONFIG.probabilisticLinkFields
          .stream()
          .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
          .toList();
-   static List<ProbabilisticField> currentProbabilisticValidateFields = Config.LINKER.probabilisticValidateFields
+   static List<ProbabilisticField> currentProbabilisticValidateFields = LINKER_CONFIG.probabilisticValidateFields
          .stream()
          .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
          .toList();
-   static List<ProbabilisticField> currentProbabilisticMatchFields = Config.LINKER.probabilisticMatchNotificationFields
+   static List<ProbabilisticField> currentProbabilisticMatchFields = LINKER_CONFIG.probabilisticMatchNotificationFields
          .stream()
          .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
          .toList();
@@ -145,12 +145,12 @@ public final class LinkerProbabilistic {
          final DemographicData interaction) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
-      for (int i = 0; i < Config.LINKER.probabilisticMatchNotificationFields.size(); i++) {
+      for (int i = 0; i < LINKER_CONFIG.probabilisticMatchNotificationFields.size(); i++) {
          updateMetricsForStringField(metrics,
-                                     goldenRecord.fields.get(Config.LINKER.probabilisticMatchNotificationFields.get(i)
+                                     goldenRecord.fields.get(LINKER_CONFIG.probabilisticMatchNotificationFields.get(i)
                                                                                                                .demographicDataIndex())
                                                         .value(),
-                                     interaction.fields.get(Config.LINKER.probabilisticMatchNotificationFields.get(i)
+                                     interaction.fields.get(LINKER_CONFIG.probabilisticMatchNotificationFields.get(i)
                                                                                                               .demographicDataIndex())
                                                        .value(),
                                      currentProbabilisticMatchFields.get(i));
@@ -163,12 +163,12 @@ public final class LinkerProbabilistic {
          final DemographicData interaction) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
-      for (int i = 0; i < Config.LINKER.probabilisticValidateFields.size(); i++) {
+      for (int i = 0; i < LINKER_CONFIG.probabilisticValidateFields.size(); i++) {
          updateMetricsForStringField(metrics,
-                                     goldenRecord.fields.get(Config.LINKER.probabilisticValidateFields.get(i)
+                                     goldenRecord.fields.get(LINKER_CONFIG.probabilisticValidateFields.get(i)
                                                                                                       .demographicDataIndex())
                                                         .value(),
-                                     interaction.fields.get(Config.LINKER.probabilisticValidateFields.get(i)
+                                     interaction.fields.get(LINKER_CONFIG.probabilisticValidateFields.get(i)
                                                                                                      .demographicDataIndex())
                                                        .value(),
                                      currentProbabilisticValidateFields.get(i));
@@ -181,11 +181,11 @@ public final class LinkerProbabilistic {
          final DemographicData interaction) {
       // min, max, score, missingPenalty
       final float[] metrics = {0, 0, 0, 1.0F};
-      for (int i = 0; i < Config.LINKER.probabilisticLinkFields.size(); i++) {
+      for (int i = 0; i < LINKER_CONFIG.probabilisticLinkFields.size(); i++) {
          updateMetricsForStringField(metrics,
-                                     goldenRecord.fields.get(Config.LINKER.probabilisticLinkFields.get(i).demographicDataIndex())
+                                     goldenRecord.fields.get(LINKER_CONFIG.probabilisticLinkFields.get(i).demographicDataIndex())
                                                         .value(),
-                                     interaction.fields.get(Config.LINKER.probabilisticLinkFields.get(i).demographicDataIndex())
+                                     interaction.fields.get(LINKER_CONFIG.probabilisticLinkFields.get(i).demographicDataIndex())
                                                        .value(),
                                      currentProbabilisticLinkFields.get(i));
       }

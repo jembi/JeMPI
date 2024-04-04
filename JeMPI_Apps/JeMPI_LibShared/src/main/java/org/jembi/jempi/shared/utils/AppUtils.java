@@ -88,15 +88,6 @@ public final class AppUtils implements Serializable {
       }
    }
 
-   public static String snakeToCamelCase(final String str) {
-      String[] words = str.split("_");
-      StringBuilder result = new StringBuilder(words[0]);
-      for (int i = 1; i < words.length; i++) {
-         result.append(words[i].substring(0, 1).toUpperCase()).append(words[i].substring(1));
-      }
-      return result.toString();
-   }
-
    public static String autoGenerateId() {
       return Long.toString(++autoIncrement);
    }
@@ -108,6 +99,19 @@ public final class AppUtils implements Serializable {
 
    private static class UtilsSingletonHolder {
       public static final AppUtils INSTANCE = new AppUtils();
+   }
+
+   public static String camelToSnake(final String str) {
+      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+   }
+
+   public static String snakeToCamelCase(final String str) {
+      String[] words = str.split("_");
+      StringBuilder result = new StringBuilder(words[0]);
+      for (int i = 1; i < words.length; i++) {
+         result.append(words[i].substring(0, 1).toUpperCase()).append(words[i].substring(1));
+      }
+      return result.toString();
    }
 
 }

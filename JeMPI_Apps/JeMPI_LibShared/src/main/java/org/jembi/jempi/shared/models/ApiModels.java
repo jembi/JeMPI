@@ -45,7 +45,6 @@ public abstract class ApiModels {
               Thread.currentThread().getStackTrace()[3].getLineNumber());
       }
 
-
    }
 
    public record ApiGoldenRecordCount(Long count) {
@@ -63,11 +62,11 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrCandidatesRequest(
          Float candidateThreshold,
-         DemographicData demographicData) {
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrCandidatesResponse(List<GoldenRecord> goldenRecords) {
+   public record ApiCrCandidatesResponse(List<ApiGoldenRecord> goldenRecords) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -90,7 +89,7 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrFindResponse(List<GoldenRecord> goldenRecords) {
+   public record ApiCrFindResponse(List<ApiGoldenRecord> goldenRecords) {
    }
 
 
@@ -99,9 +98,30 @@ public abstract class ApiModels {
          Float candidateThreshold,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         DemographicData demographicData) {
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkToGidUpdateRequest(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdUpdateRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+   }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionSyncBody(
@@ -110,7 +130,7 @@ public abstract class ApiModels {
          Float matchThreshold,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         DemographicData demographicData) {
+         CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -118,13 +138,17 @@ public abstract class ApiModels {
          String stan,
          CustomSourceId sourceId,
          CustomUniqueInteractionData uniqueInteractionData,
-         DemographicData demographicData,
+         CustomDemographicData.CustomDemographicDataAPI demographicData,
          String gid) {
    }
 
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterResponse(LinkInfo linkInfo) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkUpdateResponse(LinkInfo linkInfo) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -203,26 +227,26 @@ public abstract class ApiModels {
       }
    }
 
-   public record ApiFiteredGidsPaginatedResultSet(
+   public record ApiFilteredGidsPaginatedResultSet(
          List<String> data,
          ApiPagination pagination) implements ApiPaginatedResultSet {
-      public static ApiFiteredGidsPaginatedResultSet fromLibMPIPaginatedResultSet(
+      public static ApiFilteredGidsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<String> resultSet) {
          final var data = resultSet.data().stream().toList();
-         return new ApiFiteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+         return new ApiFilteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
-   public record ApiFiteredGidsWithInteractionCountPaginatedResultSet(
+   public record ApiFilteredGidsWithInteractionCountPaginatedResultSet(
          List<String> data,
          InteractionCount interactionCount,
          ApiPagination pagination) implements ApiPaginatedResultSet {
-      public static ApiFiteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
+      public static ApiFilteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
             final PaginatedGIDsWithInteractionCount resultSet) {
          final var data = resultSet.data().stream().toList();
-         return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data,
-                                                                         InteractionCount.fromInteractionCount(resultSet.interactionCount()),
-                                                                         ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+         return new ApiFilteredGidsWithInteractionCountPaginatedResultSet(data,
+                                                                          InteractionCount.fromInteractionCount(resultSet.interactionCount()),
+                                                                          ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
@@ -232,11 +256,11 @@ public abstract class ApiModels {
          List<CustomSourceId> sourceId,
          CustomUniqueGoldenRecordData uniqueGoldenRecordData,
          CustomDemographicData.CustomDemographicDataAPI demographicData) {
-      static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
+      public static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
                                     goldenRecord.sourceId(),
                                     goldenRecord.customUniqueGoldenRecordData(),
-                                    DemographicData.fromCustomDemographicData(goldenRecord.demographicData()));
+                                    DemographicData.fromDemographicData(goldenRecord.demographicData()));
       }
    }
 
@@ -284,7 +308,7 @@ public abstract class ApiModels {
          return new ApiInteraction(interaction.interactionId(),
                                    interaction.sourceId(),
                                    interaction.uniqueInteractionData(),
-                                   DemographicData.fromCustomDemographicData(interaction.demographicData()));
+                                   DemographicData.fromDemographicData(interaction.demographicData()));
       }
    }
 

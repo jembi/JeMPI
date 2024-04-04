@@ -1,10 +1,11 @@
 package org.jembi.jempi.linker.backend;
 
-import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.models.CustomMU;
 
 import java.util.Collections;
 import java.util.List;
+
+import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
 
 final class CustomLinkerProbabilistic {
 
@@ -26,45 +27,45 @@ final class CustomLinkerProbabilistic {
           && mu.nationalId().m() > mu.nationalId().u()) {
          return List.of(
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(0)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(0)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(0).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(0).comparisonLevels(),
                                     mu.givenName().m(),
                                     mu.givenName().u()),
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(1)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(1)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(1).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(1).comparisonLevels(),
                                     mu.familyName().m(),
                                     mu.familyName().u()),
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(2)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(2)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(2).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(2).comparisonLevels(),
                                     mu.gender().m(),
                                     mu.gender().u()),
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(3)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(3)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(3).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(3).comparisonLevels(),
                                     mu.dob().m(),
                                     mu.dob().u()),
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(4)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(4)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(4).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(4).comparisonLevels(),
                                     mu.city().m(),
                                     mu.city().u()),
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(5)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(5)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(5).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(5).comparisonLevels(),
                                     mu.phoneNumber().m(),
                                     mu.phoneNumber().u()),
             new LinkerProbabilistic
-               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get(6)
+               .ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(6)
                                                                                                                   .similarityScore()),
-                                    Config.LINKER.probabilisticLinkFields.get(6).comparisonLevels(),
+                                    LINKER_CONFIG.probabilisticLinkFields.get(6).comparisonLevels(),
                                     mu.nationalId().m(),
                                     mu.nationalId().u()));
       } else {

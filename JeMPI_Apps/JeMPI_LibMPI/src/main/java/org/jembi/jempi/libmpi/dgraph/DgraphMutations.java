@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import static org.jembi.jempi.shared.utils.AppUtils.camelToSnake;
 
 final class DgraphMutations {
 
@@ -67,27 +68,6 @@ final class DgraphMutations {
                            uuid,
                            AppUtils.quotedValue(sourceId.patient()),
                            uuid);
-   }
-
-   private DgraphSourceIds getSourceId(final CustomSourceId sourceId) {
-      if (StringUtils.isBlank(sourceId.facility()) || StringUtils.isBlank(sourceId.patient())) {
-         return new DgraphSourceIds(List.of());
-      }
-      final String query = String.format(Locale.ROOT, """
-                                                      query query_source_id() {
-                                                         var(func: eq(SourceId.facility, "%s")) {
-                                                            A as uid
-                                                         }
-                                                         var(func: eq(SourceId.patient, "%s")) {
-                                                            B as uid
-                                                         }
-                                                         all(func: uid(A,B)) @filter (uid(A) AND uid(B)) {
-                                                            uid
-                                                            expand(SourceId)
-                                                         }
-                                                      }
-                                                      """, sourceId.facility(), sourceId.patient());
-      return DgraphQueries.runSourceIdQuery(query);
    }
 
    private boolean updateGoldenRecordPredicate(
@@ -208,16 +188,19 @@ final class DgraphMutations {
                                                                         .setSetNquads(ByteString.copyFromUtf8(createSourceIdTriple(
                                                                               interaction.sourceId())))
                                                                         .build();
-      final var sourceId = getSourceId(interaction.sourceId()).all();
-      final var sourceIdUid = !sourceId.isEmpty()
-            ? sourceId.get(0).uid()
+      final var sourceIdList =
+            DgraphQueries.findSourceIdList(interaction.sourceId().facility(), interaction.sourceId().patient());
+      final var sourceIdUid = !sourceIdList.isEmpty()
+            ? sourceIdList.getFirst().uid()
             : DgraphClient.getInstance().doMutateTransaction(sourceIdMutation);
-      final DgraphProto.Mutation mutation = DgraphProto.Mutation.newBuilder()
-                                                                .setSetNquads(ByteString.copyFromUtf8(CustomDgraphMutations.createInteractionTriple(
-                                                                      interaction.uniqueInteractionData(),
-                                                                      interaction.demographicData(),
-                                                                      sourceIdUid)))
-                                                                .build();
+      final DgraphProto.Mutation mutation = DgraphProto
+            .Mutation
+            .newBuilder()
+            .setSetNquads(ByteString.copyFromUtf8(CustomDgraphMutations.createInteractionTriple(
+                  interaction.uniqueInteractionData(),
+                  interaction.demographicData(),
+                  sourceIdUid)))
+            .build();
       return new InsertInteractionResult(DgraphClient.getInstance().doMutateTransaction(mutation), sourceIdUid);
    }
 
@@ -389,52 +372,6 @@ final class DgraphMutations {
          LOGGER.trace("set score: {} {} {}", interactionUid, goldenRecordUid, score);
       }
       return result != null;
-   }
-
-
-   public Option<MpiGeneralError> deleteAllIndexes() {
-      try {
-         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.REMOVE_ALL_INDEXES).build();
-         DgraphClient.getInstance().alter(operation);
-         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
-         LOGGER.trace("{}", mySchema);
-         return Option.none();
-      } catch (RuntimeException ex) {
-         LOGGER.trace("{}", CustomDgraphIndexes.REMOVE_ALL_INDEXES);
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         return Option.of(new MpiServiceError.GeneralError("Removing indexes error"));
-      }
-   }
-
-   public Option<MpiGeneralError> loadLinkingIndexes() {
-      try {
-         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_LINKING_INDEXES).build();
-         DgraphClient.getInstance().alter(operation);
-         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
-         LOGGER.trace("{}", mySchema);
-         return Option.none();
-      } catch (RuntimeException ex) {
-         LOGGER.trace("{}", CustomDgraphIndexes.LOAD_LINKING_INDEXES);
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         return Option.of(new MpiServiceError.GeneralError("Loading linking indexes error"));
-      }
-   }
-
-   public Option<MpiGeneralError> loadDefaultIndexes() {
-      try {
-         final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(CustomDgraphIndexes.LOAD_DEFAULT_INDEXES).build();
-         DgraphClient.getInstance().alter(operation);
-         final var mySchema = DgraphProto.Operation.newBuilder().getSchema();
-         LOGGER.trace("{}", mySchema);
-         return Option.none();
-      } catch (RuntimeException ex) {
-         LOGGER.warn("{}", CustomDgraphIndexes.LOAD_DEFAULT_INDEXES);
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         return Option.of(new MpiServiceError.GeneralError("Loading default indexes error"));
-      }
-   }
-   public Boolean shouldUpdateLinkingIndexes() {
-      return CustomDgraphIndexes.shouldUpdateLinkingIndexes();
    }
 
    private record InsertInteractionResult(

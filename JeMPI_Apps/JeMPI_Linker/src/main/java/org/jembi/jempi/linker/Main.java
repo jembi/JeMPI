@@ -10,10 +10,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
+import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
@@ -51,8 +51,12 @@ public final class Main {
    private void run() {
       LOGGER.info("KAFKA: {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       try {
-         final var json = OBJECT_MAPPER.writeValueAsString(Config.LINKER);
-         LOGGER.info("Linker Config: {}", json);
+         final var cfg1 = OBJECT_MAPPER.writeValueAsString(INPUT_INTERFACE_CONFIG);
+         final var cfg2 = OBJECT_MAPPER.writeValueAsString(API_CONFIG);
+         final var cfg3 = OBJECT_MAPPER.writeValueAsString(LINKER_CONFIG);
+         LOGGER.info("Input Interface Config: {}", cfg1);
+         LOGGER.info("Api Config: {}", cfg2);
+         LOGGER.info("Linker Config: {}", cfg3);
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

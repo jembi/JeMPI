@@ -31,11 +31,12 @@ object CustomLinkerProbabilistic {
     writer.println(s"""package $packageText;""")
     writer.println(
       s"""
-         |import org.jembi.jempi.shared.config.Config;
          |import org.jembi.jempi.shared.models.CustomMU;
          |
          |import java.util.Collections;
          |import java.util.List;
+         |
+         |import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
          |
          |final class $custom_className {
          |
@@ -261,9 +262,9 @@ object CustomLinkerProbabilistic {
                                              val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
                                              writer.print(
                                                s"""${" " * 12}new LinkerProbabilistic
-                                                  |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticLinkFields.get($idx)
+                                                  |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get($idx)
                                                   |${" " * 15}                                                                                                   .similarityScore()),
-                                                  |${" " * 15}                     Config.LINKER.probabilisticLinkFields.get($idx).comparisonLevels(),
+                                                  |${" " * 15}                     LINKER_CONFIG.probabilisticLinkFields.get($idx).comparisonLevels(),
                                                   |${" " * 15}                     mu.$fieldName().m(),
                                                   |${" " * 15}                     mu.$fieldName().u())""".stripMargin)
                                              if (idx + 1 < linkMuList.length)
@@ -307,9 +308,9 @@ object CustomLinkerProbabilistic {
                                            val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
                                            writer.print(
                                              s"""${" " * 12}new LinkerProbabilistic
-                                                |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticValidateFields.get($idx)
+                                                |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticValidateFields.get($idx)
                                                 |${" " * 15}                                                                                                       .similarityScore()),
-                                                |${" " * 15}                     Config.LINKER.probabilisticValidateFields.get($idx).comparisonLevels(),
+                                                |${" " * 15}                     LINKER_CONFIG.probabilisticValidateFields.get($idx).comparisonLevels(),
                                                 |${" " * 15}                     mu.$fieldName().m(),
                                                 |${" " * 15}                     mu.$fieldName().u())""".stripMargin)
                                            if (idx + 1 < validateMuList.length)
@@ -354,9 +355,9 @@ object CustomLinkerProbabilistic {
                                                 val fieldName = Utils.snakeCaseToCamelCase(field.fieldName)
                                                 writer.print(
                                                   s"""${" " * 12}new LinkerProbabilistic
-                                                     |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(Config.LINKER.probabilisticMatchNotificationFields.get($idx)
+                                                     |${" " * 15}.ProbabilisticField(LinkerProbabilistic.getSimilarityFunction(LINKER_CONFIG.probabilisticMatchNotificationFields.get($idx)
                                                      |${" " * 15}                                                                                                                .similarityScore()),
-                                                     |${" " * 15}                     Config.LINKER.probabilisticMatchNotificationFields.get($idx).comparisonLevels(),
+                                                     |${" " * 15}                     LINKER_CONFIG.probabilisticMatchNotificationFields.get($idx).comparisonLevels(),
                                                      |${" " * 15}                     mu.$fieldName().m(),
                                                      |${" " * 15}                     mu.$fieldName().u())""".stripMargin)
                                                 if (idx + 1 < matchNotificationMuList.length)
