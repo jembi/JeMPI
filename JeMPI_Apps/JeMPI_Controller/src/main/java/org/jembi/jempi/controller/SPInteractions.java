@@ -16,9 +16,9 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.KafkaTopicManager;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -31,7 +31,7 @@ public final class SPInteractions {
 
    private static final Logger LOGGER = LogManager.getLogger(SPInteractions.class);
    private final TopicNameExtractor<String, InteractionEnvelop> topicNameExtractor =
-         Boolean.TRUE.equals(CustomMU.SEND_INTERACTIONS_TO_EM)
+         Boolean.TRUE.equals(MUPacket.SEND_INTERACTIONS_TO_EM)
                ? (key, value, recordContext) -> value.tag()
                : (key, value, recordContext) -> GlobalConstants.TOPIC_INTERACTION_LINKER;
    private MyKafkaProducer<String, InteractionEnvelop> topicEM;
@@ -61,7 +61,7 @@ public final class SPInteractions {
                                       AppConfig.KAFKA_CLIENT_ID);
       batchPatientRecordKStream
             .peek((key, batchPatient) -> {
-               if (Boolean.TRUE.equals(CustomMU.SEND_INTERACTIONS_TO_EM)) {
+               if (Boolean.TRUE.equals(MUPacket.SEND_INTERACTIONS_TO_EM)) {
                   switch (batchPatient.contentType()) {
                      case BATCH_START_SENTINEL:
                         try {
@@ -69,7 +69,7 @@ public final class SPInteractions {
                         } catch (JsonProcessingException e) {
                            LOGGER.error(e.getLocalizedMessage(), e);
                         }
-                        if (CustomMU.SEND_INTERACTIONS_TO_EM) {
+                        if (MUPacket.SEND_INTERACTIONS_TO_EM) {
                            var kafkaTopicManager = new KafkaTopicManager(AppConfig.KAFKA_BOOTSTRAP_SERVERS);
                            try {
                               kafkaTopicManager.createTopic(batchPatient.tag(),

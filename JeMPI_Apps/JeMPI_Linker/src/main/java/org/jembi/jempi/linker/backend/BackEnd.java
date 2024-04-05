@@ -345,7 +345,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record EventUpdateMUReq(
-         CustomMU mu,
+         MUPacket mu,
          ActorRef<EventUpdateMURsp> replyTo) implements Request {
    }
 

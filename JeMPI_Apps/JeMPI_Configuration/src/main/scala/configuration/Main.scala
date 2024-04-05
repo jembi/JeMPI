@@ -30,7 +30,7 @@ object Main {
       new TypeReference[Config] {}
     )
 
-    CustomMU.generate(config.demographicFields)
+//    CustomMU.generate(config.demographicFields)
     CustomDgraphConstants.generate(config)
     CustomDgraphInteraction.generate(config)
     CustomDgraphReverseGoldenRecord.generate(config)
@@ -40,7 +40,7 @@ object Main {
     CustomDgraphMutations.generate(config)
     CustomDgraphQueries.generate(config)
     CustomLinkerDeterministic.generate(config)
-    CustomLinkerProbabilistic.generate(config)
+//    CustomLinkerProbabilistic.generate(config)
 //    CustomLinkerBackEnd.generate(config)
 //    CustomLinkerMU.generate(config)
 //    CustomPostgresqlInteraction.generate(config.demographicFields)
@@ -49,8 +49,9 @@ object Main {
     CustomPatient.generate(config)
     CustomFieldTallies.generate(config)
     CustomControllerDashboardMU.generate(config)
+
     ScalaCustomFields.generate(config)
     ScalaCustomInteractionEnvelop.generate(config)
-    ScalaCustomMU.generate(config)
+//    ScalaCustomMU.generate(config)
 
 }

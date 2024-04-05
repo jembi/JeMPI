@@ -2,6 +2,7 @@ package org.jembi.jempi.linker.backend;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jembi.jempi.shared.models.DemographicData;
+import org.jembi.jempi.shared.models.MUPacket;
 
 import static org.jembi.jempi.shared.models.CustomDemographicData.*;
 
@@ -22,28 +23,11 @@ final class CustomLinkerDeterministic {
 
    static boolean canApplyLinking(
          final DemographicData interaction) {
-      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING
+      return MUPacket.LINK_MU_FIELD_COUNT > 0
              || StringUtils.isNotBlank(interaction.fields.get(NATIONAL_ID).value())
              || StringUtils.isNotBlank(interaction.fields.get(GIVEN_NAME).value())
              && StringUtils.isNotBlank(interaction.fields.get(FAMILY_NAME).value())
              && StringUtils.isNotBlank(interaction.fields.get(PHONE_NUMBER).value());
-   }
-
-   static boolean linkDeterministicMatch(
-         final DemographicData goldenRecord,
-         final DemographicData interaction) {
-      final var nationalIdL = goldenRecord.fields.get(NATIONAL_ID).value();
-      final var nationalIdR = interaction.fields.get(NATIONAL_ID).value();
-      if (isMatch(nationalIdL, nationalIdR)) {
-         return true;
-      }
-      final var givenNameL = goldenRecord.fields.get(GIVEN_NAME).value();
-      final var givenNameR = interaction.fields.get(GIVEN_NAME).value();
-      final var familyNameL = goldenRecord.fields.get(FAMILY_NAME).value();
-      final var familyNameR = interaction.fields.get(FAMILY_NAME).value();
-      final var phoneNumberL = goldenRecord.fields.get(PHONE_NUMBER).value();
-      final var phoneNumberR = interaction.fields.get(PHONE_NUMBER).value();
-      return (isMatch(givenNameL, givenNameR) && isMatch(familyNameL, familyNameR) && isMatch(phoneNumberL, phoneNumberR));
    }
 
    static boolean validateDeterministicMatch(

@@ -15,7 +15,7 @@ object EM_Task extends LazyLogging {
   def run(
       xxxCols: ArraySeq[Int],
       interactions: ParVector[ArraySeq[String]]
-  ): ArraySeq[MU] = {
+  ): ArraySeq[Probability] = {
 
     val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
@@ -65,24 +65,24 @@ object EM_Task extends LazyLogging {
         )
       )
       logger.info(s"$ms1 ms")
-      runEM(xxxCols, 0, lockedU.map(x => MU(0.8, x.u)), gamma)
+      runEM(xxxCols, 0, lockedU.map(x => Probability(0.8, x.u)), gamma)
     } else {
       runEM(
         xxxCols,
         0,
-        for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001),
+        for { _ <- FIELDS } yield Probability(m = 0.8, u = 0.0001),
         gamma
-      )
+        )
     }
   }
 
   @tailrec
   private def runEM(
-      xxxCols: ArraySeq[Int],
-      iterations: Int,
-      currentMU: ArraySeq[MU],
-      gamma: Map[String, Long]
-  ): ArraySeq[MU] = {
+                     xxxCols: ArraySeq[Int],
+                     iterations: Int,
+                     currentMU: ArraySeq[Probability],
+                     gamma: Map[String, Long]
+  ): ArraySeq[Probability] = {
 
     case class GammaMetrics(
         matches: Array[Int],

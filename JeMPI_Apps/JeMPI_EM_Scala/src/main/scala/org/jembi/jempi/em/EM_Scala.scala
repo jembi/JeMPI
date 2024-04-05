@@ -93,9 +93,9 @@ object EM_Scala extends LazyLogging {
         interactions.map((fields: Array[String]) =>
           ArraySeq.unsafeWrapArray(fields)
         )
-      var linkResults: (ArraySeq[MU], Double) = (null, 0.0)
-      var validateResults: (ArraySeq[MU], Double) = (null, 0.0)
-      var matchResults: (ArraySeq[MU], Double) = (null, 0.0)
+      var linkResults: (ArraySeq[Probability], Double) = (null, 0.0)
+      var validateResults: (ArraySeq[Probability], Double) = (null, 0.0)
+      var matchResults: (ArraySeq[Probability], Double) = (null, 0.0)
 
       if (CustomFields.LINK_COLS.length > 1) {
         linkResults =

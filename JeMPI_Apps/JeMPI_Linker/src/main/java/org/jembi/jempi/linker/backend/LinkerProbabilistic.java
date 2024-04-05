@@ -7,16 +7,19 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.DemographicData;
+import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.log;
 import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class LinkerProbabilistic {
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
@@ -50,6 +53,25 @@ public final class LinkerProbabilistic {
    private LinkerProbabilistic() {
    }
 
+   static List<ProbabilisticField> toLinkProbabilisticFieldList(final List<MUPacket.Probability> mu) {
+
+      for (MUPacket.Probability probability : mu) {
+         if (probability.u() >= probability.m()) {
+            return Collections.emptyList();
+         }
+      }
+
+      final var list = new ArrayList<ProbabilisticField>();
+      for (int i = 0; i < mu.size(); i++) {
+         list.add(new ProbabilisticField(
+               getSimilarityFunction(LINKER_CONFIG.probabilisticLinkFields.get(i).similarityScore()),
+               LINKER_CONFIG.probabilisticLinkFields.get(i).comparisonLevels(),
+               mu.get(i).m(), mu.get(i).u()));
+      }
+      return list;
+
+   }
+
    static SimilarityScore<Double> getSimilarityFunction(final String func) {
       if ("JARO_WINKLER_SIMILARITY".equals(func)) {
          return JARO_WINKLER_SIMILARITY;
@@ -58,20 +80,43 @@ public final class LinkerProbabilistic {
       }
    }
 
-   public static void updateMU(final CustomMU mu) {
-      final var linkProbabilisticFieldList = CustomLinkerProbabilistic.toLinkProbabilisticFieldList(mu.customLinkMU());
-      final var validateProbabilisticFieldList =
-            CustomLinkerProbabilistic.toValidateProbabilisticFieldList(mu.customValidateMU());
-      final var matchProbabilisticFieldList = CustomLinkerProbabilistic.toMatchProbabilisticFieldList(mu.customMatchMU());
-      if (linkProbabilisticFieldList != null) {
+   public static void updateMU(final MUPacket mu) {
+
+      try {
+         LOGGER.debug("update MU {}", OBJECT_MAPPER.writeValueAsString(mu));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+
+
+      final List<ProbabilisticField> linkProbabilisticFieldList = !AppUtils.isNullOrEmpty(mu.linkMuPacket())
+            ? toLinkProbabilisticFieldList(mu.linkMuPacket())
+            : List.of();
+      linkProbabilisticFieldList.forEach(x -> LOGGER.debug("{} {}", x.m, x.u));
+
+      final List<ProbabilisticField> validateProbabilisticFieldList = !AppUtils.isNullOrEmpty(mu.validateMuPacket())
+            ? toLinkProbabilisticFieldList(mu.validateMuPacket())
+            : List.of();
+      validateProbabilisticFieldList.forEach(x -> LOGGER.debug("{} {}", x.m, x.u));
+
+      final List<ProbabilisticField> matchProbabilisticFieldList = !AppUtils.isNullOrEmpty(mu.matchMuPacket())
+            ? toLinkProbabilisticFieldList(mu.matchMuPacket())
+            : List.of();
+      matchProbabilisticFieldList.forEach(x -> LOGGER.debug("{} {}", x.m, x.u));
+
+      if (!AppUtils.isNullOrEmpty(linkProbabilisticFieldList)) {
          updatedProbabilisticLinkFields = linkProbabilisticFieldList;
+         LOGGER.debug("updated link fields");
       }
-      if (validateProbabilisticFieldList != null) {
+      if (!AppUtils.isNullOrEmpty(validateProbabilisticFieldList)) {
          updatedProbabilisticValidateFields = validateProbabilisticFieldList;
+         LOGGER.debug("updated validate fields");
       }
-      if (matchProbabilisticFieldList != null) {
+      if (!AppUtils.isNullOrEmpty(matchProbabilisticFieldList)) {
          updatedProbabilisticMatchFields = matchProbabilisticFieldList;
+         LOGGER.debug("updated match fields");
       }
+
    }
 
    public static void checkUpdatedLinkMU() {
@@ -192,8 +237,8 @@ public final class LinkerProbabilistic {
       return ((metrics[METRIC_SCORE] - metrics[METRIC_MIN]) / (metrics[METRIC_MAX] - metrics[METRIC_MIN])) * metrics[METRIC_MISSING_PENALTY];
    }
 
-   public static CustomMU.Probability getProbability(final ProbabilisticField field) {
-      return new CustomMU.Probability(field.m(), field.u());
+   public static MUPacket.Probability getProbability(final ProbabilisticField field) {
+      return new MUPacket.Probability(field.m(), field.u());
    }
 
    public static void updateMetricsForStringField(
@@ -324,7 +369,7 @@ public final class LinkerProbabilistic {
             final var w = IntStream.range(0, n).mapToDouble(i -> abs(1.0 - (z * i))).boxed().map(Double::floatValue).toList();
             if (LOGGER.isDebugEnabled()) {
                try {
-                  LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));
+                  LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(w));
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }
@@ -342,7 +387,7 @@ public final class LinkerProbabilistic {
                                    .toList();
             if (LOGGER.isDebugEnabled()) {
                try {
-                  LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));
+                  LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(w));
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }

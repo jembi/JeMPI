@@ -15,8 +15,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -41,7 +41,7 @@ public final class SPMU {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final CustomMU mu) {
+         final MUPacket mu) {
       try {
          LOGGER.info("New MU set: {}/{}", key, OBJECT_MAPPER.writeValueAsString(mu));
       } catch (JsonProcessingException e) {
@@ -74,9 +74,9 @@ public final class SPMU {
       LOGGER.info("MY Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serde<CustomMU> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(CustomMU.class));
+      final Serde<MUPacket> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(MUPacket.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, CustomMU> muStream =
+      final KStream<String, MUPacket> muStream =
             streamsBuilder.stream(GlobalConstants.TOPIC_MU_LINKER, Consumed.with(stringSerde, muSerde));
       muStream.foreach((key, mu) -> installMU(system, backEnd, key, mu));
       muKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);

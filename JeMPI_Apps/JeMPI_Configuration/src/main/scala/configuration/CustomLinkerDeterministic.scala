@@ -21,7 +21,7 @@ object CustomLinkerDeterministic {
       writer.print(
         s"""   static boolean canApplyLinking(
            |         final DemographicData interaction) {
-           |      return CustomLinkerProbabilistic.PROBABILISTIC_DO_LINKING""".stripMargin
+           |      return MUPacket.LINK_MU_FIELD_COUNT > 0""".stripMargin
       )
       rules.zipWithIndex.foreach((rule, rule_idx) => {
         writer.print(s"""
@@ -130,6 +130,7 @@ object CustomLinkerDeterministic {
          |
          |import org.apache.commons.lang3.StringUtils;
          |import org.jembi.jempi.shared.models.DemographicData;
+         |import org.jembi.jempi.shared.models.MUPacket;
          |
          |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
@@ -156,10 +157,10 @@ object CustomLinkerDeterministic {
          |""".stripMargin
     )
     emitCanApplyLinking(config.rules.link.get.deterministic.get)
-    emitDeterministicMatch(
-      "linkDeterministicMatch",
-      config.rules.link.get.deterministic.get
-    )
+//    emitDeterministicMatch(
+//      "linkDeterministicMatch",
+//      config.rules.link.get.deterministic.get
+//    )
     emitDeterministicMatch(
       "validateDeterministicMatch",
       if (config.rules.validate.isDefined)

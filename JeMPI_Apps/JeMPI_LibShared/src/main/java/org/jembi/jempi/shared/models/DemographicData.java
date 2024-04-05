@@ -60,10 +60,13 @@ public class DemographicData {
    }
 
    public DemographicData clean() {
-      return new DemographicData(fields.stream()
-                                       .map(x -> new DemographicData.Field(x.tag,
-                                                                           x.value.trim().toLowerCase().replaceAll("\\W", "")))
-                                       .toList());
+      return new DemographicData(
+            fields.stream()
+                  .map(x -> new DemographicData.Field(x.tag,
+                                                      x.value.trim()
+                                                             .toLowerCase()
+                                                             .replaceAll("\\W", "")))
+                  .toList());
    }
 
    public record Field(

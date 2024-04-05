@@ -12,8 +12,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -92,7 +92,8 @@ public final class SPInteractions {
             streamsBuilder.stream(topic, Consumed.with(stringSerde, interactionEnvelopSerde));
       interactionStream.foreach((key, interactionEnvelop) -> {
          linkPatient(system, backEnd, key, interactionEnvelop);
-         if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+         if (Boolean.TRUE.equals(!MUPacket.SEND_INTERACTIONS_TO_EM) && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+            LOGGER.debug("Close SPInteractions");
             this.close();
          }
       });
