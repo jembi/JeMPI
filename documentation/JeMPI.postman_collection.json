@@ -340,15 +340,15 @@
 		{
 			"name": "Link to Golden Record",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/Link",
+					"raw": "{{LocalApi}}/link",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"Link"
+						"link"
 					]
 				}
 			},
@@ -357,15 +357,15 @@
 		{
 			"name": "Unlink and create new Golden Record",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/Unlink",
+					"raw": "{{LocalApi}}/unLink",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"Unlink"
+						"unLink"
 					]
 				}
 			},
