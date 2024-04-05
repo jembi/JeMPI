@@ -45,8 +45,8 @@ install_docker() {
         sudo apt-get install -y docker.io
 
         # Add your user to the docker group to run Docker without sudo
+        sudo chmod 666 /var/run/docker.sock
         sudo usermod -aG docker $USER
-
         echo "Docker has been installed."
     fi
 }
