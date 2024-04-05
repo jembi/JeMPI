@@ -15,7 +15,7 @@ const ROUTES = {
   POST_FILTER_GIDS: '/filterGids',
   POST_FILTER_GIDS_WITH_INTERACTION_COUNT: '/filterGidsInteraction',
   POST_CR_CANDIDATES: '/crCandidates',
-  POST_IID_NEW_GID_LINK: '/unlink',
+  POST_IID_NEW_GID_LINK: '/unLink',
   POST_IID_GID_LINK: '/link',
   PATCH_GOLDEN_RECORD: '/goldenRecord',
   CURRENT_USER: '/currentUser',
