@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.input.DeterministicRule;
 import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.models.DemographicData;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,12 +68,30 @@ public final class LinkerConfig {
             })
             .toList();
 
-      deterministicLinkPrograms = generateDeterministicPrograms(jsonConfig,
-                                                                jsonConfig.rules().link().deterministic());
-      deterministicValidatePrograms = generateDeterministicPrograms(jsonConfig,
-                                                                    jsonConfig.rules().validate().deterministic());
-      deterministicMatchPrograms = generateDeterministicPrograms(jsonConfig,
-                                                                 jsonConfig.rules().matchNotification().deterministic());
+      LOGGER.debug("generate programs");
+      if ((jsonConfig.rules().link() != null)
+          && !AppUtils.isNullOrEmpty(jsonConfig.rules().link().deterministic())) {
+         deterministicLinkPrograms = generateDeterministicPrograms(jsonConfig,
+                                                                   jsonConfig.rules().link().deterministic());
+      } else {
+         deterministicLinkPrograms = new ArrayList<>();
+      }
+
+      if (jsonConfig.rules().validate() != null
+          && !AppUtils.isNullOrEmpty(jsonConfig.rules().validate().deterministic())) {
+         deterministicValidatePrograms = generateDeterministicPrograms(jsonConfig,
+                                                                       jsonConfig.rules().validate().deterministic());
+      } else {
+         deterministicValidatePrograms = new ArrayList<>();
+      }
+      if (jsonConfig.rules().matchNotification() != null
+          && !AppUtils.isNullOrEmpty(jsonConfig.rules().matchNotification().deterministic())) {
+         deterministicMatchPrograms = generateDeterministicPrograms(jsonConfig,
+                                                                    jsonConfig.rules().matchNotification().deterministic());
+      } else {
+         deterministicMatchPrograms = new ArrayList<>();
+      }
+      LOGGER.debug("generated programs");
 
    }
 
@@ -137,6 +156,9 @@ public final class LinkerConfig {
          final JsonConfig jsonConfig,
          final List<DeterministicRule> rules) {
       final List<List<Operation>> deterministicPrograms = new ArrayList<>();
+      if (rules.isEmpty()) {
+         return deterministicPrograms;
+      }
       for (DeterministicRule deterministicRule : rules) {
          final var infix = Arrays.asList(deterministicRule.text().split(" "));
          final var rpn = shuntingYard(infix);
