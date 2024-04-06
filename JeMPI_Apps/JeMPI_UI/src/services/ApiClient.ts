@@ -27,7 +27,7 @@ import {
   DemographicData,
   PatientRecord
 } from 'types/PatientRecord'
-import { Notifications } from 'types/Notification'
+import { Notifications, NotificationState} from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
@@ -95,7 +95,8 @@ export class ApiClient {
     endDay: string,
     states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
+    const notificationState = states.includes(NotificationState.ALL.toString()) ? [NotificationState.CLOSED, NotificationState.OPEN] : states;
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${notificationState}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 
