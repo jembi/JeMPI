@@ -161,18 +161,18 @@ object CustomLinkerDeterministic {
 //      "linkDeterministicMatch",
 //      config.rules.link.get.deterministic.get
 //    )
-    emitDeterministicMatch(
-      "validateDeterministicMatch",
-      if (config.rules.validate.isDefined)
-        config.rules.validate.get.deterministic
-      else Map.empty[String, Rule]
-    )
-    emitDeterministicMatch(
-      "matchNotificationDeterministicMatch",
-      if (config.rules.matchNotification.isDefined)
-        config.rules.matchNotification.get.deterministic.get
-      else Map.empty[String, Rule]
-    )
+//    emitDeterministicMatch(
+//      "validateDeterministicMatch",
+//      if (config.rules.validate.isDefined)
+//        config.rules.validate.get.deterministic
+//      else Map.empty[String, Rule]
+//    )
+//    emitDeterministicMatch(
+//      "matchNotificationDeterministicMatch",
+//      if (config.rules.matchNotification.isDefined)
+//        config.rules.matchNotification.get.deterministic.get
+//      else Map.empty[String, Rule]
+//    )
     writer.println("}")
     writer.flush()
     writer.close()

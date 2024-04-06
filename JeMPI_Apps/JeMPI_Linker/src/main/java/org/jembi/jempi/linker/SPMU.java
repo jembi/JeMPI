@@ -47,10 +47,6 @@ public final class SPMU {
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-
-      final SPInteractions spInteractions = SPInteractions.create(mu.tag());
-      spInteractions.open(system, backEnd);
-
       final CompletionStage<BackEnd.EventUpdateMURsp> result = AskPattern.ask(backEnd,
                                                                               replyTo -> new BackEnd.EventUpdateMUReq(mu,
                                                                                                                       replyTo),
@@ -59,7 +55,11 @@ public final class SPMU {
       final var completableFuture = result.toCompletableFuture();
       try {
          final var reply = completableFuture.get(6, TimeUnit.SECONDS);
-         if (!reply.rc()) {
+         LOGGER.debug("Update MU Request: {}", reply);
+         if (reply.rc()) {
+            final SPInteractions spInteractions = SPInteractions.create(mu.tag());
+            spInteractions.open(system, backEnd);
+         } else {
             LOGGER.error("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {

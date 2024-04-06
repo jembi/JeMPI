@@ -22,10 +22,12 @@ public final class LinkerConfig {
 
    private static final LevenshteinDistance DISTANCE = LevenshteinDistance.getDefaultInstance();
    private static final Logger LOGGER = LogManager.getLogger(LinkerConfig.class);
-   public final List<List<Operation>> deterministicPrograms = new ArrayList<>();
    public final List<FieldProbabilisticMetaData> probabilisticLinkFields;
    public final List<FieldProbabilisticMetaData> probabilisticValidateFields;
    public final List<FieldProbabilisticMetaData> probabilisticMatchNotificationFields;
+   public final List<List<Operation>> deterministicLinkPrograms;
+   public final List<List<Operation>> deterministicValidatePrograms;
+   public final List<List<Operation>> deterministicMatchPrograms;
 
    LinkerConfig(final JsonConfig jsonConfig) {
       probabilisticLinkFields = IntStream
@@ -65,7 +67,12 @@ public final class LinkerConfig {
             })
             .toList();
 
-      generateDeterministicPrograms(jsonConfig);
+      deterministicLinkPrograms = generateDeterministicPrograms(jsonConfig,
+                                                                jsonConfig.rules().link().deterministic());
+      deterministicValidatePrograms = generateDeterministicPrograms(jsonConfig,
+                                                                    jsonConfig.rules().validate().deterministic());
+      deterministicMatchPrograms = generateDeterministicPrograms(jsonConfig,
+                                                                 jsonConfig.rules().matchNotification().deterministic());
 
    }
 
@@ -126,8 +133,11 @@ public final class LinkerConfig {
       evalStack.push(l || r);
    }
 
-   private void generateDeterministicPrograms(final JsonConfig jsonConfig) {
-      for (DeterministicRule deterministicRule : jsonConfig.rules().link().deterministic()) {
+   private List<List<Operation>> generateDeterministicPrograms(
+         final JsonConfig jsonConfig,
+         final List<DeterministicRule> rules) {
+      final List<List<Operation>> deterministicPrograms = new ArrayList<>();
+      for (DeterministicRule deterministicRule : rules) {
          final var infix = Arrays.asList(deterministicRule.text().split(" "));
          final var rpn = shuntingYard(infix);
          LOGGER.debug("{}", deterministicRule.text());
@@ -190,7 +200,7 @@ public final class LinkerConfig {
             deterministicPrograms.add(program);
          }
       }
-
+      return deterministicPrograms;
    }
 
    private int fieldIndexOf(

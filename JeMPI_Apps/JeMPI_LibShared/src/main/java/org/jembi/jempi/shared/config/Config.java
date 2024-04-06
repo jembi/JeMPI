@@ -6,8 +6,8 @@ import org.jembi.jempi.shared.config.input.JsonConfig;
 
 public final class Config {
 
-   public static final String CONFIG_FILE = "config-reference.json";
-   // public static final String CONFIG_FILE = "config-reference-link-d-validate-dp-match-dp.json";
+//   public static final String CONFIG_FILE = "config-reference.json";
+   public static final String CONFIG_FILE = "config-reference-link-d-validate-dp-match-dp.json";
    public static final InputInterfaceConfig INPUT_INTERFACE_CONFIG;
    public static final ApiConfig API_CONFIG;
    public static final LinkerConfig LINKER_CONFIG;

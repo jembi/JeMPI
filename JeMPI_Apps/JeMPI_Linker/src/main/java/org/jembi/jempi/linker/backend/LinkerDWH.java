@@ -298,8 +298,8 @@ public final class LinkerDWH {
                final var linkToGoldenId =
                      new LibMPIClientInterface.GoldenIdScore(firstCandidate.goldenRecord.goldenId(), firstCandidate.score);
                final var validated1 =
-                     CustomLinkerDeterministic.validateDeterministicMatch(firstCandidate.goldenRecord.demographicData(),
-                                                                          interaction.demographicData());
+                     LinkerDeterministic.validateDeterministicMatch(firstCandidate.goldenRecord.demographicData(),
+                                                                    interaction.demographicData());
                final var validated2 =
                      LinkerProbabilistic.validateProbabilisticScore(firstCandidate.goldenRecord.demographicData(),
                                                                     interaction.demographicData());

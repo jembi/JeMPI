@@ -175,6 +175,7 @@
         "csvCol": 6
       },
       "indexGoldenRecord": "@index(exact,trigram)",
+      "linkMetaData": null,
       "validateMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -198,16 +199,19 @@
       "source": {
         "csvCol": 7
       },
-      "indexGoldenRecord": "@index(exact)"
+      "indexGoldenRecord": "@index(exact)",
+      "linkMetaData": null,
+      "validateMetaData": {
+        "comparison": "JARO_WINKLER_SIMILARITY",
+        "comparisonLevels": [
+          0.92
+        ],
+        "m": 0.8408500,
+        "u": 0.0000004
+      },
+      "matchMetaData": null
     }
   ],
-  "indexes": {
-    "linking": {
-      "national_id": {
-        "props": "@index(exact)"
-      }
-    }
-  },
   "rules": {
     "link": {
       "deterministic": {

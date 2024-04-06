@@ -135,7 +135,7 @@ final class LinkerCR {
             return Either.left(new MpiServiceError.CRGidDoesNotExistError(req.gid()));
          }
          final var validated1 =
-               CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), reqDemographicData);
+               LinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), reqDemographicData);
          final var validated2 =
                LinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), reqDemographicData);
          final var interaction = new Interaction(null,
@@ -204,7 +204,7 @@ final class LinkerCR {
             return Either.left(new MpiServiceError.CRGidDoesNotExistError(gid));
          }
          final var validated1 =
-               CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), demographicData);
+               LinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), demographicData);
          final var validated2 =
                LinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), demographicData);
          final var interaction = new Interaction(null, sourceId, uniqueInteractionData, demographicData);

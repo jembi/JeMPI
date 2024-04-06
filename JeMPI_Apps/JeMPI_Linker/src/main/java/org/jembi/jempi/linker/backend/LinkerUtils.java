@@ -15,7 +15,7 @@ public final class LinkerUtils {
    public static float calcNormalizedMatchScore(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
-      if (CustomLinkerDeterministic.matchNotificationDeterministicMatch(goldenRecord, interaction)) {
+      if (LinkerDeterministic.matchNotificationDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
       return LinkerProbabilistic.matchProbabilisticScore(goldenRecord, interaction);
@@ -24,7 +24,7 @@ public final class LinkerUtils {
    public static float calcNormalizedValidateScore(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
-      if (CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord, interaction)) {
+      if (LinkerDeterministic.validateDeterministicMatch(goldenRecord, interaction)) {
          return 1.0F;
       }
       return LinkerProbabilistic.validateProbabilisticScore(goldenRecord, interaction);
@@ -51,7 +51,7 @@ public final class LinkerUtils {
    public static LinkingRule determineMatchRule(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
-      if (CustomLinkerDeterministic.matchNotificationDeterministicMatch(goldenRecord, interaction)) {
+      if (LinkerDeterministic.matchNotificationDeterministicMatch(goldenRecord, interaction)) {
          return LinkingRule.DETERMINISTIC;
       }
       return LinkingRule.PROBABILISTIC;
