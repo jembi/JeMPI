@@ -10,8 +10,8 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record JsonConfig(
       List<UniqueInteractionField> uniqueInteractionFields,
-      List<GoldenRecordField> uniqueGoldenRecordFields,
-      List<AdditionalNodes> additionalNodes,
+      List<UniqueGoldenRecordField> uniqueGoldenRecordFields,
+      List<AdditionalNode> additionalNodes,
       List<DemographicField> demographicFields,
       Rules rules) {
 

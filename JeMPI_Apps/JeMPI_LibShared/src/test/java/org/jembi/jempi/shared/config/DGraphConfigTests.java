@@ -17,16 +17,32 @@ class DGraphConfigTests {
       Assertions.assertEquals(7, JSON_CONFIG_1.demographicFields().size());
       Assertions.assertEquals(7, DGRAPH_CONFIG_1.demographicDataFields.size());
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_FIELDS_1,
-                              DGRAPH_CONFIG_1.mutationCreateInteractionFields);
+                              DGRAPH_CONFIG_1.mutationCreateInteractionFields,
+                              "MUTATION_CREATE_INTERACTION_FIELDS_1");
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_TYPE_1,
-                              DGRAPH_CONFIG_1.mutationCreateInteractionType);
+                              DGRAPH_CONFIG_1.mutationCreateInteractionType,
+                              "MUTATION_CREATE_INTERACTION_TYPE_1");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS_1,
+                              DGRAPH_CONFIG_1.mutationCreateGoldenRecordFields,
+                              "MUTATION_CREATE_GOLDEN_RECORD_FIELDS_1");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE_1,
+                              DGRAPH_CONFIG_1.mutationCreateGoldenRecordType,
+                              "MUTATION_CREATE_GOLDEN_RECORD_TYPE_1");
 
       Assertions.assertEquals(7, JSON_CONFIG_2.demographicFields().size());
       Assertions.assertEquals(7, DGRAPH_CONFIG_2.demographicDataFields.size());
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_FIELDS_2,
-                              DGRAPH_CONFIG_2.mutationCreateInteractionFields);
+                              DGRAPH_CONFIG_2.mutationCreateInteractionFields,
+                              "MUTATION_CREATE_INTERACTION_FIELDS_2");
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_TYPE_2,
-                              DGRAPH_CONFIG_2.mutationCreateInteractionType);
+                              DGRAPH_CONFIG_2.mutationCreateInteractionType,
+                              "MUTATION_CREATE_INTERACTION_TYPE_2");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS_2,
+                              DGRAPH_CONFIG_2.mutationCreateGoldenRecordFields,
+                              "MUTATION_CREATE_GOLDEN_RECORD_FIELDS_2");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE_2,
+                              DGRAPH_CONFIG_2.mutationCreateGoldenRecordType,
+                              "MUTATION_CREATE_GOLDEN_RECORD_TYPE_2");
    }
 
 }

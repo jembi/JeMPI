@@ -422,7 +422,7 @@ private object CustomDgraphConstants {
 
     def mutation_create_golden_record_type(): Unit = {
       writer.println(
-        s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE =
+        s"""   static final String DEPRECATED_MUTATION_CREATE_GOLDEN_RECORD_TYPE =
            |         \"\"\"
            |
            |         type GoldenRecord {
@@ -448,7 +448,7 @@ private object CustomDgraphConstants {
 
     def mutation_create_golden_record_fields(): Unit = {
       writer.println(
-        s"""   static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
+        s"""   static final String DEPRECATED_MUTATION_CREATE_GOLDEN_RECORD_FIELDS =
            |         \"\"\"
            |         GoldenRecord.source_id:                [uid]     @reverse                           .""".stripMargin
       )

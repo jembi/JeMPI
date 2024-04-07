@@ -342,13 +342,13 @@ final class DgraphMutations {
       final var schema =
             CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_TYPE
             + System.lineSeparator()
-            + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE
+            + DGRAPH_CONFIG.mutationCreateGoldenRecordType
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateInteractionType
             + System.lineSeparator()
             + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS
             + System.lineSeparator()
-            + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS
+            + DGRAPH_CONFIG.mutationCreateGoldenRecordFields
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateInteractionFields;
       try {

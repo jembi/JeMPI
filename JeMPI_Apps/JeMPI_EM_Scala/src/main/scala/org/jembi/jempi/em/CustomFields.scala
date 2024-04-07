@@ -23,6 +23,10 @@ object CustomFields {
   )
 
   val LINK_COLS: ArraySeq[Int] = ArraySeq(
+
+  )
+
+  val VALIDATE_COLS: ArraySeq[Int] = ArraySeq(
     COL_GIVEN_NAME,
     COL_FAMILY_NAME,
     COL_GENDER,
@@ -32,12 +36,13 @@ object CustomFields {
     COL_NATIONAL_ID
   )
 
-  val VALIDATE_COLS: ArraySeq[Int] = ArraySeq(
-
-  )
-
   val MATCH_COLS: ArraySeq[Int] = ArraySeq(
-
+    COL_GIVEN_NAME,
+    COL_FAMILY_NAME,
+    COL_GENDER,
+    COL_DOB,
+    COL_CITY,
+    COL_PHONE_NUMBER
   )
 
 }
