@@ -313,7 +313,7 @@ public final class CustomDgraphConstants {
          """
 
          type GoldenRecord {
-            GoldenRecord.source_id:                 [SourceId] 
+            GoldenRecord.source_id:                 [SourceId]
             GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
@@ -338,9 +338,9 @@ public final class CustomDgraphConstants {
          GoldenRecord.family_name:              string    @index(exact,trigram)              .
          GoldenRecord.gender:                   string    @index(exact,trigram)              .
          GoldenRecord.dob:                      string                                       .
-         GoldenRecord.city:                     string    @index(exact,trigram)              .
+         GoldenRecord.city:                     string    @index(trigram)                    .
          GoldenRecord.phone_number:             string    @index(exact,trigram)              .
-         GoldenRecord.national_id:              string    @index(exact)                      .
+         GoldenRecord.national_id:              string    @index(exact,trigram)              .
          GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
@@ -368,13 +368,13 @@ public final class CustomDgraphConstants {
          Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
          Interaction.aux_clinical_data:            string                                       .
-         Interaction.given_name:                   string                                       .
-         Interaction.family_name:                  string                                       .
+         Interaction.given_name:                   string    @index(exact,trigram)              .
+         Interaction.family_name:                  string    @index(exact,trigram)              .
          Interaction.gender:                       string                                       .
          Interaction.dob:                          string                                       .
          Interaction.city:                         string                                       .
          Interaction.phone_number:                 string                                       .
-         Interaction.national_id:                  string                                       .
+         Interaction.national_id:                  string    @index(exact,trigram)              .
          """;
 
    private CustomDgraphConstants() {}
