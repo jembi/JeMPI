@@ -412,7 +412,7 @@ private object CustomDgraphConstants {
     }
 
     def mutation_create_source_id_fields(): Unit = {
-      writer.println(s"""   static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
+      writer.println(s"""   static final String DEPRECATED_MUTATION_CREATE_SOURCE_ID_FIELDS =
            |         \"\"\"
            |         SourceId.facility:                     string    @index(exact)                      .
            |         SourceId.patient:                      string    @index(exact)                      .

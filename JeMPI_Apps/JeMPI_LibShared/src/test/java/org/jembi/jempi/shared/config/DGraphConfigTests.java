@@ -28,6 +28,9 @@ class DGraphConfigTests {
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE_1,
                               DGRAPH_CONFIG_1.mutationCreateGoldenRecordType,
                               "MUTATION_CREATE_GOLDEN_RECORD_TYPE_1");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_SOURCE_ID_FIELDS_1,
+                              DGRAPH_CONFIG_1.mutationCreateSourceIdFields,
+                              "MUTATION_CREATE_SOURECE_ID_TYPE_1");
 
       Assertions.assertEquals(7, JSON_CONFIG_2.demographicFields().size());
       Assertions.assertEquals(7, DGRAPH_CONFIG_2.demographicDataFields.size());
@@ -43,6 +46,9 @@ class DGraphConfigTests {
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE_2,
                               DGRAPH_CONFIG_2.mutationCreateGoldenRecordType,
                               "MUTATION_CREATE_GOLDEN_RECORD_TYPE_2");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_SOURCE_ID_FIELDS_2,
+                              DGRAPH_CONFIG_2.mutationCreateSourceIdFields,
+                              "MUTATION_CREATE_SOURECE_ID_TYPE_2");
    }
 
 }

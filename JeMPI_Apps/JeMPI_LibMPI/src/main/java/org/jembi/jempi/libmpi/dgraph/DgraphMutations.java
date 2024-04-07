@@ -346,7 +346,7 @@ final class DgraphMutations {
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateInteractionType
             + System.lineSeparator()
-            + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS
+            + DGRAPH_CONFIG.mutationCreateSourceIdFields
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateGoldenRecordFields
             + System.lineSeparator()

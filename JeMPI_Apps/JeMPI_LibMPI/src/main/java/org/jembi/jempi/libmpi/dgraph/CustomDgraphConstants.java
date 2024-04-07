@@ -303,7 +303,7 @@ public final class CustomDgraphConstants {
          }
          """;
        
-   static final String MUTATION_CREATE_SOURCE_ID_FIELDS =
+   static final String DEPRECATED_MUTATION_CREATE_SOURCE_ID_FIELDS =
          """
          SourceId.facility:                     string    @index(exact)                      .
          SourceId.patient:                      string    @index(exact)                      .
