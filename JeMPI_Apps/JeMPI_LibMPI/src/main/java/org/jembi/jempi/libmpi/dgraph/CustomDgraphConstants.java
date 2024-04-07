@@ -344,7 +344,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.interactions:             [uid]     @reverse                           .
          """;
 
-   static final String MUTATION_CREATE_INTERACTION_TYPE =
+   static final String DEPRECATED_MUTATION_CREATE_INTERACTION_TYPE =
          """
 
          type Interaction {
@@ -362,7 +362,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String MUTATION_CREATE_INTERACTION_FIELDS =
+   static final String DEPRECATED_MUTATION_CREATE_INTERACTION_FIELDS =
          """
          Interaction.source_id:                    uid                                          .
          Interaction.aux_date_created:             datetime                                     .

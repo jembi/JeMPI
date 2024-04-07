@@ -1,34 +1,23 @@
 package org.jembi.jempi.shared.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.config.dgraph.DemographicDataFields;
+import org.jembi.jempi.shared.config.dgraph.MutationCreateInteractionFields;
+import org.jembi.jempi.shared.config.dgraph.MutationCreateInteractionType;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public class DGraphConfig {
 
-   private static final Logger LOGGER = LogManager.getLogger(DGraphConfig.class);
    public final List<Pair<String, Integer>> demographicDataFields;
+   public final String mutationCreateInteractionFields;
+   public final String mutationCreateInteractionType;
 
    DGraphConfig(final JsonConfig jsonConfig) {
-      demographicDataFields = new ArrayList<>();
-      for (int i = 0; i < jsonConfig.demographicFields().size(); i++) {
-         demographicDataFields.add(Pair.of(AppUtils.camelToSnake(jsonConfig.demographicFields().get(i).fieldName()), i));
-      }
-      try {
-         final var json = OBJECT_MAPPER.writeValueAsString(demographicDataFields);
-         LOGGER.info("{}", json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
+      demographicDataFields = DemographicDataFields.create(jsonConfig);
+      mutationCreateInteractionFields = MutationCreateInteractionFields.create(jsonConfig);
+      mutationCreateInteractionType = MutationCreateInteractionType.create(jsonConfig);
    }
-
 
 }

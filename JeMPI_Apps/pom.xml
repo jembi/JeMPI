@@ -72,12 +72,12 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
         <version.org.apache.maven.plugins.maven-surefire-plugin>
-            3.1.2
+            3.2.5
         </version.org.apache.maven.plugins.maven-surefire-plugin>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
         <version.org.apache.maven.plugins.maven-failsafe-plugin>
-            3.1.2
+            3.2.5
         </version.org.apache.maven.plugins.maven-failsafe-plugin>
 
         <!-- https://mvnrepository.com/artifact/net.alchim31.maven/scala-maven-plugin -->
@@ -237,7 +237,7 @@
                 <version>3.5.3.Final</version>
             </dependency>
 
-<!--            2.14.3-->
+            <!--            2.14.3-->
             <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -294,6 +294,11 @@
                 <version>42.6.2</version>
             </dependency>
 
+
+            <!-- ================================= -->
+            <!--              JSON                 -->
+            <!-- ================================= -->
+
             <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
@@ -301,28 +306,61 @@
                 <version>1.1.1</version>
             </dependency>
 
+
+            <!-- ================================= -->
+            <!--              TESTING              -->
+            <!-- ================================= -->
+
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+<!--
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>5.10.1</version>
+                <version>5.10.2</version>
+                <scope>test</scope>
+            </dependency>
+-->
+
+            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.10.2</version>
                 <scope>test</scope>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-params -->
+<!--
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>5.10.2</version>
+                <scope>test</scope>
+            </dependency>
+-->
+
             <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+<!--
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>5.7.0</version>
+                <version>5.11.0</version>
                 <scope>test</scope>
             </dependency>
+-->
 
+<!--
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.7.0</version>
+                <version>5.11.0</version>
                 <scope>test</scope>
             </dependency>
+-->
+
+            <!-- ================================= -->
+            <!--              LOGGING              -->
+            <!-- ================================= -->
 
             <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
             <dependency>
@@ -410,6 +448,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${version.org.apache.maven.plugins.maven-surefire-plugin}</version>
+                <dependencies>
+                    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.10.2</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>

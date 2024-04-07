@@ -150,6 +150,7 @@
             <artifactId>json-simple</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -167,6 +168,7 @@
             <artifactId>akka-actor-testkit-typed_${scala.tools.version}</artifactId>
             <scope>test</scope>
         </dependency>
+-->
 
     </dependencies>
 

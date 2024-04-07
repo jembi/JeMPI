@@ -488,7 +488,7 @@ private object CustomDgraphConstants {
 
     def mutation_create_interaction_type(): Unit =
       writer.println(
-        s"""   static final String MUTATION_CREATE_INTERACTION_TYPE =
+        s"""   static final String DEPRECATED_MUTATION_CREATE_INTERACTION_TYPE =
            |         \"\"\"
            |
            |         type Interaction {
@@ -511,7 +511,7 @@ private object CustomDgraphConstants {
 
     def mutation_create_interaction_fields(): Unit = {
       writer.println(
-        s"""   static final String MUTATION_CREATE_INTERACTION_FIELDS =
+        s"""   static final String DEPRECATED_MUTATION_CREATE_INTERACTION_FIELDS =
            |         \"\"\"
            |         Interaction.source_id:                    uid                                          .""".stripMargin
       )

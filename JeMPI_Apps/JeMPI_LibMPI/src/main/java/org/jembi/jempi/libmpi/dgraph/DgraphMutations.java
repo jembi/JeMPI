@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.jembi.jempi.shared.utils.AppUtils.camelToSnake;
+import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
 
 final class DgraphMutations {
 
@@ -340,7 +340,17 @@ final class DgraphMutations {
 
    Option<MpiGeneralError> createSchema() {
       final var schema =
-            CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_TYPE + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE + CustomDgraphConstants.MUTATION_CREATE_INTERACTION_TYPE + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS + CustomDgraphConstants.MUTATION_CREATE_INTERACTION_FIELDS;
+            CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_TYPE
+            + System.lineSeparator()
+            + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_TYPE
+            + System.lineSeparator()
+            + DGRAPH_CONFIG.mutationCreateInteractionType
+            + System.lineSeparator()
+            + CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_FIELDS
+            + System.lineSeparator()
+            + CustomDgraphConstants.MUTATION_CREATE_GOLDEN_RECORD_FIELDS
+            + System.lineSeparator()
+            + DGRAPH_CONFIG.mutationCreateInteractionFields;
       try {
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(schema).build();
          DgraphClient.getInstance().alter(operation);
