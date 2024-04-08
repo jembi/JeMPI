@@ -438,16 +438,16 @@ public final class Routes {
                                                          })));
    }
 
-   private static Route postSimpleSearch(
+   private static Route getSimpleSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       LOGGER.info("Simple search on {}", recordType);
       return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class), searchParameters -> onComplete(() -> {
          if (recordType == RecordType.GoldenRecord) {
-            return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+            return Ask.getSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
          } else {
-            return Ask.postSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
+            return Ask.getSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
          }
       }, response -> {
          if (!response.isSuccess()) {
@@ -491,15 +491,15 @@ public final class Routes {
                     }));
    }
 
-   private static Route postCustomSearch(
+   private static Route getCustomSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class), searchParameters -> onComplete(() -> {
          if (recordType == RecordType.GoldenRecord) {
-            return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+            return Ask.getCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
          } else {
-            return Ask.postCustomSearchInteractions(actorSystem, backEnd, searchParameters);
+            return Ask.getCustomSearchInteractions(actorSystem, backEnd, searchParameters);
          }
       }, response -> {
          if (!response.isSuccess()) {
@@ -626,20 +626,10 @@ public final class Routes {
                                () -> Routes.postIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
                                () -> Routes.postIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
-                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
-                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
-                               type -> Routes.postSimpleSearch(actorSystem, backEnd, type.equals("golden")
-                                     ? RecordType.GoldenRecord
-                                     : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
                                () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
                                () -> Routes.postUpdateNotification(actorSystem, backEnd)),
-                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
-                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
-                               type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
-                                     ? RecordType.GoldenRecord
-                                     : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd))
                           )),
@@ -686,7 +676,17 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_GET_FILTER_GIDS,
                                () -> Routes.getFilterGids(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FILTER_GIDS_WITH_INTERACTION_COUNT,
-                               () -> Routes.getFilterGidsWithInteractionCount(actorSystem, backEnd))
+                               () -> Routes.getFilterGidsWithInteractionCount(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_GET_CUSTOM_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.getCustomSearch(actorSystem, backEnd, type.equals("golden")
+                                     ? RecordType.GoldenRecord
+                                     : RecordType.Interaction)),
+                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.getSimpleSearch(actorSystem, backEnd, type.equals("golden")
+                                     ? RecordType.GoldenRecord
+                                     : RecordType.Interaction))
                           )));
    }
 

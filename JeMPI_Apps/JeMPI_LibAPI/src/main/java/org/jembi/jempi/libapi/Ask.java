@@ -248,13 +248,13 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<ApiModels.ApiPaginatedResultSet> postSimpleSearchGoldenRecords(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> getSimpleSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern
+      CompletionStage<BackEnd.GetSearchGoldenRecordsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
+                 replyTo -> new BackEnd.GetSimpleSearchGoldenRecordsRequest(replyTo, searchRequestPayload),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(
@@ -286,38 +286,38 @@ public final class Ask {
             response.goldenIds()));
    }
 
-   static CompletionStage<ApiModels.ApiPaginatedResultSet> postSimpleSearchInteractions(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> getSimpleSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final ApiModels.ApiSimpleSearchRequestPayload simpleSearchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern
+      CompletionStage<BackEnd.GetSearchInteractionsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostSimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),
+                 replyTo -> new BackEnd.GetSimpleSearchInteractionsRequest(replyTo, simpleSearchRequestPayload),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   static CompletionStage<ApiModels.ApiPaginatedResultSet> postCustomSearchGoldenRecords(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> getCustomSearchGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchGoldenRecordsResponse> stage = AskPattern
+      CompletionStage<BackEnd.GetSearchGoldenRecordsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostCustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
+                 replyTo -> new BackEnd.GetCustomSearchGoldenRecordsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiExpandedGoldenRecordsPaginatedResultSet.fromLibMPIPaginatedResultSet(
             response.records()));
    }
 
-   static CompletionStage<ApiModels.ApiPaginatedResultSet> postCustomSearchInteractions(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> getCustomSearchInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final CustomSearchRequestPayload customSearchRequestPayload) {
-      CompletionStage<BackEnd.PostSearchInteractionsResponse> stage = AskPattern
+      CompletionStage<BackEnd.GetSearchInteractionsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostCustomSearchInteractionsRequest(replyTo, customSearchRequestPayload),
+                 replyTo -> new BackEnd.GetCustomSearchInteractionsRequest(replyTo, customSearchRequestPayload),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));

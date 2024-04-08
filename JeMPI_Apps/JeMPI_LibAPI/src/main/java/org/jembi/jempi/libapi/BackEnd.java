@@ -136,10 +136,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
                     .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
                     .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
-                    .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
-                    .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
-                    .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
-                    .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+                    .onMessage(GetSimpleSearchGoldenRecordsRequest.class, this::getSimpleSearchGoldenRecordsHandler)
+                    .onMessage(GetCustomSearchGoldenRecordsRequest.class, this::getCustomSearchGoldenRecordsHandler)
+                    .onMessage(GetSimpleSearchInteractionsRequest.class, this::getSimpleSearchInteractionsHandler)
+                    .onMessage(GetCustomSearchInteractionsRequest.class, this::getCustomSearchInteractionsHandler)
                     .onMessage(GetFilterGidsRequest.class, this::getFilterGidsHandler)
                     .onMessage(GetFilterGidsWithInteractionCountRequest.class, this::getFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
@@ -147,7 +147,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .build();
    }
 
-   private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
+   private Behavior<Event> getSimpleSearchGoldenRecordsHandler(final GetSimpleSearchGoldenRecordsRequest request) {
       ApiModels.ApiSimpleSearchRequestPayload payload = request.searchRequestPayload();
       List<ApiModels.ApiSearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -155,11 +155,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       var recs = libMPI.simpleSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
-      request.replyTo.tell(new PostSearchGoldenRecordsResponse(recs));
+      request.replyTo.tell(new GetSearchGoldenRecordsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> postCustomSearchGoldenRecordsHandler(final PostCustomSearchGoldenRecordsRequest request) {
+   private Behavior<Event> getCustomSearchGoldenRecordsHandler(final GetCustomSearchGoldenRecordsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<ApiModels.ApiSimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -167,11 +167,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       var recs = libMPI.customSearchGoldenRecords(parameters, offset, limit, sortBy, sortAsc);
-      request.replyTo.tell(new PostSearchGoldenRecordsResponse(recs));
+      request.replyTo.tell(new GetSearchGoldenRecordsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> postSimpleSearchInteractionsHandler(final PostSimpleSearchInteractionsRequest request) {
+   private Behavior<Event> getSimpleSearchInteractionsHandler(final GetSimpleSearchInteractionsRequest request) {
       final var payload = request.searchRequestPayload();
       List<ApiModels.ApiSearchParameter> parameters = payload.parameters();
       Integer offset = payload.offset();
@@ -179,11 +179,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       var recs = libMPI.simpleSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
-      request.replyTo.tell(new PostSearchInteractionsResponse(recs));
+      request.replyTo.tell(new GetSearchInteractionsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> postCustomSearchInteractionsHandler(final PostCustomSearchInteractionsRequest request) {
+   private Behavior<Event> getCustomSearchInteractionsHandler(final GetCustomSearchInteractionsRequest request) {
       CustomSearchRequestPayload payload = request.customSearchRequestPayload();
       List<ApiModels.ApiSimpleSearchRequestPayload> parameters = payload.$or();
       Integer offset = payload.offset();
@@ -191,7 +191,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       String sortBy = payload.sortBy();
       Boolean sortAsc = payload.sortAsc();
       var recs = libMPI.customSearchInteractions(parameters, offset, limit, sortBy, sortAsc);
-      request.replyTo.tell(new PostSearchInteractionsResponse(recs));
+      request.replyTo.tell(new GetSearchInteractionsResponse(recs));
       return Behaviors.same();
    }
 
@@ -603,8 +603,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    /**
     * Search events
     */
-   public record PostSimpleSearchGoldenRecordsRequest(
-         ActorRef<PostSearchGoldenRecordsResponse> replyTo,
+   public record GetSimpleSearchGoldenRecordsRequest(
+         ActorRef<GetSearchGoldenRecordsResponse> replyTo,
          ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
@@ -626,26 +626,26 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse {
    }
 
-   public record PostCustomSearchGoldenRecordsRequest(
-         ActorRef<PostSearchGoldenRecordsResponse> replyTo,
+   public record GetCustomSearchGoldenRecordsRequest(
+         ActorRef<GetSearchGoldenRecordsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
-   public record PostSearchGoldenRecordsResponse(
+   public record GetSearchGoldenRecordsResponse(
          LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {
    }
 
-   public record PostSimpleSearchInteractionsRequest(
-         ActorRef<PostSearchInteractionsResponse> replyTo,
+   public record GetSimpleSearchInteractionsRequest(
+         ActorRef<GetSearchInteractionsResponse> replyTo,
          ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record PostCustomSearchInteractionsRequest(
-         ActorRef<PostSearchInteractionsResponse> replyTo,
+   public record GetCustomSearchInteractionsRequest(
+         ActorRef<GetSearchInteractionsResponse> replyTo,
          CustomSearchRequestPayload customSearchRequestPayload) implements Event {
    }
 
-   public record PostSearchInteractionsResponse(
+   public record GetSearchInteractionsResponse(
          LibMPIPaginatedResultSet<Interaction> records) implements EventResponse {
    }
 

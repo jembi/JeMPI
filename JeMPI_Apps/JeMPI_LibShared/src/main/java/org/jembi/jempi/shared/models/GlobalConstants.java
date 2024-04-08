@@ -39,7 +39,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_IID_NEW_GID_LINK = "unLink";
    public static final String SEGMENT_POST_UPDATE_NOTIFICATION = "notificationRequest";
    public static final String SEGMENT_POST_SIMPLE_SEARCH = "search";
-   public static final String SEGMENT_POST_CUSTOM_SEARCH = "customSearch";
+   public static final String SEGMENT_GET_CUSTOM_SEARCH = "customSearch";
    public static final String SEGMENT_POST_UPLOAD_CSV_FILE = "upload";
    public static final String SEGMENT_GET_FILTER_GIDS = "filterGids";
    public static final String SEGMENT_GET_FILTER_GIDS_WITH_INTERACTION_COUNT = "filterGidsInteraction";
