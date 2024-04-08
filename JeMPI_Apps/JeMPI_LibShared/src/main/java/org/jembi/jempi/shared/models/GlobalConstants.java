@@ -48,7 +48,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID = "crLinkBySourceId";
    public static final String SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE = "crLinkBySourceIdUpdate";
    public static final String SEGMENT_PROXY_POST_CR_FIND = "crFind";
-   public static final String SEGMENT_PROXY_POST_CR_CANDIDATES = "crCandidates";
+   public static final String SEGMENT_PROXY_GET_CR_CANDIDATES = "crCandidates";
    public static final String SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS = "crUpdateFields";
    public static final String SEGMENT_POST_CR_FIND_SOURCE_ID = "crFindSourceId";
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";

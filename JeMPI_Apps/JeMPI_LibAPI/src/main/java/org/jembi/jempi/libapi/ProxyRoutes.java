@@ -225,7 +225,7 @@ public final class ProxyRoutes {
                     });
    }
 
-   private static CompletionStage<HttpResponse> proxyPostCrCandidatesDoIt(
+   private static CompletionStage<HttpResponse> proxyGetCrCandidatesDoIt(
          final String linkerIP,
          final Integer linkerPort,
          final Http http,
@@ -241,8 +241,8 @@ public final class ProxyRoutes {
                                                            "http://%s:%d/JeMPI/%s",
                                                            linkerIP,
                                                            linkerPort,
-                                                           GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES))
-                                     .withMethod(HttpMethods.POST)
+                                                           GlobalConstants.SEGMENT_PROXY_GET_CR_CANDIDATES))
+                                     .withMethod(HttpMethods.GET)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> {
@@ -251,14 +251,14 @@ public final class ProxyRoutes {
       });
    }
 
-   static Route proxyPostCrCandidates(
+   static Route proxyGetCrCandidates(
          final String linkerIP,
          final Integer linkerPort,
          final Http http) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
                     obj -> {
                        try {
-                          return onComplete(proxyPostCrCandidatesDoIt(linkerIP, linkerPort, http, obj),
+                          return onComplete(proxyGetCrCandidatesDoIt(linkerIP, linkerPort, http, obj),
                                             response -> {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();

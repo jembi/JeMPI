@@ -612,8 +612,6 @@ public final class Routes {
                                () -> ProxyRoutes.proxyPostCrRegister(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
                                () -> ProxyRoutes.proxyPostCrFind(linkerIP, linkerPort, http)),
-                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
-                               () -> ProxyRoutes.proxyPostCrCandidates(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE,
                                () -> ProxyRoutes.proxyPostCrLinkToGidUpdate(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
@@ -684,7 +682,10 @@ public final class Routes {
                                () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
                                () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)))));
+                          path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_PROXY_GET_CR_CANDIDATES,
+                               () -> ProxyRoutes.proxyGetCrCandidates(linkerIP, linkerPort, http))
+                          )));
    }
 
 }

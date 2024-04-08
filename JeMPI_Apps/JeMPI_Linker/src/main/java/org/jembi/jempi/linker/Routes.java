@@ -313,8 +313,6 @@ final class Routes {
 //                                                            () -> proxyPostLinkInteractionToGID(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
                                                             () -> proxyPostCalculateScores(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
-                                                            () -> proxyGetCrCandidates(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
                                                             () -> proxyGetCrFind(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
@@ -327,8 +325,8 @@ final class Routes {
                                                             () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
                                      get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
                                                       path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                                                           () -> proxyGetCandidatesWithScore(actorSystem, backEnd))))));
+                                                           () -> proxyGetCandidatesWithScore(actorSystem, backEnd)))),
+                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CR_CANDIDATES,
+                                                            () -> proxyGetCrCandidates(actorSystem, backEnd))));
    }
-
-
 }
