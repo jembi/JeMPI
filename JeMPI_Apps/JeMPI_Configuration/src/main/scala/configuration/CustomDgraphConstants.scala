@@ -401,14 +401,16 @@ private object CustomDgraphConstants {
     }
 
     def mutation_create_source_id_type(): Unit = {
-      writer.println(s"""   static final String MUTATION_CREATE_SOURCE_ID_TYPE =
+      writer.println(
+        s"""   static final String DEPRECATED_MUTATION_CREATE_SOURCE_ID_TYPE =
            |         \"\"\"
            |         type SourceId {
            |            SourceId.facility
            |            SourceId.patient
            |         }
            |         \"\"\";
-       """.stripMargin)
+       """.stripMargin
+      )
     }
 
     def mutation_create_source_id_fields(): Unit = {

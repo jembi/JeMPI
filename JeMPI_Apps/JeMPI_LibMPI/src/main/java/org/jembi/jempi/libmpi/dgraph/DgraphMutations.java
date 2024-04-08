@@ -340,13 +340,13 @@ final class DgraphMutations {
 
    Option<MpiGeneralError> createSchema() {
       final var schema =
-            CustomDgraphConstants.MUTATION_CREATE_SOURCE_ID_TYPE
+            DGRAPH_CONFIG.mutationCreateAdditionalNodeType
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateGoldenRecordType
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateInteractionType
             + System.lineSeparator()
-            + DGRAPH_CONFIG.mutationCreateSourceIdFields
+            + DGRAPH_CONFIG.mutationCreateAdditionalNodeFields
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateGoldenRecordFields
             + System.lineSeparator()

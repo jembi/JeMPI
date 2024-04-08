@@ -175,13 +175,13 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("iid",
                        uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
-                                         response -> {
-                                            if (!response.isSuccess()) {
-                                               final var e = response.failed().get();
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
                                                LOGGER.error(e.getLocalizedMessage(), e);
                                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                             }
-                                            return complete(StatusCodes.OK, response.get().auditTrail(), JSON_MARSHALLER);
+                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
                                          }));
    }
 

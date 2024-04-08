@@ -295,7 +295,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String MUTATION_CREATE_SOURCE_ID_TYPE =
+   static final String DEPRECATED_MUTATION_CREATE_SOURCE_ID_TYPE =
          """
          type SourceId {
             SourceId.facility

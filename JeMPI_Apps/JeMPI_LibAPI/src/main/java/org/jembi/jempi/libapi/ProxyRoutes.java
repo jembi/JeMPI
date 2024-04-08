@@ -197,7 +197,6 @@ public final class ProxyRoutes {
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> {
-         response.entity().toString();
          LOGGER.debug("{}", response);
          return response;
       });

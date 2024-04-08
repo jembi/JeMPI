@@ -1,6 +1,5 @@
 package org.jembi.jempi.async_receiver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
@@ -30,7 +29,6 @@ import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE_CONFIG;
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
 
