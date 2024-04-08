@@ -633,7 +633,7 @@ public final class Routes {
                           /* proxy for linker/controller services*/
                           path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
                                () -> ProxyRoutes.proxyPatchCrUpdateFields(linkerIP, linkerPort, http)),
-                          path(GlobalConstants.SEGMENT_UPDATE_NOTIFICATION,
+                          path(GlobalConstants.SEGMENT_PATCH_UPDATE_NOTIFICATION,
                                () -> Routes.patchUpdateNotification(actorSystem, backEnd)),
                           /* serviced by api */
                           path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
