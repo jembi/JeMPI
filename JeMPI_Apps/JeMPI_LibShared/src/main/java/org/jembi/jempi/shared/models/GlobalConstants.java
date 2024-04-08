@@ -41,8 +41,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_SIMPLE_SEARCH = "search";
    public static final String SEGMENT_POST_CUSTOM_SEARCH = "customSearch";
    public static final String SEGMENT_POST_UPLOAD_CSV_FILE = "upload";
-   public static final String SEGMENT_POST_FILTER_GIDS = "filterGids";
-   public static final String SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT = "filterGidsInteraction";
+   public static final String SEGMENT_GET_FILTER_GIDS = "filterGids";
+   public static final String SEGMENT_GET_FILTER_GIDS_WITH_INTERACTION_COUNT = "filterGidsInteraction";
    public static final String SEGMENT_PROXY_POST_CR_REGISTER = "crRegister";
    public static final String SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE = "crLinkToGidUpdate";
    public static final String SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID = "crLinkBySourceId";

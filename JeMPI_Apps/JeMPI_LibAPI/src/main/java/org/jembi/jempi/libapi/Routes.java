@@ -459,12 +459,12 @@ public final class Routes {
       }));
    }
 
-   private static Route postFilterGids(
+   private static Route getFilterGids(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
-                    searchParameters -> onComplete(() -> Ask.postFilterGids(actorSystem, backEnd, searchParameters), response -> {
+                    searchParameters -> onComplete(() -> Ask.getFilterGids(actorSystem, backEnd, searchParameters), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
@@ -474,12 +474,12 @@ public final class Routes {
                     }));
    }
 
-   private static Route postFilterGidsWithInteractionCount(
+   private static Route getFilterGidsWithInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
-                    searchParameters -> onComplete(() -> Ask.postFilterGidsWithInteractionCount(actorSystem,
+                    searchParameters -> onComplete(() -> Ask.getFilterGidsWithInteractionCount(actorSystem,
                                                                                                 backEnd,
                                                                                                 searchParameters), response -> {
                        if (!response.isSuccess()) {
@@ -626,7 +626,6 @@ public final class Routes {
                                () -> Routes.postIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
                                () -> Routes.postIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
-                          path(GlobalConstants.SEGMENT_POST_FILTER_GIDS, () -> Routes.postFilterGids(actorSystem, backEnd)),
                           path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
                                      .slash(segment(Pattern.compile("^(golden|patient)$"))),
                                type -> Routes.postSimpleSearch(actorSystem, backEnd, type.equals("golden")
@@ -642,9 +641,8 @@ public final class Routes {
                                      ? RecordType.GoldenRecord
                                      : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
-                               () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
-                               () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
+                               () -> Routes.postUploadCsvFile(actorSystem, backEnd))
+                          )),
                     patch(() -> concat(
                           /* proxy for linker/controller services*/
                           path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
@@ -684,7 +682,11 @@ public final class Routes {
                                () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_GET_CR_CANDIDATES,
-                               () -> ProxyRoutes.proxyGetCrCandidates(linkerIP, linkerPort, http))
+                               () -> ProxyRoutes.proxyGetCrCandidates(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_GET_FILTER_GIDS,
+                               () -> Routes.getFilterGids(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_FILTER_GIDS_WITH_INTERACTION_COUNT,
+                               () -> Routes.getFilterGidsWithInteractionCount(actorSystem, backEnd))
                           )));
    }
 

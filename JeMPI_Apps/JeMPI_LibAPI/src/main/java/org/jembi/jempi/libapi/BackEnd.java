@@ -140,8 +140,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
                     .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
                     .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
-                    .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
-                    .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
+                    .onMessage(GetFilterGidsRequest.class, this::getFilterGidsHandler)
+                    .onMessage(GetFilterGidsWithInteractionCountRequest.class, this::getFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
                     .build();
@@ -195,7 +195,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> postFilterGidsHandler(final PostFilterGidsRequest request) {
+   private Behavior<Event> getFilterGidsHandler(final GetFilterGidsRequest request) {
       final var payload = request.filterGidsRequestPayload();
       final var parameters = payload.parameters();
       final var createdAt = payload.createdAt();
@@ -205,11 +205,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       Boolean sortAsc = payload.sortAsc();
       PaginationOptions paginationOptions = new PaginationOptions(offset, limit, sortBy, sortAsc);
       var recs = libMPI.filterGids(parameters, createdAt, paginationOptions);
-      request.replyTo.tell(new PostFilterGidsResponse(recs));
+      request.replyTo.tell(new GetFilterGidsResponse(recs));
       return Behaviors.same();
    }
 
-   private Behavior<Event> postFilterGidsWithInteractionCountHandler(final PostFilterGidsWithInteractionCountRequest request) {
+   private Behavior<Event> getFilterGidsWithInteractionCountHandler(final GetFilterGidsWithInteractionCountRequest request) {
       FilterGidsRequestPayload payload = request.filterGidsRequestPayload();
       List<ApiModels.ApiSearchParameter> parameters = payload.parameters();
       LocalDateTime createdAt = payload.createdAt();
@@ -219,7 +219,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       Boolean sortAsc = payload.sortAsc();
       PaginationOptions paginationOptions = new PaginationOptions(offset, limit, sortBy, sortAsc);
       var recs = libMPI.filterGidsWithInteractionCount(parameters, createdAt, paginationOptions);
-      request.replyTo.tell(new PostFilterGidsWithInteractionCountResponse(recs));
+      request.replyTo.tell(new GetFilterGidsWithInteractionCountResponse(recs));
       return Behaviors.same();
    }
 
@@ -608,21 +608,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
    }
 
-   public record PostFilterGidsRequest(
-         ActorRef<PostFilterGidsResponse> replyTo,
+   public record GetFilterGidsRequest(
+         ActorRef<GetFilterGidsResponse> replyTo,
          FilterGidsRequestPayload filterGidsRequestPayload) implements Event {
    }
 
-   public record PostFilterGidsResponse(
+   public record GetFilterGidsResponse(
          LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse {
    }
 
-   public record PostFilterGidsWithInteractionCountRequest(
-         ActorRef<PostFilterGidsWithInteractionCountResponse> replyTo,
+   public record GetFilterGidsWithInteractionCountRequest(
+         ActorRef<GetFilterGidsWithInteractionCountResponse> replyTo,
          FilterGidsRequestPayload filterGidsRequestPayload) implements Event {
    }
 
-   public record PostFilterGidsWithInteractionCountResponse(
+   public record GetFilterGidsWithInteractionCountResponse(
          PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse {
    }
 

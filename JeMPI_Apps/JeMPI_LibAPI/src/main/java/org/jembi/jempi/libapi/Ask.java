@@ -261,25 +261,25 @@ public final class Ask {
             response.records()));
    }
 
-   static CompletionStage<ApiModels.ApiPaginatedResultSet> postFilterGids(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> getFilterGids(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final FilterGidsRequestPayload filterRequestPayload) {
-      CompletionStage<BackEnd.PostFilterGidsResponse> stage = AskPattern
+      CompletionStage<BackEnd.GetFilterGidsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostFilterGidsRequest(replyTo, filterRequestPayload),
+                 replyTo -> new BackEnd.GetFilterGidsRequest(replyTo, filterRequestPayload),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiFiteredGidsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.goldenIds()));
    }
 
-   static CompletionStage<ApiModels.ApiPaginatedResultSet> postFilterGidsWithInteractionCount(
+   static CompletionStage<ApiModels.ApiPaginatedResultSet> getFilterGidsWithInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final FilterGidsRequestPayload filterRequestPayload) {
-      CompletionStage<BackEnd.PostFilterGidsWithInteractionCountResponse> stage = AskPattern
+      CompletionStage<BackEnd.GetFilterGidsWithInteractionCountResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostFilterGidsWithInteractionCountRequest(replyTo, filterRequestPayload),
+                 replyTo -> new BackEnd.GetFilterGidsWithInteractionCountRequest(replyTo, filterRequestPayload),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> ApiModels.ApiFiteredGidsWithInteractionCountPaginatedResultSet.fromPaginatedGidsWithInteractionCount(
