@@ -207,8 +207,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             LinkerDWH.linkInteraction(libMPI,
                                       req.batchInteraction.interaction(),
                                       null,
-                                      req.uploadConfig() != null
-                                            ? req.uploadConfig().threshold().floatValue()
+                                      req.batchInteraction.config() != null
+                                            ? req.batchInteraction.config().threshold().floatValue()
                                             : AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
       if (linkInfo.isRight()) {
@@ -340,8 +340,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    public record AsyncLinkInteractionRequest(
          ActorRef<AsyncLinkInteractionResponse> replyTo,
          String key,
-         InteractionEnvelop batchInteraction,
-         UploadConfig uploadConfig) implements Request {
+         InteractionEnvelop batchInteraction) implements Request {
    }
 
    public record AsyncLinkInteractionResponse(LinkInfo linkInfo) implements Response {

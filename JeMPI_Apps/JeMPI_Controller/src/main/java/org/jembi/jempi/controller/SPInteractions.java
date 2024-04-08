@@ -121,6 +121,4 @@ public final class SPInteractions {
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
    }
-
-
 }

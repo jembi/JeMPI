@@ -9,7 +9,6 @@ import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.UploadConfig;
 
 import java.util.concurrent.CompletionStage;
 
@@ -162,10 +161,9 @@ final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final InteractionEnvelop batchInteraction,
-         final UploadConfig uploadConfig) {
+         final InteractionEnvelop batchInteraction) {
       return AskPattern.ask(backEnd,
-                            replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction, uploadConfig),
+                            replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction),
                             java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                             actorSystem.scheduler());
    }
