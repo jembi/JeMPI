@@ -175,7 +175,9 @@ const NotificationWorklist = () => {
                 filterModel={filterModel}
                 loading={isLoading}
                 onFilterModelChange={debounce(onFilterChange, 3000)}
-                onRowDoubleClick={params =>
+                onRowDoubleClick={params => {
+                  if (params.row.state === NotificationState.CLOSED.toString()) return;
+
                   navigate(
                     {
                       pathname: 'match-details'
@@ -192,8 +194,8 @@ const NotificationWorklist = () => {
                         }
                       }
                     }
-                  )
-                }
+                  );
+                }}
               />
             )}
           </Box>
