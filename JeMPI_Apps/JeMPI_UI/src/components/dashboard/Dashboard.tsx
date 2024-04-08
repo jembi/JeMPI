@@ -2,8 +2,6 @@ import {
   Box,
   Container,
   Grid,
-  LinearProgress,
-  LinearProgressProps,
   Stack,
   Tab,
   Tabs,
@@ -20,10 +18,7 @@ import { pink } from '@mui/material/colors'
 import MandU from './widgets/MandUWidget'
 import BetaFscore from './widgets/BetaFscoreWidget'
 import ConfusionMatrix from './widgets/ConfusionMatrixWidget'
-import { useEffect, useState } from 'react'
-import CircularProgress, {
-  CircularProgressProps
-} from '@mui/material/CircularProgress'
+import { useState } from 'react'
 import { ImportProcessWidget } from './widgets/ImportProcessWidget'
 import { useDashboardData } from 'hooks/useDashboardData'
 interface TabPanelProps {
@@ -57,8 +52,6 @@ const tabProps = (index: number) => {
 
 const Dashboard = () => {
   const dashboardData = useDashboardData()
-
-  console.log(dashboardData)
   const [currentTabIndex, setCurrentTabIndex] = useState(0)
   const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIndex(newValue)
