@@ -135,7 +135,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
                     .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
                     .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
-                    .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
+                    .onMessage(PatchUpdateNotificationRequest.class, this::patchUpdateNotificationHandler)
                     .onMessage(GetSimpleSearchGoldenRecordsRequest.class, this::getSimpleSearchGoldenRecordsHandler)
                     .onMessage(GetCustomSearchGoldenRecordsRequest.class, this::getCustomSearchGoldenRecordsHandler)
                     .onMessage(GetSimpleSearchInteractionsRequest.class, this::getSimpleSearchInteractionsHandler)
@@ -402,14 +402,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
+   private Behavior<Event> patchUpdateNotificationHandler(final PatchUpdateNotificationRequest request) {
       try {
          psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId, request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
       }
-      request.replyTo.tell(new PostUpdateNotificationResponse());
+      request.replyTo.tell(new PatchUpdateNotificationResponse());
       return Behaviors.same();
    }
 
@@ -590,14 +590,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
    }
 
-   public record PostUpdateNotificationRequest(
-         ActorRef<PostUpdateNotificationResponse> replyTo,
+   public record PatchUpdateNotificationRequest(
+         ActorRef<PatchUpdateNotificationResponse> replyTo,
          String notificationId,
          String oldGoldenId,
          String currentGoldenId) implements Event {
    }
 
-   public record PostUpdateNotificationResponse() implements EventResponse {
+   public record PatchUpdateNotificationResponse() implements EventResponse {
    }
 
    /**

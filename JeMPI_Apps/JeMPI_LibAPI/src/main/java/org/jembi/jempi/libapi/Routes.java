@@ -396,11 +396,11 @@ public final class Routes {
                         });
    }
 
-   private static Route postUpdateNotification(
+   private static Route patchUpdateNotification(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(NotificationRequest.class),
-                    obj -> onComplete(Ask.postUpdateNotification(actorSystem, backEnd, obj), response -> {
+                    obj -> onComplete(Ask.patchUpdateNotification(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
@@ -628,8 +628,6 @@ public final class Routes {
                                () -> Routes.postIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
                                () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
-                               () -> Routes.postUpdateNotification(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd))
                           )),
@@ -637,6 +635,8 @@ public final class Routes {
                           /* proxy for linker/controller services*/
                           path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
                                () -> ProxyRoutes.proxyPatchCrUpdateFields(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_UPDATE_NOTIFICATION,
+                               () -> Routes.patchUpdateNotification(actorSystem, backEnd)),
                           /* serviced by api */
                           path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)))),
@@ -682,7 +682,7 @@ public final class Routes {
                                type -> Routes.getCustomSearch(actorSystem, backEnd, type.equals("golden")
                                      ? RecordType.GoldenRecord
                                      : RecordType.Interaction)),
-                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
+                          path(segment(GlobalConstants.SEGMENT_GET_SIMPLE_SEARCH)
                                      .slash(segment(Pattern.compile("^(golden|patient)$"))),
                                type -> Routes.getSimpleSearch(actorSystem, backEnd, type.equals("golden")
                                      ? RecordType.GoldenRecord

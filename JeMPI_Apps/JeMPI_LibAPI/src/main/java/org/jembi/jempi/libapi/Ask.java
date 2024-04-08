@@ -323,13 +323,13 @@ public final class Ask {
       return stage.thenApply(response -> ApiModels.ApiInteractionsPaginatedResultSet.fromLibMPIPaginatedResultSet(response.records()));
    }
 
-   static CompletionStage<BackEnd.PostUpdateNotificationResponse> postUpdateNotification(
+   static CompletionStage<BackEnd.PatchUpdateNotificationResponse> patchUpdateNotification(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final NotificationRequest notificationRequest) {
-      CompletionStage<BackEnd.PostUpdateNotificationResponse> stage = AskPattern
+      CompletionStage<BackEnd.PatchUpdateNotificationResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PostUpdateNotificationRequest(replyTo,
+                 replyTo -> new BackEnd.PatchUpdateNotificationRequest(replyTo,
                                                                       notificationRequest.notificationId(),
                                                                       notificationRequest.oldGoldenId(),
                                                                       notificationRequest.currentGoldenId()),
