@@ -374,7 +374,7 @@
 		{
 			"name": "Update Notification State",
 			"request": {
-				"method": "POST",
+				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -402,10 +402,11 @@
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"content-type": true
-				}
+				},
+				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -432,8 +433,11 @@
 		},
 		{
 			"name": "Custom search on Golden Records/interactions",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -512,8 +516,11 @@
 		},
 		{
 			"name": "Filter Gids with Interaction count",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -590,12 +597,15 @@
 		},
 		{
 			"name": "CR Get Candidates",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"candidateThreshold\": 0.1,\n    \"demographicData\": {\n        \"givenName\": \"peggy\",\n        \"familyName\": \"mphanude\",\n        \"dob\": \"19750622\",\n        \"gender\": \"female\",\n        \"phoneNumber\": \"0113404355\",\n        \"city\": \"kitwe\",\n        \"nationalId\": \"197506225001098\"\n    }\n}",
+					"raw": "{\n    \"demographicData\": {\n        \"givenName\": \"tseha7\",\n        \"familyName\": \"mekonwnen\",\n        \"gender\": \"female\",\n        \"dob\": \"19901213\",\n        \"city\": \"vilaverde\",\n        \"phoneNumber\": \"0434404025\",\n        \"nationalId\": \"19901213\"\n    },\n    \"candidateThreshold\": 0\n}",
 					"options": {
 						"raw": {
 							"language": "json"
