@@ -37,7 +37,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PATCH_GOLDEN_RECORD = "goldenRecord";
    public static final String SEGMENT_POST_IID_GID_LINK = "link";
    public static final String SEGMENT_POST_IID_NEW_GID_LINK = "unLink";
-   public static final String SEGMENT_UPDATE_NOTIFICATION = "notificationRequest";
+   public static final String SEGMENT_PATCH_UPDATE_NOTIFICATION = "notificationRequest";
    public static final String SEGMENT_GET_SIMPLE_SEARCH = "search";
    public static final String SEGMENT_GET_CUSTOM_SEARCH = "customSearch";
    public static final String SEGMENT_POST_UPLOAD_CSV_FILE = "upload";
@@ -50,7 +50,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_CR_FIND = "crFind";
    public static final String SEGMENT_PROXY_GET_CR_CANDIDATES = "crCandidates";
    public static final String SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS = "crUpdateFields";
-   public static final String SEGMENT_POST_CR_FIND_SOURCE_ID = "crFindSourceId";
+   public static final String SEGMENT_GET_CR_FIND_SOURCE_ID = "crFindSourceId";
    public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";
    public static final String SEGMENT_PROXY_POST_CALCULATE_SCORES = "calculateScores";
    public static final String SEGMENT_PROXY_GET_DASHBOARD_DATA = "dashboardData";

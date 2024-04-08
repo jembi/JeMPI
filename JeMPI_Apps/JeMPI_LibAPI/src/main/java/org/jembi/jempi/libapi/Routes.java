@@ -229,7 +229,7 @@ public final class Routes {
                         });
    }
 
-   private static Route postCrFindSourceId(
+   private static Route getCrFindSourceId(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("facility",
@@ -626,8 +626,6 @@ public final class Routes {
                                () -> Routes.postIidNewGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
                                () -> Routes.postIidGidLink(actorSystem, backEnd, controllerIP, controllerPort, http)),
-                          path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
-                               () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd))
                           )),
@@ -686,7 +684,9 @@ public final class Routes {
                                      .slash(segment(Pattern.compile("^(golden|patient)$"))),
                                type -> Routes.getSimpleSearch(actorSystem, backEnd, type.equals("golden")
                                      ? RecordType.GoldenRecord
-                                     : RecordType.Interaction))
+                                     : RecordType.Interaction)),
+                          path(GlobalConstants.SEGMENT_GET_CR_FIND_SOURCE_ID,
+                               () -> Routes.getCrFindSourceId(actorSystem, backEnd))
                           )));
    }
 
