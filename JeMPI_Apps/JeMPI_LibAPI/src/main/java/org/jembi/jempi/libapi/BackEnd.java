@@ -5,6 +5,9 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +18,9 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -428,12 +433,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          var path = Paths.get((userCSVPath != null
                                      ? userCSVPath
                                      : "/app/csv") + "/" + file.getName());
+
          if (request.config != null) {
-            Files.write(Paths.get((userCSVPath != null
-                                         ? userCSVPath
-                                         : "/app/csv") + "/" + file.getName()
-                                  + "-uploadConfig.txt"), request.config.getBytes());
+            appendUploadConfigToFile(request, file);
          }
+
          Files.copy(file.toPath(), path);
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
@@ -443,6 +447,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
       request.replyTo.tell(new PostUploadCsvFileResponse());
       return Behaviors.same();
+   }
+
+   private static void appendUploadConfigToFile(
+         final PostUploadCsvFileRequest request,
+         final File file) throws IOException {
+      LineIterator lineIterator = FileUtils.lineIterator(file);
+      File tempFile = File.createTempFile("prependPrefix", ".tmp");
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
+
+      try {
+         bufferedWriter.write(request.config);
+         while (lineIterator.hasNext()) {
+            bufferedWriter.write(lineIterator.next());
+            bufferedWriter.write("\n");
+         }
+      } finally {
+         IOUtils.closeQuietly(bufferedWriter);
+         LineIterator.closeQuietly(lineIterator);
+      }
+      FileUtils.deleteQuietly(file);
+      FileUtils.moveFile(tempFile, file);
    }
 
    private Behavior<Event> getSqlDashboardDataHandler(final SQLDashboardDataRequest request) {
