@@ -129,7 +129,7 @@ const RecordDetails = () => {
       setRecords(data)
     },
     refetchOnWindowFocus: false,
-      staleTime: 3000
+      staleTime: 0
   })
 
   const {
