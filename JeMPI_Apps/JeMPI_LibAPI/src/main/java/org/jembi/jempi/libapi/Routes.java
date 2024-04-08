@@ -46,22 +46,22 @@ public final class Routes {
       return entity(Jackson.unmarshaller(NotificationResolution.class),
                     obj -> onComplete(
                           Ask.postIidNewGidLink(actorSystem, backEnd, obj.currentGoldenId(), obj.interactionId()),
-                          response -> {
-                             if (!response.isSuccess()) {
-                                final var e = response.failed().get();
+                          result -> {
+                             if (!result.isSuccess()) {
+                                final var e = result.failed().get();
                                 LOGGER.error(e.getLocalizedMessage(), e);
                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                              }
-                             return response.get()
-                                            .linkInfo()
-                                            .mapLeft(MapError::mapError)
-                                            .fold(error -> error,
-                                                  linkInfo -> onComplete(
-                                                        processOnNotificationResolution(
-                                                              controllerIp, controllerPort, http,
-                                                              new NotificationResolutionProcessorData(obj, linkInfo)),
-                                                        r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
-                                                 );
+                             return result.get()
+                                          .linkInfo()
+                                          .mapLeft(MapError::mapError)
+                                          .fold(error -> error,
+                                                linkInfo -> onComplete(
+                                                      processOnNotificationResolution(
+                                                            controllerIp, controllerPort, http,
+                                                            new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
+                                               );
                           })
                    );
    }
@@ -77,22 +77,22 @@ public final class Routes {
                     obj -> onComplete(
                           Ask.postIidGidLink(actorSystem, backEnd, obj.currentGoldenId(), obj.newGoldenId(),
                                              obj.interactionId(), obj.score()),
-                          response -> {
-                             if (!response.isSuccess()) {
-                                final var e = response.failed().get();
+                          result -> {
+                             if (!result.isSuccess()) {
+                                final var e = result.failed().get();
                                 LOGGER.error(e.getLocalizedMessage(), e);
                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                              }
-                             return response.get()
-                                            .linkInfo()
-                                            .mapLeft(MapError::mapError)
-                                            .fold(error -> error,
-                                                  linkInfo -> onComplete(
-                                                        processOnNotificationResolution(
-                                                              controllerIp, controllerPort, http,
-                                                              new NotificationResolutionProcessorData(obj, linkInfo)),
-                                                        r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
-                                                 );
+                             return result.get()
+                                          .linkInfo()
+                                          .mapLeft(MapError::mapError)
+                                          .fold(error -> error,
+                                                linkInfo -> onComplete(
+                                                      processOnNotificationResolution(
+                                                            controllerIp, controllerPort, http,
+                                                            new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
+                                               );
                           })
                    );
    }
@@ -160,13 +160,13 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("gid",
                        uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
-                                         response -> {
-                                            if (!response.isSuccess()) {
-                                               final var e = response.failed().get();
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
                                                LOGGER.error(e.getLocalizedMessage(), e);
                                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                             }
-                                            return complete(StatusCodes.OK, response.get().auditTrail(), JSON_MARSHALLER);
+                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
                                          }));
    }
 

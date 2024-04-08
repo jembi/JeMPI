@@ -173,12 +173,6 @@ public final class Main {
 
    private void run() throws InterruptedException, ExecutionException, IOException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
-      try {
-         final var json = OBJECT_MAPPER.writeValueAsString(INPUT_INTERFACE_CONFIG);
-         LOGGER.info("Input Interface Config: {}", json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ETL,
                                                          keySerializer(),

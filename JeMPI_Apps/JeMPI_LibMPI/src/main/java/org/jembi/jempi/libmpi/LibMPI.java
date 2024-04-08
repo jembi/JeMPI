@@ -388,7 +388,6 @@ public final class LibMPI {
                                       goldenIdScore.score()), goldenIdScore.score(), linkingRule);
       }
       return result;
-
    }
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
