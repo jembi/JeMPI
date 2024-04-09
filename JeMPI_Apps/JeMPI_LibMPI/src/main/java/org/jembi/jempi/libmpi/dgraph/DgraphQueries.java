@@ -170,11 +170,11 @@ final class DgraphQueries {
          return null;
       }
       final var vars = Map.of("$uid", interactionId);
-      final var interactionList = runInteractionsQuery(CustomDgraphConstants.QUERY_GET_INTERACTION_BY_UID, vars).all();
+      final var interactionList = runInteractionsQuery(DGRAPH_CONFIG.queryGetInteractionByUid, vars).all();
       if (AppUtils.isNullOrEmpty(interactionList)) {
          return null;
       }
-      return interactionList.get(0).toInteractionWithScore().interaction();
+      return interactionList.getFirst().toInteractionWithScore().interaction();
    }
 
    static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {
@@ -188,7 +188,7 @@ final class DgraphQueries {
          LOGGER.warn("No goldenRecord for {}", goldenId);
          return null;
       }
-      return goldenRecordList.get(0);
+      return goldenRecordList.getFirst();
    }
 
    static List<String> findExpandedGoldenIds(final String goldenId) {
@@ -256,7 +256,7 @@ final class DgraphQueries {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = OBJECT_MAPPER.readValue(json, DgraphCountList.class);
-         return response.list().get(0).count();
+         return response.list().getFirst().count();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
       }

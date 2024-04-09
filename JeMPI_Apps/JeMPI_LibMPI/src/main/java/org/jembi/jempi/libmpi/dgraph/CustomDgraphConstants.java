@@ -101,7 +101,7 @@ public final class CustomDgraphConstants {
          Interaction.national_id
          """;
 
-   static final String EXPANDED_INTERACTION_FIELD_NAMES =
+   static final String DEPRECATED_EXPANDED_INTERACTION_FIELD_NAMES =
          """
          uid
          Interaction.source_id {
@@ -139,7 +139,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_INTERACTION_BY_UID =
+   static final String DEPRECATED_QUERY_GET_INTERACTION_BY_UID =
          """
          query interactionByUid($uid: string) {
             all(func: uid($uid)) {

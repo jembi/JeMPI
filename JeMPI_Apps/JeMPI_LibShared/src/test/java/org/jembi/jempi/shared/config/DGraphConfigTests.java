@@ -43,6 +43,12 @@ class DGraphConfigTests {
       Assertions.assertEquals(TestConstants.INTERACTION_FIELD_NAMES_1,
                               DGRAPH_CONFIG_1.interactionFieldNames,
                               "INTERACTION_FIELD_NAMES_1");
+      Assertions.assertEquals(TestConstants.EXPANDED_INTERACTION_FIELD_NAMES_1,
+                              DGRAPH_CONFIG_1.expandedInteractionFieldNames,
+                              "EXPANDED_INTERACTION_FIELD_NAMES_1");
+      Assertions.assertEquals(TestConstants.QUERY_GET_INTERACTION_BY_UID_1,
+                              DGRAPH_CONFIG_1.queryGetInteractionByUid,
+                              "QUERY_GET_INTERACTION_BY_UID_1");
 
 
       Assertions.assertEquals(7, JSON_CONFIG_2.demographicFields().size());
@@ -74,6 +80,12 @@ class DGraphConfigTests {
       Assertions.assertEquals(TestConstants.INTERACTION_FIELD_NAMES_2,
                               DGRAPH_CONFIG_2.interactionFieldNames,
                               "INTERACTION_FIELD_NAMES_2");
+      Assertions.assertEquals(TestConstants.EXPANDED_INTERACTION_FIELD_NAMES_2,
+                              DGRAPH_CONFIG_2.expandedInteractionFieldNames,
+                              "EXPANDED_INTERACTION_FIELD_NAMES_2");
+      Assertions.assertEquals(TestConstants.QUERY_GET_INTERACTION_BY_UID_2,
+                              DGRAPH_CONFIG_2.queryGetInteractionByUid,
+                              "QUERY_GET_INTERACTION_BY_UID_2");
 
    }
 

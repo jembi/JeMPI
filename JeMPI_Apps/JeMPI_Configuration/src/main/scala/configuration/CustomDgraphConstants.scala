@@ -180,7 +180,7 @@ private object CustomDgraphConstants {
 
     def expanded_interaction_field_names(): Unit = {
       writer.println(
-        s"""   static final String EXPANDED_INTERACTION_FIELD_NAMES =
+        s"""   static final String DEPRECATED_EXPANDED_INTERACTION_FIELD_NAMES =
            |         \"\"\"
            |         uid
            |         Interaction.source_id {
@@ -226,7 +226,8 @@ private object CustomDgraphConstants {
     }
 
     def query_get_interaction_by_uid(): Unit = {
-      writer.println(s"""   static final String QUERY_GET_INTERACTION_BY_UID =
+      writer.println(
+        s"""   static final String DEPRECATED_QUERY_GET_INTERACTION_BY_UID =
            |         \"\"\"
            |         query interactionByUid($$uid: string) {
            |            all(func: uid($$uid)) {
@@ -235,7 +236,8 @@ private object CustomDgraphConstants {
            |                 uid
            |                 SourceId.facility
            |                 SourceId.patient
-           |               }""".stripMargin)
+           |               }""".stripMargin
+      )
       if (config.uniqueInteractionFields.isDefined) {
         config.uniqueInteractionFields.get.foreach(field => {
           val name = field.fieldName

@@ -47,6 +47,7 @@ public final class StatsTask {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
+         response.close();
          return OBJECT_MAPPER.readValue(json, ApiModels.ApiGoldenRecordCount.class).count();
       }
    }
