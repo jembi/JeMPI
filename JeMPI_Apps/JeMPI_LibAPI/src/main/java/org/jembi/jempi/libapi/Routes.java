@@ -50,7 +50,7 @@ public final class Routes {
                              if (!result.isSuccess()) {
                                 final var e = result.failed().get();
                                 LOGGER.error(e.getLocalizedMessage(), e);
-                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                              }
                              return result.get()
                                           .linkInfo()
@@ -81,7 +81,7 @@ public final class Routes {
                              if (!result.isSuccess()) {
                                 final var e = result.failed().get();
                                 LOGGER.error(e.getLocalizedMessage(), e);
-                                return complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT));
+                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                              }
                              return result.get()
                                           .linkInfo()
@@ -160,9 +160,14 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("gid",
                        uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
-                                         result -> result.isSuccess()
-                                               ? complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER)
-                                               : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
+                                               LOGGER.error(e.getLocalizedMessage(), e);
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                            }
+                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                                         }));
    }
 
    private static Route getInteractionAuditTrail(
@@ -170,9 +175,14 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("iid",
                        uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
-                                         result -> result.isSuccess()
-                                               ? complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER)
-                                               : complete(ApiModels.getHttpErrorResponse(StatusCodes.IM_A_TEAPOT))));
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
+                                               LOGGER.error(e.getLocalizedMessage(), e);
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                            }
+                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                                         }));
    }
 
    private static Route countGoldenRecords(
@@ -542,56 +552,6 @@ public final class Routes {
 
 
    }
-
-/*
-   private static CompletionStage<HttpResponse> postLinkInteractionToGidProxy(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final ApiModels.LinkInteractionToGidSyncBody body) throws JsonProcessingException {
-      final HttpRequest request;
-      final byte[] json;
-      try {
-         json = OBJECT_MAPPER.writeValueAsBytes(body);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-         throw e;
-      }
-      request = HttpRequest.create(String.format(Locale.ROOT,
-                                                 "http://%s:%d/JeMPI/%s",
-                                                 linkerIP,
-                                                 linkerPort,
-                                                 GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID))
-                           .withMethod(HttpMethods.POST)
-                           .withEntity(ContentTypes.APPLICATION_JSON, json);
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
-   }
-*/
-
-/*
-   private static Route postLinkInteractionToGid(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionToGidSyncBody.class),
-                    obj -> {
-                       try {
-                          return onComplete(postLinkInteractionToGidProxy(linkerIP, linkerPort, http, obj),
-                                            response -> {
-                                               if (!response.isSuccess()) {
-                                                  LOGGER.warn(IM_A_TEA_POT_LOG);
-                                                  return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
-                                               }
-                                               return complete(response.get());
-                                            });
-                       } catch (JsonProcessingException e) {
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
-                       }
-                    });
-   }
-*/
 
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,

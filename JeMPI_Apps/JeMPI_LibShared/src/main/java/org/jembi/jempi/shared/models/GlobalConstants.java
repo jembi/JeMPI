@@ -62,7 +62,6 @@ public final class GlobalConstants {
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "currentUser";
 
-   // public static final StatusCode IM_A_TEA_POT = StatusCodes.IM_A_TEAPOT;
    // TIMEOUTS
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;

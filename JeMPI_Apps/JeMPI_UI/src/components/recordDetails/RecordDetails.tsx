@@ -128,7 +128,8 @@ const RecordDetails = () => {
       setRowSelectionModel([data[0].uid])
       setRecords(data)
     },
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+      staleTime: 0
   })
 
   const {
