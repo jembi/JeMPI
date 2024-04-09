@@ -34,6 +34,16 @@ class DGraphConfigTests {
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_SOURCE_ID_TYPE_1,
                               DGRAPH_CONFIG_1.mutationCreateAdditionalNodeType,
                               "MUTATION_CREATE_SOURCE_ID_TYPE_1");
+      Assertions.assertEquals(TestConstants.GOLDEN_RECORD_FIELD_NAMES_1,
+                              DGRAPH_CONFIG_1.goldenRecordFieldNames,
+                              "GOLDEN_RECORD_FIELD_NAMES_1");
+      Assertions.assertEquals(TestConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES_1,
+                              DGRAPH_CONFIG_1.expandedGoldenRecordFieldNames,
+                              "EXPANDED_GOLDEN_RECORD_FIELD_NAMES_1");
+      Assertions.assertEquals(TestConstants.INTERACTION_FIELD_NAMES_1,
+                              DGRAPH_CONFIG_1.interactionFieldNames,
+                              "INTERACTION_FIELD_NAMES_1");
+
 
       Assertions.assertEquals(7, JSON_CONFIG_2.demographicFields().size());
       Assertions.assertEquals(7, DGRAPH_CONFIG_2.demographicDataFields.size());
@@ -55,6 +65,16 @@ class DGraphConfigTests {
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_SOURCE_ID_TYPE_2,
                               DGRAPH_CONFIG_2.mutationCreateAdditionalNodeType,
                               "MUTATION_CREATE_SOURCE_ID_TYPE_2");
+      Assertions.assertEquals(TestConstants.GOLDEN_RECORD_FIELD_NAMES_2,
+                              DGRAPH_CONFIG_2.goldenRecordFieldNames,
+                              "GOLDEN_RECORD_FIELD_NAMES_2");
+      Assertions.assertEquals(TestConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES_2,
+                              DGRAPH_CONFIG_2.expandedGoldenRecordFieldNames,
+                              "EXPANDED_GOLDEN_RECORD_FIELD_NAMES_2");
+      Assertions.assertEquals(TestConstants.INTERACTION_FIELD_NAMES_2,
+                              DGRAPH_CONFIG_2.interactionFieldNames,
+                              "INTERACTION_FIELD_NAMES_2");
+
    }
 
 }

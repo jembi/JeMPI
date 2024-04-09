@@ -87,7 +87,7 @@ private object CustomDgraphConstants {
 
     def golden_record_field_names(): Unit =
       writer.println(s"""
-           |   static final String GOLDEN_RECORD_FIELD_NAMES =
+           |   static final String DEPRECATED_GOLDEN_RECORD_FIELD_NAMES =
            |         \"\"\"
            |         uid
            |         GoldenRecord.source_id {
@@ -110,7 +110,7 @@ private object CustomDgraphConstants {
 
     def expanded_golden_record_field_names(): Unit = {
       writer.println(s"""
-           |   static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
+           |   static final String DEPRECATED_EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
            |         \"\"\"
            |         uid
            |         GoldenRecord.source_id {
@@ -151,14 +151,16 @@ private object CustomDgraphConstants {
     }
 
     def interaction_field_names(): Unit = {
-      writer.println(s"""   static final String INTERACTION_FIELD_NAMES =
+      writer.println(
+        s"""   static final String DEPRECATED_INTERACTION_FIELD_NAMES =
            |         \"\"\"
            |         uid
            |         Interaction.source_id {
            |            uid
            |            SourceId.facility
            |            SourceId.patient
-           |         }""".stripMargin)
+           |         }""".stripMargin
+      )
 
       if (config.uniqueInteractionFields.isDefined) {
         config.uniqueInteractionFields.get.foreach(field => {

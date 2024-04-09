@@ -14,7 +14,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.jembi.jempi.libmpi.dgraph.CustomDgraphConstants.GOLDEN_RECORD_FIELD_NAMES;
+import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class DgraphQueries {
@@ -516,7 +516,7 @@ final class DgraphQueries {
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += CustomDgraphConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES;
+      gql += DGRAPH_CONFIG.expandedGoldenRecordFieldNames;
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
@@ -563,7 +563,7 @@ final class DgraphQueries {
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += CustomDgraphConstants.INTERACTION_FIELD_NAMES;
+      gql += DGRAPH_CONFIG.interactionFieldNames;
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
@@ -752,7 +752,7 @@ final class DgraphQueries {
                queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
             }
          }
-         queryBuilder.append(") {\n").append(GOLDEN_RECORD_FIELD_NAMES).append("  }\n}\n");
+         queryBuilder.append(") {\n").append(DGRAPH_CONFIG.goldenRecordFieldNames).append("  }\n}\n");
          final var query = queryBuilder.toString();
          final var map = new HashMap<String, String>();
          map.put("$" + AppUtils.camelToSnake(operand.name()), operand.value());

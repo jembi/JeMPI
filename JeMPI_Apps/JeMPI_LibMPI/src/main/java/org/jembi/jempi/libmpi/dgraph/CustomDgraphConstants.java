@@ -24,7 +24,7 @@ public final class CustomDgraphConstants {
    public static final String PREDICATE_INTERACTION_PHONE_NUMBER = "Interaction.phone_number";
    public static final String PREDICATE_INTERACTION_NATIONAL_ID = "Interaction.national_id";
 
-   static final String GOLDEN_RECORD_FIELD_NAMES =
+   static final String DEPRECATED_GOLDEN_RECORD_FIELD_NAMES =
          """
          uid
          GoldenRecord.source_id {
@@ -44,7 +44,7 @@ public final class CustomDgraphConstants {
          GoldenRecord.national_id
          """;
 
-   static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
+   static final String DEPRECATED_EXPANDED_GOLDEN_RECORD_FIELD_NAMES =
          """
          uid
          GoldenRecord.source_id {
@@ -81,7 +81,7 @@ public final class CustomDgraphConstants {
             Interaction.national_id
          }
          """;
-   static final String INTERACTION_FIELD_NAMES =
+   static final String DEPRECATED_INTERACTION_FIELD_NAMES =
          """
          uid
          Interaction.source_id {
