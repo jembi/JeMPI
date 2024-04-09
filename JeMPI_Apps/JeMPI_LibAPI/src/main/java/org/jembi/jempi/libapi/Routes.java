@@ -7,10 +7,12 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -491,19 +493,31 @@ public final class Routes {
                                                                                          return null;
                                                                                       }
                                                                                    },
-                                                                                   (info, file) -> onComplete(Ask.postUploadCsvFile(
-                                                                                                                    actorSystem,
-                                                                                                                    backEnd,
-                                                                                                                    info,
-                                                                                                                    file,
-                                                                                                                    queries),
-                                                                                                              response -> response.isSuccess()
-                                                                                                                    ? complete(
-                                                                                                                    StatusCodes.OK)
-                                                                                                                    : complete(
-                                                                                                                          ApiModels
-                                                                                                                                .getHttpErrorResponse(
-                                                                                                                                      StatusCodes.IM_A_TEAPOT))))));
+                                                                                   (info, file) -> {
+                                                                                      try {
+                                                                                         var uploadConfig =
+                                                                                               AppUtils.OBJECT_MAPPER.readValue(
+                                                                                                     queries,
+                                                                                                     UploadConfig.class);
+                                                                                         return onComplete(Ask.postUploadCsvFile(
+                                                                                                                 actorSystem,
+                                                                                                                 backEnd,
+                                                                                                                 info,
+                                                                                                                 file,
+                                                                                                                 uploadConfig),
+                                                                                                           response -> response.isSuccess()
+                                                                                                                 ? complete(
+                                                                                                                 StatusCodes.OK)
+                                                                                                                 : mapError(new MpiServiceError.InternalError(
+                                                                                                                       response.failed()
+                                                                                                                               .get()
+                                                                                                                               .getLocalizedMessage())));
+                                                                                      } catch (JsonProcessingException e) {
+                                                                                         LOGGER.error(e.getMessage(), e);
+                                                                                         return mapError(new MpiServiceError.InternalError(
+                                                                                               e.getLocalizedMessage()));
+                                                                                      }
+                                                                                   })));
    }
 
    private static Route postSimpleSearch(

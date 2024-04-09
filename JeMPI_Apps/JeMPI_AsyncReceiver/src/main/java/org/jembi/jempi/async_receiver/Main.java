@@ -1,5 +1,6 @@
 package org.jembi.jempi.async_receiver;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
@@ -26,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public final class Main {
@@ -56,12 +58,12 @@ public final class Main {
          final var klass = matcher.group("class");
          final var dNumber = matcher.group("dnum");
          return String.format(Locale.ROOT,
-               "rec-%010d-%s-%d",
-               Integer.parseInt(rNumber),
-               klass,
-               (("org".equals(klass) || "aaa".equals(klass))
-                     ? 0
-                     : Integer.parseInt(dNumber)));
+                              "rec-%010d-%s-%d",
+                              Integer.parseInt(rNumber),
+                              klass,
+                              (("org".equals(klass) || "aaa".equals(klass))
+                                     ? 0
+                                     : Integer.parseInt(dNumber)));
       }
       return in;
    }
@@ -87,66 +89,74 @@ public final class Main {
       return size;
    }
 
-   private void apacheReadCSV(final String fileName, final UploadConfig config)
+   private void apacheReadCSV(
+         final String fileName,
+         final UploadConfig config)
          throws InterruptedException, ExecutionException {
       try {
          final var filePathUri = Paths.get(fileName);
-         final var reader = Files.newBufferedReader(filePathUri);
          final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
          final var now = LocalDateTime.now();
          final var stanDate = dtf.format(now);
          final var uuid = UUID.randomUUID().toString();
          final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
-         //ignore the first line when upload config exists
-         if (config != null) {
-            reader.readLine();
+         try (var reader = Files.newBufferedReader(filePathUri)) {
+            //ignore the first line when upload config exists
+            if (config != null) {
+               reader.readLine();
+            }
+
+            final var csvParser = CSVFormat.DEFAULT.builder()
+                                                   .setHeader()
+                                                   .setSkipHeaderRecord(true)
+                                                   .setIgnoreEmptyLines(true)
+                                                   .setNullString(null)
+                                                   .build()
+                                                   .parse(reader);
+
+            int index = 0;
+            sendInteractionToKafka(uuid,
+                                   new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
+                                                          tag,
+                                                          String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                          null, null));
+            for (CSVRecord csvRecord : csvParser) {
+               final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
+                                                                     tag,
+                                                                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                                     new Interaction(null,
+                                                                                     CustomAsyncHelper.customSourceId(csvRecord),
+                                                                                     CustomAsyncHelper.customUniqueInteractionData(
+                                                                                           csvRecord),
+                                                                                     CustomAsyncHelper.customDemographicData(
+                                                                                           csvRecord)), config);
+
+               sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
+            }
+            sendInteractionToKafka(uuid,
+                                   new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
+                                                          tag,
+                                                          String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                          null, null));
          }
-
-         final var csvParser = CSVFormat.DEFAULT.builder()
-               .setHeader()
-               .setSkipHeaderRecord(true)
-               .setIgnoreEmptyLines(true)
-               .setNullString(null)
-               .build()
-               .parse(reader);
-
-         int index = 0;
-         sendInteractionToKafka(uuid,
-                                new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
-                     tag,
-                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                     null, null));
-         for (CSVRecord csvRecord : csvParser) {
-            final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
-                  tag,
-                  String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                  new Interaction(null,
-                        CustomAsyncHelper.customSourceId(csvRecord),
-                        CustomAsyncHelper.customUniqueInteractionData(
-                              csvRecord),
-                        CustomAsyncHelper.customDemographicData(
-                              csvRecord)), config);
-
-            sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
-         }
-         sendInteractionToKafka(uuid,
-                                new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
-                     tag,
-                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                     null, null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
    }
 
    private UploadConfig readUploadConfigFromFile(final String fileName) {
-      try {
-         var lines = Files.readAllLines(Path.of(fileName));
-         var config = AppUtils.OBJECT_MAPPER.readValue(lines.getFirst(), UploadConfig.class);
-         return config;
+      try (var reader = Files.newBufferedReader(Path.of(fileName))) {
+         var firstLine = reader.readLine();
+         try {
+            var config = AppUtils.OBJECT_MAPPER.readValue(firstLine, UploadConfig.class);
+            return config;
+         } catch (JsonProcessingException e) {
+            LOGGER.error("Failed to map uploadConfig in file to json: " + e.getLocalizedMessage());
+         }
+
       } catch (IOException e) {
-         LOGGER.error("Failed to read uploadConfig.csv" + e.getLocalizedMessage());
+         LOGGER.error("Failed to read uploadConfig.csv: " + e.getLocalizedMessage());
       }
       return null;
    }
@@ -191,13 +201,13 @@ public final class Main {
       try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
          final var csvDir = Path.of("./csv");
          csvDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
-         for (;;) {
+         do {
             WatchKey key = watchService.take();
             for (WatchEvent<?> event : key.pollEvents()) {
                handleEvent(event);
             }
             key.reset();
-         }
+         } while (true);
       } catch (IOException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       } catch (InterruptedException e) {

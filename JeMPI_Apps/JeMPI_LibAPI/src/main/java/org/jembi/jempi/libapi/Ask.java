@@ -356,13 +356,13 @@ public final class Ask {
          final ActorRef<BackEnd.Event> backEnd,
          final FileInfo info,
          final File file,
-         final String config) {
+         final UploadConfig uploadConfig) {
       CompletionStage<BackEnd.PostUploadCsvFileResponse> stage = AskPattern.ask(backEnd,
                                                                                 replyTo -> new BackEnd.PostUploadCsvFileRequest(
                                                                                       replyTo,
                                                                                       info,
                                                                                       file,
-                                                                                      config),
+                                                                                      uploadConfig),
                                                                                 java.time.Duration.ofSeconds(11),
                                                                                 actorSystem.scheduler());
       return stage.thenApply(response -> response);

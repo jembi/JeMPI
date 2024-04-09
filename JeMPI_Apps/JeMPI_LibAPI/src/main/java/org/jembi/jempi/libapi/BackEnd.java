@@ -17,6 +17,7 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -106,6 +107,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
+   }
+
+   private static void appendUploadConfigToFile(
+         final UploadConfig uploadConfig,
+         final File file) throws IOException {
+      LineIterator lineIterator = FileUtils.lineIterator(file);
+      File tempFile = File.createTempFile("prependPrefix", ".tmp");
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
+
+      try {
+         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
+         while (lineIterator.hasNext()) {
+            bufferedWriter.write(lineIterator.next());
+            bufferedWriter.write(System.lineSeparator());
+         }
+      } finally {
+         IOUtils.closeQuietly(bufferedWriter);
+         bufferedWriter.close();
+      }
+      FileUtils.deleteQuietly(file);
+      FileUtils.moveFile(tempFile, file);
    }
 
    private void openMPI(
@@ -429,16 +451,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       final File file = request.file();
       try {
-         String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
-         var path = Paths.get((userCSVPath != null
-                                     ? userCSVPath
-                                     : "/app/csv") + "/" + file.getName());
-
-         if (request.config != null) {
-            appendUploadConfigToFile(request, file);
+         if (request.uploadConfig != null) {
+            appendUploadConfigToFile(request.uploadConfig, file);
          }
-
-         Files.copy(file.toPath(), path);
+         Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
@@ -447,27 +463,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
       request.replyTo.tell(new PostUploadCsvFileResponse());
       return Behaviors.same();
-   }
-
-   private static void appendUploadConfigToFile(
-         final PostUploadCsvFileRequest request,
-         final File file) throws IOException {
-      LineIterator lineIterator = FileUtils.lineIterator(file);
-      File tempFile = File.createTempFile("prependPrefix", ".tmp");
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
-
-      try {
-         bufferedWriter.write(request.config);
-         while (lineIterator.hasNext()) {
-            bufferedWriter.write(lineIterator.next());
-            bufferedWriter.write("\n");
-         }
-      } finally {
-         IOUtils.closeQuietly(bufferedWriter);
-         LineIterator.closeQuietly(lineIterator);
-      }
-      FileUtils.deleteQuietly(file);
-      FileUtils.moveFile(tempFile, file);
    }
 
    private Behavior<Event> getSqlDashboardDataHandler(final SQLDashboardDataRequest request) {
@@ -695,7 +690,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
          File file,
-         String config) implements Event {
+         UploadConfig uploadConfig) implements Event {
    }
 
    public record PostUploadCsvFileResponse() implements EventResponse {
