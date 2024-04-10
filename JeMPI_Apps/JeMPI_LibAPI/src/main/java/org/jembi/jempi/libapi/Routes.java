@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
-
+import org.jembi.jempi.shared.models.ApiModels.ApiInteraction;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Locale;
@@ -170,11 +170,11 @@ public final class Routes {
                                          }));
    }
 
-   private static Route getInteractionAuditTrail(
+   private static Route postInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("iid",
-                       uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
+      return entity(Jackson.unmarshaller(ApiInteraction.class), obj -> {
+          return onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, obj.uid()),
                                          result -> {
                                             if (!result.isSuccess()) {
                                                final var e = result.failed().get();
@@ -182,8 +182,9 @@ public final class Routes {
                                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                                             }
                                             return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
-                                         }));
-   }
+                                         });
+      });
+}
 
    private static Route countGoldenRecords(
          final ActorSystem<Void> actorSystem,
@@ -385,11 +386,11 @@ public final class Routes {
                         });
    }
 
-   private static Route getInteraction(
+   private static Route postInteraction(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String iid) {
-      return onComplete(Ask.getInteraction(actorSystem, backEnd, iid),
+         final ActorRef<BackEnd.Event> backEnd) {
+         return entity(Jackson.unmarshaller(ApiInteraction.class),
+            obj -> onComplete(Ask.getInteraction(actorSystem, backEnd, obj.uid()),
                         result -> {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
@@ -403,7 +404,7 @@ public final class Routes {
                                               patientRecord -> complete(StatusCodes.OK,
                                                                         ApiModels.ApiInteraction.fromInteraction(patientRecord),
                                                                         JSON_MARSHALLER));
-                        });
+                        }));
    }
 
    private static Route postUpdateNotification(
@@ -603,6 +604,10 @@ public final class Routes {
                                type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
                                      ? RecordType.GoldenRecord
                                      : RecordType.Interaction)),
+                          path(GlobalConstants.SEGMENT_POST_INTERACTION,
+                                 () -> Routes.postInteraction(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_INTERACTION_AUDIT_TRAIL,
+                                 () -> Routes.postInteractionAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
@@ -638,12 +643,8 @@ public final class Routes {
                                () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
                                () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
-                          path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                                "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
                                () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
-                               () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)))));
    }
 

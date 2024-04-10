@@ -24,13 +24,13 @@ public final class GlobalConstants {
    public static final String SEGMENT_COUNT_RECORDS = "countRecords";
    public static final String SEGMENT_GET_GIDS_ALL = "gidsAll";
    public static final String SEGMENT_GET_GIDS_PAGED = "gidsPaged";
-   public static final String SEGMENT_GET_INTERACTION = "interaction";
+   public static final String SEGMENT_POST_INTERACTION = "interaction";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORD = "expandedGoldenRecord";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expandedGoldenRecords";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expandedGoldenRecordsCsv";
    public static final String SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
    public static final String SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL = "goldenRecordAuditTrail";
-   public static final String SEGMENT_GET_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
+   public static final String SEGMENT_POST_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
    public static final String SEGMENT_GET_FIELDS_CONFIG = "config";
    public static final String SEGMENT_GET_LINKED_RECORDS = "linkedRecords";
    public static final String SEGMENT_GET_NOTIFICATIONS = "matchesForReview";

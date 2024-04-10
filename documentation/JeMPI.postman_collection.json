@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5f48efd0-dcc2-4d65-9294-60b596f1cde1",
+		"_postman_id": "0319cdf2-1404-423b-b900-d485619ee8fb",
 		"name": "JeMPI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12338305"
@@ -104,16 +104,24 @@
 		{
 			"name": "Get Interaction",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\":\"0x4\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/interaction/0x4",
+					"raw": "{{LocalApi}}/interaction",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"interaction",
-						"0x4"
+						"interaction"
 					]
 				}
 			},
@@ -221,21 +229,24 @@
 		{
 			"name": "Get Interaction Audit Trail",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\":\"0x2b1f\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/interactionAuditTrail?iid=0x4c",
+					"raw": "{{LocalApi}}/interactionAuditTrail",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"interactionAuditTrail"
-					],
-					"query": [
-						{
-							"key": "iid",
-							"value": "0x4c"
-						}
 					]
 				}
 			},
