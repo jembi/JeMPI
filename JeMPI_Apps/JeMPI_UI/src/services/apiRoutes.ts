@@ -8,7 +8,7 @@ const ROUTES = {
   GET_GOLDEN_RECORD: '/expandedGoldenRecord',
   GET_EXPANDED_GOLDEN_RECORDS: '/expandedGoldenRecords',
   GET_GOLDEN_RECORD_AUDIT_TRAIL: '/goldenRecordAuditTrail',
-  GET_INTERACTION_AUDIT_TRAIL: '/interactionAuditTrail',
+  POST_INTERACTION_AUDIT_TRAIL: '/interactionAuditTrail',
   POST_UPDATE_NOTIFICATION: '/notificationRequest',
   POST_SIMPLE_SEARCH: '/search',
   POST_CUSTOM_SEARCH: '/customSearch',

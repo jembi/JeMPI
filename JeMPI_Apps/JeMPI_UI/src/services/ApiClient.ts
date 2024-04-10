@@ -358,17 +358,11 @@ export class ApiClient {
     return data
   }
 
-  async getInteractionAuditTrail(iid: string) {
+  async postInteractionAuditTrail(iid: string) {
     const {
       data
-    } = await this.client.get<Array<AuditTrail>>(
-      ROUTES.GET_INTERACTION_AUDIT_TRAIL,
-      {
-        params: {
-          iid
-        }
-      }
-    )
+    } = await this.client.post<Array<AuditTrail>>(
+      ROUTES.POST_INTERACTION_AUDIT_TRAIL, iid)
     return data
   }
 
