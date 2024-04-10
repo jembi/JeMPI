@@ -81,7 +81,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       if (list == null || list.isEmpty() || AppUtils.isNullOrEmpty(list)) {
          return List.of();
       }
-      return list.stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+      return list;
    }
 
    public List<String> findGoldenIds() {
@@ -95,7 +95,6 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
-      //      return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
       return CustomDgraphQueries.findLinkCandidates(demographicData);
    }
 

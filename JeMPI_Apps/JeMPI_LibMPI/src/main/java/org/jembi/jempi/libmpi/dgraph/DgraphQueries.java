@@ -371,13 +371,13 @@ final class DgraphQueries {
       }
    }
 
-   static List<CustomDgraphExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
+   static List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
       final String query =
             String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedGoldenRecords, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
-         return records.all();
+         return records.all().stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return List.of();
