@@ -9,7 +9,7 @@
 		{
 			"name": "Count Interactions",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countInteractions",
@@ -26,15 +26,15 @@
 		{
 			"name": "Count Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/countRecords",
+					"raw": "{{LocalApi}}/countGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"countRecords"
+						"countGoldenRecords"
 					]
 				}
 			},
@@ -43,7 +43,7 @@
 		{
 			"name": "Count Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countRecords",
@@ -60,7 +60,7 @@
 		{
 			"name": "Get Golden Ids All",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/gidsAll",

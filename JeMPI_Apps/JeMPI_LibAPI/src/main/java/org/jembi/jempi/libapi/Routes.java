@@ -226,7 +226,7 @@ public final class Routes {
                         });
    }
 
-   private static Route getGidsAll(
+   private static Route postGidsAll(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.getGidsAll(actorSystem, backEnd),
@@ -605,12 +605,19 @@ public final class Routes {
                                      ? RecordType.GoldenRecord
                                      : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION,
-                                 () -> Routes.postInteraction(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS, () -> Routes.countInteractions(actorSystem, backEnd)),
+                               () -> Routes.postInteraction(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
+                               () -> Routes.countInteractions(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
+                               () -> Routes.countGoldenRecords(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_RECORDS,
+                              () -> Routes.countRecords(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_GIDS_ALL,
+                              () -> Routes.postGidsAll(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
-                                 () -> ProxyRoutes.proxyPostDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
+                               () -> ProxyRoutes.proxyPostDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION_AUDIT_TRAIL,
-                                 () -> Routes.postInteractionAuditTrail(actorSystem, backEnd)),
+                               () -> Routes.postInteractionAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
@@ -629,10 +636,6 @@ public final class Routes {
 
                           /* serviced by api */
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
-                          path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
-                               () -> Routes.countGoldenRecords(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> Routes.countRecords(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_GIDS_ALL, () -> Routes.getGidsAll(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_GIDS_PAGED, () -> Routes.getGidsPaged(actorSystem, backEnd)),
                           path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD)
                                      .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
