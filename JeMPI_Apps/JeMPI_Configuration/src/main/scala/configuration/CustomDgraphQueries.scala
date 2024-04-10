@@ -22,6 +22,7 @@ object CustomDgraphQueries {
          |import io.vavr.Function1;
          |import org.apache.commons.lang3.StringUtils;
          |import org.jembi.jempi.shared.models.DemographicData;
+         |import org.jembi.jempi.shared.models.GoldenRecord;
          |
          |import java.util.LinkedList;
          |import java.util.List;
@@ -34,13 +35,13 @@ object CustomDgraphQueries {
          |
          |final class $custom_className {
          |
-         |   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_LINK_FUNCTIONS =
+         |   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS =
          |      List.of(${getDeterministicFunctions(config.rules.link.get)});
          |""".stripMargin)
 
     if (config.rules.matchNotification.isDefined) {
       writer.println(
-        s"""   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+        s"""   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of(${getDeterministicFunctions(
             config.rules.matchNotification.get
           )});
@@ -48,7 +49,7 @@ object CustomDgraphQueries {
       )
     } else {
       writer.println(
-        s"""   static final List<Function1<DemographicData, DgraphGoldenRecords>> DETERMINISTIC_MATCH_FUNCTIONS =
+        s"""   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
            |      List.of();
            |""".stripMargin
       )
@@ -150,7 +151,7 @@ object CustomDgraphQueries {
         rules: Option[AllRules]
     ): Unit = {
       writer.println(
-        s"""   static List<CustomDgraphGoldenRecord> find${funcQualifier}Candidates(
+        s"""   static List<GoldenRecord> find${funcQualifier}Candidates(
            |      final DemographicData interaction) {
            |      var result = DgraphQueries.deterministicFilter($filterList, interaction);
            |      if (!result.isEmpty()) {
@@ -214,9 +215,9 @@ object CustomDgraphQueries {
       if (vars.length == 1)
         val v = vars(0)
         writer.println(
-          s"""   private static DgraphGoldenRecords $functionName(final DemographicData demographicData) {
+          s"""   private static List<GoldenRecord> $functionName(final DemographicData demographicData) {
              |      if (StringUtils.isBlank(demographicData.fields.get(${v.toUpperCase}).value())) {
-             |         return new DgraphGoldenRecords(List.of());
+             |         return List.of();
              |      }
              |      final Map<String, String> map = Map.of("$$$v", demographicData.fields.get(${v.toUpperCase}).value());
              |      return runGoldenRecordsQuery($name, map);
@@ -226,7 +227,7 @@ object CustomDgraphQueries {
       else
         val expr = expression(ParseRule.parse(text))
         writer.println(
-          s"   private static DgraphGoldenRecords $functionName(final DemographicData demographicData) {"
+          s"   private static List<GoldenRecord> $functionName(final DemographicData demographicData) {"
         )
         vars.foreach(v => {
           val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
@@ -242,7 +243,7 @@ object CustomDgraphQueries {
           )
         })
         writer.print(s"""      if ($expr) {
-             |         return new DgraphGoldenRecords(List.of());
+             |         return List.of();
              |      }
              |      final var map = Map.of(""".stripMargin)
 
@@ -463,13 +464,12 @@ object CustomDgraphQueries {
 
     def emitMergeCandidates(): Unit = {
       writer.println(s"""   private static void mergeCandidates(
-           |         final List<CustomDgraphGoldenRecord> goldenRecords,
-           |         final DgraphGoldenRecords block) {
-           |      final var candidates = block.all();
-           |      if (!candidates.isEmpty()) {
-           |         candidates.forEach(candidate -> {
+           |         final List<GoldenRecord> goldenRecords,
+           |         final List<GoldenRecord> block) {
+           |      if (!block.isEmpty()) {
+           |         block.forEach(candidate -> {
            |            var found = false;
-           |            for (CustomDgraphGoldenRecord goldenRecord : goldenRecords) {
+           |            for (GoldenRecord goldenRecord : goldenRecords) {
            |               if (candidate.goldenId().equals(goldenRecord.goldenId())) {
            |                  found = true;
            |                  break;
