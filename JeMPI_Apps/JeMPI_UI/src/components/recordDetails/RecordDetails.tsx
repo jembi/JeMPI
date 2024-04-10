@@ -143,7 +143,7 @@ const RecordDetails = () => {
         if ('linkRecords' in record) {
           return await apiClient.getGoldenRecordAuditTrail(record.uid || '')
         } else {
-          return await apiClient.postInteractionAuditTrail(record.uid || '')
+          return await apiClient.fetchInteractionAuditTrail(record.uid || '')
         }
       }
       throw new Error('Empty record')
