@@ -163,7 +163,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_GOLDEN_RECORD_BY_UID =
+   static final String DEPRECATED_QUERY_GET_GOLDEN_RECORD_BY_UID =
          """
          query goldenRecordByUid($uid: string) {
             all(func: uid($uid)) {
@@ -187,7 +187,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_EXPANDED_INTERACTIONS =
+   static final String DEPRECATED_QUERY_GET_EXPANDED_INTERACTIONS =
          """
          query expandedInteraction() {
             all(func: uid(%s)) {
@@ -229,7 +229,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_GOLDEN_RECORDS =
+   static final String DEPRECATED_QUERY_GET_GOLDEN_RECORDS =
          """
          query goldenRecord() {
             all(func: uid(%s)) {
@@ -253,7 +253,7 @@ public final class CustomDgraphConstants {
          }
          """;
 
-   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
+   static final String DEPRECATED_QUERY_GET_EXPANDED_GOLDEN_RECORDS =
          """
          query expandedGoldenRecord() {
             all(func: uid(%s), orderdesc: GoldenRecord.aux_date_created) {

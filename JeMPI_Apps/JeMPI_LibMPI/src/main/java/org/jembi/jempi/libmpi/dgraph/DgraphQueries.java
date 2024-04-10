@@ -182,7 +182,7 @@ final class DgraphQueries {
          return null;
       }
       final var vars = Map.of("$uid", goldenId);
-      final var goldenRecordList = runGoldenRecordsQuery(CustomDgraphConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars).all();
+      final var goldenRecordList = runGoldenRecordsQuery(DGRAPH_CONFIG.queryGetGoldenRecordByUid, vars).all();
 
       if (AppUtils.isNullOrEmpty(goldenRecordList)) {
          LOGGER.warn("No goldenRecord for {}", goldenId);
@@ -311,8 +311,7 @@ final class DgraphQueries {
    }
 
    static List<CustomDgraphExpandedInteraction> findExpandedInteractions(final List<String> ids) {
-      final String query =
-            String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_EXPANDED_INTERACTIONS, String.join(",", ids));
+      final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedInteractions, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = OBJECT_MAPPER.readValue(json, DgraphExpandedInteractions.class);
@@ -325,7 +324,7 @@ final class DgraphQueries {
 
    static Either<MpiGeneralError, List<CustomDgraphGoldenRecord>> findGoldenRecords(final List<String> ids) {
       final var idListAsString = String.join(",", ids);
-      final String query = String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, idListAsString);
+      final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetGoldenRecords, idListAsString);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
@@ -338,7 +337,7 @@ final class DgraphQueries {
 
    static List<CustomDgraphExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
       final String query =
-            String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS, String.join(",", ids));
+            String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedGoldenRecords, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          final var records = OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);

@@ -20,6 +20,10 @@ public class DGraphConfig {
    public final String interactionFieldNames;
    public final String expandedInteractionFieldNames;
    public final String queryGetInteractionByUid;
+   public final String queryGetGoldenRecordByUid;
+   public final String queryGetExpandedInteractions;
+   public final String queryGetGoldenRecords;
+   public final String queryGetExpandedGoldenRecords;
 
    DGraphConfig(final JsonConfig jsonConfig) {
       demographicDataFields = DemographicDataFields.create(jsonConfig);
@@ -34,6 +38,10 @@ public class DGraphConfig {
       interactionFieldNames = InteractionFieldNames.create(jsonConfig);
       expandedInteractionFieldNames = ExpandedInteractionFieldNames.create(jsonConfig);
       queryGetInteractionByUid = QueryGetInteractionByUid.create(jsonConfig);
+      queryGetGoldenRecordByUid = QueryGetGoldenRecordByUid.create(jsonConfig);
+      queryGetExpandedInteractions = QueryGetExpandedInteractions.create(jsonConfig);
+      queryGetGoldenRecords = QueryGetGoldenRecords.create(jsonConfig);
+      queryGetExpandedGoldenRecords = QueryGetExpandedGoldenRecords.create(jsonConfig);
    }
 
 }

@@ -255,7 +255,8 @@ private object CustomDgraphConstants {
     }
 
     def query_get_golden_record_by_uid(): Unit = {
-      writer.println(s"""   static final String QUERY_GET_GOLDEN_RECORD_BY_UID =
+      writer.println(
+        s"""   static final String DEPRECATED_QUERY_GET_GOLDEN_RECORD_BY_UID =
            |         \"\"\"
            |         query goldenRecordByUid($$uid: string) {
            |            all(func: uid($$uid)) {
@@ -264,7 +265,8 @@ private object CustomDgraphConstants {
            |                  uid
            |                  SourceId.facility
            |                  SourceId.patient
-           |               }""".stripMargin)
+           |               }""".stripMargin
+      )
       if (config.uniqueGoldenRecordFields.isDefined) {
         config.uniqueGoldenRecordFields.get.foreach(field => {
           val name = field.fieldName
@@ -283,7 +285,7 @@ private object CustomDgraphConstants {
 
     def query_get_expanded_interactions(): Unit = {
       writer.println(
-        s"""   static final String QUERY_GET_EXPANDED_INTERACTIONS =
+        s"""   static final String DEPRECATED_QUERY_GET_EXPANDED_INTERACTIONS =
            |         \"\"\"
            |         query expandedInteraction() {
            |            all(func: uid(%s)) {
@@ -331,7 +333,8 @@ private object CustomDgraphConstants {
     }
 
     def query_get_golden_records(): Unit = {
-      writer.println(s"""   static final String QUERY_GET_GOLDEN_RECORDS =
+      writer.println(
+        s"""   static final String DEPRECATED_QUERY_GET_GOLDEN_RECORDS =
            |         \"\"\"
            |         query goldenRecord() {
            |            all(func: uid(%s)) {
@@ -340,7 +343,8 @@ private object CustomDgraphConstants {
            |                  uid
            |                  SourceId.facility
            |                  SourceId.patient
-           |               }""".stripMargin)
+           |               }""".stripMargin
+      )
       if (config.uniqueGoldenRecordFields.isDefined) {
         config.uniqueGoldenRecordFields.get.foreach(field => {
           val name = field.fieldName
@@ -358,7 +362,8 @@ private object CustomDgraphConstants {
     }
 
     def query_get_expanded_golden_records(): Unit = {
-      writer.println(s"""   static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS =
+      writer.println(
+        s"""   static final String DEPRECATED_QUERY_GET_EXPANDED_GOLDEN_RECORDS =
            |         \"\"\"
            |         query expandedGoldenRecord() {
            |            all(func: uid(%s), orderdesc: GoldenRecord.aux_date_created) {
@@ -367,7 +372,8 @@ private object CustomDgraphConstants {
            |                  uid
            |                  SourceId.facility
            |                  SourceId.patient
-           |               }""".stripMargin)
+           |               }""".stripMargin
+      )
       if (config.uniqueGoldenRecordFields.isDefined) {
         config.uniqueGoldenRecordFields.get.foreach(field => {
           val name = field.fieldName
