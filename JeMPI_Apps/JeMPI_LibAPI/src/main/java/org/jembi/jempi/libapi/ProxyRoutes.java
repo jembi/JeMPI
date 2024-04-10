@@ -494,7 +494,7 @@ public final class ProxyRoutes {
                                          }));
    }
 
-   static Route proxyGetDashboardData(
+   static Route proxyPostDashboardData(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String controllerIp,
@@ -505,9 +505,9 @@ public final class ProxyRoutes {
                                     "http://%s:%d/JeMPI/%s",
                                     controllerIp,
                                     controllerPort,
-                                    GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA);
+                                    GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA);
       final var request = HttpRequest.create(uri)
-                                     .withMethod(HttpMethods.GET)
+                                     .withMethod(HttpMethods.POST)
                                      .withEntity(akka.http.scaladsl.model.HttpEntity.Empty());
 
       final CompletableFuture<BackEnd.SQLDashboardDataResponse> sqlDashboardDataFuture = Ask.getSQLDashboardData(actorSystem,

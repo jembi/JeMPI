@@ -606,6 +606,8 @@ public final class Routes {
                                      : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION,
                                  () -> Routes.postInteraction(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
+                                 () -> ProxyRoutes.proxyPostDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION_AUDIT_TRAIL,
                                  () -> Routes.postInteractionAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
@@ -621,8 +623,6 @@ public final class Routes {
                                gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)))),
                     get(() -> concat(
                           /* proxy for linker/controller services*/
-                          path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                               () -> ProxyRoutes.proxyGetDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,       // <------------------------ CHECK
                                () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
 
