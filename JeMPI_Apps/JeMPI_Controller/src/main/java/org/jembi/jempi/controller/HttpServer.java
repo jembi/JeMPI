@@ -173,7 +173,7 @@ public final class HttpServer extends AllDirectives {
                                                        path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
                                                             () -> onNotificationResolution(actorSystem, backEnd)))),
                                      get(() -> concat(path("mu", this::routeMU),
-                                                      path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                                                      path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
                                                            () -> routeDashboardData(actorSystem, backEnd))
                                                      ))));
    }
