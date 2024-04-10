@@ -117,9 +117,9 @@ export class ApiClient {
     }
   }
 
-  async getDashboardData() {
-    const { data } = await this.client.get<DashboardData>(
-      ROUTES.GET_DASHBOARD_DATA
+  async fetchDashboardData() {
+    const { data } = await this.client.post<DashboardData>(
+      ROUTES.POST_DASHBOARD_DATA
     )
     return data
   }
