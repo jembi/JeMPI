@@ -27,7 +27,7 @@ import {
   DemographicData,
   PatientRecord
 } from 'types/PatientRecord'
-import { Notifications, NotificationState} from 'types/Notification'
+import { Notifications, NotificationState } from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
@@ -95,7 +95,9 @@ export class ApiClient {
     endDay: string,
     states: string[]
   ): Promise<Notifications> {
-    const notificationState = states.includes(NotificationState.ALL.toString()) ? [NotificationState.CLOSED, NotificationState.OPEN] : states;
+    const notificationState = states.includes(NotificationState.ALL.toString())
+      ? [NotificationState.CLOSED, NotificationState.OPEN]
+      : states
     const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${notificationState}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
@@ -122,9 +124,10 @@ export class ApiClient {
     return data
   }
 
-  async getInteraction(uid: string) {
-    const { data } = await this.client.get<Interaction>(
-      `${ROUTES.GET_INTERACTION}/${uid}`
+  async postInteraction(uid: string) {
+    const { data } = await this.client.post<Interaction>(
+      ROUTES.POST_INTERACTION,
+      uid
     )
     return data
   }
@@ -183,12 +186,18 @@ export class ApiClient {
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_NEW_GID_LINK, request)
+    const { data } = await this.client.post<LinkRequest>(
+      ROUTES.POST_IID_NEW_GID_LINK,
+      request
+    )
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_GID_LINK, linkRequest)
+    const { data } = await this.client.post<LinkRequest>(
+      ROUTES.POST_IID_GID_LINK,
+      linkRequest
+    )
     return data
   }
 
@@ -345,9 +354,7 @@ export class ApiClient {
   }
 
   async getGoldenRecordAuditTrail(gid: string) {
-    const {
-      data
-    } = await this.client.get<Array<AuditTrail>>(
+    const { data } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
       {
         params: {
@@ -359,10 +366,10 @@ export class ApiClient {
   }
 
   async postInteractionAuditTrail(iid: string) {
-    const {
-      data
-    } = await this.client.post<Array<AuditTrail>>(
-      ROUTES.POST_INTERACTION_AUDIT_TRAIL, iid)
+    const { data } = await this.client.post<Array<AuditTrail>>(
+      ROUTES.POST_INTERACTION_AUDIT_TRAIL,
+      iid
+    )
     return data
   }
 

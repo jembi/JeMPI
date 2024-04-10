@@ -2,7 +2,7 @@ const ROUTES = {
   GET_FIELDS_CONFIG: '/config',
   GET_LINKED_RECORDS: '/linkedRecords',
   GET_NOTIFICATIONS: '/matchesForReview',
-  GET_INTERACTION: '/interaction',
+  POST_INTERACTION: '/interaction',
   GET_DASHBOARD_DATA: '/dashboardData',
   GET_GIDS_PAGED: '/gidsPaged',
   GET_GOLDEN_RECORD: '/expandedGoldenRecord',
