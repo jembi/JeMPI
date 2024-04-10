@@ -208,7 +208,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                       req.batchInteraction.interaction(),
                                       null,
                                       req.batchInteraction.config() != null
-                                            ? req.batchInteraction.config().threshold().floatValue()
+                                            ? req.batchInteraction.config().linkThreshold().floatValue()
                                             : AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
       if (linkInfo.isRight()) {

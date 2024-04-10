@@ -43,12 +43,12 @@ const DropZone: FC = () => {
     setFieldValue
   } = useFormik({
     initialValues: {
-      reporting: false,
-      computing: 0,
-      leftMargin: 0.65,
-      threshold: 0.7,
-      rightMargin: 0.75,
-      windowSize: 0.1
+      reportingRequired: false,
+      uploadWorkflow: 0,
+      minThreshold: 0.65,
+      linkThreshold: 0.7,
+      maxThreshold: 0.75,
+      marginWindowSize: 0.1
     },
     onSubmit: () => {
       if (fileObjs?.file) {
@@ -198,14 +198,14 @@ const DropZone: FC = () => {
                   <FormControlLabel
                     control={
                       <Radio
-                        name="computing"
+                        name="uploadWorkflow"
                         value={0}
                         onChange={() => {
                           handleImportFormChange({
-                            target: { name: 'computing', value: 0 }
+                            target: { name: 'uploadWorkflow', value: 0 }
                           })
                         }}
-                        checked={FormValues.computing === 0}
+                        checked={FormValues.uploadWorkflow === 0}
                       />
                     }
                     label={
@@ -219,14 +219,14 @@ const DropZone: FC = () => {
                   <FormControlLabel
                     control={
                       <Radio
-                        name="computing"
+                        name="uploadWorkflow"
                         value={1}
                         onChange={() =>
                           handleImportFormChange({
-                            target: { name: 'computing', value: 1 }
+                            target: { name: 'uploadWorkflow', value: 1 }
                           })
                         }
-                        checked={FormValues.computing === 1}
+                        checked={FormValues.uploadWorkflow === 1}
                       />
                     }
                     label={
@@ -240,14 +240,14 @@ const DropZone: FC = () => {
                   <FormControlLabel
                     control={
                       <Radio
-                        name="computing"
+                        name="uploadWorkflow"
                         value={2}
                         onChange={() => {
                           handleImportFormChange({
-                            target: { name: 'computing', value: 2 }
+                            target: { name: 'uploadWorkflow', value: 2 }
                           })
                         }}
-                        checked={FormValues.computing === 2}
+                        checked={FormValues.uploadWorkflow === 2}
                       />
                     }
                     label={
@@ -268,20 +268,20 @@ const DropZone: FC = () => {
                   <Slider
                     onChange={(_: Event, value: number | number[]) => {
                       if (!Array.isArray(value)) return
-                      const [leftMargin, threshold, rightMargin] = value
+                      const [minThreshold, linkThreshold, maxThreshold] = value
                       if (
-                        0 < threshold &&
-                        threshold < 1 &&
-                        threshold > leftMargin &&
-                        threshold < rightMargin
+                        0 < linkThreshold &&
+                        linkThreshold < 1 &&
+                        linkThreshold > minThreshold &&
+                        linkThreshold < maxThreshold
                       ) {
-                        setFieldValue('threshold', threshold)
+                        setFieldValue('linkThreshold', linkThreshold)
                       }
-                      if (threshold > leftMargin)
-                        setFieldValue('leftMargin', leftMargin)
+                      if (linkThreshold > minThreshold)
+                        setFieldValue('minThreshold', minThreshold)
 
-                      if (threshold < rightMargin)
-                        setFieldValue('rightMargin', rightMargin)
+                      if (linkThreshold < maxThreshold)
+                        setFieldValue('maxThreshold', maxThreshold)
                     }}
                     getAriaValueText={(e: number) => e.toString()}
                     valueLabelDisplay="auto"
@@ -290,14 +290,14 @@ const DropZone: FC = () => {
                     min={0.19}
                     max={0.96}
                     value={[
-                      FormValues.leftMargin,
-                      FormValues.threshold,
-                      FormValues.rightMargin
+                      FormValues.minThreshold,
+                      FormValues.linkThreshold,
+                      FormValues.maxThreshold
                     ]}
                     defaultValue={[
-                      FormValues.leftMargin,
-                      FormValues.threshold,
-                      FormValues.rightMargin
+                      FormValues.minThreshold,
+                      FormValues.linkThreshold,
+                      FormValues.maxThreshold
                     ]}
                     sx={{
                       '& .MuiSlider-thumb': {
@@ -314,20 +314,20 @@ const DropZone: FC = () => {
                 </Grid>
                 <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <TextField
-                    name="leftMargin"
+                    name="minThreshold"
                     type="number"
                     size="small"
                     variant="outlined"
-                    label="Minimum Threshold  Review"
-                    value={FormValues.leftMargin}
+                    label="Minimum Threshold Review"
+                    value={FormValues.minThreshold}
                     onChange={e => {
-                      if (+e.target.value < FormValues.threshold) {
+                      if (+e.target.value < FormValues.linkThreshold) {
                         handleImportFormChange(e)
                       }
                     }}
                     inputProps={{
                       min: 0.19,
-                      max: FormValues.threshold,
+                      max: FormValues.linkThreshold,
                       step: 0.01
                     }}
                     InputLabelProps={{
@@ -338,16 +338,16 @@ const DropZone: FC = () => {
                 </Grid>
                 <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <TextField
-                    name="threshold"
+                    name="linkThreshold"
                     type="number"
                     size="small"
                     variant="outlined"
                     label="Link Threshold"
-                    value={FormValues.threshold}
+                    value={FormValues.linkThreshold}
                     onChange={e => {
                       if (
-                        +e.target.value > FormValues.leftMargin &&
-                        +e.target.value < FormValues.rightMargin
+                        +e.target.value > FormValues.minThreshold &&
+                        +e.target.value < FormValues.maxThreshold
                       ) {
                         handleImportFormChange(e)
                       }
@@ -361,19 +361,19 @@ const DropZone: FC = () => {
                 </Grid>
                 <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <TextField
-                    name="rightMargin"
+                    name="maxThreshold"
                     type="number"
                     size="small"
                     variant="outlined"
                     label="Maximum Review Threshold "
-                    value={FormValues.rightMargin}
+                    value={FormValues.maxThreshold}
                     onChange={e => {
-                      if (+e.target.value > FormValues.threshold) {
+                      if (+e.target.value > FormValues.linkThreshold) {
                         handleImportFormChange(e)
                       }
                     }}
                     inputProps={{
-                      min: FormValues.threshold,
+                      min: FormValues.linkThreshold,
                       max: 0.96,
                       step: 0.01
                     }}
@@ -385,11 +385,11 @@ const DropZone: FC = () => {
                 </Grid>
                 <Grid item xs={12} md={4} sx={{ padding: { xs: '0.5rem' } }}>
                   <Slider
-                    value={FormValues.windowSize}
+                    value={FormValues.marginWindowSize}
                     getAriaValueText={(e: number) => e.toString()}
                     valueLabelDisplay="auto"
                     onChange={handleImportFormChange}
-                    name="windowSize"
+                    name="marginWindowSize"
                     step={0.01}
                     marks
                     min={0}
@@ -397,12 +397,12 @@ const DropZone: FC = () => {
                   />
                   <Box sx={{ paddingY: { xs: '0.5rem' } }}>
                     <TextField
-                      name="windowSize"
+                      name="marginWindowSize"
                       type="number"
                       size="small"
                       variant="outlined"
                       label="Margin Window size"
-                      value={FormValues.windowSize}
+                      value={FormValues.marginWindowSize}
                       onChange={handleImportFormChange}
                       inputProps={{ min: 0, max: 0.2, step: 0.01 }}
                       fullWidth
