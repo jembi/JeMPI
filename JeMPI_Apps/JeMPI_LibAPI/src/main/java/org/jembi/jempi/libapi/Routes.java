@@ -606,6 +606,7 @@ public final class Routes {
                                      : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION,
                                  () -> Routes.postInteraction(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS, () -> Routes.countInteractions(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
                                  () -> ProxyRoutes.proxyPostDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION_AUDIT_TRAIL,
@@ -628,7 +629,6 @@ public final class Routes {
 
                           /* serviced by api */
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
-                          path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS, () -> Routes.countInteractions(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
                                () -> Routes.countGoldenRecords(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_COUNT_RECORDS, () -> Routes.countRecords(actorSystem, backEnd)),

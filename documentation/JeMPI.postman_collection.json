@@ -680,7 +680,7 @@
 		{
 			"name": "Dashboard Data",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/dashboardData",
