@@ -80,7 +80,7 @@ public final class StatsTask {
 
    private GoldenIdList getGoldenIdList() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GIDS_ALL)).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_GIDS_ALL)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
