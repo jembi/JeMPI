@@ -428,14 +428,14 @@ public final class ProxyRoutes {
                                                            "http://%s:%d/JeMPI/%s",
                                                            linkerIP,
                                                            linkerPort,
-                                                           GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS))
-                                     .withMethod(HttpMethods.PATCH)
+                                                           GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS))
+                                     .withMethod(HttpMethods.POST)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
    }
 
-   static Route proxyPatchCrUpdateFields(
+   static Route proxyPostCrUpdateFields(
          final String linkerIP,
          final Integer linkerPort,
          final Http http) {
