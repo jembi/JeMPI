@@ -26,7 +26,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_GIDS_PAGED = "gidsPaged";
    public static final String SEGMENT_POST_INTERACTION = "interaction";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORD = "expandedGoldenRecord";
-   public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expandedGoldenRecords";
+   public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expandedGoldenRecords";
    public static final String SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expandedGoldenRecordsCsv";
    public static final String SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
    public static final String SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL = "goldenRecordAuditTrail";

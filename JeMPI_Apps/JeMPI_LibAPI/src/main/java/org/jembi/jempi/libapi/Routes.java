@@ -292,30 +292,35 @@ public final class Routes {
                                                      }))))));
    }
 
-   private static Route getExpandedGoldenRecordsUsingParameterList(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameterList(params -> {
-         final var goldenIds = params.stream().map(PARAM_STRING).toList();
-         return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 final var e = result.failed().get();
-                                 LOGGER.error(e.getLocalizedMessage(), e);
-                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                              }
-                              return result.get()
-                                           .expandedGoldenRecords()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                   expandedGoldenRecords.stream()
-                                                                                                        .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                                        .toList(),
-                                                                                   JSON_MARSHALLER));
-                           });
-      });
-   }
+   private static Route postExpandedGoldenRecordsUsingParameterList(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
+        try {
+            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return result.get()
+                                     .expandedGoldenRecords()
+                                     .mapLeft(MapError::mapError)
+                                     .fold(error -> error,
+                                           expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                            expandedGoldenRecords.stream()
+                                                                                                 .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                 .toList(),
+                                                                            JSON_MARSHALLER));
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid gid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid gid provided");
+        }
+    });
+}
+
 
    private static Route getExpandedGoldenRecordsFromUsingCSV(
          final ActorSystem<Void> actorSystem,
@@ -632,6 +637,8 @@ public final class Routes {
                                () -> Routes.postInteractionAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
                                () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
+                               () -> Routes.postExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
                                () -> complete(StatusCodes.OK, jsonFields)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
@@ -651,8 +658,6 @@ public final class Routes {
                                () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
 
                           /* serviced by api */
-                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
-                               () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
                                () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,

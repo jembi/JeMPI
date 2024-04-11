@@ -351,6 +351,10 @@ public abstract class ApiModels {
          List<String> goldenIds) {
    }
 
+   public record ApiExpandedGoldenRecordsParameterList(
+         List<String> uidList) {
+   }
+
    public record ApiCalculateScoresResponse(
          String interactionId,
          List<ApiScore> scores) {

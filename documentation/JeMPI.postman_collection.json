@@ -155,21 +155,24 @@
 		{
 			"name": "Get Expanded Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"goldenIds\": [\n        \"0x4d03\",\n        \"0x3a07\",\n        \"0x2b20\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecords?uidList=0x4d03,0x3a07,0x42b2",
+					"raw": "{{LocalApi}}/expandedGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"expandedGoldenRecords"
-					],
-					"query": [
-						{
-							"key": "uidList",
-							"value": "0x4d03,0x3a07,0x42b2"
-						}
 					]
 				}
 			},
