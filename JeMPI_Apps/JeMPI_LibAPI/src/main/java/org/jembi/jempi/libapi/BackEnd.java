@@ -1,11 +1,13 @@
 package org.jembi.jempi.libapi;
 
-
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
 import io.vavr.control.Either;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,8 +17,11 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
+import org.jembi.jempi.shared.utils.AppUtils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -43,7 +48,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
-
 
    private BackEnd(
          final Level debugLevel,
@@ -103,6 +107,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
+   }
+
+   private static void appendUploadConfigToFile(
+         final UploadConfig uploadConfig,
+         final File file) throws IOException {
+      LineIterator lineIterator = FileUtils.lineIterator(file);
+      File tempFile = File.createTempFile("prependPrefix", ".tmp");
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
+
+      try {
+         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
+         while (lineIterator.hasNext()) {
+            bufferedWriter.write(lineIterator.next());
+            bufferedWriter.write(System.lineSeparator());
+         }
+      } finally {
+         IOUtils.closeQuietly(bufferedWriter);
+         bufferedWriter.close();
+      }
+      FileUtils.deleteQuietly(file);
+      FileUtils.moveFile(tempFile, file);
    }
 
    private void openMPI(
@@ -209,7 +234,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> postFilterGidsWithInteractionCountHandler(final PostFilterGidsWithInteractionCountRequest request) {
+   private Behavior<Event> postFilterGidsWithInteractionCountHandler(
+         final PostFilterGidsWithInteractionCountRequest request) {
       FilterGidsRequestPayload payload = request.filterGidsRequestPayload();
       List<ApiModels.ApiSearchParameter> parameters = payload.parameters();
       LocalDateTime createdAt = payload.createdAt();
@@ -241,7 +267,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new CountGoldenRecordsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countGoldenRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(new CountGoldenRecordsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
+         request.replyTo.tell(
+               new CountGoldenRecordsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
@@ -252,7 +279,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new CountInteractionsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
+         request.replyTo.tell(
+               new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
@@ -289,9 +317,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedGoldenRecord == null) {
-         request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
-               "Golden Record does not exist",
-               request.goldenId))));
+         request.replyTo
+               .tell(new GetExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+                     "Golden Record does not exist",
+                     request.goldenId))));
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
       }
@@ -309,9 +338,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (goldenRecords == null) {
-         request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
-               "Golden Records do not exist",
-               Collections.singletonList(request.goldenIds).toString()))));
+         request.replyTo
+               .tell(new GetExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+                     "Golden Records do not exist",
+                     Collections.singletonList(request.goldenIds).toString()))));
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
@@ -329,9 +359,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedInteractions == null) {
-         request.replyTo.tell(new GetExpandedInteractionsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
-               "Patient Records do not exist",
-               Collections.singletonList(request.patientIds).toString()))));
+         request.replyTo
+               .tell(new GetExpandedInteractionsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
+                     "Patient Records do not exist",
+                     Collections.singletonList(request.patientIds).toString()))));
       } else {
          request.replyTo.tell(new GetExpandedInteractionsResponse(Either.right(expandedInteractions)));
       }
@@ -343,7 +374,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          interaction = libMPI.findInteraction(request.iid);
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid, exception.getMessage());
+         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid,
+                      exception.getMessage());
       }
 
       if (interaction == null) {
@@ -361,7 +393,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var goldenId = request.goldenId;
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(), field.newValue());
+         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(),
+                                                           field.newValue());
          if (result) {
             updatedFields.add(field);
          } else {
@@ -373,7 +406,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postIidGidLinkHandler(final PostIidGidLinkRequest request) {
-      final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+      final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId,
+                                             request.score);
       request.replyTo.tell(new PostIidGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
@@ -404,7 +438,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId, request.currentGoldenId);
+         psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId,
+                                                   request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
@@ -416,11 +451,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUploadCsvFileHandler(final PostUploadCsvFileRequest request) {
       final File file = request.file();
       try {
-         final String userCSVPath = System.getenv("UPLOAD_CSV_PATH");
-         Files.copy(file.toPath(),
-                    Paths.get((userCSVPath != null
-                                     ? userCSVPath
-                                     : "/app/csv") + "/" + file.getName()));
+         if (request.uploadConfig != null) {
+            appendUploadConfigToFile(request.uploadConfig, file);
+         }
+         Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
          Files.delete(file.toPath());
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
@@ -497,7 +531,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
    }
 
-
    public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event {
    }
 
@@ -518,7 +551,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String goldenId) implements Event {
    }
 
-   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {
+   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord)
+         implements EventResponse {
    }
 
    public record GetExpandedGoldenRecordsRequest(
@@ -526,7 +560,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> goldenIds) implements Event {
    }
 
-   public record GetExpandedGoldenRecordsResponse(Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse {
+   public record GetExpandedGoldenRecordsResponse(
+         Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse {
    }
 
    public record GetExpandedInteractionsRequest(
@@ -534,7 +569,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<String> patientIds) implements Event {
    }
 
-   public record GetExpandedInteractionsResponse(Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse {
+   public record GetExpandedInteractionsResponse(
+         Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse {
    }
 
    public record GetInteractionRequest(
@@ -566,7 +602,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
    }
 
-   public record PatchGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {
+   public record PatchGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields)
+         implements EventResponse {
    }
 
    public record PostIidGidLinkRequest(
@@ -652,7 +689,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileRequest(
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
-         File file) implements Event {
+         File file,
+         UploadConfig uploadConfig) implements Event {
    }
 
    public record PostUploadCsvFileResponse() implements EventResponse {
