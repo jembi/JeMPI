@@ -51,7 +51,7 @@ final class DgraphMutations {
          final String goldenId,
          final String fieldName,
          final String val) {
-      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      String predicate = "GoldenRecord." + AppUtils.camelToSnake(fieldName);
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
@@ -231,15 +231,15 @@ final class DgraphMutations {
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
 
-   String camelToSnake(final String str) {
-      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
-   }
+//   String camelToSnake(final String str) {
+//      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+//   }
 
    boolean updateGoldenRecordField(
          final String goldenId,
          final String fieldName,
          final Boolean val) {
-      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      String predicate = "GoldenRecord." + AppUtils.camelToSnake(fieldName);
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
@@ -247,7 +247,7 @@ final class DgraphMutations {
          final String goldenId,
          final String fieldName,
          final Double val) {
-      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      String predicate = "GoldenRecord." + AppUtils.camelToSnake(fieldName);
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
@@ -255,7 +255,7 @@ final class DgraphMutations {
          final String goldenId,
          final String fieldName,
          final Long val) {
-      String predicate = "GoldenRecord." + camelToSnake(fieldName);
+      String predicate = "GoldenRecord." + AppUtils.camelToSnake(fieldName);
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 

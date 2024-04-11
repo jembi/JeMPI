@@ -92,17 +92,11 @@ public final class AppUtils implements Serializable {
       return Long.toString(++autoIncrement);
    }
 
-   @Serial
-   private Object readResolve() {
-      return getInstance();
-   }
-
-   private static class UtilsSingletonHolder {
-      public static final AppUtils INSTANCE = new AppUtils();
-   }
-
    public static String camelToSnake(final String str) {
-      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+      final var s = str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+      return s.startsWith("_")
+            ? s.substring(1)
+            : s;
    }
 
    public static String snakeToCamelCase(final String str) {
@@ -112,6 +106,15 @@ public final class AppUtils implements Serializable {
          result.append(words[i].substring(0, 1).toUpperCase()).append(words[i].substring(1));
       }
       return result.toString();
+   }
+
+   @Serial
+   private Object readResolve() {
+      return getInstance();
+   }
+
+   private static class UtilsSingletonHolder {
+      public static final AppUtils INSTANCE = new AppUtils();
    }
 
 }

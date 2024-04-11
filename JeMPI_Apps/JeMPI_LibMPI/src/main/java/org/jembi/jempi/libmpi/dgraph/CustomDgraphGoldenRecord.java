@@ -23,7 +23,7 @@ record CustomDgraphGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId) {
 
-   GoldenRecord toGoldenRecord() {
+   GoldenRecord deprecatedToGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
                               this.sourceId() != null
                                  ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()

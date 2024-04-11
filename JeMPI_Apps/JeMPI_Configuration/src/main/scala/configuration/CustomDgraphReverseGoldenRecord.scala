@@ -33,7 +33,7 @@ private object CustomDgraphReverseGoldenRecord {
          |${goldenRecordFields()}
          |      @JsonProperty("~GoldenRecord.interactions|score") Float score) {
          |
-         |   GoldenRecord toGoldenRecord() {
+         |   GoldenRecord deprecatedToGoldenRecord() {
          |      return new GoldenRecord(this.goldenId(),
          |                              this.sourceId() != null
          |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
@@ -42,8 +42,8 @@ private object CustomDgraphReverseGoldenRecord {
          |                              CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
-         |   GoldenRecordWithScore toGoldenRecordWithScore() {
-         |      return new GoldenRecordWithScore(toGoldenRecord(), score);
+         |   GoldenRecordWithScore deprecatedToGoldenRecordWithScore() {
+         |      return new GoldenRecordWithScore(deprecatedToGoldenRecord(), score);
          |   }
          |
          |}

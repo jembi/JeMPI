@@ -115,7 +115,11 @@ public final class LibDgraph implements LibMPIClientInterface {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+      final var data = list
+            .all()
+            .stream()
+            .map(DeprecatedCustomFunctions::toExpandedGoldenRecord)
+            .toList();
       final var pagination = list.pagination().getFirst();
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
@@ -124,7 +128,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(CustomDgraphInteraction::toInteraction).toList();
+      final var data = list.all().stream().map(DeprecatedCustomFunctions::toInteraction).toList();
       final var pagination = list.pagination().getFirst();
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }

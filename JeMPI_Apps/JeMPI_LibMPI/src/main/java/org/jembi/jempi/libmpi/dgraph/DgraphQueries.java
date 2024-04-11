@@ -160,8 +160,11 @@ final class DgraphQueries {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-            final var obj2 = OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
-            return obj2.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+            return OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
+                                .all()
+                                .stream()
+                                .map(DeprecatedCustomFunctions::toGoldenRecord)
+                                .toList();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
@@ -193,7 +196,7 @@ final class DgraphQueries {
       if (AppUtils.isNullOrEmpty(interactionList)) {
          return null;
       }
-      return interactionList.getFirst().toInteractionWithScore().interaction();
+      return DeprecatedCustomFunctions.toInteractionWithScore(interactionList.getFirst()).interaction();
    }
 
 /*
@@ -350,7 +353,7 @@ final class DgraphQueries {
          return OBJECT_MAPPER.readValue(json, DgraphExpandedInteractions.class)
                              .all()
                              .stream()
-                             .map(CustomDgraphExpandedInteraction::toExpandedInteraction)
+                             .map(DeprecatedCustomFunctions::toExpandedInteraction)
                              .toList();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
@@ -363,8 +366,11 @@ final class DgraphQueries {
       final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetGoldenRecords, idListAsString);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         final var records = OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
-         return Either.right(records.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
+         return Either.right(OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
+                                          .all()
+                                          .stream()
+                                          .map(DeprecatedCustomFunctions::toGoldenRecord)
+                                          .toList());
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return Either.left(new MpiServiceError.CRGidDoesNotExistError(idListAsString));
@@ -376,8 +382,11 @@ final class DgraphQueries {
             String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedGoldenRecords, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         final var records = OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
-         return records.all().stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+         return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class)
+                             .all()
+                             .stream()
+                             .map(DeprecatedCustomFunctions::toExpandedGoldenRecord)
+                             .toList();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return List.of();

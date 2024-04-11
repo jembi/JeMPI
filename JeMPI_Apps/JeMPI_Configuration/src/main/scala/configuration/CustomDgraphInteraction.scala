@@ -34,7 +34,7 @@ private object CustomDgraphInteraction {
          |${interactionFields()}
          |      @JsonProperty("GoldenRecord.interactions|score") Float score) {
          |
-         |   $customClassName(
+         |   private $customClassName(
          |         final Interaction interaction,
          |         final Float score) {
          |      this(interaction.interactionId(),
@@ -43,7 +43,7 @@ private object CustomDgraphInteraction {
          |           score);
          |   }
          |
-         |   Interaction toInteraction() {
+         |   Interaction deprecatedToInteraction() {
          |      return new Interaction(this.interactionId(),
          |                             this.sourceId() != null
          |                                   ? this.sourceId().toSourceId()
@@ -52,8 +52,8 @@ private object CustomDgraphInteraction {
          |                             CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
-         |   InteractionWithScore toInteractionWithScore() {
-         |      return new InteractionWithScore(toInteraction(), this.score());
+         |   InteractionWithScore deprecatedToInteractionWithScore() {
+         |      return new InteractionWithScore(deprecatedToInteraction(), this.score());
          |   }
          |
          |}

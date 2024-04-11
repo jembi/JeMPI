@@ -15,8 +15,10 @@ public record DgraphReverseGoldenRecordFromSourceId(
       @JsonProperty("~GoldenRecord.source_id") List<CustomDgraphGoldenRecord> goldenRecordList) {
 
    public ExpandedSourceId toExpandedSourceId() {
-      return new ExpandedSourceId(new CustomSourceId(uid, facility, patient), goldenRecordList.stream().map(
-            CustomDgraphGoldenRecord::toGoldenRecord).toList());
+      return new ExpandedSourceId(new CustomSourceId(uid, facility, patient), goldenRecordList
+            .stream()
+            .map(DeprecatedCustomFunctions::toGoldenRecord)
+            .toList());
    }
 
 }

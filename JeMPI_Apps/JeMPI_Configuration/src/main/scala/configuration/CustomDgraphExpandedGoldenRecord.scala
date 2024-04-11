@@ -33,7 +33,7 @@ private object CustomDgraphExpandedGoldenRecord {
          |${goldenRecordFields()}
          |      @JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
          |
-         |   GoldenRecord toGoldenRecord() {
+         |   GoldenRecord deprecatedToGoldenRecord() {
          |      return new GoldenRecord(this.goldenId(),
          |                              this.sourceId() != null
          |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
@@ -42,9 +42,9 @@ private object CustomDgraphExpandedGoldenRecord {
          |                              CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
          |   }
          |
-         |   ExpandedGoldenRecord toExpandedGoldenRecord() {
-         |      return new ExpandedGoldenRecord(this.toGoldenRecord(),
-         |                                      this.interactions().stream().map(CustomDgraphInteraction::toInteractionWithScore).toList());
+         |   ExpandedGoldenRecord deprecatedToExpandedGoldenRecord() {
+         |      return new ExpandedGoldenRecord(this.deprecatedToGoldenRecord(),
+         |                                      this.interactions().stream().map(DeprecatedCustomFunctions::toInteractionWithScore).toList());
          |   }
          |""".stripMargin)
 

@@ -31,7 +31,7 @@ private object CustomDgraphGoldenRecord {
          |${" " * 6}@JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
          |${goldenRecordFields()}) {
          |
-         |   GoldenRecord toGoldenRecord() {
+         |   GoldenRecord deprecatedToGoldenRecord() {
          |      return new GoldenRecord(this.goldenId(),
          |                              this.sourceId() != null
          |                                 ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()

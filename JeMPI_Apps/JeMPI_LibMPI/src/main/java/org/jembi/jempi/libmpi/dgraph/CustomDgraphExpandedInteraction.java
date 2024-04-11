@@ -25,7 +25,7 @@ record CustomDgraphExpandedInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
-   Interaction toInteraction() {
+   private Interaction deprecatedToInteraction() {
       return new Interaction(this.interactionId(),
                              this.sourceId().toSourceId(),
                              new CustomUniqueInteractionData(this.auxDateCreated(),
@@ -40,11 +40,11 @@ record CustomDgraphExpandedInteraction(
                                                                                this.nationalId()));
    }
 
-   ExpandedInteraction toExpandedInteraction() {
-      return new ExpandedInteraction(this.toInteraction(),
+   ExpandedInteraction deprecatedToExpandedInteraction() {
+      return new ExpandedInteraction(this.deprecatedToInteraction(),
                                      this.dgraphGoldenRecordList()
                                          .stream()
-                                         .map(CustomDgraphReverseGoldenRecord::toGoldenRecordWithScore)
+                                         .map(CustomDgraphReverseGoldenRecord::deprecatedToGoldenRecordWithScore)
                                          .toList());
    }
 

@@ -25,7 +25,7 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
 
-   CustomDgraphInteraction(
+   private CustomDgraphInteraction(
          final Interaction interaction,
          final Float score) {
       this(interaction.interactionId(),
@@ -43,7 +43,7 @@ record CustomDgraphInteraction(
            score);
    }
 
-   Interaction toInteraction() {
+   Interaction deprecatedToInteraction() {
       return new Interaction(this.interactionId(),
                              this.sourceId() != null
                                    ? this.sourceId().toSourceId()
@@ -60,8 +60,8 @@ record CustomDgraphInteraction(
                                                                                this.nationalId));
    }
 
-   InteractionWithScore toInteractionWithScore() {
-      return new InteractionWithScore(toInteraction(), this.score());
+   InteractionWithScore deprecatedToInteractionWithScore() {
+      return new InteractionWithScore(deprecatedToInteraction(), this.score());
    }
 
 }

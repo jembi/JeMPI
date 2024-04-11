@@ -25,7 +25,7 @@ record CustomDgraphReverseGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId,
       @JsonProperty("~GoldenRecord.interactions|score") Float score) {
 
-   GoldenRecord toGoldenRecord() {
+   GoldenRecord deprecatedToGoldenRecord() {
       return new GoldenRecord(this.goldenId(),
                               this.sourceId() != null
                                     ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
@@ -42,8 +42,8 @@ record CustomDgraphReverseGoldenRecord(
                                                                                 this.nationalId()));
    }
 
-   GoldenRecordWithScore toGoldenRecordWithScore() {
-      return new GoldenRecordWithScore(toGoldenRecord(), score);
+   GoldenRecordWithScore deprecatedToGoldenRecordWithScore() {
+      return new GoldenRecordWithScore(deprecatedToGoldenRecord(), score);
    }
 
 }

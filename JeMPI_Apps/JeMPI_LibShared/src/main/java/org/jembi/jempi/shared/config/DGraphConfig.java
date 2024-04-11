@@ -25,7 +25,7 @@ public class DGraphConfig {
    public final String queryGetGoldenRecords;
    public final String queryGetExpandedGoldenRecords;
 
-   DGraphConfig(final JsonConfig jsonConfig) {
+   public DGraphConfig(final JsonConfig jsonConfig) {
       demographicDataFields = DemographicDataFields.create(jsonConfig);
       mutationCreateInteractionFields = MutationCreateInteractionFields.create(jsonConfig);
       mutationCreateInteractionType = MutationCreateInteractionType.create(jsonConfig);
