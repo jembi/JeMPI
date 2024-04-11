@@ -35,7 +35,7 @@ export const AppConfigProvider = ({
     isError
   } = useQuery<Fields, AxiosError>({
     queryKey: ['fields'],
-    queryFn: () => apiClient.getFields(),
+    queryFn: () => apiClient.fetchFields(),
     refetchOnWindowFocus: false
   })
   const availableFields: DisplayField[] = useMemo(() => {

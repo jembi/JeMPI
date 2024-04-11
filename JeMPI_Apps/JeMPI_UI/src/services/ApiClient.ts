@@ -83,8 +83,8 @@ export class ApiClient {
     }
   }
 
-  async getFields() {
-    const { data } = await this.client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
+  async fetchFields() {
+    const { data } = await this.client.post<Fields>(ROUTES.POST_FIELDS_CONFIG)
     return data
   }
 
@@ -124,7 +124,7 @@ export class ApiClient {
     return data
   }
 
-  async postInteraction(uid: string) {
+  async fetchInteraction(uid: string) {
     const { data } = await this.client.post<Interaction>(
       ROUTES.POST_INTERACTION,
       uid
@@ -132,11 +132,11 @@ export class ApiClient {
     return data
   }
 
-  async getGoldenRecord(uid: string): Promise<GoldenRecord> {
+  async fetchGoldenRecord(uid: string): Promise<GoldenRecord> {
     const {
       data: { goldenRecord, interactionsWithScore }
-    } = await this.client.get<ExpandedGoldenRecordResponse>(
-      `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
+    } = await this.client.post<ExpandedGoldenRecordResponse>(
+      ROUTES.POST_GOLDEN_RECORD, {"gid": uid}
     )
     return {
       uid: goldenRecord.uid,
@@ -162,8 +162,8 @@ export class ApiClient {
     candidateIds: string[]
   ): Promise<[GoldenRecord, GoldenRecord[]]> {
     const [goldenRecord, candidateRecords] = await Promise.all([
-      this.getGoldenRecord(goldenId),
-      this.getExpandedGoldenRecords(candidateIds)
+      this.fetchGoldenRecord(goldenId),
+      this.fetchExpandedGoldenRecords(candidateIds)
     ])
     return [
       {
@@ -285,14 +285,15 @@ export class ApiClient {
     }
   }
 
-  async getExpandedGoldenRecords(
+  async fetchExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<GoldenRecord[]> {
-    const { data } = await this.client.get<Array<ExpandedGoldenRecordResponse>>(
-      ROUTES.GET_EXPANDED_GOLDEN_RECORDS,
+    const { data } = await this.client.post<Array<ExpandedGoldenRecordResponse>>(
+      ROUTES.POST_EXPANDED_GOLDEN_RECORDS,
       {
-        params: { uidList: goldenIds?.toString() }
+        "uidList": goldenIds
       }
+    
     )
     const records: GoldenRecord[] = data.map(
       ({ goldenRecord, interactionsWithScore }) => {
@@ -325,7 +326,7 @@ export class ApiClient {
   async getFlatExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<AnyRecord[]> {
-    const goldenRecords = await this.getExpandedGoldenRecords(goldenIds)
+    const goldenRecords = await this.fetchExpandedGoldenRecords(goldenIds)
     return goldenRecords.reduce((acc: Array<AnyRecord>, record) => {
       acc.push(record, ...record.linkRecords)
       return acc
@@ -354,12 +355,10 @@ export class ApiClient {
   }
 
   async getGoldenRecordAuditTrail(gid: string) {
-    const { data } = await this.client.get<Array<AuditTrail>>(
-      ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
+    const { data } = await this.client.post<Array<AuditTrail>>(
+      ROUTES.POST_GOLDEN_RECORD_AUDIT_TRAIL,
       {
-        params: {
-          gid
-        }
+       "gid":gid
       }
     )
     return data
