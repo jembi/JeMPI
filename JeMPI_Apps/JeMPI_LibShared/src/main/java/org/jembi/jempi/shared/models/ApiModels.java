@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.sql.Timestamp;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -354,6 +356,16 @@ public abstract class ApiModels {
    public record ApiExpandedGoldenRecordsParameterList(
          List<String> uidList) {
    }
+
+   public record ApiNotifications(
+         int limit,
+         int offset,
+         Timestamp startDate,
+         Timestamp endDate,
+         List<String> states
+         ) {
+   }
+
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecords(

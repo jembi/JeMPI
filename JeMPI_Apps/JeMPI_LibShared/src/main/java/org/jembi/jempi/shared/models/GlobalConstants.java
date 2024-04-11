@@ -33,7 +33,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
    public static final String SEGMENT_POST_FIELDS_CONFIG = "config";
    public static final String SEGMENT_GET_LINKED_RECORDS = "linkedRecords";
-   public static final String SEGMENT_GET_NOTIFICATIONS = "matchesForReview";
+   public static final String SEGMENT_POST_NOTIFICATIONS = "matchesForReview";
    public static final String SEGMENT_PATCH_GOLDEN_RECORD = "goldenRecord";
    public static final String SEGMENT_POST_IID_GID_LINK = "link";
    public static final String SEGMENT_POST_IID_NEW_GID_LINK = "unLink";

@@ -13,7 +13,6 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.ApiModels.ApiInteraction;
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -272,33 +271,29 @@ public final class Routes {
                                                                   })));
    }
 
-   private static Route getNotifications(
+   private static Route postNotifications(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return
-            parameter("limit", limit ->
-                  parameter("offset", offset ->
-                        parameter("startDate", startDate ->
-                              parameter("endDate", endDate ->
-                                    parameter("states", states ->
-                                          onComplete(Ask.getNotifications(actorSystem,
-                                                                          backEnd,
-                                                                          Integer.parseInt(limit),
-                                                                          Integer.parseInt(offset),
-                                                                          Timestamp.valueOf(startDate),
-                                                                          Timestamp.valueOf(endDate),
-                                                                          Stream.of(states.split(","))
-                                                                                .map(String::trim)
-                                                                                .toList()),
-                                                     result -> {
-                                                        if (!result.isSuccess()) {
-                                                           final var e = result.failed().get();
-                                                           LOGGER.error(e.getLocalizedMessage(), e);
-                                                           return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                                        }
-                                                        return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
-                                                     }))))));
+      return entity(Jackson.unmarshaller(ApiModels.ApiNotifications.class), requestData -> {
+         try {
+            return onComplete(
+                  Ask.getNotifications(actorSystem, backEnd, requestData.limit(), requestData.offset(),
+                        requestData.startDate(), requestData.endDate(), requestData.states()),
+                  result -> {
+                     if (!result.isSuccess()) {
+                        final var e = result.failed().get();
+                        LOGGER.error(e.getLocalizedMessage(), e);
+                        return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                     }
+                     return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                  });
+         } catch (NumberFormatException e) {
+            LOGGER.error("Invalid gid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid gid provided");
+         }
+      });
    }
+
 
    private static Route postExpandedGoldenRecordsUsingParameterList(
         final ActorSystem<Void> actorSystem,
@@ -661,6 +656,8 @@ public final class Routes {
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES,
                                () -> ProxyRoutes.proxyPostCandidatesWithScore(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_NOTIFICATIONS,
+                               () -> Routes.postNotifications(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
                     patch(() -> concat(
@@ -674,8 +671,8 @@ public final class Routes {
                           /* proxy for linker/controller services*/
                           /* serviced by api */
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
-                               () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)))));
+                               () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd))
+                         )));
    }
 
 }

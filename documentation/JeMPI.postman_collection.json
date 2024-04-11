@@ -282,37 +282,24 @@
 		{
 			"name": "Get Notifications Matches For Review",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"limit\": 25,\n    \"offset\":10 ,\n    \"startDate\":\"2024-04-11%2000:00:00\" ,\n    \"endDate\": \"2024-04-11%2000:00:00\",\n    \"states\": [\"new\",\"OPEN\"]\n}\n\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/matchesForReview?limit=4&startDate=2024-04-03 01:01:01&endDate=2024-04-03 01:01:01&offset=10&states=new",
+					"raw": "{{LocalApi}}/matchesForReview",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"matchesForReview"
-					],
-					"query": [
-						{
-							"key": "limit",
-							"value": "4"
-						},
-						{
-							"key": "startDate",
-							"value": "2024-04-03 01:01:01"
-						},
-						{
-							"key": "endDate",
-							"value": "2024-04-03 01:01:01"
-						},
-						{
-							"key": "offset",
-							"value": "10"
-						},
-						{
-							"key": "states",
-							"value": "new"
-						}
 					]
 				}
 			},
