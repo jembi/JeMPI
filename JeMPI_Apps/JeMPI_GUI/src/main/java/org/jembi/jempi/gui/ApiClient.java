@@ -62,7 +62,7 @@ class ApiClient {
          final long offset,
          final long length) {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GIDS_PAGED)).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_GIDS_PAGED)).newBuilder();
       urlBuilder.addQueryParameter("offset", Long.toString(offset));
       urlBuilder.addQueryParameter("length", Long.toString(length));
       final String url = urlBuilder.build().toString();

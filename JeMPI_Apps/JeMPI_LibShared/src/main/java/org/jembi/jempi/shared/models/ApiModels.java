@@ -367,5 +367,12 @@ public abstract class ApiModels {
          LinkInfo linkInfo,
          List<ExternalLinkCandidate> externalLinkCandidateList) {
    }
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiOffsetSearch(
+         long offset,
+         long length,
+         String sortBy,
+         Boolean sortAsc) {
+         }
 
 }

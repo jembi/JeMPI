@@ -137,23 +137,26 @@ public final class Routes {
                         });
    }
 
-   private static Route getGidsPaged(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("offset",
-                       offset -> parameter("length",
-                                           length -> onComplete(Ask.getGidsPaged(actorSystem, backEnd,
-                                                                                 Long.parseLong(offset),
-                                                                                 Long.parseLong(length)),
-                                                                result -> {
-                                                                   if (!result.isSuccess()) {
-                                                                      final var e = result.failed().get();
-                                                                      LOGGER.error(e.getLocalizedMessage(), e);
-                                                                      return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                                                   }
-                                                                   return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
-                                                                })));
-   }
+   private static Route postGidsPaged(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiOffsetSearch.class), request -> {
+        try {
+            return onComplete(Ask.getGidsPaged(actorSystem, backEnd, request.offset(), request.length()),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid offset or length provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid offset or length provided");
+        }
+    });
+}
 
    private static Route getGoldenRecordAuditTrail(
          final ActorSystem<Void> actorSystem,
@@ -614,6 +617,8 @@ public final class Routes {
                               () -> Routes.countRecords(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GIDS_ALL,
                               () -> Routes.postGidsAll(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_GIDS_PAGED,
+                              () -> Routes.postGidsPaged(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
                                () -> ProxyRoutes.proxyPostDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION_AUDIT_TRAIL,
@@ -637,7 +642,6 @@ public final class Routes {
                                () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
 
                           /* serviced by api */
-                          path(GlobalConstants.SEGMENT_GET_GIDS_PAGED, () -> Routes.getGidsPaged(actorSystem, backEnd)),
                           path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD)
                                      .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
                                gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),

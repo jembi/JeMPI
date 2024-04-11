@@ -77,25 +77,24 @@
 		{
 			"name": "Get Golden Ids Paginated",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"offset\":0,\n    \"length\":10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/gidsPaged?offset=0&length=10",
+					"raw": "{{LocalApi}}/gidsPaged",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"gidsPaged"
-					],
-					"query": [
-						{
-							"key": "offset",
-							"value": "0"
-						},
-						{
-							"key": "length",
-							"value": "10"
-						}
 					]
 				}
 			},
