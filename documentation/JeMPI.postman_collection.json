@@ -658,11 +658,11 @@
 		{
 			"name": "CR Update fields",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"goldenId\": \"0x2713\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"value\": \"Omkar\"\n    },\n    {\n      \"name\": \"familyName\",\n      \"value\": \"S\"\n    }\n  ]\n}",
+					"raw": "{\n  \"goldenId\": \"0x2aee\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"value\": \"Shankar\"\n    },\n    {\n      \"name\": \"familyName\",\n      \"value\": \"S\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"

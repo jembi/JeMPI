@@ -662,12 +662,8 @@ public final class Routes {
                                gid -> Routes.postGoldenRecord(actorSystem, backEnd, gid)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
-                    patch(() -> concat(
-                          /* proxy for linker/controller services*/
-                          path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
-                               () -> ProxyRoutes.proxyPatchCrUpdateFields(linkerIP, linkerPort, http))
-                          /* serviced by api */
-                          ))
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
+                               () -> ProxyRoutes.proxyPostCrUpdateFields(linkerIP, linkerPort, http))
                     );
    }
 

@@ -42,7 +42,7 @@ final class HttpServer extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
+                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
                                                       () -> Routes.proxyPatchCrUpdateField(actorSystem, backEnd))),
                                      post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
                                                             () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
