@@ -28,11 +28,11 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORD = "expandedGoldenRecord";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expandedGoldenRecords";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expandedGoldenRecordsCsv";
-   public static final String SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
+   public static final String SEGMENT_POST_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
    public static final String SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL = "goldenRecordAuditTrail";
    public static final String SEGMENT_POST_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
    public static final String SEGMENT_POST_FIELDS_CONFIG = "config";
-   public static final String SEGMENT_GET_LINKED_RECORDS = "linkedRecords";
+   public static final String SEGMENT_POST_LINKED_RECORDS = "linkedRecords";
    public static final String SEGMENT_POST_NOTIFICATIONS = "matchesForReview";
    public static final String SEGMENT_PATCH_GOLDEN_RECORD = "goldenRecord";
    public static final String SEGMENT_POST_IID_GID_LINK = "link";

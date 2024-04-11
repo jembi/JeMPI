@@ -193,18 +193,38 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecordsCsv?uidList=0x4d03,0x3a07,0x2b20",
+					"raw": "{{LocalApi}}/expandedGoldenRecordsCsv",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"expandedGoldenRecordsCsv"
-					],
-					"query": [
-						{
-							"key": "uidList",
-							"value": "0x4d03,0x3a07,0x2b20"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Interaction Records Using CSV Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uidList\": [\n        \"0x2b1f\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/expandedInteractionsCsv",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expandedInteractionsCsv"
 					]
 				}
 			},
