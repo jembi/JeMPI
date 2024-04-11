@@ -32,26 +32,33 @@ final class Routes {
       return code;
    }
 
-   static Route proxyGetCandidatesWithScore(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Request> backEnd) {
-      return parameter("iid",
-                       iid -> onComplete(Ask.findCandidates(actorSystem, backEnd, iid),
-                                         response -> {
-                                            if (!response.isSuccess()) {
-                                               final var e = response.failed().get();
-                                               LOGGER.error(e.getLocalizedMessage(), e);
-                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                            }
-                                            return response.get()
-                                                           .candidates()
-                                                           .mapLeft(MapError::mapError)
-                                                           .fold(error -> error,
-                                                                 candidateList -> complete(StatusCodes.OK,
-                                                                                           candidateList,
-                                                                                           Jackson.marshaller()));
-                                         }));
-   }
+   static Route proxyPostCandidatesWithScore(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Request> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiInteraction.class), request -> {
+        try {
+            return onComplete(Ask.findCandidates(actorSystem, backEnd, request.uid()),
+                    response -> {
+                        if (!response.isSuccess()) {
+                            final var e = response.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return response.get()
+                                .candidates()
+                                .mapLeft(MapError::mapError)
+                                .fold(error -> error,
+                                        candidateList -> complete(StatusCodes.OK,
+                                                candidateList,
+                                                Jackson.marshaller()));
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid iid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid iid provided");
+        }
+    });
+}
+
 
 /*
    static Route proxyPostLinkInteractionToGID(
@@ -325,9 +332,8 @@ final class Routes {
                                                             () -> proxyPostCrLinkBySourceId(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
                                                             () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
-                                     get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
-                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                                                           () -> proxyGetCandidatesWithScore(actorSystem, backEnd))))));
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES,
+                                                            () -> proxyPostCandidatesWithScore(actorSystem, backEnd))));
    }
 
 

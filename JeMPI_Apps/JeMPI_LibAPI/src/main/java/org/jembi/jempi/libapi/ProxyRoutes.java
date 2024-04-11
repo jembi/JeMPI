@@ -458,41 +458,57 @@ public final class ProxyRoutes {
                     });
    }
 
-   private static CompletionStage<HttpResponse> proxyGetCandidatesWithScoreDoIt(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final String iid) {
-      final var uri = String.format(Locale.ROOT,
-                                    "http://%s:%d/JeMPI/%s?iid=%s",
-                                    linkerIP,
-                                    linkerPort,
-                                    GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                                    iid);
-      final var request = HttpRequest.create(uri);
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
+   private static CompletionStage<HttpResponse> proxyPostCandidatesWithScoreDoIt(
+        final String linkerIP,
+        final Integer linkerPort,
+        final Http http,
+        final String iid) {
+    // Construct the URI without query parameters
+         final var uri = String.format(Locale.ROOT,
+                  "http://%s:%d/JeMPI/%s",
+                  linkerIP,
+                  linkerPort,
+                  GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES);
+
+         // Construct the request body with the iid parameter
+         final var json = "{\"uid\": \"" + iid + "\"}";
+
+         // Create the POST request with the JSON body
+         final var request = HttpRequest.create(uri)
+                  .withMethod(HttpMethods.POST)
+                  .withEntity(ContentTypes.APPLICATION_JSON, json);
+
+         // Send the request and return the completion stage
+         return http.singleRequest(request);
    }
 
-   static Route proxyGetCandidatesWithScore(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return parameter("iid",
-                       iid -> onComplete(proxyGetCandidatesWithScoreDoIt(linkerIP, linkerPort, http, iid),
-                                         response -> {
-                                            if (!response.isSuccess()) {
-                                               final var e = response.failed().get();
-                                               if (e instanceof IllegalUriException illegalUriException) {
-                                                  LOGGER.error(illegalUriException.getLocalizedMessage(), illegalUriException);
-                                               } else {
-                                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                               }
-                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                            }
-                                            return complete(response.get());
-                                         }));
-   }
+
+   static Route proxyPostCandidatesWithScore(
+        final String linkerIP,
+        final Integer linkerPort,
+        final Http http) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiInteraction.class), request -> {
+        try {
+            return onComplete(proxyPostCandidatesWithScoreDoIt(linkerIP, linkerPort, http, request.uid()),
+                    response -> {
+                        if (!response.isSuccess()) {
+                            final var e = response.failed().get();
+                            if (e instanceof IllegalUriException illegalUriException) {
+                                LOGGER.error(illegalUriException.getLocalizedMessage(), illegalUriException);
+                            } else {
+                                LOGGER.error(e.getLocalizedMessage(), e);
+                            }
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return complete(response.get());
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid iid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid iid provided");
+        }
+    });
+}
+
 
    static Route proxyPostDashboardData(
          final ActorSystem<Void> actorSystem,

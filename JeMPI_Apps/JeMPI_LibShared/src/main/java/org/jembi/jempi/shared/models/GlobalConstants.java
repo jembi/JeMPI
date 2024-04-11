@@ -28,12 +28,12 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORD = "expandedGoldenRecord";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expandedGoldenRecords";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expandedGoldenRecordsCsv";
-   public static final String SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
+   public static final String SEGMENT_POST_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
    public static final String SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL = "goldenRecordAuditTrail";
    public static final String SEGMENT_POST_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
    public static final String SEGMENT_POST_FIELDS_CONFIG = "config";
-   public static final String SEGMENT_GET_LINKED_RECORDS = "linkedRecords";
-   public static final String SEGMENT_GET_NOTIFICATIONS = "matchesForReview";
+   public static final String SEGMENT_POST_LINKED_RECORDS = "linkedRecords";
+   public static final String SEGMENT_POST_NOTIFICATIONS = "matchesForReview";
    public static final String SEGMENT_PATCH_GOLDEN_RECORD = "goldenRecord";
    public static final String SEGMENT_POST_IID_GID_LINK = "link";
    public static final String SEGMENT_POST_IID_NEW_GID_LINK = "unLink";
@@ -51,7 +51,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_CR_CANDIDATES = "crCandidates";
    public static final String SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS = "crUpdateFields";
    public static final String SEGMENT_POST_CR_FIND_SOURCE_ID = "crFindSourceId";
-   public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";
+   public static final String SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";
    public static final String SEGMENT_PROXY_POST_CALCULATE_SCORES = "calculateScores";
    public static final String SEGMENT_PROXY_POST_DASHBOARD_DATA = "dashboardData";
    public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "onNotificationResolution";

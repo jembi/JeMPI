@@ -193,18 +193,38 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecordsCsv?uidList=0x4d03,0x3a07,0x2b20",
+					"raw": "{{LocalApi}}/expandedGoldenRecordsCsv",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"expandedGoldenRecordsCsv"
-					],
-					"query": [
-						{
-							"key": "uidList",
-							"value": "0x4d03,0x3a07,0x2b20"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Interaction Records Using CSV Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uidList\": [\n        \"0x2b1f\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/expandedInteractionsCsv",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expandedInteractionsCsv"
 					]
 				}
 			},
@@ -282,37 +302,24 @@
 		{
 			"name": "Get Notifications Matches For Review",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"limit\": 25,\n    \"offset\":10 ,\n    \"startDate\":\"2024-04-11%2000:00:00\" ,\n    \"endDate\": \"2024-04-11%2000:00:00\",\n    \"states\": [\"new\",\"OPEN\"]\n}\n\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/matchesForReview?limit=4&startDate=2024-04-03 01:01:01&endDate=2024-04-03 01:01:01&offset=10&states=new",
+					"raw": "{{LocalApi}}/matchesForReview",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"matchesForReview"
-					],
-					"query": [
-						{
-							"key": "limit",
-							"value": "4"
-						},
-						{
-							"key": "startDate",
-							"value": "2024-04-03 01:01:01"
-						},
-						{
-							"key": "endDate",
-							"value": "2024-04-03 01:01:01"
-						},
-						{
-							"key": "offset",
-							"value": "10"
-						},
-						{
-							"key": "states",
-							"value": "new"
-						}
 					]
 				}
 			},
@@ -321,21 +328,24 @@
 		{
 			"name": "Get Candidate Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\":\"0x2b20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/candidate-golden-records?iid=0x42b1",
+					"raw": "{{LocalApi}}/candidateGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"candidate-golden-records"
-					],
-					"query": [
-						{
-							"key": "iid",
-							"value": "0x42b1"
-						}
+						"candidateGoldenRecords"
 					]
 				}
 			},
