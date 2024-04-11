@@ -48,7 +48,7 @@ final class HttpServer extends AllDirectives {
                                                             () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
 //                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
 //                                                            () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
                                                             () -> Routes.proxyPostCalculateScores(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
                                                             () -> Routes.proxyGetCrCandidates(actorSystem, backEnd)),
