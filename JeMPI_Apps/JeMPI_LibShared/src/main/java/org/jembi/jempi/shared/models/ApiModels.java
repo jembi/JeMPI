@@ -355,6 +355,14 @@ public abstract class ApiModels {
          List<String> uidList) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiGoldenRecords(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
    public record ApiCalculateScoresResponse(
          String interactionId,
          List<ApiScore> scores) {

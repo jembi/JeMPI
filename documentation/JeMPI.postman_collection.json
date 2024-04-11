@@ -133,7 +133,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"uid\":\"0x2b20\"\n}",
+					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -204,21 +204,24 @@
 		{
 			"name": "Get Golden Record Audit Trail",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/goldenRecordAuditTrail?gid=0x4d",
+					"raw": "{{LocalApi}}/goldenRecordAuditTrail",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"goldenRecordAuditTrail"
-					],
-					"query": [
-						{
-							"key": "gid",
-							"value": "0x4d"
-						}
 					]
 				}
 			},

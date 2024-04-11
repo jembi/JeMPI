@@ -158,20 +158,28 @@ public final class Routes {
     });
 }
 
-   private static Route getGoldenRecordAuditTrail(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("gid",
-                       uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
-                                         result -> {
-                                            if (!result.isSuccess()) {
-                                               final var e = result.failed().get();
-                                               LOGGER.error(e.getLocalizedMessage(), e);
-                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                            }
-                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
-                                         }));
-   }
+   private static Route postGoldenRecordAuditTrail(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
+        try {
+            final String gid = request.gid();
+            return onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, gid),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid gid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid gid provided");
+        }
+    });
+}
+
 
    private static Route postInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
@@ -375,9 +383,9 @@ public final class Routes {
    private static Route postExpandedGoldenRecord(
         final ActorSystem<Void> actorSystem,
         final ActorRef<BackEnd.Event> backEnd) {
-    return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecord.class), request -> {
+    return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
         try {
-            return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request.uid()),
+            return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request.gid()),
                     result -> {
                         if (!result.isSuccess()) {
                             final var e = result.failed().get();
@@ -639,6 +647,8 @@ public final class Routes {
                                () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
                                () -> Routes.postExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL,
+                               () -> Routes.postGoldenRecordAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
                                () -> complete(StatusCodes.OK, jsonFields)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
@@ -660,8 +670,6 @@ public final class Routes {
                           /* serviced by api */
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
                                () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
-                               () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
                                () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)))));
