@@ -88,18 +88,26 @@ export class ApiClient {
     return data
   }
 
-  async getMatches(
+  async fetchMatches(
     limit: number,
     offset: number,
-    startDay: string,
-    endDay: string,
+    startDate: string,
+    endDate: string,
     states: string[]
   ): Promise<Notifications> {
     const notificationState = states.includes(NotificationState.ALL.toString())
       ? [NotificationState.CLOSED, NotificationState.OPEN]
       : states
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${notificationState}`
-    const { data } = await this.client.get<NotificationResponse>(url)
+    const { data } = await this.client.post<NotificationResponse>(
+      ROUTES.POST_NOTIFICATIONS,
+      {
+        limit: limit,
+        startDate: startDate,
+        endDate: endDate,
+        offset: offset,
+        states: notificationState
+      }
+    )
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -136,7 +144,8 @@ export class ApiClient {
     const {
       data: { goldenRecord, interactionsWithScore }
     } = await this.client.post<ExpandedGoldenRecordResponse>(
-      ROUTES.POST_GOLDEN_RECORD, {"gid": uid}
+      ROUTES.POST_GOLDEN_RECORD,
+      { gid: uid }
     )
     return {
       uid: goldenRecord.uid,
@@ -288,13 +297,11 @@ export class ApiClient {
   async fetchExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<GoldenRecord[]> {
-    const { data } = await this.client.post<Array<ExpandedGoldenRecordResponse>>(
-      ROUTES.POST_EXPANDED_GOLDEN_RECORDS,
-      {
-        "uidList": goldenIds
-      }
-    
-    )
+    const { data } = await this.client.post<
+      Array<ExpandedGoldenRecordResponse>
+    >(ROUTES.POST_EXPANDED_GOLDEN_RECORDS, {
+      uidList: goldenIds
+    })
     const records: GoldenRecord[] = data.map(
       ({ goldenRecord, interactionsWithScore }) => {
         return {
@@ -358,7 +365,7 @@ export class ApiClient {
     const { data } = await this.client.post<Array<AuditTrail>>(
       ROUTES.POST_GOLDEN_RECORD_AUDIT_TRAIL,
       {
-       "gid":gid
+        gid: gid
       }
     )
     return data
@@ -367,7 +374,7 @@ export class ApiClient {
   async fetchInteractionAuditTrail(uid: string) {
     const { data } = await this.client.post<Array<AuditTrail>>(
       ROUTES.POST_INTERACTION_AUDIT_TRAIL,
-      {"uid": uid}
+      { uid: uid }
     )
     return data
   }

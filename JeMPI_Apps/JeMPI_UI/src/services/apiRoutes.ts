@@ -1,7 +1,7 @@
 const ROUTES = {
   POST_FIELDS_CONFIG: '/config',
   GET_LINKED_RECORDS: '/linkedRecords',
-  GET_NOTIFICATIONS: '/matchesForReview',
+  POST_NOTIFICATIONS: '/matchesForReview',
   POST_INTERACTION: '/interaction',
   POST_DASHBOARD_DATA: '/dashboardData',
   POST_GIDS_PAGED: '/gidsPaged',

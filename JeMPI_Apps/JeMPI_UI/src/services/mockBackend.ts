@@ -28,7 +28,7 @@ axiosMockAdapterInstance
   .reply(200, currentUser)
   .onGet(ROUTES.CURRENT_USER)
   .reply(200, currentUser)
-  .onGet(ROUTES.GET_NOTIFICATIONS)
+  .onPost(ROUTES.POST_NOTIFICATIONS)
   .reply(200, { records: notifications })
   .onPost(new RegExp(`^${ROUTES.POST_INTERACTION}/[A-z0-9]+$`))
   .reply(config => {
