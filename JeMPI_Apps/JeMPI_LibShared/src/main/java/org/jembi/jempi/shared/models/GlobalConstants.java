@@ -51,7 +51,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_CR_CANDIDATES = "crCandidates";
    public static final String SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS = "crUpdateFields";
    public static final String SEGMENT_POST_CR_FIND_SOURCE_ID = "crFindSourceId";
-   public static final String SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";
+   public static final String SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";
    public static final String SEGMENT_PROXY_POST_CALCULATE_SCORES = "calculateScores";
    public static final String SEGMENT_PROXY_POST_DASHBOARD_DATA = "dashboardData";
    public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "onNotificationResolution";

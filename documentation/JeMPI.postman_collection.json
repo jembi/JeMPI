@@ -321,21 +321,24 @@
 		{
 			"name": "Get Candidate Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\":\"0x2b20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/candidate-golden-records?iid=0x42b1",
+					"raw": "{{LocalApi}}/candidateGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"candidate-golden-records"
-					],
-					"query": [
-						{
-							"key": "iid",
-							"value": "0x42b1"
-						}
+						"candidateGoldenRecords"
 					]
 				}
 			},

@@ -659,6 +659,8 @@ public final class Routes {
                                () -> complete(StatusCodes.OK, jsonFields)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES,
+                               () -> ProxyRoutes.proxyPostCandidatesWithScore(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
                     patch(() -> concat(
@@ -670,8 +672,6 @@ public final class Routes {
                                gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)))),
                     get(() -> concat(
                           /* proxy for linker/controller services*/
-                          path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,       // <------------------------ CHECK
-                               () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
                           /* serviced by api */
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
                                () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),

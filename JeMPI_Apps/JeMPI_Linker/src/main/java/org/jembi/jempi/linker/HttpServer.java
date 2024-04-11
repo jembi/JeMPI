@@ -63,7 +63,7 @@ final class HttpServer extends AllDirectives {
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
                                                             () -> Routes.proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
                                      get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
-                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
+                                                      path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES,
                                                            () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd))))));
    }
 */
