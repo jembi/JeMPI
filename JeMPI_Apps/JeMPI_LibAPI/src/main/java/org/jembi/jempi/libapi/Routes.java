@@ -137,38 +137,49 @@ public final class Routes {
                         });
    }
 
-   private static Route getGidsPaged(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("offset",
-                       offset -> parameter("length",
-                                           length -> onComplete(Ask.getGidsPaged(actorSystem, backEnd,
-                                                                                 Long.parseLong(offset),
-                                                                                 Long.parseLong(length)),
-                                                                result -> {
-                                                                   if (!result.isSuccess()) {
-                                                                      final var e = result.failed().get();
-                                                                      LOGGER.error(e.getLocalizedMessage(), e);
-                                                                      return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                                                   }
-                                                                   return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
-                                                                })));
-   }
+   private static Route postGidsPaged(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiOffsetSearch.class), request -> {
+        try {
+            return onComplete(Ask.getGidsPaged(actorSystem, backEnd, request.offset(), request.length()),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid offset or length provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid offset or length provided");
+        }
+    });
+}
 
-   private static Route getGoldenRecordAuditTrail(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("gid",
-                       uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
-                                         result -> {
-                                            if (!result.isSuccess()) {
-                                               final var e = result.failed().get();
-                                               LOGGER.error(e.getLocalizedMessage(), e);
-                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                            }
-                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
-                                         }));
-   }
+   private static Route postGoldenRecordAuditTrail(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
+        try {
+            final String gid = request.gid();
+            return onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, gid),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid gid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid gid provided");
+        }
+    });
+}
+
 
    private static Route postInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
@@ -289,30 +300,35 @@ public final class Routes {
                                                      }))))));
    }
 
-   private static Route getExpandedGoldenRecordsUsingParameterList(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameterList(params -> {
-         final var goldenIds = params.stream().map(PARAM_STRING).toList();
-         return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 final var e = result.failed().get();
-                                 LOGGER.error(e.getLocalizedMessage(), e);
-                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                              }
-                              return result.get()
-                                           .expandedGoldenRecords()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                   expandedGoldenRecords.stream()
-                                                                                                        .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                                        .toList(),
-                                                                                   JSON_MARSHALLER));
-                           });
-      });
-   }
+   private static Route postExpandedGoldenRecordsUsingParameterList(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
+        try {
+            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return result.get()
+                                     .expandedGoldenRecords()
+                                     .mapLeft(MapError::mapError)
+                                     .fold(error -> error,
+                                           expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                            expandedGoldenRecords.stream()
+                                                                                                 .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                 .toList(),
+                                                                            JSON_MARSHALLER));
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid gid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid gid provided");
+        }
+    });
+}
+
 
    private static Route getExpandedGoldenRecordsFromUsingCSV(
          final ActorSystem<Void> actorSystem,
@@ -364,27 +380,34 @@ public final class Routes {
       });
    }
 
-   private static Route getExpandedGoldenRecord(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String gid) {
-      return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, gid),
-                        result -> {
-                           if (!result.isSuccess()) {
-                              final var e = result.failed().get();
-                              LOGGER.error(e.getLocalizedMessage(), e);
-                              return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                           }
-                           return result.get()
-                                        .goldenRecord()
-                                        .mapLeft(MapError::mapError)
-                                        .fold(error -> error,
-                                              goldenRecord -> complete(StatusCodes.OK,
-                                                                       ApiModels.ApiExpandedGoldenRecord
-                                                                             .fromExpandedGoldenRecord(goldenRecord),
-                                                                       Jackson.marshaller(OBJECT_MAPPER)));
-                        });
-   }
+   private static Route postExpandedGoldenRecord(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
+        try {
+            return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request.gid()),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return result.get()
+                                     .goldenRecord()
+                                     .mapLeft(MapError::mapError)
+                                     .fold(error -> error,
+                                           goldenRecord -> complete(StatusCodes.OK,
+                                                                    ApiModels.ApiExpandedGoldenRecord
+                                                                        .fromExpandedGoldenRecord(goldenRecord),
+                                                                    Jackson.marshaller(OBJECT_MAPPER)));
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid gid provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid gid provided");
+        }
+    });
+}
+
 
    private static Route postInteraction(
          final ActorSystem<Void> actorSystem,
@@ -614,10 +637,20 @@ public final class Routes {
                               () -> Routes.countRecords(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GIDS_ALL,
                               () -> Routes.postGidsAll(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_GIDS_PAGED,
+                              () -> Routes.postGidsPaged(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
                                () -> ProxyRoutes.proxyPostDashboardData(actorSystem, backEnd, controllerIP, controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION_AUDIT_TRAIL,
                                () -> Routes.postInteractionAuditTrail(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
+                               () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
+                               () -> Routes.postExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL,
+                               () -> Routes.postGoldenRecordAuditTrail(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
+                               () -> complete(StatusCodes.OK, jsonFields)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
@@ -635,17 +668,8 @@ public final class Routes {
                                () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
 
                           /* serviced by api */
-                          path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
-                          path(GlobalConstants.SEGMENT_GET_GIDS_PAGED, () -> Routes.getGidsPaged(actorSystem, backEnd)),
-                          path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD)
-                                     .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                               gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
-                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
-                               () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
                                () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
-                               () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
                                () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)))));

@@ -93,7 +93,7 @@ public final class StatsTask {
 
    private List<ApiModels.ApiExpandedGoldenRecord> getGoldenRecordInteractions(final List<String> gids) throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST))
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST))
                    .newBuilder();
       gids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
       final String url = urlBuilder.build().toString();

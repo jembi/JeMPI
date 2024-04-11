@@ -351,6 +351,18 @@ public abstract class ApiModels {
          List<String> goldenIds) {
    }
 
+   public record ApiExpandedGoldenRecordsParameterList(
+         List<String> uidList) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiGoldenRecords(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
    public record ApiCalculateScoresResponse(
          String interactionId,
          List<ApiScore> scores) {
@@ -367,5 +379,12 @@ public abstract class ApiModels {
          LinkInfo linkInfo,
          List<ExternalLinkCandidate> externalLinkCandidateList) {
    }
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiOffsetSearch(
+         long offset,
+         long length,
+         String sortBy,
+         Boolean sortAsc) {
+         }
 
 }
