@@ -329,31 +329,35 @@ public final class Routes {
     });
 }
 
+   private static Route postExpandedGoldenRecordsFromUsingCSV(
+        final ActorSystem<Void> actorSystem,
+        final ActorRef<BackEnd.Event> backEnd) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
+        try {
+            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return result.get()
+                                     .expandedGoldenRecords()
+                                     .mapLeft(MapError::mapError)
+                                     .fold(error -> error,
+                                           expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                             expandedGoldenRecords.stream()
+                                                                                                  .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                  .toList(),
+                                                                             JSON_MARSHALLER));
+                    });
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid uid list provided", e);
+            return complete(StatusCodes.BAD_REQUEST, "Invalid uid list provided");
+        }
+    });
+}
 
-   private static Route getExpandedGoldenRecordsFromUsingCSV(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("uidList", items -> {
-         final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
-         return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, uidList),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 final var e = result.failed().get();
-                                 LOGGER.error(e.getLocalizedMessage(), e);
-                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                              }
-                              return result.get()
-                                           .expandedGoldenRecords()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                   expandedGoldenRecords.stream()
-                                                                                                        .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                                        .toList(),
-                                                                                   JSON_MARSHALLER));
-                           });
-      });
-   }
 
    private static Route getExpandedInteractionsUsingCSV(
          final ActorSystem<Void> actorSystem,
@@ -647,6 +651,8 @@ public final class Routes {
                                () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
                                () -> Routes.postExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_CSV,
+                               () -> Routes.postExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL,
                                () -> Routes.postGoldenRecordAuditTrail(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
@@ -666,10 +672,7 @@ public final class Routes {
                           /* proxy for linker/controller services*/
                           path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,       // <------------------------ CHECK
                                () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)),
-
                           /* serviced by api */
-                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
-                               () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
                                () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS, () -> Routes.getNotifications(actorSystem, backEnd)))));
