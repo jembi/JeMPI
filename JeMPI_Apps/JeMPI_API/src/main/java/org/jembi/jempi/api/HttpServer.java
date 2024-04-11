@@ -85,7 +85,7 @@ public final class HttpServer extends AllDirectives {
                                                                            AppConfig.CONTROLLER_IP,
                                                                            AppConfig.CONTROLLER_HTTP_PORT,
                                                                            http),
-                                                path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+                                                path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
                                                      () -> complete(StatusCodes.OK, jsonFields))))).seal(rejectionHandler,
                                                                                                          exceptionHandler);
    }

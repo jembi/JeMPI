@@ -81,7 +81,7 @@ public final class UserRoutes extends ApiHttpServerRouteEntries {
    @Override
    public Route getRouteEntries() {
       return concat(post(() -> path(GlobalConstants.SEGMENT_VALIDATE_OAUTH, () -> routeLoginWithKeycloakRequest(checkHeader))),
-                    get(() -> concat(path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+                    get(() -> concat(path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
                                           () -> httpServer.setNewCsrfToken(checkHeader,
                                                                            () -> complete(StatusCodes.OK,
                                                                                           httpServer.getJsonFields()))),
