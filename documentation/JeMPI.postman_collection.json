@@ -128,15 +128,12 @@
 		},
 		{
 			"name": "Get Expanded Golden Record",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "",
+					"raw": "{\n    \"uid\":\"0x2b20\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -144,13 +141,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecord/0x4",
+					"raw": "{{LocalApi}}/expandedGoldenRecord",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"expandedGoldenRecord",
-						"0x4"
+						"expandedGoldenRecord"
 					]
 				}
 			},
@@ -254,7 +250,7 @@
 		{
 			"name": "Get Fields Config",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/config",
