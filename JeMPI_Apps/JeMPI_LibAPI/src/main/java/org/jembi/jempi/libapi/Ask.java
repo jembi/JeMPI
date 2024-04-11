@@ -157,7 +157,7 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.PatchGoldenRecordResponse> patchGoldenRecord(
+   static CompletionStage<BackEnd.PatchGoldenRecordResponse> updateGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenId,

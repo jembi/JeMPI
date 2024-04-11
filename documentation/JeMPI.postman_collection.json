@@ -354,15 +354,25 @@
 		{
 			"name": "Edit Golden Record",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"newValue\": \"Matt\",\n      \"oldValue\": \"rahel\"\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/goldenRecord",
+					"raw": "{{LocalApi}}/updateGoldenRecordFieldsForId/0x2aeb",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"goldenRecord"
+						"updateGoldenRecordFieldsForId",
+						"0x2aeb"
 					]
 				}
 			},
@@ -374,12 +384,12 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/link",
+					"raw": "{{LocalApi}}/relink",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"link"
+						"relink"
 					]
 				}
 			},
@@ -391,12 +401,12 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/unLink",
+					"raw": "{{LocalApi}}/newLink",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"unLink"
+						"newLink"
 					]
 				}
 			},
@@ -686,12 +696,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/calculateScores",
+					"raw": "{{LocalApi}}/scores",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"calculateScores"
+						"scores"
 					]
 				}
 			},

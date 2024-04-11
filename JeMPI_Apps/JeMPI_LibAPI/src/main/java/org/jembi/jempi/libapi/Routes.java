@@ -96,13 +96,13 @@ public final class Routes {
    }
 
 
-   private static Route patchGoldenRecord(
+   private static Route postGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenId) {
       return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
                     payload -> payload != null
-                          ? onComplete(Ask.patchGoldenRecord(actorSystem, backEnd, goldenId, payload),
+                          ? onComplete(Ask.updateGoldenRecord(actorSystem, backEnd, goldenId, payload),
                                        result -> {
                                           if (result.isSuccess()) {
                                              final var updatedFields = result.get().fields();
@@ -585,7 +585,7 @@ public final class Routes {
          final Http http) {
       return concat(post(() -> concat(
                           /* proxy for linker/controller services*/
-                          path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                          path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
                                () -> ProxyRoutes.proxyPostCalculateScores(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
                                () -> ProxyRoutes.proxyPostLinkInteraction(linkerIP, linkerPort, http)),
@@ -658,15 +658,16 @@ public final class Routes {
                                () -> ProxyRoutes.proxyPostCandidatesWithScore(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_NOTIFICATIONS,
                                () -> Routes.postNotifications(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                               gid -> Routes.postGoldenRecord(actorSystem, backEnd, gid)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
                     patch(() -> concat(
                           /* proxy for linker/controller services*/
                           path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
-                               () -> ProxyRoutes.proxyPatchCrUpdateFields(linkerIP, linkerPort, http)),
+                               () -> ProxyRoutes.proxyPatchCrUpdateFields(linkerIP, linkerPort, http))
                           /* serviced by api */
-                          path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                               gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid))))
+                          ))
                     );
    }
 

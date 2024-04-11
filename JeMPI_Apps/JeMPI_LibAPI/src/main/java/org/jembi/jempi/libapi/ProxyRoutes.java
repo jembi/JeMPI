@@ -51,7 +51,7 @@ public final class ProxyRoutes {
                                                            "http://%s:%d/JeMPI/%s",
                                                            linkerIP,
                                                            linkerPort,
-                                                           GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES))
+                                                           GlobalConstants.SEGMENT_PROXY_POST_SCORES))
                                      .withMethod(HttpMethods.POST)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
