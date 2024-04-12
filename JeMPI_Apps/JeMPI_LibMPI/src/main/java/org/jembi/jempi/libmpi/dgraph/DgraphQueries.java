@@ -82,17 +82,18 @@ final class DgraphQueries {
       return new DgraphSourceIds(List.of());
    }
 
-   private static DgraphReverseGoldenRecordListFromSourceId runReverseGoldenRecordListFromSourceId(
+   private static List<ExpandedSourceId> runReverseGoldenRecordListFromSourceId(
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(GET_EXPANDED_SOURCE_ID_LIST, vars);
          if (!StringUtils.isBlank(json)) {
-            return OBJECT_MAPPER.readValue(json, DgraphReverseGoldenRecordListFromSourceId.class);
+            return new JsonNodeReverseGoldenRecordListFromSourceId(json).toExpandedSourceId();
+//            return OBJECT_MAPPER.readValue(json, DgraphReverseGoldenRecordListFromSourceId.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return new DgraphReverseGoldenRecordListFromSourceId(List.of());
+      return List.of();
    }
 
    static DgraphInteractions runInteractionsQuery(
@@ -160,11 +161,12 @@ final class DgraphQueries {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-            return OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
-                                .all()
-                                .stream()
-                                .map(DeprecatedCustomFunctions::toGoldenRecord)
-                                .toList();
+            return new JsonNodeGoldenRecords(json).toGoldenRecordList();
+//            return OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
+//                                .all()
+//                                .stream()
+//                                .map(DeprecatedCustomFunctions::toGoldenRecord)
+//                                .toList();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
@@ -366,11 +368,12 @@ final class DgraphQueries {
       final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetGoldenRecords, idListAsString);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         return Either.right(OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
-                                          .all()
-                                          .stream()
-                                          .map(DeprecatedCustomFunctions::toGoldenRecord)
-                                          .toList());
+         return Either.right(new JsonNodeGoldenRecords(json).toGoldenRecordList());
+//         OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
+//                                          .all()
+//                                          .stream()
+//                                          .map(DeprecatedCustomFunctions::toGoldenRecord)
+//                                          .toList());
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return Either.left(new MpiServiceError.CRGidDoesNotExistError(idListAsString));
@@ -698,10 +701,11 @@ final class DgraphQueries {
       final var map = new HashMap<String, String>();
       map.put("$facility_id", facility);
       map.put("$patient_id", patient);
-      return runReverseGoldenRecordListFromSourceId(map).all()
-                                                        .stream()
-                                                        .map(DgraphReverseGoldenRecordFromSourceId::toExpandedSourceId)
-                                                        .toList();
+      return runReverseGoldenRecordListFromSourceId(map);
+//      .all()
+//                                                        .stream()
+//                                                        .map(DgraphReverseGoldenRecordFromSourceId::toExpandedSourceId)
+//                                                        .toList();
    }
 
    static Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {

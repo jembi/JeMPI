@@ -13,7 +13,7 @@ public record DgraphSourceId(
       this(sourceId.uid(), sourceId.facility(), sourceId.patient());
    }
 
-   CustomSourceId toSourceId() {
+   public CustomSourceId toSourceId() {
       return new CustomSourceId(uid, facility, patient);
    }
 }

@@ -1,4 +1,4 @@
-package org.jembi.jempi.libmpi.dgraph;
+package org.jembi.jempi.libmpi.dgraph.deprecated;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record DgraphReverseGoldenRecordListFromSourceId(@JsonProperty("all") List<DgraphReverseGoldenRecordFromSourceId> all) {
-
-
+record DgraphGoldenRecords(@JsonProperty("all") List<CustomDgraphGoldenRecord> all) {
 }

@@ -34,7 +34,7 @@ object Main {
     CustomDgraphConstants.generate(config)
     CustomDgraphInteraction.generate(config)
     CustomDgraphReverseGoldenRecord.generate(config)
-    CustomDgraphGoldenRecord.generate(config)
+//    CustomDgraphGoldenRecord.generate(config)
     CustomDgraphExpandedGoldenRecord.generate(config)
     CustomDgraphExpandedInteraction.generate(config)
     CustomDgraphMutations.generate(config)
