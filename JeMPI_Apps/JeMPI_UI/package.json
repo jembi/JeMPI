@@ -42,6 +42,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.8",
     "formik": "^2.2.9",
+    "fs": "^0.0.1-security",
     "keycloak-js": "^20.0.2",
     "notistack": "^2.0.8",
     "react": "^18.2.0",
