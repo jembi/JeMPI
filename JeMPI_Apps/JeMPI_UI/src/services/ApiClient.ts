@@ -95,9 +95,14 @@ export class ApiClient {
     endDate: string,
     states: string[]
   ): Promise<Notifications> {
-    const notificationState = states.includes(NotificationState.ALL.toString())
+    const includeClosed = states.includes(NotificationState.CLOSED.toString());
+    const includeAll = states.includes(NotificationState.ALL.toString());
+  
+    const notificationState = includeAll
       ? [NotificationState.CLOSED, NotificationState.OPEN]
-      : states
+      : includeClosed
+      ? [NotificationState.CLOSED]
+      : [NotificationState.OPEN];
     const { data } = await this.client.post<NotificationResponse>(
       ROUTES.POST_NOTIFICATIONS,
       {
@@ -108,6 +113,7 @@ export class ApiClient {
         states: notificationState
       }
     )
+    
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -383,8 +389,9 @@ export class ApiClient {
       const { name, oldValue, newValue } = field
       try {
         const response = await this.client.post(
-          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS + `/${uid}`,
-          {
+          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
+          { 
+            "goldenId":uid,
             fields: [{ name, oldValue, newValue }]
           }
         )

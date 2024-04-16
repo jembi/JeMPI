@@ -57,7 +57,7 @@ There's two type of fields :
 
 > ! IMPORTANT : The `fieldName` in `config-reference.json` should be set in snake-case, but it's returned in camel-case by the API.
 
-## POST /matchesForReview
+## POST /notifications
 
 Below is a sample of the body you are to send :
 
