@@ -207,7 +207,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             LinkerDWH.linkInteraction(libMPI,
                                       req.batchInteraction.interaction(),
                                       null,
-                                      AppConfig.LINKER_MATCH_THRESHOLD,
+                                      req.batchInteraction.config() != null
+                                            ? req.batchInteraction.config().linkThreshold().floatValue()
+                                            : AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
       if (linkInfo.isRight()) {
          req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));

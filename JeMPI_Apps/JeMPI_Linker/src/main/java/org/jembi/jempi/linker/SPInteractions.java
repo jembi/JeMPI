@@ -14,6 +14,7 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.UploadConfig;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -46,27 +47,12 @@ public final class SPInteractions {
          final String key,
          final InteractionEnvelop interactionEnvelop) {
 
-/*
-      if (interactionEnvelop.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL
-              || interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-         final var completableFuture = Ask.runStartEndHooks(system, backEnd, key, interactionEnvelop).toCompletableFuture();
-         try {
-            List<MpiGeneralError> hookErrors = completableFuture.get(65, TimeUnit.SECONDS).hooksResults();
-            if (!hookErrors.isEmpty()) {
-               LOGGER.error(hookErrors);
-            }
-         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            LOGGER.error(ex.getLocalizedMessage(), ex);
-            this.close();
-         }
-      }
-*/
-
       if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
 
          return;
       }
-      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop).toCompletableFuture();
+      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
+            .toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
@@ -74,7 +60,7 @@ public final class SPInteractions {
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
-         this.close();
+         this.closeInteractionStream();
       }
 
    }
@@ -85,15 +71,16 @@ public final class SPInteractions {
       LOGGER.info("SPInteractions Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
+      final UploadConfig[] uploadConfig = {null};
       final var interactionEnvelopSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
-                                                           new JsonPojoDeserializer<>(InteractionEnvelop.class));
+            new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, InteractionEnvelop> interactionStream =
-            streamsBuilder.stream(topic, Consumed.with(stringSerde, interactionEnvelopSerde));
+      final KStream<String, InteractionEnvelop> interactionStream = streamsBuilder.stream(topic,
+            Consumed.with(stringSerde, interactionEnvelopSerde));
       interactionStream.foreach((key, interactionEnvelop) -> {
          linkPatient(system, backEnd, key, interactionEnvelop);
          if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-            this.close();
+            this.closeInteractionStream();
          }
       });
       interactionEnvelopKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
@@ -102,7 +89,7 @@ public final class SPInteractions {
       LOGGER.info("KafkaStreams started");
    }
 
-   private void close() {
+   private void closeInteractionStream() {
       LOGGER.info("Stream closed");
       interactionEnvelopKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
    }

@@ -62,6 +62,13 @@
       "replications": 1,
       "retention_ms": 600000,
       "segments_bytes": 1048576
+    },
+    "JeMPI-upload-config": {
+      "topicName": "JeMPI-upload-config",
+      "partition": 1,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
     }
   }
 }
