@@ -35,9 +35,9 @@ final class Routes {
    static Route proxyPostCandidatesWithScore(
         final ActorSystem<Void> actorSystem,
         final ActorRef<BackEnd.Request> backEnd) {
-    return entity(Jackson.unmarshaller(ApiModels.ApiInteraction.class), request -> {
+    return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), request -> {
         try {
-            return onComplete(Ask.findCandidates(actorSystem, backEnd, request.uid()),
+            return onComplete(Ask.findCandidates(actorSystem, backEnd, request),
                     response -> {
                         if (!response.isSuccess()) {
                             final var e = response.failed().get();

@@ -348,15 +348,18 @@ public abstract class ApiModels {
       }
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCalculateScoresRequest(
          String interactionId,
          List<String> goldenIds) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiExpandedGoldenRecordsParameterList(
          List<String> uidList) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiNotifications(
          int limit,
          int offset,
@@ -366,6 +369,11 @@ public abstract class ApiModels {
          ) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiInteractionUid(
+         String uid
+         ) {
+         }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecords(

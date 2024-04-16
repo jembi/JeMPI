@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -81,14 +80,10 @@ public final class Ask {
    static CompletionStage<BackEnd.GetNotificationsResponse> getNotifications(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final int limit,
-         final int offset,
-         final Timestamp startDate,
-         final Timestamp endDate,
-         final List<String> states) {
+         final ApiModels.ApiNotifications payload) {
       CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, startDate, endDate, states),
+                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, payload.limit(), payload.offset(), payload.startDate(), payload.endDate(), payload.states()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -136,7 +131,8 @@ public final class Ask {
    static CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> getExpandedGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final List<String> gidList) {
+         final ApiModels.ApiExpandedGoldenRecordsParameterList payload) {
+         final List<String> gidList = payload.uidList();
       CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.GetExpandedGoldenRecordsRequest(replyTo, gidList),
@@ -148,7 +144,8 @@ public final class Ask {
    static CompletionStage<BackEnd.GetExpandedInteractionsResponse> getExpandedInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final List<String> uidList) {
+         final ApiModels.ApiExpandedGoldenRecordsParameterList payload) {
+         final List<String> uidList = payload.uidList();
       CompletionStage<BackEnd.GetExpandedInteractionsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.GetExpandedInteractionsRequest(replyTo, uidList),

@@ -173,10 +173,10 @@ final class Ask {
    static CompletionStage<BackEnd.FindCandidatesWithScoreResponse> findCandidates(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
-         final String iid) {
+         final ApiModels.ApiInteractionUid body) {
       CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, iid),
+                 replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, body.uid()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

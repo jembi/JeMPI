@@ -462,17 +462,21 @@ public final class ProxyRoutes {
         final String linkerIP,
         final Integer linkerPort,
         final Http http,
-        final String iid) {
+        final ApiModels.ApiInteractionUid body) throws JsonProcessingException  {
+        final byte[] json;
+
+        try {
+         json = OBJECT_MAPPER.writeValueAsBytes(body);
+         } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            throw e;
+         }
     // Construct the URI without query parameters
          final var uri = String.format(Locale.ROOT,
                   "http://%s:%d/JeMPI/%s",
                   linkerIP,
                   linkerPort,
                   GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES);
-
-         // Construct the request body with the iid parameter
-         final var json = "{\"uid\": \"" + iid + "\"}";
-
          // Create the POST request with the JSON body
          final var request = HttpRequest.create(uri)
                   .withMethod(HttpMethods.POST)
@@ -487,9 +491,9 @@ public final class ProxyRoutes {
         final String linkerIP,
         final Integer linkerPort,
         final Http http) {
-    return entity(Jackson.unmarshaller(ApiModels.ApiInteraction.class), request -> {
+    return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), obj -> {
         try {
-            return onComplete(proxyPostCandidatesWithScoreDoIt(linkerIP, linkerPort, http, request.uid()),
+            return onComplete(proxyPostCandidatesWithScoreDoIt(linkerIP, linkerPort, http, obj),
                     response -> {
                         if (!response.isSuccess()) {
                             final var e = response.failed().get();
@@ -502,9 +506,9 @@ public final class ProxyRoutes {
                         }
                         return complete(response.get());
                     });
-        } catch (NumberFormatException e) {
-            LOGGER.error("Invalid iid provided", e);
-            return complete(StatusCodes.BAD_REQUEST, "Invalid iid provided");
+        } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
         }
     });
 }

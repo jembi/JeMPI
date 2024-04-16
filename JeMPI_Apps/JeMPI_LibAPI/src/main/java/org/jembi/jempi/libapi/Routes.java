@@ -276,8 +276,7 @@ public final class Routes {
       return entity(Jackson.unmarshaller(ApiModels.ApiNotifications.class), requestData -> {
          try {
             return onComplete(
-                  Ask.getNotifications(actorSystem, backEnd, requestData.limit(), requestData.offset(),
-                        requestData.startDate(), requestData.endDate(), requestData.states()),
+                  Ask.getNotifications(actorSystem, backEnd, requestData),
                   result -> {
                      if (!result.isSuccess()) {
                         final var e = result.failed().get();
@@ -299,7 +298,7 @@ public final class Routes {
         final ActorRef<BackEnd.Event> backEnd) {
     return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
         try {
-            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request),
                     result -> {
                         if (!result.isSuccess()) {
                             final var e = result.failed().get();
@@ -328,7 +327,7 @@ public final class Routes {
         final ActorRef<BackEnd.Event> backEnd) {
     return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
         try {
-            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+            return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request),
                     result -> {
                         if (!result.isSuccess()) {
                             final var e = result.failed().get();
@@ -357,7 +356,7 @@ public final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), requestData -> {
-         return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, requestData.uidList()),
+         return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, requestData),
                result -> {
                   if (!result.isSuccess()) {
                      final var e = result.failed().get();
