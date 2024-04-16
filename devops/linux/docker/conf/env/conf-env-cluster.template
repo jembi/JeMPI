@@ -1,4 +1,4 @@
-export SPEC_SETTINGS=high
+export SPEC_SETTINGS=cluster
 export NODE1=${NODE1}
 export NODE1_IP=${NODE1_IP}
 
