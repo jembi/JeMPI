@@ -358,7 +358,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"newValue\": \"Matt\",\n      \"oldValue\": \"rahel\"\n    }\n  ]\n}",
+					"raw": "{\n \"goldenId\":\"0x2aeb\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"newValue\": \"Jay\",\n      \"oldValue\": \"Matt\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -366,13 +366,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/updateGoldenRecordFieldsForId/0x2aeb",
+					"raw": "{{LocalApi}}/updateGoldenRecordFieldsForId",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"updateGoldenRecordFieldsForId",
-						"0x2aeb"
+						"updateGoldenRecordFieldsForId"
 					]
 				}
 			},

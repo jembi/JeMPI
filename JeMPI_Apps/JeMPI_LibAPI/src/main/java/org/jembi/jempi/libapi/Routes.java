@@ -110,11 +110,10 @@ public final class Routes {
 
    private static Route updateGoldenRecord(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String goldenId) {
+         final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
                     payload -> payload != null
-                          ? onComplete(Ask.updateGoldenRecord(actorSystem, backEnd, goldenId, payload),
+                          ? onComplete(Ask.updateGoldenRecord(actorSystem, backEnd, payload),
 
                                        result -> {
                                           if (result.isSuccess()) {
@@ -693,8 +692,8 @@ public final class Routes {
                                () -> ProxyRoutes.proxyPostCandidatesWithScore(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_NOTIFICATIONS,
                                () -> Routes.getNotifications(actorSystem, backEnd)),
-                          path(segment(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD).slash(segment(Pattern.compile("^[A-z0-9]+$"))),
-                               gid -> Routes.updateGoldenRecord(actorSystem, backEnd, gid)),
+                          path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD,
+                               () -> Routes.updateGoldenRecord(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,

@@ -153,14 +153,13 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.PatchGoldenRecordResponse> updateGoldenRecord(
+   static CompletionStage<BackEnd.UpdateGoldenRecordResponse> updateGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String goldenId,
          final GoldenRecordUpdateRequestPayload payload) {
-      CompletionStage<BackEnd.PatchGoldenRecordResponse> stage = AskPattern
+      CompletionStage<BackEnd.UpdateGoldenRecordResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PatchGoldenRecordRequest(replyTo, goldenId,
+                 replyTo -> new BackEnd.UpdateGoldenRecordRequest(replyTo, payload.goldenId(),
                                                                  payload.fields()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());

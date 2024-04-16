@@ -157,7 +157,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
                     .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
                     .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
-                    .onMessage(PatchGoldenRecordRequest.class, this::patchGoldenRecordHandler)
+                    .onMessage(UpdateGoldenRecordRequest.class, this::updateGoldenRecordHandler)
                     .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
                     .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
                     .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
@@ -388,7 +388,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> patchGoldenRecordHandler(final PatchGoldenRecordRequest request) {
+   private Behavior<Event> updateGoldenRecordHandler(final UpdateGoldenRecordRequest request) {
       final var fields = request.fields();
       final var goldenId = request.goldenId;
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
@@ -401,7 +401,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
             LOGGER.error("Golden record field update {} update has failed.", field);
          }
       }
-      request.replyTo.tell(new PatchGoldenRecordResponse(updatedFields));
+      request.replyTo.tell(new UpdateGoldenRecordResponse(updatedFields));
       return Behaviors.same();
    }
 
@@ -596,13 +596,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          List<HashMap<String, Object>> records) implements EventResponse {
    }
 
-   public record PatchGoldenRecordRequest(
-         ActorRef<PatchGoldenRecordResponse> replyTo,
+   public record UpdateGoldenRecordRequest(
+         ActorRef<UpdateGoldenRecordResponse> replyTo,
          String goldenId,
          List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
    }
 
-   public record PatchGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields)
+   public record UpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields)
          implements EventResponse {
    }
 
