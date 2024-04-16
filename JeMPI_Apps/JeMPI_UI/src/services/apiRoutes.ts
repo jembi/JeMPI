@@ -6,6 +6,7 @@ const ROUTES = {
   POST_DASHBOARD_DATA: '/dashboardData',
   POST_GIDS_PAGED: '/gidsPaged',
   POST_GOLDEN_RECORD: '/expandedGoldenRecord',
+  POST_UPDATE_GOLDEN_RECORD_FIELDS: '/updateGoldenRecordFieldsForId',
   POST_EXPANDED_GOLDEN_RECORDS: '/expandedGoldenRecords',
   POST_GOLDEN_RECORD_AUDIT_TRAIL: '/goldenRecordAuditTrail',
   POST_INTERACTION_AUDIT_TRAIL: '/interactionAuditTrail',
@@ -22,7 +23,7 @@ const ROUTES = {
   VALIDATE_OAUTH: '/authenticate',
   LOGOUT: '/logout',
   AUDIT_TRAIL: '/auditTrail',
-  UPLOAD: '/upload'
+  UPLOAD: '/upload',
 }
 
 export default ROUTES

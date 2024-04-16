@@ -410,11 +410,20 @@ export class ApiClient {
   }
 
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
-    const response = await this.client.patch(
-      `${ROUTES.PATCH_GOLDEN_RECORD}/${uid}`,
-      request
-    )
-    return response
+    for (const field of request.fields) {
+      const { name, oldValue, newValue } = field
+      try {
+        const response = await this.client.post(
+          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS + `/${uid}`,
+          {
+            fields: { name, oldValue, newValue }
+          }
+        )
+      } catch (error) {
+        console.error('Error occurred while making the request:', error)
+      }
+    }
+    return Promise.resolve()
   }
 
   uploadFile = async (requestConfig: AxiosRequestConfig<FormData>) => {

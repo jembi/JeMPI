@@ -4,7 +4,7 @@ description: API endpoints documentation
 
 # API
 
-## GET /config
+## POST /config
 
 The following endpoint returns the fields configuration needed by the frontend (JeMPI-UI) in order to properly display interactions data according to a specific
 implementation. This endpoint returns a JSON array. Below a sample of the response :
@@ -57,7 +57,19 @@ There's two type of fields :
 
 > ! IMPORTANT : The `fieldName` in `config-reference.json` should be set in snake-case, but it's returned in camel-case by the API.
 
-## GET /MatchesForReview?limit=<LIMIT>&date=<DATE>&offset=<OFFSET>&state=<STATE>
+## POST /matchesForReview
+
+Below is a sample of the body you are to send :
+
+```json
+{
+    "limit": 25,
+    "offset":10 ,
+    "startDate":"2024-04-15T23:59:59" ,
+    "endDate": "2024-04-15T23:59:59",
+    "states": ["OPEN"]
+}
+```
 
 The following endpoint returns notifications. notifications are used to inform the user about potential interaction linking to golden records and are generated when a certain case is triggerd. the response contains parameters (`count`, `skippedRecords` ) that are useful for pagination.
 
@@ -113,12 +125,20 @@ Below is a sample of the response
 }
 ```
 
-## GET /interaction/:uid
+## POST /interaction
 
-The following endpoint returns an interaction given a `uid` is supplied. This endpoint returns a object. Below a sample of the response :
+The following endpoint returns an interaction given a `uid` is supplied. This endpoint returns a object. 
+
+Below is a sample of the body you are to send :
 
 ```json
-// GET /interaction/0x4
+{
+    "uid":"0x4"
+}
+
+
+```json
+// POST /interaction/0x4
 {
   "uid": "0x4",
   "sourceId": {
@@ -143,12 +163,22 @@ The following endpoint returns an interaction given a `uid` is supplied. This en
 }
 ```
 
-## GET /expanded-golden-record/:uid
+## POST /expandedGoldenRecord
 
-Given a supplied `uid`, The following endpoint returns an expanded golden records=, meaning a golden record with interactions linked to it. This endpoint returns an object. Below a sample of the response :
+Given a supplied `uid`, The following endpoint returns an expanded golden records=, meaning a golden record with interactions linked to it. This endpoint returns an object. 
+
+Below is a sample of the body you are to send :
 
 ```json
-// GET /expanded-golden-record/0x2e
+{
+    "gid":"0x2b20"
+}
+```
+
+Below a sample of the response :
+
+```json
+// POST /expanded-golden-record/0x2e
 {
   "goldenRecord": {
     "uid": "0x2e",
@@ -229,13 +259,27 @@ Given a supplied `uid`, The following endpoint returns an expanded golden record
 }
 ```
 
-## GET /expanded-golden-records?uidList=<GIDS_LIST>
+## POST /expandedGoldenRecords
 
-The following endpoint will return a list of expanded golden records given a list of golden Ids (`GIDS_LIST`). The Endpoint a JSON Array of expanded golden records
-bellow a sample of the response
+The following endpoint will return a list of expanded golden records given a list of golden Ids (`GIDS_LIST`).
+
+Below is a sample of the body you are to send :
 
 ```json
-// GET /expanded-golden-records?uidList=0x4d03,0x3a07,0x42b2
+{
+    "uidList": [
+        "0x4d03",
+        "0x3a07",
+        "0x2b20"
+    ]
+}
+```
+
+The Endpoint a JSON Array of expanded golden records
+below a sample of the response
+
+```json
+// POST /expanded-golden-records?uidList=0x4d03,0x3a07,0x42b2
 
 [
   {
@@ -305,7 +349,7 @@ bellow a sample of the response
 ]
 ```
 
-## GET /gids-all
+## POST /gidsAll
 
 The following endpoint returns a list of the saved (created) Golden record Ids.
 
@@ -334,12 +378,21 @@ The following endpoint returns a list of the saved (created) Golden record Ids.
 }
 ```
 
-## GET /gids-pages?offset=<OFFSET>&length=<LENGTH>
+## POST /gidsPaged
 
 The following endpoint returns a list of gids paginated, given parameters `OFFSET` and a `LENGTH`.
 
+Below is a sample of the body you are to send :
+
 ```json
-// GET /gids-paged?offset=0&length=10
+{
+    "offset":0,
+    "length":10
+}
+```
+
+```json
+// POST /gids-paged?offset=0&length=10
 {
   "goldenIds": [
     "0x2a",
@@ -356,13 +409,22 @@ The following endpoint returns a list of gids paginated, given parameters `OFFSE
 }
 ```
 
-## GET /golden-record-audit-trail?gid=<GOLDEN_ID>
+## POST /goldenRecordAuditTrail
 
 The Following endpoint returns the audit trail for a given Golden Record with a Golden_Id `GOLDEN_ID`
-Bellow a sample of the response
+
+Below is a sample of of the body to send :
 
 ```json
-// GET /golden-record-audit-trail?gid=0x4d
+{
+    "gid":"0x2b20"
+}
+```
+
+Below a sample of the request body :
+
+```json
+// POST /golden-record-audit-trail?gid=0x4d
 {
   "entries": [
     {
@@ -383,13 +445,21 @@ Bellow a sample of the response
 }
 ```
 
-## GET /interaction-audit-trail?iid=<INTERACTION_ID>
+## POST /interactionAuditTrail
 
 The Following endpoint returns the audit trail for a given Interaction with Interaction Id `INTERACTION_ID`
-Bellow a sample of the response
+
+Below a sample of the request body :
 
 ```json
-// GET /interaction-audit-trail?iid=0x4c
+{
+    "uid":"0x2b1f"
+}
+```
+Below a sample of the response
+
+```json
+// POST /interaction-audit-trail?iid=0x4c
 {
   "entries": [
     {
@@ -765,7 +835,7 @@ Note: this endpoint is similar to the `search/(goleden|patient)`
 ## POST /cr-candidates
 
 The following endpoint returns the list of candidate golden record given demographic data of a record and a threshold
-Bellow a sample of the request body
+Below a sample of the request body
 
 ```json
 {
@@ -782,7 +852,7 @@ Bellow a sample of the request body
 }
 ```
 
-Bellow a sample a the response body for this endpoint
+Below a sample a the response body for this endpoint
 
 ```json
 {
