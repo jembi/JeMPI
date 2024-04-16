@@ -98,7 +98,7 @@ public final class ProxyRoutes {
                                                  "http://%s:%d/JeMPI/%s",
                                                  linkerIP,
                                                  linkerPort,
-                                                 GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION))
+                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK))
                            .withMethod(HttpMethods.POST)
                            .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
@@ -476,7 +476,7 @@ public final class ProxyRoutes {
                   "http://%s:%d/JeMPI/%s",
                   linkerIP,
                   linkerPort,
-                  GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES);
+                  GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS);
          // Create the POST request with the JSON body
          final var request = HttpRequest.create(uri)
                   .withMethod(HttpMethods.POST)

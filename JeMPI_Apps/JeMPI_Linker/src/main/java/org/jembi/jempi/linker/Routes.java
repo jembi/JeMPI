@@ -312,7 +312,7 @@ final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                        () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
                                                             () -> proxyPostLinkInteraction(actorSystem, backEnd)),
 //                                                     path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
 //                                                            () -> proxyPostLinkInteractionToGID(actorSystem, backEnd)),
@@ -330,7 +330,7 @@ final class Routes {
                                                             () -> proxyPostCrLinkBySourceId(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
                                                             () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES,
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
                                                             () -> proxyPostCandidatesWithScore(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
                                                             () -> proxyPostCrUpdateField(actorSystem, backEnd))));
