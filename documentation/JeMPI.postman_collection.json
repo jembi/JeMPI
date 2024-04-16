@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0319cdf2-1404-423b-b900-d485619ee8fb",
+		"_postman_id": "6fd7ff41-f8f9-442d-83d1-d3e0e186140b",
 		"name": "JeMPI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12338305"
@@ -306,7 +306,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"limit\": 25,\n    \"offset\":10 ,\n    \"startDate\":\"2024-04-11%2000:00:00\" ,\n    \"endDate\": \"2024-04-11%2000:00:00\",\n    \"states\": [\"new\",\"OPEN\"]\n}\n\n",
+					"raw": "{\n    \"limit\": 25,\n    \"offset\":10 ,\n    \"startDate\":\"2024-01-10T00:00:00Z\" ,\n    \"endDate\": \"2024-04-10T00:00:00Z\",\n    \"states\": [\"new\",\"OPEN\"]\n}\n\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -314,12 +314,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/matchesForReview",
+					"raw": "{{LocalApi}}/notifications",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"matchesForReview"
+						"notifications"
 					]
 				}
 			},
