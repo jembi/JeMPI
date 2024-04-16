@@ -16,7 +16,6 @@ final class Ask {
 
    private static final Logger LOGGER = LogManager.getLogger(Ask.class);
 
-
    private Ask() {
    }
 
@@ -146,7 +145,6 @@ final class Ask {
       return stage.thenApply(response -> response);
    }
 
-
    static CompletionStage<BackEnd.SyncLinkInteractionResponse> postLinkInteraction(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
@@ -173,28 +171,29 @@ final class Ask {
    static CompletionStage<BackEnd.FindCandidatesWithScoreResponse> findCandidates(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
-         final String iid) {
+         final ApiModels.ApiInteractionUid body) {
       CompletionStage<BackEnd.FindCandidatesWithScoreResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, iid),
+                 replyTo -> new BackEnd.FindCandidatesWithScoreRequest(replyTo, body.uid()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
-/*
-   static CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> postLinkPatientToGid(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Request> backEnd,
-         final ApiModels.LinkInteractionToGidSyncBody body) {
-      CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> stage = AskPattern
-            .ask(backEnd,
-                 replyTo -> new BackEnd.SyncLinkInteractionToGidRequest(body, replyTo),
-                 java.time.Duration.ofSeconds(11),
-                 actorSystem.scheduler());
-      return stage.thenApply(response -> response);
-   }
-*/
+   /*
+    * static CompletionStage<BackEnd.SyncLinkInteractionToGidResponse>
+    * postLinkPatientToGid(
+    * final ActorSystem<Void> actorSystem,
+    * final ActorRef<BackEnd.Request> backEnd,
+    * final ApiModels.LinkInteractionToGidSyncBody body) {
+    * CompletionStage<BackEnd.SyncLinkInteractionToGidResponse> stage = AskPattern
+    * .ask(backEnd,
+    * replyTo -> new BackEnd.SyncLinkInteractionToGidRequest(body, replyTo),
+    * java.time.Duration.ofSeconds(11),
+    * actorSystem.scheduler());
+    * return stage.thenApply(response -> response);
+    * }
+    */
 
    static CompletionStage<BackEnd.CalculateScoresResponse> postCalculateScores(
          final ActorSystem<Void> actorSystem,
@@ -208,13 +207,13 @@ final class Ask {
       return stage.thenApply(response -> response);
    }
 
-
-//   static CompletionStage<BackEnd.EventGetMURsp> getMU(
-//         final ActorSystem<Void> actorSystem,
-//         final ActorRef<BackEnd.Request> backEnd) {
-//      CompletionStage<BackEnd.EventGetMURsp> stage =
-//            AskPattern.ask(backEnd, BackEnd.EventGetMUReq::new, java.time.Duration.ofSeconds(11), actorSystem.scheduler());
-//      return stage.thenApply(response -> response);
-//   }
+   // static CompletionStage<BackEnd.EventGetMURsp> getMU(
+   // final ActorSystem<Void> actorSystem,
+   // final ActorRef<BackEnd.Request> backEnd) {
+   // CompletionStage<BackEnd.EventGetMURsp> stage =
+   // AskPattern.ask(backEnd, BackEnd.EventGetMUReq::new,
+   // java.time.Duration.ofSeconds(11), actorSystem.scheduler());
+   // return stage.thenApply(response -> response);
+   // }
 
 }

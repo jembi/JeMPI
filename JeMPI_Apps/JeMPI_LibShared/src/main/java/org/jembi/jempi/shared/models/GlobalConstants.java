@@ -11,6 +11,7 @@ public final class GlobalConstants {
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
+   public static final String TOPIC_UPLOAD_CONFIG = "JeMPI-upload-config";
 
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
 
@@ -26,17 +27,17 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_GIDS_PAGED = "gidsPaged";
    public static final String SEGMENT_POST_INTERACTION = "interaction";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORD = "expandedGoldenRecord";
-   public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST = "expandedGoldenRecords";
-   public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_USING_CSV = "expandedGoldenRecordsCsv";
-   public static final String SEGMENT_POST_EXPANDED_INTERACTIONS_USING_CSV = "expandedInteractionsCsv";
+   public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_FOR_UID_LIST = "expandedGoldenRecords";
+   public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_FOR_GOLDEN_IDS = "expandedGoldenRecordsCsv";
+   public static final String SEGMENT_POST_EXPANDED_INTERACTIONS_FOR_INTERACTION_IDS = "expandedInteractionsCsv";
    public static final String SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL = "goldenRecordAuditTrail";
    public static final String SEGMENT_POST_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
    public static final String SEGMENT_POST_FIELDS_CONFIG = "config";
    public static final String SEGMENT_POST_LINKED_RECORDS = "linkedRecords";
-   public static final String SEGMENT_POST_NOTIFICATIONS = "matchesForReview";
+   public static final String SEGMENT_POST_NOTIFICATIONS = "notifications";
    public static final String SEGMENT_POST_GOLDEN_RECORD = "updateGoldenRecordFieldsForId";
-   public static final String SEGMENT_POST_IID_GID_LINK = "relink";
-   public static final String SEGMENT_POST_IID_NEW_GID_LINK = "newLink";
+   public static final String SEGMENT_POST_RELINK = "relink";
+   public static final String SEGMENT_POST_NEW_LINK = "newLink";
    public static final String SEGMENT_POST_UPDATE_NOTIFICATION = "notificationRequest";
    public static final String SEGMENT_POST_SIMPLE_SEARCH = "search";
    public static final String SEGMENT_POST_CUSTOM_SEARCH = "customSearch";
@@ -51,11 +52,11 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_CR_CANDIDATES = "crCandidates";
    public static final String SEGMENT_PROXY_POST_CR_UPDATE_FIELDS = "crUpdateFields";
    public static final String SEGMENT_POST_CR_FIND_SOURCE_ID = "crFindSourceId";
-   public static final String SEGMENT_PROXY_POST_CANDIDATES_WITH_SCORES = "candidateGoldenRecords";
+   public static final String SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS = "candidateGoldenRecords";
    public static final String SEGMENT_PROXY_POST_SCORES = "scores";
    public static final String SEGMENT_PROXY_POST_DASHBOARD_DATA = "dashboardData";
    public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "onNotificationResolution";
-   public static final String SEGMENT_PROXY_POST_LINK_INTERACTION = "crLink";
+   public static final String SEGMENT_PROXY_POST_CR_LINK = "crLink";
    // public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID =
    // "linkInteractionToGid";
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";

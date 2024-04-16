@@ -12,10 +12,10 @@ export enum UploadStatus {
 }
 
 export type importQueriesType = {
-  reporting: boolean
-  computing: number
-  leftMargin: number
-  rightMargin: number
-  threshold: number
-  windowSize: number
+  reportingRequired: boolean
+  uploadWorkflow: number
+  minThreshold: number
+  maxThreshold: number
+  linkThreshold: number
+  marginWindowSize: number
 }

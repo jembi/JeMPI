@@ -57,7 +57,8 @@ public final class CustomSourceRecordStream {
                                                           new Interaction(null,
                                                                           rec.interaction().sourceId(),
                                                                           interaction.uniqueInteractionData(),
-                                                                          demographicData.clean()));
+                                                                          demographicData.clean()),
+                                                          rec.config());
             return KeyValue.pair(key, newEnvelop);
          } else {
             return KeyValue.pair(key, rec);
@@ -79,5 +80,4 @@ public final class CustomSourceRecordStream {
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
    }
-
 }
