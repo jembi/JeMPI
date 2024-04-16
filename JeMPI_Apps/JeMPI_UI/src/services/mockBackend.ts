@@ -66,8 +66,6 @@ axiosMockAdapterInstance
   })
   .onPost(ROUTES.POST_FIELDS_CONFIG)
   .reply(200, mockFields)
-  .onGet(ROUTES.AUDIT_TRAIL)
-  .reply(200, auditTrail)
   .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/golden`)
   .reply(200, searchGoldenRecordResult)
   .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/patient`)

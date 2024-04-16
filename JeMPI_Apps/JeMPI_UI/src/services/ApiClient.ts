@@ -132,14 +132,6 @@ export class ApiClient {
     return data
   }
 
-  async fetchInteraction(uid: string) {
-    const { data } = await this.client.post<Interaction>(
-      ROUTES.POST_INTERACTION,
-      uid
-    )
-    return data
-  }
-
   async fetchGoldenRecord(uid: string): Promise<GoldenRecord> {
     const {
       data: { goldenRecord, interactionsWithScore }
@@ -271,29 +263,6 @@ export class ApiClient {
     }
   }
 
-  async getFilteredGoldenIds(request: FilterQuery) {
-    const { data } = await this.client.post<{
-      data: string[]
-      pagination: { total: number }
-    }>(ROUTES.POST_FILTER_GIDS, request)
-    return data
-  }
-
-  async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
-    const {
-      data: { data, interactionCount, pagination }
-    } = await this.client.post<{
-      data: string[]
-      interactionCount: { total: number }
-      pagination: { total: number }
-    }>(ROUTES.POST_FILTER_GIDS_WITH_INTERACTION_COUNT, request)
-    const total = pagination.total + interactionCount.total
-    return {
-      data,
-      pagination: { total }
-    }
-  }
-
   async fetchExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<GoldenRecord[]> {
@@ -416,7 +385,7 @@ export class ApiClient {
         const response = await this.client.post(
           ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS + `/${uid}`,
           {
-            fields:[{ name, oldValue, newValue }]
+            fields: [{ name, oldValue, newValue }]
           }
         )
       } catch (error) {
