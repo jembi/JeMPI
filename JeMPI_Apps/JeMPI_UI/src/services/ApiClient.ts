@@ -416,7 +416,7 @@ export class ApiClient {
         const response = await this.client.post(
           ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS + `/${uid}`,
           {
-            fields: { name, oldValue, newValue }
+            fields:[{ name, oldValue, newValue }]
           }
         )
       } catch (error) {

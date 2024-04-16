@@ -473,7 +473,7 @@ Below a sample of the response
 }
 ```
 
-## GET /count-golden-records
+## GET /countGoldenRecords
 
 The following endpoint returns the golden record count available in the database
 
@@ -742,7 +742,7 @@ When the request is performed against the url `/search/patient` the response pay
 }
 ```
 
-## POST /custom-search/(golden|patient)
+## POST /customSearch/(golden|patient)
 
 The following endpoint is used for the custom search either for golden or interactions.
 
@@ -801,7 +801,7 @@ Below a sample of the request body
 }
 ```
 
-## POST /filter-gids
+## POST /filterGids
 
 The following endpoint returns a paginated Golden Ids list a request body illustrated in the example bellow
 
