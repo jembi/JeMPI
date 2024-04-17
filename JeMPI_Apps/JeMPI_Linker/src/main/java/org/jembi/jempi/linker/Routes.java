@@ -33,48 +33,26 @@ final class Routes {
    }
 
    static Route proxyPostCandidatesWithScore(
-        final ActorSystem<Void> actorSystem,
-        final ActorRef<BackEnd.Request> backEnd) {
-    return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), request -> {
-        try {
-            return onComplete(Ask.findCandidates(actorSystem, backEnd, request),
-                    response -> {
-                        if (!response.isSuccess()) {
-                            final var e = response.failed().get();
-                            LOGGER.error(e.getLocalizedMessage(), e);
-                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                        }
-                        return response.get()
-                                .candidates()
-                                .mapLeft(MapError::mapError)
-                                .fold(error -> error,
-                                        candidateList -> complete(StatusCodes.OK,
-                                                candidateList,
-                                                Jackson.marshaller()));
-                    });
-        } catch (NumberFormatException e) {
-            LOGGER.error("Invalid iid provided", e);
-            return complete(StatusCodes.BAD_REQUEST, "Invalid iid provided");
-        }
-    });
-}
-
-
-/*
-   static Route proxyPostLinkInteractionToGID(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.LinkInteractionToGidSyncBody.class),
-                    obj -> onComplete(Ask.postLinkPatientToGid(actorSystem, backEnd, obj),
-                                      response -> {
-                                         if (!response.isSuccess()) {
-                                            LOGGER.warn(IM_A_TEA_POT_LOG);
-                                            return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
-                                         }
-                                         return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
-                                      }));
+      return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), request -> {
+         return onComplete(Ask.findCandidates(actorSystem, backEnd, request),
+                           response -> {
+                              if (!response.isSuccess()) {
+                                 final var e = response.failed().get();
+                                 LOGGER.error(e.getLocalizedMessage(), e);
+                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              }
+                              return response.get()
+                                             .candidates()
+                                             .mapLeft(MapError::mapError)
+                                             .fold(error -> error,
+                                                   candidateList -> complete(StatusCodes.OK,
+                                                                             candidateList,
+                                                                             Jackson.marshaller()));
+                           });
+      });
    }
-*/
 
    static Route proxyPostCalculateScores(
          final ActorSystem<Void> actorSystem,
@@ -314,8 +292,6 @@ final class Routes {
       return pathPrefix("JeMPI",
                         () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
                                                             () -> proxyPostLinkInteraction(actorSystem, backEnd)),
-//                                                     path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-//                                                            () -> proxyPostLinkInteractionToGID(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
                                                             () -> proxyPostCalculateScores(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
@@ -329,12 +305,13 @@ final class Routes {
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
                                                             () -> proxyPostCrLinkBySourceId(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
-                                                            () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
+                                                            () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
                                                             () -> proxyPostCandidatesWithScore(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
-                                                            () -> proxyPostCrUpdateField(actorSystem, backEnd))));
+                                                            () -> proxyPostCrUpdateField(actorSystem, backEnd))
+                                                      ))
+                                    ));
    }
-
 
 }

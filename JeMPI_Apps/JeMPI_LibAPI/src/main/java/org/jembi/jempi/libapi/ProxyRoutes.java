@@ -34,7 +34,7 @@ public final class ProxyRoutes {
    private ProxyRoutes() {
    }
 
-   private static CompletionStage<HttpResponse> proxyPostCalculateScoresDoIt(
+   private static CompletionStage<HttpResponse> proxyPostCalculateScores(
          final String linkerIP,
          final Integer linkerPort,
          final Http http,
@@ -65,7 +65,7 @@ public final class ProxyRoutes {
       return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class),
                     obj -> {
                        try {
-                          return onComplete(proxyPostCalculateScoresDoIt(linkerIp, linkerPort, http, obj),
+                          return onComplete(proxyPostCalculateScores(linkerIp, linkerPort, http, obj),
                                             response -> {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
@@ -458,7 +458,7 @@ public final class ProxyRoutes {
                     });
    }
 
-   private static CompletionStage<HttpResponse> proxyPostCandidatesWithScoreDoIt(
+   private static CompletionStage<HttpResponse> proxyPostCandidatesWithScore(
         final String linkerIP,
         final Integer linkerPort,
         final Http http,
@@ -471,7 +471,7 @@ public final class ProxyRoutes {
             LOGGER.error(e.getLocalizedMessage(), e);
             throw e;
          }
-    // Construct the URI without query parameters
+         // Construct the URI without query parameters
          final var uri = String.format(Locale.ROOT,
                   "http://%s:%d/JeMPI/%s",
                   linkerIP,
@@ -493,7 +493,7 @@ public final class ProxyRoutes {
         final Http http) {
     return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), obj -> {
         try {
-            return onComplete(proxyPostCandidatesWithScoreDoIt(linkerIP, linkerPort, http, obj),
+            return onComplete(proxyPostCandidatesWithScore(linkerIP, linkerPort, http, obj),
                     response -> {
                         if (!response.isSuccess()) {
                             final var e = response.failed().get();

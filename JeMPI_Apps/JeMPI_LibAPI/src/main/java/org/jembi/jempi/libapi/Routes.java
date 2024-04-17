@@ -189,8 +189,8 @@ public final class Routes {
    private static Route postInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiInteraction.class), obj -> {
-          return onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, obj.uid()),
+      return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), obj -> {
+          return onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, obj),
                                          result -> {
                                             if (!result.isSuccess()) {
                                                final var e = result.failed().get();
@@ -354,8 +354,8 @@ public final class Routes {
    private static Route postExpandedInteractionsUsingCSV(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), requestData -> {
-         return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, requestData),
+      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
+         return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, request),
                result -> {
                   if (!result.isSuccess()) {
                      final var e = result.failed().get();
@@ -379,7 +379,7 @@ public final class Routes {
         final ActorSystem<Void> actorSystem,
         final ActorRef<BackEnd.Event> backEnd) {
     return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
-         return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request.gid()),
+         return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request),
                   result -> {
                      if (!result.isSuccess()) {
                            final var e = result.failed().get();
@@ -403,7 +403,7 @@ public final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
          return entity(Jackson.unmarshaller(ApiInteraction.class),
-            obj -> onComplete(Ask.getInteraction(actorSystem, backEnd, obj.uid()),
+            request -> onComplete(Ask.getInteraction(actorSystem, backEnd, request),
                         result -> {
                            if (!result.isSuccess()) {
                               final var e = result.failed().get();
