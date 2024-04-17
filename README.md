@@ -78,3 +78,20 @@ bash ./launch-local.sh
 ```
 
 Note that currently, there is no Dgraph Ratel docker image compiled for M1 CPU, so most certainly you would run into a "Unsupported platform" error. For this you could either decide not to run the Ratel service by setting `export SCALE_RATEL=0` in `docker/conf/env/create-env-linux-1.sh` and use [https://play.dgraph.io/](https://play.dgraph.io/) instead.
+``
+
+## Cluster Setup Notes
+
+- the cluster configuration uses 3 nodes
+- please refer to Installation steps above for all modifications for clustering
+
+Following the steps below:
+1. manually configure the nodes host name and ip address in ./create-env-linux-cluster.sh (refer to installation run 1)
+2. run Installation step 1 - using ./create-env-linux-cluster.sh
+3. run Installation step 2 (1 & 2)
+4. after initializing the swarm 
+   1. join as a working from nodes 2 and 3 
+   2. create node labels for node 2 and 3 (using the hostname configured in step 1)
+   3. create the folders used for mounting kafka-02/03, alpha-02/03, zero-02/03 (please reference docker-stack-cluster in devops/linux/docker/conf/stack/)
+5. run Installation step 3 (3-5)
+
