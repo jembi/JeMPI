@@ -35,7 +35,7 @@ export const DashboardDataProvider = ({
     isError
   } = useQuery<DashboardData, AxiosError>({
     queryKey: ['dashboardData'],
-    queryFn: async () =>  apiClient.getDashboardData().then(r => {
+    queryFn: async () =>  apiClient.fetchDashboardData().then(r => {
             r.dashboardData = JSON.parse(r.dashboardData)
             return r
         }),
