@@ -1,5 +1,4 @@
 import { Box, Avatar, Typography } from '@mui/material'
-import CountUp from 'components/shared/CountUp'
 import React from 'react'
 
 type countWidgetType = {
@@ -52,11 +51,11 @@ function CountWidget({
           }}
         >
           <Typography variant="h4">
-            <CountUp end={value} duration={1000} />
+            {value}
           </Typography>
           {!!secondValue && (
             <Typography variant="h4">
-              <CountUp end={secondValue} duration={1000} />
+              {secondValue}
             </Typography>
           )}
         </Box>

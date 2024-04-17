@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record InteractionEnvelop(
       ContentType contentType,
       String tag,
-      String /* System Trace Audit Number */ stan,
-      Interaction interaction) {
+      String stan,
+      // System Trace Audit Number
+      Interaction interaction,
+      UploadConfig config) {
 
    public enum ContentType {
       BATCH_START_SENTINEL(ContentType.MESSAGE_START_VALUE),

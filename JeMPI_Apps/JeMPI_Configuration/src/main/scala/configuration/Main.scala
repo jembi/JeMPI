@@ -2,12 +2,14 @@ package configuration
 
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.fasterxml.jackson.module.scala.{
+  ClassTagExtensions,
+  DefaultScalaModule
+}
 
 import java.nio.file.Paths
 
 object Main {
-
 
   @main def configure(in_config_file_name: String): Any =
 
@@ -19,8 +21,14 @@ object Main {
     }
     println(s"name =  $config_file_name")
 
-    val mapper = JsonMapper.builder().addModule(DefaultScalaModule).build() :: ClassTagExtensions
-    val config = mapper.readValue(Paths.get(config_file_name).toFile, new TypeReference[Config] {})
+    val mapper = JsonMapper
+      .builder()
+      .addModule(DefaultScalaModule)
+      .build() :: ClassTagExtensions
+    val config = mapper.readValue(
+      Paths.get(config_file_name).toFile,
+      new TypeReference[Config] {}
+    )
 
     CustomMU.generate(config.demographicFields)
     CustomDgraphConstants.generate(config)
@@ -35,9 +43,14 @@ object Main {
     CustomLinkerProbabilistic.generate(config)
     CustomLinkerBackEnd.generate(config)
     CustomLinkerMU.generate(config)
-    CustomPostgresqlInteraction.generate(config.demographicFields)
-    CustomPostgresqlGoldenRecord.generate(config.demographicFields)
+//    CustomPostgresqlInteraction.generate(config.demographicFields)
+//    CustomPostgresqlGoldenRecord.generate(config.demographicFields)
     CustomAsyncHelper.generate(config)
     CustomPatient.generate(config)
+    CustomFieldTallies.generate(config)
+    CustomControllerDashboardMU.generate(config)
+    ScalaCustomFields.generate(config)
+    ScalaCustomInteractionEnvelop.generate(config)
+    ScalaCustomMU.generate(config)
 
 }

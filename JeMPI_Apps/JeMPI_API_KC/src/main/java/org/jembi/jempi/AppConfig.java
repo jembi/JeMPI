@@ -14,20 +14,21 @@ public final class AppConfig {
    private static final Logger LOGGER = LogManager.getLogger(AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   public static final Config CONFIG = new Builder()
-         .withSystemEnvironment()
-         .withSystemProperties()
-         .withOptionalRelativeFile("/conf/server.production.conf")
-         .withOptionalRelativeFile("/conf/server.staging.conf")
-         .withOptionalRelativeFile("/conf/server.test.conf")
-         .withResource("application.local.conf")
-         .withResource("application.conf")
-         .build();
+   public static final Config CONFIG = new Builder().withSystemEnvironment()
+                                                    .withSystemProperties()
+                                                    .withOptionalRelativeFile("/conf/server.production.conf")
+                                                    .withOptionalRelativeFile("/conf/server.staging.conf")
+                                                    .withOptionalRelativeFile("/conf/server.test.conf")
+                                                    .withResource("application.local.conf")
+                                                    .withResource("application.conf")
+                                                    .build();
    public static final String POSTGRESQL_IP = CONFIG.getString("POSTGRESQL_IP");
    public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
-   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+   public static final String POSTGRESQL_USERS_DB = CONFIG.getString("POSTGRESQL_USERS_DB");
+   public static final String POSTGRESQL_NOTIFICATIONS_DB = CONFIG.getString("POSTGRESQL_NOTIFICATIONS_DB");
+   public static final String POSTGRESQL_AUDIT_DB = CONFIG.getString("POSTGRESQL_AUDIT_DB");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
@@ -41,6 +42,9 @@ public final class AppConfig {
    public static final Integer API_KC_HTTP_PORT = CONFIG.getInt("API_KC_HTTP_PORT");
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
+
+   public static final String CONTROLLER_IP = CONFIG.getString("CONTROLLER_IP");
+   public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
    public static final String SESSION_SECRET = CONFIG.getString("JEMPI_SESSION_SECRET");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 

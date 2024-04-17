@@ -36,9 +36,8 @@ public final class SPAuditTrail {
       final Deserializer<AuditEvent> auditEventDeserializer = new JsonPojoDeserializer<>(AuditEvent.class);
       final Serde<AuditEvent> auditEventSerde = Serdes.serdeFrom(auditEventSerializer, auditEventDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, AuditEvent> auditEventKStream = streamsBuilder.stream(
-            GlobalConstants.TOPIC_AUDIT_TRAIL,
-            Consumed.with(stringSerde, auditEventSerde));
+      final KStream<String, AuditEvent> auditEventKStream =
+            streamsBuilder.stream(GlobalConstants.TOPIC_AUDIT_TRAIL, Consumed.with(stringSerde, auditEventSerde));
       auditEventKStream.foreach((key, value) -> psqlAuditTrail.addAuditEvent(value));
       final var auditTrailKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       auditTrailKafkaStreams.cleanUp();

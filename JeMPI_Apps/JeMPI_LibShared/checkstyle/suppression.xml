@@ -36,5 +36,26 @@
             files="CustomDemographicData.java"
     />
 
+    <suppress
+            checks="(DesignForExtension)"
+            files="StoreProcessorFactory.java"
+    />
+
+    <suppress
+            checks="(DesignForExtension)"
+            files="StoreProcessor.java"
+    />
+
+
+    <suppress
+            checks="(UnusedImports)"
+            files="CustomLinkerProbabilistic.java"
+    />
+
+    <suppress
+            checks="(DesignForExtension|RegexpSingleline|UnusedImports|RedundantImport)"
+            files="CustomLinkerMU.java"
+    />
+
 
 </suppressions>

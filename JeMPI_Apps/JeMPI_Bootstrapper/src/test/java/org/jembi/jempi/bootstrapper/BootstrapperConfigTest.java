@@ -30,7 +30,7 @@ public class BootstrapperConfigTest {
         assertEquals(5432, config.POSTGRESQL_PORT);
         assertEquals("postgres", config.POSTGRESQL_USER);
         assertEquals("", config.POSTGRESQL_PASSWORD);
-        assertEquals("jempi", config.POSTGRESQL_DATABASE);
+        assertEquals("jempi", config.POSTGRESQL_NOTIFICATIONS_DB);
 
         assertEquals("127.0.0.1", config.KAFKA_BOOTSTRAP_SERVERS);
         assertEquals("aId", config.KAFKA_APPLICATION_ID);

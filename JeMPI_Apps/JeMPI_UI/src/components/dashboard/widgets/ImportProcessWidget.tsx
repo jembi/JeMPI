@@ -46,20 +46,15 @@ function LinearProgressWithLabel(
     </Box>
   )
 }
-export const ImportProcessWidget = () => {
-  const [progress, setProgress] = useState(10)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const randomIncrement = Math.floor(Math.random() * 10)
+export const ImportProcessWidget = ({data, ...rest}: any) => {
 
-      setProgress(prevProgress =>
-        prevProgress >= 100 ? 0 : prevProgress + randomIncrement
-      )
-    }, 800)
-    return () => {
-      clearInterval(timer)
-    }
-  }, [])
+  let progress = 0
+
+  if (data){
+    // TODO: data.toFileSize * 4 is just rough estimate. Need to this properly later
+    progress = data.sizeCompleted >= (data.toFileSize * 4) ? 100 : (data.sizeCompleted/(data.toFileSize * 4)) * 100
+  }
+
   return (
     <Box component={'fieldset'}>
       <legend>Import Process</legend>
@@ -71,12 +66,12 @@ export const ImportProcessWidget = () => {
           padding: 2
         }}
       >
-        <CircularProgressWithLabel value={progress} /> imported_file_name.csv
+        <CircularProgressWithLabel value={progress} /> {data && data.filename}
         <Box sx={{ width: '360px' }}>
           <LinearProgressWithLabel value={progress} />
         </Box>
         <Typography variant="h6" color="text.secondary">
-          {((progress / 100) * 1958000).toLocaleString() + '/ 1,958,000'}
+          {(data ? data.totalCompleted : 0) + ' Processed'}
         </Typography>
       </Box>
     </Box>

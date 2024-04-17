@@ -12,36 +12,18 @@ public class CustomDemographicData {
    public final String phoneNumber;
    public final String nationalId;
 
-   public final String getGivenName() {
-      return givenName;
-   }
-
-   public final String getFamilyName() {
-      return familyName;
-   }
-
-   public final String getGender() {
-      return gender;
-   }
-
-   public final String getDob() {
-      return dob;
-   }
-
-   public final String getCity() {
-      return city;
-   }
-
-   public final String getPhoneNumber() {
-      return phoneNumber;
-   }
-
-   public final String getNationalId() {
-      return nationalId;
-   }
-
    public CustomDemographicData() {
       this(null, null, null, null, null, null, null);
+   }
+
+   public CustomDemographicData(final CustomDemographicData demographicData) {
+      this.givenName = demographicData.givenName;
+      this.familyName = demographicData.familyName;
+      this.gender = demographicData.gender;
+      this.dob = demographicData.dob;
+      this.city = demographicData.city;
+      this.phoneNumber = demographicData.phoneNumber;
+      this.nationalId = demographicData.nationalId;
    }
 
    public CustomDemographicData(
@@ -62,13 +44,13 @@ public class CustomDemographicData {
    }
 
    public CustomDemographicData clean() {
-      return new CustomDemographicData(this.givenName.toLowerCase().replaceAll("\\W", ""),
-                                       this.familyName.toLowerCase().replaceAll("\\W", ""),
-                                       this.gender.toLowerCase().replaceAll("\\W", ""),
-                                       this.dob.toLowerCase().replaceAll("\\W", ""),
-                                       this.city.toLowerCase().replaceAll("\\W", ""),
-                                       this.phoneNumber.toLowerCase().replaceAll("\\W", ""),
-                                       this.nationalId.toLowerCase().replaceAll("\\W", ""));
+      return new CustomDemographicData(this.givenName.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.familyName.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.gender.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.dob.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.city.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.phoneNumber.trim().toLowerCase().replaceAll("\\W", ""),
+                                       this.nationalId.trim().toLowerCase().replaceAll("\\W", ""));
    }
 
 }

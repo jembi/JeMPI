@@ -12,7 +12,8 @@ const notifications: Notification[] = [
     names: 'Bob Smith',
     patient_id: '0x5a',
     status: NotificationState.CLOSED,
-    golden_id: '0x9833',
+    old_golden_id: '0x9493',
+    current_golden_id: '0x9833',
     score: 0.5,
     candidates: [
       {
@@ -28,7 +29,8 @@ const notifications: Notification[] = [
     names: 'Jane Doe',
     patient_id: '0x7j',
     status: NotificationState.OPEN,
-    golden_id: '0x9824',
+    old_golden_id: '0x9493',
+    current_golden_id: '0x9833',
     score: 0.9,
     candidates: [
       {
@@ -44,7 +46,8 @@ const notifications: Notification[] = [
     names: 'Jane Smith',
     patient_id: '0x1a',
     status: NotificationState.OPEN,
-    golden_id: '0x9847',
+    old_golden_id: '0x9493',
+    current_golden_id: '0x9833',
     score: 0.3,
     candidates: [
       {
@@ -60,7 +63,8 @@ const notifications: Notification[] = [
     names: 'John Themba',
     patient_id: '0x9a',
     status: NotificationState.OPEN,
-    golden_id: '0x9866',
+    old_golden_id: '0x9493',
+    current_golden_id: '0x9833',
     score: 0.7,
     candidates: [
       {
@@ -187,21 +191,27 @@ const auditTrail: AuditTrail[] = [
     created_at: '2023-09-05 14:46:51.000988',
     interaction_id: '0x1627',
     golden_id: '0x1628',
-    entry: 'Interaction -> New GoldenRecord (1.000000)'
+    entry: 'Interaction -> New GoldenRecord (1.000000)',
+    score: 0,
+    linking_rule:  "DETERMINISTIC" 
   },
   {
     inserted_at: '2023-09-05 14:46:51.000991',
     created_at: '2023-09-05 14:46:51.000988',
     interaction_id: '0x1627',
     golden_id: '0x1628',
-    entry: 'Interaction -> New GoldenRecord (1.000000)'
+    entry: 'Interaction -> New GoldenRecord (1.000000)',
+    score: 0,
+    linking_rule:  "DETERMINISTIC" 
   },
   {
     inserted_at: '2023-09-05 14:46:51.000991',
     created_at: '2023-09-05 14:46:51.000988',
     interaction_id: '0x1627',
     golden_id: '0x1628',
-    entry: 'Interaction -> New GoldenRecord (1.000000)'
+    entry: 'Interaction -> New GoldenRecord (1.000000)',
+    score: 0,
+    linking_rule:  "DETERMINISTIC" 
   }
 ]
 

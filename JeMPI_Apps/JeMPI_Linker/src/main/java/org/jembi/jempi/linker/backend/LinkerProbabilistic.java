@@ -17,7 +17,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.log;
 import static org.jembi.jempi.linker.backend.CustomLinkerProbabilistic.*;
 
-final class LinkerProbabilistic {
+public final class LinkerProbabilistic {
 
    static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
@@ -26,7 +26,6 @@ final class LinkerProbabilistic {
    private static final Logger LOGGER = LogManager.getLogger(LinkerProbabilistic.class);
    private static final double LOG2 = java.lang.Math.log(2.0);
    private static final float MISSING_PENALTY = 0.925F;
-
    private LinkerProbabilistic() {
    }
 
@@ -49,7 +48,7 @@ final class LinkerProbabilistic {
       return (float) (log((1.0 - m) / (1.0 - u)) / LOG2);
    }
 
-   private static float fieldScore(
+   public static float fieldScore(
          final String left,
          final String right,
          final Field field) {
@@ -62,19 +61,35 @@ final class LinkerProbabilistic {
       return fieldScore(false, field.m, field.u);
    }
 
-   static CustomMU.Probability getProbability(final Field field) {
+   public static FieldScoreInfo fieldScoreInfo(
+         final String left,
+         final String right,
+         final Field field) {
+      final var score = field.similarityScore.apply(left, right);
+      for (int i = 0; i < field.weights.size(); i++) {
+         if (score >= field.comparisonLevels.get(i)) {
+            return new FieldScoreInfo(i <= field.comparisonLevels.size() / 2,
+                                      fieldScore(i <= field.comparisonLevels.size() / 2,
+                                                 field.m, field.u) * field.weights.get(i));
+         }
+      }
+      return new FieldScoreInfo(false, fieldScore(false, field.m, field.u));
+
+   }
+
+   public static CustomMU.Probability getProbability(final Field field) {
       return new CustomMU.Probability(field.m(), field.u());
    }
 
-   static void checkUpdatedMU() {
-//      if (CustomLinkerProbabilistic.updatedFields != null) {
-//         LOGGER.info("Using updated MU values: {}", CustomLinkerProbabilistic.updatedFields);
-//         CustomLinkerProbabilistic.currentLinkFields = CustomLinkerProbabilistic.updatedFields;
-//         CustomLinkerProbabilistic.updatedFields = null;
+//   public static void checkUpdatedMU() {
+//      if (updatedLinkFields != null) {
+//         LOGGER.info("Using updated MU values: {}", updatedLinkFields);
+//         CustomLinkerProbabilistic.currentLinkFields = updatedLinkFields;
+//         updatedLinkFields = null;
 //      }
-   }
+//   }
 
-   static void updateMetricsForStringField(
+   public static void updateMetricsForStringField(
          final float[] metrics,
          final String left,
          final String right,
@@ -91,6 +106,11 @@ final class LinkerProbabilistic {
       if (StringUtils.isNotBlank(left) && StringUtils.isNotBlank(right)) {
          metrics[METRIC_SCORE] += fieldScore(left, right, field);
       }
+   }
+
+   public record FieldScoreInfo(
+         Boolean isMatch,
+         Float score) {
    }
 
    static class ExactSimilarity implements SimilarityScore<Double> {
@@ -174,7 +194,7 @@ final class LinkerProbabilistic {
    }
 
 
-   record Field(
+   public record Field(
          SimilarityScore<Double> similarityScore,
          List<Float> comparisonLevels,
          List<Float> weights,
@@ -182,14 +202,14 @@ final class LinkerProbabilistic {
          float u,
          float min,
          float max) {
-      Field {
+      public Field {
          m = limitProbability(m);
          u = limitProbability(u);
          min = fieldScore(false, m, u);
          max = fieldScore(true, m, u);
       }
 
-      Field(
+      public Field(
             final SimilarityScore<Double> func_,
             final List<Float> comparisonLevels_,
             final float m_,
@@ -202,11 +222,7 @@ final class LinkerProbabilistic {
          if (n % 2 == 0) {
             final var k = n / 2;
             final var z = 1.0F / k;
-            final var w = IntStream.range(0, n)
-                                   .mapToDouble(i -> abs(1.0 - (z * i)))
-                                   .boxed()
-                                   .map(Double::floatValue)
-                                   .toList();
+            final var w = IntStream.range(0, n).mapToDouble(i -> abs(1.0 - (z * i))).boxed().map(Double::floatValue).toList();
             if (LOGGER.isDebugEnabled()) {
                try {
                   LOGGER.debug("{}", AppUtils.OBJECT_MAPPER.writeValueAsString(w));

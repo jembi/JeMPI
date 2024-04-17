@@ -7,22 +7,22 @@ import java.util.concurrent.Callable;
 
 
 public abstract class BaseCLICommand extends BaseDataBootstrapperCommand<DataBootstrapper> implements Callable<Integer> {
-    @Override
-    public BaseCLICommand init() throws Exception {
-        super.init();
-        return this;
-    }
+   @Override
+   public BaseCLICommand init() throws Exception {
+      super.init();
+      return this;
+   }
 
-    @Override
-    protected DataBootstrapper getBootstrapper(String configPath) {
-        return null;
-    }
+   @Override
+   protected DataBootstrapper getBootstrapper(final String configPath) {
+      return null;
+   }
 
-    protected Integer callMultiple(BaseDataBootstrapperCommand<DataBootstrapper> [] bootstrapperCommands) throws Exception{
-        Integer execResult = 0;
-        for (BaseDataBootstrapperCommand<DataBootstrapper> b : bootstrapperCommands) {
-            execResult += b.setConfigPath(this.config).init().call();
-        }
-        return execResult;
-    }
+   protected Integer callMultiple(final BaseDataBootstrapperCommand<DataBootstrapper>[] bootstrapperCommands) throws Exception {
+      Integer execResult = 0;
+      for (BaseDataBootstrapperCommand<DataBootstrapper> b : bootstrapperCommands) {
+         execResult += b.setConfigPath(this.config).init().call();
+      }
+      return execResult;
+   }
 }

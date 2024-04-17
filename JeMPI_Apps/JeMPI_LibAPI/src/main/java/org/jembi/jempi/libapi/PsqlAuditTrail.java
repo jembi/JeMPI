@@ -2,13 +2,14 @@ package org.jembi.jempi.libapi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.AuditEvent;
+import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.LinkingAuditEventData;
+import org.jembi.jempi.shared.utils.AuditTrailBridge;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
 
@@ -25,24 +26,32 @@ final class PsqlAuditTrail {
       psqlClient = new PsqlClient(pgServer, pgPort, pgDatabase, pgUser, pgPassword);
    }
 
-   List<AuditEvent> goldenRecordAuditTrail(final String uid) {
+   List<ApiModels.ApiAuditTrail.LinkingAuditEntry> goldenRecordAuditTrail(final String uid) {
       psqlClient.connect();
-      final var list = new ArrayList<AuditEvent>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
-            String.format(
-                  Locale.ROOT,
-                  """
-                  SELECT * FROM %s where goldenID = ?;
-                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
-         preparedStatement.setString(1, uid);
+      final var list = new ArrayList<ApiModels.ApiAuditTrail.LinkingAuditEntry>();
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT,
+                                                                                          "SELECT * FROM %s WHERE eventType = ? AND eventData ->> 'goldenID' = ?",
+                                                                                          PSQL_TABLE_AUDIT_TRAIL))) {
+         preparedStatement.setString(1, GlobalConstants.AuditEventType.LINKING_EVENT.name());
+         preparedStatement.setString(2, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
-            final var insertedAt = rs.getTimestamp(2);
-            final var createdAt = rs.getTimestamp(3);
-            final var interactionID = rs.getString(4);
-            final var goldenID = rs.getString(5);
-            final var event = rs.getString(6);
-            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event));
+            final var insertTime = rs.getString(2);
+            final var createdTime = rs.getString(3);
+            final var eventType = rs.getString(4);
+            final var eventData = rs.getString(5);
+            if (Objects.equals(eventType, GlobalConstants.AuditEventType.LINKING_EVENT.name())) {
+               LinkingAuditEventData deserializeEventData = AuditTrailBridge.getDeserializeEventData(eventData, LinkingAuditEventData.class);
+               list.add(new ApiModels.ApiAuditTrail.LinkingAuditEntry(
+                       insertTime,
+                       createdTime,
+                       deserializeEventData.interaction_id(),
+                       deserializeEventData.goldenID(),
+                       deserializeEventData.message(),
+                       deserializeEventData.score(),
+                       deserializeEventData.linkingRule().name()
+               ));
+            }
          }
       } catch (Exception e) {
          LOGGER.error(e);
@@ -50,24 +59,34 @@ final class PsqlAuditTrail {
       return list;
    }
 
-   List<AuditEvent> interactionRecordAuditTrail(final String uid) {
+   List<ApiModels.ApiAuditTrail.LinkingAuditEntry> interactionRecordAuditTrail(final String uid) {
       psqlClient.connect();
-      final var list = new ArrayList<AuditEvent>();
-      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(
-            String.format(
-                  Locale.ROOT,
-                  """
-                  SELECT * FROM %s where interactionID = ?;
-                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
-         preparedStatement.setString(1, uid);
+      final var list = new ArrayList<ApiModels.ApiAuditTrail.LinkingAuditEntry>();
+      try (PreparedStatement preparedStatement = psqlClient.prepareStatement(String.format(
+                                                                                 Locale.ROOT,
+                                                                                 "SELECT * FROM %s WHERE eventType = ? AND eventData ->> 'interaction_id' = ?",
+                                                                                 PSQL_TABLE_AUDIT_TRAIL))) {
+         preparedStatement.setString(1, GlobalConstants.AuditEventType.LINKING_EVENT.name());
+         preparedStatement.setString(2, uid);
          ResultSet rs = preparedStatement.executeQuery();
          while (rs.next()) {
-            final var insertedAt = rs.getTimestamp(2);
-            final var createdAt = rs.getTimestamp(3);
-            final var interactionID = rs.getString(4);
-            final var goldenID = rs.getString(5);
-            final var event = rs.getString(6);
-            list.add(new AuditEvent(createdAt, insertedAt, interactionID, goldenID, event));
+            final var insertTime = rs.getString(2);
+            final var createdTime = rs.getString(3);
+            final var eventType = rs.getString(4);
+            final var eventData = rs.getString(5);
+
+            if (Objects.equals(eventType, GlobalConstants.AuditEventType.LINKING_EVENT.name())) {
+               LinkingAuditEventData deserializeEventData = AuditTrailBridge.getDeserializeEventData(eventData, LinkingAuditEventData.class);
+               list.add(new ApiModels.ApiAuditTrail.LinkingAuditEntry(
+                       insertTime,
+                       createdTime,
+                       deserializeEventData.interaction_id(),
+                       deserializeEventData.goldenID(),
+                       deserializeEventData.message(),
+                       deserializeEventData.score(),
+                       deserializeEventData.linkingRule().name()
+               ));
+            }
          }
       } catch (Exception e) {
          LOGGER.error(e);

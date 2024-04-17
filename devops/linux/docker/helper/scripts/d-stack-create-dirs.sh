@@ -30,7 +30,10 @@ pushd .
   if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}; fi
 
   mkdir -p ${DATA_POSTGRESQL_DIR}
-  cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
+  cp ./conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
+  mkdir -p ${DATA_POSTGRESQL_DB_DIR}
+  sudo chown -R 1001:1001 ${DATA_POSTGRESQL_DB_DIR}
+  sudo chmod -R 770 ${DATA_POSTGRESQL_DB_DIR}
 
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/conf
   mkdir -p ${DATA_DIR_ASYNC_RECEIVER}/csv
@@ -41,7 +44,8 @@ pushd .
   
   mkdir -p ${DATA_DIR_CONTROLLER}/conf
   
-  mkdir -p ${DATA_DIR_EM}/conf
+  mkdir -p ${DATA_DIR_EM_SCALA}/conf
+  mkdir -p ${DATA_DIR_EM_SCALA}/data
   
   mkdir -p ${DATA_DIR_LINKER}/conf
   

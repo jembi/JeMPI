@@ -9,22 +9,22 @@ import org.jembi.jempi.libapi.Routes;
 import static akka.http.javadsl.server.Directives.concat;
 
 public final class RoutesEntries extends ApiHttpServerRouteEntries {
-    public RoutesEntries(final HttpServer ihttpServer) {
-        super(ihttpServer);
-    }
+   public RoutesEntries(final HttpServer ihttpServer) {
+      super(ihttpServer);
+   }
 
-    @Override
-    public Route getRouteEntries() {
+   @Override
+   public Route getRouteEntries() {
 
-        return concat(new UserRoutes(this.httpServer).getRouteEntries(),
-                requireSession(Routes.createCoreAPIRoutes(
-                        this.httpServer.getActorSystem(),
-                        this.httpServer.getBackEnd(),
-                        this.httpServer.getJsonFields(),
-                        AppConfig.LINKER_IP,
-                        AppConfig.LINKER_HTTP_PORT,
-                        this.httpServer.getAkkaHttpServer()
-                )));
+      return concat(new UserRoutes(this.httpServer).getRouteEntries(),
+                    requireSession(Routes.createCoreAPIRoutes(this.httpServer.getActorSystem(),
+                                                              this.httpServer.getBackEnd(),
+                                                              this.httpServer.getJsonFields(),
+                                                              AppConfig.LINKER_IP,
+                                                              AppConfig.LINKER_HTTP_PORT,
+                                                              AppConfig.CONTROLLER_IP,
+                                                              AppConfig.CONTROLLER_HTTP_PORT,
+                                                              this.httpServer.getAkkaHttpServer())));
 
-    }
+   }
 }

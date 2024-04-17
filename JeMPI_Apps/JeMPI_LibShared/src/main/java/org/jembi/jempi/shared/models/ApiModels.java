@@ -1,18 +1,51 @@
 package org.jembi.jempi.shared.models;
 
+import akka.http.javadsl.model.HttpResponse;
+import akka.http.javadsl.model.StatusCode;
+import akka.http.javadsl.model.StatusCodes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+
 public abstract class ApiModels {
 
+   private static final Logger LOGGER = LogManager.getLogger(ApiModels.class);
    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 
+   public static HttpResponse getHttpErrorResponse(final StatusCode statusCode) {
+      try {
+         var entity = OBJECT_MAPPER.writeValueAsBytes(new ApiError());
+         return HttpResponse.create().withStatus(statusCode).withEntity(entity);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         return HttpResponse.create().withStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+      }
+   }
+
    public interface ApiPaginatedResultSet {
+   }
+
+   public record ApiError(
+
+         @JsonProperty("module") String module,
+         @JsonProperty("class") String klass,
+         @JsonProperty("line_number") Integer lineNumber) {
+
+      public ApiError() {
+         this(Thread.currentThread().getStackTrace()[3].getModuleName(),
+              Thread.currentThread().getStackTrace()[3].getClassName(),
+              Thread.currentThread().getStackTrace()[3].getLineNumber());
+      }
+
+
    }
 
    public record ApiGoldenRecordCount(Long count) {
@@ -70,7 +103,54 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkToGidUpdateRequest(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkBySourceIdUpdateRequest(
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record LinkInteractionSyncBody(
+         String stan,
+         ExternalLinkRange externalLinkRange,
+         Float matchThreshold,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
+   }
+
+/*
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record LinkInteractionToGidSyncBody(
+         String stan,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData,
+         String gid) {
+   }
+*/
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterResponse(LinkInfo linkInfo) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCrLinkUpdateResponse(LinkInfo linkInfo) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -134,10 +214,7 @@ public abstract class ApiModels {
          ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiExpandedGoldenRecordsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<ExpandedGoldenRecord> resultSet) {
-         final var data = resultSet.data()
-                                   .stream()
-                                   .map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                   .toList();
+         final var data = resultSet.data().stream().map(ApiExpandedGoldenRecord::fromExpandedGoldenRecord).toList();
          return new ApiExpandedGoldenRecordsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
@@ -147,10 +224,7 @@ public abstract class ApiModels {
          ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiInteractionsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<Interaction> resultSet) {
-         final var data = resultSet.data()
-                                   .stream()
-                                   .map(ApiInteraction::fromInteraction)
-                                   .toList();
+         final var data = resultSet.data().stream().map(ApiInteraction::fromInteraction).toList();
          return new ApiInteractionsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
@@ -160,8 +234,7 @@ public abstract class ApiModels {
          ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiFiteredGidsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<String> resultSet) {
-         final var data = resultSet.data()
-                                   .stream().toList();
+         final var data = resultSet.data().stream().toList();
          return new ApiFiteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
@@ -169,12 +242,10 @@ public abstract class ApiModels {
    public record ApiFiteredGidsWithInteractionCountPaginatedResultSet(
          List<String> data,
          InteractionCount interactionCount,
-         ApiPagination pagination
-   ) implements ApiPaginatedResultSet {
+         ApiPagination pagination) implements ApiPaginatedResultSet {
       public static ApiFiteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
             final PaginatedGIDsWithInteractionCount resultSet) {
-         final var data = resultSet.data()
-                                   .stream().toList();
+         final var data = resultSet.data().stream().toList();
          return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data,
                                                                          InteractionCount.fromInteractionCount(resultSet.interactionCount()),
                                                                          ApiPagination.fromLibMPIPagination(resultSet.pagination()));
@@ -260,24 +331,18 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiAuditTrail(
-         List<AuditEntry> entries) {
-      public static ApiAuditTrail fromAuditTrail(final List<AuditEvent> trail) {
-         final var apiDateFormat = new SimpleDateFormat(DATE_PATTERN);
-         return new ApiAuditTrail(trail.stream().map(x -> new AuditEntry(apiDateFormat.format(x.insertedAt()),
-                                                                         apiDateFormat.format(x.createdAt()),
-                                                                         x.interactionID(),
-                                                                         x.goldenID(),
-                                                                         x.event()))
-                                       .toList());
-      }
+           List<LinkingAuditEntry> entries) {
 
       @JsonInclude(JsonInclude.Include.NON_NULL)
-      public record AuditEntry(
-            @JsonProperty("inserted_at") String insertedAt,
-            @JsonProperty("created_at") String createdAt,
-            @JsonProperty("interaction_id") String interactionId,
-            @JsonProperty("golden_id") String goldenId,
-            @JsonProperty("entry") String entry) {
+      public record LinkingAuditEntry(
+             @JsonProperty("inserted_at") String insertedAt,
+             @JsonProperty("created_at") String createdAt,
+             @JsonProperty("interaction_id") String interactionId,
+             @JsonProperty("golden_id") String goldenId,
+             @JsonProperty("entry") String entry,
+             @JsonProperty("score") Float score,
+             @JsonProperty("linking_rule") String linkingRule
+      ) {
       }
    }
 

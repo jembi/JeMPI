@@ -7,62 +7,126 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
-import akka.japi.Pair;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static akka.http.javadsl.server.Directives.*;
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
-
-import java.util.regex.Pattern;
 import static akka.http.javadsl.server.PathMatchers.segment;
+import static org.jembi.jempi.libapi.MapError.mapError;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Routes {
 
    private static final Logger LOGGER = LogManager.getLogger(Routes.class);
    private static final Marshaller<Object, RequestEntity> JSON_MARSHALLER = Jackson.marshaller(OBJECT_MAPPER);
-
    private static final Function<Map.Entry<String, String>, String> PARAM_STRING = Map.Entry::getValue;
 
    private Routes() {
    }
 
-   static Route mapError(final MpiGeneralError obj) {
-      return switch (obj) {
-         case MpiServiceError.InteractionIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GoldenIdDoesNotExistError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.GoldenIdInteractionConflictError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         case MpiServiceError.DeletePredicateError e -> complete(StatusCodes.BAD_REQUEST, e, JSON_MARSHALLER);
-         default -> complete(StatusCodes.INTERNAL_SERVER_ERROR);
-      };
+   private static Route postIidNewGidLink(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String controllerIp,
+         final Integer controllerPort,
+         final Http http) {
+
+      return entity(Jackson.unmarshaller(NotificationResolution.class),
+                    obj -> onComplete(
+                          Ask.postIidNewGidLink(actorSystem, backEnd, obj.currentGoldenId(),
+                                                obj.interactionId()),
+                          result -> {
+                             if (!result.isSuccess()) {
+                                final var e = result.failed().get();
+                                LOGGER.error(e.getLocalizedMessage(), e);
+                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                             }
+                             return result.get()
+                                          .linkInfo()
+                                          .mapLeft(MapError::mapError)
+                                          .fold(error -> error,
+                                                linkInfo -> onComplete(
+                                                      processOnNotificationResolution(
+                                                            controllerIp,
+                                                            controllerPort,
+                                                            http,
+                                                            new NotificationResolutionProcessorData(
+                                                                  obj,
+                                                                  linkInfo)),
+                                                      r -> complete(StatusCodes.OK,
+                                                                    linkInfo,
+                                                                    JSON_MARSHALLER)));
+                          }));
    }
 
-   public static Route patchGoldenRecord(
+   private static Route postIidGidLink(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String controllerIp,
+         final Integer controllerPort,
+         final Http http) {
+
+      return entity(Jackson.unmarshaller(NotificationResolution.class),
+                    obj -> onComplete(
+                          Ask.postIidGidLink(actorSystem, backEnd, obj.currentGoldenId(),
+                                             obj.newGoldenId(),
+                                             obj.interactionId(), obj.score()),
+                          result -> {
+                             if (!result.isSuccess()) {
+                                final var e = result.failed().get();
+                                LOGGER.error(e.getLocalizedMessage(), e);
+                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                             }
+                             return result.get()
+                                          .linkInfo()
+                                          .mapLeft(MapError::mapError)
+                                          .fold(error -> error,
+                                                linkInfo -> onComplete(
+                                                      processOnNotificationResolution(
+                                                            controllerIp,
+                                                            controllerPort,
+                                                            http,
+                                                            new NotificationResolutionProcessorData(
+                                                                  obj,
+                                                                  linkInfo)),
+                                                      r -> complete(StatusCodes.OK,
+                                                                    linkInfo,
+                                                                    JSON_MARSHALLER)));
+                          }));
+   }
+
+   private static Route patchGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String goldenId) {
       return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
                     payload -> payload != null
-                          ? onComplete(Ask.patchGoldenRecord(actorSystem, backEnd, goldenId, payload),
+                          ? onComplete(Ask.patchGoldenRecord(actorSystem, backEnd, goldenId,
+                                                             payload),
                                        result -> {
                                           if (result.isSuccess()) {
-                                             final var updatedFields = result.get().fields();
+                                             final var updatedFields = result.get()
+                                                                             .fields();
                                              if (updatedFields.isEmpty()) {
                                                 return complete(StatusCodes.BAD_REQUEST);
                                              } else {
-                                                return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                                                return complete(StatusCodes.OK,
+                                                                result.get(),
+                                                                JSON_MARSHALLER);
                                              }
                                           } else {
                                              return complete(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -71,683 +135,635 @@ public final class Routes {
                           : complete(StatusCodes.NO_CONTENT));
    }
 
-   public static Route countRecords(
+   private static Route countRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countRecords(actorSystem, backEnd),
-                        result -> result.isSuccess()
-                              ? complete(StatusCodes.OK,
-                                         new ApiModels.ApiNumberOfRecords(result.get().goldenRecords(),
-                                                                          result.get().patientRecords()),
-                                         JSON_MARSHALLER)
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return complete(StatusCodes.OK,
+                                           new ApiModels.ApiNumberOfRecords(result.get().goldenRecords(),
+                                                                            result.get().patientRecords()),
+                                           JSON_MARSHALLER);
+                        });
    }
 
-   public static Route getGidsPaged(
+   private static Route getGidsPaged(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("offset",
                        offset -> parameter("length",
-                                           length -> onComplete(Ask.getGidsPaged(actorSystem,
-                                                                                 backEnd,
+                                           length -> onComplete(Ask.getGidsPaged(actorSystem, backEnd,
                                                                                  Long.parseLong(offset),
                                                                                  Long.parseLong(length)),
-                                                                result -> result.isSuccess()
-                                                                      ? complete(StatusCodes.OK,
-                                                                                 result.get(),
-                                                                                 JSON_MARSHALLER)
-                                                                      : complete(StatusCodes.IM_A_TEAPOT))));
+                                                                result -> {
+                                                                   if (!result.isSuccess()) {
+                                                                      final var e = result.failed().get();
+                                                                      LOGGER.error(e.getLocalizedMessage(),
+                                                                                   e);
+                                                                      return mapError(new MpiServiceError.InternalError(
+                                                                            e.getLocalizedMessage()));
+                                                                   }
+                                                                   return complete(StatusCodes.OK, result.get(),
+                                                                                   JSON_MARSHALLER);
+                                                                })));
    }
 
-   public static Route getGoldenRecordAuditTrail(
+   private static Route getGoldenRecordAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("gid",
                        uid -> onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, uid),
-                                         result -> result.isSuccess()
-                                               ? complete(StatusCodes.OK,
-                                                          ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
-                                                          JSON_MARSHALLER)
-                                               : complete(StatusCodes.IM_A_TEAPOT)));
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
+                                               LOGGER.error(e.getLocalizedMessage(), e);
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                            }
+                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                                         }));
    }
 
-   public static Route getInteractionAuditTrail(
+   private static Route getInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("iid",
                        uid -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, uid),
-                                         result -> result.isSuccess()
-                                               ? complete(StatusCodes.OK,
-                                                          ApiModels.ApiAuditTrail.fromAuditTrail(result.get().auditTrail()),
-                                                          JSON_MARSHALLER)
-                                               : complete(StatusCodes.IM_A_TEAPOT)));
+                                         result -> {
+                                            if (!result.isSuccess()) {
+                                               final var e = result.failed().get();
+                                               LOGGER.error(e.getLocalizedMessage(), e);
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                            }
+                                            return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                                         }));
    }
 
-   public static Route patchIidNewGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("goldenID",
-                       currentGoldenId -> parameter("patientID",
-                                                    patientId -> onComplete(Ask.patchIidNewGidLink(actorSystem,
-                                                                                                   backEnd,
-                                                                                                   currentGoldenId,
-                                                                                                   patientId),
-                                                                            result -> result.isSuccess()
-                                                                                  ? result.get()
-                                                                                          .linkInfo()
-                                                                                          .mapLeft(Routes::mapError)
-                                                                                          .fold(error -> error,
-                                                                                                linkInfo -> complete(StatusCodes.OK,
-                                                                                                                     linkInfo,
-                                                                                                                     JSON_MARSHALLER))
-                                                                                  : complete(StatusCodes.IM_A_TEAPOT))));
-   }
-
-   public static Route patchIidGidLink(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd) {
-      return parameter("goldenID",
-                       currentGoldenId ->
-                             parameter("newGoldenID",
-                                       newGoldenId ->
-                                             parameter("patientID",
-                                                       patientId ->
-                                                             parameter("score",
-                                                                       score -> onComplete(
-                                                                             Ask.patchIidGidLink(
-                                                                                   actorSystem,
-                                                                                   backEnd,
-                                                                                   currentGoldenId,
-                                                                                   newGoldenId,
-                                                                                   patientId,
-                                                                                   Float.parseFloat(score)),
-                                                                             result -> result.isSuccess()
-                                                                                   ? result.get()
-                                                                                           .linkInfo()
-                                                                                           .mapLeft(Routes::mapError)
-                                                                                           .fold(error -> error,
-                                                                                                 linkInfo -> complete(
-                                                                                                       StatusCodes.OK,
-                                                                                                       linkInfo,
-                                                                                                       JSON_MARSHALLER))
-                                                                                   : complete(StatusCodes.IM_A_TEAPOT))))));
-   }
-
-   public static Route countGoldenRecords(
+   private static Route countGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countGoldenRecords(actorSystem, backEnd),
-                        result -> result.isSuccess()
-                              ? result.get()
-                                      .count()
-                                      .mapLeft(Routes::mapError)
-                                      .fold(error -> error,
-                                            count -> complete(StatusCodes.OK,
-                                                              new ApiModels.ApiGoldenRecordCount(count),
-                                                              JSON_MARSHALLER))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return result.get()
+                                        .count()
+                                        .mapLeft(MapError::mapError)
+                                        .fold(error -> error,
+                                              count -> complete(StatusCodes.OK,
+                                                                new ApiModels.ApiGoldenRecordCount(
+                                                                      count),
+                                                                JSON_MARSHALLER));
+                        });
    }
 
-   public static Route countInteractions(
+   private static Route countInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.countInteractions(actorSystem, backEnd),
-                        result -> result.isSuccess()
-                              ? result.get()
-                                      .count()
-                                      .mapLeft(Routes::mapError)
-                                      .fold(error -> error,
-                                            count -> complete(StatusCodes.OK,
-                                                              new ApiModels.ApiInteractionCount(count),
-                                                              JSON_MARSHALLER))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return result.get()
+                                        .count()
+                                        .mapLeft(MapError::mapError)
+                                        .fold(error -> error,
+                                              count -> complete(StatusCodes.OK,
+                                                                new ApiModels.ApiInteractionCount(
+                                                                      count),
+                                                                JSON_MARSHALLER));
+                        });
    }
 
-   public static Route getGidsAll(
+   private static Route getGidsAll(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.getGidsAll(actorSystem, backEnd),
-                        result -> result.isSuccess()
-                              ? complete(StatusCodes.OK, result.get(), JSON_MARSHALLER)
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                        });
    }
 
-   public static Route getNotifications(
+   private static Route postCrFindSourceId(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return
-            parameter("limit", limit ->
-                  parameter("offset", offset ->
-                        parameter("startDate", startDate ->
-                              parameter("endDate", endDate ->
-                                    parameter("states", states ->
-                                          onComplete(Ask.getNotifications(actorSystem,
-                                                                    backEnd,
-                                                                    Integer.parseInt(limit),
-                                                                    Integer.parseInt(offset),
-                                                                    Timestamp.valueOf(startDate),
-                                                                    Timestamp.valueOf(endDate),
-                                                                    Stream.of(states.split(",")).map(String::trim).toList()),
-                                               result -> result.isSuccess()
-                                                     ? complete(StatusCodes.OK,
-                                                                result.get(),
-                                                                JSON_MARSHALLER)
-                                                     : complete(StatusCodes.IM_A_TEAPOT)))))));
+      return parameter("facility",
+                       facility -> parameter("client",
+                                             client -> onComplete(Ask.findExpandedSourceId(actorSystem,
+                                                                                           backEnd,
+                                                                                           facility,
+                                                                                           client),
+                                                                  result -> {
+                                                                     if (!result.isSuccess()) {
+                                                                        final var e = result.failed().get();
+                                                                        LOGGER.error(e.getLocalizedMessage(),
+                                                                                     e);
+                                                                        return mapError(new MpiServiceError.InternalError(
+                                                                              e.getLocalizedMessage()));
+                                                                     }
+                                                                     return complete(StatusCodes.OK,
+                                                                                     result.get(),
+                                                                                     JSON_MARSHALLER);
+                                                                  })));
    }
 
-   public static Route getExpandedGoldenRecordsUsingParameterList(
+   private static Route getNotifications(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return parameter("limit", limit -> parameter("offset",
+                                                   offset -> parameter("startDate", startDate -> parameter("endDate",
+                                                                                                           endDate -> parameter(
+                                                                                                                 "states",
+                                                                                                                 states -> onComplete(
+                                                                                                                       Ask.getNotifications(
+                                                                                                                             actorSystem,
+                                                                                                                             backEnd,
+                                                                                                                             Integer.parseInt(
+                                                                                                                                   limit),
+                                                                                                                             Integer.parseInt(
+                                                                                                                                   offset),
+                                                                                                                             Timestamp.valueOf(
+                                                                                                                                   startDate),
+                                                                                                                             Timestamp.valueOf(
+                                                                                                                                   endDate),
+                                                                                                                             Stream.of(
+                                                                                                                                         states.split(
+                                                                                                                                               ","))
+                                                                                                                                   .map(String::trim)
+                                                                                                                                   .toList()),
+                                                                                                                       result -> {
+                                                                                                                          if (!result.isSuccess()) {
+                                                                                                                             final var
+                                                                                                                                   e =
+                                                                                                                                   result.failed()
+                                                                                                                                         .get();
+                                                                                                                             LOGGER.error(
+                                                                                                                                   e.getLocalizedMessage(),
+                                                                                                                                   e);
+                                                                                                                             return mapError(
+                                                                                                                                   new MpiServiceError.InternalError(
+                                                                                                                                         e.getLocalizedMessage()));
+                                                                                                                          }
+                                                                                                                          return complete(
+                                                                                                                                StatusCodes.OK,
+                                                                                                                                result.get(),
+                                                                                                                                JSON_MARSHALLER);
+                                                                                                                       }))))));
+   }
+
+   private static Route getExpandedGoldenRecordsUsingParameterList(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameterList(params -> {
          final var goldenIds = params.stream().map(PARAM_STRING).toList();
          return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, goldenIds),
-                           result -> result.isSuccess()
-                                 ? result.get()
-                                         .expandedGoldenRecords()
-                                         .mapLeft(Routes::mapError)
-                                         .fold(error -> error,
-                                               expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                 expandedGoldenRecords.stream()
-                                                                                                      .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                                      .toList(),
-                                                                                 JSON_MARSHALLER))
-                                 : complete(StatusCodes.IM_A_TEAPOT));
+                           result -> {
+                              if (!result.isSuccess()) {
+                                 final var e = result.failed().get();
+                                 LOGGER.error(e.getLocalizedMessage(), e);
+                                 return mapError(new MpiServiceError.InternalError(
+                                       e.getLocalizedMessage()));
+                              }
+                              return result.get()
+                                           .expandedGoldenRecords()
+                                           .mapLeft(MapError::mapError)
+                                           .fold(error -> error,
+                                                 expandedGoldenRecords -> complete(
+                                                       StatusCodes.OK,
+                                                       expandedGoldenRecords
+                                                             .stream()
+                                                             .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                             .toList(),
+                                                       JSON_MARSHALLER));
+                           });
       });
    }
 
-   public static Route getExpandedGoldenRecordsFromUsingCSV(
+   private static Route getExpandedGoldenRecordsFromUsingCSV(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uidList", items -> {
          final var uidList = Stream.of(items.split(",")).map(String::trim).toList();
-         return onComplete(
-               Ask.getExpandedGoldenRecords(actorSystem, backEnd, uidList),
-               result -> result.isSuccess()
-                     ? result.get()
-                             .expandedGoldenRecords()
-                             .mapLeft(Routes::mapError)
-                             .fold(error -> error,
-                                   expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                     expandedGoldenRecords.stream()
-                                                                                          .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                          .toList(),
-                                                                     JSON_MARSHALLER))
-                     : complete(StatusCodes.IM_A_TEAPOT));
+         return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, uidList),
+                           result -> {
+                              if (!result.isSuccess()) {
+                                 final var e = result.failed().get();
+                                 LOGGER.error(e.getLocalizedMessage(), e);
+                                 return mapError(new MpiServiceError.InternalError(
+                                       e.getLocalizedMessage()));
+                              }
+                              return result.get()
+                                           .expandedGoldenRecords()
+                                           .mapLeft(MapError::mapError)
+                                           .fold(error -> error,
+                                                 expandedGoldenRecords -> complete(
+                                                       StatusCodes.OK,
+                                                       expandedGoldenRecords
+                                                             .stream()
+                                                             .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                             .toList(),
+                                                       JSON_MARSHALLER));
+                           });
       });
    }
 
-   public static Route getExpandedInteractionsUsingCSV(
+   private static Route getExpandedInteractionsUsingCSV(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return parameter("uidList", items -> {
          final var iidList = Stream.of(items.split(",")).map(String::trim).toList();
          return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, iidList),
-                           result -> result.isSuccess()
-                                 ? result.get()
-                                         .expandedPatientRecords()
-                                         .mapLeft(Routes::mapError)
-                                         .fold(error -> error,
-                                               expandedPatientRecords -> complete(StatusCodes.OK,
-                                                                                  expandedPatientRecords.stream()
-                                                                                                        .map(ApiModels.ApiExpandedInteraction::fromExpandedInteraction)
-                                                                                                        .toList(),
-                                                                                  JSON_MARSHALLER))
-                                 : complete(StatusCodes.IM_A_TEAPOT));
+                           result -> {
+                              if (!result.isSuccess()) {
+                                 final var e = result.failed().get();
+                                 LOGGER.error(e.getLocalizedMessage(), e);
+                                 return mapError(new MpiServiceError.InternalError(
+                                       e.getLocalizedMessage()));
+                              }
+                              return result.get()
+                                           .expandedPatientRecords()
+                                           .mapLeft(MapError::mapError)
+                                           .fold(error -> error,
+                                                 expandedPatientRecords -> complete(
+                                                       StatusCodes.OK,
+                                                       expandedPatientRecords
+                                                             .stream()
+                                                             .map(ApiModels.ApiExpandedInteraction::fromExpandedInteraction)
+                                                             .toList(),
+                                                       JSON_MARSHALLER));
+                           });
       });
    }
 
-   public static Route getExpandedGoldenRecord(
+   private static Route getExpandedGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String gid) {
       return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, gid),
-                        result -> result.isSuccess()
-                              ? result.get()
-                                      .goldenRecord()
-                                      .mapLeft(Routes::mapError)
-                                      .fold(error -> error,
-                                            goldenRecord -> complete(StatusCodes.OK,
-                                                                     ApiModels.ApiExpandedGoldenRecord.fromExpandedGoldenRecord(
-                                                                           goldenRecord),
-                                                                     Jackson.marshaller(OBJECT_MAPPER)))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return result.get()
+                                        .goldenRecord()
+                                        .mapLeft(MapError::mapError)
+                                        .fold(error -> error,
+                                              goldenRecord -> complete(StatusCodes.OK,
+                                                                       ApiModels.ApiExpandedGoldenRecord
+                                                                             .fromExpandedGoldenRecord(
+                                                                                   goldenRecord),
+                                                                       Jackson.marshaller(
+                                                                             OBJECT_MAPPER)));
+                        });
    }
 
-   public static Route getInteraction(
+   private static Route getInteraction(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final String iid) {
       return onComplete(Ask.getInteraction(actorSystem, backEnd, iid),
-                        result -> result.isSuccess()
-                              ? result.get()
-                                      .patient()
-                                      .mapLeft(Routes::mapError)
-                                      .fold(error -> error,
-                                            patientRecord -> complete(StatusCodes.OK,
-                                                                      ApiModels.ApiInteraction.fromInteraction(patientRecord),
-                                                                      JSON_MARSHALLER))
-                              : complete(StatusCodes.IM_A_TEAPOT));
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return result.get()
+                                        .patient()
+                                        .mapLeft(MapError::mapError)
+                                        .fold(error -> error,
+                                              patientRecord -> complete(StatusCodes.OK,
+                                                                        ApiModels.ApiInteraction
+                                                                              .fromInteraction(
+                                                                                    patientRecord),
+                                                                        JSON_MARSHALLER));
+                        });
    }
 
-   public static Route postUpdateNotification(
+   private static Route postUpdateNotification(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(NotificationRequest.class),
                     obj -> onComplete(Ask.postUpdateNotification(actorSystem, backEnd, obj), response -> {
-                       if (response.isSuccess()) {
-                          final var updateResponse = response.get();
-                          return complete(StatusCodes.OK, updateResponse, JSON_MARSHALLER);
-                       } else {
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
                        }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
    }
 
    public static Route postUploadCsvFile(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return withSizeLimit(
-            1024 * 1024 * 6,
-            () -> storeUploadedFile("csv",
-                                    (info) -> {
-                                       try {
-                                          return File.createTempFile("import-", ".csv");
-                                       } catch (Exception e) {
-                                          LOGGER.error(e.getMessage(), e);
-                                          return null;
-                                       }
-                                    },
-                                    (info, file) -> onComplete(Ask.postUploadCsvFile(actorSystem, backEnd, info, file),
-                                                               response -> response.isSuccess()
-                                                                     ? complete(StatusCodes.OK)
-                                                                     : complete(StatusCodes.IM_A_TEAPOT))));
+      return withSizeLimit(1024L * 1024 * 2048,
+                           () -> formField("queries", queries -> storeUploadedFile("csv",
+                                                                                   (info) -> {
+                                                                                      try {
+                                                                                         return File.createTempFile(
+                                                                                               "import-",
+                                                                                               "uploadConfig.csv");
+                                                                                      } catch (Exception e) {
+                                                                                         LOGGER.error(e.getMessage(), e);
+                                                                                         return null;
+                                                                                      }
+                                                                                   },
+                                                                                   (info, file) -> {
+                                                                                      try {
+                                                                                         var uploadConfig =
+                                                                                               AppUtils.OBJECT_MAPPER.readValue(
+                                                                                                     queries,
+                                                                                                     UploadConfig.class);
+                                                                                         return onComplete(Ask.postUploadCsvFile(
+                                                                                                                 actorSystem,
+                                                                                                                 backEnd,
+                                                                                                                 info,
+                                                                                                                 file,
+                                                                                                                 uploadConfig),
+                                                                                                           response -> response.isSuccess()
+                                                                                                                 ? complete(
+                                                                                                                 StatusCodes.OK)
+                                                                                                                 : mapError(new MpiServiceError.InternalError(
+                                                                                                                       response.failed()
+                                                                                                                               .get()
+                                                                                                                               .getLocalizedMessage())));
+                                                                                      } catch (JsonProcessingException e) {
+                                                                                         LOGGER.error(e.getMessage(), e);
+                                                                                         return mapError(new MpiServiceError.InternalError(
+                                                                                               e.getLocalizedMessage()));
+                                                                                      }
+                                                                                   })));
    }
 
-   public static Route postSimpleSearch(
+   private static Route postSimpleSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       LOGGER.info("Simple search on {}", recordType);
       return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
-                    searchParameters -> onComplete(
-                          () -> {
-                             if (recordType == RecordType.GoldenRecord) {
-                                return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
-                             } else {
-                                return Ask.postSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
-                             }
-                          },
-                          response -> {
-                             if (response.isSuccess()) {
-                                final var eventSearchRsp = response.get();
-                                return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
-                             } else {
-                                return complete(StatusCodes.IM_A_TEAPOT);
-                             }
-                          }));
+                    searchParameters -> onComplete(() -> {
+                       if (recordType == RecordType.GoldenRecord) {
+                          return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd,
+                                                                   searchParameters);
+                       } else {
+                          return Ask.postSimpleSearchInteractions(actorSystem, backEnd,
+                                                                  searchParameters);
+                       }
+                    }, response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+                    }));
    }
 
-   public static Route postFilterGids(
+   private static Route postFilterGids(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
-//      final ObjectMapper objectMapper = new ObjectMapper();
-//      objectMapper.registerModule(new JavaTimeModule());
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
                     searchParameters -> onComplete(
                           () -> Ask.postFilterGids(actorSystem, backEnd, searchParameters),
                           response -> {
-                             if (response.isSuccess()) {
-                                final var eventSearchRsp = response.get();
-                                return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
-                             } else {
-                                return complete(StatusCodes.IM_A_TEAPOT);
+                             if (!response.isSuccess()) {
+                                final var e = response.failed().get();
+                                LOGGER.error(e.getLocalizedMessage(), e);
+                                return mapError(new MpiServiceError.InternalError(
+                                      e.getLocalizedMessage()));
                              }
+                             return complete(StatusCodes.OK, response.get(),
+                                             JSON_MARSHALLER);
                           }));
    }
 
-   public static Route postFilterGidsWithInteractionCount(
+   private static Route postFilterGidsWithInteractionCount(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
-//      final ObjectMapper objectMapper = new ObjectMapper();
-//      objectMapper.registerModule(new JavaTimeModule());
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
-                    searchParameters -> onComplete(
-                          () -> Ask.postFilterGidsWithInteractionCount(actorSystem, backEnd, searchParameters),
-                          response -> {
-                             if (response.isSuccess()) {
-                                final var eventSearchRsp = response.get();
-                                return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
-                             } else {
-                                return complete(StatusCodes.IM_A_TEAPOT);
-                             }
-                          }));
+                    searchParameters -> onComplete(() -> Ask.postFilterGidsWithInteractionCount(actorSystem,
+                                                                                                backEnd,
+                                                                                                searchParameters), response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(),
+                                       JSON_MARSHALLER);
+                    }));
    }
 
-   public static Route postCustomSearch(
+   private static Route postCustomSearch(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
-      return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class), searchParameters -> onComplete(() -> {
-         if (recordType == RecordType.GoldenRecord) {
-            return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
-         } else {
-            return Ask.postCustomSearchInteractions(actorSystem, backEnd, searchParameters);
-         }
-      }, response -> {
-         if (response.isSuccess()) {
-            final var eventSearchRsp = response.get();
-            return complete(StatusCodes.OK, eventSearchRsp, JSON_MARSHALLER);
-         } else {
-            return complete(StatusCodes.IM_A_TEAPOT);
-         }
-      }));
-   }
-
-   public static CompletionStage<HttpResponse> proxyPostCalculateScores(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final ApiModels.ApiCalculateScoresRequest body) throws JsonProcessingException {
-      final var request = HttpRequest
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  linkerIP,
-                                  linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES))
-            .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
-   }
-
-   public static Route proxyPostCalculateScores(
-         final String linkerIp,
-         final Integer linkerPort,
-         final Http http) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class),
-                    obj -> {
-                       try {
-                          return onComplete(proxyPostCalculateScores(linkerIp,
-                                                                     linkerPort,
-                                                                     http, obj),
-                                            response -> response.isSuccess()
-                                                  ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
-                       } catch (JsonProcessingException e) {
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
+      return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
+                    searchParameters -> onComplete(() -> {
+                       if (recordType == RecordType.GoldenRecord) {
+                          return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd,
+                                                                   searchParameters);
+                       } else {
+                          return Ask.postCustomSearchInteractions(actorSystem, backEnd,
+                                                                  searchParameters);
                        }
-                    });
-   }
-
-
-   private static CompletionStage<HttpResponse> proxyGetCandidatesWithScore(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final String iid) throws JsonProcessingException {
-      final var uri = Uri
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  linkerIP,
-                                  linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES))
-            .query(Query.create(Pair.create("iid", iid)));
-      final var request = HttpRequest.GET(uri.path());
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
-   }
-
-   public static Route proxyGetCandidatesWithScore(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return parameter("iid",
-                       iid -> {
-                          try {
-                             return onComplete(proxyGetCandidatesWithScore(linkerIP, linkerPort, http, iid),
-                                               response -> response.isSuccess()
-                                                     ? complete(response.get())
-                                                     : complete(StatusCodes.IM_A_TEAPOT));
-                          } catch (JsonProcessingException e) {
-                             LOGGER.error(e.getLocalizedMessage(), e);
-                             return complete(StatusCodes.IM_A_TEAPOT);
-                          }
-                       });
-   }
-
-   private static CompletionStage<HttpResponse> patchCrUpdateFieldsProxy(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final ApiModels.ApiCrUpdateFieldsRequest body) throws JsonProcessingException {
-      final var request = HttpRequest
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  linkerIP,
-                                  linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS))
-            .withMethod(HttpMethods.PATCH)
-            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
-   }
-
-   private static CompletionStage<HttpResponse> postCrRegisterProxy(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final ApiModels.ApiCrRegisterRequest body) throws JsonProcessingException {
-      final var request = HttpRequest
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  linkerIP,
-                                  linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_REGISTER))
-            .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
-   }
-
-   private static CompletionStage<HttpResponse> postCrCandidatesProxy(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final ApiModels.ApiCrCandidatesRequest body) throws JsonProcessingException {
-      final var request = HttpRequest
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  linkerIP,
-                                  linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES))
-            .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> {
-         LOGGER.debug("{}", response);
-         return response;
-      });
-   }
-
-   private static CompletionStage<HttpResponse> postCrFindProxy(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final ApiModels.ApiCrFindRequest body) throws JsonProcessingException {
-      final var request = HttpRequest
-            .create(String.format(Locale.ROOT,
-                                  "http://%s:%d/JeMPI/%s",
-                                  linkerIP,
-                                  linkerPort,
-                                  GlobalConstants.SEGMENT_PROXY_CR_FIND))
-            .withMethod(HttpMethods.POST)
-            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> {
-         LOGGER.debug("{}", response);
-         return response;
-      });
-   }
-
-   public static Route patchCrUpdateFields(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
-                    apiCrUpdateFields -> {
-                       LOGGER.debug("{}", apiCrUpdateFields);
-                       try {
-                          return onComplete(patchCrUpdateFieldsProxy(linkerIP, linkerPort, http, apiCrUpdateFields),
-                                            response -> response.isSuccess()
-                                                  ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
-                       } catch (JsonProcessingException e) {
+                    }, response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
                        }
-                    });
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+
+                    }));
    }
 
-   public static Route postCrFind(
+   private static CompletionStage<Boolean> processOnNotificationResolution(
          final String linkerIP,
          final Integer linkerPort,
-         final Http http) {
-      return entity(
-            Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrFindRequest.class),
-            apiCrFind -> {
-               LOGGER.debug("{}", apiCrFind);
-               try {
-                  return onComplete(postCrFindProxy(linkerIP, linkerPort, http, apiCrFind),
-                                    response -> response.isSuccess()
-                                          ? complete(response.get())
-                                          : complete(StatusCodes.IM_A_TEAPOT));
-               } catch (JsonProcessingException e) {
-                  LOGGER.error(e.getLocalizedMessage(), e);
-                  return complete(StatusCodes.IM_A_TEAPOT);
-               }
-            });
-   }
+         final Http http,
+         final NotificationResolutionProcessorData body) {
+      try {
+         final var request = HttpRequest
+               .create(String.format(Locale.ROOT,
+                                     "http://%s:%d/JeMPI/%s",
+                                     linkerIP,
+                                     linkerPort,
+                                     GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION))
+               .withMethod(HttpMethods.POST)
+               .withEntity(ContentTypes.APPLICATION_JSON,
+                           OBJECT_MAPPER.writeValueAsBytes(body));
+         final var stage = http.singleRequest(request);
+         return stage.thenApply(response -> {
+            if (response.status() != StatusCodes.OK) {
+               LOGGER.error(String.format(
+                     "An error occurred while processing the notification resolution. Notification id: %s",
+                     body.notificationResolution().notificationId()));
+            }
+            return true;
+         });
+      } catch (Exception e) {
+         LOGGER.error(String.format(
+               "An error occurred while processing the notification resolution.  Notification id: %s",
+               body.notificationResolution().notificationId()), e);
+         return CompletableFuture.completedFuture(true);
+      }
 
-   public static Route postCrCandidates(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrCandidatesRequest.class),
-                    apiCrCandidates -> {
-                       LOGGER.debug("{}", apiCrCandidates);
-                       try {
-                          return onComplete(postCrCandidatesProxy(linkerIP, linkerPort, http, apiCrCandidates),
-                                            response -> response.isSuccess()
-                                                  ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
-                       } catch (JsonProcessingException e) {
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.IM_A_TEAPOT);
-                       }
-                    });
-   }
-
-   public static Route postCrRegister(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.ApiCrRegisterRequest.class),
-                    apiCrRegister -> {
-                       LOGGER.debug("{}", apiCrRegister);
-                       try {
-                          return onComplete(postCrRegisterProxy(linkerIP, linkerPort, http, apiCrRegister),
-                                            response -> response.isSuccess()
-                                                  ? complete(response.get())
-                                                  : complete(StatusCodes.IM_A_TEAPOT));
-                       } catch (JsonProcessingException e) {
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return complete(StatusCodes.NO_CONTENT);
-                       }
-                    });
    }
 
    public static Route createCoreAPIRoutes(
-           final ActorSystem<Void> actorSystem,
-           final ActorRef<BackEnd.Event> backEnd,
-           final String jsonFields,
-           final String linkerIP,
-           final Integer linkerPort,
-           final Http http) {
-      return concat(post(() -> concat(path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
-                              () -> Routes.postUpdateNotification(actorSystem, backEnd)),
-                      path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH).slash(segment(Pattern.compile(
-                                      "^(golden|patient)$"))),
-                              type -> Routes.postSimpleSearch(actorSystem,
-                                      backEnd,
-                                      type.equals("golden")
-                                              ? RecordType.GoldenRecord
-                                              : RecordType.Interaction)),
-                      path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH).slash(segment(Pattern.compile(
-                                      "^(golden|patient)$"))),
-                              type -> Routes.postCustomSearch(actorSystem,
-                                      backEnd,
-                                      type.equals("golden")
-                                              ? RecordType.GoldenRecord
-                                              : RecordType.Interaction)),
-                      path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
-                              () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
-                              () -> Routes.proxyPostCalculateScores(linkerIP, linkerPort, http)),
-                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
-                              () -> Routes.postFilterGids(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_PROXY_CR_REGISTER,
-                              () -> Routes.postCrRegister(linkerIP, linkerPort, http)),
-                      path(GlobalConstants.SEGMENT_PROXY_CR_FIND,
-                              () -> Routes.postCrFind(linkerIP, linkerPort, http)),
-                      path(GlobalConstants.SEGMENT_PROXY_CR_CANDIDATES,
-                              () -> Routes.postCrCandidates(linkerIP, linkerPort, http)),
-                      path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
-                              () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)))),
-              patch(() -> concat(path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                              "^[A-z0-9]+$"))), gid -> Routes.patchGoldenRecord(actorSystem, backEnd, gid)),
-                      path(GlobalConstants.SEGMENT_PATCH_IID_NEW_GID_LINK,
-                              () -> Routes.patchIidNewGidLink(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_PATCH_IID_GID_LINK,
-                              () -> Routes.patchIidGidLink(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_PROXY_CR_UPDATE_FIELDS,
-                              () -> Routes.patchCrUpdateFields(linkerIP, linkerPort, http)))),
-              get(() -> concat(path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
-                              () -> Routes.countGoldenRecords(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
-                              () -> Routes.countInteractions(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_COUNT_RECORDS,
-                              () -> Routes.countRecords(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
-                              () -> Routes.getGidsAll(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_GIDS_PAGED,
-                              () -> Routes.getGidsPaged(actorSystem, backEnd)),
-                      path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                              "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
-                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                              "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
-                      path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
-                              () -> Routes.getExpandedGoldenRecordsUsingParameterList(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
-                              () -> Routes.getExpandedGoldenRecordsFromUsingCSV(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
-                              () -> Routes.getExpandedInteractionsUsingCSV(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
-                              () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
-                              () -> Routes.getInteractionAuditTrail(actorSystem, backEnd)),
-                      path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
-                              () -> Routes.getNotifications(actorSystem, backEnd)),
-                      path(segment(GlobalConstants.SEGMENT_GET_INTERACTION).slash(segment(Pattern.compile(
-                              "^[A-z0-9]+$"))), iid -> Routes.getInteraction(actorSystem, backEnd, iid)),
-                      path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD).slash(segment(Pattern.compile(
-                              "^[A-z0-9]+$"))), gid -> Routes.getExpandedGoldenRecord(actorSystem, backEnd, gid)),
-                      path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG, () -> complete(StatusCodes.OK, jsonFields)),
-                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                              () -> Routes.proxyGetCandidatesWithScore(linkerIP, linkerPort, http)))));
-   }
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final String jsonFields,
+         final String linkerIP,
+         final Integer linkerPort,
+         final String controllerIP,
+         final Integer controllerPort,
+         final Http http) {
+      return concat(post(() -> concat(
+                          /* proxy for linker/controller services */
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                               () -> ProxyRoutes.proxyPostCalculateScores(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                               () -> ProxyRoutes.proxyPostLinkInteraction(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
+                               () -> ProxyRoutes.proxyPostCrRegister(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
+                               () -> ProxyRoutes.proxyPostCrFind(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
+                               () -> ProxyRoutes.proxyPostCrCandidates(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE,
+                               () -> ProxyRoutes.proxyPostCrLinkToGidUpdate(linkerIP, linkerPort,
+                                                                            http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
+                               () -> ProxyRoutes.proxyPostCrLinkBySourceId(linkerIP, linkerPort,
+                                                                           http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
+                               () -> ProxyRoutes.proxyPostCrLinkBySourceIdUpdate(linkerIP, linkerPort,
+                                                                                 http)),
+                          // path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
+                          // () -> Routes.postLinkInteractionToGid(linkerIP, linkerPort, http)),
 
+                          /* serviced by api */
+                          path(GlobalConstants.SEGMENT_POST_IID_NEW_GID_LINK,
+                               () -> Routes.postIidNewGidLink(actorSystem, backEnd, controllerIP,
+                                                              controllerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_IID_GID_LINK,
+                               () -> Routes.postIidGidLink(actorSystem, backEnd, controllerIP,
+                                                           controllerPort, http)),
+                          path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
+                               () -> Routes.postFilterGids(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.postSimpleSearch(actorSystem, backEnd,
+                                                               type.equals("golden")
+                                                                     ? RecordType.GoldenRecord
+                                                                     : RecordType.Interaction)),
+                          path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
+                               () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
+                               () -> Routes.postUpdateNotification(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.postCustomSearch(actorSystem, backEnd,
+                                                               type.equals("golden")
+                                                                     ? RecordType.GoldenRecord
+                                                                     : RecordType.Interaction)),
+                          path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
+                               () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
+                               () -> Routes.postFilterGidsWithInteractionCount(actorSystem,
+                                                                               backEnd)))),
+                    patch(() -> concat(
+                          /* proxy for linker/controller services */
+                          path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
+                               () -> ProxyRoutes.proxyPatchCrUpdateFields(linkerIP,
+                                                                          linkerPort, http)),
+                          /* serviced by api */
+                          path(segment(GlobalConstants.SEGMENT_PATCH_GOLDEN_RECORD)
+                                     .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                               gid -> Routes.patchGoldenRecord(actorSystem, backEnd,
+                                                               gid)))),
+                    get(() -> concat(
+                          /* proxy for linker/controller services */
+                          path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
+                               () -> ProxyRoutes.proxyGetDashboardData(actorSystem,
+                                                                       backEnd, controllerIP, controllerPort,
+                                                                       http)),
+                          path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES, // <------------------------
+                               // CHECK
+                               () -> ProxyRoutes.proxyGetCandidatesWithScore(linkerIP,
+                                                                             linkerPort, http)),
+
+                          /* serviced by api */
+                          path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
+                               () -> complete(StatusCodes.OK, jsonFields)),
+                          path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
+                               () -> Routes.countInteractions(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
+                               () -> Routes.countGoldenRecords(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_COUNT_RECORDS,
+                               () -> Routes.countRecords(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
+                               () -> Routes.getGidsAll(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_GIDS_PAGED,
+                               () -> Routes.getGidsPaged(actorSystem, backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORD)
+                                     .slash(segment(Pattern.compile("^[A-z0-9]+$"))),
+                               gid -> Routes.getExpandedGoldenRecord(actorSystem,
+                                                                     backEnd, gid)),
+                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST,
+                               () -> Routes.getExpandedGoldenRecordsUsingParameterList(
+                                     actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_CSV,
+                               () -> Routes.getExpandedGoldenRecordsFromUsingCSV(
+                                     actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_GOLDEN_RECORD_AUDIT_TRAIL,
+                               () -> Routes.getGoldenRecordAuditTrail(actorSystem,
+                                                                      backEnd)),
+                          path(segment(GlobalConstants.SEGMENT_GET_INTERACTION)
+                                     .slash(segment(Pattern.compile(
+                                           "^[A-z0-9]+$"))),
+                               iid -> Routes.getInteraction(actorSystem, backEnd,
+                                                            iid)),
+                          path(GlobalConstants.SEGMENT_GET_EXPANDED_INTERACTIONS_USING_CSV,
+                               () -> Routes.getExpandedInteractionsUsingCSV(
+                                     actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_INTERACTION_AUDIT_TRAIL,
+                               () -> Routes.getInteractionAuditTrail(actorSystem,
+                                                                     backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_NOTIFICATIONS,
+                               () -> Routes.getNotifications(actorSystem, backEnd)))));
+   }
 
 }

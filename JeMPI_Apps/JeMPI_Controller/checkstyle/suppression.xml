@@ -16,9 +16,19 @@
             files="().java"
     />
 
-<!--    <suppress-->
-<!--            checks="(ParameterName|VisibilityModifier)"-->
-<!--            files="().java"-->
-<!--    />-->
+    <suppress
+            checks="(DesignForExtension|VisibilityModifier)"
+            files="SubProcessor.java"
+    />
+
+    <suppress
+            checks="(DesignForExtension|VisibilityModifier)"
+            files="BaseInteractionProcessor.java"
+    />
+
+    <suppress
+            checks="(DesignForExtension)"
+            files="SPLinkStatsMeta.java"
+    />
 
 </suppressions>

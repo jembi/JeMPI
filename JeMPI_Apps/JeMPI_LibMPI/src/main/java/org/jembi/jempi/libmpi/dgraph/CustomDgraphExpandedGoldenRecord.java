@@ -2,10 +2,11 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
-import org.jembi.jempi.shared.models.CustomDemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.List;
 
@@ -44,7 +45,12 @@ record CustomDgraphExpandedGoldenRecord(
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {
       return new ExpandedGoldenRecord(this.toGoldenRecord(),
-                                      this.interactions().stream().map(CustomDgraphInteraction::toInteractionWithScore).toList());
+                                      AppUtils.isNullOrEmpty(this.interactions)
+                                            ? List.of()
+                                            : this.interactions
+                                                  .stream()
+                                                  .map(CustomDgraphInteraction::toInteractionWithScore)
+                                                  .toList());
    }
 
 }

@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 
 public final class AppUtils implements Serializable {
 
-   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                                                                      .registerModule(new JavaTimeModule());
+   public static final ObjectMapper OBJECT_MAPPER =
+         new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).registerModule(new JavaTimeModule());
 
    private static final Logger LOGGER = LogManager.getLogger(AppUtils.class);
    @Serial
@@ -39,8 +39,7 @@ public final class AppUtils implements Serializable {
          if (is == null) {
             return null;
          }
-         try (InputStreamReader isr = new InputStreamReader(is);
-              BufferedReader reader = new BufferedReader(isr)) {
+         try (InputStreamReader isr = new InputStreamReader(is); BufferedReader reader = new BufferedReader(isr)) {
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
          }
       }
@@ -99,6 +98,10 @@ public final class AppUtils implements Serializable {
 
    private static class UtilsSingletonHolder {
       public static final AppUtils INSTANCE = new AppUtils();
+   }
+
+   public static String camelToSnake(final String str) {
+      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
 }

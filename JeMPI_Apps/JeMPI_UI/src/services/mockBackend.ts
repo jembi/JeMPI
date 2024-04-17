@@ -56,11 +56,11 @@ axiosMockAdapterInstance
     notifications[0].status = NotificationState.OPEN
     return [200, notifications]
   })
-  .onPatch(new RegExp(`^${ROUTES.PATCH_IID_NEW_GID_LINK}?.*`))
+  .onPatch(new RegExp(`^${ROUTES.POST_IID_NEW_GID_LINK}?.*`))
   .reply(() => {
     return [200, notifications]
   })
-  .onPatch(new RegExp(`^${ROUTES.PATCH_IID_GID_LINK}?.*`))
+  .onPatch(new RegExp(`^${ROUTES.POST_IID_GID_LINK}?.*`))
   .reply(() => {
     return [200, notifications]
   })

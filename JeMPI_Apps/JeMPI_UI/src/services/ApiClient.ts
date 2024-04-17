@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
-import { AuditTrailEntries } from '../types/AuditTrail'
+import { AuditTrail } from '../types/AuditTrail'
 import { FieldChangeReq, Fields } from '../types/Fields'
 import {
   ApiSearchResponse,
@@ -18,7 +18,8 @@ import {
   InteractionWithScore,
   NotificationRequest,
   LinkRequest,
-  GoldenRecordCandidatesResponse
+  GoldenRecordCandidatesResponse,
+  DashboardData
 } from 'types/BackendResponse'
 import {
   GoldenRecord,
@@ -26,7 +27,7 @@ import {
   DemographicData,
   PatientRecord
 } from 'types/PatientRecord'
-import { Notifications } from 'types/Notification'
+import { Notifications, NotificationState} from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
@@ -94,7 +95,8 @@ export class ApiClient {
     endDay: string,
     states: string[]
   ): Promise<Notifications> {
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${states}`
+    const notificationState = states.includes(NotificationState.ALL.toString()) ? [NotificationState.CLOSED, NotificationState.OPEN] : states;
+    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${notificationState}`
     const { data } = await this.client.get<NotificationResponse>(url)
     const { records, skippedRecords, count } = data
 
@@ -111,6 +113,13 @@ export class ApiClient {
       records: formattedRecords,
       pagination
     }
+  }
+
+  async getDashboardData() {
+    const { data } = await this.client.get<DashboardData>(
+      ROUTES.GET_DASHBOARD_DATA
+    )
+    return data
   }
 
   async getInteraction(uid: string) {
@@ -174,14 +183,12 @@ export class ApiClient {
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_NEW_GID_LINK}?goldenID=${request.goldenID}&patientID=${request.patientID}`
-    const { data } = await this.client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_NEW_GID_LINK, request)
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const url = `${ROUTES.PATCH_IID_GID_LINK}?goldenID=${linkRequest.goldenID}&newGoldenID=${linkRequest.newGoldenID}&patientID=${linkRequest.patientID}&score=2`
-    const { data } = await this.client.patch(url)
+    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_GID_LINK, linkRequest)
     return data
   }
 
@@ -339,8 +346,8 @@ export class ApiClient {
 
   async getGoldenRecordAuditTrail(gid: string) {
     const {
-      data: { entries }
-    } = await this.client.get<AuditTrailEntries>(
+      data
+    } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
       {
         params: {
@@ -348,13 +355,13 @@ export class ApiClient {
         }
       }
     )
-    return entries
+    return data
   }
 
   async getInteractionAuditTrail(iid: string) {
     const {
-      data: { entries }
-    } = await this.client.get<AuditTrailEntries>(
+      data
+    } = await this.client.get<Array<AuditTrail>>(
       ROUTES.GET_INTERACTION_AUDIT_TRAIL,
       {
         params: {
@@ -362,7 +369,7 @@ export class ApiClient {
         }
       }
     )
-    return entries
+    return data
   }
 
   async validateOAuth(oauthParams: OAuthParams) {

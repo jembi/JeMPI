@@ -7,21 +7,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Arrays;
 
 public final class AppConfig {
 
    private static final Logger LOGGER = LogManager.getLogger(org.jembi.jempi.AppConfig.class);
    private static final Config SYSTEM_PROPERTIES = ConfigFactory.systemProperties();
    private static final Config SYSTEM_ENVIRONMENT = ConfigFactory.systemEnvironment();
-   private static final Config CONFIG = new org.jembi.jempi.AppConfig.Builder()
-         .withSystemEnvironment()
-         .withSystemProperties()
-         .withOptionalRelativeFile("/conf/server.production.conf")
-         .withOptionalRelativeFile("/conf/server.staging.conf")
-         .withOptionalRelativeFile("/conf/server.test.conf")
-         .withResource("application.local.conf")
-         .withResource("application.conf")
-         .build();
+   private static final Config CONFIG = new org.jembi.jempi.AppConfig.Builder().withSystemEnvironment()
+                                                                               .withSystemProperties()
+                                                                               .withOptionalRelativeFile(
+                                                                                     "/conf/server.production.conf")
+                                                                               .withOptionalRelativeFile(
+                                                                                     "/conf/server.staging.conf")
+                                                                               .withOptionalRelativeFile("/conf/server.test.conf")
+                                                                               .withResource("application.local.conf")
+                                                                               .withResource("application.conf")
+                                                                               .build();
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    public static final String KAFKA_CLIENT_ID = CONFIG.getString("KAFKA_CLIENT_ID");
@@ -29,11 +31,28 @@ public final class AppConfig {
    public static final Integer POSTGRESQL_PORT = CONFIG.getInt("POSTGRESQL_PORT");
    public static final String POSTGRESQL_USER = CONFIG.getString("POSTGRESQL_USER");
    public static final String POSTGRESQL_PASSWORD = CONFIG.getString("POSTGRESQL_PASSWORD");
-   public static final String POSTGRESQL_DATABASE = CONFIG.getString("POSTGRESQL_DATABASE");
+   public static final String POSTGRESQL_NOTIFICATIONS_DB = CONFIG.getString("POSTGRESQL_NOTIFICATIONS_DB");
+   public static final String POSTGRESQL_AUDIT_DB = CONFIG.getString("POSTGRESQL_AUDIT_DB");
    public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+
+   private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
+   private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
+      try {
+         return Integer.parseInt(s);
+      } catch (NumberFormatException ex) {
+         return Integer.MIN_VALUE;
+      }
+   }).toArray();
+
+   public static String[] getDGraphHosts() {
+      return DGRAPH_ALPHA_HOSTS;
+   }
+   public static int[] getDGraphPorts() {
+      return DGRAPH_ALPHA_PORTS;
+   }
 
    private AppConfig() {
    }

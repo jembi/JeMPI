@@ -1,0 +1,21 @@
+name: Action > Docker Images Build
+inputs:
+  image-build-tag:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/workflows/actions/cached-dependencies
+    - uses: ./.github/workflows/actions/load-conf-env
+    - name: Build Docker Save
+      run: |
+        set -eo pipefail
+        source $GITHUB_WORKFLOW_FOLDER/actions/docker-images-save/saveImages.sh "${{ inputs.image-build-tag }}" "./.github/workflows/actions/docker-images-save/docker-images"
+      shell: bash
+    - uses: actions/upload-artifact@v4
+      with:
+        name: docker-images-${{ inputs.image-build-tag }}
+        path: |
+          ./.github/workflows/actions/docker-images-save/docker-images/
+        retention-days: 2
+    

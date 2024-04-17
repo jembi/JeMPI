@@ -208,6 +208,12 @@ To use it:-
 
 <table>
   <tr>
+   <td> REACT_APP_ENABLE_SSO
+   </td>
+   <td>true
+   </td>
+  </tr>
+  <tr>
    <td>
 KC_REALM_NAME
    </td>

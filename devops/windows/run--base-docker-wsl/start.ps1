@@ -38,7 +38,9 @@ $def_postgresql_ip                            = "-DPOSTGRESQL_IP=" + $postgresql
 $def_postgresql_port                          = "-DPOSTGRESQL_PORT=" + $postgresql_port 
 $def_postgresql_user                          = "-DPOSTGRESQL_USER=`"postgres`""
 $def_postgresql_password                      = "-DPOSTGRESQL_PASSWORD=`"postgres`""
-$def_postgresql_notifications_db              = "-DPOSTGRESQL_DATABASE=`"notifications`""
+$def_postgresql_notifications_db              = "-DPOSTGRESQL_NOTIFICATIONS_DB=`"notifications_db`""
+$def_postgresql_audit_db                      = "-DPOSTGRESQL_AUDIT_DB=`"audit_db`""
+
 $def_dgraph_hosts                             = "-DDGRAPH_HOSTS=" + $dgraph_hosts
 $def_dgraph_ports                             = "-DDGRAPH_PORTS=" + $dgraph_ports
 $def_etl_ip                                   = "-DETL_IP=" + $etl_ip
@@ -153,7 +155,7 @@ $etl_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'etl_stderr.txt'
-#                           -RedirectStandardOutput 'etl_stdout.txt'
+                            # -RedirectStandardOutput 'etl_stdout.txt'
 $etl_handle | Export-Clixml -Path (Join-Path './' 'etl_handle.xml')
 
 
@@ -173,10 +175,13 @@ $controller_handle = Start-Process -FilePath java `
                                                  $def_postgresql_user, `
                                                  $def_postgresql_password, `
                                                  $def_postgresql_notifications_db, `
+                                                 $def_postgresql_audit_db, `
                                                  $def_kafka_bootstrap_servers, `
                                                  $def_controller_kafka_application_id, `
                                                  $def_controller_kafka_client_id, `
                                                  $def_controller_http_port, `
+                                                 $def_dgraph_hosts, `
+                                                 $def_dgraph_ports, `
                                                  $def_etl_ip, `
                                                  $def_etl_http_port, `
                                                  $def_controller_ip, `
@@ -192,7 +197,7 @@ $controller_handle = Start-Process -FilePath java `
                                    -Verbose `
                                    -PassThru `
                                    -RedirectStandardError 'controller_stderr.txt'
-#                                   -RedirectStandardOutput 'controller_stdout.txt'
+                                  #  -RedirectStandardOutput 'controller_stdout.txt'
 $controller_handle | Export-Clixml -Path (Join-Path './' 'controller_handle.xml')
 
 
@@ -238,7 +243,7 @@ $linker_handle = Start-Process -FilePath java `
                                -Verbose `
                                -PassThru `
                                -RedirectStandardError 'linker_stderr.txt'
-#                              -RedirectStandardOutput 'linker_stdout.txt'
+                              #  -RedirectStandardOutput 'linker_stdout.txt'
 $linker_handle | Export-Clixml -Path (Join-Path './' 'linker_handle.xml')
 
 
@@ -258,6 +263,7 @@ $api_handle = Start-Process -FilePath java `
                                           $def_postgresql_user, `
                                           $def_postgresql_password, `
                                           $def_postgresql_notifications_db, `
+                                          $def_postgresql_audit_db, `
                                           $def_kafka_bootstrap_servers, `
                                           $def_api_kafka_application_id, `
                                           $def_dgraph_hosts, `
@@ -279,5 +285,5 @@ $api_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'api_stderr.txt'
-#                           -RedirectStandardOutput 'api_stdout.txt'
+                          #  -RedirectStandardOutput 'api_stdout.txt'
 $api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')

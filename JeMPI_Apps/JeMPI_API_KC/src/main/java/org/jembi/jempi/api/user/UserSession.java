@@ -18,8 +18,8 @@ public class UserSession extends User {
     * in the com.softwaremill.session.SessionSerializer companion object, like stringToString and mapToString, just to name a
     * few.
     */
-   private static final UserSessionSerializer SERIALIZER = new UserSessionSerializer(
-         (JFunction1<UserSession, Map<String, String>>) user -> {
+   private static final UserSessionSerializer SERIALIZER =
+         new UserSessionSerializer((JFunction1<UserSession, Map<String, String>>) user -> {
             final java.util.Map<String, String> m = new HashMap<>();
             m.put("id", user.getId());
             m.put("email", user.getEmail());
@@ -28,15 +28,12 @@ public class UserSession extends User {
             m.put("familyName", user.getFamilyName());
             return MapConverters.toImmutableMap(m);
          },
-         (JFunction1<Map<String, String>, Try<UserSession>>) value ->
-               Try.apply((JFunction0<UserSession>) () -> new UserSession(new User(
-                     value.get("id").get(),
-                     value.get("username").get(),
-                     value.get("email").get(),
-                     value.get("familyName").get(),
-                     value.get("givenName").get()
-               )))
-   );
+                                   (JFunction1<Map<String, String>, Try<UserSession>>) value -> Try.apply((JFunction0<UserSession>) () -> new UserSession(
+                                         new User(value.get("id").get(),
+                                                  value.get("username").get(),
+                                                  value.get("email").get(),
+                                                  value.get("familyName").get(),
+                                                  value.get("givenName").get()))));
 
    public UserSession(final User user) {
       super(user.getId(), user.getUsername(), user.getEmail(), user.getFamilyName(), user.getGivenName());

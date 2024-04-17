@@ -2,9 +2,11 @@ package org.jembi.jempi.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.AuditEvent;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Locale;
 
 import static org.jembi.jempi.shared.models.GlobalConstants.PSQL_TABLE_AUDIT_TRAIL;
@@ -18,8 +20,9 @@ final class PsqlAuditTrail {
    }
 
    void createSchemas() {
+/*
       LOGGER.debug("Create Schemas");
-      psqlClient.connect();
+      psqlClient.connect(AppConfig.POSTGRESQL_AUDIT_DB);
       try (var stmt = psqlClient.createStatement()) {
          stmt.executeUpdate(String.format(
                Locale.ROOT,
@@ -48,21 +51,20 @@ final class PsqlAuditTrail {
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
+*/
    }
 
-   void addAuditEvent(final AuditEvent event) {
-      psqlClient.connect();
-      try (var preparedStatement = psqlClient.prepareStatement(
-            String.format(
-                  Locale.ROOT,
-                  """
-                  INSERT INTO %s (createdAt, interactionID, goldenID, event)
-                  VALUES (?, ?, ?, ?);
-                  """, PSQL_TABLE_AUDIT_TRAIL).stripIndent())) {
-         preparedStatement.setTimestamp(1, event.createdAt());
-         preparedStatement.setString(2, event.interactionID());
-         preparedStatement.setString(3, event.goldenID());
-         preparedStatement.setString(4, event.event());
+   void addAuditEvent(final AuditEvent auditEvent) {
+      psqlClient.connect(AppConfig.POSTGRESQL_AUDIT_DB);
+
+      try (var preparedStatement = psqlClient.prepareStatement(String.format(Locale.ROOT, """
+                                                                                          INSERT INTO %s (createdAt, eventType, eventData)
+                                                                                          VALUES (?, ?, ?::json);
+                                                                                          """, PSQL_TABLE_AUDIT_TRAIL)
+                                                                      .stripIndent())) {
+         preparedStatement.setTimestamp(1, auditEvent.createdAt());
+         preparedStatement.setString(2, auditEvent.eventType().name());
+         preparedStatement.setObject(3, auditEvent.eventData(), Types.OTHER);
          preparedStatement.executeUpdate();
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
