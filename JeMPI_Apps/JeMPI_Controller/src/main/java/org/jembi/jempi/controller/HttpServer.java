@@ -49,7 +49,7 @@ public final class HttpServer extends AllDirectives {
                                                  "http://%s:%d/JeMPI/%s",
                                                  AppConfig.LINKER_IP,
                                                  AppConfig.LINKER_HTTP_PORT,
-                                                 GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION))
+                                                 GlobalConstants.SEGMENT_PROXY_POST_CR_LINK))
                            .withMethod(HttpMethods.POST)
                            .withEntity(ContentTypes.APPLICATION_JSON, OBJECT_MAPPER.writeValueAsBytes(body));
       final var stage = http.singleRequest(request);
@@ -166,15 +166,15 @@ public final class HttpServer extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                        () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
                                                             this::routeLinkInteraction),
 //                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
 //                                                            this::routeLinkInteractionToGid),
                                                        path(GlobalConstants.SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION,
-                                                            () -> onNotificationResolution(actorSystem, backEnd)))),
-                                     get(() -> concat(path("mu", this::routeMU),
-                                                      path(GlobalConstants.SEGMENT_PROXY_GET_DASHBOARD_DATA,
-                                                           () -> routeDashboardData(actorSystem, backEnd))
+                                                            () -> onNotificationResolution(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA,
+                                                            () -> routeDashboardData(actorSystem, backEnd)))),
+                                     get(() -> concat(path("mu", this::routeMU)
                                                      ))));
    }
 

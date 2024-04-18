@@ -42,13 +42,13 @@ final class HttpServer extends AllDirectives {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
+                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
                                                       () -> Routes.proxyPatchCrUpdateField(actorSystem, backEnd))),
-                                     post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                                     post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
                                                             () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
 //                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
 //                                                            () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
                                                             () -> Routes.proxyPostCalculateScores(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
                                                             () -> Routes.proxyGetCrCandidates(actorSystem, backEnd)),
@@ -63,7 +63,7 @@ final class HttpServer extends AllDirectives {
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
                                                             () -> Routes.proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
                                      get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
-                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
+                                                      path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
                                                            () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd))))));
    }
 */

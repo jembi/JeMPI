@@ -32,42 +32,27 @@ final class Routes {
       return code;
    }
 
-   static Route proxyGetCandidatesWithScore(
+   static Route proxyPostCandidatesWithScore(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
-      return parameter("iid",
-                       iid -> onComplete(Ask.findCandidates(actorSystem, backEnd, iid),
-                                         response -> {
-                                            if (!response.isSuccess()) {
-                                               final var e = response.failed().get();
-                                               LOGGER.error(e.getLocalizedMessage(), e);
-                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                            }
-                                            return response.get()
-                                                           .candidates()
-                                                           .mapLeft(MapError::mapError)
-                                                           .fold(error -> error,
-                                                                 candidateList -> complete(StatusCodes.OK,
-                                                                                           candidateList,
-                                                                                           Jackson.marshaller()));
-                                         }));
+      return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), request -> {
+         return onComplete(Ask.findCandidates(actorSystem, backEnd, request),
+                           response -> {
+                              if (!response.isSuccess()) {
+                                 final var e = response.failed().get();
+                                 LOGGER.error(e.getLocalizedMessage(), e);
+                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                              }
+                              return response.get()
+                                             .candidates()
+                                             .mapLeft(MapError::mapError)
+                                             .fold(error -> error,
+                                                   candidateList -> complete(StatusCodes.OK,
+                                                                             candidateList,
+                                                                             Jackson.marshaller()));
+                           });
+      });
    }
-
-/*
-   static Route proxyPostLinkInteractionToGID(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Request> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.LinkInteractionToGidSyncBody.class),
-                    obj -> onComplete(Ask.postLinkPatientToGid(actorSystem, backEnd, obj),
-                                      response -> {
-                                         if (!response.isSuccess()) {
-                                            LOGGER.warn(IM_A_TEA_POT_LOG);
-                                            return complete(ApiModels.getHttpErrorResponse(GlobalConstants.IM_A_TEA_POT));
-                                         }
-                                         return complete(StatusCodes.OK, response.get(), Jackson.marshaller());
-                                      }));
-   }
-*/
 
    static Route proxyPostCalculateScores(
          final ActorSystem<Void> actorSystem,
@@ -279,7 +264,7 @@ final class Routes {
                     }));
    }
 
-   static Route proxyPatchCrUpdateField(
+   static Route proxyPostCrUpdateField(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
@@ -305,13 +290,9 @@ final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return pathPrefix("JeMPI",
-                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_PATCH_CR_UPDATE_FIELDS,
-                                                      () -> proxyPatchCrUpdateField(actorSystem, backEnd))),
-                                     post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION,
+                        () -> concat(post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
                                                             () -> proxyPostLinkInteraction(actorSystem, backEnd)),
-//                                                     path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-//                                                            () -> proxyPostLinkInteractionToGID(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES,
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
                                                             () -> proxyPostCalculateScores(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
                                                             () -> proxyGetCrCandidates(actorSystem, backEnd)),
@@ -324,11 +305,13 @@ final class Routes {
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
                                                             () -> proxyPostCrLinkBySourceId(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
-                                                            () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
-                                     get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
-                                                      path(GlobalConstants.SEGMENT_PROXY_GET_CANDIDATES_WITH_SCORES,
-                                                           () -> proxyGetCandidatesWithScore(actorSystem, backEnd))))));
+                                                            () -> proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
+                                                            () -> proxyPostCandidatesWithScore(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
+                                                            () -> proxyPostCrUpdateField(actorSystem, backEnd))
+                                                      ))
+                                    ));
    }
-
 
 }

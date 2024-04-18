@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -80,15 +79,10 @@ public final class Ask {
    static CompletionStage<BackEnd.GetNotificationsResponse> getNotifications(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final int limit,
-         final int offset,
-         final Timestamp startDate,
-         final Timestamp endDate,
-         final List<String> states) {
+         final ApiModels.ApiNotifications payload) {
       CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, limit, offset, startDate,
-                                                                endDate, states),
+                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, payload.limit(), payload.offset(), payload.startDate(), payload.endDate(), payload.states()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -97,10 +91,10 @@ public final class Ask {
    static CompletionStage<BackEnd.GetExpandedGoldenRecordResponse> getExpandedGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String gid) {
+         final ApiModels.ApiGoldenRecords payload) {
       final CompletionStage<BackEnd.GetExpandedGoldenRecordResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetExpandedGoldenRecordRequest(replyTo, gid),
+                 replyTo -> new BackEnd.GetExpandedGoldenRecordRequest(replyTo, payload.gid()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -109,34 +103,20 @@ public final class Ask {
    static CompletionStage<BackEnd.GetInteractionResponse> getInteraction(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String iid) {
+         final ApiModels.ApiInteraction payload) {
       final CompletionStage<BackEnd.GetInteractionResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetInteractionRequest(replyTo, iid),
+                 replyTo -> new BackEnd.GetInteractionRequest(replyTo, payload.uid()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
 
-   /*
-    * static CompletionStage<BackEnd.FindCandidatesResponse> findCandidates(
-    * final ActorSystem<Void> actorSystem,
-    * final ActorRef<BackEnd.Event> backEnd,
-    * final String patientId,
-    * final CustomMU mu) {
-    * CompletionStage<BackEnd.FindCandidatesResponse> stage = AskPattern
-    * .ask(backEnd,
-    * replyTo -> new BackEnd.FindCandidatesRequest(replyTo, patientId, mu),
-    * java.time.Duration.ofSeconds(5),
-    * actorSystem.scheduler());
-    * return stage.thenApply(response -> response);
-    * }
-    */
-
    static CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> getExpandedGoldenRecords(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final List<String> gidList) {
+         final ApiModels.ApiExpandedGoldenRecordsParameterList payload) {
+         final List<String> gidList = payload.uidList();
       CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.GetExpandedGoldenRecordsRequest(replyTo, gidList),
@@ -148,7 +128,8 @@ public final class Ask {
    static CompletionStage<BackEnd.GetExpandedInteractionsResponse> getExpandedInteractions(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final List<String> uidList) {
+         final ApiModels.ApiExpandedGoldenRecordsParameterList payload) {
+         final List<String> uidList = payload.uidList();
       CompletionStage<BackEnd.GetExpandedInteractionsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.GetExpandedInteractionsRequest(replyTo, uidList),
@@ -157,14 +138,13 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
-   static CompletionStage<BackEnd.PatchGoldenRecordResponse> patchGoldenRecord(
+   static CompletionStage<BackEnd.UpdateGoldenRecordResponse> updateGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String goldenId,
          final GoldenRecordUpdateRequestPayload payload) {
-      CompletionStage<BackEnd.PatchGoldenRecordResponse> stage = AskPattern
+      CompletionStage<BackEnd.UpdateGoldenRecordResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.PatchGoldenRecordRequest(replyTo, goldenId,
+                 replyTo -> new BackEnd.UpdateGoldenRecordRequest(replyTo, payload.goldenId(),
                                                                  payload.fields()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
@@ -241,10 +221,10 @@ public final class Ask {
    static CompletionStage<BackEnd.GetInteractionAuditTrailResponse> getInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String uid) {
+         final ApiModels.ApiInteractionUid payload) {
       final CompletionStage<BackEnd.GetInteractionAuditTrailResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetInteractionAuditTrailRequest(replyTo, uid),
+                 replyTo -> new BackEnd.GetInteractionAuditTrailRequest(replyTo, payload.uid()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

@@ -62,7 +62,7 @@ class ApiClient {
          final long offset,
          final long length) {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GIDS_PAGED)).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_GIDS_PAGED)).newBuilder();
       urlBuilder.addQueryParameter("offset", Long.toString(offset));
       urlBuilder.addQueryParameter("length", Long.toString(length));
       final String url = urlBuilder.build().toString();
@@ -80,7 +80,7 @@ class ApiClient {
 
    List<ApiModels.ApiExpandedGoldenRecord> getGoldenRecordsInteractions(final List<String> gids) {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_EXPANDED_GOLDEN_RECORDS_USING_PARAMETER_LIST))
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_FOR_UID_LIST))
                    .newBuilder();
       gids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
       final String url = urlBuilder.build().toString();

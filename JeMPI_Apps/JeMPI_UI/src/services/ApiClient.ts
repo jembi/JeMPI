@@ -27,7 +27,7 @@ import {
   DemographicData,
   PatientRecord
 } from 'types/PatientRecord'
-import { Notifications, NotificationState} from 'types/Notification'
+import { Notifications, NotificationState } from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
@@ -83,21 +83,37 @@ export class ApiClient {
     }
   }
 
-  async getFields() {
-    const { data } = await this.client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
+  async fetchFields() {
+    const { data } = await this.client.post<Fields>(ROUTES.POST_FIELDS_CONFIG)
     return data
   }
 
-  async getMatches(
+  async fetchMatches(
     limit: number,
     offset: number,
-    startDay: string,
-    endDay: string,
+    startDate: string,
+    endDate: string,
     states: string[]
   ): Promise<Notifications> {
-    const notificationState = states.includes(NotificationState.ALL.toString()) ? [NotificationState.CLOSED, NotificationState.OPEN] : states;
-    const url = `${ROUTES.GET_NOTIFICATIONS}?limit=${limit}&startDate=${startDay}&endDate=${endDay}&offset=${offset}&states=${notificationState}`
-    const { data } = await this.client.get<NotificationResponse>(url)
+    const includeClosed = states.includes(NotificationState.CLOSED.toString());
+    const includeAll = states.includes(NotificationState.ALL.toString());
+  
+    const notificationState = includeAll
+      ? [NotificationState.CLOSED, NotificationState.OPEN]
+      : includeClosed
+      ? [NotificationState.CLOSED]
+      : [NotificationState.OPEN];
+    const { data } = await this.client.post<NotificationResponse>(
+      ROUTES.POST_NOTIFICATIONS,
+      {
+        limit: limit,
+        startDate: startDate,
+        endDate: endDate,
+        offset: offset,
+        states: notificationState
+      }
+    )
+    
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -115,25 +131,19 @@ export class ApiClient {
     }
   }
 
-  async getDashboardData() {
-    const { data } = await this.client.get<DashboardData>(
-      ROUTES.GET_DASHBOARD_DATA
+  async fetchDashboardData() {
+    const { data } = await this.client.post<DashboardData>(
+      ROUTES.POST_DASHBOARD_DATA
     )
     return data
   }
 
-  async getInteraction(uid: string) {
-    const { data } = await this.client.get<Interaction>(
-      `${ROUTES.GET_INTERACTION}/${uid}`
-    )
-    return data
-  }
-
-  async getGoldenRecord(uid: string): Promise<GoldenRecord> {
+  async fetchGoldenRecord(uid: string): Promise<GoldenRecord> {
     const {
       data: { goldenRecord, interactionsWithScore }
-    } = await this.client.get<ExpandedGoldenRecordResponse>(
-      `${ROUTES.GET_GOLDEN_RECORD}/${uid}`
+    } = await this.client.post<ExpandedGoldenRecordResponse>(
+      ROUTES.POST_GOLDEN_RECORD,
+      { gid: uid }
     )
     return {
       uid: goldenRecord.uid,
@@ -159,8 +169,8 @@ export class ApiClient {
     candidateIds: string[]
   ): Promise<[GoldenRecord, GoldenRecord[]]> {
     const [goldenRecord, candidateRecords] = await Promise.all([
-      this.getGoldenRecord(goldenId),
-      this.getExpandedGoldenRecords(candidateIds)
+      this.fetchGoldenRecord(goldenId),
+      this.fetchExpandedGoldenRecords(candidateIds)
     ])
     return [
       {
@@ -183,12 +193,18 @@ export class ApiClient {
   }
 
   async newGoldenRecord(request: LinkRequest) {
-    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_NEW_GID_LINK, request)
+    const { data } = await this.client.post<LinkRequest>(
+      ROUTES.POST_IID_NEW_GID_LINK,
+      request
+    )
     return data
   }
 
   async linkRecord(linkRequest: LinkRequest) {
-    const { data } = await this.client.post<LinkRequest>(ROUTES.POST_IID_GID_LINK, linkRequest)
+    const { data } = await this.client.post<LinkRequest>(
+      ROUTES.POST_IID_GID_LINK,
+      linkRequest
+    )
     return data
   }
 
@@ -253,38 +269,14 @@ export class ApiClient {
     }
   }
 
-  async getFilteredGoldenIds(request: FilterQuery) {
-    const { data } = await this.client.post<{
-      data: string[]
-      pagination: { total: number }
-    }>(ROUTES.POST_FILTER_GIDS, request)
-    return data
-  }
-
-  async getFilteredGoldenIdsWithInteractionCount(request: FilterQuery) {
-    const {
-      data: { data, interactionCount, pagination }
-    } = await this.client.post<{
-      data: string[]
-      interactionCount: { total: number }
-      pagination: { total: number }
-    }>(ROUTES.POST_FILTER_GIDS_WITH_INTERACTION_COUNT, request)
-    const total = pagination.total + interactionCount.total
-    return {
-      data,
-      pagination: { total }
-    }
-  }
-
-  async getExpandedGoldenRecords(
+  async fetchExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<GoldenRecord[]> {
-    const { data } = await this.client.get<Array<ExpandedGoldenRecordResponse>>(
-      ROUTES.GET_EXPANDED_GOLDEN_RECORDS,
-      {
-        params: { uidList: goldenIds?.toString() }
-      }
-    )
+    const { data } = await this.client.post<
+      Array<ExpandedGoldenRecordResponse>
+    >(ROUTES.POST_EXPANDED_GOLDEN_RECORDS, {
+      uidList: goldenIds
+    })
     const records: GoldenRecord[] = data.map(
       ({ goldenRecord, interactionsWithScore }) => {
         return {
@@ -316,7 +308,7 @@ export class ApiClient {
   async getFlatExpandedGoldenRecords(
     goldenIds: Array<string> | undefined
   ): Promise<AnyRecord[]> {
-    const goldenRecords = await this.getExpandedGoldenRecords(goldenIds)
+    const goldenRecords = await this.fetchExpandedGoldenRecords(goldenIds)
     return goldenRecords.reduce((acc: Array<AnyRecord>, record) => {
       acc.push(record, ...record.linkRecords)
       return acc
@@ -345,29 +337,19 @@ export class ApiClient {
   }
 
   async getGoldenRecordAuditTrail(gid: string) {
-    const {
-      data
-    } = await this.client.get<Array<AuditTrail>>(
-      ROUTES.GET_GOLDEN_RECORD_AUDIT_TRAIL,
+    const { data } = await this.client.post<Array<AuditTrail>>(
+      ROUTES.POST_GOLDEN_RECORD_AUDIT_TRAIL,
       {
-        params: {
-          gid
-        }
+        gid: gid
       }
     )
     return data
   }
 
-  async getInteractionAuditTrail(iid: string) {
-    const {
-      data
-    } = await this.client.get<Array<AuditTrail>>(
-      ROUTES.GET_INTERACTION_AUDIT_TRAIL,
-      {
-        params: {
-          iid
-        }
-      }
+  async fetchInteractionAuditTrail(uid: string) {
+    const { data } = await this.client.post<Array<AuditTrail>>(
+      ROUTES.POST_INTERACTION_AUDIT_TRAIL,
+      { uid: uid }
     )
     return data
   }
@@ -403,11 +385,21 @@ export class ApiClient {
   }
 
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
-    const response = await this.client.patch(
-      `${ROUTES.PATCH_GOLDEN_RECORD}/${uid}`,
-      request
-    )
-    return response
+    for (const field of request.fields) {
+      const { name, oldValue, newValue } = field
+      try {
+        const response = await this.client.post(
+          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
+          { 
+            "goldenId":uid,
+            fields: [{ name, oldValue, newValue }]
+          }
+        )
+      } catch (error) {
+        console.error('Error occurred while making the request:', error)
+      }
+    }
+    return Promise.resolve()
   }
 
   uploadFile = async (requestConfig: AxiosRequestConfig<FormData>) => {

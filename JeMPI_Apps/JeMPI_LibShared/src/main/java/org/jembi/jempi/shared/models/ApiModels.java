@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.sql.Timestamp;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -346,9 +348,39 @@ public abstract class ApiModels {
       }
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCalculateScoresRequest(
          String interactionId,
          List<String> goldenIds) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiExpandedGoldenRecordsParameterList(
+         List<String> uidList) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiNotifications(
+         int limit,
+         int offset,
+         Timestamp startDate,
+         Timestamp endDate,
+         List<String> states
+         ) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiInteractionUid(
+         String uid
+         ) {
+         }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiGoldenRecords(
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    public record ApiCalculateScoresResponse(
@@ -367,5 +399,12 @@ public abstract class ApiModels {
          LinkInfo linkInfo,
          List<ExternalLinkCandidate> externalLinkCandidateList) {
    }
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiOffsetSearch(
+         long offset,
+         long length,
+         String sortBy,
+         Boolean sortAsc) {
+         }
 
 }

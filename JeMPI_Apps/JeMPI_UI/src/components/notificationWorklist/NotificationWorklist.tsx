@@ -58,11 +58,11 @@ const NotificationWorklist = () => {
       filterModel
     ],
     queryFn: () =>
-      apiClient.getMatches(
+      apiClient.fetchMatches(
         paginationModel.pageSize,
         paginationModel.page * paginationModel.pageSize,
-        startDateFilter.format('YYYY-MM-DD HH:mm:ss'),
-        endDateFilter.format('YYYY-MM-DD HH:mm:ss'),
+        startDateFilter.format('YYYY-MM-DDTHH:mm:ss'),
+        endDateFilter.format('YYYY-MM-DDTHH:mm:ss'),
         selectedStates
       ),
     refetchOnWindowFocus: true,
@@ -118,7 +118,11 @@ const NotificationWorklist = () => {
               }}
             />
             <SelectDropdown
-              listValues={[NotificationState.ALL, NotificationState.OPEN, NotificationState.CLOSED]}
+              listValues={[
+                NotificationState.ALL,
+                NotificationState.OPEN,
+                NotificationState.CLOSED
+              ]}
               label="States"
               setSelectedValues={setSelectedStates}
               defaultSelectedValues={[NotificationState.OPEN]}
@@ -176,7 +180,8 @@ const NotificationWorklist = () => {
                 loading={isLoading}
                 onFilterModelChange={debounce(onFilterChange, 3000)}
                 onRowDoubleClick={params => {
-                  if (params.row.state === NotificationState.CLOSED.toString()) return;
+                  if (params.row.state === NotificationState.CLOSED.toString())
+                    return
 
                   navigate(
                     {
@@ -194,7 +199,7 @@ const NotificationWorklist = () => {
                         }
                       }
                     }
-                  );
+                  )
                 }}
               />
             )}

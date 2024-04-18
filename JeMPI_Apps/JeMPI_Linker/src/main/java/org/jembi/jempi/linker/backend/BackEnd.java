@@ -378,7 +378,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
    public record FindCandidatesWithScoreRequest(
          ActorRef<FindCandidatesWithScoreResponse> replyTo,
-         String iid) implements Request {
+         ApiModels.ApiInteractionUid interactionUid) implements Request {
    }
 
    public record FindCandidatesWithScoreResponse(Either<MpiGeneralError, List<Candidate>> candidates) implements Response {

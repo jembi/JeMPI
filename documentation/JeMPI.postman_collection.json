@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5f48efd0-dcc2-4d65-9294-60b596f1cde1",
+		"_postman_id": "6fd7ff41-f8f9-442d-83d1-d3e0e186140b",
 		"name": "JeMPI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12338305"
@@ -9,7 +9,7 @@
 		{
 			"name": "Count Interactions",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countInteractions",
@@ -26,15 +26,15 @@
 		{
 			"name": "Count Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/countRecords",
+					"raw": "{{LocalApi}}/countGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"countRecords"
+						"countGoldenRecords"
 					]
 				}
 			},
@@ -43,7 +43,7 @@
 		{
 			"name": "Count Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countRecords",
@@ -60,7 +60,7 @@
 		{
 			"name": "Get Golden Ids All",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/gidsAll",
@@ -77,25 +77,24 @@
 		{
 			"name": "Get Golden Ids Paginated",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"offset\":0,\n    \"length\":10\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/gidsPaged?offset=0&length=10",
+					"raw": "{{LocalApi}}/gidsPaged",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"gidsPaged"
-					],
-					"query": [
-						{
-							"key": "offset",
-							"value": "0"
-						},
-						{
-							"key": "length",
-							"value": "10"
-						}
 					]
 				}
 			},
@@ -104,32 +103,11 @@
 		{
 			"name": "Get Interaction",
 			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{LocalApi}}/interaction/0x4",
-					"host": [
-						"{{LocalApi}}"
-					],
-					"path": [
-						"interaction",
-						"0x4"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Expanded Golden Record",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "",
+					"raw": "{\n    \"uid\":\"0x4\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -137,13 +115,38 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecord/0x4",
+					"raw": "{{LocalApi}}/interaction",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"expandedGoldenRecord",
-						"0x4"
+						"interaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Golden Record",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/expandedGoldenRecord",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expandedGoldenRecord"
 					]
 				}
 			},
@@ -152,21 +155,24 @@
 		{
 			"name": "Get Expanded Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uidList\": [\n        \"0x4d03\",\n        \"0x3a07\",\n        \"0x2b20\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecords?uidList=0x4d03,0x3a07,0x42b2",
+					"raw": "{{LocalApi}}/expandedGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"expandedGoldenRecords"
-					],
-					"query": [
-						{
-							"key": "uidList",
-							"value": "0x4d03,0x3a07,0x42b2"
-						}
 					]
 				}
 			},
@@ -175,21 +181,50 @@
 		{
 			"name": "Get Expanded Golden Records Using CSV",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uidList\": [\n        \"0x4d03\",\n        \"0x3a07\",\n        \"0x2b20\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/expandedGoldenRecordsCsv?uidList",
+					"raw": "{{LocalApi}}/expandedGoldenRecordsCsv",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"expandedGoldenRecordsCsv"
-					],
-					"query": [
-						{
-							"key": "uidList",
-							"value": null
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Interaction Records Using CSV Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uidList\": [\n        \"0x2b1f\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/expandedInteractionsCsv",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"expandedInteractionsCsv"
 					]
 				}
 			},
@@ -198,21 +233,24 @@
 		{
 			"name": "Get Golden Record Audit Trail",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/goldenRecordAuditTrail?gid=0x4d",
+					"raw": "{{LocalApi}}/goldenRecordAuditTrail",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"goldenRecordAuditTrail"
-					],
-					"query": [
-						{
-							"key": "gid",
-							"value": "0x4d"
-						}
 					]
 				}
 			},
@@ -221,21 +259,24 @@
 		{
 			"name": "Get Interaction Audit Trail",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\":\"0x2b1f\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/interactionAuditTrail?iid=0x4c",
+					"raw": "{{LocalApi}}/interactionAuditTrail",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
 						"interactionAuditTrail"
-					],
-					"query": [
-						{
-							"key": "iid",
-							"value": "0x4c"
-						}
 					]
 				}
 			},
@@ -244,7 +285,7 @@
 		{
 			"name": "Get Fields Config",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/config",
@@ -261,37 +302,24 @@
 		{
 			"name": "Get Notifications Matches For Review",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"limit\": 25,\n    \"offset\":10 ,\n    \"startDate\":\"2024-01-10T00:00:00Z\" ,\n    \"endDate\": \"2024-04-10T00:00:00Z\",\n    \"states\": [\"new\",\"OPEN\"]\n}\n\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/matchesForReview?limit=4&startDate=2024-04-03 01:01:01&endDate=2024-04-03 01:01:01&offset=10&states=new",
+					"raw": "{{LocalApi}}/notifications",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"matchesForReview"
-					],
-					"query": [
-						{
-							"key": "limit",
-							"value": "4"
-						},
-						{
-							"key": "startDate",
-							"value": "2024-04-03 01:01:01"
-						},
-						{
-							"key": "endDate",
-							"value": "2024-04-03 01:01:01"
-						},
-						{
-							"key": "offset",
-							"value": "10"
-						},
-						{
-							"key": "states",
-							"value": "new"
-						}
+						"notifications"
 					]
 				}
 			},
@@ -300,21 +328,24 @@
 		{
 			"name": "Get Candidate Golden Records",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\":\"0x2b20\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/candidate-golden-records?iid=0x42b1",
+					"raw": "{{LocalApi}}/candidateGoldenRecords",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"candidate-golden-records"
-					],
-					"query": [
-						{
-							"key": "iid",
-							"value": "0x42b1"
-						}
+						"candidateGoldenRecords"
 					]
 				}
 			},
@@ -323,15 +354,24 @@
 		{
 			"name": "Edit Golden Record",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"goldenId\":\"0x2aeb\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"newValue\": \"Jay\",\n      \"oldValue\": \"Matt\"\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{LocalApi}}/goldenRecord",
+					"raw": "{{LocalApi}}/updateGoldenRecordFieldsForId",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"goldenRecord"
+						"updateGoldenRecordFieldsForId"
 					]
 				}
 			},
@@ -343,12 +383,12 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/link",
+					"raw": "{{LocalApi}}/relink",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"link"
+						"relink"
 					]
 				}
 			},
@@ -360,12 +400,12 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{LocalApi}}/unLink",
+					"raw": "{{LocalApi}}/newLink",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"unLink"
+						"newLink"
 					]
 				}
 			},
@@ -617,11 +657,11 @@
 		{
 			"name": "CR Update fields",
 			"request": {
-				"method": "PATCH",
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"goldenId\": \"0x2713\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"value\": \"Omkar\"\n    },\n    {\n      \"name\": \"familyName\",\n      \"value\": \"S\"\n    }\n  ]\n}",
+					"raw": "{\n  \"goldenId\": \"0x2aee\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"value\": \"Shankar\"\n    },\n    {\n      \"name\": \"familyName\",\n      \"value\": \"S\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -655,12 +695,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/calculateScores",
+					"raw": "{{LocalApi}}/scores",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"calculateScores"
+						"scores"
 					]
 				}
 			},
@@ -669,7 +709,7 @@
 		{
 			"name": "Dashboard Data",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/dashboardData",
