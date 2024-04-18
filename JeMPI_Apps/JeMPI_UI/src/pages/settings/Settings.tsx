@@ -6,6 +6,8 @@ import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
+import GoldenRecordInteractiveNode from './interactiveNode/GoldenRecordInteractiveNode'
+import InteractionEncounterInteractiveNode from '../settings/interactiveNode/InteractionEncounterInteractiveNode '
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
 
@@ -61,17 +63,9 @@ const Settings = () => {
           }}
         >
           <div className="shapes-container">
-            <div className="circle" style={{ backgroundColor: '#ADD8E6' }}>
-              <b className="label">Golden Record</b>
-            </div>
+            <GoldenRecordInteractiveNode />
             <div className="connection-dashed"></div>
-            <div className="circle">
-              <b className="label">
-                Interaction
-                <br />
-                (encounter)
-              </b>
-            </div>
+            <InteractionEncounterInteractiveNode />
           </div>
           <div className="shapes-container">
             <div
