@@ -12,6 +12,7 @@ pushd .
   source ./conf.env
 
   docker service scale ${STACK_NAME}_postgresql=${SCALE_POSTGRESQL}
+  # docker service scale ${STACK_NAME}_postgresql=${SCALE_VAULT}
   docker service scale ${STACK_NAME}_kafka-01=${SCALE_KAFKA_01}
   if [ ! -z ${SCALE_KAFKA_02+x} ] ; then docker service scale ${STACK_NAME}_kafka-02=${SCALE_KAFKA_02}; fi
   if [ ! -z ${SCALE_KAFKA_03+x} ] ; then docker service scale ${STACK_NAME}_kafka-03=${SCALE_KAFKA_03}; fi

@@ -18,6 +18,10 @@ export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
+export SCALE_VAULT=1  
+
+export VAULT_PORT=8200
+export VAULT_DEV_ROOT_TOKEN_ID="root"
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
@@ -59,6 +63,7 @@ export REACT_APP_ENABLE_SSO="false"
 export KC_FRONTEND_URL=http://${NODE1_IP}:8080
 
 # ram limit for linker
+export VAULT_RAM_LIMIT="8G"
 export POSTGRESQL_RAM_LIMIT="8G"
 export KEYCLOAK_TEST_SERVER_RAM_LIMIT="8G"
 export HAPROXY_RAM_LIMIT="8G"

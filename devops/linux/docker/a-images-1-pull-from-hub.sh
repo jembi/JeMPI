@@ -16,3 +16,4 @@ docker pull $DGRAPH_IMAGE
 docker pull $RATEL_IMAGE
 docker pull $POSTGRESQL_IMAGE
 docker pull $JAVASCRIPT_RUNTIME
+docker pull $HASHICORP_VAULT_IMAGE

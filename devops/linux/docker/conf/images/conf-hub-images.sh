@@ -23,3 +23,6 @@ export HAPROXY_IMAGE=haproxytech/haproxy-debian:2.9
 
 # Javascript runtime image (nodeJs, DenoJs, BunJs, ect ...)
 export JAVASCRIPT_RUNTIME=node:18-alpine
+
+# https://hub.docker.com/r/hashicorp/vault/tags
+export HASHICORP_VAULT_IMAGE=hashicorp/vault:1.16
