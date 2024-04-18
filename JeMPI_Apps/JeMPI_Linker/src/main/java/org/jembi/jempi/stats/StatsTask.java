@@ -1,10 +1,7 @@
 package org.jembi.jempi.stats;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -80,7 +77,7 @@ public final class StatsTask {
 
    private GoldenIdList getGoldenIdList() throws IOException {
       final HttpUrl.Builder urlBuilder =
-            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_GIDS_ALL)).newBuilder();
+            Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_GET_GIDS_ALL)).newBuilder();
       final String url = urlBuilder.build().toString();
       final Request request = new Request.Builder().url(url).build();
       final Call call = client.newCall(request);
@@ -95,9 +92,10 @@ public final class StatsTask {
       final HttpUrl.Builder urlBuilder =
             Objects.requireNonNull(HttpUrl.parse(URL_LINK + GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_FOR_UID_LIST))
                    .newBuilder();
-      gids.forEach(id -> urlBuilder.addQueryParameter("uid", id));
+      final byte[] json = OBJECT_MAPPER.writeValueAsBytes(new ApiModels.ApiExpandedGoldenRecordsParameterList(gids));
+      final RequestBody body = RequestBody.create(MediaType.parse("application/json"), json);
       final String url = urlBuilder.build().toString();
-      final Request request = new Request.Builder().url(url).build();
+      final Request request = new Request.Builder().url(url).post(body).build();
       final Call call = client.newCall(request);
       try (var response = call.execute()) {
          assert response.body() != null;

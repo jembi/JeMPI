@@ -23,7 +23,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_COUNT_INTERACTIONS = "countInteractions";
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "countGoldenRecords";
    public static final String SEGMENT_COUNT_RECORDS = "countRecords";
-   public static final String SEGMENT_POST_GIDS_ALL = "gidsAll";
+   public static final String SEGMENT_GET_GIDS_ALL = "gidsAll";
    public static final String SEGMENT_POST_GIDS_PAGED = "gidsPaged";
    public static final String SEGMENT_POST_INTERACTION = "interaction";
    public static final String SEGMENT_POST_EXPANDED_GOLDEN_RECORD = "expandedGoldenRecord";
