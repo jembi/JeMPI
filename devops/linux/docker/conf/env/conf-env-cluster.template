@@ -4,9 +4,11 @@ export NODE1_IP=${NODE1_IP}
 
 export NODE2=${NODE2}
 export NODE2_IP=${NODE2_IP}
+export NODE2_USER=${NODE2_USER}
 
 export NODE3=${NODE3}
 export NODE3_IP=${NODE3_IP}
+export NODE3_USER=${NODE3_USER}
 
 export STACK_NAME=jempi
 
@@ -30,6 +32,7 @@ export PROJECT_DEVOPS_DIR=${PROJECT_DIR}
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
+export BACKUP_RESTORE_DIR=${PROJECT_DIR}/backup_restore
 
 export REGISTRY_NODE_IP=${REGISTRY_NODE_IP}
 export IMAGE_REGISTRY=${IMAGE_REGISTRY}

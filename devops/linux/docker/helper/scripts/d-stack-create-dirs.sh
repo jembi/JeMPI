@@ -20,14 +20,29 @@ pushd .
   cp conf/haproxy/*.* ${DATA_HAPROXY_DIR}
 
   mkdir -p ${DATA_KAFKA_01_DIR}
-  if [ ! -z ${DATA_KAFKA_02_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_02_DIR}; fi
-  if [ ! -z ${DATA_KAFKA_03_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_03_DIR}; fi
   mkdir -p ${DATA_DGRAPH_ZERO_01_DIR}
-  if [ ! -z ${DATA_DGRAPH_ZERO_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ZERO_02_DIR}; fi
-  if [ ! -z ${DATA_DGRAPH_ZERO_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ZERO_03_DIR}; fi
   mkdir -p ${DATA_DGRAPH_ALPHA_01_DIR}
-  if [ ! -z ${DATA_DGRAPH_ALPHA_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_02_DIR}; fi
-  if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}; fi
+
+  if [ "$SPEC_SETTINGS" == "cluster" ]; then
+    if [ ! -z ${DATA_KAFKA_02_DIR+x} ] ; then ssh ${NODE2_USER}@${NODE2_IP} "mkdir -p ${DATA_KAFKA_02_DIR}"; fi
+    if [ ! -z ${DATA_KAFKA_03_DIR+x} ] ; then ssh ${NODE3_USER}@${NODE3_IP} "mkdir -p ${DATA_KAFKA_03_DIR}"; fi
+
+    if [ ! -z ${DATA_DGRAPH_ZERO_02_DIR+x} ]; then ssh ${NODE2_USER}@${NODE2_IP} "mkdir -p ${DATA_DGRAPH_ZERO_02_DIR}"; fi
+    if [ ! -z ${DATA_DGRAPH_ZERO_03_DIR+x} ]; then ssh ${NODE3_USER}@${NODE3_IP} "mkdir -p ${DATA_DGRAPH_ZERO_03_DIR}"; fi
+
+    if [ ! -z ${DATA_DGRAPH_ALPHA_02_DIR+x} ]; then ssh ${NODE2_USER}@${NODE2_IP} "mkdir -p ${DATA_DGRAPH_ALPHA_02_DIR}"; fi
+    if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then ssh ${NODE3_USER}@${NODE3_IP} "mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}"; fi
+  else
+    if [ ! -z ${DATA_KAFKA_02_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_02_DIR}; fi
+    if [ ! -z ${DATA_KAFKA_03_DIR+x} ] ; then mkdir -p ${DATA_KAFKA_03_DIR}; fi
+
+    if [ ! -z ${DATA_DGRAPH_ZERO_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ZERO_02_DIR}; fi
+    if [ ! -z ${DATA_DGRAPH_ZERO_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ZERO_03_DIR}; fi
+
+    if [ ! -z ${DATA_DGRAPH_ALPHA_02_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_02_DIR}; fi
+    if [ ! -z ${DATA_DGRAPH_ALPHA_03_DIR+x} ]; then mkdir -p ${DATA_DGRAPH_ALPHA_03_DIR}; fi
+  fi
+  echo
 
   mkdir -p ${DATA_POSTGRESQL_DIR}
   cp ./conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
