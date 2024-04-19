@@ -211,11 +211,12 @@ const DropZone: FC = () => {
                     label={
                       <Typography fontSize={'0.9rem'}>
                         {
-                          " Use current M & U's (computed periodically, only using the Client Registry)."
+                          " Send to the linker and use the current M & U values"
                         }
                       </Typography>
                     }
                   />
+                  <br/>
                   <FormControlLabel
                     control={
                       <Radio
@@ -232,28 +233,7 @@ const DropZone: FC = () => {
                     label={
                       <Typography fontSize={'0.9rem'}>
                         {
-                          ' Before linking, compute M & U values using the interactions from the CSV file.'
-                        }
-                      </Typography>
-                    }
-                  />
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        name="uploadWorkflow"
-                        value={2}
-                        onChange={() => {
-                          handleImportFormChange({
-                            target: { name: 'uploadWorkflow', value: 2 }
-                          })
-                        }}
-                        checked={FormValues.uploadWorkflow === 2}
-                      />
-                    }
-                    label={
-                      <Typography fontSize={'0.9rem'}>
-                        {
-                          " Before linking, compute M & U values using the interactions from the CSV file & the client registry's golden records."
+                          ' Send to EM task to compute new M & U values'
                         }
                       </Typography>
                     }
