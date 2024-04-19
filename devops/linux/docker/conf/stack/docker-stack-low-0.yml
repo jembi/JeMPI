@@ -15,15 +15,15 @@ services:
     image: ${IMAGE_REGISTRY}${HASHICORP_VAULT_IMAGE}
     container_name: vault
     ports:
-      - published: 8282
-        target: 8282
+      - published: 8200
+        target: 8200
         protocol: tcp
         mode: host
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_ADDR: "${IMAGE_REGISTRY}8282"
-      VAULT_API_ADDR: "${IMAGE_REGISTRY}8282"
+      VAULT_ADDR: "${VAULT_ENDPOINT}"
+      VAULT_API_ADDR: "${VAULT_ENDPOINT}"
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       # VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "listener": {"tcp": {"address": "${IMAGE_REGISTRY}:8200", "tls_disable": 1}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}'
     volumes:

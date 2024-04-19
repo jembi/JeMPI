@@ -61,6 +61,7 @@ export REACT_APP_JEMPI_BASE_API_PORT=50000
 export REACT_APP_MOCK_BACKEND="false"
 export REACT_APP_ENABLE_SSO="false"
 export KC_FRONTEND_URL=http://${NODE1_IP}:8080
+export VAULT_ENDPOINT=${NODE1_IP}:8200
 
 # ram limit for linker
 export VAULT_RAM_LIMIT="8G"

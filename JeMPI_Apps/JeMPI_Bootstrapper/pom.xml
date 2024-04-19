@@ -120,6 +120,11 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+         <dependency>
+            <groupId>com.bettercloud</groupId>
+            <artifactId>vault-java-driver</artifactId>
+            <version>5.1.1</version>
+        </dependency>
 
     </dependencies>
 
