@@ -10,7 +10,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import ScrollBackButtons from 'components/shared/ScrollBackButtons'
 import { AuthProvider } from 'hooks/useAuth'
 import { SnackbarProvider } from 'notistack'
-import React from 'react'
 
 const queryClient = new QueryClient({
   defaultOptions: {

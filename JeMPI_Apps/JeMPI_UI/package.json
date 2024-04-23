@@ -11,6 +11,7 @@
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "lint:fix": "eslint ./src/ --ext ts,js,tsx,jsx --fix",
     "format": "prettier 'src/**/*.{js,jsx,ts,tsx,json,css}' --write",
+    "leader-line": "./node_modules/leader-line/leader-line.min.js",
     "type-check": "tsc",
     "mock:startJeMPIAPIServer": "npx ts-node  --compilerOptions '{\"module\":\"commonjs\"}' ./tests/test.utils/mocks/enviroments/MockJeMPI_API/MockJeMPI_API.ts",
     "mock:startKeycloakServer": "npx ts-node  --compilerOptions '{\"module\":\"commonjs\"}' ./tests/test.utils/mocks/enviroments/MockKeyCloak/MockKeyCloak.ts",
@@ -42,11 +43,14 @@
     "dayjs": "^1.11.8",
     "formik": "^2.2.9",
     "keycloak-js": "^20.0.2",
+    "leader-line": "^1.0.7",
+    "leader-line-types": "^1.0.5",
     "notistack": "^2.0.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^14.2.3",
+    "react-leader-line": "^1.0.5",
     "react-router-dom": "^6.16.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.4.2",
@@ -75,7 +79,10 @@
     "lint-staged": "^13.1.1",
     "prettier": "^2.8.4",
     "process": "^0.11.10",
-    "ts-jest": "^29.1.1"
+    "skeleton-loader": "^2.0.0",
+    "ts-jest": "^29.1.1",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

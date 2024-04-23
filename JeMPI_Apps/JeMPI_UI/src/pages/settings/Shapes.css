@@ -16,7 +16,7 @@
   position: relative;
   padding: 0 5px;
 }
-.interaction-circle {
+.circle {
   width: 100px;
   height: 100px;
   border: 2px dashed #000;
@@ -25,7 +25,6 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background-color 0.3s ease; 
 }
 
 .connection-dashed {
@@ -42,21 +41,6 @@
   font-size: 12px;
   color: #000;
 }
-
-.circle{
-  &{
-    width: 100px;
-    height: 100px;
-    border: 2px dashed #000;
-    background-color:#add8e6;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: background-color 0.3s ease; 
-  }
-}
 .circle:hover {
   background-color: #e3f2fb; 
 }
@@ -68,18 +52,20 @@
 .additional-info {
   display: none;
   position: absolute;
-  top: 70%;
-  right: 110%; 
-  transform: translateY(-50%);
+  left: 0%; 
   background-color: #fff;
   padding: 10px;
   border: 1px solid #000;
   border-radius: 5px;
   width: 180px;
+  margin-left: 120px;
+  margin-top: 40px;
 }
+
 .circle-container:hover .additional-info {
   display: block;
 }
+
 
 .additional-info h2 {
   margin-top: 0;
@@ -95,4 +81,3 @@
 .additional-info li {
   font-size: 12px;
 }
-
