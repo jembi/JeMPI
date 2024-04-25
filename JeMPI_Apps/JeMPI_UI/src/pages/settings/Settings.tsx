@@ -6,7 +6,7 @@ import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
-import InteractiveNode from './interactiveNode/InteractiveNode'
+import GoldenRecordInteractiveNode from './interactiveNode/InteractiveNode'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
 
@@ -62,8 +62,8 @@ const Settings = () => {
           }}
         >
           <div className="shapes-container">
-            <InteractiveNode />
-          </div> 
+            <GoldenRecordInteractiveNode />
+          </div>
         </div>
       </Grid>
       <Grid item md={8}>

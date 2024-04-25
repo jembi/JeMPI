@@ -3,6 +3,14 @@
   flex-direction: column;
   align-items: center;
   gap: 0px;
+  position: relative;
+}
+.container{
+  display: block;
+  position: relative;
+  height: 200px;
+  width: 70%;
+  border: solid 1px red;
 }
 
 .square {
@@ -27,15 +35,6 @@
   position: relative;
 }
 
-.connection-dashed {
-  height: 200px;
-  border: 1px dashed #000;
-}
-.connection-solid {
-  height: 150px;
-  border: 1px solid #000;
-  left: 0;
-}
 .label {
   position: absolute;
   font-size: 12px;
