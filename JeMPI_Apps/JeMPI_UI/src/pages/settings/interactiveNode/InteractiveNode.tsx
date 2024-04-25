@@ -145,7 +145,7 @@ const InteractiveNode = () => {
                 style={{ left: 100 }}
                 className="square handle"
               >
-                <span className="label">Square</span>
+                <span className="label">Source Id</span>
               </div>
             </Draggable>
           </div>
