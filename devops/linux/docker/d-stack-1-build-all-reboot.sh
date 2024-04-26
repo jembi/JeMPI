@@ -11,7 +11,7 @@ echo
 echo "Build Apps"
 pwd
 pushd ../../../JeMPI_Apps
-  # source ./build-all-java.sh
+  source ./build-all-java.sh
   # source ./build-all-ui.sh
 popd
 sleep 2
@@ -24,4 +24,4 @@ source ./helper/scripts/d-stack-deploy-0.sh
 sleep 2
 source ./helper/scripts/d-stack-up-hub-containers.sh
 sleep 2
-# source ./helper/scripts/d-stack-up-app-containers.sh
+source ./helper/scripts/d-stack-up-app-containers.sh

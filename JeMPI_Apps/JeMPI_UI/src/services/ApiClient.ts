@@ -80,29 +80,29 @@ export class ApiClient {
 
         return request
       })
-      axiosInstance.interceptors.request.use(
-        config => {
-          if (config.data) {
-            config.data = encryptData(config.data)
-          }
-          return config
-        },
-        error => {
-          return Promise.reject(error)
-        }
-      )
+      // axiosInstance.interceptors.request.use(
+      //   config => {
+      //     if (config.data) {
+      //       config.data = encryptData(config.data)
+      //     }
+      //     return config
+      //   },
+      //   error => {
+      //     return Promise.reject(error)
+      //   }
+      // )
 
-      axiosInstance.interceptors.response.use(
-        response => {
-          if (response.data) {
-            response.data = decryptData(response.data)
-          }
-          return response
-        },
-        error => {
-          return Promise.reject(error)
-        }
-      )
+      // axiosInstance.interceptors.response.use(
+      //   response => {
+      //     if (response.data) {
+      //       response.data = decryptData(response.data)
+      //     }
+      //     return response
+      //   },
+      //   error => {
+      //     return Promise.reject(error)
+      //   }
+      // )
       this.client = axiosInstance
     }
   }

@@ -1,7 +1,15 @@
 import CryptoJS from 'crypto-js'
-import { vault } from '../services/vaultClient'
-const token = process.env.VAULT_DEV_TOKEN as string
-const secrets = await vault.readKVSecret(token, 'jempi_api_secret')
+import getSecretFromVault from '../services/vaultClient'
+
+const secrets = ''
+
+getSecretFromVault()
+  .then(data => {
+    console.log(`data - ${data}`)
+  })
+  .catch(err => {
+    console.log(err)
+  })
 
 export function encryptData(data: object): string {
   const ciphertext = CryptoJS.AES.encrypt(

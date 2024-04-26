@@ -13,7 +13,9 @@ networks:
 services:
   vault:
     image: ${IMAGE_REGISTRY}${HASHICORP_VAULT_IMAGE}
-    container_name: vault
+    networks:
+      - frontend
+      - backend
     ports:
       - published: 8200
         target: 8200
@@ -22,17 +24,16 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_ADDR: "${VAULT_ENDPOINT}"
-      VAULT_API_ADDR: "${VAULT_ENDPOINT}"
+      VAULT_ADDR: "http://172.20.10.3:8200"
+      VAULT_API_ADDR: "http://172.20.10.3:8200"
       VAULT_DEV_ROOT_TOKEN_ID: "root"
-      # VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "listener": {"tcp": {"address": "${IMAGE_REGISTRY}:8200", "tls_disable": 1}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}'
     volumes:
       - type: bind
         source: ${DATA_VAULT_DIR}
         target: /vault/file
     deploy:
       mode: replicated
-      replicas: ${SCALE_VAULT}
+      replicas: 0
       resources:
         limits:
           memory: ${VAULT_RAM_LIMIT}

@@ -1,8 +1,5 @@
 package org.jembi.jempi.bootstrapper;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultException;
-import com.bettercloud.vault.api.Logical;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.logging.log4j.Logger;
@@ -23,8 +20,8 @@ public class BootstrapperConfig {
    public final String POSTGRESQL_KC_TEST_DB;
    public final String KAFKA_BOOTSTRAP_SERVERS;
    public final String KAFKA_APPLICATION_ID;
-   public final String VAULT_ENDPOINT;
-   public final String VAULT_DEV_TOKEN;
+   // public final String VAULT_ENDPOINT;
+   // public final String VAULT_DEV_TOKEN;
    public final String[] DGRAPH_ALPHA_HOSTS;
    public final int[] DGRAPH_ALPHA_PORTS;
 
@@ -51,8 +48,8 @@ public class BootstrapperConfig {
          }
       }).toArray();
 
-      VAULT_ENDPOINT = parsedConfig.getString("VAULT_ENDPOINT");
-      VAULT_DEV_TOKEN = parsedConfig.getString("VAULT_DEV_TOKEN");
+      // VAULT_ENDPOINT = parsedConfig.getString("VAULT_ENDPOINT");
+      // VAULT_DEV_TOKEN = parsedConfig.getString("VAULT_DEV_TOKEN");
    }
 
    public static BootstrapperConfig create(
@@ -64,23 +61,23 @@ public class BootstrapperConfig {
             .build());
    }
 
-   private void setRandomSecret(String path) {
-      Vault vault = new Vault(VAULT_ENDPOINT, VAULT_DEV_TOKEN);
-      Logical logical = vault.logical();
+   // private void setRandomSecret(String path) {
+   // Vault vault = new Vault(VAULT_ENDPOINT, VAULT_DEV_TOKEN);
+   // Logical logical = vault.logical();
 
-      String randomSecretValue = generateRandomToken();
-      try {
-         LogicalResponse response = logical.write(path, randomSecretValue);
-         if (response != null && response.isSuccess()) {
-            System.out.println("Secret successfully written to Vault!");
-         } else {
-            System.err.println("Failed to write secret to Vault: " + response);
-         }
-      } catch (VaultException e) {
-         System.err.println("Error writing secret to Vault: " + e.getMessage());
-         e.printStackTrace();
-      }
-   }
+   // String randomSecretValue = generateRandomToken();
+   // try {
+   // LogicalResponse response = logical.write(path, randomSecretValue);
+   // if (response != null && response.isSuccess()) {
+   // System.out.println("Secret successfully written to Vault!");
+   // } else {
+   // System.err.println("Failed to write secret to Vault: " + response);
+   // }
+   // } catch (VaultException e) {
+   // System.err.println("Error writing secret to Vault: " + e.getMessage());
+   // e.printStackTrace();
+   // }
+   // }
 
    private static class Builder {
 

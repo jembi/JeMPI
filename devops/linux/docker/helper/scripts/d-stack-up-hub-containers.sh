@@ -24,8 +24,8 @@ pushd .
   if [ ! -z ${SCALE_ALPHA_03+x} ] ; then docker service scale ${STACK_NAME}_alpha-03=${SCALE_ALPHA_03}; fi
   docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 
-  # ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
-  # set vault keys from here
+  ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
+  ./helper/bootstrapper/bootstrapper-docker.sh data resetVault
 
   # docker service scale ${STACK_NAME}_keycloak-test-server=${SCALE_KEYCLOAK_TEST_SERVER}
 
