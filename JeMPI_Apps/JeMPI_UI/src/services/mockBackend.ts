@@ -2,9 +2,9 @@ import axios from 'axios'
 import AxiosMockAdapter from 'axios-mock-adapter'
 import { NotificationState } from '../types/Notification'
 import ROUTES from './apiRoutes'
-
 import mockData from './mockData'
 import mockFields from './mockFields'
+import configuration from './configurationData'
 
 const moxios = axios.create()
 
@@ -17,7 +17,6 @@ const {
   patientRecord,
   goldenRecord,
   goldenRecords,
-  auditTrail,
   currentUser,
   searchGoldenRecordResult,
   searchPatientRecordResult
@@ -64,6 +63,8 @@ axiosMockAdapterInstance
   .reply(() => {
     return [200, notifications]
   })
+  .onPost(ROUTES.POST_CONFIGURATION)
+  .reply(200, configuration)
   .onPost(ROUTES.POST_FIELDS_CONFIG)
   .reply(200, mockFields)
   .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/golden`)
