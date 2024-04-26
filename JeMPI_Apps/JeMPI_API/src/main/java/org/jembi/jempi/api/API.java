@@ -37,7 +37,8 @@ public final class API {
       }
    }
 
-   public Behavior<Void> create(String encryptionKey) {
+   public Behavior<Void> create(final String encryptionKey) {
+      LOGGER.info("encryptionKey ->" + encryptionKey);
       return Behaviors.setup(context -> {
          ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
                AppConfig.getDGraphHosts(),

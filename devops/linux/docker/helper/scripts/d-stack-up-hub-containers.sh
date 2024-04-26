@@ -27,6 +27,6 @@ pushd .
   ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
   ./helper/bootstrapper/bootstrapper-docker.sh data resetVault
 
-  # docker service scale ${STACK_NAME}_keycloak-test-server=${SCALE_KEYCLOAK_TEST_SERVER}
+  docker service scale ${STACK_NAME}_keycloak-test-server=${SCALE_KEYCLOAK_TEST_SERVER}
 
 popd
