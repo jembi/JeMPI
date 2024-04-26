@@ -5,6 +5,11 @@ import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.Terminated;
 import akka.actor.typed.javadsl.Behaviors;
+import io.github.jopenlibs.vault.Vault;
+import io.github.jopenlibs.vault.VaultConfig;
+import io.github.jopenlibs.vault.VaultException;
+import io.github.jopenlibs.vault.response.LogicalResponse;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
@@ -20,7 +25,6 @@ public final class API {
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
-
    private API() {
       LOGGER.info("API started.");
    }
@@ -33,19 +37,19 @@ public final class API {
       }
    }
 
-   public Behavior<Void> create() {
+   public Behavior<Void> create(String encryptionKey) {
       return Behaviors.setup(context -> {
          ActorRef<BackEnd.Event> backEnd = context.spawn(BackEnd.create(AppConfig.GET_LOG_LEVEL,
-                                                                        AppConfig.getDGraphHosts(),
-                                                                        AppConfig.getDGraphPorts(),
-                                                                        AppConfig.POSTGRESQL_IP,
-                                                                        AppConfig.POSTGRESQL_PORT,
-                                                                        AppConfig.POSTGRESQL_USER,
-                                                                        AppConfig.POSTGRESQL_PASSWORD,
-                                                                        AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
-                                                                        AppConfig.POSTGRESQL_AUDIT_DB,
-                                                                        AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                                        "CLIENT_ID_API-" + UUID.randomUUID()), "BackEnd");
+               AppConfig.getDGraphHosts(),
+               AppConfig.getDGraphPorts(),
+               AppConfig.POSTGRESQL_IP,
+               AppConfig.POSTGRESQL_PORT,
+               AppConfig.POSTGRESQL_USER,
+               AppConfig.POSTGRESQL_PASSWORD,
+               AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
+               AppConfig.POSTGRESQL_AUDIT_DB,
+               AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+               "CLIENT_ID_API-" + UUID.randomUUID()), "BackEnd");
          context.watch(backEnd);
          httpServer = HttpServer.create();
          httpServer.open("0.0.0.0", AppConfig.API_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);
@@ -62,10 +66,29 @@ public final class API {
          LOGGER.info("Loading fields configuration file ");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);
          LOGGER.info("Fields configuration file successfully loaded");
-         ActorSystem.create(this.create(), "API-App");
+
+         String encryptionKey = fetchKeyFromVault();
+         ActorSystem.create(this.create(encryptionKey), "API-App");
       } catch (Exception e) {
          LOGGER.error("Unable to start the API", e);
       }
+   }
+
+   private String fetchKeyFromVault() {
+      String key = null;
+      try {
+         final VaultConfig config = new VaultConfig()
+               .address("http://172.20.10.3:8200")
+               .token("root")
+               .engineVersion(2)
+               .build();
+         Vault vault = Vault.create(config);
+         LogicalResponse response = vault.logical().read("secret/jeMPI");
+         key = response.getData().get("jempi_encryption_token");
+      } catch (VaultException e) {
+         LOGGER.error("Error fetching key from Vault", e);
+      }
+      return key;
    }
 
 }
