@@ -11,6 +11,7 @@ pushd .
 
   source ./conf.env
 
+  docker service scale ${STACK_NAME}_vault=${SCALE_VAULT}
   docker service scale ${STACK_NAME}_postgresql=${SCALE_POSTGRESQL}
   docker service scale ${STACK_NAME}_kafka-01=${SCALE_KAFKA_01}
   if [ ! -z ${SCALE_KAFKA_02+x} ] ; then docker service scale ${STACK_NAME}_kafka-02=${SCALE_KAFKA_02}; fi
@@ -25,6 +26,8 @@ pushd .
 
 
   ./helper/bootstrapper/bootstrapper-docker.sh data resetAll
+  ./helper/bootstrapper/bootstrapper-docker.sh data resetVault
+
 
   docker service scale ${STACK_NAME}_keycloak-test-server=${SCALE_KEYCLOAK_TEST_SERVER}
 

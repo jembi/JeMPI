@@ -95,6 +95,12 @@
             <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>io.github.jopenlibs</groupId>
+            <artifactId>vault-java-driver</artifactId>
+            <version>6.2.0</version>
+        </dependency>
 
     </dependencies>
 

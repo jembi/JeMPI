@@ -18,36 +18,35 @@ import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
 import org.jembi.jempi.libapi.Routes;
 import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.utils.VaultUtils;
 
 import java.util.concurrent.CompletionStage;
 
+import org.jembi.jempi.shared.utils.CryptoUtils;
+import org.jembi.jempi.shared.utils.VaultUtils;
+
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
-import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
+public class HttpServerWithEncryption extends AllDirectives {
 
-public class HttpServer extends AllDirectives {
+   private static final Logger LOGGER = LogManager.getLogger(HttpServerWithEncryption.class);
 
-   private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
-
-   private CompletionStage<ServerBinding> binding = null;
-   private Http http = null;
    private final SecretKey secretKey;
+   private CompletionStage<ServerBinding> binding;
+   private Http http;
 
-   private HttpServer(SecretKey secretKey) {
-      Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
+   public HttpServerWithEncryption(SecretKey secretKey) {
       this.secretKey = secretKey;
    }
 
-   static HttpServer create() {
+   public static HttpServerWithEncryption create(String vaultAddress, String vaultToken, String keyPath) {
       try {
-         SecretKey key = VaultUtils.retrieveSecretKey("http://127.0.0.1:8200", "root");
-         return new HttpServer(key);
+         SecretKey key = VaultUtils.retrieveSecretKey(vaultAddress, vaultToken, keyPath);
+         return new HttpServerWithEncryption(key);
       } catch (Exception e) {
          LOGGER.error("Error retrieving secret key from Vault", e);
          throw new RuntimeException("Failed to initialize HttpServerWithEncryption", e);
       }
-
    }
 
    public void open(
@@ -64,8 +63,30 @@ public class HttpServer extends AllDirectives {
 
    public void close(final ActorSystem<Void> actorSystem) {
       binding.thenCompose(ServerBinding::unbind) // trigger unbinding from the port
-            .thenAccept(unbound -> actorSystem.terminate()); // and shutdown when done
+            .thenAccept(unbound -> actorSystem.terminate()); // shutdown when done
    }
+
+   // private Route createCoreAPIRoutes(
+   // final ActorSystem<Void> actorSystem,
+   // final ActorRef<BackEnd.Event> backEnd,
+   // final String jsonFields) {
+   // return pathPrefix("JeMPI", () -> concat(
+   // path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG, () ->
+   // complete(StatusCodes.OK, jsonFields)),
+   // path("encryptDecryptRoute", () -> entity(Unmarshaller.entityToString(), body
+   // -> {
+   // try {
+   // String decryptedBody = CryptoUtils.decrypt(body, secretKey);
+   // String encryptedResponse = CryptoUtils.encrypt(decryptedBody, secretKey);
+
+   // return complete(HttpEntity .create(encryptedResponse));
+   // } catch (Exception e) {
+   // LOGGER.error("Encryption/Decryption error", e);
+   // return complete(StatusCodes.INTERNAL_SERVER_ERROR, "Encryption/Decryption
+   // error");
+   // }
+   // }))));
+   // }
 
    public Route createCorsRoutes(
          final ActorSystem<Void> actorSystem,
@@ -87,8 +108,6 @@ public class HttpServer extends AllDirectives {
          return complete(StatusCodes.INTERNAL_SERVER_ERROR, "An exception occurred, see server logs for details");
       }).build();
 
-      LOGGER.warn("secretKey "+secretKey);
-
       return cors(settings,
             () -> pathPrefix("JeMPI",
                   () -> concat(Routes.createCoreAPIRoutes(actorSystem,
@@ -98,12 +117,10 @@ public class HttpServer extends AllDirectives {
                         AppConfig.LINKER_HTTP_PORT,
                         AppConfig.CONTROLLER_IP,
                         AppConfig.CONTROLLER_HTTP_PORT,
-                        http,
-                        secretKey),
-                        path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
+                        http),
+                        path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIG,
                               () -> complete(StatusCodes.OK, jsonFields)))))
             .seal(rejectionHandler,
                   exceptionHandler);
    }
-
 }

@@ -11,7 +11,8 @@ declare -a IMAGES=("$HAPROXY_IMAGE"
                    "$KEYCLOAK_IMAGE"
                    "$DGRAPH_IMAGE"
                    "$RATEL_IMAGE"
-                   "$POSTGRESQL_IMAGE")
+                   "$POSTGRESQL_IMAGE"
+                   "$HASHICORP_VAULT_IMAGE")
 
 for IMAGE in ${IMAGES[@]}; do
   echo $IMAGE
