@@ -41,9 +41,8 @@ export default async function getConfig() {
     )
     return {
       isDev: process.env.NODE_ENV !== 'production',
-      apiUrl: process.env.REACT_APP_JEMPI_BASE_API_HOST
-        ? `${process.env.REACT_APP_JEMPI_BASE_API_HOST}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`
-        : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`,
+      apiUrl:`${process.env.REACT_APP_JEMPI_BASE_API_HOST}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`,
+        // : `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_JEMPI_BASE_API_PORT}`,
       shouldMockBackend: process.env.REACT_APP_MOCK_BACKEND === 'true',
       KeyCloakUrl: process.env.KC_FRONTEND_URL || 'http://localhost:8080',
       KeyCloakRealm: process.env.KC_REALM_NAME || 'jempi-dev',
