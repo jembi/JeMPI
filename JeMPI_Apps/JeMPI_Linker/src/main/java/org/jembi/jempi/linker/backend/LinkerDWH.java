@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
+import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
 import static org.jembi.jempi.shared.models.CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
@@ -209,7 +210,7 @@ public final class LinkerDWH {
                                                        "LinkerDWH-MU-TALLIES");
       }
 
-      if (!CustomLinkerDeterministic.canApplyLinking(interaction.demographicData())) {
+      if (!LINKER_CONFIG.canApplyLinking(LINKER_CONFIG.deterministicLinkPrograms, interaction.demographicData())) {
          return doMatch(libMPI, interaction);
       } else {
          LinkInfo linkInfo = null;

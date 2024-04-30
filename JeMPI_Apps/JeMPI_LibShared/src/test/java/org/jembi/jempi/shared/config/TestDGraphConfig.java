@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class DGraphConfigTests {
+class TestDGraphConfig {
 
    private static JsonConfig JSON_CONFIG_1;
    private static DGraphConfig DGRAPH_CONFIG_1;

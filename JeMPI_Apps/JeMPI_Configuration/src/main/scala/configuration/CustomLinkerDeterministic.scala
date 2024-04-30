@@ -19,7 +19,7 @@ object CustomLinkerDeterministic {
 
     def emitCanApplyLinking(rules: Map[String, Rule]): Unit = {
       writer.print(
-        s"""   static boolean canApplyLinking(
+        s"""   static boolean deprecatedCanApplyLinking(
            |         final DemographicData interaction) {
            |      return MUPacket.LINK_MU_FIELD_COUNT > 0""".stripMargin
       )

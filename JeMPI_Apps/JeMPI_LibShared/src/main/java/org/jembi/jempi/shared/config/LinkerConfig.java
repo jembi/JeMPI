@@ -1,6 +1,7 @@
 package org.jembi.jempi.shared.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,10 +10,7 @@ import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -26,11 +24,12 @@ public final class LinkerConfig {
    public final List<FieldProbabilisticMetaData> probabilisticLinkFields;
    public final List<FieldProbabilisticMetaData> probabilisticValidateFields;
    public final List<FieldProbabilisticMetaData> probabilisticMatchNotificationFields;
-   public final List<List<Operation>> deterministicLinkPrograms;
-   public final List<List<Operation>> deterministicValidatePrograms;
-   public final List<List<Operation>> deterministicMatchPrograms;
+   public final List<Pair<List<Operation>, List<Operation>>> deterministicLinkPrograms;
+   public final List<Pair<List<Operation>, List<Operation>>> deterministicValidatePrograms;
+   public final List<Pair<List<Operation>, List<Operation>>> deterministicMatchPrograms;
 
    LinkerConfig(final JsonConfig jsonConfig) {
+
       probabilisticLinkFields = IntStream
             .range(0, jsonConfig.demographicFields().size())
             .filter(i -> jsonConfig.demographicFields().get(i).linkMetaData() != null)
@@ -95,6 +94,20 @@ public final class LinkerConfig {
 
    }
 
+   private static void interactionFieldNotBlank(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = arguments.interaction.get(arguments.field).value();
+      evalStack.push(StringUtils.isNotBlank(l));
+   }
+
+   private static void interactionFieldIsBlank(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = arguments.interaction.get(arguments.field).value();
+      evalStack.push(!StringUtils.isNotBlank(l));
+   }
+
    private static boolean isMatch(
          final String left,
          final String right) {
@@ -104,18 +117,18 @@ public final class LinkerConfig {
    private static void eq(
          final Deque<Boolean> evalStack,
          final Arguments arguments) {
-      final var l = arguments.left.get(arguments.field).value();
-      final var r = arguments.right.get(arguments.field).value();
+      final var l = arguments.interaction.get(arguments.field).value();
+      final var r = arguments.goldenRecord.get(arguments.field).value();
       evalStack.push(isMatch(l, r));
    }
 
    private static void switched(
          final Deque<Boolean> evalStack,
          final Arguments arguments) {
-      final var p1L = arguments.left.get(arguments.field).value();
-      final var p1R = arguments.right.get(arguments.field).value();
-      final var p2L = arguments.left.get(arguments.aux).value();
-      final var p2R = arguments.right.get(arguments.aux).value();
+      final var p1L = arguments.interaction.get(arguments.field).value();
+      final var p1R = arguments.goldenRecord.get(arguments.field).value();
+      final var p2L = arguments.interaction.get(arguments.aux).value();
+      final var p2R = arguments.goldenRecord.get(arguments.aux).value();
       evalStack.push(isMatch(p1L, p1R) && isMatch(p2L, p2R)
                      || isMatch(p1L, p2R) && isMatch(p2L, p1R));
    }
@@ -123,8 +136,8 @@ public final class LinkerConfig {
    private static void match(
          final Deque<Boolean> evalStack,
          final Arguments arguments) {
-      final var l = arguments.left.get(arguments.field).value();
-      final var r = arguments.right.get(arguments.field).value();
+      final var l = arguments.interaction.get(arguments.field).value();
+      final var r = arguments.goldenRecord.get(arguments.field).value();
       evalStack.push(!StringUtils.isEmpty(l)
                      && !StringUtils.isEmpty(r)
                      && DISTANCE.apply(l, r) <= arguments.aux);
@@ -133,7 +146,7 @@ public final class LinkerConfig {
    private static void isNull(
          final Deque<Boolean> evalStack,
          final Arguments arguments) {
-      evalStack.push(StringUtils.isEmpty(arguments.left.get(arguments.field).value()));
+      evalStack.push(StringUtils.isEmpty(arguments.interaction.get(arguments.field).value()));
    }
 
    private static void andOperator(
@@ -152,10 +165,51 @@ public final class LinkerConfig {
       evalStack.push(l || r);
    }
 
-   private List<List<Operation>> generateDeterministicPrograms(
+   public boolean canApplyLinking(
+         final List<Pair<List<Operation>, List<LinkerConfig.Operation>>> programs,
+         final DemographicData interaction) {
+      if (!probabilisticLinkFields.isEmpty()) {
+         return true;
+      }
+      for (final var program : programs) {
+         final Deque<Boolean> evalStack = new ArrayDeque<>();
+         for (final var operation : program.getRight()) {
+            operation.opcode()
+                     .accept(evalStack,
+                             new LinkerConfig.Arguments(interaction.fields, null, operation.field(), operation.aux()));
+         }
+         if (Boolean.TRUE.equals(evalStack.pop())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   public static boolean runDeterministicPrograms(
+         final List<Pair<List<LinkerConfig.Operation>, List<LinkerConfig.Operation>>> programs,
+         final DemographicData interaction,
+         final DemographicData goldenRecord) {
+      for (final var program : programs) {
+         final Deque<Boolean> evalStack = new ArrayDeque<>();
+         for (final var operation : program.getLeft()) {
+            operation.opcode()
+                     .accept(evalStack,
+                             new LinkerConfig.Arguments(interaction.fields,
+                                                        goldenRecord.fields,
+                                                        operation.field(),
+                                                        operation.aux()));
+         }
+         if (Boolean.TRUE.equals(evalStack.pop())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private List<Pair<List<Operation>, List<Operation>>> generateDeterministicPrograms(
          final JsonConfig jsonConfig,
          final List<DeterministicRule> rules) {
-      final List<List<Operation>> deterministicPrograms = new ArrayList<>();
+      final List<Pair<List<Operation>, List<Operation>>> deterministicPrograms = new ArrayList<>();
       if (rules.isEmpty()) {
          return deterministicPrograms;
       }
@@ -165,6 +219,7 @@ public final class LinkerConfig {
          LOGGER.debug("{}", deterministicRule.text());
          LOGGER.debug("{}", infix);
          LOGGER.debug("{}", rpn);
+         final List<Operation> canApplyProgram = new ArrayList<>();
          final List<Operation> program = new ArrayList<>();
          var stackDepth = 0;
          for (final String s : rpn) {
@@ -174,16 +229,8 @@ public final class LinkerConfig {
                if (matcher.find()) {
                   final var field = matcher.group("field");
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(LinkerConfig::interactionFieldNotBlank, fieldIndex, null));
                   program.add(new Operation(LinkerConfig::eq, fieldIndex, null));
-                  stackDepth += 1;
-               }
-            } else if (s.startsWith("null")) {
-               final var pattern = Pattern.compile("^null\\((?<field>\\w+)\\)$");
-               final var matcher = pattern.matcher(s);
-               if (matcher.find()) {
-                  final var field = matcher.group("field");
-                  final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  program.add(new Operation(LinkerConfig::isNull, fieldIndex, null));
                   stackDepth += 1;
                }
             } else if (s.startsWith("match")) {
@@ -193,7 +240,18 @@ public final class LinkerConfig {
                   final var field = matcher.group("field");
                   final var distance = Integer.valueOf(matcher.group("distance"));
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(LinkerConfig::interactionFieldNotBlank, fieldIndex, null));
                   program.add(new Operation(LinkerConfig::match, fieldIndex, distance));
+                  stackDepth += 1;
+               }
+            } else if (s.startsWith("isNull")) {
+               final var pattern = Pattern.compile("^isNull\\((?<field>\\w+)\\)$");
+               final var matcher = pattern.matcher(s);
+               if (matcher.find()) {
+                  final var field = matcher.group("field");
+                  final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(LinkerConfig::interactionFieldIsBlank, fieldIndex, null));
+                  program.add(new Operation(LinkerConfig::isNull, fieldIndex, null));
                   stackDepth += 1;
                }
             } else if (s.startsWith("switched")) {
@@ -204,13 +262,16 @@ public final class LinkerConfig {
                   final var field2 = matcher.group("field2");
                   final var field1Index = fieldIndexOf(jsonConfig, field1);
                   final var field2Index = fieldIndexOf(jsonConfig, field2);
+                  canApplyProgram.add(new Operation(LinkerConfig::interactionFieldNotBlank, field1Index, null));
                   program.add(new Operation(LinkerConfig::switched, field1Index, field2Index));
                   stackDepth += 1;
                }
             } else if (s.startsWith("and")) {
+               canApplyProgram.add(new Operation(LinkerConfig::andOperator, null, null));
                program.add(new Operation(LinkerConfig::andOperator, null, null));
                stackDepth -= 1;
             } else if (s.startsWith("or")) {
+               canApplyProgram.add(new Operation(LinkerConfig::orOperator, null, null));
                program.add(new Operation(LinkerConfig::orOperator, null, null));
                stackDepth -= 1;
             }
@@ -219,7 +280,7 @@ public final class LinkerConfig {
             LOGGER.error("Stack Depth error: {}", stackDepth);
          } else {
             LOGGER.debug("Stack Depth {}", stackDepth);
-            deterministicPrograms.add(program);
+            deterministicPrograms.add(Pair.of(program, canApplyProgram));
          }
       }
       return deterministicPrograms;
@@ -245,8 +306,8 @@ public final class LinkerConfig {
    }
 
    public record Arguments(
-         List<DemographicData.Field> left,
-         List<DemographicData.Field> right,
+         List<DemographicData.Field> interaction,
+         List<DemographicData.Field> goldenRecord,
          Integer field,
          Integer aux) {
    }

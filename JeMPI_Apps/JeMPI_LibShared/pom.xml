@@ -202,7 +202,7 @@
                         </dependency>
                     </dependencies>
                     <configuration>
-                        <test>org.jembi.jempi.shared.config.DGraphConfigTests</test>
+                        <test>org.jembi.jempi.shared.config.TestDGraphConfig</test>
                     </configuration>
                 </plugin>
 
