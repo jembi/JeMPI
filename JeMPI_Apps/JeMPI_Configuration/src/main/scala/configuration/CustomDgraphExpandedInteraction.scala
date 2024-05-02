@@ -19,10 +19,10 @@ private object CustomDgraphExpandedInteraction {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.ExpandedInteraction;
-         |import org.jembi.jempi.shared.models.Interaction;
+         |//import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
+         |//import org.jembi.jempi.shared.models.CustomDemographicData;
+         |//import org.jembi.jempi.shared.models.ExpandedInteraction;
+         |//import org.jembi.jempi.shared.models.Interaction;
          |
          |import java.util.List;
          |
@@ -33,6 +33,7 @@ private object CustomDgraphExpandedInteraction {
          |${interactionFields()}
          |      @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
          |
+         |/*
          |   private Interaction deprecatedToInteraction() {
          |      return new Interaction(this.interactionId(),
          |                             this.sourceId().toSourceId(),
@@ -47,6 +48,7 @@ private object CustomDgraphExpandedInteraction {
          |                                         .map(CustomDgraphReverseGoldenRecord::deprecatedToGoldenRecordWithScore)
          |                                         .toList());
          |   }
+         |*/
          |
          |}
          |""".stripMargin)

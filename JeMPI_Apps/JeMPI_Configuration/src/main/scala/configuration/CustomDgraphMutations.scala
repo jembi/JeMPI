@@ -115,8 +115,8 @@ private object CustomDgraphMutations {
           )})"""
       end mapUniqueField
 
-      def mapCommonField(f: DemographicField): String =
-        s"""AppUtils.quotedValue(demographicData.fields.get(${f.fieldName.toUpperCase}).value())${checkToString(
+      def mapCommonField(f: DemographicField, idx: Integer): String =
+        s"""AppUtils.quotedValue(demographicData.fields.get($idx).value())${checkToString(
             f.fieldType
           )}"""
       end mapCommonField
@@ -128,8 +128,8 @@ private object CustomDgraphMutations {
             .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config.demographicFields
-        .map(f => s"""${" " * 27}uuid, ${mapCommonField(f)},""")
+      val f2 = config.demographicFields.zipWithIndex
+        .map((f, idx) => s"""${" " * 27}uuid, ${mapCommonField(f, idx)},""")
         .mkString(sys.props("line.separator"))
 
       f1 + f2
@@ -167,8 +167,8 @@ private object CustomDgraphMutations {
           )})"""
       end mapUniqueField
 
-      def mapDemographicField(f: DemographicField): String =
-        s"""AppUtils.quotedValue(demographicData.fields.get(${f.fieldName.toUpperCase}).value())${checkToString(
+      def mapDemographicField(f: DemographicField, idx: Integer): String =
+        s"""AppUtils.quotedValue(demographicData.fields.get($idx).value())${checkToString(
             f.fieldType
           )}"""
       end mapDemographicField
@@ -180,8 +180,10 @@ private object CustomDgraphMutations {
             .map(f => s"""${" " * 27}uuid, ${mapUniqueField(f)},""")
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config.demographicFields
-        .map(f => s"""${" " * 27}uuid, ${mapDemographicField(f)},""")
+      val f2 = config.demographicFields.zipWithIndex
+        .map((f, idx) =>
+          s"""${" " * 27}uuid, ${mapDemographicField(f, idx)},"""
+        )
         .mkString(sys.props("line.separator"))
 
       f1 + f2

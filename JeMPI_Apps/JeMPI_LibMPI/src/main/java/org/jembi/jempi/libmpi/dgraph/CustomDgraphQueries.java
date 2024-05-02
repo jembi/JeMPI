@@ -121,10 +121,10 @@ final class CustomDgraphQueries {
          """;
 
    private static List<GoldenRecord> queryLinkDeterministicA(final DemographicData demographicData) {
-      if (StringUtils.isBlank(demographicData.fields.get(NATIONAL_ID).value())) {
+      if (StringUtils.isBlank(demographicData.fields.get(FIELD_IDX_NATIONAL_ID).value())) {
          return List.of();
       }
-      final Map<String, String> map = Map.of("$national_id", demographicData.fields.get(NATIONAL_ID).value());
+      final Map<String, String> map = Map.of("$national_id", demographicData.fields.get(FIELD_IDX_NATIONAL_ID).value());
       return runGoldenRecordsQuery(QUERY_LINK_DETERMINISTIC_A, map);
    }
 
@@ -158,9 +158,9 @@ final class CustomDgraphQueries {
    }
 
    private static List<GoldenRecord> queryMatchDeterministicA(final DemographicData demographicData) {
-      final var givenName = demographicData.fields.get(GIVEN_NAME).value();
-      final var familyName = demographicData.fields.get(FAMILY_NAME).value();
-      final var phoneNumber = demographicData.fields.get(PHONE_NUMBER).value();
+      final var givenName = demographicData.fields.get(FIELD_IDX_GIVEN_NAME).value();
+      final var familyName = demographicData.fields.get(FIELD_IDX_FAMILY_NAME).value();
+      final var phoneNumber = demographicData.fields.get(FIELD_IDX_PHONE_NUMBER).value();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);
@@ -183,9 +183,9 @@ final class CustomDgraphQueries {
    }
 
    private static List<GoldenRecord> queryMatchProbabilisticBlock(final DemographicData demographicData) {
-      final var givenName = demographicData.fields.get(GIVEN_NAME).value();
-      final var familyName = demographicData.fields.get(FAMILY_NAME).value();
-      final var phoneNumber = demographicData.fields.get(PHONE_NUMBER).value();
+      final var givenName = demographicData.fields.get(FIELD_IDX_GIVEN_NAME).value();
+      final var familyName = demographicData.fields.get(FIELD_IDX_FAMILY_NAME).value();
+      final var phoneNumber = demographicData.fields.get(FIELD_IDX_PHONE_NUMBER).value();
       final var givenNameIsBlank = StringUtils.isBlank(givenName);
       final var familyNameIsBlank = StringUtils.isBlank(familyName);
       final var phoneNumberIsBlank = StringUtils.isBlank(phoneNumber);

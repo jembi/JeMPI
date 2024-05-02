@@ -28,7 +28,7 @@ object CustomLinkerDeterministic {
              |             || """.stripMargin)
         rule._2.vars.zipWithIndex.foreach((field, var_idx) =>
           writer.print(
-            s"StringUtils.isNotBlank(interaction.fields.get(${field.toUpperCase}).value())${
+            s"StringUtils.isNotBlank(interaction.fields.get(FIELD_IDX_${field.toUpperCase}).value())${
                 if (var_idx + 1 < rule._2.vars.length)
                   s"${sys.props("line.separator")}${" " * 13}&& "
                 else ""
@@ -103,10 +103,10 @@ object CustomLinkerDeterministic {
               val left = field + "L"
               val right = field + "R"
               writer.println(
-                " " * 6 + s"final var $left = goldenRecord.fields.get(${v.toUpperCase}).value();"
+                " " * 6 + s"final var $left = goldenRecord.fields.get(FIELD_IDX_${v.toUpperCase}).value();"
               )
               writer.println(
-                " " * 6 + s"final var $right = interaction.fields.get(${v.toUpperCase}).value();"
+                " " * 6 + s"final var $right = interaction.fields.get(FIELD_IDX_${v.toUpperCase}).value();"
               )
               definedProperties = definedProperties :+ field
             }

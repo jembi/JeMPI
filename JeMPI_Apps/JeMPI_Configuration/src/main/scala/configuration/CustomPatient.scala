@@ -50,23 +50,27 @@ private object CustomPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
-         |import java.util.ArrayList;
-         |import java.util.Arrays;
+         |//import java.util.ArrayList;
+         |//import java.util.Arrays;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public final class $customClassNameCustomDemographicData {
          |
+         |   private $customClassNameCustomDemographicData() {
+         |   }
+         |
          |""".stripMargin)
     config.demographicFields.zipWithIndex.foreach { case (field, i) =>
       writer.println(
-        s"""${" " * (indent * 1)}public static final int ${field.fieldName.toUpperCase} = $i;"""
+        s"""${" " * (indent * 1)}public static final int FIELD_IDX_${field.fieldName.toUpperCase} = $i;"""
       )
     }
+    /*
     writer.println(
       s"""
          |    private $customClassNameCustomDemographicData() {
          |    }
-         |    
+         |
          |    public static DemographicData fromCustomDemographicFields(""".stripMargin
     )
     config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
@@ -89,7 +93,7 @@ private object CustomPatient {
       )
     }
     writer.print(s"""    }""")
-
+     */
     writer.print(s"""
          |
          |    @JsonInclude(JsonInclude.Include.NON_NULL)

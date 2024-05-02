@@ -24,7 +24,7 @@ final class CustomLinkerDeterministic {
    static boolean deprecatedCanApplyLinking(
          final DemographicData interaction) {
       return MUPacket.LINK_MU_FIELD_COUNT > 0
-             || StringUtils.isNotBlank(interaction.fields.get(NATIONAL_ID).value());
+             || StringUtils.isNotBlank(interaction.fields.get(FIELD_IDX_NATIONAL_ID).value());
    }
 
 }

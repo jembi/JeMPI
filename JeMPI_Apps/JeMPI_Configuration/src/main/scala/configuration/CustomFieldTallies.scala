@@ -45,11 +45,11 @@ private object CustomFieldTallies {
     end logFields
 
     def getFieldTally(): String =
-      config.demographicFields
-        .map(f => {
+      config.demographicFields.zipWithIndex
+        .map((f, idx) => {
           val fieldName = Utils.snakeCaseToCamelCase(f.fieldName)
-          s"""${" " * 36}getFieldTally(recordsMatch, left.fields.get(${f.fieldName.toUpperCase}).value(),
-             |${" " * 64}right.fields.get(${f.fieldName.toUpperCase}).value()),""".stripMargin
+          s"""${" " * 36}getFieldTally(recordsMatch, left.fields.get($idx).value(),
+             |${" " * 64}right.fields.get($idx).value()),""".stripMargin
         })
         .mkString(sys.props("line.separator"))
         .trim

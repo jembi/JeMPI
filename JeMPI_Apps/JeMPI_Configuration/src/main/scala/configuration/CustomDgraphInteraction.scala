@@ -20,12 +20,12 @@ private object CustomDgraphInteraction {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |import org.jembi.jempi.shared.models.InteractionWithScore;
-         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-         |import org.jembi.jempi.shared.models.CustomDemographicData;
-         |import org.jembi.jempi.shared.models.Interaction;
+         |//import org.jembi.jempi.shared.models.InteractionWithScore;
+         |//import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
+         |//import org.jembi.jempi.shared.models.CustomDemographicData;
+         |//import org.jembi.jempi.shared.models.Interaction;
          |
-         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+         |//import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
@@ -34,6 +34,7 @@ private object CustomDgraphInteraction {
          |${interactionFields()}
          |      @JsonProperty("GoldenRecord.interactions|score") Float score) {
          |
+         |/*
          |   private $customClassName(
          |         final Interaction interaction,
          |         final Float score) {
@@ -55,6 +56,7 @@ private object CustomDgraphInteraction {
          |   InteractionWithScore deprecatedToInteractionWithScore() {
          |      return new InteractionWithScore(deprecatedToInteraction(), this.score());
          |   }
+         |*/
          |
          |}
          |""".stripMargin)
@@ -92,9 +94,9 @@ private object CustomDgraphInteraction {
             )
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config.demographicFields
-        .map(f =>
-          s"""${" " * 11}interaction.demographicData().fields.get(${f.fieldName.toUpperCase}).value(),"""
+      val f2 = config.demographicFields.zipWithIndex
+        .map((_, idx) =>
+          s"""${" " * 11}interaction.demographicData().fields.get($idx).value(),"""
         )
         .mkString(sys.props("line.separator"))
 

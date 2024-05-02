@@ -68,20 +68,20 @@ public record CustomFieldTallies(
          final boolean recordsMatch,
          final DemographicData left,
          final DemographicData right) {
-      return new CustomFieldTallies(getFieldTally(recordsMatch, left.fields.get(GIVEN_NAME).value(),
-                                                                right.fields.get(GIVEN_NAME).value()),
-                                    getFieldTally(recordsMatch, left.fields.get(FAMILY_NAME).value(),
-                                                                right.fields.get(FAMILY_NAME).value()),
-                                    getFieldTally(recordsMatch, left.fields.get(GENDER).value(),
-                                                                right.fields.get(GENDER).value()),
-                                    getFieldTally(recordsMatch, left.fields.get(DOB).value(),
-                                                                right.fields.get(DOB).value()),
-                                    getFieldTally(recordsMatch, left.fields.get(CITY).value(),
-                                                                right.fields.get(CITY).value()),
-                                    getFieldTally(recordsMatch, left.fields.get(PHONE_NUMBER).value(),
-                                                                right.fields.get(PHONE_NUMBER).value()),
-                                    getFieldTally(recordsMatch, left.fields.get(NATIONAL_ID).value(),
-                                                                right.fields.get(NATIONAL_ID).value()));
+      return new CustomFieldTallies(getFieldTally(recordsMatch, left.fields.get(0).value(),
+                                                                right.fields.get(0).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(1).value(),
+                                                                right.fields.get(1).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(2).value(),
+                                                                right.fields.get(2).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(3).value(),
+                                                                right.fields.get(3).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(4).value(),
+                                                                right.fields.get(4).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(5).value(),
+                                                                right.fields.get(5).value()),
+                                    getFieldTally(recordsMatch, left.fields.get(6).value(),
+                                                                right.fields.get(6).value()));
    }
 
    public void logFieldMU() {

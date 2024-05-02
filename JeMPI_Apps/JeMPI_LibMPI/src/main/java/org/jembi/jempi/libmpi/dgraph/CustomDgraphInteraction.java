@@ -2,12 +2,12 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jembi.jempi.shared.models.InteractionWithScore;
-import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.Interaction;
+//import org.jembi.jempi.shared.models.InteractionWithScore;
+//import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
+//import org.jembi.jempi.shared.models.CustomDemographicData;
+//import org.jembi.jempi.shared.models.Interaction;
 
-import static org.jembi.jempi.shared.models.CustomDemographicData.*;
+//import static org.jembi.jempi.shared.models.CustomDemographicData.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphInteraction(
@@ -25,6 +25,7 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
 
+/*
    private CustomDgraphInteraction(
          final Interaction interaction,
          final Float score) {
@@ -33,13 +34,13 @@ record CustomDgraphInteraction(
            interaction.uniqueInteractionData().auxDateCreated(),
            interaction.uniqueInteractionData().auxId(),
            interaction.uniqueInteractionData().auxClinicalData(),
-           interaction.demographicData().fields.get(GIVEN_NAME).value(),
-           interaction.demographicData().fields.get(FAMILY_NAME).value(),
-           interaction.demographicData().fields.get(GENDER).value(),
-           interaction.demographicData().fields.get(DOB).value(),
-           interaction.demographicData().fields.get(CITY).value(),
-           interaction.demographicData().fields.get(PHONE_NUMBER).value(),
-           interaction.demographicData().fields.get(NATIONAL_ID).value(),
+           interaction.demographicData().fields.get(0).value(),
+           interaction.demographicData().fields.get(1).value(),
+           interaction.demographicData().fields.get(2).value(),
+           interaction.demographicData().fields.get(3).value(),
+           interaction.demographicData().fields.get(4).value(),
+           interaction.demographicData().fields.get(5).value(),
+           interaction.demographicData().fields.get(6).value(),
            score);
    }
 
@@ -63,6 +64,7 @@ record CustomDgraphInteraction(
    InteractionWithScore deprecatedToInteractionWithScore() {
       return new InteractionWithScore(deprecatedToInteraction(), this.score());
    }
+*/
 
 }
 
