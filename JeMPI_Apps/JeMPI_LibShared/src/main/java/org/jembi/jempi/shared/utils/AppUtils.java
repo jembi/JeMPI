@@ -13,6 +13,8 @@ import org.jembi.jempi.shared.models.CustomDemographicData;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -102,6 +104,13 @@ public final class AppUtils implements Serializable {
 
    public static String camelToSnake(final String str) {
       return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+   }
+
+   public static String timeStamp() {
+      final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
+      final var now = LocalDateTime.now();
+      final var stanDate = dtf.format(now);
+      return stanDate;
    }
 
 }

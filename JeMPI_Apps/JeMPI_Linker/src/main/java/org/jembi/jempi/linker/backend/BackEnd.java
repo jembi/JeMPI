@@ -207,8 +207,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             LinkerDWH.linkInteraction(libMPI,
                                       req.batchInteraction.interaction(),
                                       null,
-                                      req.batchInteraction.config() != null
-                                            ? req.batchInteraction.config().linkThreshold().floatValue()
+                                      req.batchInteraction.sessionMetadata().uiMetadata.uploadConfig != null
+                                            ? req.batchInteraction.sessionMetadata().uiMetadata.uploadConfig.linkThreshold().floatValue()
                                             : AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
       if (linkInfo.isRight()) {

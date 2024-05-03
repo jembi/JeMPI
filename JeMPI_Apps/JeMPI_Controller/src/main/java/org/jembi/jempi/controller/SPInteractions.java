@@ -16,11 +16,13 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.KafkaTopicManager;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
+import org.jembi.jempi.shared.models.ControllerMetadata;
 import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -59,12 +61,15 @@ public final class SPInteractions {
                                       new StringSerializer(),
                                       new JsonPojoSerializer<>(),
                                       AppConfig.KAFKA_CLIENT_ID);
+      final String[] startDateTime = new String[1];
       batchPatientRecordKStream
             .peek((key, batchPatient) -> {
                if (Boolean.TRUE.equals(CustomMU.SEND_INTERACTIONS_TO_EM)) {
                   switch (batchPatient.contentType()) {
                      case BATCH_START_SENTINEL:
                         try {
+                           startDateTime[0] = AppUtils.timeStamp();
+                           batchPatient.sessionMetadata().controllerMetadata.setStartDateTime(startDateTime[0]);
                            LOGGER.debug("START SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
                         } catch (JsonProcessingException e) {
                            LOGGER.error(e.getLocalizedMessage(), e);
@@ -86,6 +91,8 @@ public final class SPInteractions {
                         break;
                      case BATCH_END_SENTINEL:
                         try {
+                           batchPatient.sessionMetadata().controllerMetadata =
+                                 new ControllerMetadata(startDateTime[0], AppUtils.timeStamp());
                            LOGGER.debug("END SENTINEL {}", OBJECT_MAPPER.writeValueAsString(batchPatient));
                         } catch (JsonProcessingException e) {
                            LOGGER.error(e.getLocalizedMessage(), e);
