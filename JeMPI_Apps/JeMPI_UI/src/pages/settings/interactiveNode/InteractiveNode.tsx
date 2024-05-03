@@ -1,5 +1,5 @@
 import { Grid } from '@mui/material'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import '../Shapes.css'
 import Draggable from 'react-draggable'
 
@@ -13,6 +13,7 @@ const InteractiveNode = () => {
   const [line1, setLine1] = useState<any>(null)
   const [line2, setLine2] = useState<any>(null)
   const [line3, setLine3] = useState<any>(null)
+  const draggableRef = useRef(null)
 
   useEffect(() => {
     if (window.LeaderLine) {
@@ -86,9 +87,12 @@ const InteractiveNode = () => {
               grid={[1, 1]}
               scale={1}
               cancel=".cancel"
+              nodeRef={draggableRef}
+              bounds={{ left: 0, top: 0, right: 200, bottom: 200 }}
             >
               <div
                 id="start1"
+                ref={draggableRef}
                 className="circle handle circle-container"
                 style={{ backgroundColor: '#ADD8E6', marginBottom: '300px' }}
               >
@@ -112,8 +116,10 @@ const InteractiveNode = () => {
               grid={[1, 1]}
               scale={1}
               cancel=".cancel"
+              nodeRef={draggableRef}
+              bounds={{ left: 0, top: 0, right: 200, bottom: 100 }}
             >
-              <div id="start2" className="circle handle ">
+              <div id="start2" ref={draggableRef} className="circle handle ">
                 <b className="label">
                   Interaction
                   <br />
@@ -122,10 +128,26 @@ const InteractiveNode = () => {
               </div>
             </Draggable>
           </div>
+
           <div className="shapes-container">
-            <div id="end1" style={{ left: 100 }} className="square">
-              <span className="label"></span>
-            </div>
+            <Draggable
+              handle=".handle"
+              onDrag={handleDrag}
+              grid={[1, 1]}
+              scale={1}
+              cancel=".cancel"
+              nodeRef={draggableRef}
+              bounds={{ left: 0, top: 0, right: 180, bottom: 100 }}
+            >
+              <div
+                id="end1"
+                ref={draggableRef}
+                style={{ left: 100 }}
+                className="square handle"
+              >
+                <span className="label">Source Id</span>
+              </div>
+            </Draggable>
           </div>
         </div>
       </Grid>
