@@ -16,13 +16,13 @@ final class TestConstants {
          GoldenRecord.aux_date_created
          GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
-         GoldenRecord.given_name
-         GoldenRecord.family_name
-         GoldenRecord.gender
-         GoldenRecord.dob
-         GoldenRecord.city
-         GoldenRecord.phone_number
-         GoldenRecord.national_id
+         GoldenRecord.demographic_field_00
+         GoldenRecord.demographic_field_01
+         GoldenRecord.demographic_field_02
+         GoldenRecord.demographic_field_03
+         GoldenRecord.demographic_field_04
+         GoldenRecord.demographic_field_05
+         GoldenRecord.demographic_field_06
          """;
 
    static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES_1 =
@@ -36,13 +36,13 @@ final class TestConstants {
          GoldenRecord.aux_date_created
          GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
-         GoldenRecord.given_name
-         GoldenRecord.family_name
-         GoldenRecord.gender
-         GoldenRecord.dob
-         GoldenRecord.city
-         GoldenRecord.phone_number
-         GoldenRecord.national_id
+         GoldenRecord.demographic_field_00
+         GoldenRecord.demographic_field_01
+         GoldenRecord.demographic_field_02
+         GoldenRecord.demographic_field_03
+         GoldenRecord.demographic_field_04
+         GoldenRecord.demographic_field_05
+         GoldenRecord.demographic_field_06
          GoldenRecord.interactions @facets(score) {
             uid
             Interaction.source_id {
@@ -53,13 +53,13 @@ final class TestConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
-            Interaction.given_name
-            Interaction.family_name
-            Interaction.gender
-            Interaction.dob
-            Interaction.city
-            Interaction.phone_number
-            Interaction.national_id
+            Interaction.demographic_field_00
+            Interaction.demographic_field_01
+            Interaction.demographic_field_02
+            Interaction.demographic_field_03
+            Interaction.demographic_field_04
+            Interaction.demographic_field_05
+            Interaction.demographic_field_06
          }
          """;
 
@@ -74,13 +74,13 @@ final class TestConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
-         Interaction.given_name
-         Interaction.family_name
-         Interaction.gender
-         Interaction.dob
-         Interaction.city
-         Interaction.phone_number
-         Interaction.national_id
+         Interaction.demographic_field_00
+         Interaction.demographic_field_01
+         Interaction.demographic_field_02
+         Interaction.demographic_field_03
+         Interaction.demographic_field_04
+         Interaction.demographic_field_05
+         Interaction.demographic_field_06
          """;
 
    static final String EXPANDED_INTERACTION_FIELD_NAMES_1 =
@@ -94,13 +94,13 @@ final class TestConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
-         Interaction.given_name
-         Interaction.family_name
-         Interaction.gender
-         Interaction.dob
-         Interaction.city
-         Interaction.phone_number
-         Interaction.national_id
+         Interaction.demographic_field_00
+         Interaction.demographic_field_01
+         Interaction.demographic_field_02
+         Interaction.demographic_field_03
+         Interaction.demographic_field_04
+         Interaction.demographic_field_05
+         Interaction.demographic_field_06
          ~GoldenRecord.interactions @facets(score) {
             uid
             GoldenRecord.source_id {
@@ -111,13 +111,13 @@ final class TestConstants {
             GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
-            GoldenRecord.given_name
-            GoldenRecord.family_name
-            GoldenRecord.gender
-            GoldenRecord.dob
-            GoldenRecord.city
-            GoldenRecord.phone_number
-            GoldenRecord.national_id
+            GoldenRecord.demographic_field_00
+            GoldenRecord.demographic_field_01
+            GoldenRecord.demographic_field_02
+            GoldenRecord.demographic_field_03
+            GoldenRecord.demographic_field_04
+            GoldenRecord.demographic_field_05
+            GoldenRecord.demographic_field_06
          }
          """;
 
@@ -134,13 +134,13 @@ final class TestConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
-               Interaction.given_name
-               Interaction.family_name
-               Interaction.gender
-               Interaction.dob
-               Interaction.city
-               Interaction.phone_number
-               Interaction.national_id
+               Interaction.demographic_field_00
+               Interaction.demographic_field_01
+               Interaction.demographic_field_02
+               Interaction.demographic_field_03
+               Interaction.demographic_field_04
+               Interaction.demographic_field_05
+               Interaction.demographic_field_06
             }
          }
          """;
@@ -158,13 +158,13 @@ final class TestConstants {
                GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
             }
          }
          """;
@@ -182,13 +182,13 @@ final class TestConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
-               Interaction.given_name
-               Interaction.family_name
-               Interaction.gender
-               Interaction.dob
-               Interaction.city
-               Interaction.phone_number
-               Interaction.national_id
+               Interaction.demographic_field_00
+               Interaction.demographic_field_01
+               Interaction.demographic_field_02
+               Interaction.demographic_field_03
+               Interaction.demographic_field_04
+               Interaction.demographic_field_05
+               Interaction.demographic_field_06
                ~GoldenRecord.interactions @facets(score) {
                   uid
                   GoldenRecord.source_id {
@@ -199,13 +199,13 @@ final class TestConstants {
                   GoldenRecord.aux_date_created
                   GoldenRecord.aux_auto_update_enabled
                   GoldenRecord.aux_id
-                  GoldenRecord.given_name
-                  GoldenRecord.family_name
-                  GoldenRecord.gender
-                  GoldenRecord.dob
-                  GoldenRecord.city
-                  GoldenRecord.phone_number
-                  GoldenRecord.national_id
+                  GoldenRecord.demographic_field_00
+                  GoldenRecord.demographic_field_01
+                  GoldenRecord.demographic_field_02
+                  GoldenRecord.demographic_field_03
+                  GoldenRecord.demographic_field_04
+                  GoldenRecord.demographic_field_05
+                  GoldenRecord.demographic_field_06
                }
             }
          }
@@ -224,13 +224,13 @@ final class TestConstants {
                GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
             }
          }
          """;
@@ -248,13 +248,13 @@ final class TestConstants {
                GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
                GoldenRecord.interactions @facets(score) {
                   uid
                   Interaction.source_id {
@@ -265,13 +265,13 @@ final class TestConstants {
                   Interaction.aux_date_created
                   Interaction.aux_id
                   Interaction.aux_clinical_data
-                  Interaction.given_name
-                  Interaction.family_name
-                  Interaction.gender
-                  Interaction.dob
-                  Interaction.city
-                  Interaction.phone_number
-                  Interaction.national_id
+                  Interaction.demographic_field_00
+                  Interaction.demographic_field_01
+                  Interaction.demographic_field_02
+                  Interaction.demographic_field_03
+                  Interaction.demographic_field_04
+                  Interaction.demographic_field_05
+                  Interaction.demographic_field_06
                }
             }
          }
@@ -294,35 +294,35 @@ final class TestConstants {
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE_1 =
          """
          type GoldenRecord {
-            GoldenRecord.source_id:                 [SourceId]
+            GoldenRecord.source_id:                             [SourceId]
             GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
-            GoldenRecord.given_name
-            GoldenRecord.family_name
-            GoldenRecord.gender
-            GoldenRecord.dob
-            GoldenRecord.city
-            GoldenRecord.phone_number
-            GoldenRecord.national_id
-            GoldenRecord.interactions:              [Interaction]
+            GoldenRecord.demographic_field_00
+            GoldenRecord.demographic_field_01
+            GoldenRecord.demographic_field_02
+            GoldenRecord.demographic_field_03
+            GoldenRecord.demographic_field_04
+            GoldenRecord.demographic_field_05
+            GoldenRecord.demographic_field_06
+            GoldenRecord.interactions:                          [Interaction]
          }
          """;
 
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS_1 =
          """
-         GoldenRecord.source_id:                [uid]     @reverse                           .
-         GoldenRecord.aux_date_created:         datetime                                     .
-         GoldenRecord.aux_auto_update_enabled:  bool                                         .
-         GoldenRecord.aux_id:                   string                                       .
-         GoldenRecord.given_name:               string    @index(exact,trigram)              .
-         GoldenRecord.family_name:              string    @index(exact,trigram)              .
-         GoldenRecord.gender:                   string    @index(exact,trigram)              .
-         GoldenRecord.dob:                      string                                       .
-         GoldenRecord.city:                     string    @index(trigram)                    .
-         GoldenRecord.phone_number:             string    @index(exact,trigram)              .
-         GoldenRecord.national_id:              string    @index(exact,trigram)              .
-         GoldenRecord.interactions:             [uid]     @reverse                           .
+         GoldenRecord.source_id:                   [uid]     @reverse                           .
+         GoldenRecord.aux_date_created:            datetime                                     .
+         GoldenRecord.aux_auto_update_enabled:     bool                                         .
+         GoldenRecord.aux_id:                      string                                       .
+         GoldenRecord.demographic_field_00:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_01:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_02:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_03:        string                                       .
+         GoldenRecord.demographic_field_04:        string    @index(trigram)                    .
+         GoldenRecord.demographic_field_05:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_06:        string    @index(exact,trigram)              .
+         GoldenRecord.interactions:                [uid]     @reverse                           .
          """;
 
    static final String MUTATION_CREATE_INTERACTION_TYPE_1 =
@@ -332,13 +332,13 @@ final class TestConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
-            Interaction.given_name
-            Interaction.family_name
-            Interaction.gender
-            Interaction.dob
-            Interaction.city
-            Interaction.phone_number
-            Interaction.national_id
+            Interaction.demographic_field_00
+            Interaction.demographic_field_01
+            Interaction.demographic_field_02
+            Interaction.demographic_field_03
+            Interaction.demographic_field_04
+            Interaction.demographic_field_05
+            Interaction.demographic_field_06
          }
          """;
 
@@ -348,13 +348,13 @@ final class TestConstants {
          Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
          Interaction.aux_clinical_data:            string                                       .
-         Interaction.given_name:                   string    @index(exact,trigram)              .
-         Interaction.family_name:                  string    @index(exact,trigram)              .
-         Interaction.gender:                       string                                       .
-         Interaction.dob:                          string                                       .
-         Interaction.city:                         string                                       .
-         Interaction.phone_number:                 string                                       .
-         Interaction.national_id:                  string    @index(exact,trigram)              .
+         Interaction.demographic_field_00:         string    @index(exact,trigram)              .
+         Interaction.demographic_field_01:         string    @index(exact,trigram)              .
+         Interaction.demographic_field_02:         string                                       .
+         Interaction.demographic_field_03:         string                                       .
+         Interaction.demographic_field_04:         string                                       .
+         Interaction.demographic_field_05:         string                                       .
+         Interaction.demographic_field_06:         string    @index(exact,trigram)              .
          """;
 
    static final String GOLDEN_RECORD_FIELD_NAMES_2 =
@@ -368,13 +368,13 @@ final class TestConstants {
          GoldenRecord.aux_date_created
          GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
-         GoldenRecord.given_name
-         GoldenRecord.family_name
-         GoldenRecord.gender
-         GoldenRecord.dob
-         GoldenRecord.city
-         GoldenRecord.phone_number
-         GoldenRecord.national_id
+         GoldenRecord.demographic_field_00
+         GoldenRecord.demographic_field_01
+         GoldenRecord.demographic_field_02
+         GoldenRecord.demographic_field_03
+         GoldenRecord.demographic_field_04
+         GoldenRecord.demographic_field_05
+         GoldenRecord.demographic_field_06
          """;
 
    static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES_2 =
@@ -388,13 +388,13 @@ final class TestConstants {
          GoldenRecord.aux_date_created
          GoldenRecord.aux_auto_update_enabled
          GoldenRecord.aux_id
-         GoldenRecord.given_name
-         GoldenRecord.family_name
-         GoldenRecord.gender
-         GoldenRecord.dob
-         GoldenRecord.city
-         GoldenRecord.phone_number
-         GoldenRecord.national_id
+         GoldenRecord.demographic_field_00
+         GoldenRecord.demographic_field_01
+         GoldenRecord.demographic_field_02
+         GoldenRecord.demographic_field_03
+         GoldenRecord.demographic_field_04
+         GoldenRecord.demographic_field_05
+         GoldenRecord.demographic_field_06
          GoldenRecord.interactions @facets(score) {
             uid
             Interaction.source_id {
@@ -405,13 +405,13 @@ final class TestConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
-            Interaction.given_name
-            Interaction.family_name
-            Interaction.gender
-            Interaction.dob
-            Interaction.city
-            Interaction.phone_number
-            Interaction.national_id
+            Interaction.demographic_field_00
+            Interaction.demographic_field_01
+            Interaction.demographic_field_02
+            Interaction.demographic_field_03
+            Interaction.demographic_field_04
+            Interaction.demographic_field_05
+            Interaction.demographic_field_06
          }
          """;
 
@@ -426,13 +426,13 @@ final class TestConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
-         Interaction.given_name
-         Interaction.family_name
-         Interaction.gender
-         Interaction.dob
-         Interaction.city
-         Interaction.phone_number
-         Interaction.national_id
+         Interaction.demographic_field_00
+         Interaction.demographic_field_01
+         Interaction.demographic_field_02
+         Interaction.demographic_field_03
+         Interaction.demographic_field_04
+         Interaction.demographic_field_05
+         Interaction.demographic_field_06
          """;
 
    static final String EXPANDED_INTERACTION_FIELD_NAMES_2 =
@@ -446,13 +446,13 @@ final class TestConstants {
          Interaction.aux_date_created
          Interaction.aux_id
          Interaction.aux_clinical_data
-         Interaction.given_name
-         Interaction.family_name
-         Interaction.gender
-         Interaction.dob
-         Interaction.city
-         Interaction.phone_number
-         Interaction.national_id
+         Interaction.demographic_field_00
+         Interaction.demographic_field_01
+         Interaction.demographic_field_02
+         Interaction.demographic_field_03
+         Interaction.demographic_field_04
+         Interaction.demographic_field_05
+         Interaction.demographic_field_06
          ~GoldenRecord.interactions @facets(score) {
             uid
             GoldenRecord.source_id {
@@ -463,13 +463,13 @@ final class TestConstants {
             GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
-            GoldenRecord.given_name
-            GoldenRecord.family_name
-            GoldenRecord.gender
-            GoldenRecord.dob
-            GoldenRecord.city
-            GoldenRecord.phone_number
-            GoldenRecord.national_id
+            GoldenRecord.demographic_field_00
+            GoldenRecord.demographic_field_01
+            GoldenRecord.demographic_field_02
+            GoldenRecord.demographic_field_03
+            GoldenRecord.demographic_field_04
+            GoldenRecord.demographic_field_05
+            GoldenRecord.demographic_field_06
          }
          """;
 
@@ -486,13 +486,13 @@ final class TestConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
-               Interaction.given_name
-               Interaction.family_name
-               Interaction.gender
-               Interaction.dob
-               Interaction.city
-               Interaction.phone_number
-               Interaction.national_id
+               Interaction.demographic_field_00
+               Interaction.demographic_field_01
+               Interaction.demographic_field_02
+               Interaction.demographic_field_03
+               Interaction.demographic_field_04
+               Interaction.demographic_field_05
+               Interaction.demographic_field_06
             }
          }
          """;
@@ -510,13 +510,13 @@ final class TestConstants {
                GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
             }
          }
          """;
@@ -534,13 +534,13 @@ final class TestConstants {
                Interaction.aux_date_created
                Interaction.aux_id
                Interaction.aux_clinical_data
-               Interaction.given_name
-               Interaction.family_name
-               Interaction.gender
-               Interaction.dob
-               Interaction.city
-               Interaction.phone_number
-               Interaction.national_id
+               Interaction.demographic_field_00
+               Interaction.demographic_field_01
+               Interaction.demographic_field_02
+               Interaction.demographic_field_03
+               Interaction.demographic_field_04
+               Interaction.demographic_field_05
+               Interaction.demographic_field_06
                ~GoldenRecord.interactions @facets(score) {
                   uid
                   GoldenRecord.source_id {
@@ -551,13 +551,13 @@ final class TestConstants {
                   GoldenRecord.aux_date_created
                   GoldenRecord.aux_auto_update_enabled
                   GoldenRecord.aux_id
-                  GoldenRecord.given_name
-                  GoldenRecord.family_name
-                  GoldenRecord.gender
-                  GoldenRecord.dob
-                  GoldenRecord.city
-                  GoldenRecord.phone_number
-                  GoldenRecord.national_id
+                  GoldenRecord.demographic_field_00
+                  GoldenRecord.demographic_field_01
+                  GoldenRecord.demographic_field_02
+                  GoldenRecord.demographic_field_03
+                  GoldenRecord.demographic_field_04
+                  GoldenRecord.demographic_field_05
+                  GoldenRecord.demographic_field_06
                }
             }
          }
@@ -576,13 +576,13 @@ final class TestConstants {
                GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
             }
          }
          """;
@@ -600,13 +600,13 @@ final class TestConstants {
                GoldenRecord.aux_date_created
                GoldenRecord.aux_auto_update_enabled
                GoldenRecord.aux_id
-               GoldenRecord.given_name
-               GoldenRecord.family_name
-               GoldenRecord.gender
-               GoldenRecord.dob
-               GoldenRecord.city
-               GoldenRecord.phone_number
-               GoldenRecord.national_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
                GoldenRecord.interactions @facets(score) {
                   uid
                   Interaction.source_id {
@@ -617,13 +617,13 @@ final class TestConstants {
                   Interaction.aux_date_created
                   Interaction.aux_id
                   Interaction.aux_clinical_data
-                  Interaction.given_name
-                  Interaction.family_name
-                  Interaction.gender
-                  Interaction.dob
-                  Interaction.city
-                  Interaction.phone_number
-                  Interaction.national_id
+                  Interaction.demographic_field_00
+                  Interaction.demographic_field_01
+                  Interaction.demographic_field_02
+                  Interaction.demographic_field_03
+                  Interaction.demographic_field_04
+                  Interaction.demographic_field_05
+                  Interaction.demographic_field_06
                }
             }
          }
@@ -646,35 +646,35 @@ final class TestConstants {
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE_2 =
          """
          type GoldenRecord {
-            GoldenRecord.source_id:                 [SourceId]
+            GoldenRecord.source_id:                             [SourceId]
             GoldenRecord.aux_date_created
             GoldenRecord.aux_auto_update_enabled
             GoldenRecord.aux_id
-            GoldenRecord.given_name
-            GoldenRecord.family_name
-            GoldenRecord.gender
-            GoldenRecord.dob
-            GoldenRecord.city
-            GoldenRecord.phone_number
-            GoldenRecord.national_id
-            GoldenRecord.interactions:              [Interaction]
+            GoldenRecord.demographic_field_00
+            GoldenRecord.demographic_field_01
+            GoldenRecord.demographic_field_02
+            GoldenRecord.demographic_field_03
+            GoldenRecord.demographic_field_04
+            GoldenRecord.demographic_field_05
+            GoldenRecord.demographic_field_06
+            GoldenRecord.interactions:                          [Interaction]
          }
          """;
 
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS_2 =
          """
-         GoldenRecord.source_id:                [uid]     @reverse                           .
-         GoldenRecord.aux_date_created:         datetime                                     .
-         GoldenRecord.aux_auto_update_enabled:  bool                                         .
-         GoldenRecord.aux_id:                   string                                       .
-         GoldenRecord.given_name:               string    @index(exact,trigram)              .
-         GoldenRecord.family_name:              string    @index(exact,trigram)              .
-         GoldenRecord.gender:                   string    @index(exact,trigram)              .
-         GoldenRecord.dob:                      string                                       .
-         GoldenRecord.city:                     string    @index(exact,trigram)              .
-         GoldenRecord.phone_number:             string    @index(exact,trigram)              .
-         GoldenRecord.national_id:              string    @index(exact)                      .
-         GoldenRecord.interactions:             [uid]     @reverse                           .
+         GoldenRecord.source_id:                   [uid]     @reverse                           .
+         GoldenRecord.aux_date_created:            datetime                                     .
+         GoldenRecord.aux_auto_update_enabled:     bool                                         .
+         GoldenRecord.aux_id:                      string                                       .
+         GoldenRecord.demographic_field_00:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_01:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_02:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_03:        string                                       .
+         GoldenRecord.demographic_field_04:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_05:        string    @index(exact,trigram)              .
+         GoldenRecord.demographic_field_06:        string    @index(exact)                      .
+         GoldenRecord.interactions:                [uid]     @reverse                           .
          """;
 
    static final String MUTATION_CREATE_INTERACTION_TYPE_2 =
@@ -684,13 +684,13 @@ final class TestConstants {
             Interaction.aux_date_created
             Interaction.aux_id
             Interaction.aux_clinical_data
-            Interaction.given_name
-            Interaction.family_name
-            Interaction.gender
-            Interaction.dob
-            Interaction.city
-            Interaction.phone_number
-            Interaction.national_id
+            Interaction.demographic_field_00
+            Interaction.demographic_field_01
+            Interaction.demographic_field_02
+            Interaction.demographic_field_03
+            Interaction.demographic_field_04
+            Interaction.demographic_field_05
+            Interaction.demographic_field_06
          }
          """;
 
@@ -700,13 +700,13 @@ final class TestConstants {
          Interaction.aux_date_created:             datetime                                     .
          Interaction.aux_id:                       string                                       .
          Interaction.aux_clinical_data:            string                                       .
-         Interaction.given_name:                   string                                       .
-         Interaction.family_name:                  string                                       .
-         Interaction.gender:                       string                                       .
-         Interaction.dob:                          string                                       .
-         Interaction.city:                         string                                       .
-         Interaction.phone_number:                 string                                       .
-         Interaction.national_id:                  string                                       .
+         Interaction.demographic_field_00:         string                                       .
+         Interaction.demographic_field_01:         string                                       .
+         Interaction.demographic_field_02:         string                                       .
+         Interaction.demographic_field_03:         string                                       .
+         Interaction.demographic_field_04:         string                                       .
+         Interaction.demographic_field_05:         string                                       .
+         Interaction.demographic_field_06:         string                                       .
          """;
 
    private TestConstants() {

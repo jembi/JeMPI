@@ -24,21 +24,21 @@ private object CustomDgraphConstants {
 
     golden_record_predicates()
     interaction_predicates()
-    golden_record_field_names()
-    expanded_golden_record_field_names()
-    interaction_field_names()
-    expanded_interaction_field_names()
-    query_get_interaction_by_uid()
-    query_get_golden_record_by_uid()
-    query_get_expanded_interactions()
-    query_get_golden_records()
-    query_get_expanded_golden_records()
-    mutation_create_source_id_type()
-    mutation_create_source_id_fields()
-    mutation_create_golden_record_type()
-    mutation_create_golden_record_fields()
-    mutation_create_interaction_type()
-    mutation_create_interaction_fields()
+//    golden_record_field_names()
+//    expanded_golden_record_field_names()
+//    interaction_field_names()
+//    expanded_interaction_field_names()
+//    query_get_interaction_by_uid()
+//    query_get_golden_record_by_uid()
+//    query_get_expanded_interactions()
+//    query_get_golden_records()
+//    query_get_expanded_golden_records()
+//    mutation_create_source_id_type()
+//    mutation_create_source_id_fields()
+//    mutation_create_golden_record_type()
+//    mutation_create_golden_record_fields()
+//    mutation_create_interaction_type()
+//    mutation_create_interaction_fields()
 
     writer.println(s"""   private $customClassName() {}
          |
@@ -56,10 +56,11 @@ private object CustomDgraphConstants {
             )
         }
       end if
-      config.demographicFields.zipWithIndex.foreach { case (field, _) =>
+      config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
         val name = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
-          s"""   public static final String PREDICATE_GOLDEN_RECORD_${name.toUpperCase} = "GoldenRecord.$name";""".stripMargin
+          s"""   public static final String PREDICATE_GOLDEN_RECORD_${name.toUpperCase} = "GoldenRecord.demographic_field_${"%02d"
+              .format(idx)}";""".stripMargin
         )
       }
       writer.println(
@@ -77,10 +78,11 @@ private object CustomDgraphConstants {
             )
         }
       end if
-      config.demographicFields.zipWithIndex.foreach { case (field, _) =>
+      config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
         val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
         writer.println(
-          s"""   public static final String PREDICATE_INTERACTION_${fieldName.toUpperCase} = "Interaction.$fieldName";""".stripMargin
+          s"""   public static final String PREDICATE_INTERACTION_${fieldName.toUpperCase} = "Interaction.demographic_field_${"%02d"
+              .format(idx)}";""".stripMargin
         )
       }
     end interaction_predicates

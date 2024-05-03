@@ -5,14 +5,15 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class QueryGetGoldenRecordByUid {
 
    private QueryGetGoldenRecordByUid() {
    }
 
-   private static String formattedDemographicField(final DemographicField field) {
-      return String.format(Locale.ROOT, "      GoldenRecord.%s", field.fieldName());
+   private static String formattedDemographicField(final int idx) {
+      return String.format(Locale.ROOT, "      GoldenRecord.demographic_field_%02d", idx);
    }
 
    private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
@@ -40,6 +41,9 @@ public final class QueryGetGoldenRecordByUid {
    }
 
    public static String create(final JsonConfig jsonConfig) {
+      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(QueryGetGoldenRecordByUid::formattedDemographicField)
+                                             .collect(Collectors.joining(System.lineSeparator()));
       return "query goldenRecordByUid($uid: string) {"
              + System.lineSeparator()
              + "   all(func: uid($uid)) {"
@@ -56,10 +60,11 @@ public final class QueryGetGoldenRecordByUid {
                          .map(QueryGetGoldenRecordByUid::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(QueryGetGoldenRecordByUid::formattedDemographicField)
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + demoGraphicFields
+//             + jsonConfig.demographicFields()
+//                         .stream()
+//                         .map(QueryGetGoldenRecordByUid::formattedDemographicField)
+//                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + "   }"
              + System.lineSeparator()

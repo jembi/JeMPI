@@ -8,6 +8,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class ExpandedInteractionFieldNames {
 
@@ -42,7 +43,14 @@ public final class ExpandedInteractionFieldNames {
              + "   }";
    }
 
+   private static String formattedGoldenRecordField(final int idx) {
+      return String.format(Locale.ROOT, "   GoldenRecord.demographic_field_%02d", idx);
+   }
+
    public static String create(final JsonConfig jsonConfig) {
+      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(ExpandedInteractionFieldNames::formattedGoldenRecordField)
+                                             .collect(Collectors.joining(System.lineSeparator()));
       return InteractionFieldNames.create(jsonConfig)
              + "~GoldenRecord.interactions @facets(score) {"
              + System.lineSeparator()
@@ -58,10 +66,11 @@ public final class ExpandedInteractionFieldNames {
                          .map(field -> "   GoldenRecord." + field.fieldName())
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(field -> "   GoldenRecord." + field.fieldName())
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + demoGraphicFields
+//             + jsonConfig.demographicFields()
+//                         .stream()
+//                         .map(field -> "   GoldenRecord." + field.fieldName())
+//                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + "}"
              + System.lineSeparator();

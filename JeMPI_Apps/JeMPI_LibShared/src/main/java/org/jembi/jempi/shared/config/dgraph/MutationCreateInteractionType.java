@@ -1,22 +1,22 @@
 package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
-import org.jembi.jempi.shared.config.input.DemographicField;
 import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.config.input.UniqueInteractionField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class MutationCreateInteractionType {
 
    private MutationCreateInteractionType() {
    }
 
-   private static String formattedInteractionField(final DemographicField field) {
-      final var name = field.fieldName();
-      return String.format(Locale.ROOT, "   Interaction.%s", name);
+   private static String formattedInteractionField(final int idx) {
+//      final var name = field.fieldName();
+      return String.format(Locale.ROOT, "   Interaction.demographic_field_%02d", idx);
    }
 
    private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
@@ -33,6 +33,9 @@ public final class MutationCreateInteractionType {
    }
 
    public static String create(final JsonConfig jsonConfig) {
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(MutationCreateInteractionType::formattedInteractionField)
+                                             .collect(Collectors.joining(System.lineSeparator()));
       return "type Interaction {"
              + System.lineSeparator()
              + jsonConfig.additionalNodes()
@@ -45,10 +48,11 @@ public final class MutationCreateInteractionType {
                          .map(MutationCreateInteractionType::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(MutationCreateInteractionType::formattedInteractionField)
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + demographicFields
+//             + jsonConfig.demographicFields()
+//                         .stream()
+//                         .map(MutationCreateInteractionType::formattedInteractionField)
+//                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + "}"
              + System.lineSeparator();

@@ -9,11 +9,11 @@ import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -48,25 +48,18 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
       }
       final var dt = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
-      final var b = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED)
-                            .booleanValue();
-      final var t = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID)
-                            .textValue();
+      final var b = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED).booleanValue();
+      final var t = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID).textValue();
       final var customUniqueGoldenRecordData = new CustomUniqueGoldenRecordData(d, b, t);
-      final var demographicData = new DemographicData(
-            JSON_CONFIG.demographicFields()
-                       .stream()
-                       .map(field -> {
-                          final var v = jsonNode.get("GoldenRecord." + AppUtils.camelToSnake(field.fieldName()));
-                          return (!(v == null || v.isMissingNode()))
-                                ? new DemographicData.Field(field.fieldName(), v.textValue())
-                                : null;
-                       })
-                       .toList());
-      return new GoldenRecord(jsonNode.get("uid").textValue(),
-                              sourceIdList,
-                              customUniqueGoldenRecordData,
-                              demographicData);
+      final var demographicData =
+            new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
+               final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();
+               final var v = jsonNode.get(String.format("GoldenRecord.demographic_field_%02d", idx));
+               return (!(v == null || v.isMissingNode()))
+                     ? new DemographicData.Field(fieldName, v.textValue())
+                     : null;
+            }).toList());
+      return new GoldenRecord(jsonNode.get("uid").textValue(), sourceIdList, customUniqueGoldenRecordData, demographicData);
    }
 
    GoldenRecord toGoldenRecord() {

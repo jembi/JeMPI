@@ -11,24 +11,6 @@ public final class DeprecatedCustomFunctions {
    private DeprecatedCustomFunctions() {
    }
 
-//   static GoldenRecord toGoldenRecord(final CustomDgraphGoldenRecord me) {
-//      return null;
-//      return new GoldenRecord(me.goldenId(),
-//                              me.sourceId() != null
-//                                    ? me.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
-//                                    : List.of(),
-//                              new CustomUniqueGoldenRecordData(me.auxDateCreated(),
-//                                                               me.auxAutoUpdateEnabled(),
-//                                                               me.auxId()),
-//                              CustomDemographicData.fromCustomDemographicFields(me.givenName(),
-//                                                                                me.familyName(),
-//                                                                                me.gender(),
-//                                                                                me.dob(),
-//                                                                                me.city(),
-//                                                                                me.phoneNumber(),
-//                                                                                me.nationalId()));
-//   }
-
    private static DemographicData fromCustomDemographicFields(
          final String givenName,
          final String familyName,
@@ -126,7 +108,7 @@ public final class DeprecatedCustomFunctions {
    }
 
    static InteractionWithScore toInteractionWithScore(final CustomDgraphInteraction me) {
-      return new InteractionWithScore(DeprecatedCustomFunctions.toInteraction(me), me.score());
+      return new InteractionWithScore(toInteraction(me), me.score());
    }
 
    static ExpandedInteraction toExpandedInteraction(final CustomDgraphExpandedInteraction me) {

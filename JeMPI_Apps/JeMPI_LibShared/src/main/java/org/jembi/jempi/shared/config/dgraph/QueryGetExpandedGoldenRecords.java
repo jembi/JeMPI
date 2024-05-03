@@ -5,18 +5,19 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class QueryGetExpandedGoldenRecords {
 
    private QueryGetExpandedGoldenRecords() {
    }
 
-   private static String formattedInteractionField(final DemographicField field) {
-      return String.format(Locale.ROOT, "         Interaction.%s", field.fieldName());
+   private static String formattedInteractionField(final int idx) {
+      return String.format(Locale.ROOT, "         Interaction.demographic_field_%02d", idx);
    }
 
-   private static String formattedGoldenRecordField(final DemographicField field) {
-      return String.format(Locale.ROOT, "      GoldenRecord.%s", field.fieldName());
+   private static String formattedGoldenRecordField(final int idx) {
+      return String.format(Locale.ROOT, "      GoldenRecord.demographic_field_%02d", idx);
    }
 
 
@@ -62,6 +63,12 @@ public final class QueryGetExpandedGoldenRecords {
    }
 
    public static String create(final JsonConfig jsonConfig) {
+      final var goldenRecordDemographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(QueryGetExpandedGoldenRecords::formattedGoldenRecordField)
+                                             .collect(Collectors.joining(System.lineSeparator()));
+      final var interactionDemographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                                         .mapToObj(QueryGetExpandedGoldenRecords::formattedInteractionField)
+                                                         .collect(Collectors.joining(System.lineSeparator()));
       return "query expandedGoldenRecord() {"
              + System.lineSeparator()
              + "   all(func: uid(%s), orderdesc: GoldenRecord.aux_date_created) {"
@@ -78,10 +85,7 @@ public final class QueryGetExpandedGoldenRecords {
                          .map(QueryGetExpandedGoldenRecords::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(QueryGetExpandedGoldenRecords::formattedGoldenRecordField)
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + goldenRecordDemographicFields
              + System.lineSeparator()
              + "      GoldenRecord.interactions @facets(score) {"
              + System.lineSeparator()
@@ -97,10 +101,7 @@ public final class QueryGetExpandedGoldenRecords {
                          .map(QueryGetExpandedGoldenRecords::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(QueryGetExpandedGoldenRecords::formattedInteractionField)
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + interactionDemographicFields
              + System.lineSeparator()
              + "      }"
              + System.lineSeparator()

@@ -305,18 +305,18 @@ object CustomDgraphQueries {
         })
 
         if (existingMeta.isDefined) {
-          return existingMeta.get.funcName
+          existingMeta.get.funcName
         } else {
           val newMeta =
-            VarMeta(astName, func, funcParam, getFuncIndex(), distance)
+            VarMeta(astName, func, funcParam, getFuncIndex, distance)
           varsMeta = varsMeta + (v -> (varsMeta(v) :+ newMeta))
-          return newMeta.funcName
+          newMeta.funcName
         }
       }
 
-      def getFuncIndex(): String = {
+      def getFuncIndex: String = {
         currentFuncIndex = currentFuncIndex + 1
-        return ("A".head + currentFuncIndex).toChar.toString
+        ("A".head + currentFuncIndex).toChar.toString
       }
 
       def main_func(expression: Ast.Expression): String = {
@@ -365,37 +365,46 @@ object CustomDgraphQueries {
           return metaInfo.funcParam.get.apply(v)
         }
 
-        return s"""
-              $$$v${
-            if (metaInfo.distance.isDefined) ", " + metaInfo.distance.get
-            else
-              ""
-          }
-              """
+        s"""$$$v${
+            if (metaInfo.distance.isDefined) "," + metaInfo.distance.get
+            else ""
+          }"""
       }
 
-      def createScalerFunc(): Unit = {
+      def createScalarFunc(): Unit = {
         varsMeta.foreach((v, mL) => {
-          val m = mL(0)
+          val m = mL.head
           val fn = m.func
           writer.println(
-            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(
+            s"""${" " * 12}all(func:type(GoldenRecord)) @filter($fn(GoldenRecord.demographic_field_%02d,${getFilterParams(
                 v,
                 m
               )})) {
                |${" " * 15}uid
                |${" " * 15}GoldenRecord.source_id {
-               |${" " * 18}uid
-               |${" " * 15}}""".stripMargin
+               |${" " * 15}   uid
+               |${" " * 15}}"""
+              .format(((fieldName: String) => {
+                var i = -1
+                config.demographicFields.zipWithIndex.foreach((f, idx) =>
+                  if (f.fieldName == fieldName) i = idx
+                )
+                i
+              })(v))
+              .stripMargin
           )
           if (config.uniqueGoldenRecordFields.isDefined) {
             config.uniqueGoldenRecordFields.get.foreach(field => {
               writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
             })
           }
-          config.demographicFields.foreach(field => {
-            writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
-          })
+          config.demographicFields.zipWithIndex
+            .foreach((field, idx) => {
+              writer.println(
+                s"${" " * 15}GoldenRecord.demographic_field_%02d"
+                  .format(idx)
+              )
+            })
           writer.println(s"${" " * 12}}")
         })
       }
@@ -405,12 +414,20 @@ object CustomDgraphQueries {
           mL.foreach(m => {
             val fn = m.func
             writer.println(
-              s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.$v, ${getFilterParams(
+              s"""${" " * 12}var(func:type(GoldenRecord)) @filter($fn(GoldenRecord.demographic_field_%02d, ${getFilterParams(
                   v,
                   m
                 )})) {
                   |${" " * 15}${m.funcName} as uid
-                  |${" " * 12}}""".stripMargin
+                  |${" " * 12}}"""
+                .format(((fieldName: String) => {
+                  var i = -1
+                  config.demographicFields.zipWithIndex.foreach((f, idx) =>
+                    if (f.fieldName == fieldName) i = idx
+                  )
+                  i
+                })(v))
+                .stripMargin
             )
           })
         })
@@ -429,8 +446,11 @@ object CustomDgraphQueries {
             writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
           })
         }
-        config.demographicFields.foreach(field => {
-          writer.println(s"${" " * 15}GoldenRecord.${field.fieldName}")
+        config.demographicFields.zipWithIndex.foreach((field, idx) => {
+          writer.println(
+            s"${" " * 15}GoldenRecord.demographic_field_%02d"
+              .format(idx)
+          )
         })
         writer.println(s"${" " * 12}}")
       }
@@ -452,7 +472,7 @@ object CustomDgraphQueries {
       writer.println(") {")
 
       if (varsMeta.size == 1 && varsMeta.values.headOption.get.size < 2)
-        createScalerFunc()
+        createScalarFunc()
       else
         createFilterFunc(all_func_str)
       end if

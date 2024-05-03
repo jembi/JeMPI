@@ -1,25 +1,15 @@
 package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
-import org.jembi.jempi.shared.config.input.DemographicField;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.UniqueGoldenRecordField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class ExpandedGoldenRecordFieldNames {
 
    private ExpandedGoldenRecordFieldNames() {
-   }
-
-   private static String formattedGoldenRecordField(final DemographicField field) {
-      return String.format(Locale.ROOT, "GoldenRecord.%s", field.fieldName());
-   }
-
-   private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
-      return String.format(Locale.ROOT, "GoldenRecord.%s", field.fieldName());
    }
 
    private static String toSnakeCase(final String string) {
@@ -43,6 +33,9 @@ public final class ExpandedGoldenRecordFieldNames {
    }
 
    public static String create(final JsonConfig jsonConfig) {
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(i -> String.format("   Interaction.demographic_field_%02d", i))
+                                             .collect(Collectors.joining(System.lineSeparator()));
       return GoldenRecordFieldNames.create(jsonConfig)
              + "GoldenRecord.interactions @facets(score) {"
              + System.lineSeparator()
@@ -58,10 +51,7 @@ public final class ExpandedGoldenRecordFieldNames {
                          .map(field -> "   Interaction." + field.fieldName())
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(field -> "   Interaction." + field.fieldName())
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + demographicFields
              + System.lineSeparator()
              + "}"
              + System.lineSeparator();

@@ -5,14 +5,15 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class InteractionFieldNames {
 
    private InteractionFieldNames() {
    }
 
-   private static String formattedInteractionField(final DemographicField field) {
-      return String.format(Locale.ROOT, "Interaction.%s", field.fieldName());
+   private static String formattedInteractionField(final int idx) {
+      return String.format(Locale.ROOT, "Interaction.demographic_field_%02d", idx);
    }
 
    private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
@@ -40,6 +41,9 @@ public final class InteractionFieldNames {
    }
 
    public static String create(final JsonConfig jsonConfig) {
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(InteractionFieldNames::formattedInteractionField)
+                                             .collect(Collectors.joining(System.lineSeparator()));
       return "uid"
              + System.lineSeparator()
              + jsonConfig.additionalNodes()
@@ -52,10 +56,11 @@ public final class InteractionFieldNames {
                          .map(InteractionFieldNames::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(InteractionFieldNames::formattedInteractionField)
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + demographicFields
+//             + jsonConfig.demographicFields()
+//                         .stream()
+//                         .map(InteractionFieldNames::formattedInteractionField)
+//                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator();
    }
 

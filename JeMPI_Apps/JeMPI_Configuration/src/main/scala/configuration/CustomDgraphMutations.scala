@@ -99,8 +99,10 @@ private object CustomDgraphMutations {
             .map(f => mapField(f.fieldName, f.fieldType))
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config.demographicFields
-        .map(f => mapField(f.fieldName, f.fieldType))
+      val f2 = config.demographicFields.zipWithIndex
+        .map((f, idx) =>
+          mapField("demographic_field_%02d".format(idx), f.fieldType)
+        )
         .mkString(sys.props("line.separator"))
 
       f1 + f2
@@ -150,8 +152,13 @@ private object CustomDgraphMutations {
             .map(f => mapField(f.fieldName, f.fieldType))
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config.demographicFields
-        .map(f => mapField(f.fieldName, f.fieldType))
+      val f2 = config.demographicFields.zipWithIndex
+        .map((f, idx) =>
+          mapField(
+            "demographic_field_%02d".format(idx),
+            f.fieldType
+          )
+        )
         .mkString(sys.props("line.separator"))
 
       f1 + f2

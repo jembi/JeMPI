@@ -1,21 +1,22 @@
 package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
-import org.jembi.jempi.shared.config.input.DemographicField;
 import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.config.input.UniqueGoldenRecordField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class GoldenRecordFieldNames {
 
    private GoldenRecordFieldNames() {
    }
 
-   private static String formattedGoldenRecordField(final DemographicField field) {
-      return String.format(Locale.ROOT, "GoldenRecord.%s", field.fieldName());
+   private static String formattedGoldenRecordField(
+         final int idx) {
+      return String.format(Locale.ROOT, "GoldenRecord.demographic_field_%02d", idx);
    }
 
    private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
@@ -43,6 +44,9 @@ public final class GoldenRecordFieldNames {
    }
 
    public static String create(final JsonConfig jsonConfig) {
+      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj(GoldenRecordFieldNames::formattedGoldenRecordField)
+                                             .collect(Collectors.joining(System.lineSeparator()));
       return "uid"
              + System.lineSeparator()
              + jsonConfig.additionalNodes()
@@ -55,10 +59,7 @@ public final class GoldenRecordFieldNames {
                          .map(GoldenRecordFieldNames::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.demographicFields()
-                         .stream()
-                         .map(GoldenRecordFieldNames::formattedGoldenRecordField)
-                         .collect(Collectors.joining(System.lineSeparator()))
+             + demoGraphicFields
              + System.lineSeparator();
    }
 

@@ -26,13 +26,13 @@ final class CustomDgraphMutations {
                            _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <Interaction.aux_id>                        %s                    .
                            _:%s  <Interaction.aux_clinical_data>             %s                    .
-                           _:%s  <Interaction.given_name>                    %s                    .
-                           _:%s  <Interaction.family_name>                   %s                    .
-                           _:%s  <Interaction.gender>                        %s                    .
-                           _:%s  <Interaction.dob>                           %s                    .
-                           _:%s  <Interaction.city>                          %s                    .
-                           _:%s  <Interaction.phone_number>                  %s                    .
-                           _:%s  <Interaction.national_id>                   %s                    .
+                           _:%s  <Interaction.demographic_field_00>          %s                    .
+                           _:%s  <Interaction.demographic_field_01>          %s                    .
+                           _:%s  <Interaction.demographic_field_02>          %s                    .
+                           _:%s  <Interaction.demographic_field_03>          %s                    .
+                           _:%s  <Interaction.demographic_field_04>          %s                    .
+                           _:%s  <Interaction.demographic_field_05>          %s                    .
+                           _:%s  <Interaction.demographic_field_06>          %s                    .
                            _:%s  <dgraph.type>                               "Interaction"         .
                            """,
                            uuid, sourceUID,
@@ -62,13 +62,13 @@ final class CustomDgraphMutations {
                            _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
                            _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
                            _:%s  <GoldenRecord.aux_id>                        %s                    .
-                           _:%s  <GoldenRecord.given_name>                    %s                    .
-                           _:%s  <GoldenRecord.family_name>                   %s                    .
-                           _:%s  <GoldenRecord.gender>                        %s                    .
-                           _:%s  <GoldenRecord.dob>                           %s                    .
-                           _:%s  <GoldenRecord.city>                          %s                    .
-                           _:%s  <GoldenRecord.phone_number>                  %s                    .
-                           _:%s  <GoldenRecord.national_id>                   %s                    .
+                           _:%s  <GoldenRecord.demographic_field_00>          %s                    .
+                           _:%s  <GoldenRecord.demographic_field_01>          %s                    .
+                           _:%s  <GoldenRecord.demographic_field_02>          %s                    .
+                           _:%s  <GoldenRecord.demographic_field_03>          %s                    .
+                           _:%s  <GoldenRecord.demographic_field_04>          %s                    .
+                           _:%s  <GoldenRecord.demographic_field_05>          %s                    .
+                           _:%s  <GoldenRecord.demographic_field_06>          %s                    .
                            _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
                            _:%s  <dgraph.type>                                "GoldenRecord"        .
                            """,
