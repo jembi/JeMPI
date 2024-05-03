@@ -15,11 +15,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.Interaction;
-import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -47,8 +46,12 @@ public final class CustomSourceRecordStream {
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> sourceKStream =
             streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_ETL, Consumed.with(stringSerde, interactionEnvelopSerde));
+      final String[] startDateTime = new String[1];
       sourceKStream.map((key, rec) -> {
-         if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+         if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL) {
+            startDateTime[0] = AppUtils.timeStamp();
+            rec.sessionMetadata().etlMetadata.setStartDateTime(startDateTime[0]);
+         } else if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
             final var interaction = rec.interaction();
             final var demographicData = interaction.demographicData();
             final var newEnvelop = new InteractionEnvelop(rec.contentType(),
@@ -58,11 +61,12 @@ public final class CustomSourceRecordStream {
                                                                           rec.interaction().sourceId(),
                                                                           interaction.uniqueInteractionData(),
                                                                           demographicData.clean()),
-                                                          rec.config());
+                                                          rec.sessionMetadata());
             return KeyValue.pair(key, newEnvelop);
-         } else {
-            return KeyValue.pair(key, rec);
+         } else if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_END_SENTINEL) {
+            rec.sessionMetadata().etlMetadata = new ETLMetadata(startDateTime[0], AppUtils.timeStamp());
          }
+         return KeyValue.pair(key, rec);
       }).to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, interactionEnvelopSerde));
       interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionKafkaStreams.cleanUp();
