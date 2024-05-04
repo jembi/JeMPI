@@ -34,7 +34,7 @@ public final class ExpandedGoldenRecordFieldNames {
 
    public static String create(final JsonConfig jsonConfig) {
       final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                             .mapToObj(i -> String.format("   Interaction.demographic_field_%02d", i))
+                                             .mapToObj("   Interaction.demographic_field_%02d"::formatted)
                                              .collect(Collectors.joining(System.lineSeparator()));
       return GoldenRecordFieldNames.create(jsonConfig)
              + "GoldenRecord.interactions @facets(score) {"
@@ -46,7 +46,7 @@ public final class ExpandedGoldenRecordFieldNames {
                          .map(ExpandedGoldenRecordFieldNames::formattedAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueInteractionFields()
+             + jsonConfig.auxInteractionFields()
                          .stream()
                          .map(field -> "   Interaction." + field.fieldName())
                          .collect(Collectors.joining(System.lineSeparator()))

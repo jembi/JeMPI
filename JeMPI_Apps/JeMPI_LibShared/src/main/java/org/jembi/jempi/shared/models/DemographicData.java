@@ -12,7 +12,7 @@ public class DemographicData {
 
    private static final Logger LOGGER = LogManager.getLogger(DemographicData.class);
 
-   public final List<DemographicData.Field> fields;
+   public final List<DemographicData.DemographicField> fields;
 
    public DemographicData() {
       fields = new ArrayList<>();
@@ -22,7 +22,7 @@ public class DemographicData {
       fields = demographicData.fields.stream().toList();
    }
 
-   public DemographicData(final List<DemographicData.Field> fields) {
+   public DemographicData(final List<DemographicData.DemographicField> fields) {
       this.fields = fields;
    }
 
@@ -50,10 +50,10 @@ public class DemographicData {
                   .map(f -> {
                      try {
                         var classField = cls.getDeclaredField(f.getLeft());
-                        return new Field(f.getLeft(), classField.get(customDemographicData).toString());
+                        return new DemographicField(f.getLeft(), classField.get(customDemographicData).toString());
                      } catch (NoSuchFieldException | IllegalAccessException e) {
                         LOGGER.error(e.getLocalizedMessage(), e);
-                        return new Field(f.getLeft(), null);
+                        return new DemographicField(f.getLeft(), null);
                      }
                   })
                   .toList());
@@ -62,14 +62,14 @@ public class DemographicData {
    public DemographicData clean() {
       return new DemographicData(
             fields.stream()
-                  .map(x -> new DemographicData.Field(x.tag,
-                                                      x.value.trim()
-                                                             .toLowerCase()
-                                                             .replaceAll("\\W", "")))
+                  .map(x -> new DemographicData.DemographicField(x.tag,
+                                                                 x.value.trim()
+                                                                        .toLowerCase()
+                                                                        .replaceAll("\\W", "")))
                   .toList());
    }
 
-   public record Field(
+   public record DemographicField(
          String tag,
          String value) {
    }

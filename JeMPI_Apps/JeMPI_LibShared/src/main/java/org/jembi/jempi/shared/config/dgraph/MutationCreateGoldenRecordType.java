@@ -2,7 +2,7 @@ package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.UniqueGoldenRecordField;
+import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
@@ -18,7 +18,7 @@ public final class MutationCreateGoldenRecordType {
       return String.format(Locale.ROOT, "   GoldenRecord.demographic_field_%02d", idx);
    }
 
-   private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
+   private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
       final var name = field.fieldName();
       return String.format(Locale.ROOT, "   GoldenRecord.%s", name);
    }
@@ -32,7 +32,7 @@ public final class MutationCreateGoldenRecordType {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
                                              .mapToObj(MutationCreateGoldenRecordType::formattedGoldenRecordField)
                                              .collect(Collectors.joining(System.lineSeparator()));
       return "type GoldenRecord {"
@@ -42,16 +42,12 @@ public final class MutationCreateGoldenRecordType {
                          .map(MutationCreateGoldenRecordType::formattedAdditionalGoldenRecordNode)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueGoldenRecordFields()
+             + jsonConfig.auxGoldenRecordFields()
                          .stream()
                          .map(MutationCreateGoldenRecordType::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + demoGraphicFields
-//             + jsonConfig.demographicFields()
-//                         .stream()
-//                         .map(MutationCreateGoldenRecordType::formattedGoldenRecordField)
-//                         .collect(Collectors.joining(System.lineSeparator()))
+             + demographicFields
              + System.lineSeparator()
              + String.format(Locale.ROOT, "   GoldenRecord.%-39s%s", "interactions:", "[Interaction]")
              + System.lineSeparator()

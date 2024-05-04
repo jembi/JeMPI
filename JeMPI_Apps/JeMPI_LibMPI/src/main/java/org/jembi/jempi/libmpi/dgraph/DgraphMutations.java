@@ -57,13 +57,11 @@ final class DgraphMutations {
 
    private String createSourceIdTriple(final CustomSourceId sourceId) {
       final String uuid = UUID.randomUUID().toString();
-      return String.format(Locale.ROOT,
-                           """
-                           _:%s  <SourceId.facility>                 %s          .
-                           _:%s  <SourceId.patient>                  %s          .
-                           _:%s  <dgraph.type>                      "SourceId"   .
-                           """,
-                           uuid,
+      return """
+             _:%s  <SourceId.facility>                 %s          .
+             _:%s  <SourceId.patient>                  %s          .
+             _:%s  <dgraph.type>                      "SourceId"   .
+             """.formatted(uuid,
                            AppUtils.quotedValue(sourceId.facility()),
                            uuid,
                            AppUtils.quotedValue(sourceId.patient()),
@@ -75,12 +73,10 @@ final class DgraphMutations {
          final String predicate,
          final String value) {
       final var mutation = DgraphProto.Mutation.newBuilder()
-                                               .setSetNquads(ByteString.copyFromUtf8(String.format(Locale.ROOT,
-                                                                                                   """
-                                                                                                   <%s> <%s>          "%s"^^<xs:string>    .
-                                                                                                   <%s> <dgraph.type> "GoldenRecord"       .
-                                                                                                   """,
-                                                                                                   goldenId,
+                                               .setSetNquads(ByteString.copyFromUtf8("""
+                                                                                     <%s> <%s>          "%s"^^<xs:string>    .
+                                                                                     <%s> <dgraph.type> "GoldenRecord"       .
+                                                                                     """.formatted(goldenId,
                                                                                                    predicate,
                                                                                                    value,
                                                                                                    goldenId)))
@@ -94,12 +90,10 @@ final class DgraphMutations {
          final String predicate,
          final Boolean value) {
       final var mutation = DgraphProto.Mutation.newBuilder()
-                                               .setSetNquads(ByteString.copyFromUtf8(String.format(Locale.ROOT,
-                                                                                                   """
-                                                                                                   <%s> <%s>          "%s"^^<xs:boolean>   .
-                                                                                                   <%s> <dgraph.type> "GoldenRecord"       .
-                                                                                                   """,
-                                                                                                   goldenId,
+                                               .setSetNquads(ByteString.copyFromUtf8("""
+                                                                                     <%s> <%s>          "%s"^^<xs:boolean>   .
+                                                                                     <%s> <dgraph.type> "GoldenRecord"       .
+                                                                                     """.formatted(goldenId,
                                                                                                    predicate,
                                                                                                    Boolean.TRUE.equals(value)
                                                                                                          ? "true"
@@ -196,7 +190,7 @@ final class DgraphMutations {
       final DgraphProto.Mutation mutation = DgraphProto
             .Mutation
             .newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(CustomDgraphMutations.createInteractionTriple(
+            .setSetNquads(ByteString.copyFromUtf8(DeprecatedCustomFunctions.createInteractionTriple(
                   interaction.uniqueInteractionData(),
                   interaction.demographicData(),
                   sourceIdUid)))
@@ -210,11 +204,11 @@ final class DgraphMutations {
          final String sourceUID,
          final float score,
          final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
-      final var command = CustomDgraphMutations.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
-                                                                               interaction,
-                                                                               interactionUID,
-                                                                               sourceUID,
-                                                                               score);
+      final var command = DeprecatedCustomFunctions.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
+                                                                                   interaction,
+                                                                                   interactionUID,
+                                                                                   sourceUID,
+                                                                                   score);
       final DgraphProto.Mutation mutation =
             DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFromUtf8(command)).build();
       return DgraphClient.getInstance().doMutateTransaction(mutation);

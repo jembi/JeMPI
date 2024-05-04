@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
+import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
 import static org.jembi.jempi.shared.models.CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -43,7 +44,7 @@ public final class LinkerDWH {
       return (StringUtils.isBlank(textLeft) && countRight >= 1) || (countRight > countLeft && !textRight.equals(textLeft));
    }
 
-   static boolean helperUpdateGoldenRecordField(
+   private static boolean helperUpdateGoldenRecordField(
          final LibMPI libMPI,
          final String interactionId,
          final ExpandedGoldenRecord expandedGoldenRecord,
@@ -66,15 +67,21 @@ public final class LinkerDWH {
                if (LOGGER.isTraceEnabled()) {
                   LOGGER.trace("{}: {} -> {}", fieldName, goldenRecordFieldValue, maxEntry.getKey());
                }
-               changed = true;
-               final var goldenId = expandedGoldenRecord.goldenRecord().goldenId();
-               final var result = libMPI.updateGoldenRecordField(interactionId,
-                                                                 goldenId,
-                                                                 fieldName,
-                                                                 goldenRecordFieldValue,
-                                                                 maxEntry.getKey());
-               if (!result) {
-                  LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
+               final var i = FIELDS_CONFIG.findIndexOfDemographicField(fieldName);
+               if (i < 0) {
+                  LOGGER.error("{}", fieldName);
+               } else {
+                  changed = true;
+                  final var goldenId = expandedGoldenRecord.goldenRecord().goldenId();
+                  final var result = libMPI.updateGoldenRecordField(interactionId,
+                                                                    goldenId,
+                                                                    "demographic_field_%02d".formatted(i),
+                                                                    goldenRecordFieldValue,
+                                                                    maxEntry.getKey(),
+                                                                    fieldName);
+                  if (!result) {
+                     LOGGER.error("libMPI.updateGoldenRecordField({}, {}, {})", goldenId, fieldName, maxEntry.getKey());
+                  }
                }
             }
          }
@@ -149,7 +156,7 @@ public final class LinkerDWH {
    private static Either<List<ExternalLinkCandidate>, LinkInfo> doMatch(
          final LibMPI libMPI,
          final Interaction interaction) {
-      if (CustomLinkerDeterministic.DETERMINISTIC_DO_MATCHING || MUPacket.MATCH_MU_FIELD_COUNT > 0) {
+      if (!LINKER_CONFIG.deterministicMatchPrograms.isEmpty() || MUPacket.MATCH_MU_FIELD_COUNT > 0) {
          final var candidates = libMPI.findMatchCandidates(interaction.demographicData());
          LOGGER.debug("Match Candidates {} ", candidates.size());
          if (candidates.isEmpty()) {

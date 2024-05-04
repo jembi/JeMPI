@@ -2,12 +2,6 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-//import org.jembi.jempi.shared.models.InteractionWithScore;
-//import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-//import org.jembi.jempi.shared.models.CustomDemographicData;
-//import org.jembi.jempi.shared.models.Interaction;
-
-//import static org.jembi.jempi.shared.models.CustomDemographicData.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 record CustomDgraphInteraction(
@@ -24,47 +18,6 @@ record CustomDgraphInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("GoldenRecord.interactions|score") Float score) {
-
-/*
-   private CustomDgraphInteraction(
-         final Interaction interaction,
-         final Float score) {
-      this(interaction.interactionId(),
-           new DgraphSourceId(interaction.sourceId()),
-           interaction.uniqueInteractionData().auxDateCreated(),
-           interaction.uniqueInteractionData().auxId(),
-           interaction.uniqueInteractionData().auxClinicalData(),
-           interaction.demographicData().fields.get(0).value(),
-           interaction.demographicData().fields.get(1).value(),
-           interaction.demographicData().fields.get(2).value(),
-           interaction.demographicData().fields.get(3).value(),
-           interaction.demographicData().fields.get(4).value(),
-           interaction.demographicData().fields.get(5).value(),
-           interaction.demographicData().fields.get(6).value(),
-           score);
-   }
-
-   Interaction deprecatedToInteraction() {
-      return new Interaction(this.interactionId(),
-                             this.sourceId() != null
-                                   ? this.sourceId().toSourceId()
-                                   : null,
-                             new CustomUniqueInteractionData(this.auxDateCreated,
-                                                               this.auxId,
-                                                               this.auxClinicalData),
-                             CustomDemographicData.fromCustomDemographicFields(this.givenName,
-                                                                               this.familyName,
-                                                                               this.gender,
-                                                                               this.dob,
-                                                                               this.city,
-                                                                               this.phoneNumber,
-                                                                               this.nationalId));
-   }
-
-   InteractionWithScore deprecatedToInteractionWithScore() {
-      return new InteractionWithScore(deprecatedToInteraction(), this.score());
-   }
-*/
 
 }
 

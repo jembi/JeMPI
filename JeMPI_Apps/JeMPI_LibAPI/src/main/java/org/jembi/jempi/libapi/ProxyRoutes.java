@@ -47,11 +47,10 @@ public final class ProxyRoutes {
          LOGGER.error(e.getLocalizedMessage(), e);
          throw e;
       }
-      final var request = HttpRequest.create(String.format(Locale.ROOT,
-                                                           "http://%s:%d/JeMPI/%s",
-                                                           linkerIP,
-                                                           linkerPort,
-                                                           GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES))
+      final var request = HttpRequest.create("http://%s:%d/JeMPI/%s".formatted(
+                                           linkerIP,
+                                           linkerPort,
+                                           GlobalConstants.SEGMENT_PROXY_POST_CALCULATE_SCORES))
                                      .withMethod(HttpMethods.POST)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);

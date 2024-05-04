@@ -24,7 +24,6 @@ public final class LibMPI {
    private final AuditTrailBridge auditTrailUtil;
 
 
-
    public LibMPI(
          final Level level,
          final String[] host,
@@ -92,12 +91,16 @@ public final class LibMPI {
       return client.countGoldenRecords();
    }
 
-   public List<CustomSourceId> findSourceId(final String facility, final String patient) {
+   public List<CustomSourceId> findSourceId(
+         final String facility,
+         final String patient) {
       client.connect();
       return client.findSourceId(facility, patient);
    }
 
-   public List<ExpandedSourceId> findExpandedSourceIdList(final String facility, final String patient) {
+   public List<ExpandedSourceId> findExpandedSourceIdList(
+         final String facility,
+         final String patient) {
       client.connect();
       return client.findExpandedSourceIdList(facility, patient);
    }
@@ -250,13 +253,13 @@ public final class LibMPI {
       if (result) {
          sendAuditEvent(interactionID,
                         goldenID,
-                        String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore),
+                        "score: %.5f -> %.5f".formatted(oldScore, newScore),
                         newScore,
                         LinkingRule.UPDATE);
       } else {
          sendAuditEvent(interactionID,
                         goldenID,
-                        String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore),
+                        "set score error: %.5f -> %.5f".formatted(oldScore, newScore),
                         newScore,
                         LinkingRule.UPDATE);
 
@@ -278,23 +281,16 @@ public final class LibMPI {
          final String goldenId,
          final String fieldName,
          final String oldValue,
-         final String newValue) {
+         final String newValue,
+         final String alias) {
       client.connect();
       final var result = client.updateGoldenRecordField(goldenId, fieldName, newValue);
       if (result) {
-         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
-                                                               "%s: '%s' -> '%s'",
-                                                               fieldName,
-                                                               oldValue,
-                                                               newValue),
+         sendAuditEvent(interactionId, goldenId, "%s: '%s' -> '%s'".formatted(alias, oldValue, newValue),
                         -1.0F,
                         LinkingRule.UPDATE);
       } else {
-         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
-                                                               "%s: error updating '%s' -> '%s'",
-                                                               fieldName,
-                                                               oldValue,
-                                                               newValue),
+         sendAuditEvent(interactionId, goldenId, "%s: error updating '%s' -> '%s'".formatted(alias, oldValue, newValue),
                         -1.0F,
                         LinkingRule.UPDATE);
       }

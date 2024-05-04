@@ -79,7 +79,7 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
       final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler().mapRejectionResponse(response -> {
          if (response.entity() instanceof HttpEntity.Strict) {
             String message = ((HttpEntity.Strict) response.entity()).getData().utf8String();
-            LOGGER.warn(String.format("Request was rejected. Reason: %s", message));
+            LOGGER.warn("Request was rejected. Reason: %s".formatted(message));
          }
 
          return response;

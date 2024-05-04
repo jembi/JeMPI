@@ -1,10 +1,12 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public final class DeprecatedCustomFunctions {
 
@@ -20,13 +22,13 @@ public final class DeprecatedCustomFunctions {
          final String phoneNumber,
          final String nationalId) {
       return new DemographicData(new ArrayList<>(Arrays.asList(
-            new DemographicData.Field("givenName", givenName),
-            new DemographicData.Field("familyName", familyName),
-            new DemographicData.Field("gender", gender),
-            new DemographicData.Field("dob", dob),
-            new DemographicData.Field("city", city),
-            new DemographicData.Field("phoneNumber", phoneNumber),
-            new DemographicData.Field("nationalId", nationalId))));
+            new DemographicData.DemographicField("givenName", givenName),
+            new DemographicData.DemographicField("familyName", familyName),
+            new DemographicData.DemographicField("gender", gender),
+            new DemographicData.DemographicField("dob", dob),
+            new DemographicData.DemographicField("city", city),
+            new DemographicData.DemographicField("phoneNumber", phoneNumber),
+            new DemographicData.DemographicField("nationalId", nationalId))));
    }
 
    private static GoldenRecord toGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
@@ -117,6 +119,78 @@ public final class DeprecatedCustomFunctions {
                                        .stream()
                                        .map(DeprecatedCustomFunctions::toGoldenRecordWithScore)
                                        .toList());
+   }
+
+   static String createInteractionTriple(
+         final CustomUniqueInteractionData uniqueInteractionData,
+         final DemographicData demographicData,
+         final String sourceUID) {
+      final String uuid = UUID.randomUUID().toString();
+      final List<Object> params = new ArrayList<>(23);
+      params.addAll(List.of(uuid, sourceUID));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxId())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxClinicalData())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(0).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(1).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(2).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(3).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(4).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(5).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(6).value())));
+      params.add(uuid);
+      return """
+             _:%s  <Interaction.source_id>                     <%s>                  .
+             _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
+             _:%s  <Interaction.aux_id>                        %s                    .
+             _:%s  <Interaction.aux_clinical_data>             %s                    .
+             _:%s  <Interaction.demographic_field_00>          %s                    .
+             _:%s  <Interaction.demographic_field_01>          %s                    .
+             _:%s  <Interaction.demographic_field_02>          %s                    .
+             _:%s  <Interaction.demographic_field_03>          %s                    .
+             _:%s  <Interaction.demographic_field_04>          %s                    .
+             _:%s  <Interaction.demographic_field_05>          %s                    .
+             _:%s  <Interaction.demographic_field_06>          %s                    .
+             _:%s  <dgraph.type>                               "Interaction"         .
+             """.formatted(params.toArray(Object[]::new));
+   }
+
+   static String createLinkedGoldenRecordTriple(
+         final CustomUniqueGoldenRecordData uniqueGoldenRecordData,
+         final DemographicData demographicData,
+         final String interactionUID,
+         final String sourceUID,
+         final float score) {
+      final String uuid = UUID.randomUUID().toString();
+      final List<Object> params = new ArrayList<>(26);
+      params.addAll(List.of(uuid, sourceUID));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(0).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(1).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(2).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(3).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(4).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(5).value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(demographicData.fields.get(6).value())));
+      params.addAll(List.of(uuid, interactionUID, score));
+      params.add(uuid);
+      return """
+             _:%s  <GoldenRecord.source_id>                     <%s>                  .
+             _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
+             _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
+             _:%s  <GoldenRecord.aux_id>                        %s                    .
+             _:%s  <GoldenRecord.demographic_field_00>          %s                    .
+             _:%s  <GoldenRecord.demographic_field_01>          %s                    .
+             _:%s  <GoldenRecord.demographic_field_02>          %s                    .
+             _:%s  <GoldenRecord.demographic_field_03>          %s                    .
+             _:%s  <GoldenRecord.demographic_field_04>          %s                    .
+             _:%s  <GoldenRecord.demographic_field_05>          %s                    .
+             _:%s  <GoldenRecord.demographic_field_06>          %s                    .
+             _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
+             _:%s  <dgraph.type>                                "GoldenRecord"        .
+             """.formatted(params.toArray(Object[]::new));
    }
 
 }

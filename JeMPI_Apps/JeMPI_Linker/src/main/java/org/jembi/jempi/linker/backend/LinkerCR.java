@@ -263,10 +263,15 @@ final class LinkerCR {
          return Either.left(new MpiServiceError.CRUpdateFieldError(null, fail));
       }
       crUpdateFields.fields().forEach(field -> {
-         if (libMPI.updateGoldenRecordField(crUpdateFields.goldenId(), field.name(), field.value())) {
-            pass.add(field.name());
+         final var i = Config.FIELDS_CONFIG.findIndexOfDemographicField(field.name());
+         if (i < 0) {
+            LOGGER.error("{} {}", field.name(), field.value());
          } else {
-            fail.add(field.name());
+            if (libMPI.updateGoldenRecordField(crUpdateFields.goldenId(), "demographic_field_%02d".formatted(i), field.value())) {
+               pass.add(field.name());
+            } else {
+               fail.add(field.name());
+            }
          }
       });
       if (fail.isEmpty()) {
@@ -288,7 +293,7 @@ final class LinkerCR {
          if ((!StringUtils.isBlank(gField) && !StringUtils.isBlank(iField) && !gField.equals(iField))
              ||
              (StringUtils.isBlank(gField) && !StringUtils.isEmpty(iField))) {
-            libMPI.updateGoldenRecordField(iid, gid, Config.DGRAPH_CONFIG.demographicDataFields.get(i).getLeft(), gField, iField);
+            libMPI.updateGoldenRecordField(iid, gid, Config.DGRAPH_CONFIG.demographicDataFields.get(i).getLeft(), gField, iField, Config.DGRAPH_CONFIG.demographicDataFields.get(i).getLeft());
          }
       }
    }

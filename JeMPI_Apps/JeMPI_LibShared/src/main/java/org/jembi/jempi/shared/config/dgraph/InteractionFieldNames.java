@@ -16,7 +16,7 @@ public final class InteractionFieldNames {
       return String.format(Locale.ROOT, "Interaction.demographic_field_%02d", idx);
    }
 
-   private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
+   private static String formattedUniqueInteractionField(final AuxInteractionField field) {
       return String.format(Locale.ROOT, "Interaction.%s", field.fieldName());
    }
 
@@ -51,7 +51,7 @@ public final class InteractionFieldNames {
                          .map(InteractionFieldNames::formattedAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueInteractionFields()
+             + jsonConfig.auxInteractionFields()
                          .stream()
                          .map(InteractionFieldNames::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))

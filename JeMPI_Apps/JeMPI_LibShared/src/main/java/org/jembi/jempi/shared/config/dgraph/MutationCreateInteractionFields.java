@@ -3,7 +3,7 @@ package org.jembi.jempi.shared.config.dgraph;
 import org.jembi.jempi.shared.config.input.AdditionalNode;
 import org.jembi.jempi.shared.config.input.DemographicField;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.UniqueInteractionField;
+import org.jembi.jempi.shared.config.input.AuxInteractionField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
@@ -24,7 +24,7 @@ public final class MutationCreateInteractionFields {
       return String.format(Locale.ROOT, "Interaction.demographic_field_%02d:         %-10s%-35s.", idx, type, index);
    }
 
-   private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
+   private static String formattedUniqueInteractionField(final AuxInteractionField field) {
       final var name = field.fieldName() + ":";
       final var type = field.fieldType().toLowerCase(Locale.ROOT);
       final var index = "";
@@ -50,16 +50,12 @@ public final class MutationCreateInteractionFields {
                        .map(MutationCreateInteractionFields::formattedAdditionalInteractionNodes)
                        .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueInteractionFields()
+             + jsonConfig.auxInteractionFields()
                          .stream()
                          .map(MutationCreateInteractionFields::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + demographicFields
-//             + jsonConfig.demographicFields()
-//                         .stream()
-//                         .map(MutationCreateInteractionFields::formattedInteractionField)
-//                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator();
    }
 

@@ -20,12 +20,6 @@ private object CustomDgraphInteraction {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |//import org.jembi.jempi.shared.models.InteractionWithScore;
-         |//import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-         |//import org.jembi.jempi.shared.models.CustomDemographicData;
-         |//import org.jembi.jempi.shared.models.Interaction;
-         |
-         |//import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
@@ -33,30 +27,6 @@ private object CustomDgraphInteraction {
          |      @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
          |${interactionFields()}
          |      @JsonProperty("GoldenRecord.interactions|score") Float score) {
-         |
-         |/*
-         |   private $customClassName(
-         |         final Interaction interaction,
-         |         final Float score) {
-         |      this(interaction.interactionId(),
-         |           new DgraphSourceId(interaction.sourceId()),
-         |${interactionConstructorArguments()}
-         |           score);
-         |   }
-         |
-         |   Interaction deprecatedToInteraction() {
-         |      return new Interaction(this.interactionId(),
-         |                             this.sourceId() != null
-         |                                   ? this.sourceId().toSourceId()
-         |                                   : null,
-         |                             new CustomUniqueInteractionData(${uniqueArguments()}),
-         |                             CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
-         |   }
-         |
-         |   InteractionWithScore deprecatedToInteractionWithScore() {
-         |      return new InteractionWithScore(deprecatedToInteraction(), this.score());
-         |   }
-         |*/
          |
          |}
          |""".stripMargin)

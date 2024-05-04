@@ -306,8 +306,8 @@ public final class LinkerConfig {
    }
 
    public record Arguments(
-         List<DemographicData.Field> interaction,
-         List<DemographicData.Field> goldenRecord,
+         List<DemographicData.DemographicField> interaction,
+         List<DemographicData.DemographicField> goldenRecord,
          Integer field,
          Integer aux) {
    }

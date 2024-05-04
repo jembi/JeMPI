@@ -19,10 +19,6 @@ private object CustomDgraphReverseGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |//import org.jembi.jempi.shared.models.GoldenRecordWithScore;
-         |//import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
-         |//import org.jembi.jempi.shared.models.CustomDemographicData;
-         |//import org.jembi.jempi.shared.models.GoldenRecord;
          |
          |import java.util.List;
          |
@@ -32,21 +28,6 @@ private object CustomDgraphReverseGoldenRecord {
          |      @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
          |${goldenRecordFields()}
          |      @JsonProperty("~GoldenRecord.interactions|score") Float score) {
-         |
-         |/*
-         |   GoldenRecord deprecatedToGoldenRecord() {
-         |      return new GoldenRecord(this.goldenId(),
-         |                              this.sourceId() != null
-         |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
-         |                                    : List.of(),
-         |                              new CustomUniqueGoldenRecordData(${uniqueArguments()}),
-         |                              CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
-         |   }
-         |
-         |   GoldenRecordWithScore deprecatedToGoldenRecordWithScore() {
-         |      return new GoldenRecordWithScore(deprecatedToGoldenRecord(), score);
-         |   }
-         |*/
          |
          |}
          |""".stripMargin)

@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
+
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
@@ -360,7 +362,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var goldenId = request.goldenId;
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(), field.newValue());
+         final var i = FIELDS_CONFIG.findIndexOfDemographicField(field.name());
+         final var result = libMPI.updateGoldenRecordField(null,
+                                                           goldenId,
+                                                           i < 0
+                                                                 ? field.name()
+                                                                 : "demographic_field_%02d".formatted(i),
+                                                           field.oldValue(),
+                                                           field.newValue(),
+                                                           field.name());
          if (result) {
             updatedFields.add(field);
          } else {

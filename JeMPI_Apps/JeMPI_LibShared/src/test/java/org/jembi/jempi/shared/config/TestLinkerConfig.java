@@ -21,13 +21,13 @@ class TestLinkerConfig {
    private static final String NATIONAL_ID = "nationalId1";
 
    private static final DemographicData GOLDEN_RECORD =
-         new DemographicData(Arrays.asList(new DemographicData.Field("givenName", GIVEN_NAME),
-                                           new DemographicData.Field("familyName", FAMILY_NAME),
-                                           new DemographicData.Field("gender", GENDER),
-                                           new DemographicData.Field("dob", DOB),
-                                           new DemographicData.Field("city", CITY),
-                                           new DemographicData.Field("phoneNumber", PHONE_NUMBER),
-                                           new DemographicData.Field("nationalId", NATIONAL_ID)));
+         new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
+                                           new DemographicData.DemographicField("familyName", FAMILY_NAME),
+                                           new DemographicData.DemographicField("gender", GENDER),
+                                           new DemographicData.DemographicField("dob", DOB),
+                                           new DemographicData.DemographicField("city", CITY),
+                                           new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
+                                           new DemographicData.DemographicField("nationalId", NATIONAL_ID)));
    private static JsonConfig JSON_CONFIG_1;
    private static JsonConfig JSON_CONFIG_2;
    private static LinkerConfig LINKER_CONFIG_1;
@@ -70,43 +70,43 @@ class TestLinkerConfig {
    void testDeterministicLinkPrograms() {
       Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", NATIONAL_ID))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
       Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", GIVEN_NAME),
-                                              new DemographicData.Field("familyName", FAMILY_NAME),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", PHONE_NUMBER),
-                                              new DemographicData.Field("nationalId", null))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
+                                              new DemographicData.DemographicField("familyName", FAMILY_NAME),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
+                                              new DemographicData.DemographicField("nationalId", null))),
             GOLDEN_RECORD));
       Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", NATIONAL_ID))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
       Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", GIVEN_NAME),
-                                              new DemographicData.Field("familyName", FAMILY_NAME),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", PHONE_NUMBER),
-                                              new DemographicData.Field("nationalId", null))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
+                                              new DemographicData.DemographicField("familyName", FAMILY_NAME),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
+                                              new DemographicData.DemographicField("nationalId", null))),
             GOLDEN_RECORD));
    }
 
@@ -114,43 +114,43 @@ class TestLinkerConfig {
    void testDeterministicValidatePrograms() {
       Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicValidatePrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", NATIONAL_ID))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
       Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicValidatePrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", GIVEN_NAME),
-                                              new DemographicData.Field("familyName", FAMILY_NAME),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", PHONE_NUMBER),
-                                              new DemographicData.Field("nationalId", null))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
+                                              new DemographicData.DemographicField("familyName", FAMILY_NAME),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
+                                              new DemographicData.DemographicField("nationalId", null))),
             GOLDEN_RECORD));
       Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicValidatePrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", NATIONAL_ID))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
       Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicValidatePrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", GIVEN_NAME),
-                                              new DemographicData.Field("familyName", FAMILY_NAME),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", PHONE_NUMBER),
-                                              new DemographicData.Field("nationalId", null))),
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
+                                              new DemographicData.DemographicField("familyName", FAMILY_NAME),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
+                                              new DemographicData.DemographicField("nationalId", null))),
             GOLDEN_RECORD));
    }
 
@@ -158,40 +158,40 @@ class TestLinkerConfig {
    void testDeterministicCanApplyLinkingPrograms() {
       Assertions.assertTrue(LINKER_CONFIG_1.canApplyLinking(
             LINKER_CONFIG_1.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", null)))));
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", null)))));
       Assertions.assertFalse(LINKER_CONFIG_2.canApplyLinking(
             LINKER_CONFIG_2.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", null)))));
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", null)))));
       Assertions.assertFalse(LINKER_CONFIG_2.canApplyLinking(
             LINKER_CONFIG_2.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", GIVEN_NAME),
-                                              new DemographicData.Field("familyName", FAMILY_NAME),
-                                              new DemographicData.Field("gender", GENDER),
-                                              new DemographicData.Field("dob", DOB),
-                                              new DemographicData.Field("city", CITY),
-                                              new DemographicData.Field("phoneNumber", PHONE_NUMBER),
-                                              new DemographicData.Field("nationalId", null)))));
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
+                                              new DemographicData.DemographicField("familyName", FAMILY_NAME),
+                                              new DemographicData.DemographicField("gender", GENDER),
+                                              new DemographicData.DemographicField("dob", DOB),
+                                              new DemographicData.DemographicField("city", CITY),
+                                              new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
+                                              new DemographicData.DemographicField("nationalId", null)))));
       Assertions.assertTrue(LINKER_CONFIG_2.canApplyLinking(
             LINKER_CONFIG_2.deterministicLinkPrograms,
-            new DemographicData(Arrays.asList(new DemographicData.Field("givenName", null),
-                                              new DemographicData.Field("familyName", null),
-                                              new DemographicData.Field("gender", null),
-                                              new DemographicData.Field("dob", null),
-                                              new DemographicData.Field("city", null),
-                                              new DemographicData.Field("phoneNumber", null),
-                                              new DemographicData.Field("nationalId", NATIONAL_ID)))));
+            new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
+                                              new DemographicData.DemographicField("familyName", null),
+                                              new DemographicData.DemographicField("gender", null),
+                                              new DemographicData.DemographicField("dob", null),
+                                              new DemographicData.DemographicField("city", null),
+                                              new DemographicData.DemographicField("phoneNumber", null),
+                                              new DemographicData.DemographicField("nationalId", NATIONAL_ID)))));
    }
 
 }

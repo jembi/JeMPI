@@ -2,10 +2,6 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-//import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-//import org.jembi.jempi.shared.models.CustomDemographicData;
-//import org.jembi.jempi.shared.models.ExpandedInteraction;
-//import org.jembi.jempi.shared.models.Interaction;
 
 import java.util.List;
 
@@ -24,31 +20,6 @@ record CustomDgraphExpandedInteraction(
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
       @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
-
-/*
-   private Interaction deprecatedToInteraction() {
-      return new Interaction(this.interactionId(),
-                             this.sourceId().toSourceId(),
-                             new CustomUniqueInteractionData(this.auxDateCreated(),
-                                                               this.auxId(),
-                                                               this.auxClinicalData()),
-                             CustomDemographicData.fromCustomDemographicFields(this.givenName(),
-                                                                               this.familyName(),
-                                                                               this.gender(),
-                                                                               this.dob(),
-                                                                               this.city(),
-                                                                               this.phoneNumber(),
-                                                                               this.nationalId()));
-   }
-
-   ExpandedInteraction deprecatedToExpandedInteraction() {
-      return new ExpandedInteraction(this.deprecatedToInteraction(),
-                                     this.dgraphGoldenRecordList()
-                                         .stream()
-                                         .map(CustomDgraphReverseGoldenRecord::deprecatedToGoldenRecordWithScore)
-                                         .toList());
-   }
-*/
 
 }
 

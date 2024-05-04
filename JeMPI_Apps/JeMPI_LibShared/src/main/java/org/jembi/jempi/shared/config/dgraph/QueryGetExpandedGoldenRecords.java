@@ -21,11 +21,11 @@ public final class QueryGetExpandedGoldenRecords {
    }
 
 
-   private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
+   private static String formattedUniqueInteractionField(final AuxInteractionField field) {
       return String.format(Locale.ROOT, "         Interaction.%s", field.fieldName());
    }
 
-   private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
+   private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
       return String.format(Locale.ROOT, "      GoldenRecord.%s", field.fieldName());
    }
 
@@ -80,7 +80,7 @@ public final class QueryGetExpandedGoldenRecords {
                          .map(QueryGetExpandedGoldenRecords::formattedGoldenRecordAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueGoldenRecordFields()
+             + jsonConfig.auxGoldenRecordFields()
                          .stream()
                          .map(QueryGetExpandedGoldenRecords::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))
@@ -96,7 +96,7 @@ public final class QueryGetExpandedGoldenRecords {
                          .map(QueryGetExpandedGoldenRecords::formattedInteractionAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueInteractionFields()
+             + jsonConfig.auxInteractionFields()
                          .stream()
                          .map(QueryGetExpandedGoldenRecords::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))

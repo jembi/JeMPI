@@ -2,7 +2,7 @@ package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.UniqueInteractionField;
+import org.jembi.jempi.shared.config.input.AuxInteractionField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
@@ -18,7 +18,7 @@ public final class QueryGetInteractionByUid {
       return String.format(Locale.ROOT, "      Interaction.demographic_field_%02d", idx);
    }
 
-   private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
+   private static String formattedUniqueInteractionField(final AuxInteractionField field) {
       return String.format(Locale.ROOT, "      Interaction.%s", field.fieldName());
    }
 
@@ -43,7 +43,7 @@ public final class QueryGetInteractionByUid {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
                                              .mapToObj(QueryGetInteractionByUid::formattedInteractionField)
                                              .collect(Collectors.joining(System.lineSeparator()));
       return "query interactionByUid($uid: string) {"
@@ -57,16 +57,12 @@ public final class QueryGetInteractionByUid {
                          .map(QueryGetInteractionByUid::formattedAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueInteractionFields()
+             + jsonConfig.auxInteractionFields()
                          .stream()
                          .map(QueryGetInteractionByUid::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + demoGraphicFields
-//             + jsonConfig.demographicFields()
-//                         .stream()
-//                         .map(QueryGetInteractionByUid::formattedInteractionField)
-//                         .collect(Collectors.joining(System.lineSeparator()))
+             + demographicFields
              + System.lineSeparator()
              + "   }"
              + System.lineSeparator()

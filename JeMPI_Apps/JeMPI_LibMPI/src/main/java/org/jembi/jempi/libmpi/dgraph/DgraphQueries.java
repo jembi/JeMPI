@@ -381,8 +381,7 @@ final class DgraphQueries {
    }
 
    static List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
-      final String query =
-            String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedGoldenRecords, String.join(",", ids));
+      final String query = DGRAPH_CONFIG.queryGetExpandedGoldenRecords.formatted(String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class)

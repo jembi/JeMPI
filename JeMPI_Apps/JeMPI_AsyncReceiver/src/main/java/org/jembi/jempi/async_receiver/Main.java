@@ -70,8 +70,10 @@ public final class Main {
 
    private static DemographicData demographicData(final CSVRecord csvRecord) {
       return new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataCsvCols.stream()
-                                                                              .map(f -> new DemographicData.Field(AppUtils.snakeToCamelCase(
-                                                                                    f.getLeft()), csvRecord.get(f.getRight())))
+                                                                              .map(f -> new DemographicData.DemographicField(
+                                                                                    AppUtils.snakeToCamelCase(
+                                                                                          f.getLeft()),
+                                                                                    csvRecord.get(f.getRight())))
                                                                               .toList());
    }
 
@@ -118,7 +120,7 @@ public final class Main {
          sendToKafka(uuid,
                      new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
                                             tag,
-                                            String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                            "%s:%07d".formatted(stanDate, ++index),
                                             null));
          for (CSVRecord csvRecord : csvParser) {
             final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
@@ -135,7 +137,7 @@ public final class Main {
          sendToKafka(uuid,
                      new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
                                             tag,
-                                            String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                            "%s:%07d".formatted(stanDate, ++index),
                                             null));
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);

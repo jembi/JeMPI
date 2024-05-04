@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
          Source source,
          String indexGoldenRecord,
          String indexInteraction,
-         LinkMetaData linkMetaData,
-         ValidateMetaData validateMetaData,
-         MatchMetaData matchMetaData) {
+         MetaDataLink linkMetaData,
+         MetaDataValidate validateMetaData,
+         MetaDataMatch matchMetaData) {
    }

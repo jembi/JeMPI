@@ -19,10 +19,6 @@ private object CustomDgraphExpandedGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
-         |//import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
-         |//import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
-         |//import org.jembi.jempi.shared.models.CustomDemographicData;
-         |//import org.jembi.jempi.shared.models.GoldenRecord;
          |
          |import java.util.List;
          |
@@ -32,22 +28,6 @@ private object CustomDgraphExpandedGoldenRecord {
          |      @JsonProperty("GoldenRecord.source_id") List<DgraphSourceId> sourceId,
          |${goldenRecordFields()}
          |      @JsonProperty("GoldenRecord.interactions") List<CustomDgraphInteraction> interactions) {
-         |
-         |/*
-         |   GoldenRecord deprecatedToGoldenRecord() {
-         |      return new GoldenRecord(this.goldenId(),
-         |                              this.sourceId() != null
-         |                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
-         |                                    : List.of(),
-         |                              new CustomUniqueGoldenRecordData(${uniqueArguments()}),
-         |                              CustomDemographicData.fromCustomDemographicFields(${demographicArguments()}));
-         |   }
-         |
-         |   ExpandedGoldenRecord deprecatedToExpandedGoldenRecord() {
-         |      return new ExpandedGoldenRecord(this.deprecatedToGoldenRecord(),
-         |                                      this.interactions().stream().map(DeprecatedCustomFunctions::toInteractionWithScore).toList());
-         |   }
-         |*/
          |""".stripMargin)
 
     writer.println("}")

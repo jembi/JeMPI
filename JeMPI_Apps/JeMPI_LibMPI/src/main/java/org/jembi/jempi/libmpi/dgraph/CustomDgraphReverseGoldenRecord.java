@@ -2,10 +2,6 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-//import org.jembi.jempi.shared.models.GoldenRecordWithScore;
-//import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
-//import org.jembi.jempi.shared.models.CustomDemographicData;
-//import org.jembi.jempi.shared.models.GoldenRecord;
 
 import java.util.List;
 
@@ -24,29 +20,6 @@ record CustomDgraphReverseGoldenRecord(
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_PHONE_NUMBER) String phoneNumber,
       @JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_NATIONAL_ID) String nationalId,
       @JsonProperty("~GoldenRecord.interactions|score") Float score) {
-
-/*
-   GoldenRecord deprecatedToGoldenRecord() {
-      return new GoldenRecord(this.goldenId(),
-                              this.sourceId() != null
-                                    ? this.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
-                                    : List.of(),
-                              new CustomUniqueGoldenRecordData(this.auxDateCreated(),
-                                                               this.auxAutoUpdateEnabled(),
-                                                               this.auxId()),
-                              CustomDemographicData.fromCustomDemographicFields(this.givenName(),
-                                                                                this.familyName(),
-                                                                                this.gender(),
-                                                                                this.dob(),
-                                                                                this.city(),
-                                                                                this.phoneNumber(),
-                                                                                this.nationalId()));
-   }
-
-   GoldenRecordWithScore deprecatedToGoldenRecordWithScore() {
-      return new GoldenRecordWithScore(deprecatedToGoldenRecord(), score);
-   }
-*/
 
 }
 

@@ -54,9 +54,9 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();
-               final var v = jsonNode.get(String.format("GoldenRecord.demographic_field_%02d", idx));
+               final var v = jsonNode.get("GoldenRecord.demographic_field_%02d".formatted(idx));
                return (!(v == null || v.isMissingNode()))
-                     ? new DemographicData.Field(fieldName, v.textValue())
+                     ? new DemographicData.DemographicField(fieldName, v.textValue())
                      : null;
             }).toList());
       return new GoldenRecord(jsonNode.get("uid").textValue(), sourceIdList, customUniqueGoldenRecordData, demographicData);

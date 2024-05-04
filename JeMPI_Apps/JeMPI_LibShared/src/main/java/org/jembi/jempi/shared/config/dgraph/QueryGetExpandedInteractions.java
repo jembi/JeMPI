@@ -2,8 +2,8 @@ package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.UniqueGoldenRecordField;
-import org.jembi.jempi.shared.config.input.UniqueInteractionField;
+import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
+import org.jembi.jempi.shared.config.input.AuxInteractionField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
@@ -24,11 +24,11 @@ public final class QueryGetExpandedInteractions {
    }
 
 
-   private static String formattedUniqueInteractionField(final UniqueInteractionField field) {
+   private static String formattedUniqueInteractionField(final AuxInteractionField field) {
       return String.format(Locale.ROOT, "      Interaction.%s", field.fieldName());
    }
 
-   private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
+   private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
       return String.format(Locale.ROOT, "         GoldenRecord.%s", field.fieldName());
    }
 
@@ -87,7 +87,7 @@ public final class QueryGetExpandedInteractions {
                          .map(QueryGetExpandedInteractions::formattedInteractionAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueInteractionFields()
+             + jsonConfig.auxInteractionFields()
                          .stream()
                          .map(QueryGetExpandedInteractions::formattedUniqueInteractionField)
                          .collect(Collectors.joining(System.lineSeparator()))
@@ -103,7 +103,7 @@ public final class QueryGetExpandedInteractions {
                          .map(QueryGetExpandedInteractions::formattedGoldenRecordAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueGoldenRecordFields()
+             + jsonConfig.auxGoldenRecordFields()
                          .stream()
                          .map(QueryGetExpandedInteractions::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))

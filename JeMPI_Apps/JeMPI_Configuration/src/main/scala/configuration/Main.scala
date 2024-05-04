@@ -39,7 +39,7 @@ object Main {
     CustomDgraphExpandedInteraction.generate(config)
     CustomDgraphMutations.generate(config)
     CustomDgraphQueries.generate(config)
-    CustomLinkerDeterministic.generate(config)
+//    CustomLinkerDeterministic.generate(config)
 //    CustomLinkerProbabilistic.generate(config)
 //    CustomLinkerBackEnd.generate(config)
 //    CustomLinkerMU.generate(config)

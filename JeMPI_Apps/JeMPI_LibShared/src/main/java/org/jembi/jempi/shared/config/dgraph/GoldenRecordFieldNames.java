@@ -1,11 +1,10 @@
 package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
+import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.UniqueGoldenRecordField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,13 +13,8 @@ public final class GoldenRecordFieldNames {
    private GoldenRecordFieldNames() {
    }
 
-   private static String formattedGoldenRecordField(
-         final int idx) {
-      return String.format(Locale.ROOT, "GoldenRecord.demographic_field_%02d", idx);
-   }
-
-   private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
-      return String.format(Locale.ROOT, "GoldenRecord.%s", field.fieldName());
+   private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
+      return "GoldenRecord.%s".formatted(field.fieldName());
    }
 
    private static String toSnakeCase(final String string) {
@@ -44,8 +38,8 @@ public final class GoldenRecordFieldNames {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                             .mapToObj(GoldenRecordFieldNames::formattedGoldenRecordField)
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+                                             .mapToObj("GoldenRecord.demographic_field_%02d"::formatted)
                                              .collect(Collectors.joining(System.lineSeparator()));
       return "uid"
              + System.lineSeparator()
@@ -54,12 +48,12 @@ public final class GoldenRecordFieldNames {
                          .map(GoldenRecordFieldNames::formattedAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueGoldenRecordFields()
+             + jsonConfig.auxGoldenRecordFields()
                          .stream()
-                         .map(GoldenRecordFieldNames::formattedUniqueGoldenRecordField)
+                         .map(f -> "GoldenRecord.%s".formatted(f.fieldName()))
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + demoGraphicFields
+             + demographicFields
              + System.lineSeparator();
    }
 

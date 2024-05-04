@@ -16,7 +16,7 @@ public final class QueryGetGoldenRecords {
       return String.format(Locale.ROOT, "      GoldenRecord.demographic_field_%02d", idx);
    }
 
-   private static String formattedUniqueGoldenRecordField(final UniqueGoldenRecordField field) {
+   private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
       return String.format(Locale.ROOT, "      GoldenRecord.%s", field.fieldName());
    }
 
@@ -41,7 +41,7 @@ public final class QueryGetGoldenRecords {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demoGraphicFields = IntStream.range(0, jsonConfig.demographicFields().size())
+      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
                                              .mapToObj(QueryGetGoldenRecords::formattedGoldenRecordField)
                                              .collect(Collectors.joining(System.lineSeparator()));
       return "query goldenRecord() {"
@@ -55,16 +55,12 @@ public final class QueryGetGoldenRecords {
                          .map(QueryGetGoldenRecords::formattedGoldenRecordAdditionalNodes)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + jsonConfig.uniqueGoldenRecordFields()
+             + jsonConfig.auxGoldenRecordFields()
                          .stream()
                          .map(QueryGetGoldenRecords::formattedUniqueGoldenRecordField)
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + demoGraphicFields
-//             + jsonConfig.demographicFields()
-//                         .stream()
-//                         .map(QueryGetGoldenRecords::formattedGoldenRecordField)
-//                         .collect(Collectors.joining(System.lineSeparator()))
+             + demographicFields
              + System.lineSeparator()
              + "   }"
              + System.lineSeparator()
