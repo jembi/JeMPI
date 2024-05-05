@@ -39,7 +39,7 @@ final class DgraphMutations {
                                                          result.interactionUID,
                                                          result.sourceUID,
                                                          1.0F,
-                                                         new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()));
+                                                         new AuxGoldenRecordData(interaction.uniqueInteractionData()));
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
@@ -203,7 +203,7 @@ final class DgraphMutations {
          final String interactionUID,
          final String sourceUID,
          final float score,
-         final CustomUniqueGoldenRecordData customUniqueGoldenRecordData) {
+         final AuxGoldenRecordData customUniqueGoldenRecordData) {
       final var command = DeprecatedCustomFunctions.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
                                                                                    interaction,
                                                                                    interactionUID,
@@ -286,7 +286,7 @@ final class DgraphMutations {
                                                                interaction.interactionId(),
                                                                interaction.sourceId().uid(),
                                                                score,
-                                                               new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()));
+                                                               new AuxGoldenRecordData(interaction.uniqueInteractionData()));
       return Either.right(new LinkInfo(newGoldenID, interactionId, interaction.sourceId().uid(), score));
    }
 

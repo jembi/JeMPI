@@ -10,10 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.DemographicData;
-import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.Interaction;
-import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -66,6 +63,19 @@ public final class Main {
                                      : Integer.parseInt(dNumber)));
       }
       return in;
+   }
+
+   static AuxInteractionData auxInteractionData(final CSVRecord csvRecord) {
+      return new AuxInteractionData(java.time.LocalDateTime.now(),
+                                    Main.parseRecordNumber(csvRecord.get(INPUT_INTERFACE_CONFIG.auxIdCsvCol)),
+                                    csvRecord.get(INPUT_INTERFACE_CONFIG.auxClinicalDataCsvCol));
+   }
+
+   static CustomSourceId sourceIdData(final CSVRecord csvRecord) {
+      return new CustomSourceId(
+            null,
+            csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdFacilityCsvCol),
+            csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
    }
 
    private static DemographicData demographicData(final CSVRecord csvRecord) {
@@ -127,9 +137,8 @@ public final class Main {
                                                                   tag,
                                                                   String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                                   new Interaction(null,
-                                                                                  CustomAsyncHelper.customSourceId(csvRecord),
-                                                                                  CustomAsyncHelper.customUniqueInteractionData(
-                                                                                        csvRecord),
+                                                                                  sourceIdData(csvRecord),
+                                                                                  auxInteractionData(csvRecord),
                                                                                   demographicData(csvRecord)));
 
             sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);

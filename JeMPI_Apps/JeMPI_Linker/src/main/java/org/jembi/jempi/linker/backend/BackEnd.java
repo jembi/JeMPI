@@ -176,7 +176,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
                                                          new Interaction(null,
                                                                          request.link.sourceId(),
-                                                                         request.link.uniqueInteractionData(),
+                                                                         request.link.auxInteractionData(),
                                                                          DemographicData.fromCustomDemographicData(request.link.demographicData())),
                                                          request.link.externalLinkRange(),
                                                          request.link.matchThreshold() == null

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.CustomSourceId;
-import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
+import org.jembi.jempi.shared.models.AuxGoldenRecordData;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
@@ -50,7 +50,7 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
       final var b = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED).booleanValue();
       final var t = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID).textValue();
-      final var customUniqueGoldenRecordData = new CustomUniqueGoldenRecordData(d, b, t);
+      final var customUniqueGoldenRecordData = new AuxGoldenRecordData(d, b, t);
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();

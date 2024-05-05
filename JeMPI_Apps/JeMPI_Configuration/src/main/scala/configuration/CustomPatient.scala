@@ -24,8 +24,8 @@ private object CustomPatient {
 
   def generate(config: Config): Unit =
     generateDemographicData(config)
-    generateUniqueGoldenRecordData(config)
-    generateUniqueInteractionData(config)
+//    generateUniqueGoldenRecordData(config)
+//    generateUniqueInteractionData(config)
     generateAdditionalNodes(config)
   end generate
 

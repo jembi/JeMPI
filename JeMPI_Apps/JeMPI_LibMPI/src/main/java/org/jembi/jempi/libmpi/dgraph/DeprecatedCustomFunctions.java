@@ -36,7 +36,7 @@ public final class DeprecatedCustomFunctions {
                               me.sourceId() != null
                                     ? me.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
-                              new CustomUniqueGoldenRecordData(me.auxDateCreated(),
+                              new AuxGoldenRecordData(me.auxDateCreated(),
                                                                me.auxAutoUpdateEnabled(),
                                                                me.auxId()),
                               fromCustomDemographicFields(me.givenName(),
@@ -53,7 +53,7 @@ public final class DeprecatedCustomFunctions {
                               me.sourceId() != null
                                     ? me.sourceId().stream().map(DgraphSourceId::toSourceId).toList()
                                     : List.of(),
-                              new CustomUniqueGoldenRecordData(me.auxDateCreated(),
+                              new AuxGoldenRecordData(me.auxDateCreated(),
                                                                me.auxAutoUpdateEnabled(),
                                                                me.auxId()),
                               fromCustomDemographicFields(me.givenName(),
@@ -82,7 +82,7 @@ public final class DeprecatedCustomFunctions {
                              me.sourceId() != null
                                    ? me.sourceId().toSourceId()
                                    : null,
-                             new CustomUniqueInteractionData(me.auxDateCreated(),
+                             new AuxInteractionData(me.auxDateCreated(),
                                                              me.auxId(),
                                                              me.auxClinicalData()),
                              fromCustomDemographicFields(me.givenName(),
@@ -97,7 +97,7 @@ public final class DeprecatedCustomFunctions {
    private static Interaction toInteraction(final CustomDgraphExpandedInteraction me) {
       return new Interaction(me.interactionId(),
                              me.sourceId().toSourceId(),
-                             new CustomUniqueInteractionData(me.auxDateCreated(),
+                             new AuxInteractionData(me.auxDateCreated(),
                                                              me.auxId(),
                                                              me.auxClinicalData()),
                              fromCustomDemographicFields(me.givenName(),
@@ -122,7 +122,7 @@ public final class DeprecatedCustomFunctions {
    }
 
    static String createInteractionTriple(
-         final CustomUniqueInteractionData uniqueInteractionData,
+         final AuxInteractionData uniqueInteractionData,
          final DemographicData demographicData,
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
@@ -156,7 +156,7 @@ public final class DeprecatedCustomFunctions {
    }
 
    static String createLinkedGoldenRecordTriple(
-         final CustomUniqueGoldenRecordData uniqueGoldenRecordData,
+         final AuxGoldenRecordData uniqueGoldenRecordData,
          final DemographicData demographicData,
          final String interactionUID,
          final String sourceUID,

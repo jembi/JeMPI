@@ -8,13 +8,13 @@ import java.util.List;
 public record GoldenRecord(
       String goldenId,
       List<CustomSourceId> sourceId,
-      CustomUniqueGoldenRecordData customUniqueGoldenRecordData,
+      AuxGoldenRecordData customUniqueGoldenRecordData,
       DemographicData demographicData) {
 
    public GoldenRecord(final Interaction interaction) {
       this(null,
            List.of(interaction.sourceId()),
-           new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()),
+           new AuxGoldenRecordData(interaction.uniqueInteractionData()),
            interaction.demographicData());
    }
 

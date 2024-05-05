@@ -17,8 +17,8 @@ private object CustomDgraphMutations {
     val writer: PrintWriter = new PrintWriter(file)
     writer.println(s"""package $packageText;
          |
-         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
-         |import org.jembi.jempi.shared.models.CustomUniqueGoldenRecordData;
+         |import org.jembi.jempi.shared.models.AuxInteractionData;
+         |import org.jembi.jempi.shared.models.AuxGoldenRecordData;
          |import org.jembi.jempi.shared.models.DemographicData;
          |import org.jembi.jempi.shared.utils.AppUtils;
          |
@@ -33,7 +33,7 @@ private object CustomDgraphMutations {
          |   }
          |
          |   static String createInteractionTriple(
-         |         final CustomUniqueInteractionData uniqueInteractionData,
+         |         final AuxInteractionData auxInteractionData,
          |         final DemographicData demographicData,
          |         final String sourceUID) {
          |      final String uuid = UUID.randomUUID().toString();

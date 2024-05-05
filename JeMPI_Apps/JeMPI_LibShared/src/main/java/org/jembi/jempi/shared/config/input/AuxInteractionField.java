@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonInclude;
    public record AuxInteractionField(
          String fieldName,
          String fieldType,
-         String csvCol) {
+         Integer csvCol) {
    }

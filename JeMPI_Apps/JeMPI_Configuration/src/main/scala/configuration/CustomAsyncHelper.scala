@@ -19,7 +19,7 @@ private object CustomAsyncHelper {
          |
          |import org.apache.commons.csv.CSVRecord;
          |import org.jembi.jempi.shared.models.CustomSourceId;
-         |import org.jembi.jempi.shared.models.CustomUniqueInteractionData;
+         |import org.jembi.jempi.shared.models.AuxInteractionData;
          |
          |final class $customClassName {
          |
@@ -28,8 +28,8 @@ private object CustomAsyncHelper {
          |   private $customClassName() {
          |   }
          |
-         |   static CustomUniqueInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
-         |      return new CustomUniqueInteractionData(${customUniqueInteractionArguments()});
+         |   static AuxInteractionData customUniqueInteractionData(final CSVRecord csvRecord) {
+         |      return new AuxInteractionData(${customUniqueInteractionArguments()});
          |   }
          |
          |${
@@ -83,15 +83,16 @@ private object CustomAsyncHelper {
            else
              config.additionalNodes.get
                .map(x => s"""${additionalNodeFields(x)}""")
-               .mkString(sys.props("line.separator"))) + sys.props(
-            "line.separator"
-          )
-          +
-          config.demographicFields
-            .filter(f => f.source.isDefined && f.source.get.csvCol.isDefined)
-            .map(f =>
-              s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.source.get.csvCol.get};"""
+               .mkString(sys.props("line.separator"))) + sys
+            .props(
+              "line.separator"
             )
+//          +
+//          config.demographicFields
+//            .filter(f => f.source.isDefined && f.source.get.csvCol.isDefined)
+//            .map(f =>
+//              s"""${" " * 3}private static final int ${f.fieldName.toUpperCase}_COL_NUM = ${f.source.get.csvCol.get};"""
+//            )
             .mkString(sys.props("line.separator"))
     end columnIndices
 
@@ -114,11 +115,11 @@ private object CustomAsyncHelper {
         config.uniqueInteractionFields.get
           .map(f =>
             if (f.fieldName.toUpperCase.equals("AUX_ID")) {
-              s"""${" " * 45}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""
+              s"""${" " * 36}Main.parseRecordNumber(csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM))"""
             } else if (f.fieldName.toUpperCase.equals("AUX_DATE_CREATED")) {
-              s"""${" " * 45}java.time.LocalDateTime.now()"""
+              s"""${" " * 36}java.time.LocalDateTime.now()"""
             } else {
-              s"""${" " * 45}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM)"""
+              s"""${" " * 36}csvRecord.get(${f.fieldName.toUpperCase}_COL_NUM)"""
             }
           )
           .mkString(""",

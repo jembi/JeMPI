@@ -95,32 +95,32 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterRequest(
-         Float candidateThreshold,
-         CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("candidateThreshold") Float candidateThreshold,
+         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkToGidUpdateRequest(
-         String gid,
-         CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("gid") String gid,
+         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdRequest(
-         CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdUpdateRequest(
-         CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -128,17 +128,17 @@ public abstract class ApiModels {
          String stan,
          ExternalLinkRange externalLinkRange,
          Float matchThreshold,
-         CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionToGidSyncBody(
          String stan,
-         CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData,
+         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData,
          String gid) {
    }
 
@@ -254,7 +254,7 @@ public abstract class ApiModels {
    public record ApiGoldenRecord(
          String uid,
          List<CustomSourceId> sourceId,
-         CustomUniqueGoldenRecordData uniqueGoldenRecordData,
+         AuxGoldenRecordData uniqueGoldenRecordData,
          CustomDemographicData.CustomDemographicDataAPI demographicData) {
       public static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
@@ -302,7 +302,7 @@ public abstract class ApiModels {
    public record ApiInteraction(
          String uid,
          CustomSourceId sourceId,
-         CustomUniqueInteractionData uniqueInteractionData,
+         AuxInteractionData uniqueInteractionData,
          CustomDemographicData.CustomDemographicDataAPI demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
