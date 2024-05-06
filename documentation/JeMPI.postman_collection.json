@@ -438,7 +438,7 @@
 			"response": []
 		},
 		{
-			"name": "Search Golden Records/Interactions",
+			"name": "Simple Search Golden Records",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"content-type": true
@@ -458,12 +458,12 @@
 					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"john\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
 				},
 				"url": {
-					"raw": "{{LocalApi}}/search/golden",
+					"raw": "{{LocalApi}}/simpleGoldenSearch/golden",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"search",
+						"simpleGoldenSearch",
 						"golden"
 					]
 				}
@@ -471,7 +471,40 @@
 			"response": []
 		},
 		{
-			"name": "Custom search on Golden Records/interactions",
+			"name": "Simple Search Interaction Patient",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"john\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
+				},
+				"url": {
+					"raw": "{{LocalApi}}/simpleInteractionPatientSearch/patient",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"simpleInteractionPatientSearch",
+						"patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Custom search on Golden Records",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -492,6 +525,33 @@
 					"path": [
 						"customSearch",
 						"golden"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Custom search on Interactions Records",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"$or\": [\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"dob\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"nationalId\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                }\n            ]\n        },\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"John\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"Doe\",\n                    \"distance\": 3\n                }\n            ]\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/customSearch/patient",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"customSearch",
+						"patient"
 					]
 				}
 			},
@@ -748,6 +808,11 @@
 		{
 			"key": "LocalApi",
 			"value": "http://localhost:50000/JeMPI",
+			"type": "string"
+		},
+		{
+			"key": "LoacalApiS",
+			"value": "http://192.168.10.90:50000/JeMPI",
 			"type": "string"
 		}
 	]
