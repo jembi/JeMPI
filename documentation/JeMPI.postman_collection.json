@@ -458,13 +458,12 @@
 					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"john\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
 				},
 				"url": {
-					"raw": "{{LocalApi}}/simpleGoldenSearch/golden",
+					"raw": "{{LocalApi}}/simpleGoldenSearch",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"simpleGoldenSearch",
-						"golden"
+						"simpleGoldenSearch"
 					]
 				}
 			},
@@ -491,13 +490,12 @@
 					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"john\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
 				},
 				"url": {
-					"raw": "{{LocalApi}}/simpleInteractionPatientSearch/patient",
+					"raw": "{{LocalApi}}/simpleInteractionPatientSearch",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"simpleInteractionPatientSearch",
-						"patient"
+						"simpleInteractionPatientSearch"
 					]
 				}
 			},
@@ -518,13 +516,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/customSearch/golden",
+					"raw": "{{LocalApi}}/customGoldenSearch",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"customSearch",
-						"golden"
+						"customGoldenSearch"
 					]
 				}
 			},
@@ -545,13 +542,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/customSearch/patient",
+					"raw": "{{LocalApi}}/customInteractionPatientSearch",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"customSearch",
-						"patient"
+						"customInteractionPatientSearch"
 					]
 				}
 			},
@@ -813,7 +809,8 @@
 		{
 			"key": "LoacalApiS",
 			"value": "http://192.168.10.90:50000/JeMPI",
-			"type": "string"
+			"type": "string",
+			"disabled": true
 		}
 	]
 }
