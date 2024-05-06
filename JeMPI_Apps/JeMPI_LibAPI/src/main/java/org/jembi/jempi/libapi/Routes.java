@@ -481,14 +481,10 @@ public final class Routes {
 
    private static Route postSimpleGoldenSearch(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final RecordType recordType) {
-      LOGGER.info("Simple search on {}", recordType);
+         final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
-                    searchParameters -> onComplete(() -> {
-                        return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd,
-                                                                   searchParameters);
-                    }, response -> {
+                    searchParameters -> onComplete(() -> Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd,
+                                                                                           searchParameters), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
@@ -499,16 +495,12 @@ public final class Routes {
                     }));
    }
 
-   private static Route postSimpleInteractionPatientSearch(
+   private static Route postSimpleInteractionSearch(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final RecordType recordType) {
-      LOGGER.info("Simple search on {}", recordType);
+         final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
-                    searchParameters -> onComplete(() -> {
-                          return Ask.postSimpleSearchInteractions(actorSystem, backEnd,
-                                                                  searchParameters);
-                    }, response -> {
+                    searchParameters -> onComplete(() -> Ask.postSimpleSearchInteractions(actorSystem, backEnd,
+                                                                                          searchParameters), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
@@ -557,15 +549,12 @@ public final class Routes {
                     }));
    }
 
-   private static Route postCustomInteractionPatientSearch(
+   private static Route postCustomInteractionSearch(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final RecordType recordType) {
+         final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
-                    searchParameters -> onComplete(() -> {
-                    return Ask.postCustomSearchInteractions(actorSystem, backEnd,
-                                                         searchParameters);
-                    }, response -> {
+                    searchParameters -> onComplete(() -> Ask.postCustomSearchInteractions(actorSystem, backEnd,
+                                                                                          searchParameters), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
@@ -579,13 +568,10 @@ public final class Routes {
 
    private static Route postCustomGoldenSearch(
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final RecordType recordType) {
+         final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
-                    searchParameters -> onComplete(() -> {
-                     return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd,
-                                                                   searchParameters);
-                    }, response -> {
+                    searchParameters -> onComplete(() -> Ask.postCustomSearchGoldenRecords(actorSystem, backEnd,
+                                                                                           searchParameters), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
@@ -673,17 +659,17 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
                                () -> Routes.postFilterGids(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_SIMPLE_GOLDEN_SEARCH,
-                               () -> Routes.postSimpleGoldenSearch(actorSystem, backEnd, RecordType.GoldenRecord)),
+                               () -> Routes.postSimpleGoldenSearch(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_SIMPLE_INTERACTION_PATIENT_SEARCH,
-                               () -> Routes.postSimpleInteractionPatientSearch(actorSystem, backEnd, RecordType.Interaction)),
+                               () -> Routes.postSimpleInteractionSearch(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
                                () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
                                () -> Routes.postUpdateNotification(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_CUSTOM_GOLDEN_SEARCH,
-                               () -> Routes.postCustomGoldenSearch(actorSystem, backEnd, RecordType.GoldenRecord)),
+                               () -> Routes.postCustomGoldenSearch(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_CUSTOM_INTERACTION_PATIENT_SEARCH,
-                               () -> Routes.postCustomInteractionPatientSearch(actorSystem, backEnd, RecordType.Interaction)),
+                               () -> Routes.postCustomInteractionSearch(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION,
                                () -> Routes.postInteraction(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GIDS_PAGED,

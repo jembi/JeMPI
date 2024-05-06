@@ -40,9 +40,9 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_NEW_LINK = "newLink";
    public static final String SEGMENT_POST_UPDATE_NOTIFICATION = "notificationRequest";
    public static final String SEGMENT_POST_SIMPLE_GOLDEN_SEARCH = "simpleGoldenSearch";
-   public static final String SEGMENT_POST_SIMPLE_INTERACTION_PATIENT_SEARCH = "simpleInteractionPatientSearch";
+   public static final String SEGMENT_POST_SIMPLE_INTERACTION_PATIENT_SEARCH = "simpleInteractionSearch";
    public static final String SEGMENT_POST_CUSTOM_GOLDEN_SEARCH = "customGoldenSearch";
-   public static final String SEGMENT_POST_CUSTOM_INTERACTION_PATIENT_SEARCH = "customInteractionPatientSearch";
+   public static final String SEGMENT_POST_CUSTOM_INTERACTION_PATIENT_SEARCH = "customInteractionSearch";
    public static final String SEGMENT_POST_UPLOAD_CSV_FILE = "upload";
    public static final String SEGMENT_POST_FILTER_GIDS = "filterGids";
    public static final String SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT = "filterGidsInteraction";
