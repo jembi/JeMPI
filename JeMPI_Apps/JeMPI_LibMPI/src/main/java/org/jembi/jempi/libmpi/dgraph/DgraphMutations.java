@@ -11,6 +11,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -319,9 +320,9 @@ final class DgraphMutations {
       if (grec == null) {
          return Either.left(new MpiServiceError.GoldenIdDoesNotExistError("Golden Record not found", currentGoldenId));
       }
-      if (!deletePredicate(currentGoldenId, CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_INTERACTIONS, interactionId)) {
+      if (!deletePredicate(currentGoldenId, DGraphConfig.PREDICATE_GOLDEN_RECORD_INTERACTIONS, interactionId)) {
          return Either.left(new MpiServiceError.DeletePredicateError(interactionId,
-                                                                     CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_INTERACTIONS));
+                                                                     DGraphConfig.PREDICATE_GOLDEN_RECORD_INTERACTIONS));
       }
       if (count == 1) {
          deleteGoldenRecord(currentGoldenId);

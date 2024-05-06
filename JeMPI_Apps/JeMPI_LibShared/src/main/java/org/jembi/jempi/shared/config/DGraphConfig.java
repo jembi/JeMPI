@@ -8,6 +8,15 @@ import java.util.List;
 
 public class DGraphConfig {
 
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED = "GoldenRecord.aux_date_created";
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED = "GoldenRecord.aux_auto_update_enabled";
+   public static final String PREDICATE_GOLDEN_RECORD_AUX_ID = "GoldenRecord.aux_id";
+   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";
+
+   public static final String PREDICATE_INTERACTION_AUX_DATE_CREATED = "Interaction.aux_date_created";
+   public static final String PREDICATE_INTERACTION_AUX_ID = "Interaction.aux_id";
+   public static final String PREDICATE_INTERACTION_AUX_CLINICAL_DATA = "Interaction.aux_clinical_data";
+
    public final List<Pair<String, Integer>> demographicDataFields;
    public final String mutationCreateInteractionFields;
    public final String mutationCreateInteractionType;

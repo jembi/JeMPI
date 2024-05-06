@@ -31,7 +31,7 @@ object Main {
     )
 
 //    CustomMU.generate(config.demographicFields)
-    CustomDgraphConstants.generate(config)
+//    CustomDgraphConstants.generate(config)
     CustomDgraphInteraction.generate(config)
     CustomDgraphReverseGoldenRecord.generate(config)
 //    CustomDgraphGoldenRecord.generate(config)

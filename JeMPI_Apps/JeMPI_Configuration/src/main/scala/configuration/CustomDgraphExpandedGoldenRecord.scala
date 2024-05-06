@@ -19,6 +19,7 @@ private object CustomDgraphExpandedGoldenRecord {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
+         |import org.jembi.jempi.shared.config.DGraphConfig;
          |
          |import java.util.List;
          |
@@ -36,20 +37,37 @@ private object CustomDgraphExpandedGoldenRecord {
 
     def goldenRecordFields(): String =
 
-      def mapField(fieldName: String, fieldType: String): String =
-        s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_${fieldName.toUpperCase}) ${Utils
-            .javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
+      def mapField(
+          predicate: String,
+          fieldName: String,
+          fieldType: String
+      ): String =
+        s"""${" " * 6}@JsonProperty($predicate) ${Utils.javaType(
+            fieldType
+          )} ${Utils.snakeCaseToCamelCase(fieldName)},"""
 
       val f1 =
         if (config.uniqueGoldenRecordFields.isEmpty) ""
         else
           config.uniqueGoldenRecordFields.get
-            .map(f => mapField(f.fieldName, f.fieldType))
+            .map(f =>
+              mapField(
+                s"""DGraphConfig.PREDICATE_GOLDEN_RECORD_${f.fieldName.toUpperCase}""",
+                f.fieldName,
+                f.fieldType
+              )
+            )
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
       val f2 =
-        config.demographicFields
-          .map(f => mapField(f.fieldName, f.fieldType))
+        config.demographicFields.zipWithIndex
+          .map((f, i) =>
+            mapField(
+              s"""${"\"GoldenRecord.demographic_field_%02d".format(i)}\"""",
+              f.fieldName,
+              f.fieldType
+            )
+          )
           .mkString(sys.props("line.separator"))
 
       f1 + f2

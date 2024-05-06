@@ -2,6 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jembi.jempi.shared.config.DGraphConfig;
 
 import java.util.List;
 
@@ -9,16 +10,16 @@ import java.util.List;
 record CustomDgraphExpandedInteraction(
       @JsonProperty("uid") String interactionId,
       @JsonProperty("Interaction.source_id") DgraphSourceId sourceId,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_ID) String auxId,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_AUX_CLINICAL_DATA) String auxClinicalData,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GIVEN_NAME) String givenName,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_FAMILY_NAME) String familyName,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_GENDER) String gender,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_DOB) String dob,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_CITY) String city,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_PHONE_NUMBER) String phoneNumber,
-      @JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_NATIONAL_ID) String nationalId,
+      @JsonProperty(DGraphConfig.PREDICATE_INTERACTION_AUX_DATE_CREATED) java.time.LocalDateTime auxDateCreated,
+      @JsonProperty(DGraphConfig.PREDICATE_INTERACTION_AUX_ID) String auxId,
+      @JsonProperty(DGraphConfig.PREDICATE_INTERACTION_AUX_CLINICAL_DATA) String auxClinicalData,
+      @JsonProperty("Interaction.demographic_field_00") String givenName,
+      @JsonProperty("Interaction.demographic_field_01") String familyName,
+      @JsonProperty("Interaction.demographic_field_02") String gender,
+      @JsonProperty("Interaction.demographic_field_03") String dob,
+      @JsonProperty("Interaction.demographic_field_04") String city,
+      @JsonProperty("Interaction.demographic_field_05") String phoneNumber,
+      @JsonProperty("Interaction.demographic_field_06") String nationalId,
       @JsonProperty("~GoldenRecord.interactions") List<CustomDgraphReverseGoldenRecord> dgraphGoldenRecordList) {
 
 }

@@ -56,13 +56,13 @@ private object CustomDgraphConstants {
             )
         }
       end if
-      config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
-        val name = Utils.camelCaseToSnakeCase(field.fieldName)
-        writer.println(
-          s"""   public static final String PREDICATE_GOLDEN_RECORD_${name.toUpperCase} = "GoldenRecord.demographic_field_${"%02d"
-              .format(idx)}";""".stripMargin
-        )
-      }
+//      config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
+//        val name = Utils.camelCaseToSnakeCase(field.fieldName)
+//        writer.println(
+//          s"""   public static final String PREDICATE_GOLDEN_RECORD_${name.toUpperCase} = "GoldenRecord.demographic_field_${"%02d"
+//              .format(idx)}";""".stripMargin
+//        )
+//      }
       writer.println(
         s"""   public static final String PREDICATE_GOLDEN_RECORD_INTERACTIONS = "GoldenRecord.interactions";""".stripMargin
       )
@@ -78,13 +78,13 @@ private object CustomDgraphConstants {
             )
         }
       end if
-      config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
-        val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
-        writer.println(
-          s"""   public static final String PREDICATE_INTERACTION_${fieldName.toUpperCase} = "Interaction.demographic_field_${"%02d"
-              .format(idx)}";""".stripMargin
-        )
-      }
+//      config.demographicFields.zipWithIndex.foreach { case (field, idx) =>
+//        val fieldName = Utils.camelCaseToSnakeCase(field.fieldName)
+//        writer.println(
+//          s"""   public static final String PREDICATE_INTERACTION_${fieldName.toUpperCase} = "Interaction.demographic_field_${"%02d"
+//              .format(idx)}";""".stripMargin
+//        )
+//      }
     end interaction_predicates
 
     def golden_record_field_names(): Unit =

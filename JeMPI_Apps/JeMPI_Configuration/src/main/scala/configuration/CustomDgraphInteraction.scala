@@ -20,6 +20,7 @@ private object CustomDgraphInteraction {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |import com.fasterxml.jackson.annotation.JsonProperty;
+         |import org.jembi.jempi.shared.config.DGraphConfig;
          |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |record $customClassName(
@@ -35,19 +36,35 @@ private object CustomDgraphInteraction {
 
     def interactionFields(): String =
 
-      def mapField(fieldName: String, fieldType: String): String =
-        s"""${" " * 6}@JsonProperty(CustomDgraphConstants.PREDICATE_INTERACTION_${fieldName.toUpperCase}) ${Utils
+      def mapField(
+          predicate: String,
+          fieldName: String,
+          fieldType: String
+      ): String =
+        s"""${" " * 6}@JsonProperty($predicate) ${Utils
             .javaType(fieldType)} ${Utils.snakeCaseToCamelCase(fieldName)},"""
 
       val f1 =
         if (config.uniqueInteractionFields.isEmpty) ""
         else
           config.uniqueInteractionFields.get
-            .map(f => mapField(f.fieldName, f.fieldType))
+            .map(f =>
+              mapField(
+                s"""DGraphConfig.PREDICATE_INTERACTION_${f.fieldName.toUpperCase}""",
+                f.fieldName,
+                f.fieldType
+              )
+            )
             .mkString(sys.props("line.separator")) + sys.props("line.separator")
 
-      val f2 = config.demographicFields
-        .map(f => mapField(f.fieldName, f.fieldType))
+      val f2 = config.demographicFields.zipWithIndex
+        .map((f, i) =>
+          mapField(
+            s"""${"\"Interaction.demographic_field_%02d\"".format(i)}""",
+            f.fieldName,
+            f.fieldType
+          )
+        )
         .mkString(sys.props("line.separator"))
 
       f1 + f2

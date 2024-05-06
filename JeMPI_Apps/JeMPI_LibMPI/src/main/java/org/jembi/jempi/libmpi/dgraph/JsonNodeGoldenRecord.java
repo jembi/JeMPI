@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.AuxGoldenRecordData;
 import org.jembi.jempi.shared.models.DemographicData;
@@ -46,10 +47,10 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
             sourceIdList.add(new CustomSourceId(uid, facility, patient));
          }
       }
-      final var dt = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED).textValue();
+      final var dt = jsonNode.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
-      final var b = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED).booleanValue();
-      final var t = jsonNode.get(CustomDgraphConstants.PREDICATE_GOLDEN_RECORD_AUX_ID).textValue();
+      final var b = jsonNode.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED).booleanValue();
+      final var t = jsonNode.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_ID).textValue();
       final var customUniqueGoldenRecordData = new AuxGoldenRecordData(d, b, t);
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
