@@ -1,15 +1,15 @@
 {
 	"info": {
-		"_postman_id": "6fd7ff41-f8f9-442d-83d1-d3e0e186140b",
+		"_postman_id": "b525e37c-425b-48af-af15-734f344d6df1",
 		"name": "JeMPI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "12338305"
+		"_exporter_id": "9822947"
 	},
 	"item": [
 		{
 			"name": "Count Interactions",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countInteractions",
@@ -26,7 +26,7 @@
 		{
 			"name": "Count Golden Records",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countGoldenRecords",
@@ -43,7 +43,7 @@
 		{
 			"name": "Count Records",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countRecords",
@@ -60,7 +60,7 @@
 		{
 			"name": "Get Golden Ids All",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/gidsAll",
@@ -133,7 +133,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
+					"raw": "{\n    \"gid\":\"0x5\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -438,7 +438,7 @@
 			"response": []
 		},
 		{
-			"name": "Search Golden Records/Interactions",
+			"name": "Simple Search Golden Records",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"content-type": true
@@ -455,29 +455,60 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"john\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"doe\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
+					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"mildred\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"sigafoose\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
 				},
 				"url": {
-					"raw": "{{LocalApi}}/search/golden",
+					"raw": "{{LocalApi}}/simpleGoldenSearch",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"search",
-						"golden"
+						"simpleGoldenSearch"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Custom search on Golden Records/interactions",
+			"name": "Simple Search Interaction Patient",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"parameters\": [\n        {\n            \"fieldName\": \"givenName\",\n            \"value\": \"mildred\",\n            \"distance\": 3\n        },\n        {\n            \"fieldName\": \"familyName\",\n            \"value\": \"sigafoose\",\n            \"distance\": 3\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}"
+				},
+				"url": {
+					"raw": "{{LocalApi}}/simpleInteractionSearch",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"simpleInteractionSearch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Custom search on Golden Records",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"$or\": [\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"dob\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"nationalId\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                }\n            ]\n        },\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"John\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"Doe\",\n                    \"distance\": 3\n                }\n            ]\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}",
+					"raw": "{\n    \"$or\": [\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"dob\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"nationalId\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                }\n            ]\n        },\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"mildred\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"sigafoose\",\n                    \"distance\": 3\n                }\n            ]\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -485,13 +516,38 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/customSearch/golden",
+					"raw": "{{LocalApi}}/customGoldenSearch",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"customSearch",
-						"golden"
+						"customGoldenSearch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Custom search on Interactions Records",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"$or\": [\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"dob\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"nationalId\",\n                    \"value\": \"\",\n                    \"distance\": 3\n                }\n            ]\n        },\n        {\n            \"parameters\": [\n                {\n                    \"fieldName\": \"givenName\",\n                    \"value\": \"mildred\",\n                    \"distance\": 3\n                },\n                {\n                    \"fieldName\": \"familyName\",\n                    \"value\": \"sigafoose\",\n                    \"distance\": 3\n                }\n            ]\n        }\n    ],\n    \"sortBy\": \"givenName\",\n    \"sortAsc\": true,\n    \"offset\": 0,\n    \"limit\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/customInteractionSearch",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"customInteractionSearch"
 					]
 				}
 			},
@@ -506,9 +562,14 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "file",
+							"key": "csv",
 							"type": "file",
-							"src": []
+							"src": "/home/matthewe/Documents/JeMPI Testing/test-data-0002000-05_2.csv"
+						},
+						{
+							"key": "queries",
+							"value": "{\"reportingRequired\":false,\"uploadWorkflow\":0,\"minThreshold\":0.55,\"linkThreshold\":0.6,\"maxThreshold\":0.65,\"marginWindowSize\":0.1}",
+							"type": "text"
 						}
 					]
 				},
@@ -749,6 +810,12 @@
 			"key": "LocalApi",
 			"value": "http://localhost:50000/JeMPI",
 			"type": "string"
+		},
+		{
+			"key": "LoacalApiS",
+			"value": "http://192.168.10.90:50000/JeMPI",
+			"type": "string",
+			"disabled": true
 		}
 	]
 }
