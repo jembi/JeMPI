@@ -724,12 +724,12 @@ public final class Routes {
                                                            controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
                                () -> Routes.postFilterGids(actorSystem, backEnd)),
-                        //   path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
-                        //              .slash(segment(Pattern.compile("^(golden|patient)$"))),
-                        //        type -> Routes.postSimpleSearch(actorSystem, backEnd,
-                        //                                        type.equals("golden")
-                        //                                              ? RecordType.GoldenRecord
-                        //                                              : RecordType.Interaction)),
+                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.postSimpleSearch(actorSystem, backEnd,
+                                                               type.equals("golden")
+                                                                     ? RecordType.GoldenRecord
+                                                                     : RecordType.Interaction)),
 
 
                           path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_GOLDEN_SEARCH)
@@ -749,11 +749,11 @@ public final class Routes {
                                () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
                                () -> Routes.postUpdateNotification(actorSystem, backEnd)),
-                        //   path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
-                        //              .slash(segment(Pattern.compile("^(golden|patient)$"))),
-                        //        type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
-                        //              ? RecordType.GoldenRecord
-                        //              : RecordType.Interaction)),
+                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
+                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                               type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
+                                     ? RecordType.GoldenRecord
+                                     : RecordType.Interaction)),
 
 
                           path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_GOLDEN_SEARCH)
