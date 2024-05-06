@@ -31,6 +31,26 @@ class TestDGraphConfig {
    }
 
    @Test
+   void testMutationCreateInteractionTriple() {
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_TRIPLE_1,
+                              DGRAPH_CONFIG_1.mutationCreateInteractionTriple,
+                              "MUTATION_CREATE_INTERACTION_TRIPLE_1");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_TRIPLE_2,
+                              DGRAPH_CONFIG_1.mutationCreateInteractionTriple,
+                              "MUTATION_CREATE_INTERACTION_TRIPLE_2");
+   }
+
+   @Test
+   void testMutationCreateLinkedGoldenRecordTriple() {
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_1,
+                              DGRAPH_CONFIG_1.mutationCreateLinkedGoldenRecordTriple,
+                              "MUTATION_CREATE_LINK$ED_GOLDEN_RECORD_TRIPLE_1");
+      Assertions.assertEquals(TestConstants.MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_2,
+                              DGRAPH_CONFIG_1.mutationCreateLinkedGoldenRecordTriple,
+                              "MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_2");
+   }
+
+   @Test
    void testMutationCreateInteractionFields() {
       Assertions.assertEquals(TestConstants.MUTATION_CREATE_INTERACTION_FIELDS_1,
                               DGRAPH_CONFIG_1.mutationCreateInteractionFields,

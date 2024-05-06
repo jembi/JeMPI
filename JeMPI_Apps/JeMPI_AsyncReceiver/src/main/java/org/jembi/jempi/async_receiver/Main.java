@@ -97,17 +97,6 @@ public final class Main {
       }
    }
 
-   private long getRowSize(final String[] values) {
-      long size = 0;
-
-      for (String str : values) {
-         if (str != null) {
-            size += 24 + (str.length() * 2L);
-         }
-      }
-      return size;
-   }
-
    private void apacheReadCSV(final String fileName) throws InterruptedException, ExecutionException {
       try {
          final var filePathUri = Paths.get(fileName);
@@ -165,9 +154,7 @@ public final class Main {
             LOGGER.info("Process CSV file: {}", filename);
             apacheReadCSV("csv/" + filename);
          }
-      } else if (ENTRY_MODIFY.equals(kind)) {
-         LOGGER.info("EVENT: {}", kind);
-      } else if (ENTRY_DELETE.equals(kind)) {
+      } else if (ENTRY_MODIFY.equals(kind) || ENTRY_DELETE.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       }
    }

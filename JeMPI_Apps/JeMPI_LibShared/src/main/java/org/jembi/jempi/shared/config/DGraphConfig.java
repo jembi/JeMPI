@@ -15,6 +15,8 @@ public class DGraphConfig {
    public final String mutationCreateGoldenRecordType;
    public final String mutationCreateAdditionalNodeFields;
    public final String mutationCreateAdditionalNodeType;
+   public final String mutationCreateInteractionTriple;
+   public final String mutationCreateLinkedGoldenRecordTriple;
    public final String goldenRecordFieldNames;
    public final String expandedGoldenRecordFieldNames;
    public final String interactionFieldNames;
@@ -33,6 +35,8 @@ public class DGraphConfig {
       mutationCreateGoldenRecordType = MutationCreateGoldenRecordType.create(jsonConfig);
       mutationCreateAdditionalNodeFields = MutationCreateAdditionalNodeFields.create(jsonConfig);
       mutationCreateAdditionalNodeType = MutationCreateAdditionalNodeType.create(jsonConfig);
+      mutationCreateInteractionTriple = MutationCreateInteractionTriple.create(jsonConfig);
+      mutationCreateLinkedGoldenRecordTriple = MutationCreateLinkedGoldenRecordTriple.create(jsonConfig);
       goldenRecordFieldNames = GoldenRecordFieldNames.create(jsonConfig);
       expandedGoldenRecordFieldNames = ExpandedGoldenRecordFieldNames.create(jsonConfig);
       interactionFieldNames = InteractionFieldNames.create(jsonConfig);

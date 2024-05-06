@@ -29,6 +29,54 @@ final class DgraphMutations {
       Configurator.setLevel(this.getClass(), level);
    }
 
+   static String createInteractionTriple(
+         final AuxInteractionData uniqueInteractionData,
+         final DemographicData demographicData,
+         final String sourceUID) {
+      final String uuid = UUID.randomUUID().toString();
+      final List<Object> params = new ArrayList<>(23);
+      params.addAll(List.of(uuid, sourceUID));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxId())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxClinicalData())));
+      demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
+      params.add(uuid);
+      return DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
+   }
+
+   static String createLinkedGoldenRecordTriple(
+         final AuxGoldenRecordData uniqueGoldenRecordData,
+         final DemographicData demographicData,
+         final String interactionUID,
+         final String sourceUID,
+         final float score) {
+      final String uuid = UUID.randomUUID().toString();
+      final List<Object> params = new ArrayList<>(26);
+      params.addAll(List.of(uuid, sourceUID));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId())));
+      demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
+      params.addAll(List.of(uuid, interactionUID, score));
+      params.add(uuid);
+      return DGRAPH_CONFIG.mutationCreateLinkedGoldenRecordTriple.formatted(params.toArray(Object[]::new));
+//      return """
+//             _:%s  <GoldenRecord.source_id>                     <%s>                  .
+//             _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
+//             _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
+//             _:%s  <GoldenRecord.aux_id>                        %s                    .
+//             _:%s  <GoldenRecord.demographic_field_00>          %s                    .
+//             _:%s  <GoldenRecord.demographic_field_01>          %s                    .
+//             _:%s  <GoldenRecord.demographic_field_02>          %s                    .
+//             _:%s  <GoldenRecord.demographic_field_03>          %s                    .
+//             _:%s  <GoldenRecord.demographic_field_04>          %s                    .
+//             _:%s  <GoldenRecord.demographic_field_05>          %s                    .
+//             _:%s  <GoldenRecord.demographic_field_06>          %s                    .
+//             _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
+//             _:%s  <dgraph.type>                                "GoldenRecord"        .
+//             """.formatted(params.toArray(Object[]::new));
+   }
+
    LinkInfo addNewDGraphInteraction(final Interaction interaction) {
       final var result = insertInteraction(interaction);
       if (result.interactionUID == null) {
@@ -190,7 +238,7 @@ final class DgraphMutations {
       final DgraphProto.Mutation mutation = DgraphProto
             .Mutation
             .newBuilder()
-            .setSetNquads(ByteString.copyFromUtf8(DeprecatedCustomFunctions.createInteractionTriple(
+            .setSetNquads(ByteString.copyFromUtf8(DgraphMutations.createInteractionTriple(
                   interaction.uniqueInteractionData(),
                   interaction.demographicData(),
                   sourceIdUid)))
@@ -204,11 +252,11 @@ final class DgraphMutations {
          final String sourceUID,
          final float score,
          final AuxGoldenRecordData customUniqueGoldenRecordData) {
-      final var command = DeprecatedCustomFunctions.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
-                                                                                   interaction,
-                                                                                   interactionUID,
-                                                                                   sourceUID,
-                                                                                   score);
+      final var command = DgraphMutations.createLinkedGoldenRecordTriple(customUniqueGoldenRecordData,
+                                                                         interaction,
+                                                                         interactionUID,
+                                                                         sourceUID,
+                                                                         score);
       final DgraphProto.Mutation mutation =
             DgraphProto.Mutation.newBuilder().setSetNquads(ByteString.copyFromUtf8(command)).build();
       return DgraphClient.getInstance().doMutateTransaction(mutation);
@@ -224,10 +272,6 @@ final class DgraphMutations {
                                                .build();
       DgraphClient.getInstance().doMutateTransaction(mutation);
    }
-
-//   String camelToSnake(final String str) {
-//      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
-//   }
 
    boolean updateGoldenRecordField(
          final String goldenId,

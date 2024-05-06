@@ -357,6 +357,39 @@ final class TestConstants {
          Interaction.demographic_field_06:         string    @index(exact,trigram)              .
          """;
 
+   static final String MUTATION_CREATE_INTERACTION_TRIPLE_1 =
+         """
+         _:%s  <Interaction.source_id>                     <%s>                  .
+         _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
+         _:%s  <Interaction.aux_id>                        %s                    .
+         _:%s  <Interaction.aux_clinical_data>             %s                    .
+         _:%s  <Interaction.demographic_field_00>          %s                    .
+         _:%s  <Interaction.demographic_field_01>          %s                    .
+         _:%s  <Interaction.demographic_field_02>          %s                    .
+         _:%s  <Interaction.demographic_field_03>          %s                    .
+         _:%s  <Interaction.demographic_field_04>          %s                    .
+         _:%s  <Interaction.demographic_field_05>          %s                    .
+         _:%s  <Interaction.demographic_field_06>          %s                    .
+         _:%s  <dgraph.type>                               "Interaction"         .
+         """;
+
+   static final String MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_1 =
+         """
+         _:%s  <GoldenRecord.source_id>                     <%s>                  .
+         _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
+         _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
+         _:%s  <GoldenRecord.aux_id>                        %s                    .
+         _:%s  <GoldenRecord.demographic_field_00>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_01>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_02>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_03>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_04>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_05>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_06>          %s                    .
+         _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
+         _:%s  <dgraph.type>                                "GoldenRecord"        .
+         """;
+
    static final String GOLDEN_RECORD_FIELD_NAMES_2 =
          """
          uid
@@ -708,6 +741,40 @@ final class TestConstants {
          Interaction.demographic_field_05:         string                                       .
          Interaction.demographic_field_06:         string                                       .
          """;
+
+   static final String MUTATION_CREATE_INTERACTION_TRIPLE_2 =
+         """
+         _:%s  <Interaction.source_id>                     <%s>                  .
+         _:%s  <Interaction.aux_date_created>              %s^^<xs:dateTime>     .
+         _:%s  <Interaction.aux_id>                        %s                    .
+         _:%s  <Interaction.aux_clinical_data>             %s                    .
+         _:%s  <Interaction.demographic_field_00>          %s                    .
+         _:%s  <Interaction.demographic_field_01>          %s                    .
+         _:%s  <Interaction.demographic_field_02>          %s                    .
+         _:%s  <Interaction.demographic_field_03>          %s                    .
+         _:%s  <Interaction.demographic_field_04>          %s                    .
+         _:%s  <Interaction.demographic_field_05>          %s                    .
+         _:%s  <Interaction.demographic_field_06>          %s                    .
+         _:%s  <dgraph.type>                               "Interaction"         .
+         """;
+
+   static final String MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_2 =
+         """
+         _:%s  <GoldenRecord.source_id>                     <%s>                  .
+         _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
+         _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
+         _:%s  <GoldenRecord.aux_id>                        %s                    .
+         _:%s  <GoldenRecord.demographic_field_00>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_01>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_02>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_03>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_04>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_05>          %s                    .
+         _:%s  <GoldenRecord.demographic_field_06>          %s                    .
+         _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
+         _:%s  <dgraph.type>                                "GoldenRecord"        .
+         """;
+
 
    private TestConstants() {
    }
