@@ -506,6 +506,46 @@ public final class Routes {
                     }));
    }
 
+   private static Route postSimpleGoldenSearch(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final RecordType recordType) {
+      LOGGER.info("Simple search on {}", recordType);
+      return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
+                    searchParameters -> onComplete(() -> {
+                        return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd,
+                                                                   searchParameters);
+                    }, response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+                    }));
+   }
+
+   private static Route postSimpleInteractionPatientSearch(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final RecordType recordType) {
+      LOGGER.info("Simple search on {}", recordType);
+      return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
+                    searchParameters -> onComplete(() -> {
+                          return Ask.postSimpleSearchInteractions(actorSystem, backEnd,
+                                                                  searchParameters);
+                    }, response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+                    }));
+   }
+
    private static Route postFilterGids(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -557,6 +597,46 @@ public final class Routes {
                           return Ask.postCustomSearchInteractions(actorSystem, backEnd,
                                                                   searchParameters);
                        }
+                    }, response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+
+                    }));
+   }
+
+   private static Route postCustomInteractionPatientSearch(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final RecordType recordType) {
+      return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
+                    searchParameters -> onComplete(() -> {
+                    return Ask.postCustomSearchInteractions(actorSystem, backEnd,
+                                                         searchParameters);
+                    }, response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(
+                                e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+
+                    }));
+   }
+
+   private static Route postCustomGoldenSearch(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final RecordType recordType) {
+      return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
+                    searchParameters -> onComplete(() -> {
+                     return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd,
+                                                                   searchParameters);
                     }, response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
@@ -644,21 +724,48 @@ public final class Routes {
                                                            controllerPort, http)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS,
                                () -> Routes.postFilterGids(actorSystem, backEnd)),
-                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
-                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
-                               type -> Routes.postSimpleSearch(actorSystem, backEnd,
-                                                               type.equals("golden")
-                                                                     ? RecordType.GoldenRecord
-                                                                     : RecordType.Interaction)),
+                        //   path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_SEARCH)
+                        //              .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                        //        type -> Routes.postSimpleSearch(actorSystem, backEnd,
+                        //                                        type.equals("golden")
+                        //                                              ? RecordType.GoldenRecord
+                        //                                              : RecordType.Interaction)),
+
+
+                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_GOLDEN_SEARCH)
+                                       .slash(segment(Pattern.compile("^(golden)$"))),
+                                 type -> Routes.postSimpleGoldenSearch(actorSystem, backEnd,
+                                                                  type.equals("golden")
+                                                                        ? RecordType.GoldenRecord
+                                                                        : RecordType.Interaction)),
+                          path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_INTERACTION_PATIENT_SEARCH)
+                                       .slash(segment(Pattern.compile("^(patient)$"))),
+                                 type -> Routes.postSimpleInteractionPatientSearch(actorSystem, backEnd,
+                                                                  type.equals("golden")
+                                                                        ? RecordType.GoldenRecord
+                                                                        : RecordType.Interaction)),
+
                           path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
                                () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
                                () -> Routes.postUpdateNotification(actorSystem, backEnd)),
-                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
-                                     .slash(segment(Pattern.compile("^(golden|patient)$"))),
-                               type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
-                                     ? RecordType.GoldenRecord
-                                     : RecordType.Interaction)),
+                        //   path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_SEARCH)
+                        //              .slash(segment(Pattern.compile("^(golden|patient)$"))),
+                        //        type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
+                        //              ? RecordType.GoldenRecord
+                        //              : RecordType.Interaction)),
+
+
+                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_GOLDEN_SEARCH)
+                                       .slash(segment(Pattern.compile("^(golden)$"))),
+                                 type -> Routes.postCustomGoldenSearch(actorSystem, backEnd, type.equals("golden")
+                                       ? RecordType.GoldenRecord
+                                       : RecordType.Interaction)),
+                          path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_INTERACTION_PATIENT_SEARCH)
+                                       .slash(segment(Pattern.compile("^(patient)$"))),
+                                 type -> Routes.postCustomInteractionPatientSearch(actorSystem, backEnd, type.equals("golden")
+                                       ? RecordType.GoldenRecord
+                                       : RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION,
                                () -> Routes.postInteraction(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GIDS_PAGED,
