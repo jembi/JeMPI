@@ -730,21 +730,12 @@ public final class Routes {
                                                                type.equals("golden")
                                                                      ? RecordType.GoldenRecord
                                                                      : RecordType.Interaction)),
-
-
                           path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_GOLDEN_SEARCH)
                                        .slash(segment(Pattern.compile("^(golden)$"))),
-                                 type -> Routes.postSimpleGoldenSearch(actorSystem, backEnd,
-                                                                  type.equals("golden")
-                                                                        ? RecordType.GoldenRecord
-                                                                        : RecordType.Interaction)),
+                                 type -> Routes.postSimpleGoldenSearch(actorSystem, backEnd, RecordType.GoldenRecord)),
                           path(segment(GlobalConstants.SEGMENT_POST_SIMPLE_INTERACTION_PATIENT_SEARCH)
                                        .slash(segment(Pattern.compile("^(patient)$"))),
-                                 type -> Routes.postSimpleInteractionPatientSearch(actorSystem, backEnd,
-                                                                  type.equals("golden")
-                                                                        ? RecordType.GoldenRecord
-                                                                        : RecordType.Interaction)),
-
+                                 type -> Routes.postSimpleInteractionPatientSearch(actorSystem, backEnd, RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_CR_FIND_SOURCE_ID,
                                () -> Routes.postCrFindSourceId(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_UPDATE_NOTIFICATION,
@@ -754,18 +745,12 @@ public final class Routes {
                                type -> Routes.postCustomSearch(actorSystem, backEnd, type.equals("golden")
                                      ? RecordType.GoldenRecord
                                      : RecordType.Interaction)),
-
-
                           path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_GOLDEN_SEARCH)
                                        .slash(segment(Pattern.compile("^(golden)$"))),
-                                 type -> Routes.postCustomGoldenSearch(actorSystem, backEnd, type.equals("golden")
-                                       ? RecordType.GoldenRecord
-                                       : RecordType.Interaction)),
+                                 type -> Routes.postCustomGoldenSearch(actorSystem, backEnd, RecordType.GoldenRecord)),
                           path(segment(GlobalConstants.SEGMENT_POST_CUSTOM_INTERACTION_PATIENT_SEARCH)
                                        .slash(segment(Pattern.compile("^(patient)$"))),
-                                 type -> Routes.postCustomInteractionPatientSearch(actorSystem, backEnd, type.equals("golden")
-                                       ? RecordType.GoldenRecord
-                                       : RecordType.Interaction)),
+                                 type -> Routes.postCustomInteractionPatientSearch(actorSystem, backEnd, RecordType.Interaction)),
                           path(GlobalConstants.SEGMENT_POST_INTERACTION,
                                () -> Routes.postInteraction(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GIDS_PAGED,
