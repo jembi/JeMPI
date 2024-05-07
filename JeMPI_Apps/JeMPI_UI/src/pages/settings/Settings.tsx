@@ -6,7 +6,6 @@ import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
-import GoldenRecordInteractiveNode from './interactiveNode/InteractiveNode'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
 import { Configuration } from 'types/Configuration'
@@ -14,6 +13,7 @@ import { useConfig } from 'hooks/useConfig'
 import { useQuery } from '@tanstack/react-query'
 import { generateId } from 'utils/helpers'
 import Loading from 'components/common/Loading'
+import InteractiveNode from './interactiveNode/InteractiveNode'
 
 interface TabPanelProps {
   children?: React.ReactNode

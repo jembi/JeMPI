@@ -27,7 +27,6 @@ interface EditToolbarProps {
 }
 
 const CommonSettings = ({ demographicData }: { demographicData: any }) => {
-  4
 
   const [rows, setRows] = useState(demographicData)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
