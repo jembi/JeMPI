@@ -183,7 +183,7 @@
         }
       },
       "probabilistic": {
-        "QUERY_LINK_PROBABILISTIC_CANDIDATES": {
+        "QUERY_LINK_PROBABILISTIC_BLOCK": {
           "vars": [
             "given_name",
             "family_name",

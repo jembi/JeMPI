@@ -70,7 +70,7 @@ public final class SPInteractions {
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
-            LOGGER.error("BACK END RESPONSE(ERROR)");
+            LOGGER.warn("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);

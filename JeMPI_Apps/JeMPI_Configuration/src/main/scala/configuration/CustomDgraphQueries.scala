@@ -19,7 +19,6 @@ object CustomDgraphQueries {
     val writer: PrintWriter = new PrintWriter(file)
     writer.println(s"""package $packageText;
          |
-         |import io.vavr.Function1;
          |import org.apache.commons.lang3.StringUtils;
          |import org.jembi.jempi.shared.models.DemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
@@ -33,11 +32,11 @@ object CustomDgraphQueries {
          |import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
          |
          |final class $custom_className {
-         |
-         |   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS =
-         |      List.of(${getDeterministicFunctions(config.rules.link.get)});
          |""".stripMargin)
+//         |   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS =
+//         |      List.of(${getDeterministicFunctions(config.rules.link.get)});
 
+    /*
     if (config.rules.matchNotification.isDefined) {
       writer.println(
         s"""   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
@@ -53,17 +52,26 @@ object CustomDgraphQueries {
            |""".stripMargin
       )
     }
+     */
 
     if (config.rules.link.get.deterministic.isDefined) {
       config.rules.link.get.deterministic.get.foreach((name, rule) =>
         emitRuleTemplate(name, rule)
       )
     }
+
     if (
       config.rules.link.isDefined && config.rules.link.get.probabilistic.isDefined
     ) {
       config.rules.link.get.probabilistic.get.foreach((name, rule) =>
         emitRuleTemplate(name, rule)
+      )
+    } else {
+      writer.println(
+        s"""   static List<GoldenRecord> queryLinkProbabilisticBlock(final DemographicData demographicData) {
+           |      return List.of();
+           |   }
+           |""".stripMargin
       )
     }
 
@@ -79,6 +87,13 @@ object CustomDgraphQueries {
     ) {
       config.rules.matchNotification.get.probabilistic.get.foreach(
         (name, rule) => emitRuleTemplate(name, rule)
+      )
+    } else {
+      writer.println(
+        s"""   static List<GoldenRecord> queryMatchProbabilisticBlock(final DemographicData demographicData) {
+           |      return List.of();
+           |   }
+           |""".stripMargin
       )
     }
 
