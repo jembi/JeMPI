@@ -31,6 +31,7 @@ import { Notifications, NotificationState } from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
+import { Configuration } from 'types/Configuration'
 
 const apiClientAuth = (() => {
   const authKey = 'jempi-auth-key'
@@ -88,6 +89,11 @@ export class ApiClient {
     return data
   }
 
+  async fetchConfiguration() {
+    const { data } = await moxios.post<Configuration>(ROUTES.POST_CONFIGURATION)
+    return data
+  }
+
   async fetchMatches(
     limit: number,
     offset: number,
@@ -95,14 +101,14 @@ export class ApiClient {
     endDate: string,
     states: string[]
   ): Promise<Notifications> {
-    const includeClosed = states.includes(NotificationState.CLOSED.toString());
-    const includeAll = states.includes(NotificationState.ALL.toString());
-  
+    const includeClosed = states.includes(NotificationState.CLOSED.toString())
+    const includeAll = states.includes(NotificationState.ALL.toString())
+
     const notificationState = includeAll
       ? [NotificationState.CLOSED, NotificationState.OPEN]
       : includeClosed
       ? [NotificationState.CLOSED]
-      : [NotificationState.OPEN];
+      : [NotificationState.OPEN]
     const { data } = await this.client.post<NotificationResponse>(
       ROUTES.POST_NOTIFICATIONS,
       {
@@ -113,7 +119,7 @@ export class ApiClient {
         states: notificationState
       }
     )
-    
+
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -390,8 +396,8 @@ export class ApiClient {
       try {
         const response = await this.client.post(
           ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
-          { 
-            "goldenId":uid,
+          {
+            goldenId: uid,
             fields: [{ name, oldValue, newValue }]
           }
         )

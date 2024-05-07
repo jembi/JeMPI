@@ -1,4 +1,4 @@
-import { Grid, Tab, Tabs, Typography, useMediaQuery } from '@mui/material'
+import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { SyntheticEvent, useState } from 'react'
 import CommonSettings from './common/Common'
@@ -6,9 +6,14 @@ import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
-import GoldenRecordInteractiveNode from './interactiveNode/InteractiveNode'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
+import { Configuration } from 'types/Configuration'
+import { useConfig } from 'hooks/useConfig'
+import { useQuery } from '@tanstack/react-query'
+import { generateId } from 'utils/helpers'
+import Loading from 'components/common/Loading'
+import InteractiveNode from './interactiveNode/InteractiveNode'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -42,8 +47,24 @@ function a11yProps(index: number) {
 }
 const Settings = () => {
   const [value, setValue] = useState(0)
+  const { apiClient } = useConfig()
+
+  const { data: fields, isLoading } = useQuery<Configuration>({
+    queryKey: ['configuration'],
+    queryFn: () => apiClient.fetchConfiguration(),
+    refetchOnWindowFocus: false
+  })
+
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue)
+  }
+
+  const demographicDataWithId = fields
+    ? generateId(fields?.demographicFields)
+    : []
+
+  if (isLoading) {
+    return <Loading />
   }
 
   return (
@@ -62,7 +83,7 @@ const Settings = () => {
           }}
         >
           <div className="shapes-container">
-            <GoldenRecordInteractiveNode />
+            <InteractiveNode />
           </div>
         </div>
       </Grid>
@@ -89,7 +110,7 @@ const Settings = () => {
               <Typography variant="h5" sx={{ py: 3 }}>
                 Setup common properties
               </Typography>
-              <CommonSettings />
+              <CommonSettings demographicData={demographicDataWithId} />
             </>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
