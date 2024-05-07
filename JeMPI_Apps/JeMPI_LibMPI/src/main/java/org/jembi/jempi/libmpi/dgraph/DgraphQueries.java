@@ -3,7 +3,6 @@ package org.jembi.jempi.libmpi.dgraph;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
@@ -90,9 +89,9 @@ final class DgraphQueries {
            }
          }""";
 
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> LIST_DETERMINISTIC_LINK_FUNCTIONS = List.of(
-         demographicData -> queryLinkDeterministic(demographicData, Pair.of(0, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A)),
-         demographicData -> queryLinkDeterministic(demographicData, Pair.of(1, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B)));
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS = List.of(
+         demographicData -> queryLinkDeterministic(demographicData, 0, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A),
+         demographicData -> queryLinkDeterministic(demographicData, 1, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B));
 
    private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
          List.of();
@@ -999,7 +998,7 @@ final class DgraphQueries {
     */
    static List<GoldenRecord> findLinkCandidates(
          final DemographicData interaction) {
-      var result = deterministicSelectGoldenRecords(LIST_DETERMINISTIC_LINK_FUNCTIONS, interaction);
+      var result = deterministicSelectGoldenRecords(DETERMINISTIC_LINK_FUNCTIONS, interaction);
       if (!result.isEmpty()) {
          return result;
       }
@@ -1027,13 +1026,14 @@ final class DgraphQueries {
 
    private static List<GoldenRecord> queryLinkDeterministic(
          final DemographicData demographicData,
-         final Pair<Integer, String> rule) { // final int ruleNumber, final String query) {
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(rule.getLeft()),
+         final int ruleNumber,
+         final String query) {
+      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber),
                                                       demographicData)) {
          return List.of();
       }
       final Map<String, String> map = new HashMap<>();
-      JSON_CONFIG.rules().link().deterministic().get(rule.getLeft()).vars().forEach(scFieldName -> {
+      JSON_CONFIG.rules().link().deterministic().get(ruleNumber).vars().forEach(scFieldName -> {
          final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
          final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
          final var fieldValue = demographicData.fields.get(fieldIdx).value();
@@ -1042,7 +1042,7 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(rule.getRight(), map);
+      return runGoldenRecordsQuery(query, map);
    }
 
    private static class InvalidFunctionException extends Exception {
