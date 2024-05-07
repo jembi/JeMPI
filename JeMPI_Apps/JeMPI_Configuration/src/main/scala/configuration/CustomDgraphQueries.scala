@@ -24,7 +24,6 @@ object CustomDgraphQueries {
          |import org.jembi.jempi.shared.models.DemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
          |
-         |import java.util.LinkedList;
          |import java.util.List;
          |import java.util.Map;
          |
@@ -121,11 +120,11 @@ object CustomDgraphQueries {
         (x, ruleNumber) => emitRuleFunction(x._1, x._2, ruleNumber)
       )
     }
-    emitFindCandidates(
-      "Match",
-      "DETERMINISTIC_MATCH_FUNCTIONS",
-      config.rules.matchNotification
-    )
+//    emitFindCandidates(
+//      "Match",
+//      "DETERMINISTIC_MATCH_FUNCTIONS",
+//      config.rules.matchNotification
+//    )
 
     writer.println(s"""   private $custom_className() {
          |   }
@@ -218,7 +217,7 @@ object CustomDgraphQueries {
       if (vars.length == 1)
         val v = vars(0)
         writer.println(
-          s"""   private static List<GoldenRecord> $functionName(final DemographicData demographicData) {
+          s"""   static List<GoldenRecord> $functionName(final DemographicData demographicData) {
              |      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
              |         return List.of();
              |      }

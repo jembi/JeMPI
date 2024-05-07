@@ -1,11 +1,9 @@
 package org.jembi.jempi.libmpi.dgraph;
 
-import io.vavr.Function1;
 import org.apache.commons.lang3.StringUtils;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,12 +14,12 @@ import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
 
 final class CustomDgraphQueries {
 
-   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS =
-      List.of(DgraphQueries::queryLinkDeterministicA,
-              DgraphQueries::queryLinkDeterministicB);
-
-   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
-      List.of();
+//   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS =
+//      List.of(DgraphQueries::queryLinkDeterministicA,
+//              DgraphQueries::queryLinkDeterministicB);
+//
+//   static final List<Function1<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
+//      List.of();
 
    static final String QUERY_LINK_DETERMINISTIC_A =
          """
@@ -76,9 +74,9 @@ final class CustomDgraphQueries {
          }
          """;
 
-   static final String QUERY_LINK_PROBABILISTIC =
+   static final String QUERY_LINK_PROBABILISTIC_CANDIDATES =
          """
-         query query_link_probabilistic($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
+         query query_link_probabilistic_candidates($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_04, $city,3)) {
                C as uid
             }
@@ -113,7 +111,7 @@ final class CustomDgraphQueries {
          }
          """;
 
-   private static List<GoldenRecord> queryLinkDeterministicA(final DemographicData demographicData) {
+   static List<GoldenRecord> queryLinkDeterministicA(final DemographicData demographicData) {
       if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.getFirst(), demographicData)) {
          return List.of();
       }
@@ -143,7 +141,7 @@ final class CustomDgraphQueries {
       return runGoldenRecordsQuery(QUERY_LINK_DETERMINISTIC_B, map);
    }
 
-   static List<GoldenRecord> queryLinkProbabilistic(final DemographicData demographicData) {
+   static List<GoldenRecord> queryLinkProbabilisticCandidates(final DemographicData demographicData) {
       final var givenName = demographicData.fields.get(FIELD_IDX_GIVEN_NAME).value();
       final var familyName = demographicData.fields.get(FIELD_IDX_FAMILY_NAME).value();
       final var city = demographicData.fields.get(FIELD_IDX_CITY).value();
@@ -172,17 +170,7 @@ final class CustomDgraphQueries {
                              StringUtils.isNotBlank(nationalId)
                                    ? nationalId
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
-      return runGoldenRecordsQuery(QUERY_LINK_PROBABILISTIC, map);
-   }
-
-   static List<GoldenRecord> deprecatedFindMatchCandidates(
-      final DemographicData interaction) {
-      var result = DgraphQueries.deterministicSelectGoldenRecords(DETERMINISTIC_MATCH_FUNCTIONS, interaction);
-      if (!result.isEmpty()) {
-         return result;
-      }
-      result = new LinkedList<>();
-      return result;
+      return runGoldenRecordsQuery(QUERY_LINK_PROBABILISTIC_CANDIDATES, map);
    }
 
    private CustomDgraphQueries() {

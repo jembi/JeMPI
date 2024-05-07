@@ -1,9 +1,9 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.vavr.Function1;
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
@@ -14,10 +14,26 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.jembi.jempi.libmpi.dgraph.CustomDgraphQueries.DETERMINISTIC_LINK_FUNCTIONS;
-import static org.jembi.jempi.libmpi.dgraph.CustomDgraphQueries.DETERMINISTIC_MATCH_FUNCTIONS;
 import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+
+/**
+ * The interface Partial function.
+ *
+ * @param <T> the type parameter
+ * @param <R> the type parameter
+ */
+@FunctionalInterface
+interface PartialFunction<T, R> {
+   /**
+    * Apply r.
+    *
+    * @param t the t
+    * @return the r
+    */
+   R apply(T t);
+}
+
 
 /**
  * The type Dgraph queries.
@@ -73,6 +89,13 @@ final class DgraphQueries {
              }
            }
          }""";
+
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> LIST_DETERMINISTIC_LINK_FUNCTIONS = List.of(
+         demographicData -> queryLinkDeterministic(demographicData, Pair.of(0, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A)),
+         demographicData -> queryLinkDeterministic(demographicData, Pair.of(1, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B)));
+
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
+         List.of();
 
    private DgraphQueries() {
    }
@@ -384,20 +407,26 @@ final class DgraphQueries {
       return getCount(query);
    }
 
+//   private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
+//         final List<Function1<DemographicData, List<GoldenRecord>>> queryFunctions,
+//         final DemographicData interaction) {
+//      final LinkedList<GoldenRecord> candidateGoldenRecords = new LinkedList<>();
+//      for (Function1<DemographicData, List<GoldenRecord>> queryFunction : queryFunctions) {
+//         final var block = queryFunction.apply(interaction);
+//         if (!AppUtils.isNullOrEmpty(block)) {
+//            candidateGoldenRecords.addAll(block);
+//            return candidateGoldenRecords;
+//         }
+//      }
+//      return candidateGoldenRecords;
+//   }
 
-   /**
-    * Deterministic select golden records linked list.
-    *
-    * @param listFunction the list function
-    * @param interaction  the interaction
-    * @return the linked list
-    */
-   static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
-         final List<Function1<DemographicData, List<GoldenRecord>>> listFunction,
-         final DemographicData interaction) {
+   private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
+         final List<PartialFunction<DemographicData, List<GoldenRecord>>> queryFunctions,
+         final DemographicData demographicData) {
       final LinkedList<GoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (Function1<DemographicData, List<GoldenRecord>> deterministicFunction : listFunction) {
-         final var block = deterministicFunction.apply(interaction);
+      for (PartialFunction<DemographicData, List<GoldenRecord>> queryFunction : queryFunctions) {
+         final var block = queryFunction.apply(demographicData);
          if (!AppUtils.isNullOrEmpty(block)) {
             candidateGoldenRecords.addAll(block);
             return candidateGoldenRecords;
@@ -528,23 +557,25 @@ final class DgraphQueries {
             String fieldName = AppUtils.camelToSnake(param.fieldName());
             Integer distance = param.distance();
             String value = param.value();
-            if (distance == -1) {
-               if (value.contains("_")) {
-                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
-                                 + "\") AND le("
-                                 + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
-               } else {
-                  gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+            switch (distance) {
+               case -1 -> {
+                  if (value.contains("_")) {
+                     gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
+                                    + "\") AND le("
+                                    + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
+                  } else {
+                     gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
+                  }
                }
-            } else if (distance == 0) {
-               if (value.contains("_")) {
-                  gqlFilters.add(
-                        "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
-               } else {
-                  gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
+               case 0 -> {
+                  if (value.contains("_")) {
+                     gqlFilters.add(
+                           "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
+                  } else {
+                     gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
+                  }
                }
-            } else {
-               gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
+               default -> gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
          }
       }
@@ -968,12 +999,12 @@ final class DgraphQueries {
     */
    static List<GoldenRecord> findLinkCandidates(
          final DemographicData interaction) {
-      var result = deterministicSelectGoldenRecords(DETERMINISTIC_LINK_FUNCTIONS, interaction);
+      var result = deterministicSelectGoldenRecords(LIST_DETERMINISTIC_LINK_FUNCTIONS, interaction);
       if (!result.isEmpty()) {
          return result;
       }
       result = new LinkedList<>();
-      mergeCandidates(result, CustomDgraphQueries.queryLinkProbabilistic(interaction));
+      mergeCandidates(result, CustomDgraphQueries.queryLinkProbabilisticCandidates(interaction));
       return result;
    }
 
@@ -993,23 +1024,16 @@ final class DgraphQueries {
       return result;
    }
 
-   /**
-    * Query link deterministic list.
-    *
-    * @param demographicData the demographic data
-    * @param ruleNumber      the rule number
-    * @param query           the query
-    * @return the list
-    */
-   static List<GoldenRecord> queryLinkDeterministic(
+
+   private static List<GoldenRecord> queryLinkDeterministic(
          final DemographicData demographicData,
-         final int ruleNumber,
-         final String query) {
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber), demographicData)) {
+         final Pair<Integer, String> rule) { // final int ruleNumber, final String query) {
+      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(rule.getLeft()),
+                                                      demographicData)) {
          return List.of();
       }
       final Map<String, String> map = new HashMap<>();
-      JSON_CONFIG.rules().link().deterministic().get(ruleNumber).vars().forEach(scFieldName -> {
+      JSON_CONFIG.rules().link().deterministic().get(rule.getLeft()).vars().forEach(scFieldName -> {
          final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
          final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
          final var fieldValue = demographicData.fields.get(fieldIdx).value();
@@ -1018,31 +1042,7 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(query, map);
-   }
-
-   /**
-    * Query link deterministic a list.
-    *
-    * @param demographicData the demographic data
-    * @return the list
-    */
-   static List<GoldenRecord> queryLinkDeterministicA(final DemographicData demographicData) {
-      return DgraphQueries.queryLinkDeterministic(demographicData,
-                                                  0,
-                                                  CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A);
-   }
-
-   /**
-    * Query link deterministic b list.
-    *
-    * @param demographicData the demographic data
-    * @return the list
-    */
-   static List<GoldenRecord> queryLinkDeterministicB(final DemographicData demographicData) {
-      return DgraphQueries.queryLinkDeterministic(demographicData,
-                                                  1,
-                                                  CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B);
+      return runGoldenRecordsQuery(rule.getRight(), map);
    }
 
    private static class InvalidFunctionException extends Exception {
