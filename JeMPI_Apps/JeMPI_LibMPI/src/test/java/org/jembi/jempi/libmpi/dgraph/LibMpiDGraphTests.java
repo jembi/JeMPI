@@ -1,6 +1,8 @@
 package org.jembi.jempi.libmpi.dgraph;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jembi.jempi.shared.config.input.JsonConfig;
+import org.jembi.jempi.shared.utils.AppUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 class LibMpiDGraphTests {
 
@@ -129,10 +134,10 @@ class LibMpiDGraphTests {
          Assertions.assertEquals(PID_2, additionalMode2.get("SourceId.patient").textValue());
       });
 
-      for (int i = 0; i < JSON_CONFIG_1.uniqueGoldenRecordFields().size(); i++) {
-         final String name = "GoldenRecord." + AppUtils.camelToSnake(JSON_CONFIG_1.uniqueGoldenRecordFields().get(i).fieldName());
+      for (int i = 0; i < JSON_CONFIG_1.auxGoldenRecordFields().size(); i++) {
+         final String name = "GoldenRecord." + AppUtils.camelToSnake(JSON_CONFIG_1.auxGoldenRecordFields().get(i).fieldName());
          System.out.println(name);
-         switch (JSON_CONFIG_1.uniqueGoldenRecordFields().get(i).fieldType()) {
+         switch (JSON_CONFIG_1.auxGoldenRecordFields().get(i).fieldType()) {
             case "DateTime":
                final var dt = LocalDateTime.parse(dgraphGoldenRecordJsonNode.jsonNode().get(name).textValue());
                Assertions.assertEquals(DTF.format(NOW), DTF.format(dt));

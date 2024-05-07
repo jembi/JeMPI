@@ -95,11 +95,11 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
-      return CustomDgraphQueries.findLinkCandidates(demographicData);
+      return DgraphQueries.findLinkCandidates(demographicData);
    }
 
    public List<GoldenRecord> findMatchCandidates(final DemographicData demographicData) {
-      return CustomDgraphQueries.findMatchCandidates(demographicData);
+      return DgraphQueries.findMatchCandidates(demographicData);
    }
 
    public Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {

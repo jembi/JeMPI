@@ -14,11 +14,19 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
+import static org.jembi.jempi.libmpi.dgraph.CustomDgraphQueries.DETERMINISTIC_LINK_FUNCTIONS;
+import static org.jembi.jempi.libmpi.dgraph.CustomDgraphQueries.DETERMINISTIC_MATCH_FUNCTIONS;
+import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
+/**
+ * The type Dgraph queries.
+ */
 final class DgraphQueries {
 
+   /**
+    * The Empty field sentinel.
+    */
    static final String EMPTY_FIELD_SENTINEL = "EMPTY_FIELD_SENTINEL";
    private static final Logger LOGGER = LogManager.getLogger(DgraphQueries.class);
    private static final String GET_SOURCE_ID =
@@ -88,7 +96,6 @@ final class DgraphQueries {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(GET_EXPANDED_SOURCE_ID_LIST, vars);
          if (!StringUtils.isBlank(json)) {
             return new JsonNodeReverseGoldenRecordListFromSourceId(json).toExpandedSourceId();
-//            return OBJECT_MAPPER.readValue(json, DgraphReverseGoldenRecordListFromSourceId.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
@@ -96,6 +103,13 @@ final class DgraphQueries {
       return List.of();
    }
 
+   /**
+    * Run interactions query dgraph interactions.
+    *
+    * @param query the query
+    * @param vars  the vars
+    * @return the dgraph interactions
+    */
    static DgraphInteractions runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
@@ -110,6 +124,13 @@ final class DgraphQueries {
       return new DgraphInteractions(List.of());
    }
 
+   /**
+    * Runfilter gids query dgraph paginated uid list.
+    *
+    * @param query the query
+    * @param vars  the vars
+    * @return the dgraph paginated uid list
+    */
    static DgraphPaginatedUidList runfilterGidsQuery(
          final String query,
          final Map<String, String> vars) {
@@ -124,6 +145,13 @@ final class DgraphQueries {
       return new DgraphPaginatedUidList(List.of());
    }
 
+   /**
+    * Run filter gids with interaction count query dgraph pagination uid list with interaction count.
+    *
+    * @param query the query
+    * @param vars  the vars
+    * @return the dgraph pagination uid list with interaction count
+    */
    static DgraphPaginationUidListWithInteractionCount runFilterGidsWithInteractionCountQuery(
          final String query,
          final Map<String, String> vars) {
@@ -138,23 +166,13 @@ final class DgraphQueries {
       return new DgraphPaginationUidListWithInteractionCount(List.of(), List.of());
    }
 
-/*
-   static Pair<List<GoldenRecord>, DgraphGoldenRecords> runGoldenRecordsQuery(
-         final String query,
-         final Map<String, String> vars) {
-      try {
-         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
-         if (!StringUtils.isBlank(json)) {
-            final var obj2 = OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
-            return new Pair<>(obj2.all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList(), obj2);
-         }
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage());
-      }
-      return new Pair<>(null, new DgraphGoldenRecords(List.of()));
-   }
-*/
-
+   /**
+    * Run golden records query list.
+    *
+    * @param query the query
+    * @param vars  the vars
+    * @return the list
+    */
    static List<GoldenRecord> runGoldenRecordsQuery(
          final String query,
          final Map<String, String> vars) {
@@ -162,11 +180,6 @@ final class DgraphQueries {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
             return new JsonNodeGoldenRecords(json).toGoldenRecordList();
-//            return OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
-//                                .all()
-//                                .stream()
-//                                .map(DeprecatedCustomFunctions::toGoldenRecord)
-//                                .toList();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
@@ -175,6 +188,13 @@ final class DgraphQueries {
    }
 
 
+   /**
+    * Run expanded golden records query dgraph expanded golden records.
+    *
+    * @param query the query
+    * @param vars  the vars
+    * @return the dgraph expanded golden records
+    */
    static DgraphExpandedGoldenRecords runExpandedGoldenRecordsQuery(
          final String query,
          final Map<String, String> vars) {
@@ -189,6 +209,12 @@ final class DgraphQueries {
       return new DgraphExpandedGoldenRecords(List.of());
    }
 
+   /**
+    * Find interaction interaction.
+    *
+    * @param interactionId the interaction id
+    * @return the interaction
+    */
    static Interaction findInteraction(final String interactionId) {
       if (StringUtils.isBlank(interactionId)) {
          return null;
@@ -201,22 +227,12 @@ final class DgraphQueries {
       return DeprecatedCustomFunctions.toInteractionWithScore(interactionList.getFirst()).interaction();
    }
 
-/*
-   static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {
-      if (StringUtils.isBlank(goldenId)) {
-         return null;
-      }
-      final var vars = Map.of("$uid", goldenId);
-      final var goldenRecordList = runGoldenRecordsQuery(DGRAPH_CONFIG.queryGetGoldenRecordByUid, vars).second().all();
-
-      if (AppUtils.isNullOrEmpty(goldenRecordList)) {
-         LOGGER.warn("No goldenRecord for {}", goldenId);
-         return null;
-      }
-      return goldenRecordList.getFirst();
-   }
-*/
-
+   /**
+    * Find dgraph golden record golden record.
+    *
+    * @param goldenId the golden id
+    * @return the golden record
+    */
    static GoldenRecord findDgraphGoldenRecord(final String goldenId) {
       if (StringUtils.isBlank(goldenId)) {
          return null;
@@ -232,6 +248,12 @@ final class DgraphQueries {
    }
 
 
+   /**
+    * Find expanded golden ids list.
+    *
+    * @param goldenId the golden id
+    * @return the list
+    */
    static List<String> findExpandedGoldenIds(final String goldenId) {
       try {
          final Map<String, String> map = new HashMap<>();
@@ -250,6 +272,11 @@ final class DgraphQueries {
       return List.of();
    }
 
+   /**
+    * Gets golden ids.
+    *
+    * @return the golden ids
+    */
    static List<String> getGoldenIds() {
       final String query = """
                            query recordGoldenId() {
@@ -269,6 +296,13 @@ final class DgraphQueries {
       return List.of();
    }
 
+   /**
+    * Fetch golden ids list.
+    *
+    * @param offset the offset
+    * @param length the length
+    * @return the list
+    */
    static List<String> fetchGoldenIds(
          final long offset,
          final long length) {
@@ -304,6 +338,11 @@ final class DgraphQueries {
       return 0L;
    }
 
+   /**
+    * Count golden records long.
+    *
+    * @return the long
+    */
    static long countGoldenRecords() {
       final var query = """
                         query recordCount() {
@@ -314,6 +353,12 @@ final class DgraphQueries {
       return getCount(query);
    }
 
+   /**
+    * Count golden record entities long.
+    *
+    * @param goldenId the golden id
+    * @return the long
+    */
    static long countGoldenRecordEntities(final String goldenId) {
       final var query = String.format(Locale.ROOT, """
                                                    query recordCount() {
@@ -324,6 +369,11 @@ final class DgraphQueries {
       return getCount(query);
    }
 
+   /**
+    * Count interactions long.
+    *
+    * @return the long
+    */
    static long countInteractions() {
       final var query = """
                         query recordCount() {
@@ -334,13 +384,21 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   static LinkedList<GoldenRecord> deterministicFilter(
+
+   /**
+    * Deterministic select golden records linked list.
+    *
+    * @param listFunction the list function
+    * @param interaction  the interaction
+    * @return the linked list
+    */
+   static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
          final List<Function1<DemographicData, List<GoldenRecord>>> listFunction,
          final DemographicData interaction) {
       final LinkedList<GoldenRecord> candidateGoldenRecords = new LinkedList<>();
       for (Function1<DemographicData, List<GoldenRecord>> deterministicFunction : listFunction) {
          final var block = deterministicFunction.apply(interaction);
-         if (!block.isEmpty() && (!AppUtils.isNullOrEmpty(block))) {
+         if (!AppUtils.isNullOrEmpty(block)) {
             candidateGoldenRecords.addAll(block);
             return candidateGoldenRecords;
          }
@@ -348,6 +406,13 @@ final class DgraphQueries {
       return candidateGoldenRecords;
    }
 
+
+   /**
+    * Find expanded interactions list.
+    *
+    * @param ids the ids
+    * @return the list
+    */
    static List<ExpandedInteraction> findExpandedInteractions(final List<String> ids) {
       final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedInteractions, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
@@ -363,23 +428,30 @@ final class DgraphQueries {
       }
    }
 
+   /**
+    * Find golden records either.
+    *
+    * @param ids the ids
+    * @return the either
+    */
    static Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final List<String> ids) {
       final var idListAsString = String.join(",", ids);
       final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetGoldenRecords, idListAsString);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          return Either.right(new JsonNodeGoldenRecords(json).toGoldenRecordList());
-//         OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class)
-//                                          .all()
-//                                          .stream()
-//                                          .map(DeprecatedCustomFunctions::toGoldenRecord)
-//                                          .toList());
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return Either.left(new MpiServiceError.CRGidDoesNotExistError(idListAsString));
       }
    }
 
+   /**
+    * Gets expanded golden records.
+    *
+    * @param ids the ids
+    * @return the expanded golden records
+    */
    static List<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
       final String query = DGRAPH_CONFIG.queryGetExpandedGoldenRecords.formatted(String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
@@ -556,6 +628,16 @@ final class DgraphQueries {
       return runExpandedGoldenRecordsQuery(gql, gqlVars);
    }
 
+   /**
+    * Simple search golden records dgraph expanded golden records.
+    *
+    * @param params  the params
+    * @param offset  the offset
+    * @param limit   the limit
+    * @param sortBy  the sort by
+    * @param sortAsc the sort asc
+    * @return the dgraph expanded golden records
+    */
    static DgraphExpandedGoldenRecords simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
@@ -569,6 +651,16 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
+   /**
+    * Custom search golden records dgraph expanded golden records.
+    *
+    * @param payloads the payloads
+    * @param offset   the offset
+    * @param limit    the limit
+    * @param sortBy   the sort by
+    * @param sortAsc  the sort asc
+    * @return the dgraph expanded golden records
+    */
    static DgraphExpandedGoldenRecords customSearchGoldenRecords(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
@@ -638,6 +730,15 @@ final class DgraphQueries {
             : Either.left(runfilterGidsQuery(gql, gqlVars));
    }
 
+   /**
+    * Filter gids with params either.
+    *
+    * @param params              the params
+    * @param createdAt           the created at
+    * @param paginationOptions   the pagination options
+    * @param getInteractionCount the get interaction count
+    * @return the either
+    */
    static Either<DgraphPaginatedUidList, DgraphPaginationUidListWithInteractionCount> filterGidsWithParams(
          final List<ApiModels.ApiSearchParameter> params,
          final LocalDateTime createdAt,
@@ -653,6 +754,16 @@ final class DgraphQueries {
       return filterGidsFunc(gqlFilters, gqlArgs, gqlVars, paginationOptions, getInteractionCount);
    }
 
+   /**
+    * Simple search interactions dgraph interactions.
+    *
+    * @param params  the params
+    * @param offset  the offset
+    * @param limit   the limit
+    * @param sortBy  the sort by
+    * @param sortAsc the sort asc
+    * @return the dgraph interactions
+    */
    static DgraphInteractions simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
@@ -666,6 +777,16 @@ final class DgraphQueries {
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
+   /**
+    * Custom search interactions dgraph interactions.
+    *
+    * @param payloads the payloads
+    * @param offset   the offset
+    * @param limit    the limit
+    * @param sortBy   the sort by
+    * @param sortAsc  the sort asc
+    * @return the dgraph interactions
+    */
    static DgraphInteractions customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
@@ -679,6 +800,13 @@ final class DgraphQueries {
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
+   /**
+    * Find source id list list.
+    *
+    * @param facility the facility
+    * @param patient  the patient
+    * @return the list
+    */
    static List<CustomSourceId> findSourceIdList(
          final String facility,
          final String patient) {
@@ -691,6 +819,13 @@ final class DgraphQueries {
       return runSourceIdQuery(map).all().stream().map(DgraphSourceId::toSourceId).toList();
    }
 
+   /**
+    * Find expanded source id list list.
+    *
+    * @param facility the facility
+    * @param patient  the patient
+    * @return the list
+    */
    static List<ExpandedSourceId> findExpandedSourceIdList(
          final String facility,
          final String patient) {
@@ -701,12 +836,14 @@ final class DgraphQueries {
       map.put("$facility_id", facility);
       map.put("$patient_id", patient);
       return runReverseGoldenRecordListFromSourceId(map);
-//      .all()
-//                                                        .stream()
-//                                                        .map(DgraphReverseGoldenRecordFromSourceId::toExpandedSourceId)
-//                                                        .toList();
    }
 
+   /**
+    * Find golden records either.
+    *
+    * @param req the req
+    * @return the either
+    */
    static Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
       final var setFunctions = new HashSet<String>();
       setFunctions.add("eq");
@@ -804,80 +941,127 @@ final class DgraphQueries {
       }
    }
 
-
-
-
-/*
-   static DgraphGoldenRecords findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
-
-      final var op = req.operand();
-      StringBuilder queryBuilder = new StringBuilder("query query_1 ($").append(camelToSnake(op.name())).append(":string");
-      if (req.operands() != null) {
-         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand op2 : req.operands()) {
-            queryBuilder.append(", $").append(camelToSnake(op2.operand().name())).append(":string");
-         }
+   private static void mergeCandidates(
+         final List<GoldenRecord> goldenRecords,
+         final List<GoldenRecord> block) {
+      if (!block.isEmpty()) {
+         block.forEach(candidate -> {
+            var found = false;
+            for (GoldenRecord goldenRecord : goldenRecords) {
+               if (candidate.goldenId().equals(goldenRecord.goldenId())) {
+                  found = true;
+                  break;
+               }
+            }
+            if (!found) {
+               goldenRecords.add(candidate);
+            }
+         });
       }
-      queryBuilder.append(") {\n\n");
-      char alias = 'A';
-      queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
-                  .append(op.fn())
-                  .append("(GoldenRecord.")
-                  .append(camelToSnake(op.name()))
-                  .append(", $")
-                  .append(camelToSnake(op.name()))
-                  .append(op.fn().equals("match")
-                                ? String.format(Locale.ROOT, ", %d", op.distance())
-                                : "")
-                  .append(")) {\n    ")
-                  .append(alias)
-                  .append(" as uid\n  }\n\n");
-
-      if (req.operands() != null) {
-         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
-            queryBuilder.append("  var(func:type(GoldenRecord)) @filter(")
-                        .append(o.operand().fn())
-                        .append("(GoldenRecord.")
-                        .append(camelToSnake(o.operand().name()))
-                        .append(", $")
-                        .append(camelToSnake(o.operand().name()))
-                        .append(o.operand().fn().equals("match")
-                                      ? String.format(Locale.ROOT, ", %d", o.operand().distance())
-                                      : "")
-                        .append(")) {\n    ")
-                        .append(++alias)
-                        .append(" as uid\n  }\n\n");
-         }
-      }
-
-      alias = 'A';
-      queryBuilder.append("  all(func:type(GoldenRecord)) @filter(uid(A)");
-      if (req.operands() != null) {
-         for (ApiModels.ApiCrFindRequest.ApiLogicalOperand o : req.operands()) {
-            queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
-         }
-      }
-      queryBuilder.append(") {\n").append(GOLDEN_RECORD_FIELD_NAMES).append("  }\n}\n");
-      final var query = queryBuilder.toString();
-      final var map = new HashMap<String, String>();
-      map.put("$" + camelToSnake(op.name()), op.value());
-      for (var o : req.operands()) {
-         map.put("$" + camelToSnake(o.operand().name()), o.operand().value());
-      }
-      LOGGER.debug("{}", "\n" + query);
-      LOGGER.debug("{}", map);
-      final var dgraphGoldenRecords = runGoldenRecordsQuery(query, map);
-      LOGGER.debug("{}", dgraphGoldenRecords);
-      return dgraphGoldenRecords;
    }
-*/
+
+   /**
+    * Find link candidates list.
+    *
+    * @param interaction the interaction
+    * @return the list
+    */
+   static List<GoldenRecord> findLinkCandidates(
+         final DemographicData interaction) {
+      var result = deterministicSelectGoldenRecords(DETERMINISTIC_LINK_FUNCTIONS, interaction);
+      if (!result.isEmpty()) {
+         return result;
+      }
+      result = new LinkedList<>();
+      mergeCandidates(result, CustomDgraphQueries.queryLinkProbabilistic(interaction));
+      return result;
+   }
+
+   /**
+    * Find match candidates list.
+    *
+    * @param interaction the interaction
+    * @return the list
+    */
+   static List<GoldenRecord> findMatchCandidates(
+         final DemographicData interaction) {
+      var result = deterministicSelectGoldenRecords(DETERMINISTIC_MATCH_FUNCTIONS, interaction);
+      if (!result.isEmpty()) {
+         return result;
+      }
+      result = new LinkedList<>();
+      return result;
+   }
+
+   /**
+    * Query link deterministic list.
+    *
+    * @param demographicData the demographic data
+    * @param ruleNumber      the rule number
+    * @param query           the query
+    * @return the list
+    */
+   static List<GoldenRecord> queryLinkDeterministic(
+         final DemographicData demographicData,
+         final int ruleNumber,
+         final String query) {
+      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber), demographicData)) {
+         return List.of();
+      }
+      final Map<String, String> map = new HashMap<>();
+      JSON_CONFIG.rules().link().deterministic().get(ruleNumber).vars().forEach(scFieldName -> {
+         final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
+         final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
+         final var fieldValue = demographicData.fields.get(fieldIdx).value();
+         map.put("$" + scFieldName,
+                 StringUtils.isNotBlank(fieldValue)
+                       ? fieldValue
+                       : EMPTY_FIELD_SENTINEL);
+      });
+      return runGoldenRecordsQuery(query, map);
+   }
+
+   /**
+    * Query link deterministic a list.
+    *
+    * @param demographicData the demographic data
+    * @return the list
+    */
+   static List<GoldenRecord> queryLinkDeterministicA(final DemographicData demographicData) {
+      return DgraphQueries.queryLinkDeterministic(demographicData,
+                                                  0,
+                                                  CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A);
+   }
+
+   /**
+    * Query link deterministic b list.
+    *
+    * @param demographicData the demographic data
+    * @return the list
+    */
+   static List<GoldenRecord> queryLinkDeterministicB(final DemographicData demographicData) {
+      return DgraphQueries.queryLinkDeterministic(demographicData,
+                                                  1,
+                                                  CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B);
+   }
 
    private static class InvalidFunctionException extends Exception {
+      /**
+       * Instantiates a new Invalid function exception.
+       *
+       * @param errorMessage the error message
+       */
       InvalidFunctionException(final String errorMessage) {
          super(errorMessage);
       }
    }
 
    private static class InvalidOperatorException extends Exception {
+      /**
+       * Instantiates a new Invalid operator exception.
+       *
+       * @param errorMessage the error message
+       */
       InvalidOperatorException(final String errorMessage) {
          super(errorMessage);
       }

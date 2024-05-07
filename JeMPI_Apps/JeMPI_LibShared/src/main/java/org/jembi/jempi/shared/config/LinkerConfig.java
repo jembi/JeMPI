@@ -17,17 +17,43 @@ import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.input.ShuntingYard.shuntingYard;
 
+/**
+ * The type Linker config.
+ */
 public final class LinkerConfig {
 
    private static final LevenshteinDistance DISTANCE = LevenshteinDistance.getDefaultInstance();
    private static final Logger LOGGER = LogManager.getLogger(LinkerConfig.class);
+   /**
+    * The Probabilistic link fields.
+    */
    public final List<FieldProbabilisticMetaData> probabilisticLinkFields;
+   /**
+    * The Probabilistic validate fields.
+    */
    public final List<FieldProbabilisticMetaData> probabilisticValidateFields;
+   /**
+    * The Probabilistic match notification fields.
+    */
    public final List<FieldProbabilisticMetaData> probabilisticMatchNotificationFields;
+   /**
+    * The Deterministic link programs. Pair(link, canApplyLink)
+    */
    public final List<Pair<List<Operation>, List<Operation>>> deterministicLinkPrograms;
+   /**
+    * The Deterministic validate programs.
+    */
    public final List<Pair<List<Operation>, List<Operation>>> deterministicValidatePrograms;
+   /**
+    * The Deterministic match programs.
+    */
    public final List<Pair<List<Operation>, List<Operation>>> deterministicMatchPrograms;
 
+   /**
+    * Instantiates a new Linker config.
+    *
+    * @param jsonConfig the json config
+    */
    LinkerConfig(final JsonConfig jsonConfig) {
 
       probabilisticLinkFields = IntStream
@@ -165,26 +191,14 @@ public final class LinkerConfig {
       evalStack.push(l || r);
    }
 
-   public boolean canApplyLinking(
-         final List<Pair<List<Operation>, List<LinkerConfig.Operation>>> programs,
-         final DemographicData interaction) {
-      if (!probabilisticLinkFields.isEmpty()) {
-         return true;
-      }
-      for (final var program : programs) {
-         final Deque<Boolean> evalStack = new ArrayDeque<>();
-         for (final var operation : program.getRight()) {
-            operation.opcode()
-                     .accept(evalStack,
-                             new LinkerConfig.Arguments(interaction.fields, null, operation.field(), operation.aux()));
-         }
-         if (Boolean.TRUE.equals(evalStack.pop())) {
-            return true;
-         }
-      }
-      return false;
-   }
-
+   /**
+    * Run deterministic programs boolean.
+    *
+    * @param programs     the programs
+    * @param interaction  the interaction
+    * @param goldenRecord the golden record
+    * @return the boolean
+    */
    public static boolean runDeterministicPrograms(
          final List<Pair<List<LinkerConfig.Operation>, List<LinkerConfig.Operation>>> programs,
          final DemographicData interaction,
@@ -200,6 +214,46 @@ public final class LinkerConfig {
                                                         operation.aux()));
          }
          if (Boolean.TRUE.equals(evalStack.pop())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * Can apply deterministic linking boolean.
+    *
+    * @param program     the program
+    * @param interaction the interaction
+    * @return the boolean
+    */
+   public boolean canApplyDeterministicLinking(
+         final Pair<List<Operation>, List<Operation>> program,
+         final DemographicData interaction) {
+      final Deque<Boolean> evalStack = new ArrayDeque<>();
+      for (final var operation : program.getRight()) {
+         operation.opcode()
+                  .accept(evalStack,
+                          new LinkerConfig.Arguments(interaction.fields, null, operation.field(), operation.aux()));
+      }
+      return Boolean.TRUE.equals(evalStack.pop());
+   }
+
+   /**
+    * Can apply linking boolean.
+    *
+    * @param programs    the programs
+    * @param interaction the interaction
+    * @return the boolean
+    */
+   public boolean canApplyLinking(
+         final List<Pair<List<Operation>, List<LinkerConfig.Operation>>> programs,
+         final DemographicData interaction) {
+      if (!probabilisticLinkFields.isEmpty()) {
+         return true;
+      }
+      for (final var program : programs) {
+         if (canApplyDeterministicLinking(program, interaction)) {
             return true;
          }
       }
@@ -297,6 +351,9 @@ public final class LinkerConfig {
       return -1;
    }
 
+   /**
+    * The type Field probabilistic meta data.
+    */
    public record FieldProbabilisticMetaData(
          Integer demographicDataIndex,
          String similarityScore,
@@ -305,6 +362,9 @@ public final class LinkerConfig {
          Float u) {
    }
 
+   /**
+    * The type Arguments.
+    */
    public record Arguments(
          List<DemographicData.DemographicField> interaction,
          List<DemographicData.DemographicField> goldenRecord,
@@ -312,6 +372,9 @@ public final class LinkerConfig {
          Integer aux) {
    }
 
+   /**
+    * The type Operation.
+    */
    public record Operation(
          BiConsumer<Deque<Boolean>, Arguments> opcode,
          Integer field,

@@ -28,7 +28,7 @@ object CustomDgraphQueries {
          |import java.util.List;
          |import java.util.Map;
          |
-         |
+         |import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
          |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
          |
          |import static org.jembi.jempi.libmpi.dgraph.DgraphQueries.runGoldenRecordsQuery;
@@ -86,38 +86,39 @@ object CustomDgraphQueries {
     if (
       config.rules.link.isDefined && config.rules.link.get.deterministic.isDefined
     ) {
-      config.rules.link.get.deterministic.get.foreach((name, rule) =>
-        emitRuleFunction(name, rule)
+      var ruleNumber = 0
+      config.rules.link.get.deterministic.get.zipWithIndex.foreach(
+        (x, ruleNumber) => emitRuleFunction(x._1, x._2, ruleNumber)
       )
     }
     if (
       config.rules.link.isDefined && config.rules.link.get.probabilistic.isDefined
     ) {
-      config.rules.link.get.probabilistic.get.foreach((name, rule) =>
-        emitRuleFunction(name, rule)
+      config.rules.link.get.probabilistic.get.zipWithIndex.foreach(
+        (x, ruleNumber) => emitRuleFunction(x._1, x._2, ruleNumber)
       )
     }
 
-    emitMergeCandidates()
+//    emitMergeCandidates()
 
-    emitFindCandidates(
-      "Link",
-      "DETERMINISTIC_LINK_FUNCTIONS",
-      config.rules.link
-    )
+//    emitFindCandidates(
+//      "Link",
+//      "DETERMINISTIC_LINK_FUNCTIONS",
+//      config.rules.link
+//    )
 
     if (
       config.rules.matchNotification.isDefined && config.rules.matchNotification.get.deterministic.isDefined
     ) {
-      config.rules.matchNotification.get.deterministic.get.foreach(
-        (name, rule) => emitRuleFunction(name, rule)
+      config.rules.matchNotification.get.deterministic.get.zipWithIndex.foreach(
+        (x, ruleNumber) => emitRuleFunction(x._1, x._2, ruleNumber)
       )
     }
     if (
       config.rules.matchNotification.isDefined && config.rules.matchNotification.get.probabilistic.isDefined && config.rules.matchNotification.get.probabilistic.isDefined
     ) {
-      config.rules.matchNotification.get.probabilistic.get.foreach(
-        (name, rule) => emitRuleFunction(name, rule)
+      config.rules.matchNotification.get.probabilistic.get.zipWithIndex.foreach(
+        (x, ruleNumber) => emitRuleFunction(x._1, x._2, ruleNumber)
       )
     }
     emitFindCandidates(
@@ -136,7 +137,7 @@ object CustomDgraphQueries {
     def getDeterministicFunctions(allRules: AllRules): String = {
       allRules.deterministic.get
         .map((name, _) =>
-          s"""${" " * 14}CustomDgraphQueries::${Utils.snakeCaseToCamelCase(
+          s"""${" " * 14}DgraphQueries::${Utils.snakeCaseToCamelCase(
               name.toLowerCase
             )},""".stripMargin
         )
@@ -151,9 +152,9 @@ object CustomDgraphQueries {
         rules: Option[AllRules]
     ): Unit = {
       writer.println(
-        s"""   static List<GoldenRecord> find${funcQualifier}Candidates(
+        s"""   static List<GoldenRecord> deprecatedFind${funcQualifier}Candidates(
            |      final DemographicData interaction) {
-           |      var result = DgraphQueries.deterministicFilter($filterList, interaction);
+           |      var result = DgraphQueries.deterministicSelectGoldenRecords($filterList, interaction);
            |      if (!result.isEmpty()) {
            |         return result;
            |      }
@@ -164,7 +165,7 @@ object CustomDgraphQueries {
           val filterName = Utils.snakeCaseToCamelCase(name.toLowerCase)
           val vars = "interaction"
           writer.println(
-            s"""${" " * 6}mergeCandidates(result, $filterName($vars));""".stripMargin
+            s"""${" " * 6}deprecatedMergeCandidates(result, $filterName($vars));""".stripMargin
           )
         })
       }
@@ -173,7 +174,7 @@ object CustomDgraphQueries {
           |""".stripMargin)
     }
 
-    def emitRuleFunction(name: String, rule: Rule): Unit = {
+    def emitRuleFunction(name: String, rule: Rule, ruleNumber: Int): Unit = {
 
       def expression(expr: Ast.Expression): String = {
         expr match {
@@ -212,11 +213,13 @@ object CustomDgraphQueries {
       val text = rule.text
 
       val functionName = Utils.snakeCaseToCamelCase(name.toLowerCase)
+      val getRuleNumber =
+        if (ruleNumber == 0) "getFirst()" else s"""get(${ruleNumber})"""
       if (vars.length == 1)
         val v = vars(0)
         writer.println(
           s"""   private static List<GoldenRecord> $functionName(final DemographicData demographicData) {
-             |      if (StringUtils.isBlank(demographicData.fields.get(FIELD_IDX_${v.toUpperCase}).value())) {
+             |      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
              |         return List.of();
              |      }
              |      final Map<String, String> map = Map.of("$$$v", demographicData.fields.get(FIELD_IDX_${v.toUpperCase}).value());
@@ -227,7 +230,7 @@ object CustomDgraphQueries {
       else
         val expr = expression(ParseRule.parse(text))
         writer.println(
-          s"   private static List<GoldenRecord> $functionName(final DemographicData demographicData) {"
+          s"   static List<GoldenRecord> $functionName(final DemographicData demographicData) {"
         )
         vars.foreach(v => {
           val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
@@ -235,17 +238,24 @@ object CustomDgraphQueries {
             s"      final var $camelCaseVarName = demographicData.fields.get(FIELD_IDX_${v.toUpperCase}).value();"
           )
         })
-        vars.foreach(v => {
-          val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
-          val isNullVar = camelCaseVarName + s"IsBlank"
-          writer.println(
-            s"      final var $isNullVar = StringUtils.isBlank($camelCaseVarName);"
-          )
-        })
-        writer.print(s"""      if ($expr) {
+        writer.print(
+          s"""      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
              |         return List.of();
              |      }
-             |      final var map = Map.of(""".stripMargin)
+             |""".stripMargin
+        )
+//        vars.foreach(v => {
+//          val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
+//          val isNullVar = camelCaseVarName + s"IsBlank"
+//          writer.println(
+//            s"      final var $isNullVar = StringUtils.isBlank($camelCaseVarName);"
+//          )
+//        })
+//        writer.print(s"""      if ($expr) {
+//             |         return List.of();
+//             |      }
+//             |      final var map = Map.of(""".stripMargin)
+        writer.print(s"""      final var map = Map.of(""".stripMargin)
 
         vars.zipWithIndex.foreach((v, idx) => {
           val camelCaseVarName = Utils.snakeCaseToCamelCase(v)
@@ -458,7 +468,7 @@ object CustomDgraphQueries {
       var all_func_str = main_func(expression)
 
       writer.print(
-        s"""${" " * 3}private static final String ${name.toUpperCase} =
+        s"""${" " * 3}static final String ${name.toUpperCase} =
            |${" " * 9}\"\"\"
            |${" " * 9}query ${name.toLowerCase}(""".stripMargin
       )
@@ -482,8 +492,9 @@ object CustomDgraphQueries {
                         |""".stripMargin)
     }
 
+    /*
     def emitMergeCandidates(): Unit = {
-      writer.println(s"""   private static void mergeCandidates(
+      writer.println(s"""   private static void deprecatedMergeCandidates(
            |         final List<GoldenRecord> goldenRecords,
            |         final List<GoldenRecord> block) {
            |      if (!block.isEmpty()) {
@@ -503,6 +514,7 @@ object CustomDgraphQueries {
            |   }
            |""".stripMargin)
     }
+     */
 
   }
 
