@@ -13,7 +13,8 @@ interface Field {
     u: number
   }
 }
-
+export type DemographicField = Field;
+export type DemographicFields = DemographicField[];
 interface Rule {
   vars: string[]
   text: string

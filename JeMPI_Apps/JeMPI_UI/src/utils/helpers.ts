@@ -1,4 +1,5 @@
 import { GridColDef } from '@mui/x-data-grid'
+import { DemographicFields } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
@@ -63,4 +64,19 @@ export const decodeQueryString = <T>(queryString: string): any => {
     }
   }
   return decodedQueryString as T
+}
+
+export const randomId = () => {
+  return Math.random().toString(36).substring(2, 9)
+}
+
+export const generateId = (demographic: DemographicFields) => {
+  if (!demographic) {
+    return []
+  }
+
+  return demographic.map(item => ({
+    id: randomId(),
+    ...item
+  }))
 }
