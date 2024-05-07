@@ -417,20 +417,6 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-//   private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
-//         final List<Function1<DemographicData, List<GoldenRecord>>> queryFunctions,
-//         final DemographicData interaction) {
-//      final LinkedList<GoldenRecord> candidateGoldenRecords = new LinkedList<>();
-//      for (Function1<DemographicData, List<GoldenRecord>> queryFunction : queryFunctions) {
-//         final var block = queryFunction.apply(interaction);
-//         if (!AppUtils.isNullOrEmpty(block)) {
-//            candidateGoldenRecords.addAll(block);
-//            return candidateGoldenRecords;
-//         }
-//      }
-//      return candidateGoldenRecords;
-//   }
-
    private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
          final List<PartialFunction<DemographicData, List<GoldenRecord>>> queryFunctions,
          final DemographicData demographicData) {
@@ -444,7 +430,6 @@ final class DgraphQueries {
       }
       return candidateGoldenRecords;
    }
-
 
    /**
     * Find expanded interactions list.
@@ -1077,6 +1062,5 @@ final class DgraphQueries {
          super(errorMessage);
       }
    }
-
 
 }
