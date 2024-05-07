@@ -12,6 +12,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -89,12 +90,22 @@ final class DgraphQueries {
            }
          }""";
 
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS = List.of(
-         demographicData -> queryLinkDeterministic(demographicData, 0, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A),
-         demographicData -> queryLinkDeterministic(demographicData, 1, CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B));
+   private static final String[] DETERMINISTIC_LINK_QUERIES;
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS;
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS;
 
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS =
-         List.of();
+   static {
+      DETERMINISTIC_LINK_QUERIES = new String[LINKER_CONFIG.deterministicLinkPrograms.size()];
+      DETERMINISTIC_LINK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
+      DETERMINISTIC_LINK_QUERIES[1] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B;
+      DETERMINISTIC_LINK_FUNCTIONS = new ArrayList<>();
+      IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
+               .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
+                                                                                                           i,
+                                                                                                           DETERMINISTIC_LINK_QUERIES)));
+      DETERMINISTIC_MATCH_FUNCTIONS = new ArrayList<>();
+   }
+
 
    private DgraphQueries() {
    }
@@ -1027,7 +1038,7 @@ final class DgraphQueries {
    private static List<GoldenRecord> queryLinkDeterministic(
          final DemographicData demographicData,
          final int ruleNumber,
-         final String query) {
+         final String[] queries) {
       if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber),
                                                       demographicData)) {
          return List.of();
@@ -1042,7 +1053,7 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(query, map);
+      return runGoldenRecordsQuery(queries[ruleNumber], map);
    }
 
    private static class InvalidFunctionException extends Exception {
