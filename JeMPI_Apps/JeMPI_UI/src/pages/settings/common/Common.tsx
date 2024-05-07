@@ -27,7 +27,6 @@ interface EditToolbarProps {
 }
 
 const CommonSettings = ({ demographicData }: { demographicData: any }) => {
-  4
 
   const [rows, setRows] = useState(demographicData)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
@@ -91,8 +90,8 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerName: 'Name',
       width: 180,
       editable: true,
-      align: 'center',
-      headerAlign: 'center',
+      align: 'left',
+      headerAlign: 'left',
       valueGetter: params =>
         params.row.fieldName
           .replace(/_/g, ' ')
