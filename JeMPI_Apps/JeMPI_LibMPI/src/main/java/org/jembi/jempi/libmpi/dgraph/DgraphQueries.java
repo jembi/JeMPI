@@ -106,48 +106,48 @@ final class DgraphQueries {
 
 
       /* REFERENCE  LINK */
-//      DETERMINISTIC_LINK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
-//      DETERMINISTIC_LINK_QUERIES[1] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B;
-//      IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
-//               .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
-//                                                                                                           i,
-//                                                                                                           DETERMINISTIC_LINK_QUERIES)));
-//      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_PROBABILISTIC_BLOCK;
-//      PROBABILISTIC_LINK_BLOCK_FUNCTIONS.addFirst(demographicData -> queryLinkProbabilisticBlock(demographicData,
-//                                                                                                 0,
-//                                                                                                 PROBABILISTIC_LINK_BLOCK_QUERIES));
-//
-//      DETERMINISTIC_MATCH_QUERIES[0] = "";
-//      IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
-//               .forEach(i -> DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
-//                                                                                                            i,
-//                                                                                                            DETERMINISTIC_MATCH_QUERIES)));
-//      PROBABILISTIC_MATCH_BLOCK_QUERIES[0] = null;
-//      PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.addFirst(demographicData -> queryMatchProbabilisticBlock(demographicData,
-//                                                                                                   0,
-//                                                                                                   PROBABILISTIC_MATCH_BLOCK_QUERIES));
-
-
-      /* REFERENCE LINK_VALIDATE_MATCH */
       DETERMINISTIC_LINK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
+      DETERMINISTIC_LINK_QUERIES[1] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B;
       IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
                .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
                                                                                                            i,
                                                                                                            DETERMINISTIC_LINK_QUERIES)));
-      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = null;
+      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_PROBABILISTIC_BLOCK;
       PROBABILISTIC_LINK_BLOCK_FUNCTIONS.addFirst(demographicData -> queryLinkProbabilisticBlock(demographicData,
                                                                                                  0,
                                                                                                  PROBABILISTIC_LINK_BLOCK_QUERIES));
 
-      DETERMINISTIC_MATCH_QUERIES[0] = CustomDgraphQueries.QUERY_MATCH_DETERMINISTIC_A;
+      DETERMINISTIC_MATCH_QUERIES[0] = "";
       IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
-               .forEach(i -> DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchDeterministic(demographicData,
-                                                                                                             i,
-                                                                                                             DETERMINISTIC_MATCH_QUERIES)));
-      PROBABILISTIC_MATCH_BLOCK_QUERIES[0] = CustomDgraphQueries.QUERY_MATCH_PROBABILISTIC_BLOCK;
+               .forEach(i -> DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
+                                                                                                            i,
+                                                                                                            DETERMINISTIC_MATCH_QUERIES)));
+      PROBABILISTIC_MATCH_BLOCK_QUERIES[0] = null;
       PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.addFirst(demographicData -> queryMatchProbabilisticBlock(demographicData,
                                                                                                    0,
                                                                                                    PROBABILISTIC_MATCH_BLOCK_QUERIES));
+
+
+      /* REFERENCE LINK_VALIDATE_MATCH */
+//      DETERMINISTIC_LINK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
+//      IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
+//               .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
+//                                                                                                           i,
+//                                                                                                           DETERMINISTIC_LINK_QUERIES)));
+//      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = null;
+//      PROBABILISTIC_LINK_BLOCK_FUNCTIONS.addFirst(demographicData -> queryLinkProbabilisticBlock(demographicData,
+//                                                                                                 0,
+//                                                                                                 PROBABILISTIC_LINK_BLOCK_QUERIES));
+//
+//      DETERMINISTIC_MATCH_QUERIES[0] = CustomDgraphQueries.QUERY_MATCH_DETERMINISTIC_A;
+//      IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
+//               .forEach(i -> DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchDeterministic(demographicData,
+//                                                                                                             i,
+//                                                                                                             DETERMINISTIC_MATCH_QUERIES)));
+//      PROBABILISTIC_MATCH_BLOCK_QUERIES[0] = CustomDgraphQueries.QUERY_MATCH_PROBABILISTIC_BLOCK;
+//      PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.addFirst(demographicData -> queryMatchProbabilisticBlock(demographicData,
+//                                                                                                   0,
+//                                                                                                   PROBABILISTIC_MATCH_BLOCK_QUERIES));
    }
 
 
