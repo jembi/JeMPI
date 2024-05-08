@@ -48,7 +48,7 @@ public final class Main {
       });
    }
 
-   private void run() {
+   private void innerRun() {
       LOGGER.info("KAFKA: {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS);
       try {
          final var cfg1 = OBJECT_MAPPER.writeValueAsString(INPUT_INTERFACE_CONFIG);
@@ -61,6 +61,14 @@ public final class Main {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       ActorSystem.create(this.create(), "LinkerApp");
+   }
+
+   private void run() {
+      try {
+         innerRun();
+      } catch (final Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
    }
 
 }
