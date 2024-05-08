@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -106,8 +107,8 @@ final class DgraphQueries {
 
 
       /* REFERENCE  LINK */
-      DETERMINISTIC_LINK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
-      DETERMINISTIC_LINK_QUERIES[1] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B;
+      DETERMINISTIC_LINK_QUERIES[0] = LINKER_CONFIG.deterministicLinkPrograms.get(0).selectQuery(); // CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
+      DETERMINISTIC_LINK_QUERIES[1] = LINKER_CONFIG.deterministicLinkPrograms.get(1).selectQuery(); // CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B;
       IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
                .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
                                                                                                            i,
@@ -1119,8 +1120,7 @@ final class DgraphQueries {
          final DemographicData demographicData,
          final int ruleNumber,
          final String[] queries) {
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber),
-                                                      demographicData)) {
+      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber), demographicData)) {
          return List.of();
       }
       final Map<String, String> map = new HashMap<>();
@@ -1140,8 +1140,7 @@ final class DgraphQueries {
          final DemographicData demographicData,
          final int ruleNumber,
          final String[] queries) {
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicMatchPrograms.get(ruleNumber),
-                                                      demographicData)) {
+      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicMatchPrograms.get(ruleNumber), demographicData)) {
          return List.of();
       }
       final Map<String, String> map = new HashMap<>();

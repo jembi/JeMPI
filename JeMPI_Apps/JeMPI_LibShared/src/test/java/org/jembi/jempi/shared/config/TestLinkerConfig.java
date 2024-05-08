@@ -1,6 +1,7 @@
 package org.jembi.jempi.shared.config;
 
 import org.jembi.jempi.shared.config.input.JsonConfig;
+import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,13 +46,13 @@ class TestLinkerConfig {
    static boolean validateDeterministicMatch(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
-      return LinkerConfig.runDeterministicPrograms(LINKER_CONFIG.deterministicValidatePrograms, interaction, goldenRecord);
+      return Programs.runDeterministicPrograms(LINKER_CONFIG.deterministicValidatePrograms, interaction, goldenRecord);
    }
 
    static boolean matchNotificationDeterministicMatch(
          final DemographicData goldenRecord,
          final DemographicData interaction) {
-      return LinkerConfig.runDeterministicPrograms(LINKER_CONFIG.deterministicMatchPrograms, interaction, goldenRecord);
+      return Programs.runDeterministicPrograms(LINKER_CONFIG.deterministicMatchPrograms, interaction, goldenRecord);
    }
 
    @Test
@@ -67,8 +68,14 @@ class TestLinkerConfig {
    }
 
    @Test
+   void testSelectQueryLinkDeterministic() {
+      Assertions.assertEquals(TestConstants.SELECT_QUERY_LINK_DETERMINISTIC_A_1, LINKER_CONFIG_1.deterministicLinkPrograms.getFirst().selectQuery());
+      Assertions.assertEquals(TestConstants.SELECT_QUERY_LINK_DETERMINISTIC_B_1, LINKER_CONFIG_1.deterministicLinkPrograms.get(1).selectQuery());
+   }
+
+   @Test
    void testDeterministicLinkPrograms() {
-      Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertTrue(Programs.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),
@@ -78,7 +85,7 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("phoneNumber", null),
                                               new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
-      Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertTrue(Programs.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
                                               new DemographicData.DemographicField("familyName", FAMILY_NAME),
@@ -88,7 +95,7 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
                                               new DemographicData.DemographicField("nationalId", null))),
             GOLDEN_RECORD));
-      Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertTrue(Programs.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),
@@ -98,7 +105,7 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("phoneNumber", null),
                                               new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
-      Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertFalse(Programs.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
                                               new DemographicData.DemographicField("familyName", FAMILY_NAME),
@@ -112,7 +119,7 @@ class TestLinkerConfig {
 
    @Test
    void testDeterministicValidatePrograms() {
-      Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertFalse(Programs.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicValidatePrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),
@@ -122,7 +129,7 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("phoneNumber", null),
                                               new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
-      Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertFalse(Programs.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicValidatePrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
                                               new DemographicData.DemographicField("familyName", FAMILY_NAME),
@@ -132,7 +139,7 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
                                               new DemographicData.DemographicField("nationalId", null))),
             GOLDEN_RECORD));
-      Assertions.assertFalse(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertFalse(Programs.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicValidatePrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),
@@ -142,7 +149,7 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("phoneNumber", null),
                                               new DemographicData.DemographicField("nationalId", NATIONAL_ID))),
             GOLDEN_RECORD));
-      Assertions.assertTrue(LinkerConfig.runDeterministicPrograms(
+      Assertions.assertTrue(Programs.runDeterministicPrograms(
             LINKER_CONFIG_2.deterministicValidatePrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
                                               new DemographicData.DemographicField("familyName", FAMILY_NAME),
@@ -156,7 +163,8 @@ class TestLinkerConfig {
 
    @Test
    void testDeterministicCanApplyLinkingPrograms() {
-      Assertions.assertTrue(LINKER_CONFIG_1.canApplyLinking(
+      Assertions.assertTrue(Programs.canApplyLinking(
+            LINKER_CONFIG_1.probabilisticLinkFields,
             LINKER_CONFIG_1.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),
@@ -165,7 +173,8 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("city", null),
                                               new DemographicData.DemographicField("phoneNumber", null),
                                               new DemographicData.DemographicField("nationalId", null)))));
-      Assertions.assertFalse(LINKER_CONFIG_2.canApplyLinking(
+      Assertions.assertFalse(Programs.canApplyLinking(
+            LINKER_CONFIG_2.probabilisticLinkFields,
             LINKER_CONFIG_2.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),
@@ -174,7 +183,8 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("city", null),
                                               new DemographicData.DemographicField("phoneNumber", null),
                                               new DemographicData.DemographicField("nationalId", null)))));
-      Assertions.assertFalse(LINKER_CONFIG_2.canApplyLinking(
+      Assertions.assertFalse(Programs.canApplyLinking(
+            LINKER_CONFIG_2.probabilisticLinkFields,
             LINKER_CONFIG_2.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", GIVEN_NAME),
                                               new DemographicData.DemographicField("familyName", FAMILY_NAME),
@@ -183,7 +193,8 @@ class TestLinkerConfig {
                                               new DemographicData.DemographicField("city", CITY),
                                               new DemographicData.DemographicField("phoneNumber", PHONE_NUMBER),
                                               new DemographicData.DemographicField("nationalId", null)))));
-      Assertions.assertTrue(LINKER_CONFIG_2.canApplyLinking(
+      Assertions.assertTrue(Programs.canApplyLinking(
+            LINKER_CONFIG_2.probabilisticLinkFields,
             LINKER_CONFIG_2.deterministicLinkPrograms,
             new DemographicData(Arrays.asList(new DemographicData.DemographicField("givenName", null),
                                               new DemographicData.DemographicField("familyName", null),

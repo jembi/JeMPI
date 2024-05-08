@@ -20,6 +20,7 @@ object CustomDgraphQueries {
     writer.println(s"""package $packageText;
          |
          |import org.apache.commons.lang3.StringUtils;
+         |import org.jembi.jempi.shared.config.linker.Programs;
          |import org.jembi.jempi.shared.models.DemographicData;
          |import org.jembi.jempi.shared.models.GoldenRecord;
          |
@@ -233,7 +234,7 @@ object CustomDgraphQueries {
         val v = vars(0)
         writer.println(
           s"""   static List<GoldenRecord> $functionName(final DemographicData demographicData) {
-             |      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
+             |      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
              |         return List.of();
              |      }
              |      final Map<String, String> map = Map.of("$$$v", demographicData.fields.get(FIELD_IDX_${v.toUpperCase}).value());
@@ -253,7 +254,7 @@ object CustomDgraphQueries {
           )
         })
         writer.print(
-          s"""      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
+          s"""      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.$getRuleNumber, demographicData)) {
              |         return List.of();
              |      }
              |""".stripMargin

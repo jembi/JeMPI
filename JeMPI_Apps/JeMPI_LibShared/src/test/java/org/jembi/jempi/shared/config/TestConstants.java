@@ -775,6 +775,98 @@ final class TestConstants {
          _:%s  <dgraph.type>                                "GoldenRecord"        .
          """;
 
+   static final String SELECT_QUERY_LINK_DETERMINISTIC_A_1 =
+         """
+         query query_link_deterministic_00($national_id: string) {
+            all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_06,$national_id)) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
+
+   static final String SELECT_QUERY_LINK_DETERMINISTIC_B_1 =
+         """
+         query query_link_deterministic_01($given_name: string, $family_name: string, $phone_number: string) {
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_00, $given_name)) {
+               A as uid
+            }
+         
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_01, $family_name)) {
+               B as uid
+            }
+         
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_05, $phone_number)) {
+               C as uid
+            }
+         
+            all(func:type(GoldenRecord)) @filter(((uid(A) AND uid(B)) AND uid(C))) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
+
+   static final String SELECT_QUERY_LINK_PROBABILISTIC_BLOCK_1 =
+         """
+         query query_link_probabilistic_block($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_04, $city,3)) {
+               C as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_05, $phone_number,2)) {
+               D as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_01, $family_name,3)) {
+               B as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_06, $national_id,3)) {
+               E as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_00, $given_name,3)) {
+               A as uid
+            }
+            all(func:type(GoldenRecord)) @filter(((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) OR uid(D) OR uid(E)) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
 
    private TestConstants() {
    }

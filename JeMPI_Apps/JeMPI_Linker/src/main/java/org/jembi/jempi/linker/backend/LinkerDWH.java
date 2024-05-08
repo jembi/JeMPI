@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
+import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -217,7 +218,9 @@ public final class LinkerDWH {
                                                        "LinkerDWH-MU-TALLIES");
       }
 
-      if (!LINKER_CONFIG.canApplyLinking(LINKER_CONFIG.deterministicLinkPrograms, interaction.demographicData())) {
+      if (!Programs.canApplyLinking(LINKER_CONFIG.probabilisticLinkFields,
+                                    LINKER_CONFIG.deterministicLinkPrograms,
+                                    interaction.demographicData())) {
          return doMatch(libMPI, interaction);
       } else {
          LinkInfo linkInfo = null;

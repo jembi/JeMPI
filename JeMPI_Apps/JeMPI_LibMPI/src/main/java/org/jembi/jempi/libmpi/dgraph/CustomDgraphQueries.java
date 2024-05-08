@@ -1,6 +1,7 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
@@ -109,7 +110,7 @@ final class CustomDgraphQueries {
    }
 
    static List<GoldenRecord> queryLinkDeterministicA(final DemographicData demographicData) {
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.getFirst(), demographicData)) {
+      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.getFirst(), demographicData)) {
          return List.of();
       }
       final Map<String, String> map = Map.of("$national_id", demographicData.fields.get(FIELD_IDX_NATIONAL_ID).value());
@@ -120,7 +121,7 @@ final class CustomDgraphQueries {
       final var givenName = demographicData.fields.get(FIELD_IDX_GIVEN_NAME).value();
       final var familyName = demographicData.fields.get(FIELD_IDX_FAMILY_NAME).value();
       final var phoneNumber = demographicData.fields.get(FIELD_IDX_PHONE_NUMBER).value();
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(1), demographicData)) {
+      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(1), demographicData)) {
          return List.of();
       }
       final var map = Map.of("$given_name",
@@ -144,7 +145,7 @@ final class CustomDgraphQueries {
       final var city = demographicData.fields.get(FIELD_IDX_CITY).value();
       final var phoneNumber = demographicData.fields.get(FIELD_IDX_PHONE_NUMBER).value();
       final var nationalId = demographicData.fields.get(FIELD_IDX_NATIONAL_ID).value();
-      if (!LINKER_CONFIG.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.getFirst(), demographicData)) {
+      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.getFirst(), demographicData)) {
          return List.of();
       }
       final var map = Map.of("$given_name",
