@@ -99,7 +99,7 @@ public final class Programs {
       evalStack.push(l || r);
    }
 
-   private static String postFixToInFix(
+   private static String postfixToInfix(
          final List<String> vars,
          final List<String> postfix) {
       final Deque<String> evalStack = new ArrayDeque<>();
@@ -114,9 +114,7 @@ public final class Programs {
                while (i < vars.size() && !field.equals(vars.get(i))) {
                   i++;
                }
-               if (i < vars.size()) {
-                  evalStack.push("uid(%c)".formatted('A' + i));
-               }
+               evalStack.push("uid(%c)".formatted('A' + i));
             }
          } else if (s.startsWith("match(")) {
             final var pattern = Pattern.compile("^match\\((?<field>\\w+),(?<distance>\\d+)\\)$");
@@ -124,7 +122,11 @@ public final class Programs {
             if (matcher.find()) {
                final var field = matcher.group("field");
 //               final var distance = Integer.valueOf(matcher.group("distance"));
-               evalStack.push(field);
+               int i = 0;
+               while (i < vars.size() && !field.equals(vars.get(i))) {
+                  i++;
+               }
+               evalStack.push("uid(%c)".formatted('A' + i));
             }
          } else {
             final var operand1 = evalStack.pop();
@@ -180,7 +182,7 @@ public final class Programs {
                       })
                       .collect(Collectors.joining(System.lineSeparator()))
                 + """
-                                    
+                  
                      all(func:type(GoldenRecord)) @filter(%s) {
                         uid
                         GoldenRecord.source_id {
@@ -189,7 +191,7 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(postFixToInFix(deterministicRule.vars(), postfix))
+                  """.formatted(postfixToInfix(deterministicRule.vars(), postfix))
                 + IntStream.range(0, jsonConfig.demographicFields().size())
                            .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
                            .collect(Collectors.joining(System.lineSeparator()))
@@ -202,7 +204,6 @@ public final class Programs {
 
       }
    }
-
 
    /**
     * Generate deterministic programs list.

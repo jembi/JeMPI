@@ -105,6 +105,7 @@ final class CustomDgraphQueries {
          }
          """;
 
+/*
    static List<GoldenRecord> queryMatchProbabilisticBlock(final DemographicData demographicData) {
       return List.of();
    }
@@ -170,6 +171,7 @@ final class CustomDgraphQueries {
                                    : DgraphQueries.EMPTY_FIELD_SENTINEL);
       return runGoldenRecordsQuery(QUERY_LINK_PROBABILISTIC_BLOCK, map);
    }
+*/
 
    private CustomDgraphQueries() {
    }
