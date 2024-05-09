@@ -9,35 +9,31 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridActionsCellItem,
-  GridRowsProp,
-  GridToolbarContainer
 } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
-import { useSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
-import { randomId } from 'utils/helpers'
+import { EditToolbar } from 'components/shared/EditToolBar'
+import { randomId, transformFieldName } from 'utils/helpers'
 
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void
-}
-
-const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : any }) => {
-
-  const [rows, setRows] = useState(uniqueToGoldenRecordData )
+const UniqueToGR = ({
+  uniqueToGoldenRecordData
+}: {
+  uniqueToGoldenRecordData: any
+}) => {
+  const [rows, setRows] = useState(uniqueToGoldenRecordData)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    const rowsWithIds = uniqueToGoldenRecordData .map((row: any, index: number) => ({
-      ...row,
-      id: index.toString() 
-    }))
+    const rowsWithIds = uniqueToGoldenRecordData.map(
+      (row: any, index: number) => ({
+        ...row,
+        id: index.toString()
+      })
+    )
     setRows(rowsWithIds)
-  }, [uniqueToGoldenRecordData ])
+  }, [uniqueToGoldenRecordData])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
@@ -92,11 +88,7 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
       editable: true,
       align: 'left',
       headerAlign: 'left',
-      valueGetter: params =>
-        params.row.fieldName
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (char: string) => char.toUpperCase())
-          
+      valueGetter: params => transformFieldName(params)
     },
     {
       field: 'fieldType',
@@ -105,7 +97,7 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
       width: 300,
       align: 'center',
       headerAlign: 'center',
-      editable: false,
+      editable: false
     },
     {
       field: 'actions',
@@ -166,7 +158,7 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
         }
       }}
     >
-      {uniqueToGoldenRecordData  && (
+      {uniqueToGoldenRecordData && (
         <DataGrid
           rows={rows}
           columns={columns}
@@ -185,21 +177,6 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
       )}
     </Box>
   )
-}
-
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props
-
-  const handleClick = () => {
-    const id = randomId()
-    setRows(oldRows => [...oldRows, { id, name: '', age: '', isNew: true }])
-    setRowModesModel(oldModel => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' }
-    }))
-  }
-
-  return <GridToolbarContainer></GridToolbarContainer>
 }
 
 export default UniqueToGR
