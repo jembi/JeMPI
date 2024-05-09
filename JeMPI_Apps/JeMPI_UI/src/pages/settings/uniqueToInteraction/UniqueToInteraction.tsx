@@ -96,25 +96,6 @@ const UniqueToInteraction = ({ uniqueInteractionData }: { uniqueInteractionData:
       headerAlign: 'center',
       editable: false
     },
-
-    {
-      field: 'index',
-      headerName: 'Index',
-      type: 'string',
-      width: 300,
-      align: 'center',
-      headerAlign: 'center',
-      editable: false,
-      valueGetter: params => {
-        const indexGoldenRecord = params.row.indexGoldenRecord
-        if (indexGoldenRecord) {
-          return indexGoldenRecord
-            .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
-            .replace(/,/g, ', ')
-        }
-        return ''
-      }
-    },
     {
       field: 'actions',
       type: 'actions',

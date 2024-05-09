@@ -17,9 +17,6 @@ import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { randomId, transformFieldName } from 'utils/helpers'
 
-
-const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : any }) => {
-  const [rows, setRows] = useState(uniqueToGoldenRecordData )
 const UniqueToGR = ({
   uniqueToGoldenRecordData
 }: {
