@@ -128,7 +128,7 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden Records Lists{' '}
             </Typography>
-            <GoldenRecordLists />
+            <GoldenRecordLists goldenRecordLists={configuration.additionalNodes} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             Deterministic

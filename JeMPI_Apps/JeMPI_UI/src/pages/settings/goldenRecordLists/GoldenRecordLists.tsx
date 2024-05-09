@@ -1,51 +1,23 @@
-import React from 'react'
 import Box from '@mui/material/Box'
+import {
+  DataGrid,
+  GridColDef,
+  GridEventListener,
+  GridRowEditStopReasons,
+  GridRowId,
+  GridRowModel,
+  GridRowModes,
+  GridRowModesModel,
+  GridActionsCellItem,
+  GridRowsProp,
+  GridToolbarContainer
+} from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
-import {
-  GridRowsProp,
-  GridRowModesModel,
-  GridRowModes,
-  DataGrid,
-  GridColDef,
-  GridToolbarContainer,
-  GridActionsCellItem,
-  GridEventListener,
-  GridRowId,
-  GridRowModel,
-  GridRowEditStopReasons
-} from '@mui/x-data-grid'
 import { useSnackbar } from 'notistack'
-
-const randomTraderName = () => {
-  return Math.random().toString(36).substring(2, 7)
-}
-
-const randomId = () => {
-  return Math.random().toString(36).substring(2, 9)
-}
-
-const initialRows: GridRowsProp = [
-  {
-    id: randomId(),
-    listName: 'Source ID' ,
-    propertyName: 'Facility ID',
-    type: 'string'
-  },
-  {
-    id: randomId(),
-    listName: '',
-    propertyName: 'Patient ID',
-    type: 'string'
-  },
-  {
-    id: randomId(),
-    listName: 'Biometric ID',
-    propertyName: 'Subject ID',
-    type: 'string'
-  }
-]
+import { useEffect, useState } from 'react'
+import { randomId } from 'utils/helpers'
 
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void
@@ -54,26 +26,55 @@ interface EditToolbarProps {
   ) => void
 }
 
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props
+const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) => {
 
-  const handleClick = () => {
-    const id = randomId()
-    setRows(oldRows => [...oldRows, { id, name: '', age: '', isNew: true }])
-    setRowModesModel(oldModel => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' }
+  const [rows, setRows] = useState(goldenRecordLists)
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+
+  useEffect(() => {
+    const rowsWithIds = goldenRecordLists.map((row: any, index: number) => ({
+      ...row,
+      id: index.toString() 
     }))
+    setRows(rowsWithIds)
+  }, [goldenRecordLists])
+
+  const handleEditClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
   }
 
-  return <GridToolbarContainer></GridToolbarContainer>
-}
+  const handleSaveClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+  }
 
-const GoldenRecordLists = () => {
-  const [rows, setRows] = React.useState(initialRows)
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
-  )
+  const handleDeleteClick = (id: any) => () => {
+    setRows(rows?.filter((row: { id: any }) => row.id !== id))
+  }
+
+  const handleCancelClick = (id: GridRowId) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true }
+    })
+
+    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id)
+    if (editedRow!.isNew) {
+      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id))
+    }
+  }
+
+  const processRowUpdate = (newRow: GridRowModel) => {
+    const { isNew, ...updatedRow } = newRow
+    setRows(
+      rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
+    )
+    return updatedRow
+  }
+
+  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+    setRowModesModel(newRowModesModel)
+  }
+
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
     event
@@ -82,54 +83,22 @@ const GoldenRecordLists = () => {
       event.defaultMuiPrevented = true
     }
   }
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
-  }
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-  }
-  const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter(row => row.id !== id))
-  }
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
 
-    const editedRow = rows.find(row => row.id === id)
-    if (editedRow!.isNew) {
-      setRows(rows.filter(row => row.id !== id))
-    }
-  }
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false }
-    setRows(rows.map(row => (row.id === newRow.id ? updatedRow : row)))
-    return updatedRow
-  }
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel)
-  }
   const columns: GridColDef[] = [
     {
-      field: 'listName',
-      headerName: 'List Name',
+      field: 'nodeName',
+      headerName: 'Name',
       width: 300,
       editable: true,
-      align: 'center',
-      headerAlign: 'center'
+      align: 'left',
+      headerAlign: 'left',
+      valueGetter: params =>
+        params.row.fieldName
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (char: string) => char.toUpperCase())
     },
     {
-      field: 'propertyName',
-      headerName: 'Property Name',
-      type: 'string',
-      width: 300,
-      align: 'center',
-      headerAlign: 'center',
-      editable: false
-    },
-    {
-      field: 'type',
+      field: 'fieldName',
       headerName: 'Type',
       type: 'string',
       width: 300,
@@ -151,6 +120,7 @@ const GoldenRecordLists = () => {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
+              id="save-button"
               label="Save"
               sx={{
                 color: 'white'
@@ -159,6 +129,7 @@ const GoldenRecordLists = () => {
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
+              id="cancel-button"
               label="Cancel"
               className="textPrimary"
               onClick={handleCancelClick(id)}
@@ -170,6 +141,7 @@ const GoldenRecordLists = () => {
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
+            id="edit-button"
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
@@ -180,7 +152,6 @@ const GoldenRecordLists = () => {
     }
   ]
 
-  
   return (
     <Box
       sx={{
@@ -194,23 +165,40 @@ const GoldenRecordLists = () => {
         }
       }}
     >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        slots={{
-          toolbar: EditToolbar
-        }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel }
-        }}
-      />
+      {goldenRecordLists && (
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          slots={{
+            toolbar: EditToolbar
+          }}
+          slotProps={{
+            toolbar: { setRows, setRowModesModel }
+          }}
+        />
+      )}
     </Box>
   )
+}
+
+function EditToolbar(props: EditToolbarProps) {
+  const { setRows, setRowModesModel } = props
+
+  const handleClick = () => {
+    const id = randomId()
+    setRows(oldRows => [...oldRows, { id, name: '', age: '', isNew: true }])
+    setRowModesModel(oldModel => ({
+      ...oldModel,
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' }
+    }))
+  }
+
+  return <GridToolbarContainer></GridToolbarContainer>
 }
 
 export default GoldenRecordLists
