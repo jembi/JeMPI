@@ -15,19 +15,28 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
+import { randomId, transformFieldName } from 'utils/helpers'
 
 
 const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : any }) => {
   const [rows, setRows] = useState(uniqueToGoldenRecordData )
+const UniqueToGR = ({
+  uniqueToGoldenRecordData
+}: {
+  uniqueToGoldenRecordData: any
+}) => {
+  const [rows, setRows] = useState(uniqueToGoldenRecordData)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    const rowsWithIds = uniqueToGoldenRecordData .map((row: any, index: number) => ({
-      ...row,
-      id: index.toString() 
-    }))
+    const rowsWithIds = uniqueToGoldenRecordData.map(
+      (row: any, index: number) => ({
+        ...row,
+        id: index.toString()
+      })
+    )
     setRows(rowsWithIds)
-  }, [uniqueToGoldenRecordData ])
+  }, [uniqueToGoldenRecordData])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
@@ -82,11 +91,7 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
       editable: true,
       align: 'left',
       headerAlign: 'left',
-      valueGetter: params =>
-        params.row.fieldName
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (char: string) => char.toUpperCase())
-          
+      valueGetter: params => transformFieldName(params)
     },
     {
       field: 'fieldType',
@@ -95,7 +100,7 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
       width: 300,
       align: 'center',
       headerAlign: 'center',
-      editable: false,
+      editable: false
     },
     {
       field: 'actions',
@@ -156,7 +161,7 @@ const UniqueToGR = ({ uniqueToGoldenRecordData }: { uniqueToGoldenRecordData : a
         }
       }}
     >
-      {uniqueToGoldenRecordData  && (
+      {uniqueToGoldenRecordData && (
         <DataGrid
           rows={rows}
           columns={columns}

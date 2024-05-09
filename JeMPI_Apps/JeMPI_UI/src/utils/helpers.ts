@@ -106,17 +106,34 @@ export const generateId = (configuration: Configuration): Configuration => {
     return fields.map(item => ({
       id: randomId(),
       ...item
-    }));
-  };
+    }))
+  }
 
   return {
     ...configuration,
-    uniqueInteractionFields: generateIdForFields(configuration.uniqueInteractionFields),
-    uniqueGoldenRecordFields: generateIdForFields(configuration.uniqueGoldenRecordFields),
+    uniqueInteractionFields: generateIdForFields(
+      configuration.uniqueInteractionFields
+    ),
+    uniqueGoldenRecordFields: generateIdForFields(
+      configuration.uniqueGoldenRecordFields
+    ),
     demographicFields: generateIdForFields(configuration.demographicFields),
     additionalNodes: configuration.additionalNodes.map(node => ({
       ...node,
       fields: generateIdForFields(node.fields)
     }))
-  };
-};
+  }
+}
+
+export function processIndex(indexGoldenRecord: string) {
+  if (indexGoldenRecord) {
+    return indexGoldenRecord
+      .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
+      .replace(/,/g, ', ')
+  }
+  return ''
+}
+export const transformFieldName = (params: any) =>
+  (params?.row?.fieldName || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char: string) => char.toUpperCase())

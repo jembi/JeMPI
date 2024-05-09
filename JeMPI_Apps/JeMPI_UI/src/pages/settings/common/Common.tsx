@@ -8,24 +8,23 @@ import {
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
-  GridActionsCellItem,
+  GridActionsCellItem
 } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
-
+import { processIndex, transformFieldName } from 'utils/helpers'
 
 const CommonSettings = ({ demographicData }: { demographicData: any }) => {
-
   const [rows, setRows] = useState(demographicData)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
     const rowsWithIds = demographicData.map((row: any, index: number) => ({
       ...row,
-      id: index.toString() 
+      id: index.toString()
     }))
     setRows(rowsWithIds)
   }, [demographicData])
@@ -83,10 +82,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       editable: true,
       align: 'left',
       headerAlign: 'left',
-      valueGetter: params =>
-        params.row.fieldName
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (char: string) => char.toUpperCase())
+      valueGetter: params => transformFieldName(params)
     },
     {
       field: 'fieldType',
@@ -108,12 +104,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       editable: true,
       valueGetter: params => {
         const indexGoldenRecord = params.row.indexGoldenRecord
-        if (indexGoldenRecord) {
-          return indexGoldenRecord
-            .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
-            .replace(/,/g, ', ')
-        }
-        return ''
+        processIndex(indexGoldenRecord)
       }
     },
     {
