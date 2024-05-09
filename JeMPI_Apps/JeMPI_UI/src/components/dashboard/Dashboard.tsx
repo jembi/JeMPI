@@ -18,12 +18,9 @@ import { pink } from '@mui/material/colors'
 import MandU from './widgets/MandUWidget'
 import BetaFscore from './widgets/BetaFscoreWidget'
 import ConfusionMatrix from './widgets/ConfusionMatrixWidget'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ImportProcessWidget } from './widgets/ImportProcessWidget'
 import { useDashboardData } from 'hooks/useDashboardData'
-import { useConfig } from 'hooks/useConfig'
-import { useQuery } from '@tanstack/react-query'
-import { Configuration } from 'types/Configuration'
 interface TabPanelProps {
   children?: React.ReactNode
   index: number
