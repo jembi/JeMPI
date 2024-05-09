@@ -868,6 +868,48 @@ final class TestConstants {
          }
          """;
 
+   static final String SELECT_QUERY_LINK_BLOCK_00_1 =
+         """
+         query query_link_deterministic_00($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_00, $given_name, 3)) {
+               A as uid
+            }
+         
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_01, $family_name, 3)) {
+               B as uid
+            }
+         
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_04, $city, 3)) {
+               C as uid
+            }
+         
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_05, $phone_number, 2)) {
+               D as uid
+            }
+         
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_06, $national_id, 3)) {
+               E as uid
+            }
+         
+            all(func:type(GoldenRecord)) @filter((((((uid(A) AND uid(B)) OR (uid(A) AND uid(C))) OR (uid(B) AND uid(C))) OR uid(D)) OR uid(E))) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
+
    private TestConstants() {
    }
 

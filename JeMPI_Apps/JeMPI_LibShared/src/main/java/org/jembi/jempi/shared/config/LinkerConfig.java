@@ -42,6 +42,16 @@ public final class LinkerConfig {
    public final List<Programs.DeterministicProgram> deterministicMatchPrograms;
 
    /**
+    * The Block link programs.
+    */
+   public final List<Programs.BlockProgram> blockLinkPrograms;
+
+   /**
+    * The Block match programs.
+    */
+   public final List<Programs.BlockProgram> blockMatchPrograms;
+
+   /**
     * Instantiates a new Linker config.
     *
     * @param jsonConfig the json config
@@ -86,29 +96,41 @@ public final class LinkerConfig {
             .toList();
 
       LOGGER.debug("generate programs");
-      if ((jsonConfig.rules().link() != null)
-          && !AppUtils.isNullOrEmpty(jsonConfig.rules().link().deterministic())) {
-         deterministicLinkPrograms = Programs.generateDeterministicPrograms(jsonConfig,
+      if ((jsonConfig.rules().link() != null) && !AppUtils.isNullOrEmpty(jsonConfig.rules().link().deterministic())) {
+         deterministicLinkPrograms = Programs.generateDeterministicPrograms("link", jsonConfig,
                                                                             jsonConfig.rules().link().deterministic());
       } else {
          deterministicLinkPrograms = new ArrayList<>();
       }
 
-      if (jsonConfig.rules().validate() != null
-          && !AppUtils.isNullOrEmpty(jsonConfig.rules().validate().deterministic())) {
-         deterministicValidatePrograms = Programs.generateDeterministicPrograms(jsonConfig,
+      if (jsonConfig.rules().validate() != null && !AppUtils.isNullOrEmpty(jsonConfig.rules().validate().deterministic())) {
+         deterministicValidatePrograms = Programs.generateDeterministicPrograms("validate", jsonConfig,
                                                                                 jsonConfig.rules().validate().deterministic());
       } else {
          deterministicValidatePrograms = new ArrayList<>();
       }
-      if (jsonConfig.rules().matchNotification() != null
-          && !AppUtils.isNullOrEmpty(jsonConfig.rules().matchNotification().deterministic())) {
-         deterministicMatchPrograms = Programs.generateDeterministicPrograms(jsonConfig,
+      if (jsonConfig.rules().matchNotification() != null && !AppUtils.isNullOrEmpty(jsonConfig.rules()
+                                                                                              .matchNotification()
+                                                                                              .deterministic())) {
+         deterministicMatchPrograms = Programs.generateDeterministicPrograms("match", jsonConfig,
                                                                              jsonConfig.rules()
                                                                                        .matchNotification()
                                                                                        .deterministic());
       } else {
          deterministicMatchPrograms = new ArrayList<>();
+      }
+      if (jsonConfig.rules().link() != null && !AppUtils.isNullOrEmpty(jsonConfig.rules().link().probabilistic())) {
+         blockLinkPrograms = Programs.generateBlockPrograms("link", jsonConfig,
+                                                            jsonConfig.rules().link().probabilistic());
+      } else {
+         blockLinkPrograms = new ArrayList<>();
+      }
+      if (jsonConfig.rules().matchNotification() != null && !AppUtils.isNullOrEmpty(jsonConfig.rules().matchNotification()
+                                                                                              .probabilistic())) {
+         blockMatchPrograms = Programs.generateBlockPrograms("match", jsonConfig,
+                                                             jsonConfig.rules().matchNotification().probabilistic());
+      } else {
+         blockMatchPrograms = new ArrayList<>();
       }
       LOGGER.debug("generated programs");
 

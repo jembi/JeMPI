@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.LinkerConfig;
 import org.jembi.jempi.shared.config.input.DeterministicRule;
 import org.jembi.jempi.shared.config.input.JsonConfig;
+import org.jembi.jempi.shared.config.input.ProbabilisticRule;
 import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.*;
@@ -137,14 +138,81 @@ public final class Programs {
       return evalStack.pop();
    }
 
-   private static String deterministicSelectQuery(
+   private static String blockSelectQuery(
+         final String type,
          final JsonConfig jsonConfig,
          final int ruleNumber,
          final List<String> postfix,
-         final DeterministicRule deterministicRule) {
-      if (deterministicRule.vars().size() == 1) {
-         return "query query_link_deterministic_%02d(".formatted(ruleNumber)
-                + deterministicRule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(","))
+         final ProbabilisticRule rule) {
+      if (rule.vars().size() == 1) {
+         return "query query_%s_block_%02d(".formatted(type, ruleNumber)
+                + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(","))
+                + """
+                  ) {
+                     all(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_%02d,$%s,3)) {
+                        uid
+                        GoldenRecord.source_id {
+                           uid
+                        }
+                        GoldenRecord.aux_date_created
+                        GoldenRecord.aux_auto_update_enabled
+                        GoldenRecord.aux_id
+                  """.formatted(fieldIndexOf(jsonConfig, rule.vars().getFirst()), rule.vars().getFirst())
+                + IntStream.range(0, jsonConfig.demographicFields().size())
+                           .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
+                           .collect(Collectors.joining(System.lineSeparator()))
+                + System.lineSeparator()
+                + """
+                     }
+                  }
+                  """;
+      } else {
+         return "query query_%s_deterministic_%02d(".formatted(type, ruleNumber)
+                + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(", "))
+                + ") {"
+                + System.lineSeparator()
+                + IntStream
+                      .range(0, rule.vars().size())
+                      .mapToObj(varIdx -> {
+                         final var varName = rule.vars().get(varIdx);
+                         return """
+                                   var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_%02d, $%s, 3)) {
+                                      %c as uid
+                                   }
+                                """.formatted(fieldIndexOf(jsonConfig, varName), varName, 'A' + varIdx);
+                      })
+                      .collect(Collectors.joining(System.lineSeparator()))
+                + """
+                                    
+                     all(func:type(GoldenRecord)) @filter(%s) {
+                        uid
+                        GoldenRecord.source_id {
+                           uid
+                        }
+                        GoldenRecord.aux_date_created
+                        GoldenRecord.aux_auto_update_enabled
+                        GoldenRecord.aux_id
+                  """.formatted(postfixToInfix(rule.vars(), postfix))
+                + IntStream.range(0, jsonConfig.demographicFields().size())
+                           .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
+                           .collect(Collectors.joining(System.lineSeparator()))
+                + System.lineSeparator()
+                + """
+                     }
+                  }
+                  """;
+      }
+   }
+
+   private static String deterministicSelectQuery(
+         final String type,
+         final JsonConfig jsonConfig,
+         final int ruleNumber,
+         final List<String> postfix,
+         final DeterministicRule rule) {
+      if (rule.vars().size() == 1) {
+         return "query query_%s_deterministic_%02d(".formatted(type, ruleNumber)
+                + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(","))
                 + """
                   ) {
                      all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_%02d,$%s)) {
@@ -155,8 +223,7 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(fieldIndexOf(jsonConfig, deterministicRule.vars().getFirst()),
-                                deterministicRule.vars().getFirst())
+                  """.formatted(fieldIndexOf(jsonConfig, rule.vars().getFirst()), rule.vars().getFirst())
                 + IntStream.range(0, jsonConfig.demographicFields().size())
                            .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
                            .collect(Collectors.joining(System.lineSeparator()))
@@ -166,14 +233,14 @@ public final class Programs {
                   }
                   """;
       } else {
-         return "query query_link_deterministic_%02d(".formatted(ruleNumber)
-                + deterministicRule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(", "))
+         return "query query_%s_deterministic_%02d(".formatted(type, ruleNumber)
+                + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(", "))
                 + ") {"
                 + System.lineSeparator()
                 + IntStream
-                      .range(0, deterministicRule.vars().size())
+                      .range(0, rule.vars().size())
                       .mapToObj(varIdx -> {
-                         final var varName = deterministicRule.vars().get(varIdx);
+                         final var varName = rule.vars().get(varIdx);
                          return """
                                    var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_%02d, $%s)) {
                                       %c as uid
@@ -182,7 +249,7 @@ public final class Programs {
                       })
                       .collect(Collectors.joining(System.lineSeparator()))
                 + """
-                  
+                                    
                      all(func:type(GoldenRecord)) @filter(%s) {
                         uid
                         GoldenRecord.source_id {
@@ -191,7 +258,7 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(postfixToInfix(deterministicRule.vars(), postfix))
+                  """.formatted(postfixToInfix(rule.vars(), postfix))
                 + IntStream.range(0, jsonConfig.demographicFields().size())
                            .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
                            .collect(Collectors.joining(System.lineSeparator()))
@@ -213,6 +280,7 @@ public final class Programs {
     * @return the list
     */
    public static List<DeterministicProgram> generateDeterministicPrograms(
+         final String type,
          final JsonConfig jsonConfig,
          final List<DeterministicRule> rules) {
       final List<DeterministicProgram> deterministicPrograms = new ArrayList<>();
@@ -226,12 +294,11 @@ public final class Programs {
          LOGGER.debug("{}", deterministicRule.text());
          LOGGER.debug("{}", infix);
          LOGGER.debug("{}", rpn);
-         System.out.println(infix);
-         System.out.println(rpn);
          final List<Operation> canApplyProgram = new ArrayList<>();
          final List<Operation> program = new ArrayList<>();
          var stackDepth = 0;
-         final var selectQuery = deterministicSelectQuery(jsonConfig, i, rpn, deterministicRule);
+         final var selectQuery = deterministicSelectQuery(type, jsonConfig, i, rpn, deterministicRule);
+         LOGGER.info("{}", selectQuery);
          for (final String s : rpn) {
             if (s.startsWith("eq")) {
                final var pattern = Pattern.compile("^eq\\((?<field>\\w+)\\)$");
@@ -242,6 +309,8 @@ public final class Programs {
                   canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
                   program.add(new Operation(Programs::eq, fieldIndex, null));
                   stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
                }
             } else if (s.startsWith("match")) {
                final var pattern = Pattern.compile("^match\\((?<field>\\w+),(?<distance>\\d+)\\)$");
@@ -253,6 +322,8 @@ public final class Programs {
                   canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
                   program.add(new Operation(Programs::match, fieldIndex, distance));
                   stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
                }
             } else if (s.startsWith("isNull")) {
                final var pattern = Pattern.compile("^isNull\\((?<field>\\w+)\\)$");
@@ -263,6 +334,8 @@ public final class Programs {
                   canApplyProgram.add(new Operation(Programs::interactionFieldIsBlank, fieldIndex, null));
                   program.add(new Operation(Programs::isNull, fieldIndex, null));
                   stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
                }
             } else if (s.startsWith("switched")) {
                final var pattern = Pattern.compile("^switched\\((?<field1>\\w+),(?<field2>\\w+)\\)$");
@@ -275,6 +348,8 @@ public final class Programs {
                   canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, field1Index, null));
                   program.add(new Operation(Programs::switched, field1Index, field2Index));
                   stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
                }
             } else if (s.startsWith("and")) {
                canApplyProgram.add(new Operation(Programs::andOperator, null, null));
@@ -284,6 +359,8 @@ public final class Programs {
                canApplyProgram.add(new Operation(Programs::orOperator, null, null));
                program.add(new Operation(Programs::orOperator, null, null));
                stackDepth -= 1;
+            } else {
+               LOGGER.error("NOT HANDLED: [{}]", s);
             }
          }
          if (stackDepth != 1) {
@@ -293,8 +370,108 @@ public final class Programs {
             deterministicPrograms.add(new DeterministicProgram(selectQuery, program, canApplyProgram));
          }
       });
-
       return deterministicPrograms;
+   }
+
+
+/*
+[match(given_name,3), match(family_name,3), and, match(given_name,3), match(city,3), and, or, match(family_name,3), match(city,
+3)), and, or, match(phone_number,2), or, match(national_id,3), or]
+*/
+
+
+   public static List<BlockProgram> generateBlockPrograms(
+         final String type,
+         final JsonConfig jsonConfig,
+         final List<ProbabilisticRule> rules) {
+      final List<BlockProgram> blockPrograms = new ArrayList<>();
+      if (rules.isEmpty()) {
+         return blockPrograms;
+      }
+      IntStream.range(0, rules.size()).forEach(i -> {
+         final var rule = rules.get(i);
+         final var infix = Arrays.asList(rule.text().split(" "));
+         final var rpn = shuntingYard(infix);
+         LOGGER.debug("{}", rule.text());
+         LOGGER.debug("{}", infix);
+         LOGGER.debug("{}", rpn);
+         final List<Operation> canApplyProgram = new ArrayList<>();
+         final List<Operation> program = new ArrayList<>();
+         var stackDepth = 0;
+         final var selectQuery = blockSelectQuery(type, jsonConfig, i, rpn, rule);
+         LOGGER.info("{}", selectQuery);
+         for (final String s : rpn) {
+            if (s.startsWith("eq")) {
+               final var pattern = Pattern.compile("^eq\\((?<field>\\w+)\\)$");
+               final var matcher = pattern.matcher(s);
+               if (matcher.find()) {
+                  final var field = matcher.group("field");
+                  final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
+                  program.add(new Operation(Programs::eq, fieldIndex, null));
+                  stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
+               }
+            } else if (s.startsWith("match")) {
+               final var pattern = Pattern.compile("^match\\((?<field>\\w+),(?<distance>\\d+)\\)$");
+               final var matcher = pattern.matcher(s);
+               if (matcher.find()) {
+                  final var field = matcher.group("field");
+                  final var distance = Integer.valueOf(matcher.group("distance"));
+                  final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
+                  program.add(new Operation(Programs::match, fieldIndex, distance));
+                  stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
+               }
+            } else if (s.startsWith("isNull")) {
+               final var pattern = Pattern.compile("^isNull\\((?<field>\\w+)\\)$");
+               final var matcher = pattern.matcher(s);
+               if (matcher.find()) {
+                  final var field = matcher.group("field");
+                  final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(Programs::interactionFieldIsBlank, fieldIndex, null));
+                  program.add(new Operation(Programs::isNull, fieldIndex, null));
+                  stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
+               }
+            } else if (s.startsWith("switched")) {
+               final var pattern = Pattern.compile("^switched\\((?<field1>\\w+),(?<field2>\\w+)\\)$");
+               final var matcher = pattern.matcher(s);
+               if (matcher.find()) {
+                  final var field1 = matcher.group("field1");
+                  final var field2 = matcher.group("field2");
+                  final var field1Index = fieldIndexOf(jsonConfig, field1);
+                  final var field2Index = fieldIndexOf(jsonConfig, field2);
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, field1Index, null));
+                  program.add(new Operation(Programs::switched, field1Index, field2Index));
+                  stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
+               }
+            } else if (s.startsWith("and")) {
+               canApplyProgram.add(new Operation(Programs::andOperator, null, null));
+               program.add(new Operation(Programs::andOperator, null, null));
+               stackDepth -= 1;
+            } else if (s.startsWith("or")) {
+               canApplyProgram.add(new Operation(Programs::orOperator, null, null));
+               program.add(new Operation(Programs::orOperator, null, null));
+               stackDepth -= 1;
+            } else {
+               LOGGER.error("NOT HANDLED: [{}]", s);
+            }
+         }
+         if (stackDepth != 1) {
+            LOGGER.error("Stack Depth error: {}", stackDepth);
+         } else {
+            LOGGER.debug("Stack Depth {}", stackDepth);
+            blockPrograms.add(new BlockProgram(selectQuery, program, canApplyProgram));
+         }
+      });
+      return blockPrograms;
    }
 
    private static int fieldIndexOf(
@@ -404,5 +581,10 @@ public final class Programs {
          List<Operation> canApplyProgram) {
    }
 
+   public record BlockProgram(
+         String selectQuery,
+         List<Operation> program,
+         List<Operation> canApplyProgram) {
+   }
 
 }

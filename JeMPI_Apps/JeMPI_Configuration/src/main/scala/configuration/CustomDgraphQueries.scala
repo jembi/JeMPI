@@ -136,6 +136,7 @@ object CustomDgraphQueries {
         (x, ruleNumber) => emitRuleFunction(x._1, x._2, ruleNumber)
       )
     }
+
 //    emitFindCandidates(
 //      "Match",
 //      "DETERMINISTIC_MATCH_FUNCTIONS",

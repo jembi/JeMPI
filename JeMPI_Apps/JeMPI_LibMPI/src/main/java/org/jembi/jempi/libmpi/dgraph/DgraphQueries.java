@@ -113,7 +113,7 @@ final class DgraphQueries {
                .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
                                                                                                            i,
                                                                                                            DETERMINISTIC_LINK_QUERIES)));
-      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_PROBABILISTIC_BLOCK;
+      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = LINKER_CONFIG.blockLinkPrograms.get(0).selectQuery();
       PROBABILISTIC_LINK_BLOCK_FUNCTIONS.addFirst(demographicData -> queryLinkProbabilisticBlock(demographicData,
                                                                                                  0,
                                                                                                  PROBABILISTIC_LINK_BLOCK_QUERIES));

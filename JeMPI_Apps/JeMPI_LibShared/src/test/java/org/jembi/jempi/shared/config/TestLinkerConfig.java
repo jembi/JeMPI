@@ -74,6 +74,12 @@ class TestLinkerConfig {
    }
 
    @Test
+   void testSelectQueryLinkBlock() {
+      Assertions.assertEquals(TestConstants.SELECT_QUERY_LINK_BLOCK_00_1, LINKER_CONFIG_1.blockLinkPrograms.getFirst().selectQuery());
+   }
+
+
+   @Test
    void testDeterministicLinkPrograms() {
       Assertions.assertTrue(Programs.runDeterministicPrograms(
             LINKER_CONFIG_1.deterministicLinkPrograms,
