@@ -1,5 +1,10 @@
 package org.jembi.jempi.shared.config;
 
+import org.jembi.jempi.shared.models.DemographicData;
+import org.jembi.jempi.shared.models.GoldenRecord;
+
+import java.util.List;
+
 final class TestConstants {
 
    static final String CONFIG_FILE_11 = "config-reference.json";
@@ -909,6 +914,92 @@ final class TestConstants {
             }
          }
          """;
+
+   static final String QUERY_LINK_DETERMINISTIC_A_2 =
+         """
+         query query_link_deterministic_a($national_id: string) {
+            all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_06,$national_id)) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
+
+   static final String QUERY_MATCH_DETERMINISTIC_A_2 =
+         """
+         query query_match_deterministic_a($given_name: string, $family_name: string, $phone_number: string) {
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_00, $given_name)) {
+               A as uid
+            }
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_01, $family_name)) {
+               B as uid
+            }
+            var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_05, $phone_number)) {
+               C as uid
+            }
+            all(func:type(GoldenRecord)) @filter(uid(A) AND uid(B) AND uid(C)) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
+
+   static final String QUERY_MATCH_PROBABILISTIC_BLOCK_2 =
+         """
+         query query_match_probabilistic_block($given_name: string, $family_name: string, $phone_number: string) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_00, $given_name,3)) {
+               A as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_01, $family_name,3)) {
+               B as uid
+            }
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_05, $phone_number,3)) {
+               C as uid
+            }
+            all(func:type(GoldenRecord)) @filter((uid(A) AND uid(B)) OR (uid(A) AND uid(C)) OR (uid(B) AND uid(C))) {
+               uid
+               GoldenRecord.source_id {
+                  uid
+               }
+               GoldenRecord.aux_date_created
+               GoldenRecord.aux_auto_update_enabled
+               GoldenRecord.aux_id
+               GoldenRecord.demographic_field_00
+               GoldenRecord.demographic_field_01
+               GoldenRecord.demographic_field_02
+               GoldenRecord.demographic_field_03
+               GoldenRecord.demographic_field_04
+               GoldenRecord.demographic_field_05
+               GoldenRecord.demographic_field_06
+            }
+         }
+         """;
+
+
 
    private TestConstants() {
    }

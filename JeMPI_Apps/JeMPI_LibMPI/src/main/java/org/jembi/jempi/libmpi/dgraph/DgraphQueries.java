@@ -76,79 +76,81 @@ final class DgraphQueries {
    private static final String[] DETERMINISTIC_LINK_QUERIES;
    private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS;
 
-   private static final String[] PROBABILISTIC_LINK_BLOCK_QUERIES;
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> PROBABILISTIC_LINK_BLOCK_FUNCTIONS;
+   private static final String[] BLOCK_LINK_QUERIES;
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> BLOCK_LINK_FUNCTIONS;
 
    private static final String[] DETERMINISTIC_MATCH_QUERIES;
    private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS;
 
-   private static final String[] PROBABILISTIC_MATCH_BLOCK_QUERIES;
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> PROBABILISTIC_MATCH_BLOCK_FUNCTIONS;
+   private static final String[] BLOCK_MATCH_QUERIES;
+   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> BLOCK_MATCH_FUNCTIONS;
 
    static {
-      DETERMINISTIC_LINK_QUERIES = new String[LINKER_CONFIG.deterministicLinkPrograms.size()];
+      LOGGER.info("no. deterministic link programs: {}", LINKER_CONFIG.deterministicLinkPrograms.size());
+      LOGGER.info("no. deterministic match programs: {}", LINKER_CONFIG.deterministicMatchPrograms.size());
+      LOGGER.info("no. block link programs: {}", LINKER_CONFIG.blockLinkPrograms.size());
+      LOGGER.info("no. block match programs: {}", LINKER_CONFIG.blockMatchPrograms.size());
+
       DETERMINISTIC_LINK_FUNCTIONS = new ArrayList<>();
-      if (JSON_CONFIG.rules().link() == null || JSON_CONFIG.rules().link().probabilistic() == null) {
-         PROBABILISTIC_LINK_BLOCK_QUERIES = new String[1];
+      if (JSON_CONFIG.rules().link() == null
+          || JSON_CONFIG.rules().link().deterministic() == null
+          || JSON_CONFIG.rules().link().deterministic().isEmpty()) {
+         DETERMINISTIC_LINK_QUERIES = new String[]{null};
       } else {
-         PROBABILISTIC_LINK_BLOCK_QUERIES = new String[JSON_CONFIG.rules().link().probabilistic().size()];
+         DETERMINISTIC_LINK_QUERIES = new String[LINKER_CONFIG.deterministicLinkPrograms.size()];
+         IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
+                  .forEach(i -> {
+                     final var query = LINKER_CONFIG.deterministicLinkPrograms.get(i).selectQuery();
+                     DETERMINISTIC_LINK_QUERIES[i] = query;
+                     DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData, i, query));
+                  });
       }
-      PROBABILISTIC_LINK_BLOCK_FUNCTIONS = new ArrayList<>();
 
+      BLOCK_LINK_FUNCTIONS = new ArrayList<>();
+      if (JSON_CONFIG.rules().link() == null
+          || JSON_CONFIG.rules().link().probabilistic() == null
+          || JSON_CONFIG.rules().link().probabilistic().isEmpty()) {
+         BLOCK_LINK_QUERIES = new String[]{null};
+      } else {
+         BLOCK_LINK_QUERIES = new String[LINKER_CONFIG.blockLinkPrograms.size()];
+         IntStream.range(0, LINKER_CONFIG.blockLinkPrograms.size())
+                  .forEach(i -> {
+                     final var query = LINKER_CONFIG.blockLinkPrograms.get(i).selectQuery();
+                     BLOCK_LINK_QUERIES[i] = query;
+                     BLOCK_LINK_FUNCTIONS.add(i, demographicData -> queryLinkProbabilisticBlock(demographicData, i, query));
+                  });
+      }
 
-      DETERMINISTIC_MATCH_QUERIES = new String[LINKER_CONFIG.deterministicLinkPrograms.size()];
       DETERMINISTIC_MATCH_FUNCTIONS = new ArrayList<>();
-      if (JSON_CONFIG.rules().matchNotification() == null || JSON_CONFIG.rules().matchNotification().probabilistic() == null) {
-         PROBABILISTIC_MATCH_BLOCK_QUERIES = new String[1];
+      if (JSON_CONFIG.rules().matchNotification() == null
+          || JSON_CONFIG.rules().matchNotification().deterministic() == null
+          || JSON_CONFIG.rules().matchNotification().deterministic().isEmpty()) {
+         DETERMINISTIC_MATCH_QUERIES = new String[]{null};
       } else {
-         PROBABILISTIC_MATCH_BLOCK_QUERIES = new String[JSON_CONFIG.rules().matchNotification().probabilistic().size()];
+         DETERMINISTIC_MATCH_QUERIES = new String[LINKER_CONFIG.deterministicMatchPrograms.size()];
+         IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
+                  .forEach(i -> {
+                     final var query = LINKER_CONFIG.deterministicMatchPrograms.get(i).selectQuery();
+                     DETERMINISTIC_MATCH_QUERIES[i] = query;
+                     DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchDeterministic(demographicData, i, query));
+                  });
       }
-      PROBABILISTIC_MATCH_BLOCK_FUNCTIONS = new ArrayList<>();
 
+      BLOCK_MATCH_FUNCTIONS = new ArrayList<>();
+      if (JSON_CONFIG.rules().matchNotification() == null
+          || JSON_CONFIG.rules().matchNotification().probabilistic() == null
+          || JSON_CONFIG.rules().matchNotification().probabilistic().isEmpty()) {
+         BLOCK_MATCH_QUERIES = new String[]{null};
+      } else {
+         BLOCK_MATCH_QUERIES = new String[LINKER_CONFIG.blockMatchPrograms.size()];
+         IntStream.range(0, LINKER_CONFIG.blockMatchPrograms.size())
+                  .forEach(i -> {
+                     final var query = LINKER_CONFIG.blockMatchPrograms.get(i).selectQuery();
+                     BLOCK_MATCH_QUERIES[i] = query;
+                     BLOCK_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchProbabilisticBlock(demographicData, i, query));
+                  });
+      }
 
-      /* REFERENCE  LINK */
-      DETERMINISTIC_LINK_QUERIES[0] = LINKER_CONFIG.deterministicLinkPrograms.get(0).selectQuery(); // CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
-      DETERMINISTIC_LINK_QUERIES[1] = LINKER_CONFIG.deterministicLinkPrograms.get(1).selectQuery(); // CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_B;
-      IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
-               .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
-                                                                                                           i,
-                                                                                                           DETERMINISTIC_LINK_QUERIES)));
-      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = LINKER_CONFIG.blockLinkPrograms.get(0).selectQuery();
-      PROBABILISTIC_LINK_BLOCK_FUNCTIONS.addFirst(demographicData -> queryLinkProbabilisticBlock(demographicData,
-                                                                                                 0,
-                                                                                                 PROBABILISTIC_LINK_BLOCK_QUERIES));
-
-      DETERMINISTIC_MATCH_QUERIES[0] = "";
-      IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
-               .forEach(i -> DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
-                                                                                                            i,
-                                                                                                            DETERMINISTIC_MATCH_QUERIES)));
-      PROBABILISTIC_MATCH_BLOCK_QUERIES[0] = null;
-      PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.addFirst(demographicData -> queryMatchProbabilisticBlock(demographicData,
-                                                                                                   0,
-                                                                                                   PROBABILISTIC_MATCH_BLOCK_QUERIES));
-
-
-      /* REFERENCE LINK_VALIDATE_MATCH */
-//      DETERMINISTIC_LINK_QUERIES[0] = CustomDgraphQueries.QUERY_LINK_DETERMINISTIC_A;
-//      IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
-//               .forEach(i -> DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData,
-//                                                                                                           i,
-//                                                                                                           DETERMINISTIC_LINK_QUERIES)));
-//      PROBABILISTIC_LINK_BLOCK_QUERIES[0] = null;
-//      PROBABILISTIC_LINK_BLOCK_FUNCTIONS.addFirst(demographicData -> queryLinkProbabilisticBlock(demographicData,
-//                                                                                                 0,
-//                                                                                                 PROBABILISTIC_LINK_BLOCK_QUERIES));
-//
-//      DETERMINISTIC_MATCH_QUERIES[0] = CustomDgraphQueries.QUERY_MATCH_DETERMINISTIC_A;
-//      IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
-//               .forEach(i -> DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchDeterministic(demographicData,
-//                                                                                                             i,
-//                                                                                                             DETERMINISTIC_MATCH_QUERIES)));
-//      PROBABILISTIC_MATCH_BLOCK_QUERIES[0] = CustomDgraphQueries.QUERY_MATCH_PROBABILISTIC_BLOCK;
-//      PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.addFirst(demographicData -> queryMatchProbabilisticBlock(demographicData,
-//                                                                                                   0,
-//                                                                                                   PROBABILISTIC_MATCH_BLOCK_QUERIES));
    }
 
 
@@ -1044,8 +1046,8 @@ final class DgraphQueries {
          return result;
       }
       result = new LinkedList<>();
-      if (!PROBABILISTIC_LINK_BLOCK_FUNCTIONS.isEmpty()) {
-         final var candidates = PROBABILISTIC_LINK_BLOCK_FUNCTIONS.getFirst().apply(interaction);
+      if (!(BLOCK_LINK_FUNCTIONS == null || BLOCK_LINK_FUNCTIONS.isEmpty())) {
+         final var candidates = BLOCK_LINK_FUNCTIONS.getFirst().apply(interaction);
          if (!candidates.isEmpty()) {
             mergeCandidates(result, candidates);
          }
@@ -1066,8 +1068,8 @@ final class DgraphQueries {
          return result;
       }
       result = new LinkedList<>();
-      if (!PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.isEmpty()) {
-         final var candidates = PROBABILISTIC_MATCH_BLOCK_FUNCTIONS.getFirst().apply(interaction);
+      if (!(BLOCK_MATCH_FUNCTIONS == null || BLOCK_MATCH_FUNCTIONS.isEmpty())) {
+         final var candidates = BLOCK_MATCH_FUNCTIONS.getFirst().apply(interaction);
          if (!candidates.isEmpty()) {
             mergeCandidates(result, candidates);
          }
@@ -1078,7 +1080,7 @@ final class DgraphQueries {
    private static List<GoldenRecord> queryMatchProbabilisticBlock(
          final DemographicData demographicData,
          final int ruleNumber,
-         final String[] queries) {
+         final String query) {
       if (LINKER_CONFIG.probabilisticLinkFields.isEmpty()) {
          return List.of();
       }
@@ -1092,14 +1094,14 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(queries[ruleNumber], map);
+      return runGoldenRecordsQuery(query, map);
    }
 
 
    private static List<GoldenRecord> queryLinkProbabilisticBlock(
          final DemographicData demographicData,
          final int ruleNumber,
-         final String[] queries) {
+         final String query) {
       if (LINKER_CONFIG.probabilisticLinkFields.isEmpty()) {
          return List.of();
       }
@@ -1113,13 +1115,13 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(queries[ruleNumber], map);
+      return runGoldenRecordsQuery(query, map);
    }
 
    private static List<GoldenRecord> queryLinkDeterministic(
          final DemographicData demographicData,
          final int ruleNumber,
-         final String[] queries) {
+         final String query) {
       if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber), demographicData)) {
          return List.of();
       }
@@ -1133,13 +1135,13 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(queries[ruleNumber], map);
+      return runGoldenRecordsQuery(query, map);
    }
 
    private static List<GoldenRecord> queryMatchDeterministic(
          final DemographicData demographicData,
          final int ruleNumber,
-         final String[] queries) {
+         final String query) {
       if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicMatchPrograms.get(ruleNumber), demographicData)) {
          return List.of();
       }
@@ -1153,7 +1155,7 @@ final class DgraphQueries {
                        ? fieldValue
                        : EMPTY_FIELD_SENTINEL);
       });
-      return runGoldenRecordsQuery(queries[ruleNumber], map);
+      return runGoldenRecordsQuery(query, map);
    }
 
 
