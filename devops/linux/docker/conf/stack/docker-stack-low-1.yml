@@ -597,15 +597,6 @@ services:
       CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
     networks:
     - backend
-    volumes:
-    - type: bind
-      source: $DATA_DIR_API/conf
-      target: /app/conf
-      read_only: true
-    - type: bind
-      source: $DATA_DIR_ASYNC_RECEIVER/csv
-      target: /app/csv
-      read_only: false
     deploy:
       mode: replicated
       replicas: 1

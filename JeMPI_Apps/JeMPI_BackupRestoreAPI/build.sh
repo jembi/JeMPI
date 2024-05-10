@@ -8,5 +8,5 @@ source ../build-check-jdk.sh
 
 JAR_FILE=${BACKUP_RESTORE_API_JAR}
 APP_IMAGE=${BACKUP_RESTORE_API_IMAGE}
-APP=api
+APP=backup-restore-api
 source ../build-app-image.sh

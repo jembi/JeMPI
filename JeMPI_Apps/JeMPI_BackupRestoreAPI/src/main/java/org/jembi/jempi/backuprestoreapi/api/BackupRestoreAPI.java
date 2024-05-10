@@ -13,21 +13,21 @@ import org.jembi.jempi.backuprestoreapi.JsonFieldsConfig;
 
 import java.util.UUID;
 
-public final class API {
+public final class BackupRestoreAPI {
 
-   private static final Logger LOGGER = LogManager.getLogger(API.class);
+   private static final Logger LOGGER = LogManager.getLogger(BackupRestoreAPI.class);
    private static final String CONFIG_RESOURCE_FILE_NAME = "config-api.json";
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
 
-   private API() {
-      LOGGER.info("API started.");
+   private BackupRestoreAPI() {
+      LOGGER.info("BackupRestoreAPI startedI");
    }
 
    public static void main(final String[] args) {
       try {
-         new API().run();
+         new BackupRestoreAPI().run();
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
@@ -59,12 +59,12 @@ public final class API {
    private void run() {
       LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.BACKUP_RESTORE_API_HTTP_PORT);
       try {
-         LOGGER.info("Loading fields configuration file ");
+         LOGGER.info("Loading fields configuration file");
          jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);
-         LOGGER.info("Fields configuration file successfully loaded");
-         ActorSystem.create(this.create(), "API-App");
+         LOGGER.info("Fields configuration file successfully loaded.");
+         ActorSystem.create(this.create(), "BackupRestoreAPI-App");
       } catch (Exception e) {
-         LOGGER.error("Unable to start the API", e);
+         LOGGER.error("Unable to start the BackupRestoreAPI", e);
       }
    }
 

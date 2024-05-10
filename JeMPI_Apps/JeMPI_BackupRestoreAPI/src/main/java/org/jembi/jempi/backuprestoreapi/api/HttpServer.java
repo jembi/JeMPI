@@ -47,7 +47,7 @@ public final class HttpServer extends AllDirectives {
          final String jsonFields) {
       http = Http.get(actorSystem);
       binding = http.newServerAt(httpServerHost, httpPort).bind(this.createCorsRoutes(actorSystem, backEnd, jsonFields));
-      LOGGER.info("Server online at http://{}:{}", httpServerHost, httpPort);
+      LOGGER.info("BackupRestoreAPI Server online at http://{}:{}", httpServerHost, httpPort);
    }
 
    public void close(final ActorSystem<Void> actorSystem) {

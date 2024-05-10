@@ -9,13 +9,11 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jembi.jempi.backuprestoreapi</groupId>
     <artifactId>JeMPI_BackupRestoreAPI</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <start-class>${project.groupId}.backuprestoreapi.api.BackupRestoreAPI</start-class>
     </properties>
 
     <dependencies>
