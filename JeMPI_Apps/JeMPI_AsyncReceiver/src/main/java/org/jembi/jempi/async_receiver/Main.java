@@ -99,7 +99,8 @@ public final class Main {
          final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
          try (var reader = Files.newBufferedReader(filePathUri)) {
-            var sessionMetadata = new SessionMetadata(new UIMetadata(),
+            var sessionMetadata = new SessionMetadata(new CommonMetaData("", config),
+                                                      new UIMetadata(),
                                                       new AsyncReceiverMetadata(),
                                                       new ETLMetadata(),
                                                       new ControllerMetadata(),
@@ -107,7 +108,6 @@ public final class Main {
 
             //ignore the first line when upload config exists
             if (config != null) {
-               sessionMetadata.uiMetadata.setUploadConfig(config);
                reader.readLine();
             }
 
@@ -127,6 +127,7 @@ public final class Main {
                                                           String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                           null, sessionMetadata));
             for (CSVRecord csvRecord : csvParser) {
+               var stan = String.format(Locale.ROOT, "%s:%07d", stanDate, ++index);
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
                                                                      String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
@@ -135,7 +136,12 @@ public final class Main {
                                                                                      CustomAsyncHelper.customUniqueInteractionData(
                                                                                            csvRecord),
                                                                                      CustomAsyncHelper.customDemographicData(
-                                                                                           csvRecord)), sessionMetadata);
+                                                                                           csvRecord)), new SessionMetadata(new CommonMetaData(stan, config),
+                                                                                                                            sessionMetadata.uiMetadata,
+                                                                                                                            sessionMetadata.asyncReceiverMetadata,
+                                                                                                                            sessionMetadata.etlMetadata,
+                                                                                                                            sessionMetadata.controllerMetadata,
+                                                                                                                            sessionMetadata.linkerMetadata));
 
                sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
             }

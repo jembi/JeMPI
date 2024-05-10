@@ -78,6 +78,8 @@ public final class SPInteractions {
             interactionEnvelop.sessionMetadata().linkerMetadata.setStartDateTime(startDateTime[0]);
          } else if (interactionEnvelop.contentType() == BATCH_INTERACTION) {
             linkPatient(system, backEnd, key, interactionEnvelop);
+            //todo: remove logging
+            LOGGER.info(interactionEnvelop.sessionMetadata().commonMetaData);
          } else if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
             interactionEnvelop.sessionMetadata().linkerMetadata = new LinkerMetadata(startDateTime[0], AppUtils.timeStamp());
             if (!CustomMU.SEND_INTERACTIONS_TO_EM) {
