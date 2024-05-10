@@ -87,6 +87,7 @@ const UniqueToInteraction = ({ uniqueInteractionData }: { uniqueInteractionData:
           .replace(/_/g, ' ')
           .replace(/\b\w/g, (char: string) => char.toUpperCase())
     },
+    
     {
       field: 'fieldType',
       headerName: 'Type',
@@ -94,7 +95,7 @@ const UniqueToInteraction = ({ uniqueInteractionData }: { uniqueInteractionData:
       width: 300,
       align: 'center',
       headerAlign: 'center',
-      editable: false
+      editable: false,
     },
     {
       field: 'actions',
