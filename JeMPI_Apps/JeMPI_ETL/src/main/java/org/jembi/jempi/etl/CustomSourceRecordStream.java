@@ -46,12 +46,9 @@ public final class CustomSourceRecordStream {
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> sourceKStream =
             streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_ETL, Consumed.with(stringSerde, interactionEnvelopSerde));
-      final String[] startDateTime = new String[1];
       sourceKStream.map((key, rec) -> {
-         if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_START_SENTINEL) {
-            startDateTime[0] = AppUtils.timeStamp();
-            rec.sessionMetadata().etlMetadata.setStartDateTime(startDateTime[0]);
-         } else if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+         rec = updateETLMetadata(rec);
+         if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
             final var interaction = rec.interaction();
             final var demographicData = interaction.demographicData();
             final var newEnvelop = new InteractionEnvelop(rec.contentType(),
@@ -63,8 +60,6 @@ public final class CustomSourceRecordStream {
                                                                           demographicData.clean()),
                                                           rec.sessionMetadata());
             return KeyValue.pair(key, newEnvelop);
-         } else if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_END_SENTINEL) {
-            rec.sessionMetadata().etlMetadata = new ETLMetadata(startDateTime[0], AppUtils.timeStamp());
          }
          return KeyValue.pair(key, rec);
       }).to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, interactionEnvelopSerde));
@@ -83,5 +78,19 @@ public final class CustomSourceRecordStream {
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
+   }
+
+   private InteractionEnvelop updateETLMetadata(final InteractionEnvelop interactionEnvelop) {
+      var sessionMetadata = interactionEnvelop.sessionMetadata();
+      return new InteractionEnvelop(interactionEnvelop.contentType(),
+                                    interactionEnvelop.tag(),
+                                    interactionEnvelop.stan(),
+                                    interactionEnvelop.interaction(),
+                                    new SessionMetadata(sessionMetadata.commonMetaData(),
+                                                        sessionMetadata.uiMetadata(),
+                                                        sessionMetadata.asyncReceiverMetadata(),
+                                                        new ETLMetadata(AppUtils.timeStamp()),
+                                                        sessionMetadata.controllerMetadata(),
+                                                        sessionMetadata.linkerMetadata()));
    }
 }
