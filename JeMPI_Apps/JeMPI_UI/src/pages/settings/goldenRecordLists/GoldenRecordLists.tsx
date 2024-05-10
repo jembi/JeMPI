@@ -9,32 +9,23 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridActionsCellItem,
-  GridRowsProp,
-  GridToolbarContainer
+  GridAlignment
 } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
-import { useSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
-import { randomId } from 'utils/helpers'
-
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void
-}
+import { EditToolbar } from 'components/shared/EditToolBar'
+import { transformFieldName } from 'utils/helpers'
 
 const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) => {
-
   const [rows, setRows] = useState(goldenRecordLists)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
     const rowsWithIds = goldenRecordLists.map((row: any, index: number) => ({
       ...row,
-      id: index.toString() 
+      id:`${row.facility}-${row.patient}`
     }))
     setRows(rowsWithIds)
   }, [goldenRecordLists])
@@ -83,6 +74,7 @@ const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) =
       event.defaultMuiPrevented = true
     }
   }
+  
 
   const columns: GridColDef[] = [
     {
@@ -90,32 +82,31 @@ const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) =
       headerName: 'Name',
       width: 300,
       editable: true,
-      align: 'left',
-      headerAlign: 'left',
-      valueGetter: params =>
-        params.row.fieldName
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (char: string) => char.toUpperCase())
+      align: 'left' as GridAlignment, // Specify alignment as GridAlignment type
+      headerAlign: 'left' as GridAlignment, // Specify header alignment as GridAlignment type
+      valueGetter: (params: any) => {
+        return transformFieldName(params);
+      },
     },
     {
       field: 'fieldName',
       headerName: 'Type',
       type: 'string',
       width: 300,
-      align: 'center',
-      headerAlign: 'center',
-      editable: false
+      align: 'center' as GridAlignment, // Specify alignment as GridAlignment type
+      headerAlign: 'center' as GridAlignment, // Specify header alignment as GridAlignment type
+      editable: false,
     },
     {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      align: 'center',
-      headerAlign: 'center',
+      align: 'center' as GridAlignment, 
+      headerAlign: 'center' as GridAlignment, 
       width: 300,
       cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+      getActions: ({ id }: { id: GridRowId }) => { // Adjust the type of id to GridRowId
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
@@ -123,7 +114,7 @@ const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) =
               id="save-button"
               label="Save"
               sx={{
-                color: 'white'
+                color: 'white',
               }}
               onClick={handleSaveClick(id)}
             />,
@@ -134,10 +125,9 @@ const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) =
               className="textPrimary"
               onClick={handleCancelClick(id)}
               color="inherit"
-            />
-          ]
+            />,
+          ];
         }
-
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
@@ -146,12 +136,24 @@ const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) =
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
-          />
-        ]
-      }
-    }
-  ]
-
+          />,
+        ];
+      },
+    },
+  ];
+  goldenRecordLists.forEach(({ nodeName, fields }: { nodeName: string, fields: { fieldName: string }[] }) => {
+    fields.forEach((field: { fieldName: string }) => {
+      columns.push({
+        field: `${nodeName}_${field.fieldName}`, // Generating a unique field name
+        headerName: field.fieldName,
+        width: 200, // Adjust width as needed
+        align: 'center' as GridAlignment, // Specify alignment as GridAlignment type
+        headerAlign: 'center' as GridAlignment, // Specify header alignment as GridAlignment type
+        editable: false,
+      });
+    });
+  });
+  
   return (
     <Box
       sx={{
@@ -184,21 +186,6 @@ const GoldenRecordLists = ({  goldenRecordLists }: { goldenRecordLists: any }) =
       )}
     </Box>
   )
-}
-
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props
-
-  const handleClick = () => {
-    const id = randomId()
-    setRows(oldRows => [...oldRows, { id, name: '', age: '', isNew: true }])
-    setRowModesModel(oldModel => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' }
-    }))
-  }
-
-  return <GridToolbarContainer></GridToolbarContainer>
 }
 
 export default GoldenRecordLists

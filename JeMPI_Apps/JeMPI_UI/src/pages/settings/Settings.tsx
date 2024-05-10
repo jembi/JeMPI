@@ -1,6 +1,6 @@
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { SyntheticEvent, useState } from 'react'
+import React, { SyntheticEvent, useEffect, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
@@ -60,6 +60,10 @@ const Settings = () => {
 
  
   const configuration: Configuration = fields ? generateId(fields) : {} as Configuration
+
+  useEffect(()=> {
+    console.log('additional nodes',configuration.additionalNodes)
+  },[configuration])
 
 
   if (isLoading) {

@@ -106,8 +106,16 @@ export const generateId = (configuration: Configuration): Configuration => {
     return fields.map(item => ({
       id: randomId(),
       ...item
-    }))
-  }
+    }));
+  };
+
+  const generateIdForNodes = (nodes: { nodeName: string; fields: Field[] }[]): { nodeName: string; fields: Field[] }[] => {
+    return nodes.map(node => ({
+      id: randomId(), // Generate ID for the node
+      ...node,
+      fields: generateIdForFields(node.fields)
+    }));
+  };
 
   return {
     ...configuration,
@@ -118,12 +126,10 @@ export const generateId = (configuration: Configuration): Configuration => {
       configuration.uniqueGoldenRecordFields
     ),
     demographicFields: generateIdForFields(configuration.demographicFields),
-    additionalNodes: configuration.additionalNodes.map(node => ({
-      ...node,
-      fields: generateIdForFields(node.fields)
-    }))
-  }
-}
+    additionalNodes: generateIdForNodes(configuration.additionalNodes) // Generate IDs for additional nodes
+  };
+};
+
 
 export function processIndex(index: string) {
   if (index) {
