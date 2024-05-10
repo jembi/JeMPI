@@ -13,7 +13,8 @@ import java.util.List;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record JsonNodeInteractions(JsonNode all) {
+record JsonNodeInteractions(
+      JsonNode all) {
 
    JsonNodeInteractions(final String json) throws JsonProcessingException {
       this(OBJECT_MAPPER.readTree(json).get("all"));

@@ -124,13 +124,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
-   private LibMPIPaginatedResultSet<Interaction> paginatedInteractions(final DgraphInteractions list) {
+   private LibMPIPaginatedResultSet<Interaction> paginatedInteractions(final List<InteractionWithScore> list) {
       if (list == null) {
          return null;
       }
-      final var data = list.all().stream().map(DeprecatedCustomFunctions::toInteraction).toList();
-      final var pagination = list.pagination().getFirst();
-      return new LibMPIPaginatedResultSet<>(data, pagination);
+//      final var data = list.all().stream().map(DeprecatedCustomFunctions::toInteraction).toList();
+      final var pagination = new LibMPIPagination(list.size());
+      return new LibMPIPaginatedResultSet<>(list.stream().map(InteractionWithScore::interaction).toList(), pagination);
    }
 
    private LibMPIPaginatedResultSet<String> paginatedGids(final DgraphPaginatedUidList list) {

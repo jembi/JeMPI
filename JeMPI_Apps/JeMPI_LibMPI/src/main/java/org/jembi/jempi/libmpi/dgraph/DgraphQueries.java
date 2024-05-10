@@ -211,18 +211,18 @@ final class DgraphQueries {
     * @param vars  the vars
     * @return the dgraph interactions
     */
-   static DgraphInteractions runInteractionsQuery(
+   static List<InteractionWithScore> runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-            return OBJECT_MAPPER.readValue(json, DgraphInteractions.class);
+            return new JsonNodeInteractions(json).toInteractionsWithScore();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return new DgraphInteractions(List.of());
+      return List.of();
    }
 
    /**
@@ -300,11 +300,11 @@ final class DgraphQueries {
          return null;
       }
       final var vars = Map.of("$uid", interactionId);
-      final var interactionList = runInteractionsQuery(DGRAPH_CONFIG.queryGetInteractionByUid, vars).all();
+      final var interactionList = runInteractionsQuery(DGRAPH_CONFIG.queryGetInteractionByUid, vars);
       if (AppUtils.isNullOrEmpty(interactionList)) {
          return null;
       }
-      return DeprecatedCustomFunctions.toInteractionWithScore(interactionList.getFirst()).interaction();
+      return interactionList.getFirst().interaction();
    }
 
    /**
@@ -747,7 +747,7 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   private static DgraphInteractions searchInteractions(
+   private static List<InteractionWithScore> searchInteractions(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -837,7 +837,7 @@ final class DgraphQueries {
     * @param sortAsc the sort asc
     * @return the dgraph interactions
     */
-   static DgraphInteractions simpleSearchInteractions(
+   static List<InteractionWithScore> simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -860,7 +860,7 @@ final class DgraphQueries {
     * @param sortAsc  the sort asc
     * @return the dgraph interactions
     */
-   static DgraphInteractions customSearchInteractions(
+   static List<InteractionWithScore> customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,
