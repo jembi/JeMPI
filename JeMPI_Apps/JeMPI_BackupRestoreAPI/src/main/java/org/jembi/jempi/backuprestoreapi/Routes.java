@@ -29,8 +29,6 @@ public final class Routes {
     private static Route getGidsAll(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd) {
-        LOGGER.error("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-        LOGGER.info("sushanttttttttttttttttttt");
         return onComplete(Ask.getGidsAll(actorSystem, backEnd),
                 result -> {
                     if (!result.isSuccess()) {
