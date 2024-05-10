@@ -89,29 +89,7 @@ public final class DeprecatedCustomFunctions {
                                                          me.nationalId()));
    }
 
-
-
-   static ExpandedGoldenRecord toExpandedGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
-      try {
-         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
-         LOGGER.debug("{}", json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
-      return new ExpandedGoldenRecord(toGoldenRecord(me),
-                                      me.interactions()
-                                        .stream()
-                                        .map(DeprecatedCustomFunctions::toInteractionWithScore)
-                                        .toList());
-   }
-
-   static Interaction toInteraction(final CustomDgraphInteraction me) {
-      try {
-         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
-         LOGGER.debug("{}", json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
+   private static Interaction toInteraction(final CustomDgraphInteraction me) {
       return new Interaction(me.interactionId(),
                              me.sourceId() != null
                                    ? me.sourceId().toSourceId()
@@ -128,23 +106,26 @@ public final class DeprecatedCustomFunctions {
                                                          me.nationalId()));
    }
 
-   static InteractionWithScore toInteractionWithScore(final CustomDgraphInteraction me) {
-      try {
-         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
-         LOGGER.debug("{}", json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
+   private static InteractionWithScore toInteractionWithScore(final CustomDgraphInteraction me) {
       return new InteractionWithScore(toInteraction(me), me.score());
    }
 
-   static ExpandedInteraction toExpandedInteraction(final CustomDgraphExpandedInteraction me) {
+   static ExpandedGoldenRecord toExpandedGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
       try {
          final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
          LOGGER.debug("{}", json);
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
+      final var interactions = me.interactions();
+      return new ExpandedGoldenRecord(toGoldenRecord(me),
+                                      interactions
+                                            .stream()
+                                            .map(DeprecatedCustomFunctions::toInteractionWithScore)
+                                            .toList());
+   }
+
+   static ExpandedInteraction toExpandedInteraction(final CustomDgraphExpandedInteraction me) {
       return new ExpandedInteraction(DeprecatedCustomFunctions.toInteraction(me),
                                      me.dgraphGoldenRecordList()
                                        .stream()

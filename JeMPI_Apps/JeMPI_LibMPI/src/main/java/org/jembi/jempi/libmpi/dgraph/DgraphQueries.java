@@ -183,14 +183,7 @@ final class DgraphQueries {
       return List.of();
    }
 
-   /**
-    * Run golden records query list.
-    *
-    * @param query the query
-    * @param vars  the vars
-    * @return the list
-    */
-   static List<GoldenRecord> runGoldenRecordsQuery(
+   private static List<GoldenRecord> runGoldenRecordsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -204,14 +197,8 @@ final class DgraphQueries {
       return List.of();
    }
 
-   /**
-    * Run interactions query dgraph interactions.
-    *
-    * @param query the query
-    * @param vars  the vars
-    * @return the dgraph interactions
-    */
-   static List<InteractionWithScore> runInteractionsQuery(
+
+   private static List<InteractionWithScore> runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -225,14 +212,7 @@ final class DgraphQueries {
       return List.of();
    }
 
-   /**
-    * Runfilter gids query dgraph paginated uid list.
-    *
-    * @param query the query
-    * @param vars  the vars
-    * @return the dgraph paginated uid list
-    */
-   static DgraphPaginatedUidList runfilterGidsQuery(
+   private static DgraphPaginatedUidList runFilterGidsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -800,7 +780,7 @@ final class DgraphQueries {
 
       return Boolean.TRUE.equals(getInteractionCount)
             ? Either.right(runFilterGidsWithInteractionCountQuery(gql, gqlVars))
-            : Either.left(runfilterGidsQuery(gql, gqlVars));
+            : Either.left(runFilterGidsQuery(gql, gqlVars));
    }
 
    /**
@@ -828,14 +808,14 @@ final class DgraphQueries {
    }
 
    /**
-    * Simple search interactions dgraph interactions.
+    * Simple search interactions list.
     *
     * @param params  the params
     * @param offset  the offset
     * @param limit   the limit
     * @param sortBy  the sort by
     * @param sortAsc the sort asc
-    * @return the dgraph interactions
+    * @return the list
     */
    static List<InteractionWithScore> simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
@@ -851,14 +831,14 @@ final class DgraphQueries {
    }
 
    /**
-    * Custom search interactions dgraph interactions.
+    * Custom search interactions list.
     *
     * @param payloads the payloads
     * @param offset   the offset
     * @param limit    the limit
     * @param sortBy   the sort by
     * @param sortAsc  the sort asc
-    * @return the dgraph interactions
+    * @return the list
     */
    static List<InteractionWithScore> customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
