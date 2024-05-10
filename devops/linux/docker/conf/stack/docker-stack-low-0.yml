@@ -71,6 +71,10 @@ services:
         target: 50001
         protocol: tcp
         mode: host
+      - published: 50010
+        target: 50010
+        protocol: tcp
+        mode: host
       - published: 3000
         target: 3000
         protocol: tcp
@@ -570,6 +574,54 @@ services:
       DGRAPH_PORTS: ${DGRAPH_PORTS}
     deploy:
       mode: global
+
+  backup-restore-api:
+    image: ${IMAGE_REGISTRY}${BACKUP_RESTORE_API_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG" 
+      POSTGRESQL_IP: postgresql
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-backuprestoreapi
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      BACKUP_RESTORE_API_HTTP_PORT: ${BACKUP_RESTORE_API_HTTP_PORT}
+      API_HTTP_PORT: ${API_HTTP_PORT}
+      LINKER_IP: linker
+      LINKER_HTTP_PORT: 50000
+      CONTROLLER_IP: controller
+      CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_DIR_API/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          memory: ${API_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_API}
 
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}

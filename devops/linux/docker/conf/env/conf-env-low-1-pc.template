@@ -13,6 +13,9 @@ export STACK_NAME=jempi
 export API_IP=api
 export API_HTTP_PORT=${API_HTTP_PORT}
 
+export BACKUP_RESTORE_API_IP=backup-restore-api
+export BACKUP_RESTORE_API_HTTP_PORT=${BACKUP_RESTORE_API_HTTP_PORT}
+
 export API_KC_IP=api_kc
 export API_HTTP_KC_PORT=${API_KC_HTTP_PORT}
 
