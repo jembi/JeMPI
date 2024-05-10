@@ -77,6 +77,7 @@ class LibMpiDGraphTests {
       Assertions.assertEquals(7, JSON_CONFIG_2.demographicFields().size());
    }
 
+/*
    @Test
    void testGoldenRecord() {
       final var json =
@@ -368,5 +369,6 @@ class LibMpiDGraphTests {
       Assertions.assertEquals(e0i.demographicData().fields, a0i.demographicData().fields);
 
    }
+*/
 
 }

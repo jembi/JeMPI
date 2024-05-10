@@ -1,5 +1,6 @@
 package org.jembi.jempi.shared.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,7 +32,7 @@ public class DemographicData {
       var cls = obj.getClass();
       demographicData.fields.forEach(f -> {
          try {
-            var classField = cls.getDeclaredField(f.tag());
+            var classField = cls.getDeclaredField(f.ccTag());
             classField.setAccessible(true);
             classField.set(obj, f.value());
             classField.setAccessible(false);
@@ -62,16 +63,17 @@ public class DemographicData {
    public DemographicData clean() {
       return new DemographicData(
             fields.stream()
-                  .map(x -> new DemographicData.DemographicField(x.tag,
+                  .map(x -> new DemographicData.DemographicField(x.ccTag,
                                                                  x.value.trim()
                                                                         .toLowerCase()
                                                                         .replaceAll("\\W", "")))
                   .toList());
    }
 
+
    public record DemographicField(
-         String tag,
-         String value) {
+         @JsonProperty("tag") String ccTag,
+         @JsonProperty("value") String value) {
    }
 
 }

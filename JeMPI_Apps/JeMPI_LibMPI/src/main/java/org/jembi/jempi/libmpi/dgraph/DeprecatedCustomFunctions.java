@@ -1,6 +1,5 @@
 package org.jembi.jempi.libmpi.dgraph;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
@@ -8,8 +7,6 @@ import org.jembi.jempi.shared.models.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class DeprecatedCustomFunctions {
 
@@ -36,6 +33,7 @@ public final class DeprecatedCustomFunctions {
             new DemographicData.DemographicField("nationalId", nationalId))));
    }
 
+/*
    private static GoldenRecord toGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
       return new GoldenRecord(me.goldenId(),
                               me.sourceId() != null
@@ -52,6 +50,7 @@ public final class DeprecatedCustomFunctions {
                                                           me.phoneNumber(),
                                                           me.nationalId()));
    }
+*/
 
    private static GoldenRecord toGoldenRecord(final CustomDgraphReverseGoldenRecord me) {
       return new GoldenRecord(me.goldenId(),
@@ -89,6 +88,7 @@ public final class DeprecatedCustomFunctions {
                                                          me.nationalId()));
    }
 
+/*
    private static Interaction toInteraction(final CustomDgraphInteraction me) {
       return new Interaction(me.interactionId(),
                              me.sourceId() != null
@@ -105,12 +105,16 @@ public final class DeprecatedCustomFunctions {
                                                          me.phoneNumber(),
                                                          me.nationalId()));
    }
+*/
 
+/*
    private static InteractionWithScore toInteractionWithScore(final CustomDgraphInteraction me) {
       return new InteractionWithScore(toInteraction(me), me.score());
    }
+*/
 
-   static ExpandedGoldenRecord toExpandedGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
+/*
+   private static ExpandedGoldenRecord toExpandedGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
       try {
          final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
          LOGGER.debug("{}", json);
@@ -124,6 +128,7 @@ public final class DeprecatedCustomFunctions {
                                             .map(DeprecatedCustomFunctions::toInteractionWithScore)
                                             .toList());
    }
+*/
 
    static ExpandedInteraction toExpandedInteraction(final CustomDgraphExpandedInteraction me) {
       return new ExpandedInteraction(DeprecatedCustomFunctions.toInteraction(me),

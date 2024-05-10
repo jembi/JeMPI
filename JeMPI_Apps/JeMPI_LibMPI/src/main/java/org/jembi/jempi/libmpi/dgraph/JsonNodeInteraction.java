@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -46,7 +47,7 @@ record JsonNodeInteraction(JsonNode jsonNode) {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();
                final var v = jsonNode.get("Interaction.demographic_field_%02d".formatted(idx));
                return (!(v == null || v.isMissingNode()))
-                     ? new DemographicData.DemographicField(fieldName, v.textValue())
+                     ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
                      : null;
             }).toList());
       return new Interaction(jsonNode.get("uid").textValue(), sourceId, auxInteractionData, demographicData);

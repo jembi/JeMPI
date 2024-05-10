@@ -10,6 +10,7 @@ import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.AuxGoldenRecordData;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -57,7 +58,7 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();
                final var v = jsonNode.get("GoldenRecord.demographic_field_%02d".formatted(idx));
                return (!(v == null || v.isMissingNode()))
-                     ? new DemographicData.DemographicField(fieldName, v.textValue())
+                     ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
                      : null;
             }).toList());
       return new GoldenRecord(jsonNode.get("uid").textValue(), sourceIdList, customUniqueGoldenRecordData, demographicData);

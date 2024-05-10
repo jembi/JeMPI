@@ -255,18 +255,18 @@ final class DgraphQueries {
     * @param vars  the vars
     * @return the dgraph expanded golden records
     */
-   static DgraphExpandedGoldenRecords runExpandedGoldenRecordsQuery(
+   static List<ExpandedGoldenRecord> runExpandedGoldenRecordsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-            return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
+            return new JsonNodeExpandedGoldenRecords(json).toExpandedGoldenRecordList();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
       }
-      return new DgraphExpandedGoldenRecords(List.of());
+      return List.of();
    }
 
    /**
@@ -507,11 +507,12 @@ final class DgraphQueries {
       final String query = DGRAPH_CONFIG.queryGetExpandedGoldenRecords.formatted(String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class)
-                             .all()
-                             .stream()
-                             .map(DeprecatedCustomFunctions::toExpandedGoldenRecord)
-                             .toList();
+         return new JsonNodeExpandedGoldenRecords(json).toExpandedGoldenRecordList();
+//         return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class)
+//                             .all()
+//                             .stream()
+//                             .map(DeprecatedCustomFunctions::toExpandedGoldenRecord)
+//                             .toList();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return List.of();
@@ -659,7 +660,7 @@ final class DgraphQueries {
       return String.format(Locale.ROOT, "pagination(func: type(%s)) @filter(%s) {%ntotal: count(uid)%n}", recordType, gqlFilters);
    }
 
-   private static DgraphExpandedGoldenRecords searchGoldenRecords(
+   private static List<ExpandedGoldenRecord> searchGoldenRecords(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -691,7 +692,7 @@ final class DgraphQueries {
     * @param sortAsc the sort asc
     * @return the dgraph expanded golden records
     */
-   static DgraphExpandedGoldenRecords simpleSearchGoldenRecords(
+   static List<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -714,7 +715,7 @@ final class DgraphQueries {
     * @param sortAsc  the sort asc
     * @return the dgraph expanded golden records
     */
-   static DgraphExpandedGoldenRecords customSearchGoldenRecords(
+   static List<ExpandedGoldenRecord> customSearchGoldenRecords(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,

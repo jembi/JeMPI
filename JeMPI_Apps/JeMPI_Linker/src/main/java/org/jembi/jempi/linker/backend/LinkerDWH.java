@@ -137,7 +137,7 @@ public final class LinkerDWH {
       for (int f = 0; f < demographicData.fields.size(); f++) {
          final int finalF = f;
          k += LinkerDWH.helperUpdateGoldenRecordField(libMPI, interactionId, expandedGoldenRecord,
-                                                      demographicData.fields.get(finalF).tag(),
+                                                      demographicData.fields.get(finalF).ccTag(),
                                                       demographicData.fields.get(finalF).value(),
                                                       expandedGoldenRecord.interactionsWithScore()
                                                                           .stream()
