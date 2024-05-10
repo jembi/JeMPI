@@ -9,21 +9,13 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridActionsCellItem,
-  GridRowsProp,
-  GridToolbarContainer
 } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
+import { EditToolbar } from 'components/shared/EditToolBar'
 import { randomId, transformFieldName } from 'utils/helpers'
-
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void
-}
 
 const UniqueToGR = ({
   uniqueToGoldenRecordData
@@ -185,21 +177,6 @@ const UniqueToGR = ({
       )}
     </Box>
   )
-}
-
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props
-
-  const handleClick = () => {
-    const id = randomId()
-    setRows(oldRows => [...oldRows, { id, name: '', age: '', isNew: true }])
-    setRowModesModel(oldModel => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' }
-    }))
-  }
-
-  return <GridToolbarContainer></GridToolbarContainer>
 }
 
 export default UniqueToGR
