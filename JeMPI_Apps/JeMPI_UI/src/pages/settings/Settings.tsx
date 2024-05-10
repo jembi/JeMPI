@@ -8,10 +8,9 @@ import Deterministic from './deterministic/deterministic'
 import Blocking from './blocking/Blocking'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
-import { Configuration } from 'types/Configuration'
 import { useConfig } from 'hooks/useConfig'
 import { useQuery } from '@tanstack/react-query'
-import { generateId } from 'utils/helpers'
+import { Configuration, generateId } from 'utils/helpers'
 import Loading from 'components/common/Loading'
 import InteractiveNode from './interactiveNode/InteractiveNode'
 
@@ -59,9 +58,9 @@ const Settings = () => {
     setValue(newValue)
   }
 
-  const demographicDataWithId = fields
-    ? generateId(fields?.demographicFields)
-    : []
+ 
+  const configuration: Configuration = fields ? generateId(fields) : {} as Configuration
+
 
   if (isLoading) {
     return <Loading />
@@ -110,20 +109,20 @@ const Settings = () => {
               <Typography variant="h5" sx={{ py: 3 }}>
                 Setup common properties
               </Typography>
-              <CommonSettings demographicData={demographicDataWithId} />
+              <CommonSettings demographicData={configuration.demographicFields} />
             </>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Unique to Golden record
             </Typography>
-            <UniqueToGR />
+            <UniqueToGR uniqueToGoldenRecordData={configuration.uniqueGoldenRecordFields} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Unique to Interaction
             </Typography>
-            <UniqueToInteraction />
+            <UniqueToInteraction uniqueInteractionData={configuration.uniqueInteractionFields}/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>

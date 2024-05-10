@@ -7,6 +7,37 @@ interface ValidationObject {
   required: boolean
   onErrorMessage: string
 }
+interface Field {
+  fieldName: string
+  fieldType: string
+  csvCol?: number
+  source?: string
+  default?: string
+  indexGoldenRecord?: string
+  indexInteraction?: string
+  linkMetaData?: {
+    comparison: string
+    comparisonLevels: number[]
+    m: number
+    u: number
+  }
+}
+
+export interface Configuration {
+  uniqueInteractionFields: Field[]
+  uniqueGoldenRecordFields: Field[]
+  additionalNodes: {
+    nodeName: string
+    fields: Field[]
+  }[]
+  demographicFields: Field[]
+  rules: {
+    link: {
+      deterministic: Record<string, { vars: string[]; text: string }>
+      probabilistic: Record<string, { vars: string[]; text: string }>
+    }
+  }
+}
 
 export const isInputValid = (value: unknown, validation?: ValidationObject) => {
   if (validation && typeof value === 'string') {
@@ -70,13 +101,40 @@ export const randomId = () => {
   return Math.random().toString(36).substring(2, 9)
 }
 
-export const generateId = (demographic: DemographicFields) => {
-  if (!demographic) {
-    return []
+export const generateId = (configuration: Configuration): Configuration => {
+  const generateIdForFields = (fields: Field[]): Field[] => {
+    return fields.map(item => ({
+      id: randomId(),
+      ...item
+    }))
   }
 
-  return demographic.map(item => ({
-    id: randomId(),
-    ...item
-  }))
+  return {
+    ...configuration,
+    uniqueInteractionFields: generateIdForFields(
+      configuration.uniqueInteractionFields
+    ),
+    uniqueGoldenRecordFields: generateIdForFields(
+      configuration.uniqueGoldenRecordFields
+    ),
+    demographicFields: generateIdForFields(configuration.demographicFields),
+    additionalNodes: configuration.additionalNodes.map(node => ({
+      ...node,
+      fields: generateIdForFields(node.fields)
+    }))
+  }
 }
+
+export function processIndex(index: string) {
+  if (index) {
+    return index
+      .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
+      .replace(/,/g, ', ')
+  }
+  return ''
+}
+
+export const transformFieldName = (params: any) =>
+  (params?.row?.fieldName || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char: string) => char.toUpperCase())
