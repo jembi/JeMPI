@@ -184,6 +184,27 @@ final class DgraphQueries {
    }
 
    /**
+    * Run golden records query list.
+    *
+    * @param query the query
+    * @param vars  the vars
+    * @return the list
+    */
+   static List<GoldenRecord> runGoldenRecordsQuery(
+         final String query,
+         final Map<String, String> vars) {
+      try {
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
+         if (!StringUtils.isBlank(json)) {
+            return new JsonNodeGoldenRecords(json).toGoldenRecordList();
+         }
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage());
+      }
+      return List.of();
+   }
+
+   /**
     * Run interactions query dgraph interactions.
     *
     * @param query the query
@@ -244,27 +265,6 @@ final class DgraphQueries {
          LOGGER.error(e.getLocalizedMessage());
       }
       return new DgraphPaginationUidListWithInteractionCount(List.of(), List.of());
-   }
-
-   /**
-    * Run golden records query list.
-    *
-    * @param query the query
-    * @param vars  the vars
-    * @return the list
-    */
-   static List<GoldenRecord> runGoldenRecordsQuery(
-         final String query,
-         final Map<String, String> vars) {
-      try {
-         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
-         if (!StringUtils.isBlank(json)) {
-            return new JsonNodeGoldenRecords(json).toGoldenRecordList();
-         }
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage());
-      }
-      return List.of();
    }
 
 

@@ -10,7 +10,9 @@ import java.util.List;
 record DgraphInteractions(
       @JsonProperty("all") List<CustomDgraphInteraction> all,
       @JsonProperty("pagination") List<LibMPIPagination> pagination) {
+
    DgraphInteractions(@JsonProperty("all") final List<CustomDgraphInteraction> all_) {
       this(all_, List.of(new LibMPIPagination(all_.size())));
    }
+
 }

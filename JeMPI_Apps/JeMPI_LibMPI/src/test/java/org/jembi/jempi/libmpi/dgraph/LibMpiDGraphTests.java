@@ -2,7 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.utils.AppUtils;
+import org.jembi.jempi.shared.models.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,8 +11,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 class LibMpiDGraphTests {
@@ -76,95 +77,296 @@ class LibMpiDGraphTests {
       Assertions.assertEquals(7, JSON_CONFIG_2.demographicFields().size());
    }
 
-/*
    @Test
-   void testCustomDgraphGoldenRecord() throws JsonProcessingException {
-      final var customDgraphGoldenRecord = new CustomDgraphGoldenRecord(GID_1,
-                                                                        List.of(new DgraphSourceId(SID_1, FID_1, PID_1),
-                                                                                new DgraphSourceId(SID_2, FID_2, PID_2)),
-                                                                        NOW,
-                                                                        true,
-                                                                        AUX_ID_1,
-                                                                        GIVEN_NAME_1,
-                                                                        FAMILY_NAME_1,
-                                                                        GENDER_1,
-                                                                        DOB_1,
-                                                                        CITY_1,
-                                                                        PHONE_NUMBER_1,
-                                                                        NATIONAL_ID_1);
-      final var json = OBJECT_MAPPER.writeValueAsString(customDgraphGoldenRecord);
-      final var dgraphGoldenRecordJsonNode = new JsonNodeGoldenRecord(OBJECT_MAPPER.readTree(json));
-      final var t = dgraphGoldenRecordJsonNode.toGoldenRecord();
-
-      Assertions.assertEquals(GID_1, dgraphGoldenRecordJsonNode.jsonNode().get("uid").textValue());
-
-      for (int i = 0; i < JSON_CONFIG.additionalNodes().size(); i++) {
-         final var elements = dgraphGoldenRecordJsonNode.jsonNode()
-                                                        .get("GoldenRecord." + AppUtils.camelToSnake(JSON_CONFIG.additionalNodes()
-                                                                                                                .get(i)
-                                                                                                                .nodeName()))
-                                                        .elements();
-         while (elements.hasNext()) {
-            final var element = elements.next();
-            System.out.println(element);
-            System.out.println(element.get("uid").textValue());
-            System.out.println(element.get("SourceId.facility").textValue());
-            System.out.println(element.get("SourceId.patient").textValue());
-         }
+   void testGoldenRecord() {
+      final var json =
+            """
+            {
+            	"uid": "0x177b",
+            	"GoldenRecord.source_id": [
+            		{
+            			"uid": "0x1779",
+            			"SourceId.facility": "FA1",
+            			"SourceId.patient": "198910235001088"
+            		},
+            		{
+            			"uid": "0x1b7c",
+            			"SourceId.facility": "FA2",
+            			"SourceId.patient": "198910235001088"
+            		},
+            		{
+            			"uid": "0x1f99",
+            			"SourceId.facility": "FA5",
+            			"SourceId.patient": "198910235001088"
+            		},
+            		{
+            			"uid": "0x209e",
+            			"SourceId.facility": "FA3",
+            			"SourceId.patient": "198910235001088"
+            		}
+            	],
+            	"GoldenRecord.aux_date_created": "2024-05-10T13:06:25.359198023",
+            	"GoldenRecord.aux_auto_update_enabled": true,
+            	"GoldenRecord.aux_id": "rec-0000000800--4",
+            	"GoldenRecord.demographic_field_00": "GivenName1",
+            	"GoldenRecord.demographic_field_01": "FamilyName1",
+            	"GoldenRecord.demographic_field_02": "female",
+            	"GoldenRecord.demographic_field_03": "19891023",
+            	"GoldenRecord.demographic_field_04": "City1",
+            	"GoldenRecord.demographic_field_05": "0105355775",
+            	"GoldenRecord.demographic_field_06": "198910235001088",
+            	"GoldenRecord.interactions": [
+            		{
+            			"uid": "0x177a",
+            			"Interaction.source_id": {
+            				"uid": "0x1779",
+            				"SourceId.facility": "FA1",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:30.218003326",
+            			"Interaction.aux_id": "rec-0000000800--4",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(73)",
+            			"Interaction.demographic_field_00": "GivenName1",
+            			"Interaction.demographic_field_01": "FamilyName1",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "19891023",
+            			"Interaction.demographic_field_04": "City1",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "198910235001088",
+            			"GoldenRecord.interactions|score": 1
+            		},
+            		{
+            			"uid": "0x1b7d",
+            			"Interaction.source_id": {
+            				"uid": "0x1b7c",
+            				"SourceId.facility": "FA2",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:30.610151212",
+            			"Interaction.aux_id": "rec-0000000800--1",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(682)",
+            			"Interaction.demographic_field_00": "oscar",
+            			"Interaction.demographic_field_01": "habwiau",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "19891023",
+            			"Interaction.demographic_field_04": "luswka",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "1989q0235001088",
+            			"GoldenRecord.interactions|score": 0.934154
+            		},
+            		{
+            			"uid": "0x1f9a",
+            			"Interaction.source_id": {
+            				"uid": "0x1f99",
+            				"SourceId.facility": "FA5",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:31.075409853",
+            			"Interaction.aux_id": "rec-0000000800--0",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(243)",
+            			"Interaction.demographic_field_00": "oscar",
+            			"Interaction.demographic_field_01": "habwizu",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "19891023",
+            			"Interaction.demographic_field_04": "lusaka",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "198910235001088",
+            			"GoldenRecord.interactions|score": 1
+            		},
+            		{
+            			"uid": "0x1fe1",
+            			"Interaction.source_id": {
+            				"uid": "0x1b7c",
+            				"SourceId.facility": "FA2",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:31.107057136",
+            			"Interaction.aux_id": "rec-0000000800--3",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(544)",
+            			"Interaction.demographic_field_00": "oscar",
+            			"Interaction.demographic_field_01": "habwizu",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "",
+            			"Interaction.demographic_field_04": "lusaka",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "198910235001088",
+            			"GoldenRecord.interactions|score": 1
+            		},
+            		{
+            			"uid": "0x209f",
+            			"Interaction.source_id": {
+            				"uid": "0x209e",
+            				"SourceId.facility": "FA3",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:31.159584693",
+            			"Interaction.aux_id": "rec-0000000800--7",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(89)",
+            			"Interaction.demographic_field_00": "oscar",
+            			"Interaction.demographic_field_01": "habqizu",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "19891023",
+            			"Interaction.demographic_field_04": "lusaka",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "",
+            			"GoldenRecord.interactions|score": 0.829876
+            		},
+            		{
+            			"uid": "0x216f",
+            			"Interaction.source_id": {
+            				"uid": "0x209e",
+            				"SourceId.facility": "FA3",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:31.22006385",
+            			"Interaction.aux_id": "rec-0000000800--5",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(123)",
+            			"Interaction.demographic_field_00": "",
+            			"Interaction.demographic_field_01": "habizu",
+            			"Interaction.demographic_field_02": "",
+            			"Interaction.demographic_field_03": "19891023",
+            			"Interaction.demographic_field_04": "lusaka",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "198910235001088",
+            			"GoldenRecord.interactions|score": 1
+            		},
+            		{
+            			"uid": "0x21ff",
+            			"Interaction.source_id": {
+            				"uid": "0x1b7c",
+            				"SourceId.facility": "FA2",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:31.263791218",
+            			"Interaction.aux_id": "rec-0000000800--6",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(824)",
+            			"Interaction.demographic_field_00": "oscamr",
+            			"Interaction.demographic_field_01": "habwizu",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "",
+            			"Interaction.demographic_field_04": "lusaka",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "198910235001288",
+            			"GoldenRecord.interactions|score": 0.831115
+            		},
+            		{
+            			"uid": "0x2353",
+            			"Interaction.source_id": {
+            				"uid": "0x209e",
+            				"SourceId.facility": "FA3",
+            				"SourceId.patient": "198910235001088"
+            			},
+            			"Interaction.aux_date_created": "2024-05-10T13:05:31.369597157",
+            			"Interaction.aux_id": "rec-0000000800--2",
+            			"Interaction.aux_clinical_data": "RANDOM DATA(527)",
+            			"Interaction.demographic_field_00": "oscr",
+            			"Interaction.demographic_field_01": "",
+            			"Interaction.demographic_field_02": "female",
+            			"Interaction.demographic_field_03": "19891023",
+            			"Interaction.demographic_field_04": "lusaks",
+            			"Interaction.demographic_field_05": "0105355775",
+            			"Interaction.demographic_field_06": "198910235001088",
+            			"GoldenRecord.interactions|score": 1
+            		}
+            	]
+            }
+            """;
+      final CustomDgraphExpandedGoldenRecord o1;
+      try {
+         o1 = OBJECT_MAPPER.readValue(json, CustomDgraphExpandedGoldenRecord.class);
+      } catch (JsonProcessingException e) {
+         throw new RuntimeException(e);
       }
+      final var actual = DeprecatedCustomFunctions.toExpandedGoldenRecord(o1);
+      final var expected = new ExpandedGoldenRecord(new GoldenRecord("0x177b",
+                                                                     List.of(
+                                                                           new CustomSourceId("0x1779",
+                                                                                              "FA1",
+                                                                                              "198910235001088"),
+                                                                           new CustomSourceId("0x1b7c",
+                                                                                              "FA2",
+                                                                                              "198910235001088"),
+                                                                           new CustomSourceId("0x1f99",
+                                                                                              "FA5",
+                                                                                              "198910235001088"),
+                                                                           new CustomSourceId("0x209e",
+                                                                                              "FA3",
+                                                                                              "198910235001088")),
 
-      JSON_CONFIG_1.additionalNodes().forEach(node -> {
-         final var name = "GoldenRecord." + AppUtils.camelToSnake(node.nodeName());
-         System.out.println(name);
-         final var additionalNodes = dgraphGoldenRecordJsonNode.jsonNode().get(name).elements();
-
-         int i = 0;
-         while (additionalNodes.hasNext()) {
-            final var next = additionalNodes.next();
-            System.out.println(next);
-            i += 1;
-         }
-         final var additionalMode1 = dgraphGoldenRecordJsonNode.jsonNode().get(name).get(0);
-         Assertions.assertEquals(SID_1, additionalMode1.get("uid").textValue());
-         Assertions.assertEquals(FID_1, additionalMode1.get("SourceId.facility").textValue());
-         Assertions.assertEquals(PID_1, additionalMode1.get("SourceId.patient").textValue());
-         final var additionalMode2 = dgraphGoldenRecordJsonNode.jsonNode().get(name).get(1);
-         Assertions.assertEquals(SID_2, additionalMode2.get("uid").textValue());
-         Assertions.assertEquals(FID_2, additionalMode2.get("SourceId.facility").textValue());
-         Assertions.assertEquals(PID_2, additionalMode2.get("SourceId.patient").textValue());
-      });
-
-      for (int i = 0; i < JSON_CONFIG_1.auxGoldenRecordFields().size(); i++) {
-         final String name = "GoldenRecord." + AppUtils.camelToSnake(JSON_CONFIG_1.auxGoldenRecordFields().get(i).fieldName());
-         System.out.println(name);
-         switch (JSON_CONFIG_1.auxGoldenRecordFields().get(i).fieldType()) {
-            case "DateTime":
-               final var dt = LocalDateTime.parse(dgraphGoldenRecordJsonNode.jsonNode().get(name).textValue());
-               Assertions.assertEquals(DTF.format(NOW), DTF.format(dt));
-               break;
-            case "String":
-               Assertions.assertEquals(AUX_FIELDS_1.get(i), dgraphGoldenRecordJsonNode.jsonNode().get(name).textValue());
-               break;
-            case "Bool":
-               Assertions.assertEquals(Boolean.valueOf(AUX_FIELDS_1.get(i)),
-                                       dgraphGoldenRecordJsonNode.jsonNode().get(name).booleanValue());
-               break;
-         }
-      }
-
-      for (int i = 0; i < JSON_CONFIG_1.demographicFields().size(); i++) {
-         System.out.println("GoldenRecord." + AppUtils.camelToSnake(JSON_CONFIG_1.demographicFields().get(i).fieldName()));
-         Assertions.assertEquals(DEMOGRAPHIC_FIELDS_1.get(i),
-                                 dgraphGoldenRecordJsonNode.jsonNode()
-                                                           .get("GoldenRecord." + AppUtils.camelToSnake(JSON_CONFIG_1
-                                                           .demographicFields()
-                                                                                                                     .get(i)
-                                                                                                                     .fieldName
-                                                                                                                     ()))
-                                                           .textValue());
-      }
+                                                                     new AuxGoldenRecordData(LocalDateTime.parse(
+                                                                           "2024-05-10T13:06:25.359198023"),
+                                                                                             true,
+                                                                                             "rec-0000000800--4"),
+                                                                     new DemographicData(Stream.of(new DemographicData.DemographicField(
+                                                                                                         "givenName",
+                                                                                                         "GivenName1"),
+                                                                                                   new DemographicData.DemographicField(
+                                                                                                         "familyName",
+                                                                                                         "FamilyName1"),
+                                                                                                   new DemographicData.DemographicField(
+                                                                                                         "gender",
+                                                                                                         "female"),
+                                                                                                   new DemographicData.DemographicField(
+                                                                                                         "dob",
+                                                                                                         "19891023"),
+                                                                                                   new DemographicData.DemographicField(
+                                                                                                         "city",
+                                                                                                         "City1"),
+                                                                                                   new DemographicData.DemographicField(
+                                                                                                         "phoneNumber",
+                                                                                                         "0105355775"),
+                                                                                                   new DemographicData.DemographicField(
+                                                                                                         "nationalId",
+                                                                                                         "198910235001088"))
+                                                                                               .collect(Collectors.toList()))),
+                                                    Stream.of(new InteractionWithScore(
+                                                                new Interaction("0x177a",
+                                                                                new CustomSourceId("0x1779",
+                                                                                                   "FA1",
+                                                                                                   "198910235001088"),
+                                                                                new AuxInteractionData(LocalDateTime.parse(
+                                                                                      "2024-05-10T13:05:30.218003326"),
+                                                                                                       "rec-0000000800--4",
+                                                                                                       "RANDOM DATA(73)"),
+                                                                                new DemographicData(
+                                                                                      Stream.of(new DemographicData.DemographicField(
+                                                                                                      "givenName",
+                                                                                                      "GivenName1"),
+                                                                                                new DemographicData.DemographicField(
+                                                                                                      "familyName",
+                                                                                                      "FamilyName1"),
+                                                                                                new DemographicData.DemographicField(
+                                                                                                      "gender",
+                                                                                                      "female"),
+                                                                                                new DemographicData.DemographicField(
+                                                                                                      "dob",
+                                                                                                      "19891023"),
+                                                                                                new DemographicData.DemographicField(
+                                                                                                      "city",
+                                                                                                      "City1"),
+                                                                                                new DemographicData.DemographicField(
+                                                                                                      "phoneNumber",
+                                                                                                      "0105355775"),
+                                                                                                new DemographicData.DemographicField(
+                                                                                                      "nationalId",
+                                                                                                      "198910235001088")
+                                                                                               )
+                                                                                            .collect(Collectors.toList()))),
+                                                                1.0F))
+                                                          .collect(Collectors.toList()));
+      Assertions.assertEquals(expected.goldenRecord().goldenId(), actual.goldenRecord().goldenId());
+      Assertions.assertEquals(expected.goldenRecord().customUniqueGoldenRecordData(),
+                              actual.goldenRecord().customUniqueGoldenRecordData());
+      Assertions.assertEquals(expected.goldenRecord().demographicData().fields, actual.goldenRecord().demographicData().fields);
+      final var e0 = expected.interactionsWithScore().getFirst();
+      final var e0i = e0.interaction();
+      final var a0 = actual.interactionsWithScore().getFirst();
+      final var a0i = a0.interaction();
+      Assertions.assertEquals(e0.score(), a0.score());
+      Assertions.assertEquals(e0i.interactionId(), a0i.interactionId());
+      Assertions.assertEquals(e0i.sourceId(), a0i.sourceId());
+      Assertions.assertEquals(e0i.demographicData().fields, a0i.demographicData().fields);
 
    }
-*/
 
 }

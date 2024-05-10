@@ -110,7 +110,7 @@ public final class LibMPI {
       return client.findInteraction(iid);
    }
 
-   public List<Interaction> findInteraction(final List<String> iidList) {
+   public List<Interaction> findInteractions(final List<String> iidList) {
       client.connect();
       return client.findInteractions(iidList);
    }

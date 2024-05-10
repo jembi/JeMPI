@@ -1,12 +1,19 @@
 package org.jembi.jempi.libmpi.dgraph;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+
 public final class DeprecatedCustomFunctions {
+
+   private static final Logger LOGGER = LogManager.getLogger(DeprecatedCustomFunctions.class);
 
    private DeprecatedCustomFunctions() {
    }
@@ -67,8 +74,31 @@ public final class DeprecatedCustomFunctions {
       return new GoldenRecordWithScore(toGoldenRecord(me), me.score());
    }
 
+   private static Interaction toInteraction(final CustomDgraphExpandedInteraction me) {
+      return new Interaction(me.interactionId(),
+                             me.sourceId().toSourceId(),
+                             new AuxInteractionData(me.auxDateCreated(),
+                                                    me.auxId(),
+                                                    me.auxClinicalData()),
+                             fromCustomDemographicFields(me.givenName(),
+                                                         me.familyName(),
+                                                         me.gender(),
+                                                         me.dob(),
+                                                         me.city(),
+                                                         me.phoneNumber(),
+                                                         me.nationalId()));
+   }
+
+
+
    static ExpandedGoldenRecord toExpandedGoldenRecord(final CustomDgraphExpandedGoldenRecord me) {
-      return new ExpandedGoldenRecord(DeprecatedCustomFunctions.toGoldenRecord(me),
+      try {
+         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
+         LOGGER.debug("{}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      return new ExpandedGoldenRecord(toGoldenRecord(me),
                                       me.interactions()
                                         .stream()
                                         .map(DeprecatedCustomFunctions::toInteractionWithScore)
@@ -76,6 +106,12 @@ public final class DeprecatedCustomFunctions {
    }
 
    static Interaction toInteraction(final CustomDgraphInteraction me) {
+      try {
+         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
+         LOGGER.debug("{}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       return new Interaction(me.interactionId(),
                              me.sourceId() != null
                                    ? me.sourceId().toSourceId()
@@ -92,26 +128,23 @@ public final class DeprecatedCustomFunctions {
                                                          me.nationalId()));
    }
 
-   private static Interaction toInteraction(final CustomDgraphExpandedInteraction me) {
-      return new Interaction(me.interactionId(),
-                             me.sourceId().toSourceId(),
-                             new AuxInteractionData(me.auxDateCreated(),
-                                                    me.auxId(),
-                                                    me.auxClinicalData()),
-                             fromCustomDemographicFields(me.givenName(),
-                                                         me.familyName(),
-                                                         me.gender(),
-                                                         me.dob(),
-                                                         me.city(),
-                                                         me.phoneNumber(),
-                                                         me.nationalId()));
-   }
-
    static InteractionWithScore toInteractionWithScore(final CustomDgraphInteraction me) {
+      try {
+         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
+         LOGGER.debug("{}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       return new InteractionWithScore(toInteraction(me), me.score());
    }
 
    static ExpandedInteraction toExpandedInteraction(final CustomDgraphExpandedInteraction me) {
+      try {
+         final var json = System.lineSeparator() + OBJECT_MAPPER.writeValueAsString(me);
+         LOGGER.debug("{}", json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       return new ExpandedInteraction(DeprecatedCustomFunctions.toInteraction(me),
                                      me.dgraphGoldenRecordList()
                                        .stream()
