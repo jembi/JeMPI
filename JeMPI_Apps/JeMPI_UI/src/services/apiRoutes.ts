@@ -9,11 +9,8 @@ const ROUTES = {
   POST_GOLDEN_RECORD_AUDIT_TRAIL: '/goldenRecordAuditTrail',
   POST_INTERACTION_AUDIT_TRAIL: '/interactionAuditTrail',
   POST_UPDATE_NOTIFICATION: '/notificationRequest',
-
-  // remove these
   POST_SIMPLE_SEARCH: '/search',
   POST_CUSTOM_SEARCH: '/customSearch',
-
   POST_SIMPLE_GOLDEN_SEARCH: 'simpleGoldenSearch',
   POST_SIMPLE_INTERACTION_PATIENT_SEARCH: 'simpleInteractionSearch',
   POST_CUSTOM_GOLDEN_SEARCH: 'customGoldenSearch',
