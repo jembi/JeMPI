@@ -104,7 +104,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       editable: true,
       valueGetter: params => {
         const indexGoldenRecord = params.row.indexGoldenRecord
-        processIndex(indexGoldenRecord)
+        return processIndex(indexGoldenRecord)
       }
     },
     {

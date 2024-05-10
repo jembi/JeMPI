@@ -125,14 +125,15 @@ export const generateId = (configuration: Configuration): Configuration => {
   }
 }
 
-export function processIndex(indexGoldenRecord: string) {
-  if (indexGoldenRecord) {
-    return indexGoldenRecord
+export function processIndex(index: string) {
+  if (index) {
+    return index
       .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
       .replace(/,/g, ', ')
   }
   return ''
 }
+
 export const transformFieldName = (params: any) =>
   (params?.row?.fieldName || '')
     .replace(/_/g, ' ')

@@ -5,7 +5,6 @@ import {
   ApiSearchResponse,
   ApiSearchResult,
   CustomSearchQuery,
-  FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
 import { OAuthParams } from '../types/User'
@@ -394,15 +393,12 @@ export class ApiClient {
     for (const field of request.fields) {
       const { name, oldValue, newValue } = field
       try {
-        const response = await this.client.post(
-          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
-          {
-            goldenId: uid,
-            fields: [{ name, oldValue, newValue }]
-          }
-        )
+        await this.client.post(ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS, {
+          goldenId: uid,
+          fields: [{ name, oldValue, newValue }]
+        })
       } catch (error) {
-        console.error('Error occurred while making the request:', error)
+        throw new Error('Failed to updateGoldenRecord with error: ' + error)
       }
     }
     return Promise.resolve()

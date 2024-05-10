@@ -122,7 +122,7 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Unique to Interaction
             </Typography>
-            <UniqueToInteraction />
+            <UniqueToInteraction uniqueInteractionData={configuration.uniqueInteractionFields}/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
