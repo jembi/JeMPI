@@ -7,9 +7,9 @@ export type Config = {
   KeyCloakClientId: string
   useSso: boolean
   maxUploadCsvSize: number
-  showBrandLogo: boolean,
-  refetchInterval: number,
-  cacheTime: number,
+  showBrandLogo: boolean
+  refetchInterval: number
+  cacheTime: number
   staleTime: number
 }
 
@@ -53,15 +53,9 @@ export default async function getConfig() {
         process.env.REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES || 128
       ),
       showBrandLogo: process.env.REACT_APP_SHOW_BRAND_LOGO === 'true',
-      refetchInterval: +(
-        process.env.REACT_APP_REFETCH_INTERVAL || 300000
-      ),
-      cacheTime: +(
-        process.env.REACT_APP_CACHE_TIME || 300000
-      ),
-      staleTime: +(
-        process.env.REACT_APP_STALE_TIME || 300000
-      ),
+      refetchInterval: +(process.env.REACT_APP_REFETCH_INTERVAL || 300000),
+      cacheTime: +(process.env.REACT_APP_CACHE_TIME || 300000),
+      staleTime: +(process.env.REACT_APP_STALE_TIME || 300000)
     }
   }
 }

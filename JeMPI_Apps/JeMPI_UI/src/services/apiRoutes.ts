@@ -18,7 +18,7 @@ const ROUTES = {
   CURRENT_USER: '/currentUser',
   VALIDATE_OAUTH: '/authenticate',
   LOGOUT: '/logout',
-  UPLOAD: '/upload',
+  UPLOAD: '/upload'
 }
 
 export default ROUTES
