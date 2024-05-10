@@ -95,14 +95,14 @@ export class ApiClient {
     endDate: string,
     states: string[]
   ): Promise<Notifications> {
-    const includeClosed = states.includes(NotificationState.CLOSED.toString());
-    const includeAll = states.includes(NotificationState.ALL.toString());
-  
+    const includeClosed = states.includes(NotificationState.CLOSED.toString())
+    const includeAll = states.includes(NotificationState.ALL.toString())
+
     const notificationState = includeAll
       ? [NotificationState.CLOSED, NotificationState.OPEN]
       : includeClosed
       ? [NotificationState.CLOSED]
-      : [NotificationState.OPEN];
+      : [NotificationState.OPEN]
     const { data } = await this.client.post<NotificationResponse>(
       ROUTES.POST_NOTIFICATIONS,
       {
@@ -113,7 +113,7 @@ export class ApiClient {
         states: notificationState
       }
     )
-    
+
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -214,8 +214,15 @@ export class ApiClient {
   ): Promise<ApiSearchResult<AnyRecord>> {
     const isCustomSearch = '$or' in request
     const endpoint = `${
-      isCustomSearch ? ROUTES.POST_CUSTOM_SEARCH : ROUTES.POST_SIMPLE_SEARCH
-    }/${isGoldenOnly ? 'golden' : 'patient'}`
+      isGoldenOnly
+        ? isCustomSearch
+          ? ROUTES.POST_CUSTOM_GOLDEN_SEARCH
+          : ROUTES.POST_SIMPLE_GOLDEN_SEARCH
+        : isCustomSearch
+        ? ROUTES.POST_SIMPLE_INTERACTION_PATIENT_SEARCH
+        : ROUTES.POST_CUSTOM_INTERACTION_PATIENT_SEARCH
+    }`
+
     const { data: querySearchResponse } = await this.client.post(
       endpoint,
       request
@@ -390,8 +397,8 @@ export class ApiClient {
       try {
         const response = await this.client.post(
           ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
-          { 
-            "goldenId":uid,
+          {
+            goldenId: uid,
             fields: [{ name, oldValue, newValue }]
           }
         )

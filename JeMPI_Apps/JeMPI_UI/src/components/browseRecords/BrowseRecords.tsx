@@ -74,7 +74,8 @@ const Records = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [isFetchingInteractions, setIsFetchingInteractions] = useState<boolean>(
     searchParams.get('isFetchingInteractions')
-      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) == "true"
+      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) ==
+          'true'
       : false
   )
 
