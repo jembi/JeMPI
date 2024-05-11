@@ -26,7 +26,6 @@ record JsonNodeGoldenRecords(JsonNode node) {
    }
 
    private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
-      LOGGER.debug("{}", json);
       return OBJECT_MAPPER.readTree(json);
    }
 

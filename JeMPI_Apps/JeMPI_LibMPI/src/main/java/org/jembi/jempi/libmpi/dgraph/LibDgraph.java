@@ -121,13 +121,8 @@ public final class LibDgraph implements LibMPIClientInterface {
 //      return new LibMPIPaginatedResultSet<>(list.data(), list.pagination().getFirst());
    }
 
-   private LibMPIPaginatedResultSet<Interaction> paginatedInteractions(final List<InteractionWithScore> list) {
-      if (list == null) {
-         return null;
-      }
-//      final var data = list.all().stream().map(DeprecatedCustomFunctions::toInteraction).toList();
-      final var pagination = new LibMPIPagination(list.size());
-      return new LibMPIPaginatedResultSet<>(list.stream().map(InteractionWithScore::interaction).toList(), pagination);
+   private PaginatedResultSet<Interaction> paginatedInteractions(final PaginatedResultSet<InteractionWithScore> list) {
+      return new PaginatedResultSet<>(list.data().stream().map(InteractionWithScore::interaction).toList(), list.pagination());
    }
 
    private LibMPIPaginatedResultSet<String> paginatedGids(final DgraphPaginatedUidList list) {
@@ -169,7 +164,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return paginatedExpandedGoldenRecords(list);
    }
 
-   public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
+   public PaginatedResultSet<Interaction> simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -179,7 +174,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return paginatedInteractions(list);
    }
 
-   public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
+   public PaginatedResultSet<Interaction> customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,

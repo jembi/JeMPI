@@ -144,9 +144,9 @@ public final class LibMPI {
 
    public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
       client.connect();
-      final var records = client.findExpandedGoldenRecords(List.of(goldenId));
-      if (!records.data().isEmpty()) {
-         return records.data().getFirst();
+      final var results = client.findExpandedGoldenRecords(List.of(goldenId));
+      if (!results.data().isEmpty()) {
+         return results.data().getFirst();
       }
       return null;
    }
@@ -216,7 +216,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      final var results = client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
@@ -226,7 +227,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      final var results = client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<String> filterGids(

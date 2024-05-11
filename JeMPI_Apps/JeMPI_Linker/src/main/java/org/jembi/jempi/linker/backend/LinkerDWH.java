@@ -319,7 +319,6 @@ public final class LinkerDWH {
                                                                                 validated1,
                                                                                 validated2,
                                                                                 firstCandidate.linkingRule());
-
                if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                   sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
                                    linkInfo.interactionUID(),

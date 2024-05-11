@@ -30,7 +30,6 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
    }
 
    private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
-      LOGGER.debug("{}", System.lineSeparator() + json);
       return OBJECT_MAPPER.readTree(json).get("all");
    }
 

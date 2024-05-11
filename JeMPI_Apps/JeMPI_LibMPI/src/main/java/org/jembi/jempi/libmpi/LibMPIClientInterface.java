@@ -79,14 +79,14 @@ public interface LibMPIClientInterface {
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
+   PaginatedResultSet<Interaction> simpleSearchInteractions(
          List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
+   PaginatedResultSet<Interaction> customSearchInteractions(
          List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,

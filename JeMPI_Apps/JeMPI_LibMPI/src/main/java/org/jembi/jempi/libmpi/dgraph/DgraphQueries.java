@@ -104,7 +104,10 @@ final class DgraphQueries {
                   .forEach(i -> {
                      final var query = LINKER_CONFIG.deterministicLinkPrograms.get(i).selectQuery();
                      DETERMINISTIC_LINK_QUERIES[i] = query;
-                     DETERMINISTIC_LINK_FUNCTIONS.add(i, demographicData -> queryLinkDeterministic(demographicData, i, query).data());
+                     DETERMINISTIC_LINK_FUNCTIONS.add(i,
+                                                      demographicData -> queryLinkDeterministic(demographicData,
+                                                                                                i,
+                                                                                                query).data());
                   });
       }
 
@@ -119,7 +122,8 @@ final class DgraphQueries {
                   .forEach(i -> {
                      final var query = LINKER_CONFIG.blockLinkPrograms.get(i).selectQuery();
                      BLOCK_LINK_QUERIES[i] = query;
-                     BLOCK_LINK_FUNCTIONS.add(i, demographicData -> queryLinkProbabilisticBlock(demographicData, i, query).data());
+                     BLOCK_LINK_FUNCTIONS.add(i,
+                                              demographicData -> queryLinkProbabilisticBlock(demographicData, i, query).data());
                   });
       }
 
@@ -134,7 +138,10 @@ final class DgraphQueries {
                   .forEach(i -> {
                      final var query = LINKER_CONFIG.deterministicMatchPrograms.get(i).selectQuery();
                      DETERMINISTIC_MATCH_QUERIES[i] = query;
-                     DETERMINISTIC_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchDeterministic(demographicData, i, query).data());
+                     DETERMINISTIC_MATCH_FUNCTIONS.add(i,
+                                                       demographicData -> queryMatchDeterministic(demographicData,
+                                                                                                  i,
+                                                                                                  query).data());
                   });
       }
 
@@ -149,7 +156,8 @@ final class DgraphQueries {
                   .forEach(i -> {
                      final var query = LINKER_CONFIG.blockMatchPrograms.get(i).selectQuery();
                      BLOCK_MATCH_QUERIES[i] = query;
-                     BLOCK_MATCH_FUNCTIONS.add(i, demographicData -> queryMatchProbabilisticBlock(demographicData, i, query).data());
+                     BLOCK_MATCH_FUNCTIONS.add(i,
+                                               demographicData -> queryMatchProbabilisticBlock(demographicData, i, query).data());
                   });
       }
 
@@ -200,7 +208,7 @@ final class DgraphQueries {
    }
 
 
-   private static List<InteractionWithScore> runInteractionsQuery(
+   private static PaginatedResultSet<InteractionWithScore> runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -211,7 +219,7 @@ final class DgraphQueries {
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return List.of();
+      return new PaginatedResultSet<>(List.of(), List.of());
    }
 
    private static DgraphPaginatedUidList runFilterGidsQuery(
@@ -284,10 +292,10 @@ final class DgraphQueries {
       }
       final var vars = Map.of("$uid", interactionId);
       final var interactionList = runInteractionsQuery(DGRAPH_CONFIG.queryGetInteractionByUid, vars);
-      if (AppUtils.isNullOrEmpty(interactionList)) {
+      if (AppUtils.isNullOrEmpty(interactionList.data())) {
          return null;
       }
-      return interactionList.getFirst().interaction();
+      return interactionList.data().getFirst().interaction();
    }
 
    /**
@@ -511,11 +519,6 @@ final class DgraphQueries {
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
          return new JsonNodeExpandedGoldenRecords(json).toExpandedGoldenRecordList();
-//         return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class)
-//                             .all()
-//                             .stream()
-//                             .map(DeprecatedCustomFunctions::toExpandedGoldenRecord)
-//                             .toList();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return new PaginatedResultSet<>(List.of(), List.of());
@@ -731,7 +734,7 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   private static List<InteractionWithScore> searchInteractions(
+   private static PaginatedResultSet<InteractionWithScore> searchInteractions(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -821,7 +824,7 @@ final class DgraphQueries {
     * @param sortAsc the sort asc
     * @return the list
     */
-   static List<InteractionWithScore> simpleSearchInteractions(
+   static PaginatedResultSet<InteractionWithScore> simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -844,7 +847,7 @@ final class DgraphQueries {
     * @param sortAsc  the sort asc
     * @return the list
     */
-   static List<InteractionWithScore> customSearchInteractions(
+   static PaginatedResultSet<InteractionWithScore> customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,

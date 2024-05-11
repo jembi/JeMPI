@@ -7,6 +7,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
+import org.jembi.jempi.shared.models.InteractionWithScore;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
@@ -26,8 +31,13 @@ record JsonNodeExpandedGoldenRecord(JsonNode jsonNode) {
    ExpandedGoldenRecord toExpandedGoldenRecord() {
       final var goldenRecord = new JsonNodeGoldenRecord(jsonNode).toGoldenRecord();
       final var interactionsNode = jsonNode.get("GoldenRecord.interactions");
-      final var interactions = new JsonNodeInteractions(interactionsNode).toInteractionsWithScore();
-      return new ExpandedGoldenRecord(goldenRecord, interactions);
+      final List<InteractionWithScore> interactionsWithScores = new ArrayList<>();
+      final Iterator<JsonNode> iter = interactionsNode.elements();
+      while (iter.hasNext()) {
+         final var next = iter.next();
+         interactionsWithScores.add(new JsonNodeInteraction(next).toInteractionWithScore());
+      }
+      return new ExpandedGoldenRecord(goldenRecord, interactionsWithScores);
    }
 
 }
