@@ -3,6 +3,8 @@ package org.jembi.jempi.libmpi.dgraph;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.Interaction;
 import org.jembi.jempi.shared.models.InteractionWithScore;
 
@@ -16,8 +18,15 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 record JsonNodeInteractions(
       JsonNode all) {
 
+   private static final Logger LOGGER = LogManager.getLogger(JsonNodeInteractions.class);
+
    JsonNodeInteractions(final String json) throws JsonProcessingException {
-      this(OBJECT_MAPPER.readTree(json).get("all"));
+      this(toJsonNode(json));
+   }
+
+   private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
+      LOGGER.debug("{}", json);
+      return OBJECT_MAPPER.readTree(json).get("all");
    }
 
    List<InteractionWithScore> toInteractionsWithScore() {

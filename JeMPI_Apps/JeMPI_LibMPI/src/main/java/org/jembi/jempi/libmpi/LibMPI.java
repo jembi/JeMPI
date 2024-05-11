@@ -124,8 +124,8 @@ public final class LibMPI {
       client.connect();
       final var records = client.findGoldenRecords(List.of(goldenId));
       if (records.isRight()) {
-         if (!records.get().isEmpty()) {
-            return Either.right(records.get().getFirst());
+         if (!records.get().data().isEmpty()) {
+            return Either.right(records.get().data().getFirst());
          } else {
             return Either.left(new MpiServiceError.CRGidDoesNotExistError(goldenId));
          }
@@ -135,21 +135,25 @@ public final class LibMPI {
 
    public Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final List<String> goldenIds) {
       client.connect();
-      return client.findGoldenRecords(goldenIds);
+      final var results = client.findGoldenRecords(goldenIds);
+      if (results.isLeft()) {
+         return Either.left(results.getLeft());
+      }
+      return Either.right(results.get().data());
    }
 
    public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
       client.connect();
       final var records = client.findExpandedGoldenRecords(List.of(goldenId));
-      if (!records.isEmpty()) {
-         return records.getFirst();
+      if (!records.data().isEmpty()) {
+         return records.data().getFirst();
       }
       return null;
    }
 
    public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
       client.connect();
-      return client.findExpandedGoldenRecords(goldenIds);
+      return client.findExpandedGoldenRecords(goldenIds).data();
    }
 
    public List<String> findGoldenIds() {
@@ -176,7 +180,11 @@ public final class LibMPI {
 
    public Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       client.connect();
-      return client.apiCrFindGoldenRecords(request);
+      final var results = client.apiCrFindGoldenRecords(request);
+      if (results.isLeft()) {
+         return Either.left(results.getLeft());
+      }
+      return Either.right(results.get().data());
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -186,7 +194,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      final var results = client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
@@ -196,7 +205,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      final var results = client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(

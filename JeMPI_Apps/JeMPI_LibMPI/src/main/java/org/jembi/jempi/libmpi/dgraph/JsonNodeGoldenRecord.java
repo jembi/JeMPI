@@ -26,10 +26,15 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
    private static final Logger LOGGER = LogManager.getLogger(JsonNodeGoldenRecord.class);
 
    JsonNodeGoldenRecord(final String json) throws JsonProcessingException {
-      this(OBJECT_MAPPER.readTree(json));
+      this(toJsonNode(json));
    }
 
-   static GoldenRecord toGoldenRecord(final JsonNode jsonNode) {
+   private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
+      LOGGER.debug("{}", System.lineSeparator() + json);
+      return OBJECT_MAPPER.readTree(json).get("all");
+   }
+
+   GoldenRecord toGoldenRecord() {
       final var sourceIdList = new ArrayList<CustomSourceId>();
       final var sourceIdNode = jsonNode.get("GoldenRecord.source_id");
       if (!(sourceIdNode == null || sourceIdNode.isNull() || sourceIdNode.isMissingNode())) {
@@ -62,10 +67,6 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
                      : null;
             }).toList());
       return new GoldenRecord(jsonNode.get("uid").textValue(), sourceIdList, customUniqueGoldenRecordData, demographicData);
-   }
-
-   GoldenRecord toGoldenRecord() {
-      return toGoldenRecord(jsonNode);
    }
 
 }

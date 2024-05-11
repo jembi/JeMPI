@@ -3,29 +3,50 @@ package org.jembi.jempi.libmpi.dgraph;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.libmpi.common.PaginatedResultSet;
 import org.jembi.jempi.shared.models.GoldenRecord;
+import org.jembi.jempi.shared.models.LibMPIPagination;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record JsonNodeGoldenRecords(JsonNode all) {
+record JsonNodeGoldenRecords(JsonNode node) {
+
+   private static final Logger LOGGER = LogManager.getLogger(JsonNodeGoldenRecords.class);
 
    JsonNodeGoldenRecords(final String json) throws JsonProcessingException {
-      this(OBJECT_MAPPER.readTree(json).get("all"));
+      this(toJsonNode(json));
    }
 
-   List<GoldenRecord> toGoldenRecordList() {
+   private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
+      LOGGER.debug("{}", json);
+      return OBJECT_MAPPER.readTree(json);
+   }
+
+   PaginatedResultSet<GoldenRecord> toGoldenRecordList() {
       final List<GoldenRecord> goldenRecords = new ArrayList<>();
-      final Iterator<JsonNode> iter = all.elements();
+      final Iterator<JsonNode> iter = node.get("all").elements();
       while (iter.hasNext()) {
          final var next = iter.next();
-         goldenRecords.add(JsonNodeGoldenRecord.toGoldenRecord(next));
+         goldenRecords.add(new JsonNodeGoldenRecord(next).toGoldenRecord());
       }
-      return goldenRecords;
+      final var paginationNode = node.get("pagination");
+      if (paginationNode != null && !paginationNode.isMissingNode()) {
+         try {
+            final var pagination = Arrays.stream(OBJECT_MAPPER.treeToValue(paginationNode, LibMPIPagination[].class)).toList();
+            return new PaginatedResultSet<>(goldenRecords, pagination);
+         } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+         }
+      }
+      return new PaginatedResultSet<>(goldenRecords, List.of(new LibMPIPagination(goldenRecords.size())));
    }
 
 }

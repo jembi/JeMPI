@@ -35,7 +35,7 @@ public record JsonNodeReverseGoldenRecordListFromSourceId(JsonNode jsonNode) {
          final var goldenRecords = new ArrayList<GoldenRecord>();
          while (iter.hasNext()) {
             final var jsonNode1 = iter.next();
-            final var goldenRecord = JsonNodeGoldenRecord.toGoldenRecord(jsonNode1);
+            final var goldenRecord = new JsonNodeGoldenRecord(jsonNode1).toGoldenRecord();
             goldenRecords.add(goldenRecord);
             final var result = new ExpandedSourceId(new CustomSourceId(uid, facility, patient), goldenRecords);
             list.add(result);

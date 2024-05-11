@@ -1,4 +1,4 @@
-package org.jembi.jempi.libmpi.dgraph;
+package org.jembi.jempi.libmpi.common;
 
 /**
  * The interface Partial function.
@@ -7,7 +7,7 @@ package org.jembi.jempi.libmpi.dgraph;
  * @param <R> the type parameter
  */
 @FunctionalInterface
-interface PartialFunction<T, R> {
+public interface PartialFunction<T, R> {
    /**
     * Apply r.
     *

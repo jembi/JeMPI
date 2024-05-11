@@ -5,16 +5,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.libmpi.common.PaginatedResultSet;
 import org.jembi.jempi.shared.models.ExpandedGoldenRecord;
+import org.jembi.jempi.shared.models.LibMPIPagination;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record JsonNodeExpandedGoldenRecords(JsonNode all) {
+public record JsonNodeExpandedGoldenRecords(JsonNode node) {
 
    private static final Logger LOGGER = LogManager.getLogger(JsonNodeExpandedGoldenRecords.class);
 
@@ -23,23 +26,27 @@ public record JsonNodeExpandedGoldenRecords(JsonNode all) {
    }
 
    private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
-      LOGGER.debug("{}", System.lineSeparator() + json);
-      return OBJECT_MAPPER.readTree(json).get("all");
+      LOGGER.debug("{}", json);
+      return OBJECT_MAPPER.readTree(json);
    }
 
-   List<ExpandedGoldenRecord> toExpandedGoldenRecordList() {
+   PaginatedResultSet<ExpandedGoldenRecord> toExpandedGoldenRecordList() {
       final List<ExpandedGoldenRecord> expandedGoldenRecords = new ArrayList<>();
-      final Iterator<JsonNode> iter = all.elements();
+      final Iterator<JsonNode> iter = node.get("all").elements();
       while (iter.hasNext()) {
          final var next = iter.next();
-         expandedGoldenRecords.add(JsonNodeExpandedGoldenRecord.toExpandedGoldenRecord(next));
+         expandedGoldenRecords.add(new JsonNodeExpandedGoldenRecord(next).toExpandedGoldenRecord());
       }
-      try {
-         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(expandedGoldenRecords));
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
+      final var paginationNode = node.get("pagination");
+      if (paginationNode != null && !paginationNode.isMissingNode()) {
+         try {
+            final var pagination = Arrays.stream(OBJECT_MAPPER.treeToValue(paginationNode, LibMPIPagination[].class)).toList();
+            return new PaginatedResultSet<>(expandedGoldenRecords, pagination);
+         } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+         }
       }
-      return expandedGoldenRecords;
+      return new PaginatedResultSet<>(expandedGoldenRecords, List.of(new LibMPIPagination(expandedGoldenRecords.size())));
    }
 
 }
