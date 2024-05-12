@@ -16,7 +16,7 @@ import java.util.List;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-record JsonNodeExpandedGoldenRecord(JsonNode jsonNode) {
+record JsonNodeExpandedGoldenRecord(JsonNode node) {
 
    private static final Logger LOGGER = LogManager.getLogger(JsonNodeExpandedGoldenRecord.class);
 
@@ -29,8 +29,8 @@ record JsonNodeExpandedGoldenRecord(JsonNode jsonNode) {
    }
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {
-      final var goldenRecord = new JsonNodeGoldenRecord(jsonNode).toGoldenRecord();
-      final var interactionsNode = jsonNode.get("GoldenRecord.interactions");
+      final var goldenRecord = new JsonNodeGoldenRecord(node).toGoldenRecord();
+      final var interactionsNode = node.get("GoldenRecord.interactions");
       final List<InteractionWithScore> interactionsWithScores = new ArrayList<>();
       final Iterator<JsonNode> iter = interactionsNode.elements();
       while (iter.hasNext()) {

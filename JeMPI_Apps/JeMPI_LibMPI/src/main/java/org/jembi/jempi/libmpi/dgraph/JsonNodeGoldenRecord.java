@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.DGraphConfig;
-import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.AuxGoldenRecordData;
+import org.jembi.jempi.shared.models.CustomSourceId;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -41,13 +41,13 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
          while (iter.hasNext()) {
             final var element = iter.next();
             final var uid = element.get("uid").textValue();
-            final var f = element.get("SourceId.facility");
-            final var p = element.get("SourceId.patient");
-            final var facility = (!(f == null || f.isMissingNode()))
-                  ? f.textValue()
+            final var facilityNode = element.get("SourceId.facility");
+            final var patientNode = element.get("SourceId.patient");
+            final var facility = (!(facilityNode == null || facilityNode.isMissingNode()))
+                  ? facilityNode.textValue()
                   : null;
-            final var patient = (!(f == null || p.isMissingNode()))
-                  ? f.textValue()
+            final var patient = (!(patientNode == null || patientNode.isMissingNode()))
+                  ? patientNode.textValue()
                   : null;
             sourceIdList.add(new CustomSourceId(uid, facility, patient));
          }

@@ -479,11 +479,7 @@ final class DgraphQueries {
       final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedInteractions, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         return OBJECT_MAPPER.readValue(json, DgraphExpandedInteractions.class)
-                             .all()
-                             .stream()
-                             .map(DeprecatedCustomFunctions::toExpandedInteraction)
-                             .toList();
+         return new JsonNodeExpandedInteractions(json).toExpandedInteractions().data();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return List.of();

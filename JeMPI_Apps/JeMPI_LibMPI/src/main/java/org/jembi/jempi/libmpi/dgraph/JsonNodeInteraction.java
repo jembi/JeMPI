@@ -31,8 +31,8 @@ record JsonNodeInteraction(JsonNode node) {
 
    Interaction toInteraction() {
       final var sourceIdNode = node.get("Interaction.source_id");
-      final var facilityNode = node.get("SourceId.facility");
-      final var patientNode = node.get("SourceId.patient");
+      final var facilityNode = sourceIdNode.get("SourceId.facility");
+      final var patientNode = sourceIdNode.get("SourceId.patient");
 
       final var sourceId = new CustomSourceId(sourceIdNode.get("uid").textValue(),
                                               (!(facilityNode == null || facilityNode.isMissingNode()))
