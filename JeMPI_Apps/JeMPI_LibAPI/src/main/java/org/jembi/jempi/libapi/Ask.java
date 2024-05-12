@@ -82,7 +82,9 @@ public final class Ask {
          final ApiModels.ApiNotifications payload) {
       CompletionStage<BackEnd.GetNotificationsResponse> stage = AskPattern
             .ask(backEnd,
-                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, payload.limit(), payload.offset(), payload.startDate(), payload.endDate(), payload.states()),
+                 replyTo -> new BackEnd.GetNotificationsRequest(replyTo, payload.limit(),
+                                                                payload.offset(), payload.startDate(), payload.endDate(),
+                                                                payload.states()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -116,7 +118,7 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final ApiModels.ApiExpandedGoldenRecordsParameterList payload) {
-         final List<String> gidList = payload.uidList();
+      final List<String> gidList = payload.uidList();
       CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.GetExpandedGoldenRecordsRequest(replyTo, gidList),
@@ -129,7 +131,7 @@ public final class Ask {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final ApiModels.ApiExpandedGoldenRecordsParameterList payload) {
-         final List<String> uidList = payload.uidList();
+      final List<String> uidList = payload.uidList();
       CompletionStage<BackEnd.GetExpandedInteractionsResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.GetExpandedInteractionsRequest(replyTo, uidList),
@@ -145,7 +147,7 @@ public final class Ask {
       CompletionStage<BackEnd.UpdateGoldenRecordResponse> stage = AskPattern
             .ask(backEnd,
                  replyTo -> new BackEnd.UpdateGoldenRecordRequest(replyTo, payload.goldenId(),
-                                                                 payload.fields()),
+                                                                  payload.fields()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
@@ -327,6 +329,17 @@ public final class Ask {
                                                                       notificationRequest.oldGoldenId(),
                                                                       notificationRequest.currentGoldenId()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.GetConfigurationResponse> getConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.GetConfigurationResponse> stage = AskPattern
+            .ask(backEnd,
+                 BackEnd.GetConfigurationRequest::new,
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }

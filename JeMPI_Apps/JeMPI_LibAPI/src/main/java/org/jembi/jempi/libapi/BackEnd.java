@@ -169,6 +169,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
+                    .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
                     .build();
    }
 
@@ -473,6 +474,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
+      String currentPath = System.getProperty("user.dir");
+      String configJsonFilePath = currentPath + "/conf/config-reference.json";
+
+      try {
+         String configFileContent = new String(Files.readAllBytes(Paths.get(configJsonFilePath)));
+         request.replyTo.tell(new GetConfigurationResponse(configFileContent));
+      } catch (Exception exception) {
+         LOGGER.error("getConfigurationHandler failed: {} with error: {}",
+                      exception.getMessage());
+      }
+
+      return Behaviors.same();
+   }
+
    public interface Event {
    }
 
@@ -535,6 +551,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record GetGidsAllResponse(List<String> records) implements EventResponse {
+   }
+
+   public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event {
+   }
+
+   public record GetConfigurationResponse(String configuration) implements EventResponse {
    }
 
    public record FindExpandedSourceIdRequest(

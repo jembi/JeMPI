@@ -108,7 +108,6 @@ public final class Routes {
                           }));
    }
 
-
    private static Route updateGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -168,7 +167,6 @@ public final class Routes {
       });
    }
 
-
    private static Route getGoldenRecordAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -185,7 +183,6 @@ public final class Routes {
                            });
       });
    }
-
 
    private static Route postInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
@@ -302,7 +299,6 @@ public final class Routes {
       });
    }
 
-
    private static Route getExpandedGoldenRecordsForUidList(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -351,7 +347,6 @@ public final class Routes {
       });
    }
 
-
    private static Route postExpandedInteractionsUsingCSV(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -398,7 +393,6 @@ public final class Routes {
                            });
       });
    }
-
 
    private static Route postInteraction(
          final ActorSystem<Void> actorSystem,
@@ -602,6 +596,21 @@ public final class Routes {
 
    }
 
+   private static Route getConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(Ask.getConfiguration(actorSystem, backEnd),
+                        result -> {
+                           if (!result.isSuccess()) {
+                              final var e = result.failed().get();
+                              LOGGER.error(e.getLocalizedMessage(), e);
+                              return mapError(new MpiServiceError.InternalError(
+                                    e.getLocalizedMessage()));
+                           }
+                           return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                        });
+   }
+
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -612,7 +621,7 @@ public final class Routes {
          final Integer controllerPort,
          final Http http) {
       return concat(post(() -> concat(
-                          /* proxy for linker/controller services*/
+                          /* proxy for linker/controller services */
                           path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
                                () -> ProxyRoutes.proxyPostCalculateScores(linkerIP, linkerPort, http)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
@@ -700,8 +709,9 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_COUNT_RECORDS,
                                () -> Routes.countRecords(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
-                               () -> Routes.getGidsAll(actorSystem, backEnd))
-                                    )));
+                               () -> Routes.getGidsAll(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
+                               () -> Routes.getConfiguration(actorSystem, backEnd)))));
    }
 
 }
