@@ -609,7 +609,7 @@ public final class Routes {
                                     return mapError(new MpiServiceError.InternalError(
                                                 e.getLocalizedMessage()));
                               }
-                              return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                              return complete(StatusCodes.OK, result.get().configuration(), JSON_MARSHALLER);
                         });
       }
 
