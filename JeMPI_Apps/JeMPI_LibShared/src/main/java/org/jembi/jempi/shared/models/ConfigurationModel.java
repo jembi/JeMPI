@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConfigurationModel {
-
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public record Configuration(
                         List<Field> uniqueInteractionFields,
                         List<Field> uniqueGoldenRecordFields,
