@@ -1,71 +1,76 @@
 package org.jembi.jempi.shared.models;
 
 import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConfigurationModel {
 
-    public record Configuration(
-            List<Field> uniqueInteractionFields,
-            List<Field> uniqueGoldenRecordFields,
-            List<Node> additionalNodes,
-            List<DemographicField> demographicFields,
-            Rules rules) {
-    }
+        public record Configuration(
+                        List<Field> uniqueInteractionFields,
+                        List<Field> uniqueGoldenRecordFields,
+                        List<Node> additionalNodes,
+                        List<DemographicField> demographicFields,
+                        Rules rules) {
+        }
 
-    public record Field(
-            String fieldName,
-            String fieldType,
-            Integer csvCol,
-            String source,
-            String defaultVal) {
-    }
+        public record Field(
+                        String fieldName,
+                        String fieldType,
+                        Integer csvCol,
+                        String source,
+                        String defaultVal) {
+        }
 
-    public record Node(
-            String nodeName,
-            List<Field> fields) {
-    }
+        public record Node(
+                        String nodeName,
+                        List<Field> fields) {
+        }
 
-    public record DemographicField(
-            String fieldName,
-            String fieldType,
-            Integer csvCol,
-            String source,
-            String defaultVal,
-            String indexGoldenRecord,
-            String indexInteraction,
-            LinkMetaData linkMetaData) {
-    }
+        public record DemographicField(
+                        String fieldName,
+                        String fieldType,
+                        Integer csvCol,
+                        SourceDetail source,
+                        String defaultVal,
+                        String indexGoldenRecord,
+                        String indexInteraction,
+                        LinkMetaData linkMetaData) {
+        }
 
-    public record LinkMetaData(
-            String comparison,
-            List<Double> comparisonLevels,
-            double m,
-            double u) {
-    }
+        public record SourceDetail(int csvCol) {
+        }
 
-    public record Rules(
-            LinkRules link) {
-    }
+        public record LinkMetaData(
+                        String comparison,
+                        List<Double> comparisonLevels,
+                        double m,
+                        double u) {
+        }
 
-    public record LinkRules(
-            DeterministicLink deterministic,
-            ProbabilisticLink probabilistic) {
-    }
+        public record Rules(
+                        LinkRules link) {
+        }
 
-    public record DeterministicLink(
-            QueryLink queryLinkDeterministicA,
-            QueryLink queryLinkDeterministicB) {
-    }
+        public record LinkRules(
+                        DeterministicLink deterministic,
+                        ProbabilisticLink probabilistic) {
+        }
 
-    public record ProbabilisticLink(
-            QueryLink queryLinkProbabilistic) {
-    }
+        public record DeterministicLink(
+                        @JsonProperty("QUERY_LINK_DETERMINISTIC_A") QueryLink queryLinkDeterministicA,
+                        @JsonProperty("QUERY_LINK_DETERMINISTIC_B") QueryLink queryLinkDeterministicB) {
+        }
 
-    public record QueryLink(
-            List<String> vars,
-            String text) {
-    }
+        public record ProbabilisticLink(
+                        @JsonProperty("QUERY_LINK_PROBABILISTIC") QueryLink queryLinkProbabilistic) {
+        }
+
+        public record QueryLink(
+                        List<String> vars,
+                        String text) {
+        }
 
 }
