@@ -111,5 +111,20 @@ object Utils extends LazyLogging {
         .map(idx => addTally(x.colTally(idx), y.colTally(idx)))
     )
   }
+  def camelCaseToSnakeCase(name: String): String = "[A-Z\\d]".r.replaceAllIn(
+    name,
+    { m =>
+      "_" + m.group(0).toLowerCase()
+    }
+    )
+
+  def snakeCaseToCamelCase(name: String): String = "_([a-z\\d])".r.replaceAllIn(
+    name,
+    { m =>
+      m.group(1).toUpperCase()
+    }
+    )
+
+
 
 }

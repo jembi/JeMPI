@@ -50,8 +50,8 @@ object Main {
 //    CustomFieldTallies.generate(config)
 //    CustomControllerDashboardMU.generate(config)
 
-    ScalaCustomFields.generate(config)
-    ScalaCustomInteractionEnvelop.generate(config)
+//    ScalaCustomFields.generate(config)
+//    ScalaCustomInteractionEnvelop.generate(config)
 //    ScalaCustomMU.generate(config)
 
 }

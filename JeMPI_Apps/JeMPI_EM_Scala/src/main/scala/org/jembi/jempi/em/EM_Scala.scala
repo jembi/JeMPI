@@ -1,16 +1,17 @@
 package org.jembi.jempi.em
 
+import com.fasterxml.jackson.core.`type`.TypeReference
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.{
   ClassTagExtensions,
   DefaultScalaModule
 }
-
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
 import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, StreamsConfig}
-import org.jembi.jempi.em.CustomFields.LINK_COLS
+import org.jembi.jempi.em.configuration.Config
 import org.jembi.jempi.em.kafka.Config.{
   CFG_KAFKA_APPLICATION_ID,
   CFG_KAFKA_BOOTSTRAP_SERVERS,
@@ -19,6 +20,7 @@ import org.jembi.jempi.em.kafka.Config.{
 }
 import org.jembi.jempi.em.kafka.Producer
 
+import java.nio.file.Paths
 import java.util.Properties
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
@@ -27,13 +29,52 @@ import scala.util.Random
 
 object EM_Scala extends LazyLogging {
 
-  private val mapper = new ObjectMapper() with ClassTagExtensions
-  mapper.registerModule(DefaultScalaModule)
-  mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  private val objectMapper = new ObjectMapper() with ClassTagExtensions
+  objectMapper.registerModule(DefaultScalaModule)
+  objectMapper.configure(
+    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+    false
+  )
 
   private val buffer = new ArrayBuffer[Array[String]]()
 
   def main(args: Array[String]): Unit = {
+
+    val jsonMapper = JsonMapper
+      .builder()
+      .addModule(DefaultScalaModule)
+      .build() :: ClassTagExtensions
+
+    val jsonConfig = jsonMapper.readValue(
+      Paths.get("/app/conf/config-reference.json").toFile,
+      new TypeReference[Config] {}
+    )
+    jsonConfig.demographicFields.zipWithIndex.foreach(f =>
+      System.out.println(Utils.snakeCaseToCamelCase(f._1.fieldName), f._2)
+    )
+    val fieldsCols = ArraySeq.unsafeWrapArray(
+      jsonConfig.demographicFields.zipWithIndex.map(f =>
+        Field(Utils.snakeCaseToCamelCase(f._1.fieldName), f._2)
+      )
+    )
+    val linkCols = ArraySeq.unsafeWrapArray(
+      jsonConfig.demographicFields.zipWithIndex
+        .filter(f => f._1.linkMetaData.isDefined)
+        .map(f => f._2)
+    )
+    val validateCols = ArraySeq.unsafeWrapArray(
+      jsonConfig.demographicFields.zipWithIndex
+        .filter(f => f._1.validateMetaData.isDefined)
+        .map(f => f._2)
+    )
+    val matchCols = ArraySeq.unsafeWrapArray(
+      jsonConfig.demographicFields.zipWithIndex
+        .filter(f => f._1.matchMetaData.isDefined)
+        .map(f => f._2)
+    )
+
+    val fieldsConfig =
+      FieldsConfig(fieldsCols, linkCols, validateCols, matchCols)
 
     val props = loadConfig()
     val stringSerde: Serde[String] = Serdes.String()
@@ -44,7 +85,7 @@ object EM_Scala extends LazyLogging {
     )
     patientRecordKStream.foreach((_, json) => {
       val interactionEnvelop =
-        mapper.readValue(json, classOf[CustomInteractionEnvelop])
+        objectMapper.readValue(json, classOf[CustomInteractionEnvelop])
       interactionEnvelop.contentType match {
         case "BATCH_START_SENTINEL" => buffer.clearAndShrink()
         case "BATCH_END_SENTINEL" =>
@@ -54,7 +95,7 @@ object EM_Scala extends LazyLogging {
           )
           buffer.clearAndShrink()
           val emRunnable: EM_Runnable =
-            new EM_Runnable(interactionEnvelop.tag.get, parVector)
+            new EM_Runnable(fieldsConfig, interactionEnvelop.tag.get, parVector)
           val thread: Thread = new Thread(emRunnable)
           thread.start()
         case "BATCH_INTERACTION" =>
@@ -84,6 +125,7 @@ object EM_Scala extends LazyLogging {
   }
 
   private class EM_Runnable(
+      val fieldsConfig: FieldsConfig,
       val tag: String,
       val interactions: ParVector[Array[String]]
   ) extends Runnable {
@@ -97,23 +139,33 @@ object EM_Scala extends LazyLogging {
       var validateResults: (ArraySeq[Probability], Double) = (null, 0.0)
       var matchResults: (ArraySeq[Probability], Double) = (null, 0.0)
 
-      if (CustomFields.LINK_COLS.length > 1) {
-        linkResults =
-          Profile.profile(EM_Task.run(CustomFields.LINK_COLS, interactions_))
-      }
-      if (CustomFields.VALIDATE_COLS.length > 1) {
-        validateResults = Profile.profile(
-          EM_Task.run(CustomFields.VALIDATE_COLS, interactions_)
+      if (fieldsConfig.linkCols.length > 1) {
+        linkResults = Profile.profile(
+          EM_Task.run(fieldsConfig.fields, fieldsConfig.linkCols, interactions_)
         )
       }
-      if (CustomFields.MATCH_COLS.length > 1) {
-        matchResults =
-          Profile.profile(EM_Task.run(CustomFields.MATCH_COLS, interactions_))
+      if (fieldsConfig.validateCols.length > 1) {
+        validateResults = Profile.profile(
+          EM_Task.run(
+            fieldsConfig.fields,
+            fieldsConfig.validateCols,
+            interactions_
+          )
+        )
+      }
+      if (fieldsConfig.matchCols.length > 1) {
+        matchResults = Profile.profile(
+          EM_Task.run(
+            fieldsConfig.fields,
+            fieldsConfig.matchCols,
+            interactions_
+          )
+        )
       }
 
-      for (i <- LINK_COLS.indices) {
+      for (i <- fieldsConfig.linkCols.indices) {
         Utils.printMU(
-          CustomFields.FIELDS.apply(LINK_COLS.apply(i)).name,
+          fieldsConfig.fields.apply(fieldsConfig.linkCols.apply(i)).name,
           linkResults._1(i)
         )
       }
