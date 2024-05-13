@@ -32,13 +32,14 @@ public final class AppConfig {
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
    public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
-   private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
-      try {
-         return Integer.parseInt(s);
-      } catch (NumberFormatException ex) {
-         return Integer.MIN_VALUE;
-      }
-   }).toArray();
+   private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(","))
+                                                         .mapToInt(s -> {
+                                                            try {
+                                                               return Integer.parseInt(s);
+                                                            } catch (NumberFormatException ex) {
+                                                               return Integer.MIN_VALUE;
+                                                            }
+                                                         }).toArray();
 
    public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
    public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
@@ -47,6 +48,10 @@ public final class AppConfig {
    public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
    public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
+
+   public static final String API_CONFIG_DIR = CONFIG.getString("API_CONFIG_DIR");
+   public static final String API_CONFIG_REFERENCE_FILENAME = CONFIG.getString("API_CONFIG_REFERENCE_FILENAME");
+   public static final String API_CONFIG_MASTER_FILENAME = CONFIG.getString("API_CONFIG_MASTER_FILENAME");
 
    private AppConfig() {
    }

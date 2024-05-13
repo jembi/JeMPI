@@ -4,6 +4,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.control.Either;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -15,13 +16,10 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 import org.jembi.jempi.shared.utils.AppUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,6 +48,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
+   private final String apiConfigDirectory;
+   private final String configReferenceFileName;
+   private final String configMasterFileName;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
@@ -66,7 +67,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlNotificationsDb,
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
-         final String kafkaClientId) {
+         final String kafkaClientId,
+         final String apiConfigDirectory,
+         final String configReferenceFileName,
+         final String configMasterFileName) {
       super(context);
       try {
          this.libMPI = null;
@@ -78,6 +82,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
+         this.apiConfigDirectory = apiConfigDirectory;
+         this.configReferenceFileName = configReferenceFileName;
+         this.configMasterFileName = configMasterFileName;
          psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
@@ -99,19 +106,25 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlNotificationsDb,
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
-         final String kafkaClientId) {
+         final String kafkaClientId,
+         final String apiConfigDirectory,
+         final String configReferenceFileName,
+         final String configMasterFileName) {
       return Behaviors.setup(context -> new BackEnd(level,
-            context,
-            dgraphHosts,
-            dgraphPorts,
-            sqlIP,
-            sqlPort,
-            sqlUser,
-            sqlPassword,
-            sqlNotificationsDb,
-            sqlAuditDb,
-            kafkaBootstrapServers,
-            kafkaClientId));
+                                                    context,
+                                                    dgraphHosts,
+                                                    dgraphPorts,
+                                                    sqlIP,
+                                                    sqlPort,
+                                                    sqlUser,
+                                                    sqlPassword,
+                                                    sqlNotificationsDb,
+                                                    sqlAuditDb,
+                                                    kafkaBootstrapServers,
+                                                    kafkaClientId,
+                                                    apiConfigDirectory,
+                                                    configReferenceFileName,
+                                                    configMasterFileName));
    }
 
    private static void appendUploadConfigToFile(
@@ -150,32 +163,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public Receive<Event> actor() {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder.onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
-            .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
-            .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
-            .onMessage(FindExpandedSourceIdRequest.class, this::findExpandedSourceIdHandler)
-            .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
-            .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
-            .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
-            .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
-            .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
-            .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
-            .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
-            .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
-            .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
-            .onMessage(UpdateGoldenRecordRequest.class, this::updateGoldenRecordHandler)
-            .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
-            .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
-            .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
-            .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
-            .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
-            .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
-            .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
-            .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
-            .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
-            .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
-            .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
-            .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
-            .build();
+                    .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
+                    .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
+                    .onMessage(FindExpandedSourceIdRequest.class, this::findExpandedSourceIdHandler)
+                    .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
+                    .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
+                    .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
+                    .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
+                    .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+                    .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
+                    .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
+                    .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
+                    .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
+                    .onMessage(UpdateGoldenRecordRequest.class, this::updateGoldenRecordHandler)
+                    .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
+                    .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
+                    .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
+                    .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
+                    .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
+                    .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
+                    .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+                    .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
+                    .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
+                    .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
+                    .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
+                    .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
+                    .build();
    }
 
    private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
@@ -257,13 +270,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
       MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(),
-            request.offset(),
-            request.startDate(),
-            request.endDate(),
-            request.states());
+                                                                            request.offset(),
+                                                                            request.startDate(),
+                                                                            request.endDate(),
+                                                                            request.states());
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
-            result.getSkippedRecords(),
-            result.getNotifications()));
+                                                        result.getSkippedRecords(),
+                                                        result.getNotifications()));
       return Behaviors.same();
    }
 
@@ -318,8 +331,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
-               request.goldenId,
-               e.getMessage());
+                      request.goldenId,
+                      e.getMessage());
       }
 
       if (expandedGoldenRecord == null) {
@@ -339,8 +352,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          goldenRecords = libMPI.findExpandedGoldenRecords(request.goldenIds);
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecords failed for goldenIds: {} with error: {}",
-               request.goldenIds,
-               exception.getMessage());
+                      request.goldenIds,
+                      exception.getMessage());
       }
 
       if (goldenRecords == null) {
@@ -360,8 +373,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          expandedInteractions = libMPI.findExpandedInteractions(request.patientIds);
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
-               request.patientIds,
-               exception.getMessage());
+                      request.patientIds,
+                      exception.getMessage());
       }
 
       if (expandedInteractions == null) {
@@ -381,7 +394,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          interaction = libMPI.findInteraction(request.iid);
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid,
-               exception.getMessage());
+                      exception.getMessage());
       }
 
       if (interaction == null) {
@@ -400,7 +413,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
          final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(),
-               field.newValue());
+                                                           field.newValue());
          if (result) {
             updatedFields.add(field);
          } else {
@@ -413,7 +426,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postIidGidLinkHandler(final PostIidGidLinkRequest request) {
       final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId,
-            request.score);
+                                             request.score);
       request.replyTo.tell(new PostIidGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
@@ -445,7 +458,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
          psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId,
-               request.currentGoldenId);
+                                                   request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
@@ -475,18 +488,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final int openNotifications = psqlNotifications.getNotificationCount("OPEN");
       final int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
       request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications,
-            closedNotifications))));
+                                                                                                   closedNotifications))));
       return Behaviors.same();
    }
 
    private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
-      String currentPath = System.getProperty("user.dir");
-      String configMasterJsonFilePath = currentPath + "/conf/config-master.json";
-      String configReferenceJsonFilePath = currentPath + "/conf/config-reference.json";
+      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
+      Path configReferenceJsonFilePath = Paths.get(apiConfigDirectory, configReferenceFileName);
 
-      Path configFilePath = Paths.get(configMasterJsonFilePath);
+      Path configFilePath = configMasterJsonFilePath;
       if (!Files.exists(configFilePath)) {
-         configFilePath = Paths.get(configReferenceJsonFilePath);
+         configFilePath = configReferenceJsonFilePath;
       }
 
       try {
@@ -496,7 +508,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetConfigurationResponse(configuration));
       } catch (Exception exception) {
          LOGGER.error("getConfigurationHandler failed: {} with error: {}",
-               exception.getMessage());
+                      exception.getMessage());
       }
 
       return Behaviors.same();

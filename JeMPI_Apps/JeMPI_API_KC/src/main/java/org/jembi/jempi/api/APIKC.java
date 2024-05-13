@@ -19,7 +19,6 @@ public final class APIKC {
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
-
    private APIKC() {
       LOGGER.info("API started.");
    }
@@ -45,18 +44,22 @@ public final class APIKC {
                                                                               AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
                                                                               AppConfig.POSTGRESQL_AUDIT_DB,
                                                                               AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                                              "CLIENT_ID_API_KC-" + UUID.randomUUID()),
+                                                                              "CLIENT_ID_API_KC-" + UUID.randomUUID(),
+                                                                              null,
+                                                                              null,
+                                                                              null),
                                                                "BackEnd");
          context.watch(backEnd);
-//         final var notificationsSteam = new NotificationStreamProcessor();
-//         notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
-//                                 AppConfig.POSTGRESQL_PASSWORD,
-//                                 AppConfig.KAFKA_APPLICATION_ID,
-//                                 AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+         // final var notificationsSteam = new NotificationStreamProcessor();
+         // notificationsSteam.open(AppConfig.POSTGRESQL_DATABASE,
+         // AppConfig.POSTGRESQL_PASSWORD,
+         // AppConfig.KAFKA_APPLICATION_ID,
+         // AppConfig.KAFKA_BOOTSTRAP_SERVERS);
          final DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
          final MessageDispatcher dispatcher = (MessageDispatcher) system.dispatchers().lookup(selector);
          httpServer = new HttpServer(dispatcher);
-         httpServer.open("0.0.0.0", AppConfig.API_KC_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);
+         httpServer.open("0.0.0.0", AppConfig.API_KC_HTTP_PORT, context.getSystem(), backEnd,
+                         jsonFieldsConfig.jsonFields);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
             LOGGER.info("API Server Terminated. Reason {}", sig);
             httpServer.close(context.getSystem());
