@@ -73,8 +73,6 @@ public final class SPInteractions {
                                                                                                         interactionEnvelopSerde));
       interactionStream.foreach((key, interactionEnvelop) -> {
          interactionEnvelop = updateLinkerMetadata(interactionEnvelop);
-         //todo: remove logging
-         LOGGER.info(interactionEnvelop.sessionMetadata());
          if (interactionEnvelop.contentType() == BATCH_INTERACTION) {
             linkPatient(system, backEnd, key, interactionEnvelop);
          } else if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
