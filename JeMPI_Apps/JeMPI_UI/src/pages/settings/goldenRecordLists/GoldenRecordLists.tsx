@@ -45,11 +45,11 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
-
-    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id))
+    });
+  
+    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id);
+    if (editedRow && editedRow.isNew) {
+      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id));
     }
   }
 

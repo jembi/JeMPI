@@ -15,7 +15,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
-import { randomId, transformFieldName } from 'utils/helpers'
+import { transformFieldName } from 'utils/helpers'
 
 const UniqueToGR = ({
   uniqueToGoldenRecordData
