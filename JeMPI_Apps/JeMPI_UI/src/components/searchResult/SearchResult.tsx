@@ -22,11 +22,10 @@ import { useLocation } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
 
 type SearchResultProps = {
-  isGoldenRecord: boolean
   title: string
 }
 
-const SearchResult: React.FC<SearchResultProps> = ({ isGoldenRecord }) => {
+const SearchResult: React.FC<SearchResultProps> = () => {
   const {
     state: { payload: searchPayload }
   } = useLocation()
@@ -42,21 +41,14 @@ const SearchResult: React.FC<SearchResultProps> = ({ isGoldenRecord }) => {
         if (fieldName === 'uid') {
           return {
             field: fieldName,
-            headerName: `${isGoldenRecord ? 'Golden ID' : 'Record ID'}`,
+            headerName: 'Golden ID',
             flex: 2,
             align: 'center',
             headerAlign: 'center',
             renderCell: (params: GridRenderCellParams) => {
-              return isGoldenRecord ? (
+              return (
                 <Link
                   href={`/golden-record/${params.row.uid}`}
-                  key={params.row.uid}
-                >
-                  {params.row.uid}
-                </Link>
-              ) : (
-                <Link
-                  href={`/patient-record/${params.row.uid}`}
                   key={params.row.uid}
                 >
                   {params.row.uid}
@@ -76,16 +68,16 @@ const SearchResult: React.FC<SearchResultProps> = ({ isGoldenRecord }) => {
           filterable: false
         }
       }),
-    [availableFields, isGoldenRecord]
+    [availableFields]
   )
 
   const { data: searchResults, isLoading } = useQuery<
     ApiSearchResult,
     AxiosError
   >({
-    queryKey: [isGoldenRecord ? 'golden-record' : 'patient-record', payload],
+    queryKey: ['golden-record', payload],
     queryFn: () => {
-      return apiClient.searchQuery(payload, isGoldenRecord)
+      return apiClient.searchQuery(payload)
     },
     refetchOnWindowFocus: false
   })

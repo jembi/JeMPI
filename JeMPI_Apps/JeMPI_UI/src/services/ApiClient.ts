@@ -5,7 +5,6 @@ import {
   ApiSearchResponse,
   ApiSearchResult,
   CustomSearchQuery,
-  FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
 import { OAuthParams } from '../types/User'
@@ -13,7 +12,6 @@ import ROUTES from './apiRoutes'
 import moxios from './mockBackend'
 import {
   NotificationResponse,
-  Interaction,
   ExpandedGoldenRecordResponse,
   InteractionWithScore,
   NotificationRequest,
@@ -21,12 +19,7 @@ import {
   GoldenRecordCandidatesResponse,
   DashboardData
 } from 'types/BackendResponse'
-import {
-  GoldenRecord,
-  AnyRecord,
-  DemographicData,
-  PatientRecord
-} from 'types/PatientRecord'
+import { GoldenRecord, AnyRecord, DemographicData } from 'types/PatientRecord'
 import { Notifications, NotificationState } from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
@@ -209,8 +202,7 @@ export class ApiClient {
   }
 
   async searchQuery(
-    request: CustomSearchQuery | SearchQuery,
-    isGoldenOnly: boolean
+    request: CustomSearchQuery | SearchQuery
   ): Promise<ApiSearchResult<AnyRecord>> {
     const isCustomSearch = '$or' in request
     const endpoint = `${
@@ -223,53 +215,32 @@ export class ApiClient {
       endpoint,
       request
     )
-    if (isGoldenOnly) {
-      const { pagination, data } =
-        querySearchResponse as ApiSearchResponse<ExpandedGoldenRecordResponse>
-      const result: ApiSearchResult<GoldenRecord> = {
-        records: {
-          data: data.map(({ goldenRecord, interactionsWithScore }) => ({
-            uid: goldenRecord.uid,
-            demographicData: goldenRecord.demographicData,
-            sourceId: goldenRecord.sourceId,
-            createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
-            auxId: goldenRecord.uniqueGoldenRecordData.auxId,
-            linkRecords: interactionsWithScore.map(
-              ({ interaction, score }) => ({
-                uid: interaction.uid,
-                sourceId: interaction.sourceId,
-                createdAt: interaction.uniqueInteractionData.auxDateCreated,
-                auxId: interaction.uniqueInteractionData.auxId,
-                score,
-                demographicData: interaction?.demographicData
-              })
-            )
-          })),
-          pagination: {
-            total: pagination.total
-          }
-        }
-      }
-      return result
-    } else {
-      const { pagination, data } =
-        querySearchResponse as ApiSearchResponse<Interaction>
-      const result: ApiSearchResult<PatientRecord> = {
-        records: {
-          data: data.map((interaction: Interaction) => ({
+
+    const { pagination, data } =
+      querySearchResponse as ApiSearchResponse<ExpandedGoldenRecordResponse>
+    const result: ApiSearchResult<GoldenRecord> = {
+      records: {
+        data: data.map(({ goldenRecord, interactionsWithScore }) => ({
+          uid: goldenRecord.uid,
+          demographicData: goldenRecord.demographicData,
+          sourceId: goldenRecord.sourceId,
+          createdAt: goldenRecord.uniqueGoldenRecordData.auxDateCreated,
+          auxId: goldenRecord.uniqueGoldenRecordData.auxId,
+          linkRecords: interactionsWithScore.map(({ interaction, score }) => ({
             uid: interaction.uid,
             sourceId: interaction.sourceId,
             createdAt: interaction.uniqueInteractionData.auxDateCreated,
             auxId: interaction.uniqueInteractionData.auxId,
+            score,
             demographicData: interaction?.demographicData
-          })),
-          pagination: {
-            total: pagination.total
-          }
+          }))
+        })),
+        pagination: {
+          total: pagination.total
         }
       }
-      return result
     }
+    return result
   }
 
   async fetchExpandedGoldenRecords(
@@ -390,17 +361,10 @@ export class ApiClient {
   async updatedGoldenRecord(uid: string, request: FieldChangeReq) {
     for (const field of request.fields) {
       const { name, oldValue, newValue } = field
-      try {
-        const response = await this.client.post(
-          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
-          {
-            goldenId: uid,
-            fields: [{ name, oldValue, newValue }]
-          }
-        )
-      } catch (error) {
-        console.error('Error occurred while making the request:', error)
-      }
+      await this.client.post(ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS, {
+        goldenId: uid,
+        fields: [{ name, oldValue, newValue }]
+      })
     }
     return Promise.resolve()
   }

@@ -125,8 +125,7 @@ const Records = () => {
     queryKey: ['golden-records', JSON.stringify(filterPayload)],
     queryFn: async () =>
       (await apiClient.searchQuery(
-        filterPayload,
-        true
+        filterPayload
       )) as ApiSearchResult<GoldenRecord>,
     refetchOnWindowFocus: false,
     keepPreviousData: true

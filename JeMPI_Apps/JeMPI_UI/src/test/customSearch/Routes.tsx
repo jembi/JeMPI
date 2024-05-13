@@ -24,18 +24,7 @@ const Routes = [
         children: [
           {
             path: 'golden',
-            element: (
-              <SearchResult isGoldenRecord={true} title="Golden Records Only" />
-            )
-          },
-          {
-            path: 'patient',
-            element: (
-              <SearchResult
-                isGoldenRecord={false}
-                title="Patient Records Only"
-              />
-            )
+            element: <SearchResult title="Golden Records Only" />
           }
         ]
       }
