@@ -74,8 +74,9 @@ const GoldenRecordLists = ({goldenRecordList }: { goldenRecordList: any }) => {
       event.defaultMuiPrevented = true
     }
   }
+
   const rowsWithIds = goldenRecordList.flatMap((node: { fields: any[]; nodeName: string }) => {
-    return node.fields.map((field, index) => {
+    return node.fields ? node.fields.map((field, index) => {
       return {
         id: node.nodeName + '_' + index,
         nodeName: node.nodeName,
@@ -83,7 +84,7 @@ const GoldenRecordLists = ({goldenRecordList }: { goldenRecordList: any }) => {
         fieldType: field.fieldType,
         csvCol: field.csvCol,
       };
-    });
+    }) : [];
   });
 
   const columns: GridColDef[] = [

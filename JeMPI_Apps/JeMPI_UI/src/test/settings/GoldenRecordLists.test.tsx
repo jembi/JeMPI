@@ -16,19 +16,19 @@ describe('GoldenRecordLists', () => {
   });
 
   it('handles edit mode', async () => {
-    
     render(<GoldenRecordLists goldenRecordList={goldenRecordListsWithIds} />);
-    const editIcon = document.getElementById('edit-button');
-    const saveButton = document.getElementById('save-button');
-    const cancelButton = document.getElementById('cancel-button');
-   
-  if (saveButton && cancelButton && editIcon) {
-    userEvent.click(editIcon);
-    await waitFor(() => {
-      expect(saveButton).toBeVisible();
-      expect(cancelButton).toBeVisible();
-    });
-  }
+  
+    const editIcon = await waitFor(() => document.getElementById('edit-button'));
+    const saveButton = await waitFor(() => document.getElementById('save-button'));
+    const cancelButton = await waitFor(() => document.getElementById('cancel-button'));
+  
+    if (saveButton && cancelButton && editIcon) {
+      userEvent.click(editIcon);
+      await waitFor(() => {
+        expect(saveButton).toBeVisible();
+        expect(cancelButton).toBeVisible();
+      });
+    }
   });
 
 });
