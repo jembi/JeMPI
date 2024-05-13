@@ -12,6 +12,8 @@ down_dir="$JEMPI_HOME/devops/linux/docker/deployment/down"
 reboot_dir="$JEMPI_HOME/devops/linux/docker/deployment/reboot"
 backup_restore_dir="$JEMPI_HOME/devops/linux/docker/backup_restore"
 
+python_cmd=$(which python3 || which python)
+echo $python_cmd
 
 # Display menu options
 echo "Select an option for local deployment:"
@@ -204,7 +206,7 @@ backup_data() {
     pushd "$backup_restore_dir"
     sleep 20
     echo "Started Backup through API"
-    python3 dgraph-backup.py
+    $python_cmd dgraph-backup.py
     sleep 10
     # sudo bash dgraph-backup.sh
     # sudo bash postgres-backup.sh
