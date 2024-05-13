@@ -17,15 +17,14 @@ import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { formatNodeName, toUpperCase } from 'utils/helpers'
 
-
-const GoldenRecordLists = ({goldenRecordList }: { goldenRecordList: any }) => {
+const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
   const [rows, setRows] = useState(goldenRecordList)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
     const rowsWithIds = goldenRecordList.map((row: any, index: number) => ({
       ...row,
-      id: index.toString() 
+      id: index.toString()
     }))
     setRows(rowsWithIds)
   }, [goldenRecordList])
@@ -75,17 +74,21 @@ const GoldenRecordLists = ({goldenRecordList }: { goldenRecordList: any }) => {
     }
   }
 
-  const rowsWithIds = goldenRecordList.flatMap((node: { fields: any[]; nodeName: string }) => {
-    return node.fields ? node.fields.map((field, index) => {
-      return {
-        id: node.nodeName + '_' + index,
-        nodeName: node.nodeName,
-        fieldName: field.fieldName,
-        fieldType: field.fieldType,
-        csvCol: field.csvCol,
-      };
-    }) : [];
-  });
+  const rowsWithIds = goldenRecordList.flatMap(
+    (node: { fields: any[]; nodeName: string }) => {
+      return node.fields
+        ? node.fields.map((field, index) => {
+            return {
+              id: node.nodeName + '_' + index,
+              nodeName: node.nodeName,
+              fieldName: field.fieldName,
+              fieldType: field.fieldType,
+              csvCol: field.csvCol
+            }
+          })
+        : []
+    }
+  )
 
   const columns: GridColDef[] = [
     {
@@ -95,8 +98,10 @@ const GoldenRecordLists = ({goldenRecordList }: { goldenRecordList: any }) => {
       editable: true,
       align: 'left',
       headerAlign: 'left',
-      valueGetter: params => { 
-        return formatNodeName(params.row.nodeName);}
+      valueGetter: params => {
+        if (params.row.fieldName === 'patient') return ''
+        else return formatNodeName(params.row.nodeName)
+      }
     },
     {
       field: 'fieldName',
