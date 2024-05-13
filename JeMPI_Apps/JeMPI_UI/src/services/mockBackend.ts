@@ -66,13 +66,13 @@ axiosMockAdapterInstance
   })
   .onPost(ROUTES.POST_FIELDS_CONFIG)
   .reply(200, mockFields)
-  .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/golden`)
+  .onPost(`${ROUTES.POST_SIMPLE_GOLDEN_SEARCH}`)
   .reply(200, searchGoldenRecordResult)
-  .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/patient`)
+  .onPost(`${ROUTES.POST_SIMPLE_INTERACTION_PATIENT_SEARCH}`)
   .reply(200, searchPatientRecordResult)
-  .onPost(`${ROUTES.POST_CUSTOM_SEARCH}/golden`)
+  .onPost(`${ROUTES.POST_CUSTOM_GOLDEN_SEARCH}`)
   .reply(200, searchGoldenRecordResult)
-  .onPost(`${ROUTES.POST_CUSTOM_SEARCH}/patient`)
+  .onPost(`${ROUTES.POST_CUSTOM_INTERACTION_PATIENT_SEARCH}`)
   .reply(200, searchPatientRecordResult)
 
 const sleep = (value: number) =>
