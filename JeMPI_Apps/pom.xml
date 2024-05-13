@@ -538,7 +538,6 @@
         <module>JeMPI_ETL</module>
         <module>JeMPI_Controller</module>
         <module>JeMPI_Linker</module>
-        <module>JeMPI_GUI</module>
         <module>JeMPI_Bootstrapper</module>
     </modules>
 

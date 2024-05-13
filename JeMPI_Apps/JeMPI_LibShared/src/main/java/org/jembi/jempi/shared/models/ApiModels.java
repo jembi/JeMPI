@@ -6,6 +6,7 @@ import akka.http.javadsl.model.StatusCodes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,7 +63,7 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrCandidatesRequest(
          Float candidateThreshold,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -98,7 +99,7 @@ public abstract class ApiModels {
          @JsonProperty("candidateThreshold") Float candidateThreshold,
          @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
-         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -106,21 +107,21 @@ public abstract class ApiModels {
          @JsonProperty("gid") String gid,
          @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
-         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdRequest(
          @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
-         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdUpdateRequest(
          @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
-         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -130,7 +131,7 @@ public abstract class ApiModels {
          Float matchThreshold,
          @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
-         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -138,7 +139,7 @@ public abstract class ApiModels {
          String stan,
          @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
-         @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData,
+         @JsonProperty("demographicData") JsonNode demographicData,
          String gid) {
    }
 
@@ -255,7 +256,7 @@ public abstract class ApiModels {
          String uid,
          List<SourceId> sourceId,
          AuxGoldenRecordData uniqueGoldenRecordData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         JsonNode demographicData) {
       public static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
                                     goldenRecord.sourceId(),
@@ -303,7 +304,7 @@ public abstract class ApiModels {
          String uid,
          SourceId sourceId,
          AuxInteractionData uniqueInteractionData,
-         CustomDemographicData.CustomDemographicDataAPI demographicData) {
+         JsonNode demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
                                    interaction.sourceId(),

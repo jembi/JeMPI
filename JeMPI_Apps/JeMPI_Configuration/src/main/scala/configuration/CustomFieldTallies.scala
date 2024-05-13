@@ -69,8 +69,6 @@ private object CustomFieldTallies {
          |import org.apache.logging.log4j.LogManager;
          |import org.apache.logging.log4j.Logger;
          |
-         |import static org.jembi.jempi.shared.models.CustomDemographicData.*;
-         |
          |public record $customClassName(
          |      ${fieldParameters()}) {
          |

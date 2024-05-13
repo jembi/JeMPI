@@ -1,7 +1,7 @@
 package  org.jembi.jempi.controller;
 
-import org.jembi.jempi.shared.models.CustomFieldTallies;
-import org.jembi.jempi.shared.models.CustomFieldTallies.FieldTally;
+import org.jembi.jempi.shared.models.FieldTallies;
+import org.jembi.jempi.shared.models.FieldTallies.FieldTally;
 
 record CustomControllerDashboardMU(
       MU givenName,
@@ -25,14 +25,14 @@ record CustomControllerDashboardMU(
       Double u) {
    }
 
-   static CustomControllerDashboardMU fromCustomFieldTallies(final CustomFieldTallies customFieldTallies) {
-      return new CustomControllerDashboardMU(getMU(customFieldTallies.givenName()),
-                                             getMU(customFieldTallies.familyName()),
-                                             getMU(customFieldTallies.gender()),
-                                             getMU(customFieldTallies.dob()),
-                                             getMU(customFieldTallies.city()),
-                                             getMU(customFieldTallies.phoneNumber()),
-                                             getMU(customFieldTallies.nationalId()));
+   static CustomControllerDashboardMU fromCustomFieldTallies(final FieldTallies customFieldTallies) {
+      return new CustomControllerDashboardMU(getMU(customFieldTallies.fieldTallies().get(0)),
+                                             getMU(customFieldTallies.fieldTallies().get(1)),
+                                             getMU(customFieldTallies.fieldTallies().get(2)),
+                                             getMU(customFieldTallies.fieldTallies().get(3)),
+                                             getMU(customFieldTallies.fieldTallies().get(4)),
+                                             getMU(customFieldTallies.fieldTallies().get(5)),
+                                             getMU(customFieldTallies.fieldTallies().get(6)));
    }
 
 }

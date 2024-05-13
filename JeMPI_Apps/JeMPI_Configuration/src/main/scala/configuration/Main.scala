@@ -46,7 +46,7 @@ object Main {
 //    CustomPostgresqlInteraction.generate(config.demographicFields)
 //    CustomPostgresqlGoldenRecord.generate(config.demographicFields)
 //    CustomAsyncHelper.generate(config)
-    CustomPatient.generate(config)
+//    CustomPatient.generate(config)
     CustomFieldTallies.generate(config)
     CustomControllerDashboardMU.generate(config)
 

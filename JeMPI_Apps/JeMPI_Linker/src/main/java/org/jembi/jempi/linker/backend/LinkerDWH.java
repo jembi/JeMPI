@@ -14,7 +14,6 @@ import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -25,7 +24,7 @@ import java.util.stream.Stream;
 import static java.lang.Math.abs;
 import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
-import static org.jembi.jempi.shared.models.CustomFieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
+import static org.jembi.jempi.shared.models.FieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class LinkerDWH {
@@ -116,7 +115,7 @@ public final class LinkerDWH {
             if (score <= threshold) {
                sendNotification(Notification.NotificationType.UPDATE,
                                 interaction.interactionId(),
-                                AppUtils.getNames(interaction.demographicData()),
+                                DemographicData.getAliases(),
                                 new Notification.MatchData(expandedGoldenRecord.goldenRecord().goldenId(), score),
                                 List.of());
             }
@@ -208,7 +207,7 @@ public final class LinkerDWH {
          final String envelopStan) {
 
       LinkStatsMeta.ConfusionMatrix confusionMatrix;
-      CustomFieldTallies customFieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
+      FieldTallies fieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 
       if (linkStatsMetaProducer == null) {
          linkStatsMetaProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
@@ -250,16 +249,16 @@ public final class LinkerDWH {
                   .collect(Collectors.toCollection(ArrayList::new));
 
             // DO SOME TALLYING
-            customFieldTallies = IntStream
+            fieldTallies = IntStream
                   .range(0, allCandidateScores.size())
                   .parallel()
                   .mapToObj(i -> {
                      final var workCandidate = allCandidateScores.get(i);
-                     return CustomFieldTallies.map(i == 0 && workCandidate.score >= matchThreshold,
-                                                   interaction.demographicData(),
-                                                   workCandidate.goldenRecord.demographicData());
+                     return FieldTallies.map(i == 0 && workCandidate.score >= matchThreshold,
+                                             interaction.demographicData(),
+                                             workCandidate.goldenRecord.demographicData());
                   })
-                  .reduce(CUSTOM_FIELD_TALLIES_SUM_IDENTITY, CustomFieldTallies::sum);
+                  .reduce(CUSTOM_FIELD_TALLIES_SUM_IDENTITY, FieldTallies::sum);
             final var score = allCandidateScores.getFirst().score;
             if (score >= matchThreshold + 0.1) {
                confusionMatrix = new LinkStatsMeta.ConfusionMatrix(1.0, 0.0, 0.0, 0.0);
@@ -295,7 +294,7 @@ public final class LinkerDWH {
                   if (!belowThresholdNotifications.isEmpty()) {
                      sendNotification(Notification.NotificationType.BELOW_THRESHOLD,
                                       linkInfo.interactionUID(),
-                                      AppUtils.getNames(interaction.demographicData()),
+                                      DemographicData.getAliases(),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                       belowThresholdNotifications);
                   }
@@ -322,7 +321,7 @@ public final class LinkerDWH {
                if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                   sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
                                    linkInfo.interactionUID(),
-                                   AppUtils.getNames(interaction.demographicData()),
+                                   DemographicData.getAliases(),
                                    new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                    aboveThresholdNotifications.stream()
                                                               .filter(m -> !Objects.equals(m.gID(),
@@ -348,7 +347,7 @@ public final class LinkerDWH {
                   if (!marginCandidates.isEmpty()) {
                      sendNotification(Notification.NotificationType.MARGIN,
                                       linkInfo.interactionUID(),
-                                      AppUtils.getNames(interaction.demographicData()),
+                                      DemographicData.getAliases(),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                       marginCandidates);
                   }
@@ -356,7 +355,7 @@ public final class LinkerDWH {
             }
          }
          linkStatsMetaProducer.produceAsync("123",
-                                            new LinkStatsMeta(confusionMatrix, customFieldTallies),
+                                            new LinkStatsMeta(confusionMatrix, fieldTallies),
                                             ((metadata, exception) -> {
                                                if (exception != null) {
                                                   LOGGER.error(exception.toString());

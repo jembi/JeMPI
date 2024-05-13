@@ -888,7 +888,7 @@ final class TestConstants {
                C as uid
             }
          
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_05, $phone_number, 2)) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_05, $phone_number, 3)) {
                D as uid
             }
          

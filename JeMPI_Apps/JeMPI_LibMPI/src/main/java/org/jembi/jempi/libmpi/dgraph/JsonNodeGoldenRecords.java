@@ -34,7 +34,9 @@ record JsonNodeGoldenRecords(JsonNode node) {
       final Iterator<JsonNode> iter = node.get("all").elements();
       while (iter.hasNext()) {
          final var next = iter.next();
-         goldenRecords.add(new JsonNodeGoldenRecord(next).toGoldenRecord());
+         if (!next.isMissingNode()) {
+            goldenRecords.add(new JsonNodeGoldenRecord(next).toGoldenRecord());
+         }
       }
       final var paginationNode = node.get("pagination");
       if (paginationNode != null && !paginationNode.isMissingNode()) {

@@ -163,7 +163,6 @@ final class DgraphQueries {
 
    }
 
-
    private DgraphQueries() {
    }
 
@@ -273,11 +272,11 @@ final class DgraphQueries {
 
 
    /**
-    * Run expanded golden records query dgraph expanded golden records.
+    * Run expanded golden records query paginated result set.
     *
     * @param query the query
     * @param vars  the vars
-    * @return the dgraph expanded golden records
+    * @return the paginated result set
     */
    static PaginatedResultSet<ExpandedGoldenRecord> runExpandedGoldenRecordsQuery(
          final String query,
@@ -699,14 +698,14 @@ final class DgraphQueries {
    }
 
    /**
-    * Simple search golden records dgraph expanded golden records.
+    * Simple search golden records paginated result set.
     *
     * @param params  the params
     * @param offset  the offset
     * @param limit   the limit
     * @param sortBy  the sort by
     * @param sortAsc the sort asc
-    * @return the dgraph expanded golden records
+    * @return the paginated result set
     */
    static PaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
@@ -722,14 +721,14 @@ final class DgraphQueries {
    }
 
    /**
-    * Custom search golden records dgraph expanded golden records.
+    * Custom search golden records paginated result set.
     *
     * @param payloads the payloads
     * @param offset   the offset
     * @param limit    the limit
     * @param sortBy   the sort by
     * @param sortAsc  the sort asc
-    * @return the dgraph expanded golden records
+    * @return the paginated result set
     */
    static PaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
@@ -825,14 +824,14 @@ final class DgraphQueries {
    }
 
    /**
-    * Simple search interactions list.
+    * Simple search interactions paginated result set.
     *
     * @param params  the params
     * @param offset  the offset
     * @param limit   the limit
     * @param sortBy  the sort by
     * @param sortAsc the sort asc
-    * @return the list
+    * @return the paginated result set
     */
    static PaginatedResultSet<InteractionWithScore> simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
@@ -848,14 +847,14 @@ final class DgraphQueries {
    }
 
    /**
-    * Custom search interactions list.
+    * Custom search interactions paginated result set.
     *
     * @param payloads the payloads
     * @param offset   the offset
     * @param limit    the limit
     * @param sortBy   the sort by
     * @param sortAsc  the sort asc
-    * @return the list
+    * @return the paginated result set
     */
    static PaginatedResultSet<InteractionWithScore> customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,

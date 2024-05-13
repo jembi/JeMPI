@@ -105,7 +105,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var linkStatsMeta = LinkStatsMetaCache.get();
       if (linkStatsMeta != null) {
          dashboardData.put("linker_stats", new LinkerStats(libMPI.countGoldenRecords(), libMPI.countInteractions()));
-         dashboardData.put("m_and_u", CustomControllerDashboardMU.fromCustomFieldTallies(linkStatsMeta.customFieldTallies()));
+         dashboardData.put("m_and_u", CustomControllerDashboardMU.fromCustomFieldTallies(linkStatsMeta.fieldTallies()));
          final var tp = linkStatsMeta.confusionMatrix().TP();
          final var fp = linkStatsMeta.confusionMatrix().FP();
          final var tn = linkStatsMeta.confusionMatrix().TN();

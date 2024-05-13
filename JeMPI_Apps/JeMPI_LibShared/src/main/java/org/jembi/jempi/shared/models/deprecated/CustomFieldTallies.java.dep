@@ -5,8 +5,6 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static org.jembi.jempi.shared.models.CustomDemographicData.*;
-
 public record CustomFieldTallies(
       FieldTally givenName,
       FieldTally familyName,
@@ -17,6 +15,7 @@ public record CustomFieldTallies(
       FieldTally nationalId) {
 
    private static final Logger LOGGER = LogManager.getFormatterLogger(CustomFieldTallies.class);
+
    private static final JaroWinklerSimilarity JARO_WINKLER_SIMILARITY = new JaroWinklerSimilarity();
    private static final FieldTally A = new FieldTally(1L, 0L, 0L, 0L);
    private static final FieldTally B = new FieldTally(0L, 1L, 0L, 0L);

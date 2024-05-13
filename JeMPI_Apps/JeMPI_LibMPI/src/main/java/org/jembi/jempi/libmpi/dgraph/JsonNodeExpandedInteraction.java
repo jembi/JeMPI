@@ -24,7 +24,7 @@ record JsonNodeExpandedInteraction(JsonNode node) {
    }
 
    private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
-      return OBJECT_MAPPER.readTree(json).get("all");
+      return OBJECT_MAPPER.readTree(json);
    }
 
    ExpandedInteraction toExpandedInteraction() {

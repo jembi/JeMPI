@@ -3,7 +3,7 @@ package org.jembi.jempi.gui;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.ApiModels;
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public final class Cache {
       }
 
       private static String[] getGoldenRecordVector(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
-         final var demographicFields = CustomDemographicData.class.getDeclaredFields();
+         final var demographicFields = DemographicData.getAliasArray();
          final String[] vector = new String[3 + demographicFields.length + 1];
          vector[0] = ""; // expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
          vector[1] = expandedGoldenRecord.goldenRecord().uid();

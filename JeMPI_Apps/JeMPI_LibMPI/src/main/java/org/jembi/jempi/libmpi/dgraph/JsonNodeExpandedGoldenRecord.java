@@ -25,12 +25,18 @@ record JsonNodeExpandedGoldenRecord(JsonNode node) {
    }
 
    private static JsonNode toJsonNode(final String json) throws JsonProcessingException {
-      return OBJECT_MAPPER.readTree(json).get("all");
+      return OBJECT_MAPPER.readTree(json);
    }
 
    ExpandedGoldenRecord toExpandedGoldenRecord() {
       final var goldenRecord = new JsonNodeGoldenRecord(node).toGoldenRecord();
+      if (goldenRecord == null) {
+         return null;
+      }
       final var interactionsNode = node.get("GoldenRecord.interactions");
+      if (interactionsNode == null || interactionsNode.isMissingNode()) {
+         return null;
+      }
       final List<InteractionWithScore> interactionsWithScores = new ArrayList<>();
       final Iterator<JsonNode> iter = interactionsNode.elements();
       while (iter.hasNext()) {

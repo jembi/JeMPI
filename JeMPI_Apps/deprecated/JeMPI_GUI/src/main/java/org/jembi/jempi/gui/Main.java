@@ -1,8 +1,9 @@
 package org.jembi.jempi.gui;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
+import org.jembi.jempi.shared.models.DemographicData;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -16,11 +17,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.jembi.jempi.shared.config.Config.API_CONFIG;
+
 public class Main extends JPanel {
 
-   private static final Field[] DEMOGRAPHIC_FIELDS = CustomDemographicData.class.getDeclaredFields();
-
-
+   private static final String[] DEMOGRAPHIC_FIELDS = DemographicData.getAliasArray();
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
    public Main() {
@@ -52,7 +53,6 @@ public class Main extends JPanel {
          Collections.addAll(colNamesList, "Aux ID", "UID", "Created");
          Collections.addAll(colNamesList,
                             new ArrayList<>(Arrays.stream(DEMOGRAPHIC_FIELDS)
-                                                  .map(Field::getName)
                                                   .toList()).toArray(new String[0]));
          Collections.addAll(colNamesList, "Score");
          colNames = colNamesList.toArray(new String[0]);

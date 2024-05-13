@@ -1,17 +1,17 @@
 package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.jembi.jempi.shared.config.Config.API_CONFIG;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public class DemographicData {
-
-   private static final Logger LOGGER = LogManager.getLogger(DemographicData.class);
 
    public final List<DemographicData.DemographicField> fields;
 
@@ -27,37 +27,37 @@ public class DemographicData {
       this.fields = fields;
    }
 
-   public static CustomDemographicData.CustomDemographicDataAPI fromDemographicData(final DemographicData demographicData) {
-      var obj = new CustomDemographicData.CustomDemographicDataAPI();
-      var cls = obj.getClass();
-      demographicData.fields.forEach(f -> {
-         try {
-            var classField = cls.getDeclaredField(f.ccTag());
-            classField.setAccessible(true);
-            classField.set(obj, f.value());
-            classField.setAccessible(false);
-         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+   public static JsonNode fromDemographicData(final DemographicData demographicData) {
+      final var objectNode = OBJECT_MAPPER.createObjectNode();
+      demographicData.fields.forEach(field -> {
+         if (field.ccTag != null && !field.ccTag.isEmpty()) {
+            objectNode.put(field.ccTag, field.value);
          }
       });
-      return obj;
+      return objectNode;
    }
 
-   public static DemographicData fromCustomDemographicData(final CustomDemographicData.CustomDemographicDataAPI customDemographicData) {
-      final var cls = customDemographicData.getClass();
-      return new DemographicData(
-            API_CONFIG.demographicDataFields
-                  .stream()
-                  .map(f -> {
-                     try {
-                        var classField = cls.getDeclaredField(f.getLeft());
-                        return new DemographicField(f.getLeft(), classField.get(customDemographicData).toString());
-                     } catch (NoSuchFieldException | IllegalAccessException e) {
-                        LOGGER.error(e.getLocalizedMessage(), e);
-                        return new DemographicField(f.getLeft(), null);
-                     }
-                  })
-                  .toList());
+   public static DemographicData fromCustomDemographicData(final JsonNode jsonNode) {
+      final var fields = new ArrayList<DemographicField>();
+      API_CONFIG.demographicDataFields.forEach(field -> {
+         final var val = jsonNode.get(field.getLeft()).textValue();
+         fields.add(field.getRight(), new DemographicField(field.getLeft(), val));
+      });
+      return new DemographicData(fields);
+   }
+
+   public static String getAliases() {
+      final ArrayList<String> names = new ArrayList<>();
+      API_CONFIG.demographicDataFields.forEach(field -> names.add(field.getRight(), field.getLeft()));
+      return StringUtils.join(names, ",");
+
+   }
+
+   public static String[] getAliasArray() {
+      return API_CONFIG.demographicDataFields.stream()
+                                             .map(Pair::getLeft)
+                                             .toList()
+                                             .toArray(new String[API_CONFIG.demographicDataFields.size()]);
    }
 
    public DemographicData clean() {
@@ -69,7 +69,6 @@ public class DemographicData {
                                                                         .replaceAll("\\W", "")))
                   .toList());
    }
-
 
    public record DemographicField(
          @JsonProperty("tag") String ccTag,

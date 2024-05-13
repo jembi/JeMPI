@@ -8,13 +8,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
-import org.jembi.jempi.shared.models.DemographicData;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,28 +58,6 @@ public final class AppUtils implements Serializable {
          return '"' + StringUtils.EMPTY + '"';
       } else {
          return '"' + field + '"';
-      }
-   }
-
-   public static String getNames(final DemographicData demographicData) {
-      ArrayList<String> names = new ArrayList<>();
-
-      for (Method method : CustomDemographicData.class.getMethods()) {
-         if ((method.getName().toLowerCase().contains("name"))) {
-            try {
-               final var name = (String) method.invoke(demographicData);
-               if (!StringUtils.isBlank(name)) {
-                  names.add(name.trim());
-               }
-            } catch (IllegalAccessException | InvocationTargetException e) {
-               LOGGER.error(e.getLocalizedMessage(), e);
-            }
-         }
-      }
-      if (names.isEmpty()) {
-         return null;
-      } else {
-         return StringUtils.join(names, ",");
       }
    }
 

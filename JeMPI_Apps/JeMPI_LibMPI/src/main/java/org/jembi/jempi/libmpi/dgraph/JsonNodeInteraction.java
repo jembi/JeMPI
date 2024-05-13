@@ -30,6 +30,10 @@ record JsonNodeInteraction(JsonNode node) {
    }
 
    Interaction toInteraction() {
+      final var uidNode = node.get("uid");
+      if (uidNode == null || uidNode.isNull() || uidNode.isMissingNode()) {
+         return null;
+      }
       final var sourceIdNode = node.get("Interaction.source_id");
       final var facilityNode = sourceIdNode.get("SourceId.facility");
       final var patientNode = sourceIdNode.get("SourceId.patient");
