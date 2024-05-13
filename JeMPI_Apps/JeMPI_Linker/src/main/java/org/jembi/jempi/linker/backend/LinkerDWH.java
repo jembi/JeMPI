@@ -27,6 +27,9 @@ import static org.jembi.jempi.shared.config.Config.LINKER_CONFIG;
 import static org.jembi.jempi.shared.models.FieldTallies.CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
+/**
+ * The type Linker dwh.
+ */
 public final class LinkerDWH {
 
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
@@ -89,6 +92,13 @@ public final class LinkerDWH {
       return changed;
    }
 
+   /**
+    * Helper update interactions score.
+    *
+    * @param libMPI               the lib mpi
+    * @param threshold            the threshold
+    * @param expandedGoldenRecord the expanded golden record
+    */
    static void helperUpdateInteractionsScore(
          final LibMPI libMPI,
          final float threshold,
@@ -199,6 +209,16 @@ public final class LinkerDWH {
       return Either.left(List.of());
    }
 
+   /**
+    * Link interaction either.
+    *
+    * @param libMPI            the lib mpi
+    * @param interaction       the interaction
+    * @param externalLinkRange the external link range
+    * @param matchThreshold_   the match threshold
+    * @param envelopStan       the envelop stan
+    * @return the either
+    */
    static Either<List<ExternalLinkCandidate>, LinkInfo> linkInteraction(
          final LibMPI libMPI,
          final Interaction interaction,
@@ -390,6 +410,9 @@ public final class LinkerDWH {
       return new JsonPojoSerializer<>();
    }
 
+   /**
+    * The type Work candidate.
+    */
    public record WorkCandidate(
          GoldenRecord goldenRecord,
          float score,

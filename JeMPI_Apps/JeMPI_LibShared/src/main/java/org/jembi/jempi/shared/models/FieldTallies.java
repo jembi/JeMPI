@@ -10,10 +10,19 @@ import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 
+/**
+ * The type Field tallies.
+ */
 public record FieldTallies(
       List<FieldTally> fieldTallies) {
 
+   /**
+    * The constant FIELD_TALLY_SUM_IDENTITY.
+    */
    public static final FieldTallies.FieldTally FIELD_TALLY_SUM_IDENTITY = new FieldTallies.FieldTally(0L, 0L, 0L, 0L);
+   /**
+    * The constant CUSTOM_FIELD_TALLIES_SUM_IDENTITY.
+    */
    public static final FieldTallies CUSTOM_FIELD_TALLIES_SUM_IDENTITY =
          new FieldTallies(FIELDS_CONFIG.demographicFields.stream().map(f -> FIELD_TALLY_SUM_IDENTITY).toList());
    private static final Logger LOGGER = LogManager.getFormatterLogger(FieldTallies.class);
@@ -55,6 +64,14 @@ public record FieldTallies(
                    fieldTally.c().doubleValue() / (fieldTally.c().doubleValue() + fieldTally.d().doubleValue()));
    }
 
+   /**
+    * Map field tallies.
+    *
+    * @param recordsMatch the records match
+    * @param left         the left
+    * @param right        the right
+    * @return the field tallies
+    */
    public static FieldTallies map(
          final boolean recordsMatch,
          final DemographicData left,
@@ -67,24 +84,42 @@ public record FieldTallies(
 
    }
 
+   /**
+    * Log field mu.
+    */
    public void logFieldMU() {
       LOGGER.debug("Tally derived M&U's");
       IntStream.range(0, FIELDS_CONFIG.demographicFields.size())
                .forEach(i -> logMU(FIELDS_CONFIG.demographicFields.get(i).ccName(), fieldTallies.get(i)));
    }
 
+   /**
+    * Sum field tallies.
+    *
+    * @param r the r
+    * @return the field tallies
+    */
    public FieldTallies sum(final FieldTallies r) {
       return new FieldTallies(IntStream.range(0, r.fieldTallies.size())
                                        .mapToObj(i -> this.fieldTallies.get(i).sum(r.fieldTallies.get(i)))
                                        .toList());
    }
 
+   /**
+    * The type Field tally.
+    */
    public record FieldTally(
          Long a,
          Long b,
          Long c,
          Long d) {
 
+      /**
+       * Sum field tally.
+       *
+       * @param r the r
+       * @return the field tally
+       */
       FieldTally sum(final FieldTally r) {
          return new FieldTally(this.a + r.a,
                                this.b + r.b,

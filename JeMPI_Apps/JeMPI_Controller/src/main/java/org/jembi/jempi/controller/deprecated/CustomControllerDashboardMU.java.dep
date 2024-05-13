@@ -25,14 +25,14 @@ record CustomControllerDashboardMU(
       Double u) {
    }
 
-   static CustomControllerDashboardMU fromCustomFieldTallies(final FieldTallies customFieldTallies) {
-      return new CustomControllerDashboardMU(getMU(customFieldTallies.fieldTallies().get(0)),
-                                             getMU(customFieldTallies.fieldTallies().get(1)),
-                                             getMU(customFieldTallies.fieldTallies().get(2)),
-                                             getMU(customFieldTallies.fieldTallies().get(3)),
-                                             getMU(customFieldTallies.fieldTallies().get(4)),
-                                             getMU(customFieldTallies.fieldTallies().get(5)),
-                                             getMU(customFieldTallies.fieldTallies().get(6)));
+   static CustomControllerDashboardMU fromCustomFieldTallies(final FieldTallies fieldTallies) {
+      return new CustomControllerDashboardMU(getMU(fieldTallies.fieldTallies().get(0)),
+                                             getMU(fieldTallies.fieldTallies().get(1)),
+                                             getMU(fieldTallies.fieldTallies().get(2)),
+                                             getMU(fieldTallies.fieldTallies().get(3)),
+                                             getMU(fieldTallies.fieldTallies().get(4)),
+                                             getMU(fieldTallies.fieldTallies().get(5)),
+                                             getMU(fieldTallies.fieldTallies().get(6)));
    }
 
 }

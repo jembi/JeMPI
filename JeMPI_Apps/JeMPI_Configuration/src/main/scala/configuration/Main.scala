@@ -47,8 +47,8 @@ object Main {
 //    CustomPostgresqlGoldenRecord.generate(config.demographicFields)
 //    CustomAsyncHelper.generate(config)
 //    CustomPatient.generate(config)
-    CustomFieldTallies.generate(config)
-    CustomControllerDashboardMU.generate(config)
+//    CustomFieldTallies.generate(config)
+//    CustomControllerDashboardMU.generate(config)
 
     ScalaCustomFields.generate(config)
     ScalaCustomInteractionEnvelop.generate(config)
