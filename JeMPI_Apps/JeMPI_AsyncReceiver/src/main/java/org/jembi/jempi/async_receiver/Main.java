@@ -11,10 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.GlobalConstants;
-import org.jembi.jempi.shared.models.Interaction;
-import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.UploadConfig;
+import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -102,6 +99,7 @@ public final class Main {
          final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
          try (var reader = Files.newBufferedReader(filePathUri)) {
+
             //ignore the first line when upload config exists
             if (config != null) {
                reader.readLine();
@@ -116,29 +114,32 @@ public final class Main {
                                                    .parse(reader);
 
             int index = 0;
+            var stan = String.format(Locale.ROOT, "%s:%07d", stanDate, ++index);
             sendInteractionToKafka(uuid,
                                    new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
                                                           tag,
-                                                          String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                                          null, null));
+                                                          stan,
+                                                          null,
+                                                          createSessionMetadata(index, stanDate, config)));
             for (CSVRecord csvRecord : csvParser) {
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
-                                                                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                                     stan,
                                                                      new Interaction(null,
                                                                                      CustomAsyncHelper.customSourceId(csvRecord),
                                                                                      CustomAsyncHelper.customUniqueInteractionData(
                                                                                            csvRecord),
                                                                                      CustomAsyncHelper.customDemographicData(
-                                                                                           csvRecord)), config);
+                                                                                           csvRecord)),
+                                                                     createSessionMetadata(index, stanDate, config));
 
                sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
             }
             sendInteractionToKafka(uuid,
                                    new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
                                                           tag,
-                                                          String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
-                                                          null, null));
+                                                          stan,
+                                                          null, createSessionMetadata(index, stanDate, config)));
          }
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
@@ -213,5 +214,19 @@ public final class Main {
       } catch (InterruptedException e) {
          LOGGER.warn(e.getLocalizedMessage(), e);
       }
+   }
+
+   private SessionMetadata createSessionMetadata(
+         final int index,
+         final String stanDate,
+         final UploadConfig config) {
+      int count = index;
+      var stan = String.format(Locale.ROOT, "%s:%07d", stanDate, ++count);
+      return new SessionMetadata(new CommonMetaData(stan, config),
+                                 new UIMetadata(null),
+                                 new AsyncReceiverMetadata(AppUtils.timeStamp()),
+                                 new ETLMetadata(null),
+                                 new ControllerMetadata(null),
+                                 new LinkerMetadata(null));
    }
 }

@@ -9,7 +9,7 @@ public record InteractionEnvelop(
       String stan,
       // System Trace Audit Number
       Interaction interaction,
-      UploadConfig config) {
+      SessionMetadata sessionMetadata) {
 
    public enum ContentType {
       BATCH_START_SENTINEL(ContentType.MESSAGE_START_VALUE),
