@@ -17,10 +17,8 @@ const {
   patientRecord,
   goldenRecord,
   goldenRecords,
-  auditTrail,
   currentUser,
-  searchGoldenRecordResult,
-  searchPatientRecordResult
+  searchGoldenRecordResult
 } = mockData
 
 axiosMockAdapterInstance
@@ -66,14 +64,10 @@ axiosMockAdapterInstance
   })
   .onPost(ROUTES.POST_FIELDS_CONFIG)
   .reply(200, mockFields)
-  .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/golden`)
+  .onPost(`${ROUTES.POST_SIMPLE_GOLDEN_SEARCH}`)
   .reply(200, searchGoldenRecordResult)
-  .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/patient`)
-  .reply(200, searchPatientRecordResult)
-  .onPost(`${ROUTES.POST_CUSTOM_SEARCH}/golden`)
+  .onPost(`${ROUTES.POST_CUSTOM_GOLDEN_SEARCH}`)
   .reply(200, searchGoldenRecordResult)
-  .onPost(`${ROUTES.POST_CUSTOM_SEARCH}/patient`)
-  .reply(200, searchPatientRecordResult)
 
 const sleep = (value: number) =>
   new Promise(resolve => setTimeout(resolve, value))
@@ -89,17 +83,5 @@ axiosMockAdapterInstance.onPost(ROUTES.UPLOAD).reply(async config => {
   }
   return [200, {}]
 })
-
-// Failed upload
-// axiosMockAdapterInstance.onPost(ROUTES.UPLOAD).reply(async config => {
-//   const total = 1024 // mocked file size
-//   for (const progress of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
-//     await sleep(500)
-//     if (config.onUploadProgress) {
-//       config.onUploadProgress({ loaded: total * progress, total, bytes: total })
-//     }
-//   }
-//   return [500, {}]
-// })
 
 export default moxios

@@ -74,7 +74,8 @@ const Records = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [isFetchingInteractions, setIsFetchingInteractions] = useState<boolean>(
     searchParams.get('isFetchingInteractions')
-      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) == "true"
+      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) ==
+          'true'
       : false
   )
 
@@ -124,8 +125,7 @@ const Records = () => {
     queryKey: ['golden-records', JSON.stringify(filterPayload)],
     queryFn: async () =>
       (await apiClient.searchQuery(
-        filterPayload,
-        true
+        filterPayload
       )) as ApiSearchResult<GoldenRecord>,
     refetchOnWindowFocus: false,
     keepPreviousData: true

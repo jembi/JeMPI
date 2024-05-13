@@ -51,8 +51,7 @@ export const useLinkReview = (
     queryKey: ['search', refineSearchQuery],
     queryFn: () => {
       return apiClient.searchQuery(
-        refineSearchQuery ? refineSearchQuery : ({} as SearchQuery),
-        true
+        refineSearchQuery ? refineSearchQuery : ({} as SearchQuery)
       )
     },
     enabled: !!refineSearchQuery,
