@@ -71,8 +71,8 @@ public final class Main {
                                     csvRecord.get(INPUT_INTERFACE_CONFIG.auxClinicalDataCsvCol));
    }
 
-   static CustomSourceId sourceIdData(final CSVRecord csvRecord) {
-      return new CustomSourceId(
+   static SourceId sourceIdData(final CSVRecord csvRecord) {
+      return new SourceId(
             null,
             csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdFacilityCsvCol),
             csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
@@ -146,9 +146,9 @@ public final class Main {
       WatchEvent.Kind<?> kind = event.kind();
       LOGGER.info("EVENT: {}", kind);
       if (ENTRY_CREATE.equals(kind)) {
-         WatchEvent<Path> ev = cast(event);
-         Path filename = ev.context();
-         String name = filename.toString();
+         final WatchEvent<Path> ev = cast(event);
+         final Path filename = ev.context();
+         final String name = filename.toString();
          LOGGER.info("A new file {} was created", filename);
          if (name.endsWith(".csv")) {
             LOGGER.info("Process CSV file: {}", filename);

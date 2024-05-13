@@ -161,7 +161,7 @@ final class LinkerCR {
    private static Either<MpiGeneralError, LinkInfo> crLinkBySourceIdUpdate(
          final LibMPI libMPI,
          final boolean syncGoldenRecord,
-         final CustomSourceId sourceId,
+         final SourceId sourceId,
          final AuxInteractionData auxInteractionData,
          final DemographicData demographicData) {
       if (auxInteractionData.auxDateCreated() == null) {

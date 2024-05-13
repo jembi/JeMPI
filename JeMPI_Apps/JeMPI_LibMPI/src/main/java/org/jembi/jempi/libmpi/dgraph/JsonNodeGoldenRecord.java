@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.AuxGoldenRecordData;
-import org.jembi.jempi.shared.models.CustomSourceId;
+import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -34,7 +34,7 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
    }
 
    GoldenRecord toGoldenRecord() {
-      final var sourceIdList = new ArrayList<CustomSourceId>();
+      final var sourceIdList = new ArrayList<SourceId>();
       final var sourceIdNode = jsonNode.get("GoldenRecord.source_id");
       if (!(sourceIdNode == null || sourceIdNode.isNull() || sourceIdNode.isMissingNode())) {
          final var iter = sourceIdNode.elements();
@@ -49,7 +49,7 @@ record JsonNodeGoldenRecord(JsonNode jsonNode) {
             final var patient = (!(patientNode == null || patientNode.isMissingNode()))
                   ? patientNode.textValue()
                   : null;
-            sourceIdList.add(new CustomSourceId(uid, facility, patient));
+            sourceIdList.add(new SourceId(uid, facility, patient));
          }
       }
       final var dt = jsonNode.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED).textValue();

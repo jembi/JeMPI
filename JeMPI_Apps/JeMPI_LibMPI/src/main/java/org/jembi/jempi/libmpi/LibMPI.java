@@ -91,7 +91,7 @@ public final class LibMPI {
       return client.countGoldenRecords();
    }
 
-   public List<CustomSourceId> findSourceId(
+   public List<SourceId> findSourceId(
          final String facility,
          final String patient) {
       client.connect();

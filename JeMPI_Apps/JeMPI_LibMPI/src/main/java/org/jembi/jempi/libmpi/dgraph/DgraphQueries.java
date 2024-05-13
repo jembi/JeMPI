@@ -208,13 +208,27 @@ final class DgraphQueries {
    }
 
 
-   private static PaginatedResultSet<InteractionWithScore> runInteractionsQuery(
+   private static PaginatedResultSet<InteractionWithScore> runInteractionsWithScoreQuery(
          final String query,
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
             return new JsonNodeInteractions(json).toInteractionsWithScore();
+         }
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      return new PaginatedResultSet<>(List.of(), List.of());
+   }
+
+   private static PaginatedResultSet<Interaction> runInteractionsQuery(
+         final String query,
+         final Map<String, String> vars) {
+      try {
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
+         if (!StringUtils.isBlank(json)) {
+            return new JsonNodeInteractions(json).toInteractions();
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
@@ -295,7 +309,7 @@ final class DgraphQueries {
       if (AppUtils.isNullOrEmpty(interactionList.data())) {
          return null;
       }
-      return interactionList.data().getFirst().interaction();
+      return interactionList.data().getFirst();
    }
 
    /**
@@ -748,7 +762,7 @@ final class DgraphQueries {
       gql += gqlPagination;
       gql += "}";
 
-      return runInteractionsQuery(gql, gqlVars);
+      return runInteractionsWithScoreQuery(gql, gqlVars);
    }
 
    private static Either<DgraphPaginatedUidList, DgraphPaginationUidListWithInteractionCount> filterGidsFunc(
@@ -863,7 +877,7 @@ final class DgraphQueries {
     * @param patient  the patient
     * @return the list
     */
-   static List<CustomSourceId> findSourceIdList(
+   static List<SourceId> findSourceIdList(
          final String facility,
          final String patient) {
       if (StringUtils.isBlank(facility) || StringUtils.isBlank(patient)) {

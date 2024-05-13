@@ -104,7 +104,7 @@ final class DgraphMutations {
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
-   private String createSourceIdTriple(final CustomSourceId sourceId) {
+   private String createSourceIdTriple(final SourceId sourceId) {
       final String uuid = UUID.randomUUID().toString();
       return """
              _:%s  <SourceId.facility>                 %s          .

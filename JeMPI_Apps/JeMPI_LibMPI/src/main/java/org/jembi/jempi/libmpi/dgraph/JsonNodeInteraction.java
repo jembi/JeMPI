@@ -34,13 +34,13 @@ record JsonNodeInteraction(JsonNode node) {
       final var facilityNode = sourceIdNode.get("SourceId.facility");
       final var patientNode = sourceIdNode.get("SourceId.patient");
 
-      final var sourceId = new CustomSourceId(sourceIdNode.get("uid").textValue(),
-                                              (!(facilityNode == null || facilityNode.isMissingNode()))
-                                                    ? facilityNode.textValue()
-                                                    : null,
-                                              (!(patientNode == null || patientNode.isMissingNode()))
-                                                    ? patientNode.textValue()
-                                                    : null);
+      final var sourceId = new SourceId(sourceIdNode.get("uid").textValue(),
+                                        (!(facilityNode == null || facilityNode.isMissingNode()))
+                                              ? facilityNode.textValue()
+                                              : null,
+                                        (!(patientNode == null || patientNode.isMissingNode()))
+                                              ? patientNode.textValue()
+                                              : null);
 
       final var dt = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_DATE_CREATED).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();

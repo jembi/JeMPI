@@ -1,11 +1,12 @@
+
 package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.List;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ExpandedSourceId(
-      SourceId sourceId,
-      List<GoldenRecord> goldenRecords) {
+public record SourceId(
+      String uid,
+      String facility,
+      String patient) {
 }
+

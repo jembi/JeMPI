@@ -344,7 +344,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          interaction = libMPI.findInteraction(request.iid);
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid, exception.getMessage());
+         LOGGER.error("libMPI.findInteraction failed for patientId: {} with error: {}", request.iid, exception.getMessage());
       }
 
       if (interaction == null) {

@@ -37,7 +37,7 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   List<CustomSourceId> findSourceId(
+   List<SourceId> findSourceId(
          String facility,
          String client);
 

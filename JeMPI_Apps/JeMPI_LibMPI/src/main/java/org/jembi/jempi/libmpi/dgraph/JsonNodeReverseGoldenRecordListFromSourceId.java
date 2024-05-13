@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomSourceId;
+import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.models.ExpandedSourceId;
 import org.jembi.jempi.shared.models.GoldenRecord;
 
@@ -37,7 +37,7 @@ public record JsonNodeReverseGoldenRecordListFromSourceId(JsonNode jsonNode) {
             final var jsonNode1 = iter.next();
             final var goldenRecord = new JsonNodeGoldenRecord(jsonNode1).toGoldenRecord();
             goldenRecords.add(goldenRecord);
-            final var result = new ExpandedSourceId(new CustomSourceId(uid, facility, patient), goldenRecords);
+            final var result = new ExpandedSourceId(new SourceId(uid, facility, patient), goldenRecords);
             list.add(result);
          }
       }

@@ -56,7 +56,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return List.of();
    }
 
-   public List<CustomSourceId> findSourceId(
+   public List<SourceId> findSourceId(
          final String facility,
          final String patient) {
       return DgraphQueries.findSourceIdList(facility, patient);

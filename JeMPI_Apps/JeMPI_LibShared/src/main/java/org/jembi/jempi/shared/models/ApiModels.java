@@ -96,7 +96,7 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterRequest(
          @JsonProperty("candidateThreshold") Float candidateThreshold,
-         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
          @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
@@ -104,21 +104,21 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkToGidUpdateRequest(
          @JsonProperty("gid") String gid,
-         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
          @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdRequest(
-         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
          @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdUpdateRequest(
-         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
          @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
@@ -128,7 +128,7 @@ public abstract class ApiModels {
          String stan,
          ExternalLinkRange externalLinkRange,
          Float matchThreshold,
-         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
          @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData) {
    }
@@ -136,7 +136,7 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionToGidSyncBody(
          String stan,
-         @JsonProperty("sourceId") CustomSourceId sourceId,
+         @JsonProperty("sourceId") SourceId sourceId,
          @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
          @JsonProperty("demographicData") CustomDemographicData.CustomDemographicDataAPI demographicData,
          String gid) {
@@ -253,13 +253,13 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecord(
          String uid,
-         List<CustomSourceId> sourceId,
+         List<SourceId> sourceId,
          AuxGoldenRecordData uniqueGoldenRecordData,
          CustomDemographicData.CustomDemographicDataAPI demographicData) {
       public static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
                                     goldenRecord.sourceId(),
-                                    goldenRecord.customUniqueGoldenRecordData(),
+                                    goldenRecord.auxGoldenRecordData(),
                                     DemographicData.fromDemographicData(goldenRecord.demographicData()));
       }
    }
@@ -301,7 +301,7 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiInteraction(
          String uid,
-         CustomSourceId sourceId,
+         SourceId sourceId,
          AuxInteractionData uniqueInteractionData,
          CustomDemographicData.CustomDemographicDataAPI demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {

@@ -2,22 +2,11 @@ package org.jembi.jempi.shared.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-//import java.util.ArrayList;
-//import java.util.Arrays;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class CustomDemographicData {
 
    private CustomDemographicData() {
    }
-
-    public static final int FIELD_IDX_GIVEN_NAME = 0;
-    public static final int FIELD_IDX_FAMILY_NAME = 1;
-    public static final int FIELD_IDX_GENDER = 2;
-    public static final int FIELD_IDX_DOB = 3;
-    public static final int FIELD_IDX_CITY = 4;
-    public static final int FIELD_IDX_PHONE_NUMBER = 5;
-    public static final int FIELD_IDX_NATIONAL_ID = 6;
 
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

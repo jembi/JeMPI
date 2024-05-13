@@ -329,7 +329,7 @@ public final class LinkerDWH {
                                                                                            firstCandidate.goldenRecord.goldenId()))
                                                               .collect(Collectors.toCollection(ArrayList::new)));
                }
-               if (Boolean.TRUE.equals(firstCandidate.goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
+               if (Boolean.TRUE.equals(firstCandidate.goldenRecord.auxGoldenRecordData().auxAutoUpdateEnabled())) {
                   updateGoldenRecordFields(libMPI,
                                            matchThreshold,
                                            linkInfo.interactionUID(),

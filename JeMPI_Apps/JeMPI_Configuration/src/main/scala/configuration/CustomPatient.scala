@@ -26,7 +26,7 @@ private object CustomPatient {
     generateDemographicData(config)
 //    generateUniqueGoldenRecordData(config)
 //    generateUniqueInteractionData(config)
-    generateAdditionalNodes(config)
+//    generateAdditionalNodes(config)
   end generate
 
   private def generateDemographicData(config: Config): Unit =
@@ -50,21 +50,17 @@ private object CustomPatient {
          |
          |import com.fasterxml.jackson.annotation.JsonInclude;
          |
-         |//import java.util.ArrayList;
-         |//import java.util.Arrays;
-         |
          |@JsonInclude(JsonInclude.Include.NON_NULL)
          |public final class $customClassNameCustomDemographicData {
          |
          |   private $customClassNameCustomDemographicData() {
          |   }
-         |
          |""".stripMargin)
-    config.demographicFields.zipWithIndex.foreach { case (field, i) =>
-      writer.println(
-        s"""${" " * (indent * 1)}public static final int FIELD_IDX_${field.fieldName.toUpperCase} = $i;"""
-      )
-    }
+//    config.demographicFields.zipWithIndex.foreach { case (field, i) =>
+//      writer.println(
+//        s"""${" " * (indent * 1)}public static final int FIELD_IDX_${field.fieldName.toUpperCase} = $i;"""
+//      )
+//    }
     /*
     writer.println(
       s"""
