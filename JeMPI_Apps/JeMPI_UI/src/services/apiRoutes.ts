@@ -13,7 +13,6 @@ const ROUTES = {
   POST_SIMPLE_INTERACTION_PATIENT_SEARCH: 'simpleInteractionSearch',
   POST_CUSTOM_GOLDEN_SEARCH: 'customGoldenSearch',
   POST_CUSTOM_INTERACTION_PATIENT_SEARCH: 'customInteractionSearch',
-
   POST_CR_CANDIDATES: '/crCandidates',
   POST_IID_NEW_GID_LINK: '/newLink',
   POST_IID_GID_LINK: '/relink',

@@ -214,13 +214,9 @@ export class ApiClient {
   ): Promise<ApiSearchResult<AnyRecord>> {
     const isCustomSearch = '$or' in request
     const endpoint = `${
-      isGoldenOnly
-        ? isCustomSearch
-          ? ROUTES.POST_CUSTOM_GOLDEN_SEARCH
-          : ROUTES.POST_SIMPLE_GOLDEN_SEARCH
-        : isCustomSearch
-        ? ROUTES.POST_SIMPLE_INTERACTION_PATIENT_SEARCH
-        : ROUTES.POST_CUSTOM_INTERACTION_PATIENT_SEARCH
+      isCustomSearch
+        ? ROUTES.POST_CUSTOM_GOLDEN_SEARCH
+        : ROUTES.POST_SIMPLE_GOLDEN_SEARCH
     }`
 
     const { data: querySearchResponse } = await this.client.post(
