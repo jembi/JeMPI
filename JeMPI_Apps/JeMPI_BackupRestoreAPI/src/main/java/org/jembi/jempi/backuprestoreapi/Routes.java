@@ -10,6 +10,9 @@ import akka.http.javadsl.server.Route;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.GlobalConstants;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -41,13 +44,42 @@ public final class Routes {
                 });
     }
 
+    private static Route postExpandedGoldenRecord(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
+            return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request),
+                    result -> {
+                        if (!result.isSuccess()) {
+                            final var e = result.failed().get();
+                            LOGGER.error(e.getLocalizedMessage(), e);
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return result.get()
+                                .goldenRecord()
+                                .mapLeft(MapError::mapError)
+                                .fold(error -> error,
+                                        goldenRecord -> complete(StatusCodes.OK,
+                                                ApiModels.ApiExpandedGoldenRecord
+                                                        .fromExpandedGoldenRecord(goldenRecord),
+                                                Jackson.marshaller(OBJECT_MAPPER)));
+                    });
+        });
+    }
+
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd
         ) {
-      return concat(get(() -> concat(path("APIgidsAll",
+       return concat(post(() -> concat(
+                       /* proxy for linker/controller services*/
+                       path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
+                               () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd))
+                       )),
+               get(() -> concat(
+                       path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
                                () -> Routes.getGidsAll(actorSystem, backEnd))
-                                    )));
+               )));
    }
 
 }

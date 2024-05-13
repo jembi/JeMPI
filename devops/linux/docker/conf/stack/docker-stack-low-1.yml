@@ -599,7 +599,7 @@ services:
     - backend
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
       resources:
         limits:
           memory: ${API_RAM_LIMIT}

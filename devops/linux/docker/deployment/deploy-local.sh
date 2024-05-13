@@ -6,6 +6,12 @@ echo "$JEMPI_HOME"
 export JAVA_VERSION=21.0.1-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
+JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
+
+down_dir="$JEMPI_HOME/devops/linux/docker/deployment/down"
+reboot_dir="$JEMPI_HOME/devops/linux/docker/deployment/reboot"
+backup_restore_dir="$JEMPI_HOME/devops/linux/docker/backup_restore"
+
 
 # Display menu options
 echo "Select an option for local deployment:"
@@ -83,7 +89,7 @@ run_enviroment_configuration_and_helper_script(){
     # Navigate to environment configuration directory
     echo "Navigate to environment configuration directory"
     pushd "$JEMPI_HOME/devops/linux/docker/conf/env/"
-        source create-env-linux-low-1.sh
+        source $JEMPI_ENV_CONFIGURATION
     popd    
 
     # Running Docker helper scripts 
@@ -177,6 +183,50 @@ restore_postgres_db(){
     fi
 }
 
+# Function to stop services
+stop_services() {
+    pushd "$down_dir"
+    echo "Stopping API service"
+    source d-stack-stop-services.sh
+    popd
+}
+
+# Function to start backup restore API service
+start_backup_restore_service() {
+    pushd "$reboot_dir"
+    echo "Starting Backup Restore API service"
+    source d-stack-start-backup-restore-api-services.sh
+    popd
+}
+
+# Function to backup data
+backup_data() {
+    pushd "$backup_restore_dir"
+    sleep 20
+    echo "Started Backup through API"
+    python3 dgraph-backup.py
+    sleep 10
+    # sudo bash dgraph-backup.sh
+    # sudo bash postgres-backup.sh
+    popd
+}
+
+# Function to start services
+start_services() {
+    pushd "$reboot_dir"
+    echo "Starting API service"
+    source d-stack-start-services.sh
+    popd
+}
+
+# Function to stop backup restore API service
+stop_backup_restore_service() {
+    pushd "$down_dir"
+    echo "Stopping Backup Restore API service"
+    source d-stack-stop-backup-restore-api-services.sh
+    popd
+}
+
 
 
 
@@ -220,12 +270,14 @@ case $choice in
         exit 0
         ;;
     6)
-        echo "Backup"
-        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
-            sudo bash dgraph-backup.sh
-            sudo bash postgres-backup.sh
-        popd
-
+        echo "Backup Using Backup Restore API"
+        
+        stop_services
+        start_backup_restore_service
+        backup_data
+        start_services
+        stop_backup_restore_service
+        
         ;;
     7)
         echo "Restore Databases"
