@@ -87,10 +87,8 @@ public final class Routes {
                                                 obj.interactionId(), obj.score()),
                                     result -> {
                                           if (!result.isSuccess()) {
-                                                final var e = result.failed().get();
-                                                LOGGER.error(e.getLocalizedMessage(), e);
-                                                return mapError(
-                                                            new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                                // Refactor error handling into a separate method to reduce duplication
+                                                return handleError(result);
                                           }
                                           return result.get()
                                                       .linkInfo()
