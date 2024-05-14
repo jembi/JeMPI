@@ -1,6 +1,6 @@
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { SyntheticEvent, useEffect, useState } from 'react'
+import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
@@ -58,9 +58,9 @@ const Settings = () => {
     setValue(newValue)
   }
 
-  const configuration: Configuration = fields
-    ? generateId(fields)
-    : ({} as Configuration)
+  const configuration = useMemo(() => {
+    return fields ? generateId(fields) : ({} as Configuration)
+  }, [fields])
 
   useEffect(() => {
     console.log('additional nodes', configuration.additionalNodes)
