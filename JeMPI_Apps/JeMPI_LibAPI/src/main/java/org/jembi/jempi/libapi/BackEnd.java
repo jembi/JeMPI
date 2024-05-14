@@ -25,6 +25,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -507,7 +508,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          Configuration configuration = mapper.readValue(configFileContent, Configuration.class);
          request.replyTo.tell(new GetConfigurationResponse(configuration));
       } catch (Exception exception) {
-         LOGGER.error("getConfigurationHandler failed: {} with error: {}",
+         LOGGER.error("getConfigurationHandler failed with error: {}",
                       exception.getMessage());
       }
 
