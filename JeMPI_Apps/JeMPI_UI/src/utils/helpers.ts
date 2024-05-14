@@ -1,5 +1,4 @@
 import { GridColDef } from '@mui/x-data-grid'
-import { DemographicFields } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
@@ -106,16 +105,18 @@ export const generateId = (configuration: Configuration): Configuration => {
     return fields.map(item => ({
       id: randomId(),
       ...item
-    }));
-  };
+    }))
+  }
 
-  const generateIdForNodes = (nodes: { nodeName: string; fields: Field[] }[]): { nodeName: string; fields: Field[] }[] => {
+  const generateIdForNodes = (
+    nodes: { nodeName: string; fields: Field[] }[]
+  ): { nodeName: string; fields: Field[] }[] => {
     return nodes.map(node => ({
-      id: randomId(), 
+      id: randomId(),
       ...node,
       fields: generateIdForFields(node.fields)
-    }));
-  };
+    }))
+  }
 
   return {
     ...configuration,
@@ -127,15 +128,12 @@ export const generateId = (configuration: Configuration): Configuration => {
     ),
     demographicFields: generateIdForFields(configuration.demographicFields),
     additionalNodes: generateIdForNodes(configuration.additionalNodes) // Generate IDs for additional nodes
-  };
-};
-
+  }
+}
 
 export function processIndex(index: string) {
   if (index) {
-    return index
-      .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
-      .replace(/,/g, ', ')
+    return index.replace(/@index\(|\)(?=, trigram|$)/g, ' ').replace(/,/g, ', ')
   }
   return ''
 }
@@ -148,11 +146,14 @@ export const transformFieldName = (params: any) =>
 export const formatNodeName = (nodeName: string): string => {
   return nodeName
     .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/\b(\w)(\w*)/g, (_, first, rest) => first.toUpperCase() + rest.toLowerCase())
+    .replace(
+      /\b(\w)(\w*)/g,
+      (_, first, rest) => first.toUpperCase() + rest.toLowerCase()
+    )
     .replace(/\bId\b/g, 'ID')
-    .trim();
-};
-  
+    .trim()
+}
+
 export const toUpperCase = (word: string): string => {
-  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
 }

@@ -16,16 +16,21 @@ import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 
-
-const UniqueToInteraction = ({ uniqueInteractionData }: { uniqueInteractionData: any }) => {
+const UniqueToInteraction = ({
+  uniqueInteractionData
+}: {
+  uniqueInteractionData: any
+}) => {
   const [rows, setRows] = useState(uniqueInteractionData)
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    const rowsWithIds = uniqueInteractionData.map((row: any, index: number) => ({
-      ...row,
-      id: index.toString() 
-    }))
+    const rowsWithIds = uniqueInteractionData.map(
+      (row: any, index: number) => ({
+        ...row,
+        id: index.toString()
+      })
+    )
     setRows(rowsWithIds)
   }, [uniqueInteractionData])
 
@@ -87,7 +92,6 @@ const UniqueToInteraction = ({ uniqueInteractionData }: { uniqueInteractionData:
           .replace(/_/g, ' ')
           .replace(/\b\w/g, (char: string) => char.toUpperCase())
     },
-    
     {
       field: 'fieldType',
       headerName: 'Type',
@@ -95,7 +99,7 @@ const UniqueToInteraction = ({ uniqueInteractionData }: { uniqueInteractionData:
       width: 300,
       align: 'center',
       headerAlign: 'center',
-      editable: false,
+      editable: false
     },
     {
       field: 'actions',
