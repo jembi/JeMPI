@@ -60,12 +60,12 @@ public class ConfigurationModel {
         }
 
         public record DeterministicLink(
-                        @JsonProperty("QUERY_LINK_DETERMINISTIC_A") QueryLink queryLinkDeterministicA,
-                        @JsonProperty("QUERY_LINK_DETERMINISTIC_B") QueryLink queryLinkDeterministicB) {
+                        @JsonProperty("QUERY_LINK_DETERMINISTIC_A") List<QueryLink> queryLinkDeterministicA,
+                        @JsonProperty("QUERY_LINK_DETERMINISTIC_B") List<QueryLink> queryLinkDeterministicB) {
         }
 
         public record ProbabilisticLink(
-                        @JsonProperty("QUERY_LINK_PROBABILISTIC") QueryLink queryLinkProbabilistic) {
+                        @JsonProperty("QUERY_LINK_PROBABILISTIC") List<QueryLink> queryLinkProbabilistic) {
         }
 
         public record QueryLink(
