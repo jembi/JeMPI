@@ -107,7 +107,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       field: 'fieldName',
       headerName: 'Property Name',
       type: 'string',
-      width: 300,
+      width: 180,
       align: 'center',
       headerAlign: 'center',
       editable: false,
@@ -117,11 +117,21 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       field: 'fieldType',
       headerName: 'Type',
       type: 'string',
-      width: 300,
+      width: 180,
       align: 'center',
       headerAlign: 'center',
       editable: false,
       valueGetter: params => params.row.fieldType
+    },
+    {
+      field: 'csvCol',
+      headerName: 'Csv Col',
+      type: 'string',
+      width: 180,
+      align: 'center',
+      headerAlign: 'center',
+      editable: false,
+      valueGetter: params => params.row.csvCol
     },
     {
       field: 'actions',
