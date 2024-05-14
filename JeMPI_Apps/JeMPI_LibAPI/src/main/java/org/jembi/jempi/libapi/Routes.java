@@ -50,10 +50,7 @@ public final class Routes {
                                                 obj.interactionId()),
                                     result -> {
                                           if (!result.isSuccess()) {
-                                                final var e = result.failed().get();
-                                                LOGGER.error(e.getLocalizedMessage(), e);
-                                                return mapError(
-                                                            new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                             return handleError(result.failed().get());
                                           }
                                           return result.get()
                                                       .linkInfo()
@@ -87,8 +84,7 @@ public final class Routes {
                                                 obj.interactionId(), obj.score()),
                                     result -> {
                                           if (!result.isSuccess()) {
-                                                // Refactor error handling into a separate method to reduce duplication
-                                                return handleError(result);
+                                                return handleError(result.failed().get());
                                           }
                                           return result.get()
                                                       .linkInfo()
@@ -108,7 +104,12 @@ public final class Routes {
                                     }));
       }
 
-      private static Route updateGoldenRecord(
+   private static Route handleError(Throwable e) {
+      LOGGER.error(e.getLocalizedMessage(), e);
+      return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+   }
+
+   private static Route updateGoldenRecord(
                   final ActorSystem<Void> actorSystem,
                   final ActorRef<BackEnd.Event> backEnd) {
             return entity(Jackson.unmarshaller(GoldenRecordUpdateRequestPayload.class),
@@ -139,10 +140,7 @@ public final class Routes {
             return onComplete(Ask.countRecords(actorSystem, backEnd),
                         result -> {
                               if (!result.isSuccess()) {
-                                    final var e = result.failed().get();
-                                    LOGGER.error(e.getLocalizedMessage(), e);
-                                    return mapError(new MpiServiceError.InternalError(
-                                                e.getLocalizedMessage()));
+                                    return handleError(result.failed().get());
                               }
                               return complete(StatusCodes.OK,
                                           new ApiModels.ApiNumberOfRecords(result.get().goldenRecords(),
@@ -158,9 +156,7 @@ public final class Routes {
                   return onComplete(Ask.getGidsPaged(actorSystem, backEnd, request.offset(), request.length()),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                               });
@@ -175,9 +171,7 @@ public final class Routes {
                   return onComplete(Ask.getGoldenRecordAuditTrail(actorSystem, backEnd, gid),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
                               });
@@ -191,9 +185,7 @@ public final class Routes {
                   return onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, obj),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
                               });
@@ -206,10 +198,7 @@ public final class Routes {
             return onComplete(Ask.countGoldenRecords(actorSystem, backEnd),
                         result -> {
                               if (!result.isSuccess()) {
-                                    final var e = result.failed().get();
-                                    LOGGER.error(e.getLocalizedMessage(), e);
-                                    return mapError(new MpiServiceError.InternalError(
-                                                e.getLocalizedMessage()));
+                                 return handleError(result.failed().get());
                               }
                               return result.get()
                                           .count()
@@ -228,10 +217,7 @@ public final class Routes {
             return onComplete(Ask.countInteractions(actorSystem, backEnd),
                         result -> {
                               if (!result.isSuccess()) {
-                                    final var e = result.failed().get();
-                                    LOGGER.error(e.getLocalizedMessage(), e);
-                                    return mapError(new MpiServiceError.InternalError(
-                                                e.getLocalizedMessage()));
+                                 return handleError(result.failed().get());
                               }
                               return result.get()
                                           .count()
@@ -250,10 +236,7 @@ public final class Routes {
             return onComplete(Ask.getGidsAll(actorSystem, backEnd),
                         result -> {
                               if (!result.isSuccess()) {
-                                    final var e = result.failed().get();
-                                    LOGGER.error(e.getLocalizedMessage(), e);
-                                    return mapError(new MpiServiceError.InternalError(
-                                                e.getLocalizedMessage()));
+                                 return handleError(result.failed().get());
                               }
                               return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                         });
@@ -270,11 +253,7 @@ public final class Routes {
                                                 client),
                                                 result -> {
                                                       if (!result.isSuccess()) {
-                                                            final var e = result.failed().get();
-                                                            LOGGER.error(e.getLocalizedMessage(),
-                                                                        e);
-                                                            return mapError(new MpiServiceError.InternalError(
-                                                                        e.getLocalizedMessage()));
+                                                         return handleError(result.failed().get());
                                                       }
                                                       return complete(StatusCodes.OK,
                                                                   result.get(),
@@ -290,9 +269,7 @@ public final class Routes {
                               Ask.getNotifications(actorSystem, backEnd, requestData),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
                               });
@@ -306,9 +283,7 @@ public final class Routes {
                   return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return result.get()
                                                 .expandedGoldenRecords()
@@ -330,9 +305,7 @@ public final class Routes {
                   return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return result.get()
                                                 .expandedGoldenRecords()
@@ -354,9 +327,7 @@ public final class Routes {
                   return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, request),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return result.get()
                                                 .expandedPatientRecords()
@@ -378,9 +349,7 @@ public final class Routes {
                   return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request),
                               result -> {
                                     if (!result.isSuccess()) {
-                                          final var e = result.failed().get();
-                                          LOGGER.error(e.getLocalizedMessage(), e);
-                                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                       return handleError(result.failed().get());
                                     }
                                     return result.get()
                                                 .goldenRecord()
@@ -402,10 +371,7 @@ public final class Routes {
                         request -> onComplete(Ask.getInteraction(actorSystem, backEnd, request),
                                     result -> {
                                           if (!result.isSuccess()) {
-                                                final var e = result.failed().get();
-                                                LOGGER.error(e.getLocalizedMessage(), e);
-                                                return mapError(new MpiServiceError.InternalError(
-                                                            e.getLocalizedMessage()));
+                                             return handleError(result.failed().get());
                                           }
                                           return result.get()
                                                       .patient()
@@ -602,10 +568,7 @@ public final class Routes {
             return onComplete(Ask.getConfiguration(actorSystem, backEnd),
                         result -> {
                               if (!result.isSuccess()) {
-                                    Throwable e = result.failed().get();
-                                    LOGGER.error(e.getLocalizedMessage(), e);
-                                    return mapError(new MpiServiceError.InternalError(
-                                                e.getLocalizedMessage()));
+                                 return handleError(result.failed().get());
                               }
                               return complete(StatusCodes.OK, result.get().configuration(), JSON_MARSHALLER);
                         });
