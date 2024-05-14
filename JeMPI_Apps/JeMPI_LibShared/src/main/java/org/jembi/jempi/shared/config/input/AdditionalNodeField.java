@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonInclude;
    public record AdditionalNodeField(
          String fieldName,
          String fieldType,
-         Integer csvCol) {
+         Source source) {
    }

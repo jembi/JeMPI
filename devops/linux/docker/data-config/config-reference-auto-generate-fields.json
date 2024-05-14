@@ -1,5 +1,5 @@
 {
-  "uniqueInteractionFields": [
+  "auxInteractionFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -15,7 +15,7 @@
       "csvCol": 10
     }
   ],
-  "uniqueGoldenRecordFields": [
+  "auxGoldenRecordFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -129,14 +129,14 @@
   ],
   "rules": {
     "link": {
-      "deterministic": {
-        "QUERY_LINK_DETERMINISTIC_A": {
+      "deterministic": [
+        {
           "vars": [
             "national_id"
           ],
           "text": "eq(national_id)"
         },
-        "QUERY_LINK_DETERMINISTIC_B": {
+        {
           "vars": [
             "given_name",
             "family_name",
@@ -144,7 +144,7 @@
           ],
           "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
         }
-      }
+      ]
     }
   }
 }

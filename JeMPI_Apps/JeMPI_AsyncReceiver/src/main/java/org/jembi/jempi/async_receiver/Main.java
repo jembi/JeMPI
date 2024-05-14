@@ -1,5 +1,6 @@
 package org.jembi.jempi.async_receiver;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE_CONFIG;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
 
@@ -78,13 +80,37 @@ public final class Main {
             csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
    }
 
+   private static String applyFunction(final String func) {
+      return switch (func) {
+         case "AppUtils::autoGenerateId" -> AppUtils.autoGenerateId();
+         default -> null;
+      };
+   }
+
    private static DemographicData demographicData(final CSVRecord csvRecord) {
-      return new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataCsvCols.stream()
-                                                                              .map(f -> new DemographicData.DemographicField(
-                                                                                    AppUtils.snakeToCamelCase(
-                                                                                          f.getLeft()),
-                                                                                    csvRecord.get(f.getRight())))
-                                                                              .toList());
+
+      final var data = new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataSource
+                                                 .stream()
+                                                 .map(f -> new DemographicData.DemographicField(
+                                                       f.getLeft(),
+                                                       (f.getRight().csvCol() != null)
+                                                             ? csvRecord.get(f.getRight().csvCol())
+                                                             : applyFunction(f.getRight().generate().func())))
+                                                 .toList());
+
+      try {
+         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(data));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      return data;
+
+//      return new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataCsvCols.stream()
+//                                                                              .map(f -> new DemographicData.DemographicField(
+//                                                                                    AppUtils.snakeToCamelCase(
+//                                                                                          f.getLeft()),
+//                                                                                    csvRecord.get(f.getRight())))
+//                                                                              .toList());
    }
 
    private void sendToKafka(

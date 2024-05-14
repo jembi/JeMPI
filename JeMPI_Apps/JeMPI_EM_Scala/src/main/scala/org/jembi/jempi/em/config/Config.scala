@@ -6,7 +6,7 @@ case class auxField(
     csvCol: Option[Int],
     index: Option[String],
     isList: Option[Boolean],
-    source: Option[String],
+    source: Option[Source],
     default: Option[String]
 )
 
@@ -15,7 +15,7 @@ case class AdditionalNode(nodeName: String, fields: Array[AdditionalNodeField])
 case class AdditionalNodeField(
     fieldName: String,
     fieldType: String,
-    csvCol: Option[Int]
+    source: Option[Source]
 )
 
 case class DemographicField(
@@ -30,7 +30,11 @@ case class DemographicField(
     matchMetaData: Option[ProbabilisticMetaData]
 )
 
-case class Source(generate: Option[Generate], csvCol: Option[Int])
+case class Source(
+    generate: Option[Generate],
+    csvCol: Option[Int],
+    interactionField: Option[String]
+)
 
 case class Generate(func: String)
 
