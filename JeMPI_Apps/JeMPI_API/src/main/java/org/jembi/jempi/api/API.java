@@ -20,7 +20,6 @@ public final class API {
    private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
-
    private API() {
       LOGGER.info("API started.");
    }
@@ -45,7 +44,10 @@ public final class API {
                                                                         AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
                                                                         AppConfig.POSTGRESQL_AUDIT_DB,
                                                                         AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                                        "CLIENT_ID_API-" + UUID.randomUUID()), "BackEnd");
+                                                                        "CLIENT_ID_API-" + UUID.randomUUID(),
+                                                                        AppConfig.API_CONFIG_DIR,
+                                                                        AppConfig.API_CONFIG_REFERENCE_FILENAME,
+                                                                        AppConfig.API_CONFIG_MASTER_FILENAME), "BackEnd");
          context.watch(backEnd);
          httpServer = HttpServer.create();
          httpServer.open("0.0.0.0", AppConfig.API_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);

@@ -4,6 +4,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.control.Either;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -15,6 +16,7 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -23,8 +25,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -45,6 +49,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
+   private final String apiConfigDirectory;
+   private final String configReferenceFileName;
+   private final String configMasterFileName;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
@@ -61,7 +68,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlNotificationsDb,
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
-         final String kafkaClientId) {
+         final String kafkaClientId,
+         final String apiConfigDirectory,
+         final String configReferenceFileName,
+         final String configMasterFileName) {
       super(context);
       try {
          this.libMPI = null;
@@ -73,6 +83,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
+         this.apiConfigDirectory = apiConfigDirectory;
+         this.configReferenceFileName = configReferenceFileName;
+         this.configMasterFileName = configMasterFileName;
          psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
@@ -94,7 +107,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlNotificationsDb,
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
-         final String kafkaClientId) {
+         final String kafkaClientId,
+         final String apiConfigDirectory,
+         final String configReferenceFileName,
+         final String configMasterFileName) {
       return Behaviors.setup(context -> new BackEnd(level,
                                                     context,
                                                     dgraphHosts,
@@ -106,7 +122,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlNotificationsDb,
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
-                                                    kafkaClientId));
+                                                    kafkaClientId,
+                                                    apiConfigDirectory,
+                                                    configReferenceFileName,
+                                                    configMasterFileName));
    }
 
    private static void appendUploadConfigToFile(
@@ -169,6 +188,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
+                    .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
                     .build();
    }
 
@@ -473,6 +493,28 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
+      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
+      Path configReferenceJsonFilePath = Paths.get(apiConfigDirectory, configReferenceFileName);
+
+      Path configFilePath = configMasterJsonFilePath;
+      if (!Files.exists(configFilePath)) {
+         configFilePath = configReferenceJsonFilePath;
+      }
+
+      try {
+         String configFileContent = new String(Files.readAllBytes(configFilePath), StandardCharsets.UTF_8);
+         ObjectMapper mapper = new ObjectMapper();
+         Configuration configuration = mapper.readValue(configFileContent, Configuration.class);
+         request.replyTo.tell(new GetConfigurationResponse(configuration));
+      } catch (Exception exception) {
+         LOGGER.error("getConfigurationHandler failed with error: {}",
+                      exception.getMessage());
+      }
+
+      return Behaviors.same();
+   }
+
    public interface Event {
    }
 
@@ -535,6 +577,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record GetGidsAllResponse(List<String> records) implements EventResponse {
+   }
+
+   public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event {
+   }
+
+   public record GetConfigurationResponse(Configuration configuration) implements EventResponse {
    }
 
    public record FindExpandedSourceIdRequest(
