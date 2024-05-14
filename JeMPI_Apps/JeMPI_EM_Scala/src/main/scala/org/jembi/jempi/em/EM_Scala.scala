@@ -46,7 +46,7 @@ object EM_Scala extends LazyLogging {
       .build() :: ClassTagExtensions
 
     val jsonConfig = jsonMapper.readValue(
-      Paths.get("/app/conf_system/config-reference.json").toFile,
+      Paths.get("/app/conf_system/config.json").toFile,
       new TypeReference[Config] {}
     )
     jsonConfig.demographicFields.zipWithIndex.foreach(f =>

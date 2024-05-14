@@ -1,5 +1,5 @@
 {
-  "uniqueInteractionFields": [
+  "auxInteractionFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -15,7 +15,7 @@
       "csvCol": 10
     }
   ],
-  "uniqueGoldenRecordFields": [
+  "auxGoldenRecordFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"

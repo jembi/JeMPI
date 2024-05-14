@@ -1,6 +1,6 @@
 package org.jembi.jempi.em.configuration
 
-case class UniqueField(
+case class auxField(
     fieldName: String,
     fieldType: String,
     csvCol: Option[Int],
@@ -48,7 +48,7 @@ case class AllRules(
     probabilistic: Option[List[Rule]]
 )
 
-case class ValidateRules(deterministic: Map[String, Rule])
+case class ValidateRules(deterministic: List[Rule])
 
 case class Rules(
     link: Option[AllRules],
@@ -57,8 +57,8 @@ case class Rules(
 )
 
 case class Config(
-    uniqueInteractionFields: Option[Array[UniqueField]],
-    uniqueGoldenRecordFields: Option[Array[UniqueField]],
+    auxInteractionFields: Option[Array[auxField]],
+    auxGoldenRecordFields: Option[Array[auxField]],
     additionalNodes: Option[Array[AdditionalNode]],
     demographicFields: Array[DemographicField],
     rules: Rules

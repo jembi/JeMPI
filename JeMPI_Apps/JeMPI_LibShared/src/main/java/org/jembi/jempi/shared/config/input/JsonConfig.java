@@ -16,8 +16,8 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record JsonConfig(
-      @JsonProperty("uniqueInteractionFields") List<AuxInteractionField> auxInteractionFields,
-      @JsonProperty("uniqueGoldenRecordFields") List<AuxGoldenRecordField> auxGoldenRecordFields,
+      @JsonProperty("auxInteractionFields") List<AuxInteractionField> auxInteractionFields,
+      @JsonProperty("auxGoldenRecordFields") List<AuxGoldenRecordField> auxGoldenRecordFields,
       List<AdditionalNode> additionalNodes,
       List<DemographicField> demographicFields,
       Rules rules) {
