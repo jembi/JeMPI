@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ConfigurationModel {
+public record ConfigurationModel(
+      Configuration configuration
+) {
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public record Configuration(
                         List<Field> uniqueInteractionFields,
@@ -20,8 +22,7 @@ public class ConfigurationModel {
                         String fieldName,
                         String fieldType,
                         Integer csvCol,
-                        String source,
-                        String defaultVal) {
+                        String source) {
         }
 
         public record Node(
@@ -32,9 +33,7 @@ public class ConfigurationModel {
         public record DemographicField(
                         String fieldName,
                         String fieldType,
-                        Integer csvCol,
                         SourceDetail source,
-                        String defaultVal,
                         String indexGoldenRecord,
                         String indexInteraction,
                         LinkMetaData linkMetaData) {
