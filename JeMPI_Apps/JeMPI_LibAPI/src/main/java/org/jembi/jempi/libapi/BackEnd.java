@@ -502,7 +502,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       try {
-         String configFileContent = Files.readString(configFilePath);
+         String configFileContent = new String(Files.readAllBytes(configFilePath), StandardCharsets.UTF_8);
          ObjectMapper mapper = new ObjectMapper();
          Configuration configuration = mapper.readValue(configFileContent, Configuration.class);
          request.replyTo.tell(new GetConfigurationResponse(configuration));
