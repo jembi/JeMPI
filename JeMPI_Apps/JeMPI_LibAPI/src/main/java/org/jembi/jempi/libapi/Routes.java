@@ -104,7 +104,7 @@ public final class Routes {
                                     }));
       }
 
-   private static Route handleError(Throwable e) {
+   private static Route handleError(final Throwable e) {
       LOGGER.error(e.getLocalizedMessage(), e);
       return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
    }
