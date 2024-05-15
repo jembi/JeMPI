@@ -1,14 +1,8 @@
 package org.jembi.jempi.shared.config;
 
-import org.jembi.jempi.shared.models.DemographicData;
-import org.jembi.jempi.shared.models.GoldenRecord;
-
-import java.util.List;
+import java.nio.file.FileSystems;
 
 final class TestConstants {
-
-   static final String CONFIG_FILE_11 = "config-reference.json";
-   static final String CONFIG_FILE_12 = "config-reference-link-d-validate-dp-match-dp.json";
 
    static final String GOLDEN_RECORD_FIELD_NAMES_1 =
          """
@@ -29,7 +23,6 @@ final class TestConstants {
          GoldenRecord.demographic_field_05
          GoldenRecord.demographic_field_06
          """;
-
    static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES_1 =
          """
          uid
@@ -67,7 +60,6 @@ final class TestConstants {
             Interaction.demographic_field_06
          }
          """;
-
    static final String INTERACTION_FIELD_NAMES_1 =
          """
          uid
@@ -87,7 +79,6 @@ final class TestConstants {
          Interaction.demographic_field_05
          Interaction.demographic_field_06
          """;
-
    static final String EXPANDED_INTERACTION_FIELD_NAMES_1 =
          """
          uid
@@ -125,7 +116,6 @@ final class TestConstants {
             GoldenRecord.demographic_field_06
          }
          """;
-
    static final String QUERY_GET_INTERACTION_BY_UID_1 =
          """
          query interactionByUid($uid: string) {
@@ -149,7 +139,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_GOLDEN_RECORD_BY_UID_1 =
          """
          query goldenRecordByUid($uid: string) {
@@ -173,7 +162,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_EXPANDED_INTERACTIONS_1 =
          """
          query expandedInteraction() {
@@ -215,7 +203,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_GOLDEN_RECORDS_1 =
          """
          query goldenRecord() {
@@ -239,7 +226,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS_1 =
          """
          query expandedGoldenRecord() {
@@ -281,7 +267,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String MUTATION_CREATE_SOURCE_ID_TYPE_1 =
          """
          type SourceId {
@@ -289,13 +274,11 @@ final class TestConstants {
             SourceId.patient
          }
          """;
-
    static final String MUTATION_CREATE_SOURCE_ID_FIELDS_1 =
          """
          SourceId.facility:                     string    @index(exact)                      .
          SourceId.patient:                      string    @index(exact)                      .
          """;
-
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE_1 =
          """
          type GoldenRecord {
@@ -313,7 +296,6 @@ final class TestConstants {
             GoldenRecord.interactions:                          [Interaction]
          }
          """;
-
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS_1 =
          """
          GoldenRecord.source_id:                   [uid]     @reverse                           .
@@ -329,7 +311,6 @@ final class TestConstants {
          GoldenRecord.demographic_field_06:        string    @index(exact,trigram)              .
          GoldenRecord.interactions:                [uid]     @reverse                           .
          """;
-
    static final String MUTATION_CREATE_INTERACTION_TYPE_1 =
          """
          type Interaction {
@@ -346,7 +327,6 @@ final class TestConstants {
             Interaction.demographic_field_06
          }
          """;
-
    static final String MUTATION_CREATE_INTERACTION_FIELDS_1 =
          """
          Interaction.source_id:                    uid                                          .
@@ -361,7 +341,6 @@ final class TestConstants {
          Interaction.demographic_field_05:         string                                       .
          Interaction.demographic_field_06:         string    @index(exact,trigram)              .
          """;
-
    static final String MUTATION_CREATE_INTERACTION_TRIPLE_1 =
          """
          _:%s  <Interaction.source_id>                     <%s>                  .
@@ -377,7 +356,6 @@ final class TestConstants {
          _:%s  <Interaction.demographic_field_06>          %s                    .
          _:%s  <dgraph.type>                               "Interaction"         .
          """;
-
    static final String MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_1 =
          """
          _:%s  <GoldenRecord.source_id>                     <%s>                  .
@@ -394,7 +372,6 @@ final class TestConstants {
          _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
          _:%s  <dgraph.type>                                "GoldenRecord"        .
          """;
-
    static final String GOLDEN_RECORD_FIELD_NAMES_2 =
          """
          uid
@@ -414,7 +391,6 @@ final class TestConstants {
          GoldenRecord.demographic_field_05
          GoldenRecord.demographic_field_06
          """;
-
    static final String EXPANDED_GOLDEN_RECORD_FIELD_NAMES_2 =
          """
          uid
@@ -452,7 +428,6 @@ final class TestConstants {
             Interaction.demographic_field_06
          }
          """;
-
    static final String INTERACTION_FIELD_NAMES_2 =
          """
          uid
@@ -472,7 +447,6 @@ final class TestConstants {
          Interaction.demographic_field_05
          Interaction.demographic_field_06
          """;
-
    static final String EXPANDED_INTERACTION_FIELD_NAMES_2 =
          """
          uid
@@ -510,7 +484,6 @@ final class TestConstants {
             GoldenRecord.demographic_field_06
          }
          """;
-
    static final String QUERY_GET_INTERACTION_BY_UID_2 =
          """
          query interactionByUid($uid: string) {
@@ -534,7 +507,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_GOLDEN_RECORD_BY_UID_2 =
          """
          query goldenRecordByUid($uid: string) {
@@ -558,7 +530,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_EXPANDED_INTERACTIONS_2 =
          """
          query expandedInteraction() {
@@ -600,7 +571,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_GOLDEN_RECORDS_2 =
          """
          query goldenRecord() {
@@ -624,7 +594,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_GET_EXPANDED_GOLDEN_RECORDS_2 =
          """
          query expandedGoldenRecord() {
@@ -666,7 +635,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String MUTATION_CREATE_SOURCE_ID_TYPE_2 =
          """
          type SourceId {
@@ -674,13 +642,11 @@ final class TestConstants {
             SourceId.patient
          }
          """;
-
    static final String MUTATION_CREATE_SOURCE_ID_FIELDS_2 =
          """
          SourceId.facility:                     string    @index(exact)                      .
          SourceId.patient:                      string    @index(exact)                      .
          """;
-
    static final String MUTATION_CREATE_GOLDEN_RECORD_TYPE_2 =
          """
          type GoldenRecord {
@@ -698,7 +664,6 @@ final class TestConstants {
             GoldenRecord.interactions:                          [Interaction]
          }
          """;
-
    static final String MUTATION_CREATE_GOLDEN_RECORD_FIELDS_2 =
          """
          GoldenRecord.source_id:                   [uid]     @reverse                           .
@@ -714,7 +679,6 @@ final class TestConstants {
          GoldenRecord.demographic_field_06:        string    @index(exact)                      .
          GoldenRecord.interactions:                [uid]     @reverse                           .
          """;
-
    static final String MUTATION_CREATE_INTERACTION_TYPE_2 =
          """
          type Interaction {
@@ -731,7 +695,6 @@ final class TestConstants {
             Interaction.demographic_field_06
          }
          """;
-
    static final String MUTATION_CREATE_INTERACTION_FIELDS_2 =
          """
          Interaction.source_id:                    uid                                          .
@@ -746,7 +709,6 @@ final class TestConstants {
          Interaction.demographic_field_05:         string                                       .
          Interaction.demographic_field_06:         string                                       .
          """;
-
    static final String MUTATION_CREATE_INTERACTION_TRIPLE_2 =
          """
          _:%s  <Interaction.source_id>                     <%s>                  .
@@ -762,7 +724,6 @@ final class TestConstants {
          _:%s  <Interaction.demographic_field_06>          %s                    .
          _:%s  <dgraph.type>                               "Interaction"         .
          """;
-
    static final String MUTATION_CREATE_LINKED_GOLDEN_RECORD_TRIPLE_2 =
          """
          _:%s  <GoldenRecord.source_id>                     <%s>                  .
@@ -779,7 +740,6 @@ final class TestConstants {
          _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
          _:%s  <dgraph.type>                                "GoldenRecord"        .
          """;
-
    static final String SELECT_QUERY_LINK_DETERMINISTIC_A_1 =
          """
          query query_link_deterministic_00($national_id: string) {
@@ -801,22 +761,21 @@ final class TestConstants {
             }
          }
          """;
-
    static final String SELECT_QUERY_LINK_DETERMINISTIC_B_1 =
          """
          query query_link_deterministic_01($given_name: string, $family_name: string, $phone_number: string) {
             var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_00, $given_name)) {
                A as uid
             }
-         
+                  
             var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_01, $family_name)) {
                B as uid
             }
-         
+                  
             var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_05, $phone_number)) {
                C as uid
             }
-         
+                  
             all(func:type(GoldenRecord)) @filter(((uid(A) AND uid(B)) AND uid(C))) {
                uid
                GoldenRecord.source_id {
@@ -835,7 +794,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String SELECT_QUERY_LINK_PROBABILISTIC_BLOCK_1 =
          """
          query query_link_probabilistic_block($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
@@ -872,30 +830,29 @@ final class TestConstants {
             }
          }
          """;
-
    static final String SELECT_QUERY_LINK_BLOCK_00_1 =
          """
          query query_link_deterministic_00($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_00, $given_name, 3)) {
                A as uid
             }
-         
+                  
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_01, $family_name, 3)) {
                B as uid
             }
-         
+                  
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_04, $city, 3)) {
                C as uid
             }
-         
+                  
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_05, $phone_number, 3)) {
                D as uid
             }
-         
+                  
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_06, $national_id, 3)) {
                E as uid
             }
-         
+                  
             all(func:type(GoldenRecord)) @filter((((((uid(A) AND uid(B)) OR (uid(A) AND uid(C))) OR (uid(B) AND uid(C))) OR uid(D)) OR uid(E))) {
                uid
                GoldenRecord.source_id {
@@ -914,7 +871,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_LINK_DETERMINISTIC_A_2 =
          """
          query query_link_deterministic_a($national_id: string) {
@@ -936,7 +892,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_MATCH_DETERMINISTIC_A_2 =
          """
          query query_match_deterministic_a($given_name: string, $family_name: string, $phone_number: string) {
@@ -967,7 +922,6 @@ final class TestConstants {
             }
          }
          """;
-
    static final String QUERY_MATCH_PROBABILISTIC_BLOCK_2 =
          """
          query query_match_probabilistic_block($given_name: string, $family_name: string, $phone_number: string) {
@@ -999,6 +953,11 @@ final class TestConstants {
          }
          """;
 
+   private static final String SEPARATOR = FileSystems.getDefault().getSeparator();
+   static final String CONFIG_FILE_11 =
+         "src%stest%sresources%s%s".formatted(SEPARATOR, SEPARATOR, SEPARATOR, "config-reference-link-dp.json");
+   static final String CONFIG_FILE_12 =
+         "src%stest%sresources%s%s".formatted(SEPARATOR,  SEPARATOR, SEPARATOR, "config-reference-link-d-validate-dp-match-dp.json");
 
 
    private TestConstants() {

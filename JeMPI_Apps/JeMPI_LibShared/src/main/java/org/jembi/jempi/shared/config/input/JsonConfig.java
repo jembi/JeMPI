@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.util.List;
 
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -24,11 +23,11 @@ public record JsonConfig(
 
    private static final Logger LOGGER = LogManager.getLogger(JsonConfig.class);
 
-   public static JsonConfig fromJson(final String jsonFile) {
+   public static JsonConfig fromJson(final String filePath) {
       JsonConfig cfg;
 
-      final var separator = FileSystems.getDefault().getSeparator();
-      final var filePath = "%sapp%sconf_system%s%s".formatted(separator, separator, separator, jsonFile);
+//      final var separator = FileSystems.getDefault().getSeparator();
+//      final var filePath = "%sapp%sconf_system%s%s".formatted(separator, separator, separator, jsonFile);
       final var file = new File(filePath);
       try (InputStream in = new FileInputStream(file)) {
          cfg = OBJECT_MAPPER.readValue(in, JsonConfig.class);

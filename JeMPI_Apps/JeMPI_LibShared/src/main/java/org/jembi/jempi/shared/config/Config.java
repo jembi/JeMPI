@@ -2,6 +2,8 @@ package org.jembi.jempi.shared.config;
 
 import org.jembi.jempi.shared.config.input.JsonConfig;
 
+import java.nio.file.FileSystems;
+
 public final class Config {
 
    public static final String CONFIG_FILE = "config.json";
@@ -13,7 +15,9 @@ public final class Config {
    public static final DGraphConfig DGRAPH_CONFIG;
 
    static {
-      JSON_CONFIG = JsonConfig.fromJson(CONFIG_FILE);
+      final var separator = FileSystems.getDefault().getSeparator();
+      final var filePath = "%sapp%sconf_system%s%s".formatted(separator, separator, separator, CONFIG_FILE);
+      JSON_CONFIG = JsonConfig.fromJson(filePath);
       FIELDS_CONFIG = new FieldsConfig(JSON_CONFIG);
       INPUT_INTERFACE_CONFIG = new InputInterfaceConfig(JSON_CONFIG);
       API_CONFIG = new ApiConfig(JSON_CONFIG);

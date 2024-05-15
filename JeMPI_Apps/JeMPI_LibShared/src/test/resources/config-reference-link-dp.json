@@ -1,5 +1,5 @@
 {
-  "uniqueInteractionFields": [
+  "auxInteractionFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -7,15 +7,19 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "csvCol": 0
+      "source": {
+        "csvCol": 0
+      }
     },
     {
       "fieldName": "aux_clinical_data",
       "fieldType": "String",
-      "csvCol": 10
+      "source": {
+        "csvCol": 10
+      }
     }
   ],
-  "uniqueGoldenRecordFields": [
+  "auxGoldenRecordFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -28,7 +32,9 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "source": "aux_id"
+      "source": {
+        "interactionField": "aux_id"
+      }
     }
   ],
   "additionalNodes": [
@@ -38,12 +44,16 @@
         {
           "fieldName": "facility",
           "fieldType": "String",
-          "csvCol": 8
+          "source": {
+            "csvCol": 8
+          }
         },
         {
           "fieldName": "patient",
           "fieldType": "String",
-          "csvCol": 9
+          "source": {
+            "csvCol": 9
+          }
         }
       ]
     }
@@ -56,6 +66,7 @@
         "csvCol": 1
       },
       "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -72,6 +83,7 @@
         "csvCol": 2
       },
       "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -87,6 +99,7 @@
       "source": {
         "csvCol": 3
       },
+      "indexGoldenRecord": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -150,6 +163,7 @@
         "csvCol": 7
       },
       "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -162,14 +176,14 @@
   ],
   "rules": {
     "link": {
-      "deterministic": {
-        "QUERY_LINK_DETERMINISTIC_A": {
+      "deterministic": [
+        {
           "vars": [
             "national_id"
           ],
           "text": "eq(national_id)"
         },
-        "QUERY_LINK_DETERMINISTIC_B": {
+        {
           "vars": [
             "given_name",
             "family_name",
@@ -177,9 +191,9 @@
           ],
           "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
         }
-      },
-      "probabilistic": {
-        "QUERY_LINK_PROBABILISTIC": {
+      ],
+      "probabilistic": [
+        {
           "vars": [
             "given_name",
             "family_name",
@@ -187,9 +201,9 @@
             "phone_number",
             "national_id"
           ],
-          "text": "(match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)) or match(phone_number,2) or match(national_id,3)"
+          "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)"
         }
-      }
+      ]
     }
   }
 }

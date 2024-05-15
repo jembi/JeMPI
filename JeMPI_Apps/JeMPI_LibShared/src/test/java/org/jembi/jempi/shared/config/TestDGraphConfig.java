@@ -15,6 +15,7 @@ class TestDGraphConfig {
 
    @BeforeAll
    static void parseJsonConfig1() {
+      System.out.println(TestConstants.CONFIG_FILE_11);
       JSON_CONFIG_1 = JsonConfig.fromJson(TestConstants.CONFIG_FILE_11);
       DGRAPH_CONFIG_1 = new DGraphConfig(JSON_CONFIG_1);
 

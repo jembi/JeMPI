@@ -1,5 +1,5 @@
 {
-  "uniqueInteractionFields": [
+  "auxInteractionFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -7,15 +7,19 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "csvCol": 0
+      "source": {
+        "csvCol": 0
+      }
     },
     {
       "fieldName": "aux_clinical_data",
       "fieldType": "String",
-      "csvCol": 10
+      "source": {
+        "csvCol": 10
+      }
     }
   ],
-  "uniqueGoldenRecordFields": [
+  "auxGoldenRecordFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -27,8 +31,7 @@
     },
     {
       "fieldName": "aux_id",
-      "fieldType": "String",
-      "source": "aux_id"
+      "fieldType": "String"
     }
   ],
   "additionalNodes": [
@@ -38,12 +41,16 @@
         {
           "fieldName": "facility",
           "fieldType": "String",
-          "csvCol": 8
+          "source": {
+            "csvCol": 8
+          }
         },
         {
           "fieldName": "patient",
           "fieldType": "String",
-          "csvCol": 9
+          "source": {
+            "csvCol": 9
+          }
         }
       ]
     }
@@ -55,15 +62,8 @@
       "source": {
         "csvCol": 1
       },
-      "indexGoldenRecord": "@index(exact)",
-      "validateMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8806329,
-        "u": 0.0026558
-      }
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
     },
     {
       "fieldName": "family_name",
@@ -71,15 +71,8 @@
       "source": {
         "csvCol": 2
       },
-      "indexGoldenRecord": "@index(exact)",
-      "validateMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.9140443,
-        "u": 0.0006275
-      }
+      "indexGoldenRecord": "@index(exact,trigram)",
+      "indexInteraction": "@index(exact,trigram)"
     },
     {
       "fieldName": "gender",
@@ -87,28 +80,13 @@
       "source": {
         "csvCol": 3
       },
-      "validateMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.9468393,
-        "u": 0.4436446
-      }
+      "indexGoldenRecord": "@index(exact)"
     },
     {
       "fieldName": "dob",
       "fieldType": "String",
       "source": {
         "csvCol": 4
-      },
-      "validateMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.7856196,
-        "u": 0.0000465
       }
     },
     {
@@ -117,14 +95,7 @@
       "source": {
         "csvCol": 5
       },
-      "validateMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8445694,
-        "u": 0.0355741
-      }
+      "indexGoldenRecord": "@index(trigram)"
     },
     {
       "fieldName": "phone_number",
@@ -132,15 +103,7 @@
       "source": {
         "csvCol": 6
       },
-      "indexGoldenRecord": "@index(exact)",
-      "validateMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8408500,
-        "u": 0.0000004
-      }
+      "indexGoldenRecord": "@index(exact,trigram)"
     },
     {
       "fieldName": "national_id",
@@ -148,19 +111,40 @@
       "source": {
         "csvCol": 7
       },
+      "indexGoldenRecord": "@index(exact)",
+      "indexInteraction": "@index(exact)"
+    },
+    {
+      "fieldName": "my_golden_id_a",
+      "fieldType": "String",
+      "source": {
+        "generate": {
+          "func": "AppUtils::autoGenerateId"
+        }
+      },
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "my_golden_id_b",
+      "fieldType": "String",
+      "source": {
+        "generate": {
+          "func": "AppUtils::autoGenerateId"
+        }
+      },
       "indexGoldenRecord": "@index(exact)"
     }
   ],
   "rules": {
     "link": {
-      "deterministic": {
-        "QUERY_LINK_DETERMINISTIC_A": {
+      "deterministic": [
+        {
           "vars": [
             "national_id"
           ],
           "text": "eq(national_id)"
         },
-        "QUERY_LINK_DETERMINISTIC_B": {
+        {
           "vars": [
             "given_name",
             "family_name",
@@ -168,21 +152,7 @@
           ],
           "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
         }
-      }
-    },
-    "validate": {
-      "deterministic": {
-        "QUERY_VALIDATE_DETERMINISTIC_A": {
-          "vars": [
-            "given_name",
-            "family_name",
-            "phone_number"
-          ],
-          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
-        }
-      }
+      ]
     }
-
   }
-
 }

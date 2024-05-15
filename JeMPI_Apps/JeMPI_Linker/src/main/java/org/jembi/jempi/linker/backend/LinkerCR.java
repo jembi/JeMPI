@@ -275,8 +275,8 @@ final class LinkerCR {
          final String iid,
          final DemographicData interaction) {
       for (int i = 0; i < Config.DGRAPH_CONFIG.demographicDataFields.size(); i++) {
-         String gField = goldenRecord.fields.get(i).value();
-         String iField = interaction.fields.get(i).value();
+         final String gField = goldenRecord.fields.get(i).value();
+         final String iField = interaction.fields.get(i).value();
          if ((!StringUtils.isBlank(gField) && !StringUtils.isBlank(iField) && !gField.equals(iField))
              ||
              (StringUtils.isBlank(gField) && !StringUtils.isEmpty(iField))) {

@@ -1,6 +1,7 @@
 package org.jembi.jempi.shared.config;
 
 import org.jembi.jempi.shared.config.input.JsonConfig;
+import org.jembi.jempi.shared.config.input.Source;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -47,8 +48,8 @@ class TestInputInterfaceConfig {
 
    @Test
    void testAuxInteractionData() {
-      Assertions.assertEquals(3, INPUT_INTERFACE_CONFIG_1.auxInteractionDataSource.size());
-      Assertions.assertEquals(3, INPUT_INTERFACE_CONFIG_2.auxInteractionDataSource.size());
+      Assertions.assertEquals(2, INPUT_INTERFACE_CONFIG_1.auxInteractionDataSource.size());
+      Assertions.assertEquals(2, INPUT_INTERFACE_CONFIG_2.auxInteractionDataSource.size());
       Assertions.assertEquals(1, INPUT_INTERFACE_CONFIG_1.additionalNodesSource.size());
       Assertions.assertEquals(1, INPUT_INTERFACE_CONFIG_2.additionalNodesSource.size());
 //      INPUT_INTERFACE_CONFIG_1.auxInteractionDataCsvCols.get("aux_id");
@@ -82,18 +83,18 @@ class TestInputInterfaceConfig {
       Assertions.assertEquals(
             new HashMap<>(
                   Map.ofEntries(
-                        new AbstractMap.SimpleEntry<String, Map<String, Integer>>(
+                        new AbstractMap.SimpleEntry<String, Map<String, Source>>(
                               "SourceId", new HashMap<>(Map.ofEntries(
-                              new AbstractMap.SimpleEntry<>("facility", 8),
-                              new AbstractMap.SimpleEntry<>("patient", 9)))))),
+                              new AbstractMap.SimpleEntry<>("facility", new Source(8, null, null)),
+                              new AbstractMap.SimpleEntry<>("patient",  new Source(9, null, null))))))),
             INPUT_INTERFACE_CONFIG_1.additionalNodesSource);
       Assertions.assertEquals(
             new HashMap<>(
                   Map.ofEntries(
-                        new AbstractMap.SimpleEntry<String, Map<String, Integer>>(
+                        new AbstractMap.SimpleEntry<String, Map<String, Source>>(
                               "SourceId", new HashMap<>(Map.ofEntries(
-                              new AbstractMap.SimpleEntry<>("facility", 8),
-                              new AbstractMap.SimpleEntry<>("patient", 9)))))),
+                              new AbstractMap.SimpleEntry<>("facility", new Source(8, null, null)),
+                              new AbstractMap.SimpleEntry<>("patient", new Source(9, null, null))))))),
             INPUT_INTERFACE_CONFIG_2.additionalNodesSource);
 
       Assertions.assertEquals(8, INPUT_INTERFACE_CONFIG_1.sourceIdFacilityCsvCol);
