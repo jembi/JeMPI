@@ -8,8 +8,6 @@ public record CustomMU(String tag,
                        CustomValidateMU customValidateMU,
                        CustomMatchMU customMatchMU) {
 
-   public static final Boolean SEND_INTERACTIONS_TO_EM = true;
-
    public record Probability(float m, float u) {
    }
 
