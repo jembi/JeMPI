@@ -1,7 +1,6 @@
 package org.jembi.jempi.libapi;
 
 import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorRefResolver;
 import akka.actor.typed.ActorSystem;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.marshallers.jackson.Jackson;

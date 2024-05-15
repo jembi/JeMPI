@@ -9,8 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 
-import com.google.api.Backend;
-
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -350,7 +348,7 @@ public final class Ask {
       static CompletionStage<BackEnd.PostConfigurationResponse> postConfiguration(
                   final ActorSystem<Void> actorSystem,
                   final ActorRef<BackEnd.Event> backEnd,
-                  Configuration configuration) {
+                  final Configuration configuration) {
             CompletionStage<BackEnd.PostConfigurationResponse> stage = AskPattern
                         .ask(backEnd,
                                     replyTo -> new BackEnd.PostConfigurationRequest(replyTo,
