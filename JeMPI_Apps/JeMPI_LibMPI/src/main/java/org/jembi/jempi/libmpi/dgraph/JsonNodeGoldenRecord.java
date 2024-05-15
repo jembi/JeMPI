@@ -15,6 +15,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
@@ -71,7 +72,7 @@ record JsonNodeGoldenRecord(JsonNode node) {
       final var t = (!(tNode == null || node.isMissingNode()))
             ? tNode.textValue()
             : null;
-      final var customUniqueGoldenRecordData = new AuxGoldenRecordData(d, b, t);
+      final var customUniqueGoldenRecordData = new AuxGoldenRecordData(d, b, List.of(AuxGoldenRecordData.deprecatedGetFieldAuxId(t)));
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();

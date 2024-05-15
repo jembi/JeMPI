@@ -56,7 +56,7 @@ public final class CustomSourceRecordStream {
                                                           rec.stan(),
                                                           new Interaction(null,
                                                                           rec.interaction().sourceId(),
-                                                                          interaction.uniqueInteractionData(),
+                                                                          interaction.auxInteractionData(),
                                                                           demographicData.clean()));
             return KeyValue.pair(key, newEnvelop);
          } else {

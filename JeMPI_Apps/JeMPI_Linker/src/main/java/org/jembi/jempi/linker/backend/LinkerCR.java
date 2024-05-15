@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.jembi.jempi.shared.models.AuxInteractionData.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC;
+
 final class LinkerCR {
    private static final Logger LOGGER;
 
@@ -77,7 +79,7 @@ final class LinkerCR {
    private static Interaction applyAutoCreateFunctions(final Interaction interaction) {
       return new Interaction(interaction.interactionId(),
                              interaction.sourceId(),
-                             interaction.uniqueInteractionData(),
+                             interaction.auxInteractionData(),
                              new DemographicData(interaction.demographicData()));
    }
 
@@ -87,7 +89,7 @@ final class LinkerCR {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", crRegister.demographicData());
       }
-      if (crRegister.auxInteractionData().auxDateCreated() == null) {
+      if (crRegister.auxInteractionData().get(AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var matchedCandidates = crMatchedCandidates(libMPI,
@@ -97,7 +99,7 @@ final class LinkerCR {
             final var interaction =
                   new Interaction(null,
                                   crRegister.sourceId(),
-                                  crRegister.auxInteractionData(),
+                                  AuxInteractionData.fromCustomAuxInteractionData(crRegister.auxInteractionData()),
                                   DemographicData.fromCustomDemographicData(crRegister.demographicData()));
             final var linkInfo =
                   libMPI.createInteractionAndLinkToClonedGoldenRecord(applyAutoCreateFunctions(interaction),

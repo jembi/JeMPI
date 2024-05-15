@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -69,8 +70,10 @@ public final class Main {
 
    static AuxInteractionData auxInteractionData(final CSVRecord csvRecord) {
       return new AuxInteractionData(java.time.LocalDateTime.now(),
-                                    Main.parseRecordNumber(csvRecord.get(INPUT_INTERFACE_CONFIG.auxIdCsvCol)),
-                                    csvRecord.get(INPUT_INTERFACE_CONFIG.auxClinicalDataCsvCol));
+                                    List.of(AuxInteractionData.deprecatedGetFieldAuxId(
+                                                  Main.parseRecordNumber(csvRecord.get(INPUT_INTERFACE_CONFIG.auxIdCsvCol))),
+                                            AuxInteractionData.deprecatedGetFieldAuxClinicalData(
+                                                  csvRecord.get(INPUT_INTERFACE_CONFIG.auxClinicalDataCsvCol))));
    }
 
    static SourceId sourceIdData(final CSVRecord csvRecord) {

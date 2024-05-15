@@ -14,7 +14,7 @@ public record GoldenRecord(
    public GoldenRecord(final Interaction interaction) {
       this(null,
            List.of(interaction.sourceId()),
-           new AuxGoldenRecordData(interaction.uniqueInteractionData()),
+           new AuxGoldenRecordData(interaction.auxInteractionData()),
            interaction.demographicData());
    }
 

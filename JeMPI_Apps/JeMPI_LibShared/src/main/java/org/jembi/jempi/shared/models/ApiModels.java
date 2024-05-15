@@ -98,7 +98,7 @@ public abstract class ApiModels {
    public record ApiCrRegisterRequest(
          @JsonProperty("candidateThreshold") Float candidateThreshold,
          @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
          @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
@@ -253,14 +253,14 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecord(
-         String uid,
-         List<SourceId> sourceId,
-         AuxGoldenRecordData uniqueGoldenRecordData,
-         JsonNode demographicData) {
+         @JsonProperty("uid") String uid,
+         @JsonProperty("sourceId") List<SourceId> sourceId,
+         @JsonProperty("uniqueGoldenRecordData") JsonNode auxGoldenRecordData,
+         @JsonProperty("demographicData") JsonNode demographicData) {
       public static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
                                     goldenRecord.sourceId(),
-                                    goldenRecord.auxGoldenRecordData(),
+                                    AuxGoldenRecordData.fromAuxGoldenRecordData(goldenRecord.auxGoldenRecordData()),
                                     DemographicData.fromDemographicData(goldenRecord.demographicData()));
       }
    }
@@ -301,14 +301,14 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiInteraction(
-         String uid,
-         SourceId sourceId,
-         AuxInteractionData uniqueInteractionData,
-         JsonNode demographicData) {
+         @JsonProperty("uid") String uid,
+         @JsonProperty("sourceId") SourceId sourceId,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
+         @JsonProperty("demographicData") JsonNode demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
                                    interaction.sourceId(),
-                                   interaction.uniqueInteractionData(),
+                                   AuxInteractionData.fromAuxInteractionData(interaction.auxInteractionData()),
                                    DemographicData.fromDemographicData(interaction.demographicData()));
       }
    }

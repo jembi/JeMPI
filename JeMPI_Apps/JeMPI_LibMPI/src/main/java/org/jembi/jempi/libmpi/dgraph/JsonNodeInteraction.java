@@ -11,6 +11,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
@@ -50,7 +51,9 @@ record JsonNodeInteraction(JsonNode node) {
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
       final var i = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_ID).textValue();
       final var c = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_CLINICAL_DATA).textValue();
-      final var auxInteractionData = new AuxInteractionData(d, i, c);
+      final var auxInteractionData = new AuxInteractionData(d,
+                                                            List.of(AuxInteractionData.deprecatedGetFieldAuxId(i),
+                                                                    AuxInteractionData.deprecatedGetFieldAuxClinicalData(c)));
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();

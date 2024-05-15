@@ -21,6 +21,9 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
+import static org.jembi.jempi.shared.models.AuxGoldenRecordData.DEPRECATED_AUX_GOLDEN_RECORD_AUX_ID_IDX;
+import static org.jembi.jempi.shared.models.AuxInteractionData.DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX;
+import static org.jembi.jempi.shared.models.AuxInteractionData.DEPRECATED_INTERACTION_AUX_ID_IDX;
 
 final class DgraphMutations {
 
@@ -37,9 +40,16 @@ final class DgraphMutations {
       final String uuid = UUID.randomUUID().toString();
       final List<Object> params = new ArrayList<>(23);
       params.addAll(List.of(uuid, sourceUID));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxId())));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxClinicalData())));
+      params.addAll(List.of(uuid,
+                            AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid,
+                            AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
+                                                                      .get(DEPRECATED_INTERACTION_AUX_ID_IDX)
+                                                                      .value())));
+      params.addAll(List.of(uuid,
+                            AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
+                                                                      .get(DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX)
+                                                                      .value())));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.add(uuid);
       return DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
@@ -56,7 +66,8 @@ final class DgraphMutations {
       params.addAll(List.of(uuid, sourceUID));
       params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString())));
       params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString())));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxId())));
+      params.addAll(List.of(uuid,
+                            AppUtils.quotedValue(uniqueGoldenRecordData.auxUserFields().get(DEPRECATED_AUX_GOLDEN_RECORD_AUX_ID_IDX).value())));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.addAll(List.of(uuid, interactionUID, score));
       params.add(uuid);
@@ -88,7 +99,7 @@ final class DgraphMutations {
                                                          result.interactionUID,
                                                          result.sourceUID,
                                                          1.0F,
-                                                         new AuxGoldenRecordData(interaction.uniqueInteractionData()));
+                                                         new AuxGoldenRecordData(interaction.auxInteractionData()));
       if (grUID == null) {
          LOGGER.error("Failed to insert golden record");
          return null;
@@ -240,7 +251,7 @@ final class DgraphMutations {
             .Mutation
             .newBuilder()
             .setSetNquads(ByteString.copyFromUtf8(DgraphMutations.createInteractionTriple(
-                  interaction.uniqueInteractionData(),
+                  interaction.auxInteractionData(),
                   interaction.demographicData(),
                   sourceIdUid)))
             .build();
@@ -331,7 +342,7 @@ final class DgraphMutations {
                                                                interaction.interactionId(),
                                                                interaction.sourceId().uid(),
                                                                score,
-                                                               new AuxGoldenRecordData(interaction.uniqueInteractionData()));
+                                                               new AuxGoldenRecordData(interaction.auxInteractionData()));
       return Either.right(new LinkInfo(newGoldenID, interactionId, interaction.sourceId().uid(), score));
    }
 

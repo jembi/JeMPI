@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.models.ApiModels;
+import org.jembi.jempi.shared.models.AuxGoldenRecordData;
+import org.jembi.jempi.shared.models.AuxInteractionData;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.io.IOException;
@@ -108,15 +110,19 @@ public final class StatsTask {
    }
 
    private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
-      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
+      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord()
+                                                           .auxGoldenRecordData()
+                                                           .get(AuxGoldenRecordData.DEPRECATED_AUX_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC)
+                                                           .textValue();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
       expandedGoldenRecord.interactionsWithScore()
                           .forEach(interactionWithScore -> list.add(interactionWithScore.interaction()
-                                                                                        .uniqueInteractionData()
-                                                                                        .auxId()));
+                                                                                        .auxInteractionData()
+                                                                                        .get(AuxInteractionData.DEPRECATED_INTERACTION_AUX_ID_FIELD_NAME_CC)
+                                                                                        .textValue()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));
