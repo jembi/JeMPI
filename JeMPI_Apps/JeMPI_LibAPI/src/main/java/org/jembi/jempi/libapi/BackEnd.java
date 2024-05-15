@@ -556,6 +556,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       ObjectMapper objectMapper = new ObjectMapper();
       Configuration configJson = request.configuration;
 
+      if (configJson == null) {
+         request.replyTo.tell(new PostConfigurationResponse("error: configuration is missing"));
+         LOGGER.error("postConfigurationHandler failed: configuration is missing in the request");
+         return Behaviors.same();
+      }
+
       try {
          String jsonConfig = objectMapper.writeValueAsString(configJson);
          Files.write(configMasterJsonFilePath, jsonConfig.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE,

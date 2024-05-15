@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.ApiModels.ApiInteraction;
+import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.io.File;
@@ -576,8 +577,7 @@ public final class Routes {
    }
 
    private static Route postConfiguration(final ActorSystem<Void> actorSystem, final ActorRef<BackEnd.Event> backEnd) {
-
-      return entity(Jackson.unmarshaller(NotificationRequest.class),
+      return entity(Jackson.unmarshaller(Configuration.class),
             configuration -> onComplete(Ask.postConfiguration(actorSystem, backEnd, configuration), response -> {
                if (!response.isSuccess()) {
                   final var e = response.failed().get();
