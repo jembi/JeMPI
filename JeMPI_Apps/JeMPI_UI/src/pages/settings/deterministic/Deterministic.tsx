@@ -12,6 +12,7 @@ import {
   Typography
 } from '@mui/material'
 import React from 'react'
+import SourceView from './SourceView'
 
 const Deterministic = () => {
   const [viewType, setViewType] = React.useState(0)
@@ -96,11 +97,7 @@ const Deterministic = () => {
                 alignItems: 'center'
               }}
             >
-              <Typography variant="h5">eq (National ID)</Typography>
-              Or
-              <Typography variant="h5">
-                eq (given name) and eq(family name, 3) and eq (phone number)
-              </Typography>
+              <SourceView/>
             </Box>
           )}
         </CardContent>
