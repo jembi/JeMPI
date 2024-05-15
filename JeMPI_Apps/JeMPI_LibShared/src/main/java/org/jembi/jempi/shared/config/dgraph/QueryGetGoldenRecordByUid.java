@@ -17,7 +17,7 @@ public final class QueryGetGoldenRecordByUid {
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
-      return String.format(Locale.ROOT, "      GoldenRecord.%s", field.fieldName());
+      return String.format(Locale.ROOT, "      GoldenRecord.%s", field.scFieldName());
    }
 
    private static String toSnakeCase(final String string) {

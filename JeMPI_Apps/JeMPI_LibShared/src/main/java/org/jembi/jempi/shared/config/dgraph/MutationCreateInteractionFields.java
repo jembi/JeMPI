@@ -25,7 +25,7 @@ public final class MutationCreateInteractionFields {
    }
 
    private static String formattedUniqueInteractionField(final AuxInteractionField field) {
-      final var name = field.fieldName() + ":";
+      final var name = field.scFieldName() + ":";
       final var type = field.fieldType().toLowerCase(Locale.ROOT);
       final var index = "";
       return String.format(Locale.ROOT, "Interaction.%-30s%-10s%-35s.", name, type, index);

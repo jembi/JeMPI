@@ -14,7 +14,7 @@ public final class GoldenRecordFieldNames {
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
-      return "GoldenRecord.%s".formatted(field.fieldName());
+      return "GoldenRecord.%s".formatted(field.scFieldName());
    }
 
    private static String toSnakeCase(final String string) {
@@ -50,7 +50,7 @@ public final class GoldenRecordFieldNames {
              + System.lineSeparator()
              + jsonConfig.auxGoldenRecordFields()
                          .stream()
-                         .map(f -> "GoldenRecord.%s".formatted(f.fieldName()))
+                         .map(f -> "GoldenRecord.%s".formatted(f.scFieldName()))
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + demographicFields

@@ -12,6 +12,7 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.config.DGraphConfig;
+import org.jembi.jempi.shared.config.FieldsConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -21,9 +22,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
-import static org.jembi.jempi.shared.models.AuxGoldenRecordData.DEPRECATED_AUX_GOLDEN_RECORD_AUX_ID_IDX;
-import static org.jembi.jempi.shared.models.AuxInteractionData.DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX;
-import static org.jembi.jempi.shared.models.AuxInteractionData.DEPRECATED_INTERACTION_AUX_ID_IDX;
+import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 
 final class DgraphMutations {
 
@@ -44,11 +43,11 @@ final class DgraphMutations {
                             AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
       params.addAll(List.of(uuid,
                             AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
-                                                                      .get(DEPRECATED_INTERACTION_AUX_ID_IDX)
+                                                                      .get(FIELDS_CONFIG.optionalAuxInteractionAuxIdIdx)
                                                                       .value())));
       params.addAll(List.of(uuid,
                             AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
-                                                                      .get(DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX)
+                                                                      .get(FieldsConfig.DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX)
                                                                       .value())));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.add(uuid);
@@ -67,7 +66,9 @@ final class DgraphMutations {
       params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString())));
       params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString())));
       params.addAll(List.of(uuid,
-                            AppUtils.quotedValue(uniqueGoldenRecordData.auxUserFields().get(DEPRECATED_AUX_GOLDEN_RECORD_AUX_ID_IDX).value())));
+                            AppUtils.quotedValue(uniqueGoldenRecordData.auxUserFields()
+                                                                       .get(FIELDS_CONFIG.optionalAuxGoldenRecordAuxIdIdx)
+                                                                       .value())));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.addAll(List.of(uuid, interactionUID, score));
       params.add(uuid);

@@ -19,11 +19,11 @@ public final class InputInterfaceConfig {
    public final Integer sourceIdFacilityCsvCol;
 
    InputInterfaceConfig(final JsonConfig jsonConfig) {
-      demographicDataSource = jsonConfig.demographicFields().stream().map(f -> Pair.of(f.fieldName(), f.source())).toList();
+      demographicDataSource = jsonConfig.demographicFields().stream().map(f -> Pair.of(f.scFieldName(), f.source())).toList();
       jsonConfig.auxInteractionFields()
                 .stream()
                 .filter(field -> field.source() != null)
-                .forEach(field -> auxInteractionDataSource.put(field.fieldName(), field.source()));
+                .forEach(field -> auxInteractionDataSource.put(field.scFieldName(), field.source()));
       jsonConfig.additionalNodes().forEach(node -> {
          final var map = new HashMap<String, Source>();
          node.fields().forEach(field -> map.put(field.fieldName(), field.source()));

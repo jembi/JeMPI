@@ -478,7 +478,7 @@ public final class Programs {
          final JsonConfig jsonConfig,
          final String field) {
       for (int f = 0; f < jsonConfig.demographicFields().size(); f++) {
-         if (jsonConfig.demographicFields().get(f).fieldName().equals(field)) {
+         if (jsonConfig.demographicFields().get(f).scFieldName().equals(field)) {
             return f;
          }
       }

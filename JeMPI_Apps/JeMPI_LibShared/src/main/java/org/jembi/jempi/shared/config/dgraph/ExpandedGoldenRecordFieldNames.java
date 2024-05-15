@@ -48,7 +48,7 @@ public final class ExpandedGoldenRecordFieldNames {
              + System.lineSeparator()
              + jsonConfig.auxInteractionFields()
                          .stream()
-                         .map(field -> "   Interaction." + field.fieldName())
+                         .map(field -> "   Interaction." + field.scFieldName())
                          .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + demographicFields

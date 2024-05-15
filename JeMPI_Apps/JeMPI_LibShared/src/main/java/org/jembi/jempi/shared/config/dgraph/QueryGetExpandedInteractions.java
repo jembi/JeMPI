@@ -25,11 +25,11 @@ public final class QueryGetExpandedInteractions {
 
 
    private static String formattedUniqueInteractionField(final AuxInteractionField field) {
-      return String.format(Locale.ROOT, "      Interaction.%s", field.fieldName());
+      return String.format(Locale.ROOT, "      Interaction.%s", field.scFieldName());
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
-      return String.format(Locale.ROOT, "         GoldenRecord.%s", field.fieldName());
+      return String.format(Locale.ROOT, "         GoldenRecord.%s", field.scFieldName());
    }
 
 

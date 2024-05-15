@@ -25,9 +25,6 @@ public record JsonConfig(
 
    public static JsonConfig fromJson(final String filePath) {
       JsonConfig cfg;
-
-//      final var separator = FileSystems.getDefault().getSeparator();
-//      final var filePath = "%sapp%sconf_system%s%s".formatted(separator, separator, separator, jsonFile);
       final var file = new File(filePath);
       try (InputStream in = new FileInputStream(file)) {
          cfg = OBJECT_MAPPER.readValue(in, JsonConfig.class);
@@ -36,13 +33,6 @@ public record JsonConfig(
          LOGGER.error(e.getLocalizedMessage(), e);
          cfg = null;
       }
-
-//      try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(jsonFile)) {
-//         cfg = OBJECT_MAPPER.readValue(in, JsonConfig.class);
-//      } catch (Exception e) {
-//         cfg = null;
-//      }
-
       return cfg;
    }
 }

@@ -20,7 +20,7 @@ public final class MutationCreateInteractionType {
    }
 
    private static String formattedUniqueInteractionField(final AuxInteractionField field) {
-      final var name = field.fieldName();
+      final var name = field.scFieldName();
       return String.format(Locale.ROOT, "   Interaction.%s", name);
    }
 

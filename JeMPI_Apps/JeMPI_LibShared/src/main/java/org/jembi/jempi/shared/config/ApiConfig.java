@@ -20,7 +20,7 @@ public class ApiConfig {
    ApiConfig(final JsonConfig jsonConfig) {
       demographicDataFields = new ArrayList<>();
       for (int i = 0; i < jsonConfig.demographicFields().size(); i++) {
-         demographicDataFields.add(Pair.of(AppUtils.snakeToCamelCase(jsonConfig.demographicFields().get(i).fieldName()), i));
+         demographicDataFields.add(Pair.of(AppUtils.snakeToCamelCase(jsonConfig.demographicFields().get(i).scFieldName()), i));
       }
       try {
          final var json = OBJECT_MAPPER.writeValueAsString(demographicDataFields);

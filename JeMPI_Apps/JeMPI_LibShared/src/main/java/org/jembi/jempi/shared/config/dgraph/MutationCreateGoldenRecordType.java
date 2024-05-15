@@ -19,7 +19,7 @@ public final class MutationCreateGoldenRecordType {
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
-      final var name = field.fieldName();
+      final var name = field.scFieldName();
       return String.format(Locale.ROOT, "   GoldenRecord.%s", name);
    }
 

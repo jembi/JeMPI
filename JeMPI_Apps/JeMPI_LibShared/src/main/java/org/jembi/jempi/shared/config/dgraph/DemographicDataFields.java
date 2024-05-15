@@ -22,7 +22,7 @@ public final class DemographicDataFields {
    public static List<Pair<String, Integer>> create(final JsonConfig jsonConfig) {
       final var configVar = new ArrayList<Pair<String, Integer>>();
       for (int i = 0; i < jsonConfig.demographicFields().size(); i++) {
-         configVar.add(Pair.of(AppUtils.camelToSnake(jsonConfig.demographicFields().get(i).fieldName()), i));
+         configVar.add(Pair.of(AppUtils.camelToSnake(jsonConfig.demographicFields().get(i).scFieldName()), i));
       }
       try {
          final var json = OBJECT_MAPPER.writeValueAsString(configVar);

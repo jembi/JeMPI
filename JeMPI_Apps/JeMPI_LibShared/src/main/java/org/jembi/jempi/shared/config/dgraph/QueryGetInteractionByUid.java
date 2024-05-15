@@ -19,7 +19,7 @@ public final class QueryGetInteractionByUid {
    }
 
    private static String formattedUniqueInteractionField(final AuxInteractionField field) {
-      return String.format(Locale.ROOT, "      Interaction.%s", field.fieldName());
+      return String.format(Locale.ROOT, "      Interaction.%s", field.scFieldName());
    }
 
    private static String toSnakeCase(final String string) {

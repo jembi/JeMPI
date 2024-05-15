@@ -12,6 +12,7 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.config.Config;
+import org.jembi.jempi.shared.config.FieldsConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.jembi.jempi.shared.models.AuxInteractionData.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC;
 
 final class LinkerCR {
    private static final Logger LOGGER;
@@ -89,7 +89,7 @@ final class LinkerCR {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", crRegister.demographicData());
       }
-      if (crRegister.auxInteractionData().get(AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
+      if (crRegister.auxInteractionData().get(FieldsConfig.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var matchedCandidates = crMatchedCandidates(libMPI,
@@ -117,7 +117,7 @@ final class LinkerCR {
    static Either<MpiGeneralError, LinkInfo> crLinkToGidUpdate(
          final LibMPI libMPI,
          final ApiModels.ApiCrLinkToGidUpdateRequest req) {
-      if (req.auxInteractionData().get(AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
+      if (req.auxInteractionData().get(FieldsConfig.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var reqDemographicData = DemographicData.fromCustomDemographicData(req.demographicData());

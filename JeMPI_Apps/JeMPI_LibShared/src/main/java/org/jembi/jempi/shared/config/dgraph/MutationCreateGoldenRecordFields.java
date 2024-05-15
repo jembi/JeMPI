@@ -25,7 +25,7 @@ public final class MutationCreateGoldenRecordFields {
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
-      final var name = field.fieldName() + ":";
+      final var name = field.scFieldName() + ":";
       final var type = field.fieldType().toLowerCase(Locale.ROOT);
       final var index = "";
       return String.format(Locale.ROOT, "GoldenRecord.%-29s%-10s%-35s.", name, type, index);

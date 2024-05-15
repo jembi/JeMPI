@@ -75,7 +75,7 @@ record JsonNodeGoldenRecord(JsonNode node) {
       final var customUniqueGoldenRecordData = new AuxGoldenRecordData(d, b, List.of(AuxGoldenRecordData.deprecatedGetFieldAuxId(t)));
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
-               final var fieldName = JSON_CONFIG.demographicFields().get(idx).fieldName();
+               final var fieldName = JSON_CONFIG.demographicFields().get(idx).scFieldName();
                final var v = node.get("GoldenRecord.demographic_field_%02d".formatted(idx));
                return (!(v == null || v.isMissingNode()))
                      ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
