@@ -1,5 +1,5 @@
 {
-  "uniqueInteractionFields": [
+  "auxInteractionFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -7,15 +7,19 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "csvCol": 0
+      "source": {
+        "csvCol": 0
+      }
     },
     {
       "fieldName": "aux_clinical_data",
       "fieldType": "String",
-      "csvCol": 10
+      "source": {
+        "csvCol": 10
+      }
     }
   ],
-  "uniqueGoldenRecordFields": [
+  "auxGoldenRecordFields": [
     {
       "fieldName": "aux_date_created",
       "fieldType": "DateTime"
@@ -28,7 +32,9 @@
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "source": "aux_id"
+      "source": {
+        "interactionField": "aux_id"
+      }
     }
   ],
   "additionalNodes": [
@@ -38,12 +44,16 @@
         {
           "fieldName": "facility",
           "fieldType": "String",
-          "csvCol": 8
+          "source": {
+            "csvCol": 8
+          }
         },
         {
           "fieldName": "patient",
           "fieldType": "String",
-          "csvCol": 9
+          "source": {
+            "csvCol": 9
+          }
         }
       ]
     }
@@ -105,21 +115,21 @@
   ],
   "rules": {
     "link": {
-      "deterministic": {
-        "QUERY_LINK_DETERMINISTIC_A": {
+      "deterministic": [
+        {
           "vars": [
             "national_id"
           ],
           "text": "eq(national_id)"
         },
-        "QUERY_LINK_DETERMINISTIC_B": {
+        {
           "vars": [
             "national_id",
             "phone_number"
           ],
           "text": "null(national_id) and eq(phone_number)"
         },
-        "QUERY_LINK_DETERMINISTIC_C": {
+        {
           "vars": [
             "given_name",
             "family_name",
@@ -127,7 +137,7 @@
           ],
           "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
         }
-      }
+      ]
     }
   }
 }

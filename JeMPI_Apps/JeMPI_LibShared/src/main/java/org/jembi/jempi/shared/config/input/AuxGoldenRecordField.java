@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AuxGoldenRecordField(
-      String fieldName,
-      String fieldType,
+      @JsonProperty("fieldName") String fieldName,
+      @JsonProperty("fieldType") String fieldType,
       @JsonProperty("default") String defaultValue,
-      Source source) {
+      @JsonProperty("source") Source source) {
 }
