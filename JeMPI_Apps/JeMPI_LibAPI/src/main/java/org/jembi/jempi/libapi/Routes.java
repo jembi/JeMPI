@@ -669,6 +669,8 @@ public final class Routes {
                   () -> complete(StatusCodes.OK, jsonFields)),
             path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                   () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
+            path(GlobalConstants.SEGMENT_POST_CONFIGURATION,
+                  () -> Routes.postConfiguration(actorSystem, backEnd)),
             path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
                   () -> ProxyRoutes.proxyPostCandidatesWithScore(linkerIP, linkerPort, http)),
             path(GlobalConstants.SEGMENT_POST_NOTIFICATIONS,
@@ -689,9 +691,7 @@ public final class Routes {
                   path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
                         () -> Routes.getGidsAll(actorSystem, backEnd)),
                   path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
-                        () -> Routes.getConfiguration(actorSystem, backEnd)),
-                  path(GlobalConstants.SEGMENT_POST_CONFIGURATION,
-                        () -> Routes.postConfiguration(actorSystem, backEnd)))));
+                        () -> Routes.getConfiguration(actorSystem, backEnd)))));
    }
 
 }

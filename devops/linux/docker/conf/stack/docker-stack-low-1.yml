@@ -434,7 +434,7 @@ services:
       - type: bind
         source: $DATA_DIR_API/conf
         target: /app/conf
-        read_only: true
+        read_only: false
       - type: bind
         source: $DATA_DIR_ASYNC_RECEIVER/csv
         target: /app/csv
