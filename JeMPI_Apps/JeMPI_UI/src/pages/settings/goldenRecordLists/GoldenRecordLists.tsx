@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 import {
   DataGrid,
   GridColDef,
@@ -9,85 +9,78 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridActionsCellItem
-} from '@mui/x-data-grid'
-import EditIcon from '@mui/icons-material/Edit'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Close'
-import { useEffect, useState } from 'react'
-import { EditToolbar } from 'components/shared/EditToolBar'
-import { formatNodeName, toUpperCase } from 'utils/helpers'
+} from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import { useEffect, useState } from 'react';
+import { EditToolbar } from 'components/shared/EditToolBar';
+import { formatNodeName, toUpperCase } from 'utils/helpers';
+
+interface RowData {
+  id: string;
+  nodeName: string;
+  fieldName: string;
+  fieldType: string;
+  csvCol: number;
+}
 
 const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
-  const [rows, setRows] = useState(goldenRecordList)
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const [rows, setRows] = useState<RowData[]>([]);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   useEffect(() => {
-    const rowsWithIds = goldenRecordList.map((row: any, index: number) => ({
-      ...row,
-      id: index.toString()
-    }))
-    setRows(rowsWithIds)
-  }, [goldenRecordList])
+    if (goldenRecordList) {
+      const rowsWithIds = goldenRecordList.flatMap(
+        (node: { fields: any[]; nodeName: string }, index: number) => {
+          return node.fields
+            ? node.fields.map((field, fieldIndex) => ({
+                id: `${node.nodeName}_${index}_${fieldIndex}`,
+                nodeName: node.nodeName,
+                fieldName: field.fieldName,
+                fieldType: field.fieldType,
+                csvCol: field.csvCol
+              }))
+            : [];
+        }
+      );
+      setRows(rowsWithIds);
+    }
+  }, [goldenRecordList]);
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
-  }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-  }
-
-  const handleDeleteClick = (id: any) => () => {
-    setRows(rows?.filter((row: { id: any }) => row.id !== id))
-  }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
-    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (editedRow && editedRow.isNew) {
-      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id))
-    }
-  }
+    });
+  };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const { isNew, ...updatedRow } = newRow
-    setRows(
-      rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
-    )
-    return updatedRow
-  }
+    const { id, ...updatedRow } = newRow;
+    setRows(rows.map(row => (row.id === id ? updatedRow as RowData : row)));
+    return updatedRow as RowData;
+  };
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel)
-  }
+    setRowModesModel(newRowModesModel);
+  };
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
     event
   ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true
+      event.defaultMuiPrevented = true;
     }
-  }
-
-  const rowsWithIds = goldenRecordList.flatMap(
-    (node: { fields: any[]; nodeName: string }) => {
-      return node.fields
-        ? node.fields.map((field, index) => {
-            return {
-              id: node.nodeName + '_' + index,
-              nodeName: node.nodeName,
-              fieldName: field.fieldName,
-              fieldType: field.fieldType,
-              csvCol: field.csvCol
-            }
-          })
-        : []
-    }
-  )
+  };
 
   const columns: GridColDef[] = [
     {
@@ -98,8 +91,8 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'left',
       headerAlign: 'left',
       valueGetter: params => {
-        if (params.row.fieldName === 'patient') return ''
-        else return formatNodeName(params.row.nodeName)
+        if (params.row.fieldName === 'patient') return '';
+        else return formatNodeName(params.row.nodeName);
       }
     },
     {
@@ -109,7 +102,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       width: 180,
       align: 'center',
       headerAlign: 'center',
-      editable: false,
+      editable: true,
       valueGetter: params => toUpperCase(params.row.fieldName)
     },
     {
@@ -129,7 +122,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       width: 180,
       align: 'center',
       headerAlign: 'center',
-      editable: false,
+      editable: true,
       valueGetter: params => params.row.csvCol
     },
     {
@@ -141,7 +134,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
@@ -161,7 +154,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
               onClick={handleCancelClick(id)}
               color="inherit"
             />
-          ]
+          ];
         }
 
         return [
@@ -173,10 +166,10 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
             onClick={handleEditClick(id)}
             color="inherit"
           />
-        ]
+        ];
       }
     }
-  ]
+  ];
 
   return (
     <Box
@@ -193,13 +186,12 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
     >
       {goldenRecordList && (
         <DataGrid
-          rows={rowsWithIds}
+          rows={rows}
           columns={columns}
           editMode="row"
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
           onRowEditStop={handleRowEditStop}
-          processRowUpdate={processRowUpdate}
           slots={{
             toolbar: EditToolbar
           }}
@@ -209,7 +201,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
         />
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default GoldenRecordLists
+export default GoldenRecordLists;

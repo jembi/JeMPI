@@ -62,10 +62,6 @@ const Settings = () => {
     return fields ? generateId(fields) : ({} as Configuration)
   }, [fields])
 
-  useEffect(() => {
-    console.log('additional nodes', configuration.additionalNodes)
-  }, [configuration])
-
   if (isLoading) {
     return <Loading />
   }
@@ -139,7 +135,7 @@ const Settings = () => {
               Setup properties for Golden Records Lists{' '}
             </Typography>
             <GoldenRecordLists
-              goldenRecordList={configuration.additionalNodes}
+              goldenRecordList={fields?.additionalNodes}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>

@@ -127,7 +127,7 @@ export const generateId = (configuration: Configuration): Configuration => {
       configuration.uniqueGoldenRecordFields
     ),
     demographicFields: generateIdForFields(configuration.demographicFields),
-    additionalNodes: generateIdForNodes(configuration.additionalNodes) // Generate IDs for additional nodes
+    additionalNodes: generateIdForNodes(configuration.additionalNodes)
   }
 }
 
