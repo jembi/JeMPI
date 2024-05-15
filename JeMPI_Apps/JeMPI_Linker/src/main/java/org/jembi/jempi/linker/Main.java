@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
 public final class Main {
@@ -29,10 +28,8 @@ public final class Main {
          final var system = context.getSystem();
          final ActorRef<BackEnd.Request> backEnd = context.spawn(BackEnd.create(), "BackEnd");
          context.watch(backEnd);
-         if (!CustomMU.SEND_INTERACTIONS_TO_EM) {
-            final SPInteractions spInteractions = SPInteractions.create(GlobalConstants.TOPIC_INTERACTION_LINKER);
-            spInteractions.open(system, backEnd);
-         }
+         final SPInteractions spInteractions = SPInteractions.create(GlobalConstants.TOPIC_INTERACTION_LINKER);
+         spInteractions.open(system, backEnd);
          final SPMU spMU = new SPMU();
          spMU.open(system, backEnd);
          httpServer = HttpServer.create();
