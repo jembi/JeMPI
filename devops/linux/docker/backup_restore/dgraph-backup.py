@@ -3,14 +3,18 @@ import json
 from datetime import datetime
 import os
 from dotenv import dotenv_values
-import subprocess
 from datetime import date
+import sys
 
 env_vars = dotenv_values('../conf.env')
 host = env_vars['NODE1_IP']
 port = "50010"
 backup_path = env_vars['DGRAPH_BACKUP_DIRECTORY']
 
+if len(sys.argv) >= 1:
+    current_datetime = sys.argv[1]
+else:
+    current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
 
 def create_folder_if_not_exists(folder_path):
     if not os.path.exists(folder_path):
@@ -39,7 +43,6 @@ def backup_dgraph_data():
             if golden_record_data:
                 backup_data.append(golden_record_data)
 
-        current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
         file_name = f'dgraph_backup_{current_datetime}.json'
         print(f'Total {str(len(backup_data))} Golden records backed up.')
 
