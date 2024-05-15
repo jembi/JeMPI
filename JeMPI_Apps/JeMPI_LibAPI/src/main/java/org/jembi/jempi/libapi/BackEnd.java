@@ -12,6 +12,40 @@ import org.apache.commons.io.LineIterator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.libapi.BackEnd.GetConfigurationResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.FindExpandedSourceIdRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.FindExpandedSourceIdResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetExpandedGoldenRecordRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetExpandedGoldenRecordResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetExpandedGoldenRecordsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetExpandedGoldenRecordsResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetExpandedInteractionsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetExpandedInteractionsResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetInteractionRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetInteractionResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetNotificationsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.GetNotificationsResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostCustomSearchGoldenRecordsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostCustomSearchInteractionsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostFilterGidsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostFilterGidsResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostFilterGidsWithInteractionCountRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostFilterGidsWithInteractionCountResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostIidGidLinkRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostIidGidLinkResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostIidNewGidLinkRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostIidNewGidLinkResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostSearchGoldenRecordsResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostSearchInteractionsResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostSimpleSearchGoldenRecordsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostSimpleSearchInteractionsRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostUpdateNotificationRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostUpdateNotificationResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostUploadCsvFileRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.PostUploadCsvFileResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.UpdateGoldenRecordRequest;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationRequest.UpdateGoldenRecordResponse;
+import org.jembi.jempi.libapi.BackEnd.PostConfigurationResponse;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
@@ -30,6 +64,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -112,20 +147,20 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String configReferenceFileName,
          final String configMasterFileName) {
       return Behaviors.setup(context -> new BackEnd(level,
-                                                    context,
-                                                    dgraphHosts,
-                                                    dgraphPorts,
-                                                    sqlIP,
-                                                    sqlPort,
-                                                    sqlUser,
-                                                    sqlPassword,
-                                                    sqlNotificationsDb,
-                                                    sqlAuditDb,
-                                                    kafkaBootstrapServers,
-                                                    kafkaClientId,
-                                                    apiConfigDirectory,
-                                                    configReferenceFileName,
-                                                    configMasterFileName));
+            context,
+            dgraphHosts,
+            dgraphPorts,
+            sqlIP,
+            sqlPort,
+            sqlUser,
+            sqlPassword,
+            sqlNotificationsDb,
+            sqlAuditDb,
+            kafkaBootstrapServers,
+            kafkaClientId,
+            apiConfigDirectory,
+            configReferenceFileName,
+            configMasterFileName));
    }
 
    private static void appendUploadConfigToFile(
@@ -164,32 +199,33 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public Receive<Event> actor() {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder.onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
-                    .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
-                    .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
-                    .onMessage(FindExpandedSourceIdRequest.class, this::findExpandedSourceIdHandler)
-                    .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
-                    .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
-                    .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
-                    .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
-                    .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
-                    .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
-                    .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
-                    .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
-                    .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
-                    .onMessage(UpdateGoldenRecordRequest.class, this::updateGoldenRecordHandler)
-                    .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
-                    .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
-                    .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
-                    .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
-                    .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
-                    .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
-                    .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
-                    .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
-                    .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
-                    .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
-                    .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
-                    .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
-                    .build();
+            .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
+            .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
+            .onMessage(FindExpandedSourceIdRequest.class, this::findExpandedSourceIdHandler)
+            .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
+            .onMessage(GetGidsPagedRequest.class, this::getGidsPagedHandler)
+            .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
+            .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
+            .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+            .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
+            .onMessage(GetGoldenRecordAuditTrailRequest.class, this::getGoldenRecordAuditTrailHandler)
+            .onMessage(GetInteractionAuditTrailRequest.class, this::getInteractionAuditTrailHandler)
+            .onMessage(GetNotificationsRequest.class, this::getNotificationsHandler)
+            .onMessage(UpdateGoldenRecordRequest.class, this::updateGoldenRecordHandler)
+            .onMessage(PostIidGidLinkRequest.class, this::postIidGidLinkHandler)
+            .onMessage(PostIidNewGidLinkRequest.class, this::postIidNewGidLinkHandler)
+            .onMessage(PostUpdateNotificationRequest.class, this::postUpdateNotificationHandler)
+            .onMessage(PostSimpleSearchGoldenRecordsRequest.class, this::postSimpleSearchGoldenRecordsHandler)
+            .onMessage(PostCustomSearchGoldenRecordsRequest.class, this::postCustomSearchGoldenRecordsHandler)
+            .onMessage(PostSimpleSearchInteractionsRequest.class, this::postSimpleSearchInteractionsHandler)
+            .onMessage(PostCustomSearchInteractionsRequest.class, this::postCustomSearchInteractionsHandler)
+            .onMessage(PostFilterGidsRequest.class, this::postFilterGidsHandler)
+            .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
+            .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
+            .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
+            .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
+            .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
+            .build();
    }
 
    private Behavior<Event> postSimpleSearchGoldenRecordsHandler(final PostSimpleSearchGoldenRecordsRequest request) {
@@ -271,13 +307,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getNotificationsHandler(final GetNotificationsRequest request) {
       MatchesForReviewResult result = psqlNotifications.getMatchesForReview(request.limit(),
-                                                                            request.offset(),
-                                                                            request.startDate(),
-                                                                            request.endDate(),
-                                                                            request.states());
+            request.offset(),
+            request.startDate(),
+            request.endDate(),
+            request.states());
       request.replyTo.tell(new GetNotificationsResponse(result.getCount(),
-                                                        result.getSkippedRecords(),
-                                                        result.getNotifications()));
+            result.getSkippedRecords(),
+            result.getNotifications()));
       return Behaviors.same();
    }
 
@@ -332,8 +368,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
          LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
-                      request.goldenId,
-                      e.getMessage());
+               request.goldenId,
+               e.getMessage());
       }
 
       if (expandedGoldenRecord == null) {
@@ -353,8 +389,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          goldenRecords = libMPI.findExpandedGoldenRecords(request.goldenIds);
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedGoldenRecords failed for goldenIds: {} with error: {}",
-                      request.goldenIds,
-                      exception.getMessage());
+               request.goldenIds,
+               exception.getMessage());
       }
 
       if (goldenRecords == null) {
@@ -374,8 +410,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          expandedInteractions = libMPI.findExpandedInteractions(request.patientIds);
       } catch (Exception exception) {
          LOGGER.error("libMPI.findExpandedPatientRecords failed for patientIds: {} with error: {}",
-                      request.patientIds,
-                      exception.getMessage());
+               request.patientIds,
+               exception.getMessage());
       }
 
       if (expandedInteractions == null) {
@@ -395,7 +431,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          interaction = libMPI.findInteraction(request.iid);
       } catch (Exception exception) {
          LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid,
-                      exception.getMessage());
+               exception.getMessage());
       }
 
       if (interaction == null) {
@@ -414,7 +450,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
          final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(),
-                                                           field.newValue());
+               field.newValue());
          if (result) {
             updatedFields.add(field);
          } else {
@@ -427,7 +463,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postIidGidLinkHandler(final PostIidGidLinkRequest request) {
       final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId,
-                                             request.score);
+            request.score);
       request.replyTo.tell(new PostIidGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
@@ -459,7 +495,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
          psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId,
-                                                   request.currentGoldenId);
+               request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());
@@ -489,7 +525,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final int openNotifications = psqlNotifications.getNotificationCount("OPEN");
       final int closedNotifications = psqlNotifications.getNotificationCount("CLOSED");
       request.replyTo.tell(new SQLDashboardDataResponse(new SQLDashboardData(new NotificationStats(openNotifications,
-                                                                                                   closedNotifications))));
+            closedNotifications))));
       return Behaviors.same();
    }
 
@@ -509,7 +545,25 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetConfigurationResponse(configuration));
       } catch (Exception exception) {
          LOGGER.error("getConfigurationHandler failed with error: {}",
-                      exception.getMessage());
+               exception.getMessage());
+      }
+
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
+      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
+      ObjectMapper objectMapper = new ObjectMapper();
+      Configuration configJson = request.configuration;
+
+      try {
+         String jsonConfig = objectMapper.writeValueAsString(configJson);
+         Files.write(configMasterJsonFilePath, jsonConfig.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE,
+               StandardOpenOption.TRUNCATE_EXISTING);
+         request.replyTo.tell(new PostConfigurationResponse("ok"));
+      } catch (Exception exception) {
+         LOGGER.error("postConfigurationHandler failed with error: {}",
+               exception.getMessage());
       }
 
       return Behaviors.same();
@@ -583,6 +637,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record GetConfigurationResponse(Configuration configuration) implements EventResponse {
+   }
+
+   public record PostConfigurationRequest(ActorRef<PostConfigurationResponse> replyTo, Configuration configuration)
+         implements Event {
+   }
+
+   public record PostConfigurationResponse(String response) implements EventResponse {
    }
 
    public record FindExpandedSourceIdRequest(

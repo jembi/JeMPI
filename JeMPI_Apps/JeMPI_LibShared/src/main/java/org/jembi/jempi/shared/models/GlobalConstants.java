@@ -21,6 +21,7 @@ public final class GlobalConstants {
     *
     */
    public static final String SEGMENT_GET_CONFIGURATION = "configuration";
+   public static final String SEGMENT_POST_CONFIGURATION = "configuration";
    public static final String SEGMENT_COUNT_INTERACTIONS = "countInteractions";
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "countGoldenRecords";
    public static final String SEGMENT_COUNT_RECORDS = "countRecords";
@@ -68,7 +69,7 @@ public final class GlobalConstants {
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;
    public static final int TIMEOUT_DGRAPH_QUERY_SECS = (TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS
-                                                        * TIMEOUT_DGRAPH_RECONNECT_RETRIES);
+         * TIMEOUT_DGRAPH_RECONNECT_RETRIES);
    public static final int TIMEOUT_GENERAL_SECS = 60;
    public static final int TIMEOUT_TEA_TIME_SECS = 5;
 
