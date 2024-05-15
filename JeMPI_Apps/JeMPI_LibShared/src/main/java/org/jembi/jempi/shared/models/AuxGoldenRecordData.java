@@ -21,15 +21,15 @@ public record AuxGoldenRecordData(
       this(LocalDateTime.now(),
            true,
            List.of(deprecatedGetFieldAuxId(auxInteractionData.auxUserFields()
-                                                             .get(FIELDS_CONFIG.optionalAuxInteractionAuxIdIdx)
+                                                             .get(FIELDS_CONFIG.optionalInteractionAuxIdIdx)
                                                              .value()))
           );
    }
 
    public static JsonNode fromAuxGoldenRecordData(final AuxGoldenRecordData auxGoldenRecordData) {
       final var objectNode = OBJECT_MAPPER.createObjectNode();
-      objectNode.put(FieldsConfig.AUX_GOLDEN_RECORD_DATE_CREATED_FIELD_NAME_CC, auxGoldenRecordData.auxDateCreated.toString());
-      objectNode.put(FieldsConfig.AUX_GOLDEN_RECORD_UPDATE_ENABLED_FIELD_NAME_CC,
+      objectNode.put(FieldsConfig.GOLDEN_RECORD_AUX_DATE_CREATED_FIELD_NAME_CC, auxGoldenRecordData.auxDateCreated.toString());
+      objectNode.put(FieldsConfig.GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED_FIELD_NAME_CC,
                      auxGoldenRecordData.auxAutoUpdateEnabled.booleanValue());
       auxGoldenRecordData.auxUserFields.forEach(field -> {
          if (field.ccTag != null && !field.ccTag.isEmpty()) {
@@ -40,7 +40,7 @@ public record AuxGoldenRecordData(
    }
 
    public static AuxGoldenRecordUserField deprecatedGetFieldAuxId(final String value) {
-      return new AuxGoldenRecordUserField(FieldsConfig.OPTIONAL_AUX_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC, value);
+      return new AuxGoldenRecordUserField(FieldsConfig.OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC, value);
    }
 
    public record AuxGoldenRecordUserField(

@@ -18,7 +18,7 @@ public record AuxInteractionData(
 
    public static JsonNode fromAuxInteractionData(final AuxInteractionData auxInteractionData) {
       final var objectNode = OBJECT_MAPPER.createObjectNode();
-      objectNode.put(FieldsConfig.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC, auxInteractionData.auxDateCreated.toString());
+      objectNode.put(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC, auxInteractionData.auxDateCreated.toString());
       auxInteractionData.auxUserFields.forEach(field -> {
          if (field.ccTag != null && !field.ccTag.isEmpty()) {
             objectNode.put(field.ccTag, field.value);
@@ -28,7 +28,7 @@ public record AuxInteractionData(
    }
 
    public static AuxInteractionData deprecatedFromCustomAuxInteractionData(final JsonNode jsonNode) {
-      final var dt = jsonNode.get(FieldsConfig.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).textValue();
+      final var dt = jsonNode.get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
       return new AuxInteractionData(
             d,

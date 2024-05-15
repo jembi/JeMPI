@@ -89,7 +89,7 @@ final class LinkerCR {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", crRegister.demographicData());
       }
-      if (crRegister.auxInteractionData().get(FieldsConfig.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
+      if (crRegister.auxInteractionData().get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var matchedCandidates = crMatchedCandidates(libMPI,
@@ -117,7 +117,7 @@ final class LinkerCR {
    static Either<MpiGeneralError, LinkInfo> crLinkToGidUpdate(
          final LibMPI libMPI,
          final ApiModels.ApiCrLinkToGidUpdateRequest req) {
-      if (req.auxInteractionData().get(FieldsConfig.AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
+      if (req.auxInteractionData().get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var reqDemographicData = DemographicData.fromCustomDemographicData(req.demographicData());

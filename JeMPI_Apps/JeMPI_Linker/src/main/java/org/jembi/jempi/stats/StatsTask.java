@@ -111,7 +111,7 @@ public final class StatsTask {
    private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
       final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord()
                                                            .auxGoldenRecordData()
-                                                           .get(FieldsConfig.OPTIONAL_AUX_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC)
+                                                           .get(FieldsConfig.OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC)
                                                            .textValue();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 

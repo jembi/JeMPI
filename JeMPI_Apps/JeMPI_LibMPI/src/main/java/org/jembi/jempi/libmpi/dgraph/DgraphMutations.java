@@ -43,7 +43,7 @@ final class DgraphMutations {
                             AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
       params.addAll(List.of(uuid,
                             AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
-                                                                      .get(FIELDS_CONFIG.optionalAuxInteractionAuxIdIdx)
+                                                                      .get(FIELDS_CONFIG.optionalInteractionAuxIdIdx)
                                                                       .value())));
       params.addAll(List.of(uuid,
                             AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
@@ -67,7 +67,7 @@ final class DgraphMutations {
       params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString())));
       params.addAll(List.of(uuid,
                             AppUtils.quotedValue(uniqueGoldenRecordData.auxUserFields()
-                                                                       .get(FIELDS_CONFIG.optionalAuxGoldenRecordAuxIdIdx)
+                                                                       .get(FIELDS_CONFIG.optionalGoldenRecordAuxIdIdx)
                                                                        .value())));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.addAll(List.of(uuid, interactionUID, score));
