@@ -99,7 +99,7 @@ final class LinkerCR {
             final var interaction =
                   new Interaction(null,
                                   crRegister.sourceId(),
-                                  AuxInteractionData.fromCustomAuxInteractionData(crRegister.auxInteractionData()),
+                                  AuxInteractionData.deprecatedFromCustomAuxInteractionData(crRegister.auxInteractionData()),
                                   DemographicData.fromCustomDemographicData(crRegister.demographicData()));
             final var linkInfo =
                   libMPI.createInteractionAndLinkToClonedGoldenRecord(applyAutoCreateFunctions(interaction),
@@ -117,7 +117,7 @@ final class LinkerCR {
    static Either<MpiGeneralError, LinkInfo> crLinkToGidUpdate(
          final LibMPI libMPI,
          final ApiModels.ApiCrLinkToGidUpdateRequest req) {
-      if (req.auxInteractionData().auxDateCreated() == null) {
+      if (req.auxInteractionData().get(AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var reqDemographicData = DemographicData.fromCustomDemographicData(req.demographicData());
@@ -139,7 +139,7 @@ final class LinkerCR {
                LinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), reqDemographicData);
          final var interaction = new Interaction(null,
                                                  req.sourceId(),
-                                                 req.auxInteractionData(),
+                                                 AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
                                                  reqDemographicData);
          final var linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                interaction,
@@ -222,7 +222,7 @@ final class LinkerCR {
       return crLinkBySourceIdUpdate(libMPI,
                                     false,
                                     req.sourceId(),
-                                    req.auxInteractionData(),
+                                    AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
                                     DemographicData.fromCustomDemographicData(req.demographicData()));
    }
 
@@ -233,7 +233,7 @@ final class LinkerCR {
       return crLinkBySourceIdUpdate(libMPI,
                                     true,
                                     req.sourceId(),
-                                    req.auxInteractionData(),
+                                    AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
                                     DemographicData.fromCustomDemographicData(req.demographicData()));
    }
 

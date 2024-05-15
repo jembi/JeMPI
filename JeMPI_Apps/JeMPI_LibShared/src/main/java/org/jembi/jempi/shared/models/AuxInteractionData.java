@@ -34,7 +34,7 @@ public record AuxInteractionData(
       return objectNode;
    }
 
-   public static AuxInteractionData depreactedFromCustomAuxInteractionData(final JsonNode jsonNode) {
+   public static AuxInteractionData deprecatedFromCustomAuxInteractionData(final JsonNode jsonNode) {
       final var dt = jsonNode.get(AUX_INTERACTION_DATE_CREATED_FIELD_NAME_CC).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
       return new AuxInteractionData(

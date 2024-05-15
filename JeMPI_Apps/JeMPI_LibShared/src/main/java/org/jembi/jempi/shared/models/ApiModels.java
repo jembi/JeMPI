@@ -106,21 +106,21 @@ public abstract class ApiModels {
    public record ApiCrLinkToGidUpdateRequest(
          @JsonProperty("gid") String gid,
          @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
          @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdRequest(
          @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
          @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdUpdateRequest(
          @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
          @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
@@ -130,7 +130,7 @@ public abstract class ApiModels {
          ExternalLinkRange externalLinkRange,
          Float matchThreshold,
          @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
          @JsonProperty("demographicData") JsonNode demographicData) {
    }
 
@@ -138,7 +138,7 @@ public abstract class ApiModels {
    public record LinkInteractionToGidSyncBody(
          String stan,
          @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") AuxInteractionData auxInteractionData,
+         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
          @JsonProperty("demographicData") JsonNode demographicData,
          String gid) {
    }
