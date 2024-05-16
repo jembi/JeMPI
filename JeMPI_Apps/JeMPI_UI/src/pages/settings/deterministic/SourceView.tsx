@@ -1,29 +1,37 @@
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button } from '@mui/material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  OutlinedInput,
+  InputLabel,
+  FormControl
+} from '@mui/material';
 
-const SourceView = () => {
-  const [searchParams, setSearchParams] = useState({
-    id: '',
-    name: '',
-    familyName: '',
-    phoneNumber: ''
-  });
-  const [idDisabled, setIdDisabled] = useState(false);
+type Field = "nationalId" | "givenName" | "familyName" | "phoneNumber" | "dob";
 
-  const handleInputChange = (field: string, value: string) => {
-    setSearchParams({ ...searchParams, [field]: value });
+const SourceView: React.FC = () => {
+  const [selectedFields, setSelectedFields] = useState<Field[]>([]);
+
+  const handleAddField = (field: Field) => {
+    setSelectedFields((prevSelectedFields) => [...prevSelectedFields, field]);
   };
 
-
-  const handleIdChange = (value: string) => {
-    setIdDisabled(value !== '');
-    handleInputChange('id', value);
+  const handleRemoveField = () => {
+    setSelectedFields((prevSelectedFields) => {
+      const updatedFields = [...prevSelectedFields];
+      updatedFields.pop();
+      return updatedFields;
+    });
   };
 
   return (
     <Box
       sx={{
-        width: '100%',
+        width: '40%',
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
@@ -31,32 +39,46 @@ const SourceView = () => {
         alignItems: 'center'
       }}
     >
-      <Typography variant="h5">Search by:</Typography>
-      <TextField
-        label="National ID"
-        value={searchParams.id}
-        onChange={(e) => handleIdChange(e.target.value)}
-        disabled={idDisabled}
-      />
-      <Typography variant="body1">Or</Typography>
-      <TextField
-        label="Given Name"
-        value={searchParams.name}
-        onChange={(e) => handleInputChange('name', e.target.value)}
-        disabled={idDisabled}
-      />
-      <TextField
-        label="Family Name"
-        value={searchParams.familyName}
-        onChange={(e) => handleInputChange('familyName', e.target.value)}
-        disabled={idDisabled}
-      />
-      <TextField
-        label="Phone Number"
-        value={searchParams.phoneNumber}
-        onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-        disabled={idDisabled}
-      />
+      <FormControl fullWidth>
+        <InputLabel id="add-rule-label">Add Rule</InputLabel>
+        <Select
+          labelId="add-rule-label"
+          value=''
+          id="add-rule-select"
+          sx={{
+            width: '50%',
+          }}
+          input={<OutlinedInput label="Add Rule" />}
+          onChange={(e) => handleAddField(e.target.value as Field)}
+        >
+          <MenuItem value="nationalId">National ID</MenuItem>
+          <MenuItem value="givenName">Given Name</MenuItem>
+          <MenuItem value="familyName">Family Name</MenuItem>
+          <MenuItem value="phoneNumber">Phone Number</MenuItem>
+          <MenuItem value="dob">Date of Birth</MenuItem>
+        </Select>
+      </FormControl>
+
+      {selectedFields.map((field, index) => (
+        <TextField
+          key={index}
+          label={field === 'dob' ? 'Date of Birth' : field}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value=""
+          // onChange={(e) => handleInputChange(field, e.target.value)}
+        />
+      ))}
+      {selectedFields.length > 0 && (
+        <Button
+         variant="outlined" onClick={handleRemoveField}>
+          Remove Last Field
+        </Button>
+      )}
     </Box>
   );
 };
