@@ -510,7 +510,7 @@ public final class ProxyRoutes {
                                     controllerPort,
                                     GlobalConstants.SEGMENT_PROXY_POST_DASHBOARD_DATA);
       final var request = HttpRequest.create(uri)
-                                     .withMethod(HttpMethods.GET)
+                                     .withMethod(HttpMethods.POST)
                                      .withEntity(akka.http.scaladsl.model.HttpEntity.Empty());
 
       final CompletableFuture<BackEnd.SQLDashboardDataResponse> sqlDashboardDataFuture = Ask.getSQLDashboardData(actorSystem,
