@@ -14,16 +14,13 @@ import java.util.stream.IntStream;
 public final class FieldsConfig {
    public static final String INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC = "auxDateCreated";
    public static final String INTERACTION_AUX_DATE_CREATED_FIELD_NAME_SC = "aux_date_created";
-   public static final String OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_CC = "auxId";
-   public static final String OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_SC = "aux_id";
+   public static final String OPTIONAL_AUX_ID_FIELD_NAME_CC = "auxId";
+   public static final String OPTIONAL_AUX_ID_FIELD_NAME_SC = "aux_id";
 
    public static final String GOLDEN_RECORD_AUX_DATE_CREATED_FIELD_NAME_CC = "auxDateCreated";
    public static final String GOLDEN_RECORD_AUX_DATE_CREATED_FIELD_NAME_SC = "aux_date_created";
    public static final String GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED_FIELD_NAME_CC = "auxAutoUpdateEnabled";
    public static final String GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED_FIELD_NAME_SC = "aux_auto_update_enabled";
-
-   public static final String OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC = "auxId";
-   public static final String OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_SC = "aux_id";
 
    private static final Logger LOGGER = LogManager.getLogger(FieldsConfig.class);
 
@@ -62,7 +59,7 @@ public final class FieldsConfig {
       IntStream.range(0, userAuxGoldenRecordFields.size())
                .forEach(i -> {
                            if (userAuxGoldenRecordFields.get(i).scName
-                                 .equals(OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_SC)) {
+                                 .equals(OPTIONAL_AUX_ID_FIELD_NAME_SC)) {
                               auxGoldenRecordAuxIdIdx[0] = i;
                            }
                         }
@@ -84,7 +81,7 @@ public final class FieldsConfig {
       IntStream.range(0, userAuxInteractionFields.size())
                .forEach(i -> {
                            if (userAuxInteractionFields.get(i).scName
-                                 .equals(OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_SC)) {
+                                 .equals(OPTIONAL_AUX_ID_FIELD_NAME_SC)) {
                               auxInteractionAuxIdIdx[0] = i;
                            }
                         }

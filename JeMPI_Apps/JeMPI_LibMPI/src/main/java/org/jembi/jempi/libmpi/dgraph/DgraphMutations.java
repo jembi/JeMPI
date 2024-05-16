@@ -48,9 +48,7 @@ final class DgraphMutations {
                                                             .value()))));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.add(uuid);
-      final var mutation = DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
-      LOGGER.debug("{}{}", System.lineSeparator(), mutation);
-      return mutation;
+      return DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
    }
 
    static String createLinkedGoldenRecordTriple(
