@@ -69,11 +69,7 @@ class TestInputInterfaceConfig {
 //                                      Pair.of("aux_clinical_data", 10)),
 //                              INPUT_INTERFACE_CONFIG_2.auxInteractionDataCsvCols);
 //      Assertions.assertNull(INPUT_INTERFACE_CONFIG_1.auxDateCreatedCsvCol);
-      Assertions.assertEquals(0, INPUT_INTERFACE_CONFIG_1.auxIdCsvCol);
-      Assertions.assertEquals(10, INPUT_INTERFACE_CONFIG_1.auxClinicalDataCsvCol);
 //      Assertions.assertNull(INPUT_INTERFACE_CONFIG_2.auxDateCreatedCsvCol);
-      Assertions.assertEquals(0, INPUT_INTERFACE_CONFIG_2.auxIdCsvCol);
-      Assertions.assertEquals(10, INPUT_INTERFACE_CONFIG_2.auxClinicalDataCsvCol);
    }
 
    @Test

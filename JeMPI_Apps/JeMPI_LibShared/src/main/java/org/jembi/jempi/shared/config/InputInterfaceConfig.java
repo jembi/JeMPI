@@ -13,8 +13,6 @@ public final class InputInterfaceConfig {
    public final List<Pair<String, Source>> demographicDataSource;
    public final Map<String, Source> auxInteractionDataSource = new HashMap<>();
    public final Map<String, Map<String, Source>> additionalNodesSource = new HashMap<>();
-   public final Integer auxIdCsvCol;
-   public final Integer auxClinicalDataCsvCol;
    public final Integer sourceIdPatientCsvCol;
    public final Integer sourceIdFacilityCsvCol;
 
@@ -30,8 +28,6 @@ public final class InputInterfaceConfig {
          additionalNodesSource.put(node.nodeName(), map);
       });
 
-      auxIdCsvCol = auxInteractionDataSource.get("aux_id").csvCol();
-      auxClinicalDataCsvCol = auxInteractionDataSource.get("aux_clinical_data").csvCol();
       sourceIdFacilityCsvCol = additionalNodesSource.get("SourceId").get("facility").csvCol();
       sourceIdPatientCsvCol = additionalNodesSource.get("SourceId").get("patient").csvCol();
    }
