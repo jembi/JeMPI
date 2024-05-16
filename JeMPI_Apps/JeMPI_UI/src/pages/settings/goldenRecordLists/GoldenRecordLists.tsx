@@ -118,7 +118,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
     {
       field: 'csvCol',
       headerName: 'Csv Col',
-      type: 'string',
+      type: 'number',
       width: 180,
       align: 'center',
       headerAlign: 'center',
