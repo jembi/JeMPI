@@ -1,25 +1,18 @@
 package org.jembi.jempi.shared.config.dgraph;
 
-import org.jembi.jempi.shared.config.input.*;
+import org.jembi.jempi.shared.config.input.AdditionalNode;
+import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
+import org.jembi.jempi.shared.config.input.AuxInteractionField;
+import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class QueryGetExpandedGoldenRecords {
 
    private QueryGetExpandedGoldenRecords() {
    }
-
-   private static String formattedInteractionField(final int idx) {
-      return String.format(Locale.ROOT, "         Interaction.demographic_field_%02d", idx);
-   }
-
-   private static String formattedGoldenRecordField(final int idx) {
-      return String.format(Locale.ROOT, "      GoldenRecord.demographic_field_%02d", idx);
-   }
-
 
    private static String formattedUniqueInteractionField(final AuxInteractionField field) {
       return String.format(Locale.ROOT, "         Interaction.%s", field.scFieldName());
@@ -63,11 +56,15 @@ public final class QueryGetExpandedGoldenRecords {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var goldenRecordDemographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                             .mapToObj(QueryGetExpandedGoldenRecords::formattedGoldenRecordField)
-                                             .collect(Collectors.joining(System.lineSeparator()));
-      final var interactionDemographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                                         .mapToObj(QueryGetExpandedGoldenRecords::formattedInteractionField)
+      final var goldenRecordDemographicFields = jsonConfig.demographicFields()
+                                                          .stream()
+                                                          .map(demographicField -> "      GoldenRecord.%s".formatted(
+                                                                demographicField.scFieldName()))
+                                                          .collect(Collectors.joining(System.lineSeparator()));
+      final var interactionDemographicFields = jsonConfig.demographicFields()
+                                                         .stream()
+                                                         .map(demographicField -> "         Interaction.%s".formatted(
+                                                               demographicField.scFieldName()))
                                                          .collect(Collectors.joining(System.lineSeparator()));
       return "query expandedGoldenRecord() {"
              + System.lineSeparator()

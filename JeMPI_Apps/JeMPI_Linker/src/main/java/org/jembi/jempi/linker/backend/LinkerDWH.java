@@ -78,7 +78,7 @@ public final class LinkerDWH {
                   final var goldenId = expandedGoldenRecord.goldenRecord().goldenId();
                   final var result = libMPI.updateGoldenRecordField(interactionId,
                                                                     goldenId,
-                                                                    "demographic_field_%02d".formatted(i),
+                                                                    fieldName,
                                                                     goldenRecordFieldValue,
                                                                     maxEntry.getKey(),
                                                                     fieldName);

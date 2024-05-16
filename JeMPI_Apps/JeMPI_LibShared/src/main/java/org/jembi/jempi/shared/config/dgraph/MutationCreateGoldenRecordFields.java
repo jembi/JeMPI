@@ -1,27 +1,26 @@
 package org.jembi.jempi.shared.config.dgraph;
 
 import org.jembi.jempi.shared.config.input.AdditionalNode;
+import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
 import org.jembi.jempi.shared.config.input.DemographicField;
 import org.jembi.jempi.shared.config.input.JsonConfig;
-import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class MutationCreateGoldenRecordFields {
 
    private MutationCreateGoldenRecordFields() {
    }
 
-   private static String formattedGoldenRecordField(final int idx, final DemographicField field) {
+   private static String formattedGoldenRecordField(final DemographicField field) {
 //      final var name = field.fieldName() + ":";
       final var type = field.fieldType().toLowerCase(Locale.ROOT);
       final var index = field.indexGoldenRecord() == null
             ? ""
             : field.indexGoldenRecord();
-      return String.format(Locale.ROOT, "GoldenRecord.demographic_field_%02d:        %-10s%-35s.", idx, type, index);
+      return "GoldenRecord.%-25s    %-10s%-35s.".formatted(field.scFieldName() + ":", type, index);
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
@@ -42,9 +41,10 @@ public final class MutationCreateGoldenRecordFields {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                             .mapToObj(i -> formattedGoldenRecordField(i, jsonConfig.demographicFields().get(i)))
-                                             .collect(Collectors.joining(System.lineSeparator()));
+      final var demographicFields =
+            jsonConfig.demographicFields().stream()
+                      .map(MutationCreateGoldenRecordFields::formattedGoldenRecordField)
+                      .collect(Collectors.joining(System.lineSeparator()));
       return jsonConfig.additionalNodes()
                        .stream()
                        .map(MutationCreateGoldenRecordFields::formattedAdditionalGoldenRecordNodes)

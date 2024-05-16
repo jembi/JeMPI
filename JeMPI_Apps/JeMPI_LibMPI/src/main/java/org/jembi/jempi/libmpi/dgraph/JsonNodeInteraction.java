@@ -8,8 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.util.stream.IntStream;
-
 import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
@@ -43,13 +41,14 @@ record JsonNodeInteraction(JsonNode node) {
                                               : null);
       final var auxInteractionData = AuxInteractionData.fromCustomAuxInteractionData(node);
       final var demographicData =
-            new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
-               final var fieldName = JSON_CONFIG.demographicFields().get(idx).scFieldName();
-               final var v = node.get("Interaction.demographic_field_%02d".formatted(idx));
-               return (!(v == null || v.isMissingNode()))
-                     ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
-                     : null;
-            }).toList());
+            new DemographicData(
+                  JSON_CONFIG.demographicFields().stream().map(demographicField -> {
+                     final var fieldName = demographicField.scFieldName();
+                     final var v = node.get("Interaction.%s".formatted(fieldName));
+                     return (!(v == null || v.isMissingNode()))
+                           ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
+                           : null;
+                  }).toList());
       return new Interaction(node.get("uid").textValue(), sourceId, auxInteractionData, demographicData);
    }
 

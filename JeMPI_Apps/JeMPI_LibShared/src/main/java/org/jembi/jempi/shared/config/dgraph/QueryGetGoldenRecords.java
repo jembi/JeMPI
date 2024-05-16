@@ -1,19 +1,16 @@
 package org.jembi.jempi.shared.config.dgraph;
 
-import org.jembi.jempi.shared.config.input.*;
+import org.jembi.jempi.shared.config.input.AdditionalNode;
+import org.jembi.jempi.shared.config.input.AuxGoldenRecordField;
+import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class QueryGetGoldenRecords {
 
    private QueryGetGoldenRecords() {
-   }
-
-   private static String formattedGoldenRecordField(final int idx) {
-      return String.format(Locale.ROOT, "      GoldenRecord.demographic_field_%02d", idx);
    }
 
    private static String formattedUniqueGoldenRecordField(final AuxGoldenRecordField field) {
@@ -41,9 +38,10 @@ public final class QueryGetGoldenRecords {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                             .mapToObj(QueryGetGoldenRecords::formattedGoldenRecordField)
-                                             .collect(Collectors.joining(System.lineSeparator()));
+      final var demographicFields = jsonConfig.demographicFields()
+                                              .stream()
+                                              .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
+                                              .collect(Collectors.joining(System.lineSeparator()));
       return "query goldenRecord() {"
              + System.lineSeparator()
              + "   all(func: uid(%s)) {"
