@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.lang.Math.min;
+import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 import static org.jembi.jempi.shared.utils.AppUtils.isNullOrEmpty;
 
@@ -109,7 +110,7 @@ public final class StatsTask {
    private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
       final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord()
                                                            .auxGoldenRecordData()
-                                                           .get(FieldsConfig.OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC)
+                                                           .get(FieldsConfig.OPTIONAL_AUX_ID_FIELD_NAME_CC)
                                                            .textValue();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
@@ -118,7 +119,7 @@ public final class StatsTask {
       expandedGoldenRecord.interactionsWithScore()
                           .forEach(interactionWithScore -> list.add(interactionWithScore.interaction()
                                                                                         .auxInteractionData()
-                                                                                        .get(FieldsConfig.OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_CC)
+                                                                                        .get(FieldsConfig.OPTIONAL_AUX_ID_FIELD_NAME_CC)
                                                                                         .textValue()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
@@ -139,6 +140,9 @@ public final class StatsTask {
    }
 
    public StatsResults run() {
+      if (FIELDS_CONFIG.optionalInteractionAuxIdIdx == null || FIELDS_CONFIG.optionalGoldenRecordAuxIdIdx == null) {
+         return new StatsResults(null, null, null, null, null, null, null, null);
+      }
       try {
          var interactionCount = countInteractions();
          var goldenRecordCount = countGoldenRecords();
@@ -240,6 +244,5 @@ public final class StatsTask {
          Double recall,
          Double fScore) {
    }
-
 
 }
