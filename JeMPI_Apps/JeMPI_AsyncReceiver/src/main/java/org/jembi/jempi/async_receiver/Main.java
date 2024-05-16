@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
+import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE_CONFIG;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
@@ -69,11 +69,14 @@ public final class Main {
    }
 
    static AuxInteractionData auxInteractionData(final CSVRecord csvRecord) {
-      return new AuxInteractionData(java.time.LocalDateTime.now(),
-                                    List.of(AuxInteractionData.deprecatedGetFieldAuxId(
-                                                  Main.parseRecordNumber(csvRecord.get(INPUT_INTERFACE_CONFIG.auxIdCsvCol))),
-                                            AuxInteractionData.deprecatedGetFieldAuxClinicalData(
-                                                  csvRecord.get(INPUT_INTERFACE_CONFIG.auxClinicalDataCsvCol))));
+      return new AuxInteractionData(
+            java.time.LocalDateTime.now(),
+            FIELDS_CONFIG.userAuxInteractionFields
+                  .stream()
+                  .map(f -> new AuxInteractionData.AuxInteractionUserField(f.scName(),
+                                                                           f.ccName(),
+                                                                           csvRecord.get(f.source().csvCol())))
+                  .toList());
    }
 
    static SourceId sourceIdData(final CSVRecord csvRecord) {

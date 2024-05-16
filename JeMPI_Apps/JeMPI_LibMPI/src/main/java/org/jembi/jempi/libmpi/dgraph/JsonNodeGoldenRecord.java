@@ -5,17 +5,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.AuxGoldenRecordData;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.GoldenRecord;
 import org.jembi.jempi.shared.models.SourceId;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
@@ -60,19 +56,7 @@ record JsonNodeGoldenRecord(JsonNode node) {
             sourceIdList.add(new SourceId(uid, facility, patient));
          }
       }
-      final var dtNode = node.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_DATE_CREATED);
-      final var d = (!(dtNode == null || dtNode.isMissingNode()))
-            ? Instant.parse(dtNode.textValue()).atOffset(ZoneOffset.UTC).toLocalDateTime()
-            : null;
-      final var bNode = node.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED);
-      final Boolean b = (!(bNode == null || node.isMissingNode()))
-            ? bNode.booleanValue()
-            : null;
-      final var tNode = node.get(DGraphConfig.PREDICATE_GOLDEN_RECORD_AUX_ID);
-      final var t = (!(tNode == null || node.isMissingNode()))
-            ? tNode.textValue()
-            : null;
-      final var customUniqueGoldenRecordData = new AuxGoldenRecordData(d, b, List.of(AuxGoldenRecordData.deprecatedGetFieldAuxId(t)));
+      final var auxGoldenRecordData = AuxGoldenRecordData.fromCustomAuxGoldenRecordData(node);
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).scFieldName();
@@ -81,7 +65,7 @@ record JsonNodeGoldenRecord(JsonNode node) {
                      ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
                      : null;
             }).toList());
-      return new GoldenRecord(uidNode.textValue(), sourceIdList, customUniqueGoldenRecordData, demographicData);
+      return new GoldenRecord(uidNode.textValue(), sourceIdList, auxGoldenRecordData, demographicData);
    }
 
 }

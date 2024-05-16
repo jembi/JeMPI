@@ -99,7 +99,7 @@ final class LinkerCR {
             final var interaction =
                   new Interaction(null,
                                   crRegister.sourceId(),
-                                  AuxInteractionData.deprecatedFromCustomAuxInteractionData(crRegister.auxInteractionData()),
+                                  AuxInteractionData.fromCustomAuxInteractionData(crRegister.auxInteractionData()),
                                   DemographicData.fromCustomDemographicData(crRegister.demographicData()));
             final var linkInfo =
                   libMPI.createInteractionAndLinkToClonedGoldenRecord(applyAutoCreateFunctions(interaction),
@@ -139,7 +139,7 @@ final class LinkerCR {
                LinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), reqDemographicData);
          final var interaction = new Interaction(null,
                                                  req.sourceId(),
-                                                 AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
+                                                 AuxInteractionData.fromCustomAuxInteractionData(req.auxInteractionData()),
                                                  reqDemographicData);
          final var linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                interaction,
@@ -222,7 +222,7 @@ final class LinkerCR {
       return crLinkBySourceIdUpdate(libMPI,
                                     false,
                                     req.sourceId(),
-                                    AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
+                                    AuxInteractionData.fromCustomAuxInteractionData(req.auxInteractionData()),
                                     DemographicData.fromCustomDemographicData(req.demographicData()));
    }
 
@@ -233,7 +233,7 @@ final class LinkerCR {
       return crLinkBySourceIdUpdate(libMPI,
                                     true,
                                     req.sourceId(),
-                                    AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
+                                    AuxInteractionData.fromCustomAuxInteractionData(req.auxInteractionData()),
                                     DemographicData.fromCustomDemographicData(req.demographicData()));
    }
 

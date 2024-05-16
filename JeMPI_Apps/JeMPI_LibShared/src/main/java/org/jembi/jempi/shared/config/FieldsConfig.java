@@ -17,9 +17,6 @@ public final class FieldsConfig {
    public static final String OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_CC = "auxId";
    public static final String OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_SC = "aux_id";
 
-   public static final String DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_FIELD_NAME_CC = "auxClinicalData";
-   public static final int DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX = 1;
-
    public static final String GOLDEN_RECORD_AUX_DATE_CREATED_FIELD_NAME_CC = "auxDateCreated";
    public static final String GOLDEN_RECORD_AUX_DATE_CREATED_FIELD_NAME_SC = "aux_date_created";
    public static final String GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED_FIELD_NAME_CC = "auxAutoUpdateEnabled";
@@ -33,8 +30,8 @@ public final class FieldsConfig {
    public final Integer optionalGoldenRecordAuxIdIdx;
    public final Integer optionalInteractionAuxIdIdx;
    public final List<AuxField> auxInteractionFields;
-   public final List<AuxField> userAuxInteractionFields;
    public final List<AuxField> auxGoldenRecordFields;
+   public final List<AuxField> userAuxInteractionFields;
    public final List<AuxField> userAuxGoldenRecordFields;
    public final List<DemographicField> demographicFields;
    public final List<AdditionalNode> additionalNodes;

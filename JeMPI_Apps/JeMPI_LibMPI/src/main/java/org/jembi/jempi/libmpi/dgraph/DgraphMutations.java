@@ -12,7 +12,6 @@ import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.config.DGraphConfig;
-import org.jembi.jempi.shared.config.FieldsConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
 import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
@@ -39,19 +39,18 @@ final class DgraphMutations {
       final String uuid = UUID.randomUUID().toString();
       final List<Object> params = new ArrayList<>(23);
       params.addAll(List.of(uuid, sourceUID));
-      params.addAll(List.of(uuid,
-                            AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
-      params.addAll(List.of(uuid,
-                            AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
-                                                                      .get(FIELDS_CONFIG.optionalInteractionAuxIdIdx)
-                                                                      .value())));
-      params.addAll(List.of(uuid,
-                            AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
-                                                                      .get(FieldsConfig.DEPRECATED_INTERACTION_AUX_CLINICAL_DATA_IDX)
-                                                                      .value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
+      IntStream.range(0, FIELDS_CONFIG.userAuxInteractionFields.size())
+               .forEach(i -> params.addAll(List.of(
+                     uuid,
+                     AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
+                                                               .get(i)
+                                                               .value()))));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.add(uuid);
-      return DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
+      final var mutation = DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
+      LOGGER.debug("{}{}", System.lineSeparator(), mutation);
+      return mutation;
    }
 
    static String createLinkedGoldenRecordTriple(

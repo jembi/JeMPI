@@ -109,16 +109,6 @@ public final class LibDgraph implements LibMPIClientInterface {
 
    private PaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(final PaginatedResultSet<ExpandedGoldenRecord> list) {
       return list;
-//      if (list == null) {
-//         return null;
-//      }
-//      final var data = list
-//            .all()
-//            .stream()
-//            .map(DeprecatedCustomFunctions::toExpandedGoldenRecord)
-//            .toList();
-//      final var pagination = list.size();
-//      return new LibMPIPaginatedResultSet<>(list.data(), list.pagination().getFirst());
    }
 
    private PaginatedResultSet<Interaction> paginatedInteractions(final PaginatedResultSet<InteractionWithScore> list) {

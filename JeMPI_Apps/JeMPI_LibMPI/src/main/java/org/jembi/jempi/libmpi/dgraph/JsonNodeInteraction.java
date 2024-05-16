@@ -5,13 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.jembi.jempi.shared.config.Config.JSON_CONFIG;
@@ -38,7 +34,6 @@ record JsonNodeInteraction(JsonNode node) {
       final var sourceIdNode = node.get("Interaction.source_id");
       final var facilityNode = sourceIdNode.get("SourceId.facility");
       final var patientNode = sourceIdNode.get("SourceId.patient");
-
       final var sourceId = new SourceId(sourceIdNode.get("uid").textValue(),
                                         (!(facilityNode == null || facilityNode.isMissingNode()))
                                               ? facilityNode.textValue()
@@ -46,14 +41,7 @@ record JsonNodeInteraction(JsonNode node) {
                                         (!(patientNode == null || patientNode.isMissingNode()))
                                               ? patientNode.textValue()
                                               : null);
-
-      final var dt = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_DATE_CREATED).textValue();
-      final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
-      final var i = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_ID).textValue();
-      final var c = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_CLINICAL_DATA).textValue();
-      final var auxInteractionData = new AuxInteractionData(d,
-                                                            List.of(AuxInteractionData.deprecatedGetFieldAuxId(i),
-                                                                    AuxInteractionData.deprecatedGetFieldAuxClinicalData(c)));
+      final var auxInteractionData = AuxInteractionData.fromCustomAuxInteractionData(node);
       final var demographicData =
             new DemographicData(IntStream.range(0, JSON_CONFIG.demographicFields().size()).mapToObj(idx -> {
                final var fieldName = JSON_CONFIG.demographicFields().get(idx).scFieldName();
