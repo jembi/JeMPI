@@ -33,19 +33,19 @@ final class DgraphMutations {
    }
 
    static String createInteractionTriple(
-         final AuxInteractionData uniqueInteractionData,
+         final AuxInteractionData auxInteractionData,
          final DemographicData demographicData,
          final String sourceUID) {
       final String uuid = UUID.randomUUID().toString();
       final List<Object> params = new ArrayList<>(23);
       params.addAll(List.of(uuid, sourceUID));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueInteractionData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(auxInteractionData.auxDateCreated().toString())));
       IntStream.range(0, FIELDS_CONFIG.userAuxInteractionFields.size())
                .forEach(i -> params.addAll(List.of(
                      uuid,
-                     AppUtils.quotedValue(uniqueInteractionData.auxUserFields()
-                                                               .get(i)
-                                                               .value()))));
+                     AppUtils.quotedValue(auxInteractionData.auxUserFields()
+                                                            .get(i)
+                                                            .value()))));
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.add(uuid);
       final var mutation = DGRAPH_CONFIG.mutationCreateInteractionTriple.formatted(params.toArray(Object[]::new));
@@ -54,7 +54,7 @@ final class DgraphMutations {
    }
 
    static String createLinkedGoldenRecordTriple(
-         final AuxGoldenRecordData uniqueGoldenRecordData,
+         final AuxGoldenRecordData auxGoldenRecordData,
          final DemographicData demographicData,
          final String interactionUID,
          final String sourceUID,
@@ -62,31 +62,19 @@ final class DgraphMutations {
       final String uuid = UUID.randomUUID().toString();
       final List<Object> params = new ArrayList<>(26);
       params.addAll(List.of(uuid, sourceUID));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxDateCreated().toString())));
-      params.addAll(List.of(uuid, AppUtils.quotedValue(uniqueGoldenRecordData.auxAutoUpdateEnabled().toString())));
-      params.addAll(List.of(uuid,
-                            AppUtils.quotedValue(uniqueGoldenRecordData.auxUserFields()
-                                                                       .get(FIELDS_CONFIG.optionalGoldenRecordAuxIdIdx)
-                                                                       .value())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(auxGoldenRecordData.auxDateCreated().toString())));
+      params.addAll(List.of(uuid, AppUtils.quotedValue(auxGoldenRecordData.auxAutoUpdateEnabled().toString())));
+      IntStream.range(0, FIELDS_CONFIG.userAuxGoldenRecordFields.size())
+               .forEach(i -> params.addAll(List.of(
+                     uuid,
+                     AppUtils.quotedValue(auxGoldenRecordData.auxUserFields()
+                                                             .get(i)
+                                                             .value()))));
+
       demographicData.fields.forEach(f -> params.addAll(List.of(uuid, AppUtils.quotedValue(f.value()))));
       params.addAll(List.of(uuid, interactionUID, score));
       params.add(uuid);
       return DGRAPH_CONFIG.mutationCreateLinkedGoldenRecordTriple.formatted(params.toArray(Object[]::new));
-//      return """
-//             _:%s  <GoldenRecord.source_id>                     <%s>                  .
-//             _:%s  <GoldenRecord.aux_date_created>              %s^^<xs:dateTime>     .
-//             _:%s  <GoldenRecord.aux_auto_update_enabled>       %s^^<xs:boolean>      .
-//             _:%s  <GoldenRecord.aux_id>                        %s                    .
-//             _:%s  <GoldenRecord.demographic_field_00>          %s                    .
-//             _:%s  <GoldenRecord.demographic_field_01>          %s                    .
-//             _:%s  <GoldenRecord.demographic_field_02>          %s                    .
-//             _:%s  <GoldenRecord.demographic_field_03>          %s                    .
-//             _:%s  <GoldenRecord.demographic_field_04>          %s                    .
-//             _:%s  <GoldenRecord.demographic_field_05>          %s                    .
-//             _:%s  <GoldenRecord.demographic_field_06>          %s                    .
-//             _:%s  <GoldenRecord.interactions>                  <%s> (score=%f)       .
-//             _:%s  <dgraph.type>                                "GoldenRecord"        .
-//             """.formatted(params.toArray(Object[]::new));
    }
 
    LinkInfo addNewDGraphInteraction(final Interaction interaction) {
