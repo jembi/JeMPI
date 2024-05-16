@@ -26,6 +26,9 @@ COPY yarn.lock ./
 
 ENV NODE_ENV=production
 
+# Increase timeout for slow builds i.e. when building arm64 with emulation
+RUN yarn config set network-timeout 300000
+
 RUN yarn
 
 COPY . .
