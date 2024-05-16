@@ -29,12 +29,12 @@ jobs:
     needs: [prepare]
     steps:
     - uses: actions/checkout@v4
-    - id: get-image-build-tag
-      run: echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
+    - id: get-docker-push-tag
+      run: echo "docker-push-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
     - uses: ./.github/workflows/actions/build-deploy-images
       with: 
-        image-build-tag: ${{ steps.get-image-build-tag.outputs.image-build-tag }}
-        docker-host: ${{ vars.DOCKER_LOCAL_HOST_NAME }}
+        docker-push-tag: ${{ steps.get-docker-push-tag.outputs.docker-push-tag }}
+        docker-host: "docker.io"
         docker-username: ${{ secrets.DOCKER_LOCAL_USER_NAME }}
         docker-password: ${{ secrets.DOCKER_LOCAL_PASSWORD }}
         docker-namespace: ${{ vars.DOCKER_LOCAL_NAMESPACE }}

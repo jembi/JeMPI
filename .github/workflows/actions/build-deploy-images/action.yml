@@ -1,8 +1,6 @@
 name: Build and Deploy Images
 inputs:
   docker-push-tag:
-    required: false
-  image-build-tag:
     required: true
   docker-host:
     required: true
@@ -15,14 +13,22 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: ./.github/workflows/actions/docker-images-build
+    - name: Login to Docker Registry
+      uses: docker/login-action@v2
       with:
-        image-build-tag: ${{ inputs.image-build-tag }}
-    - uses: ./.github/workflows/actions/docker-images-deploy
-      with:
-        image-build-tag: ${{ inputs.image-build-tag }}
-        docker-push-tag: ${{ inputs.docker-push-tag }}
-        docker-username: ${{ inputs.docker-username }}
-        docker-password: ${{ inputs.docker-password }}
-        docker-host: ${{ inputs.docker-host }}
-        docker-namespace: ${{ inputs.docker-namespace }}
+        username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        registry: ${{docker-host}}
+    - uses: ./.github/workflows/actions/cached-dependencies
+    - uses: ./.github/workflows/actions/load-conf-env
+    - name: Build Docker Images
+      run: |
+        set -eo pipefail
+        source "$HOME/.nvm/nvm.sh"
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        source $GITHUB_WORKSPACE/devops/linux/docker/conf.env
+        source $GITHUB_WORKSPACE/devops/linux/docker/conf/images/conf-app-images.sh 
+        pushd $GITHUB_WORKSPACE/JeMPI_Apps
+          source ./build-all-ci.sh "${{ inputs.docker-push-tag }}"
+        popd
+      shell: bash
