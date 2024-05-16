@@ -33,7 +33,7 @@
 
     <suppress
             checks="(DesignForExtension)"
-            files="CustomDemographicData.java"
+            files="(CustomDemographicData|DemographicData).java"
     />
 
     <suppress

@@ -25,9 +25,15 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-<!--
-        com.typesafe.akk
--->
+        <dependency>
+            <groupId>org.jembi.jempi</groupId>
+            <artifactId>JeMPI_LibMPI</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--
+                com.typesafe.akk
+        -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor-typed_${scala.tools.version}</artifactId>
@@ -117,12 +123,7 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jembi.jempi</groupId>
-            <artifactId>JeMPI_LibMPI</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+
 
     </dependencies>
 

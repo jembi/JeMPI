@@ -12,7 +12,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.LinkerMetadata;
+import org.jembi.jempi.shared.models.SessionMetadata;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -50,7 +52,7 @@ public final class SPInteractions {
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
-            LOGGER.error("BACK END RESPONSE(ERROR)");
+            LOGGER.warn("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);

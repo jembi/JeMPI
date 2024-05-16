@@ -3,6 +3,7 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -14,8 +15,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
@@ -24,6 +25,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class SPMU {
 
@@ -38,9 +41,12 @@ public final class SPMU {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final CustomMU mu) {
-
-      LOGGER.info("New MU set: {}/{}", key, mu);
+         final MUPacket mu) {
+      try {
+         LOGGER.info("New MU set: {}/{}", key, OBJECT_MAPPER.writeValueAsString(mu));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
       final CompletionStage<BackEnd.EventUpdateMURsp> result = AskPattern.ask(backEnd,
                                                                               replyTo -> new BackEnd.EventUpdateMUReq(mu,
                                                                                                                       replyTo),
@@ -49,7 +55,11 @@ public final class SPMU {
       final var completableFuture = result.toCompletableFuture();
       try {
          final var reply = completableFuture.get(6, TimeUnit.SECONDS);
-         if (!reply.rc()) {
+         LOGGER.debug("Update MU Request: {}", reply);
+         if (reply.rc()) {
+            final SPInteractions spInteractions = SPInteractions.create(mu.tag());
+            spInteractions.open(system, backEnd);
+         } else {
             LOGGER.error("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
@@ -64,9 +74,9 @@ public final class SPMU {
       LOGGER.info("MY Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serde<CustomMU> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(CustomMU.class));
+      final Serde<MUPacket> muSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(), new JsonPojoDeserializer<>(MUPacket.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, CustomMU> muStream =
+      final KStream<String, MUPacket> muStream =
             streamsBuilder.stream(GlobalConstants.TOPIC_MU_LINKER, Consumed.with(stringSerde, muSerde));
       muStream.foreach((key, mu) -> installMU(system, backEnd, key, mu));
       muKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);

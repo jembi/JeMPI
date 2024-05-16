@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
+import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE_CONFIG;
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
 
@@ -37,7 +40,7 @@ public final class Main {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
-   public static void main(final String[] args) throws InterruptedException, ExecutionException, IOException {
+   public static void main(final String[] args) throws ExecutionException {
       new Main().run();
    }
 
@@ -65,7 +68,48 @@ public final class Main {
       return in;
    }
 
-   private void sendInteractionToKafka(
+   static AuxInteractionData auxInteractionData(final CSVRecord csvRecord) {
+      return new AuxInteractionData(java.time.LocalDateTime.now(),
+                                    List.of(AuxInteractionData.deprecatedGetFieldAuxId(
+                                                  Main.parseRecordNumber(csvRecord.get(INPUT_INTERFACE_CONFIG.auxIdCsvCol))),
+                                            AuxInteractionData.deprecatedGetFieldAuxClinicalData(
+                                                  csvRecord.get(INPUT_INTERFACE_CONFIG.auxClinicalDataCsvCol))));
+   }
+
+   static SourceId sourceIdData(final CSVRecord csvRecord) {
+      return new SourceId(
+            null,
+            csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdFacilityCsvCol),
+            csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
+   }
+
+   private static String applyFunction(final String func) {
+      return switch (func) {
+         case "AppUtils::autoGenerateId" -> AppUtils.autoGenerateId();
+         default -> null;
+      };
+   }
+
+   private static DemographicData demographicData(final CSVRecord csvRecord) {
+
+      final var data = new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataSource
+                                                 .stream()
+                                                 .map(f -> new DemographicData.DemographicField(
+                                                       f.getLeft(),
+                                                       (f.getRight().csvCol() != null)
+                                                             ? csvRecord.get(f.getRight().csvCol())
+                                                             : applyFunction(f.getRight().generate().func())))
+                                                 .toList());
+
+      try {
+         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(data));
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      return data;
+   }
+
+   private void sendToKafka(
          final String key,
          final InteractionEnvelop interactionEnvelop) throws InterruptedException, ExecutionException {
       try {
@@ -73,17 +117,6 @@ public final class Main {
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
-   }
-
-   private long getRowSize(final String[] values) {
-      long size = 0;
-
-      for (String str : values) {
-         if (str != null) {
-            size += 24 + (str.length() * 2L);
-         }
-      }
-      return size;
    }
 
    private void apacheReadCSV(
@@ -114,36 +147,43 @@ public final class Main {
                                                    .parse(reader);
 
             int index = 0;
-            var stan = String.format(Locale.ROOT, "%s:%07d", stanDate, ++index);
-            sendInteractionToKafka(uuid,
-                                   new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
-                                                          tag,
-                                                          stan,
-                                                          null,
-                                                          createSessionMetadata(index, stanDate, config)));
+            sendToKafka(uuid,
+                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
+                                               tag,
+                                               updateStan(stanDate, index),
+                                               null,
+                                               createSessionMetadata(index, updateStan(stanDate, index), config)));
             for (CSVRecord csvRecord : csvParser) {
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
-                                                                     stan,
+                                                                     updateStan(stanDate, ++index),
                                                                      new Interaction(null,
-                                                                                     CustomAsyncHelper.customSourceId(csvRecord),
-                                                                                     CustomAsyncHelper.customUniqueInteractionData(
-                                                                                           csvRecord),
-                                                                                     CustomAsyncHelper.customDemographicData(
-                                                                                           csvRecord)),
-                                                                     createSessionMetadata(index, stanDate, config));
-
-               sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
+                                                                                     sourceIdData(csvRecord),
+                                                                                     auxInteractionData(csvRecord),
+                                                                                     demographicData(csvRecord)),
+                                                                     createSessionMetadata(index,
+                                                                                           updateStan(stanDate, index),
+                                                                                           config));
+               sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
             }
-            sendInteractionToKafka(uuid,
-                                   new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
-                                                          tag,
-                                                          stan,
-                                                          null, createSessionMetadata(index, stanDate, config)));
+            sendToKafka(uuid,
+                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
+                                               tag,
+                                               updateStan(stanDate, ++index),
+                                               null,
+                                               createSessionMetadata(index,
+                                                                     updateStan(stanDate, index),
+                                                                     config)));
          }
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
+   }
+
+   private String updateStan(
+         final String stanDate,
+         final int recCount) {
+      return String.format(Locale.ROOT, "%s:%07d", stanDate, recCount);
    }
 
    private UploadConfig readUploadConfigFromFile(final String fileName) {
@@ -166,9 +206,9 @@ public final class Main {
       WatchEvent.Kind<?> kind = event.kind();
       LOGGER.info("EVENT: {}", kind);
       if (ENTRY_CREATE.equals(kind)) {
-         WatchEvent<Path> ev = cast(event);
-         Path filename = ev.context();
-         String name = filename.toString();
+         final WatchEvent<Path> ev = cast(event);
+         final Path filename = ev.context();
+         final String name = filename.toString();
          LOGGER.info("A new file {} was created", filename);
          if (name.endsWith("uploadConfig.csv")) {
             UploadConfig config = readUploadConfigFromFile("csv/" + filename);
@@ -177,9 +217,7 @@ public final class Main {
             LOGGER.info("Process CSV file: {}", filename);
             apacheReadCSV("csv/" + filename, null);
          }
-      } else if (ENTRY_MODIFY.equals(kind)) {
-         LOGGER.info("EVENT: {}", kind);
-      } else if (ENTRY_DELETE.equals(kind)) {
+      } else if (ENTRY_MODIFY.equals(kind) || ENTRY_DELETE.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       }
    }
@@ -192,7 +230,7 @@ public final class Main {
       return new JsonPojoSerializer<>();
    }
 
-   private void run() throws InterruptedException, ExecutionException, IOException {
+   private void run() throws ExecutionException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ETL,
@@ -218,10 +256,8 @@ public final class Main {
 
    private SessionMetadata createSessionMetadata(
          final int index,
-         final String stanDate,
+         final String stan,
          final UploadConfig config) {
-      int count = index;
-      var stan = String.format(Locale.ROOT, "%s:%07d", stanDate, ++count);
       return new SessionMetadata(new CommonMetaData(stan, config),
                                  new UIMetadata(null),
                                  new AsyncReceiverMetadata(AppUtils.timeStamp()),

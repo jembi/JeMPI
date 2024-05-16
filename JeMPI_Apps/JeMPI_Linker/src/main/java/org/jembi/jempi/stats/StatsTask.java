@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.shared.config.FieldsConfig;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
@@ -44,6 +45,7 @@ public final class StatsTask {
       try (var response = call.execute()) {
          assert response.body() != null;
          var json = response.body().string();
+         response.close();
          return OBJECT_MAPPER.readValue(json, ApiModels.ApiGoldenRecordCount.class).count();
       }
    }
@@ -105,15 +107,19 @@ public final class StatsTask {
    }
 
    private void updateStatsDataSet(final ApiModels.ApiExpandedGoldenRecord expandedGoldenRecord) {
-      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord().uniqueGoldenRecordData().auxId();
+      final String goldenRecordAuxId = expandedGoldenRecord.goldenRecord()
+                                                           .auxGoldenRecordData()
+                                                           .get(FieldsConfig.OPTIONAL_GOLDEN_RECORD_AUX_ID_FIELD_NAME_CC)
+                                                           .textValue();
       final String goldenRecordNumber = goldenRecordAuxId.substring(0, AUX_ID_SIGNIFICANT_CHARACTERS);
 
       final var entry = dataSet.get(goldenRecordNumber);
       final List<String> list = new ArrayList<>();
       expandedGoldenRecord.interactionsWithScore()
                           .forEach(interactionWithScore -> list.add(interactionWithScore.interaction()
-                                                                                        .uniqueInteractionData()
-                                                                                        .auxId()));
+                                                                                        .auxInteractionData()
+                                                                                        .get(FieldsConfig.OPTIONAL_INTERACTION_AUX_ID_FIELD_NAME_CC)
+                                                                                        .textValue()));
       if (isNullOrEmpty(entry)) {
          final List<GoldenRecordMembers> membersList = new ArrayList<>();
          membersList.add(new GoldenRecordMembers(goldenRecordAuxId, list));

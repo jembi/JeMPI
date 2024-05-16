@@ -2,23 +2,32 @@ package org.jembi.jempi.linker.backend;
 
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.config.Config;
+import org.jembi.jempi.shared.config.FieldsConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 final class LinkerCR {
-   private static final Logger LOGGER = LogManager.getLogger(LinkerCR.class);
+   private static final Logger LOGGER;
+
+   static {
+      LOGGER = LogManager.getLogger(LinkerCR.class);
+      Configurator.setLevel(Map.of(LinkerCR.class.getName(), Level.TRACE));
+   }
 
    private LinkerCR() {
    }
@@ -29,8 +38,7 @@ final class LinkerCR {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", crFindData);
       }
-      final var res = libMPI.apiCrFindGoldenRecords(crFindData);
-      return res;
+      return libMPI.apiCrFindGoldenRecords(crFindData);
    }
 
    static List<GoldenRecord> crCandidates(
@@ -40,7 +48,9 @@ final class LinkerCR {
          LOGGER.trace("{}", crCandidatesData.demographicData());
       }
       final var matchedCandidates =
-            crMatchedCandidates(libMPI, crCandidatesData.candidateThreshold(), crCandidatesData.demographicData());
+            crMatchedCandidates(libMPI,
+                                crCandidatesData.candidateThreshold(),
+                                DemographicData.fromCustomDemographicData(crCandidatesData.demographicData()));
       LOGGER.trace("size = {}", matchedCandidates.size());
       return matchedCandidates;
    }
@@ -48,7 +58,7 @@ final class LinkerCR {
    private static List<GoldenRecord> crMatchedCandidates(
          final LibMPI libMPI,
          final float candidateThreshold,
-         final CustomDemographicData demographicData) {
+         final DemographicData demographicData) {
       final var candidates = libMPI.findLinkCandidates(demographicData);
       if (candidates.isEmpty()) {
          return List.of();
@@ -56,8 +66,8 @@ final class LinkerCR {
          return candidates.parallelStream()
                           .unordered()
                           .map(candidate -> new WorkCandidate(candidate,
-                                                              LinkerUtils.calcNormalizedScore(candidate.demographicData(),
-                                                                                              demographicData)))
+                                                              LinkerUtils.calcNormalizedLinkScore(candidate.demographicData(),
+                                                                                                  demographicData)))
                           .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
                           .filter(x -> x.score >= candidateThreshold)
                           .map(x -> x.goldenRecord)
@@ -68,8 +78,8 @@ final class LinkerCR {
    private static Interaction applyAutoCreateFunctions(final Interaction interaction) {
       return new Interaction(interaction.interactionId(),
                              interaction.sourceId(),
-                             interaction.uniqueInteractionData(),
-                             new CustomDemographicData(interaction.demographicData()));
+                             interaction.auxInteractionData(),
+                             new DemographicData(interaction.demographicData()));
    }
 
    static Either<MpiGeneralError, LinkInfo> crRegister(
@@ -78,13 +88,18 @@ final class LinkerCR {
       if (LOGGER.isTraceEnabled()) {
          LOGGER.trace("{}", crRegister.demographicData());
       }
-      if (crRegister.uniqueInteractionData().auxDateCreated() == null) {
+      if (crRegister.auxInteractionData().get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
-         final var matchedCandidates = crMatchedCandidates(libMPI, crRegister.candidateThreshold(), crRegister.demographicData());
+         final var matchedCandidates = crMatchedCandidates(libMPI,
+                                                           crRegister.candidateThreshold(),
+                                                           DemographicData.fromCustomDemographicData(crRegister.demographicData()));
          if (matchedCandidates.isEmpty()) {
             final var interaction =
-                  new Interaction(null, crRegister.sourceId(), crRegister.uniqueInteractionData(), crRegister.demographicData());
+                  new Interaction(null,
+                                  crRegister.sourceId(),
+                                  AuxInteractionData.deprecatedFromCustomAuxInteractionData(crRegister.auxInteractionData()),
+                                  DemographicData.fromCustomDemographicData(crRegister.demographicData()));
             final var linkInfo =
                   libMPI.createInteractionAndLinkToClonedGoldenRecord(applyAutoCreateFunctions(interaction),
                                                                       1.0F);
@@ -92,7 +107,8 @@ final class LinkerCR {
          } else {
             return Either.left(new MpiServiceError.CRClientExistsError(matchedCandidates.stream()
                                                                                         .map(GoldenRecord::demographicData)
-                                                                                        .toList(), crRegister.demographicData()));
+                                                                                        .toList(),
+                                                                       DemographicData.fromCustomDemographicData(crRegister.demographicData())));
          }
       }
    }
@@ -100,30 +116,30 @@ final class LinkerCR {
    static Either<MpiGeneralError, LinkInfo> crLinkToGidUpdate(
          final LibMPI libMPI,
          final ApiModels.ApiCrLinkToGidUpdateRequest req) {
-      if (req.uniqueInteractionData().auxDateCreated() == null) {
+      if (req.auxInteractionData().get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).isMissingNode()) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
+         final var reqDemographicData = DemographicData.fromCustomDemographicData(req.demographicData());
          final var grec = libMPI.findGoldenRecord(req.gid());
          if (grec.isLeft()) {
             return Either.left(grec.getLeft());
          }
          final var goldenRecord = grec.get();
-         try {
-            if (goldenRecord == null || goldenRecord.demographicData() == null || checkNull(goldenRecord.demographicData())) {
-               LOGGER.warn("No golden record: {}", req.gid());
-               return Either.left(new MpiServiceError.CRGidDoesNotExistError(req.gid()));
-            }
-         } catch (IllegalAccessException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+         if (goldenRecord == null
+             || goldenRecord.demographicData() == null
+             || checkNull(goldenRecord.demographicData())
+             || AppUtils.isNullOrEmpty(goldenRecord.demographicData().fields)) {
+            LOGGER.warn("No golden record: {}", req.gid());
             return Either.left(new MpiServiceError.CRGidDoesNotExistError(req.gid()));
          }
          final var validated1 =
-               CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
-                                                                    req.demographicData());
+               LinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), reqDemographicData);
          final var validated2 =
-               CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
-                                                                    req.demographicData());
-         final var interaction = new Interaction(null, req.sourceId(), req.uniqueInteractionData(), req.demographicData());
+               LinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), reqDemographicData);
+         final var interaction = new Interaction(null,
+                                                 req.sourceId(),
+                                                 AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
+                                                 reqDemographicData);
          final var linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                interaction,
                new LibMPIClientInterface.GoldenIdScore(req.gid(), 1.0F),
@@ -135,7 +151,7 @@ final class LinkerCR {
                                           req.gid(),
                                           goldenRecord.demographicData(),
                                           linkInfo.interactionUID(),
-                                          req.demographicData());
+                                          reqDemographicData);
             return Either.right(linkInfo);
          } else {
             return Either.left(new MpiServiceError.CRLinkUpdateError(interaction.demographicData()));
@@ -146,10 +162,10 @@ final class LinkerCR {
    private static Either<MpiGeneralError, LinkInfo> crLinkBySourceIdUpdate(
          final LibMPI libMPI,
          final boolean syncGoldenRecord,
-         final CustomSourceId sourceId,
-         final CustomUniqueInteractionData uniqueInteractionData,
-         final CustomDemographicData demographicData) {
-      if (uniqueInteractionData.auxDateCreated() == null) {
+         final SourceId sourceId,
+         final AuxInteractionData auxInteractionData,
+         final DemographicData demographicData) {
+      if (auxInteractionData.auxDateCreated() == null) {
          return Either.left(new MpiServiceError.CRMissingFieldError("auxDateCreated"));
       } else {
          final var grec = libMPI.findExpandedSourceIdList(sourceId.facility(), sourceId.patient());
@@ -157,7 +173,7 @@ final class LinkerCR {
             final var linkInfo = LinkerDWH.linkInteraction(libMPI,
                                                            new Interaction(null,
                                                                            sourceId,
-                                                                           uniqueInteractionData,
+                                                                           auxInteractionData,
                                                                            demographicData),
                                                            null,
                                                            AppConfig.LINKER_MATCH_THRESHOLD,
@@ -167,20 +183,17 @@ final class LinkerCR {
          }
          final var goldenRecord = grec.getFirst().goldenRecords().getFirst();
          final var gid = goldenRecord.goldenId();
-         try {
-            if (goldenRecord.demographicData() == null || checkNull(goldenRecord.demographicData())) {
-               LOGGER.warn("No golden record: {}", gid);
-               return Either.left(new MpiServiceError.CRGidDoesNotExistError(gid));
-            }
-         } catch (IllegalAccessException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
+         if (goldenRecord.demographicData() == null
+             || checkNull(goldenRecord.demographicData())
+             || AppUtils.isNullOrEmpty(goldenRecord.demographicData().fields)) {
+            LOGGER.warn("No golden record: {}", gid);
             return Either.left(new MpiServiceError.CRGidDoesNotExistError(gid));
          }
          final var validated1 =
-               CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), demographicData);
+               LinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(), demographicData);
          final var validated2 =
-               CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), demographicData);
-         final var interaction = new Interaction(null, sourceId, uniqueInteractionData, demographicData);
+               LinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(), demographicData);
+         final var interaction = new Interaction(null, sourceId, auxInteractionData, demographicData);
          final var linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(
                interaction,
                new LibMPIClientInterface.GoldenIdScore(gid, 1.0F),
@@ -205,14 +218,22 @@ final class LinkerCR {
    static Either<MpiGeneralError, LinkInfo> crLinkBySourceId(
          final LibMPI libMPI,
          final ApiModels.ApiCrLinkBySourceIdRequest req) {
-      return crLinkBySourceIdUpdate(libMPI, false, req.sourceId(), req.uniqueInteractionData(), req.demographicData());
+      return crLinkBySourceIdUpdate(libMPI,
+                                    false,
+                                    req.sourceId(),
+                                    AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
+                                    DemographicData.fromCustomDemographicData(req.demographicData()));
    }
 
    static Either<MpiGeneralError, LinkInfo> crLinkBySourceIdUpdate(
          final LibMPI libMPI,
          final ApiModels.ApiCrLinkBySourceIdUpdateRequest req) {
 
-      return crLinkBySourceIdUpdate(libMPI, true, req.sourceId(), req.uniqueInteractionData(), req.demographicData());
+      return crLinkBySourceIdUpdate(libMPI,
+                                    true,
+                                    req.sourceId(),
+                                    AuxInteractionData.deprecatedFromCustomAuxInteractionData(req.auxInteractionData()),
+                                    DemographicData.fromCustomDemographicData(req.demographicData()));
    }
 
    static Either<MpiGeneralError, BackEnd.CrUpdateFieldResponse.UpdateFieldResponse> crUpdateField(
@@ -228,10 +249,15 @@ final class LinkerCR {
          return Either.left(new MpiServiceError.CRUpdateFieldError(null, fail));
       }
       crUpdateFields.fields().forEach(field -> {
-         if (libMPI.updateGoldenRecordField(crUpdateFields.goldenId(), field.name(), field.value())) {
-            pass.add(field.name());
+         final var i = Config.FIELDS_CONFIG.findIndexOfDemographicField(field.name());
+         if (i < 0) {
+            LOGGER.error("{} {}", field.name(), field.value());
          } else {
-            fail.add(field.name());
+            if (libMPI.updateGoldenRecordField(crUpdateFields.goldenId(), "demographic_field_%02d".formatted(i), field.value())) {
+               pass.add(field.name());
+            } else {
+               fail.add(field.name());
+            }
          }
       });
       if (fail.isEmpty()) {
@@ -244,39 +270,29 @@ final class LinkerCR {
    private static void syncGoldenRecordToInteraction(
          final LibMPI libMPI,
          final String gid,
-         final CustomDemographicData goldenRecord,
+         final DemographicData goldenRecord,
          final String iid,
-         final CustomDemographicData interaction) {
-      for (Field f : CustomDemographicData.class.getDeclaredFields()) {
-         String gField = null;
-         String iField = null;
-         try {
-            final var field = f.get(goldenRecord);
-            if (field != null) {
-               gField = field.toString();
-            }
-         } catch (IllegalAccessException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-         }
-         try {
-            final var field = f.get(interaction);
-            if (field != null) {
-               iField = field.toString();
-            }
-         } catch (IllegalAccessException e) {
-            LOGGER.error(e.getLocalizedMessage(), e);
-         }
+         final DemographicData interaction) {
+      for (int i = 0; i < Config.DGRAPH_CONFIG.demographicDataFields.size(); i++) {
+         final String gField = goldenRecord.fields.get(i).value();
+         final String iField = interaction.fields.get(i).value();
          if ((!StringUtils.isBlank(gField) && !StringUtils.isBlank(iField) && !gField.equals(iField))
              ||
              (StringUtils.isBlank(gField) && !StringUtils.isEmpty(iField))) {
-            libMPI.updateGoldenRecordField(iid, gid, f.getName(), gField, iField);
+            libMPI.updateGoldenRecordField(iid,
+                                           gid,
+                                           Config.DGRAPH_CONFIG.demographicDataFields.get(i).getLeft(),
+                                           gField,
+                                           iField,
+                                           Config.DGRAPH_CONFIG.demographicDataFields.get(i).getLeft());
          }
       }
    }
 
-   private static boolean checkNull(final CustomDemographicData demographicData) throws IllegalAccessException {
-      for (Field f : demographicData.getClass().getDeclaredFields()) {
-         if (f.get(demographicData) != null) {
+   private static boolean checkNull(final DemographicData demographicData) {
+
+      for (int i = 0; i < demographicData.fields.size(); i++) {
+         if (demographicData.fields.get(i) != null) {
             return false;
          }
       }
