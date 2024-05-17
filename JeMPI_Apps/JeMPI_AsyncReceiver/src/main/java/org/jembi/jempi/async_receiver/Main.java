@@ -110,13 +110,6 @@ public final class Main {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       return data;
-
-//      return new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataCsvCols.stream()
-//                                                                              .map(f -> new DemographicData.DemographicField(
-//                                                                                    AppUtils.snakeToCamelCase(
-//                                                                                          f.getLeft()),
-//                                                                                    csvRecord.get(f.getRight())))
-//                                                                              .toList());
    }
 
    private void sendToKafka(
