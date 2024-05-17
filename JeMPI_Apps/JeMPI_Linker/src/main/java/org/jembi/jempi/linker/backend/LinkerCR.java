@@ -253,7 +253,7 @@ final class LinkerCR {
          if (i < 0) {
             LOGGER.error("{} {}", field.name(), field.value());
          } else {
-            if (libMPI.updateGoldenRecordField(crUpdateFields.goldenId(), "demographic_field_%02d".formatted(i), field.value())) {
+            if (libMPI.updateGoldenRecordField(crUpdateFields.goldenId(), field.name(), field.value())) {
                pass.add(field.name());
             } else {
                fail.add(field.name());

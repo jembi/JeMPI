@@ -5,7 +5,6 @@ import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class ExpandedGoldenRecordFieldNames {
 
@@ -33,9 +32,10 @@ public final class ExpandedGoldenRecordFieldNames {
    }
 
    public static String create(final JsonConfig jsonConfig) {
-      final var demographicFields = IntStream.range(0, jsonConfig.demographicFields().size())
-                                             .mapToObj("   Interaction.demographic_field_%02d"::formatted)
-                                             .collect(Collectors.joining(System.lineSeparator()));
+      final var demographicFields = jsonConfig.demographicFields()
+                                              .stream()
+                                              .map(demographicField -> "   Interaction.%s".formatted(demographicField.scFieldName()))
+                                              .collect(Collectors.joining(System.lineSeparator()));
       return GoldenRecordFieldNames.create(jsonConfig)
              + "GoldenRecord.interactions @facets(score) {"
              + System.lineSeparator()

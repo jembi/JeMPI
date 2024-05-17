@@ -149,7 +149,7 @@ public final class Programs {
                 + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(","))
                 + """
                   ) {
-                     all(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_%02d,$%s,3)) {
+                     all(func:type(GoldenRecord)) @filter(match(GoldenRecord.%s,$%s,3)) {
                         uid
                         GoldenRecord.source_id {
                            uid
@@ -157,10 +157,11 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(fieldIndexOf(jsonConfig, rule.vars().getFirst()), rule.vars().getFirst())
-                + IntStream.range(0, jsonConfig.demographicFields().size())
-                           .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
-                           .collect(Collectors.joining(System.lineSeparator()))
+                  """.formatted(rule.vars().getFirst(), rule.vars().getFirst())
+                + jsonConfig.demographicFields()
+                            .stream()
+                            .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
+                            .collect(Collectors.joining(System.lineSeparator()))
                 + System.lineSeparator()
                 + """
                      }
@@ -176,10 +177,10 @@ public final class Programs {
                       .mapToObj(varIdx -> {
                          final var varName = rule.vars().get(varIdx);
                          return """
-                                   var(func:type(GoldenRecord)) @filter(match(GoldenRecord.demographic_field_%02d, $%s, 3)) {
+                                   var(func:type(GoldenRecord)) @filter(match(GoldenRecord.%s, $%s, 3)) {
                                       %c as uid
                                    }
-                                """.formatted(fieldIndexOf(jsonConfig, varName), varName, 'A' + varIdx);
+                                """.formatted(varName, varName, 'A' + varIdx);
                       })
                       .collect(Collectors.joining(System.lineSeparator()))
                 + """
@@ -193,9 +194,10 @@ public final class Programs {
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
                   """.formatted(postfixToInfix(rule.vars(), postfix))
-                + IntStream.range(0, jsonConfig.demographicFields().size())
-                           .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
-                           .collect(Collectors.joining(System.lineSeparator()))
+                + jsonConfig.demographicFields()
+                            .stream()
+                            .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
+                            .collect(Collectors.joining(System.lineSeparator()))
                 + System.lineSeparator()
                 + """
                      }
@@ -215,7 +217,7 @@ public final class Programs {
                 + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(","))
                 + """
                   ) {
-                     all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_%02d,$%s)) {
+                     all(func:type(GoldenRecord)) @filter(eq(GoldenRecord.%s,$%s)) {
                         uid
                         GoldenRecord.source_id {
                            uid
@@ -223,10 +225,11 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(fieldIndexOf(jsonConfig, rule.vars().getFirst()), rule.vars().getFirst())
-                + IntStream.range(0, jsonConfig.demographicFields().size())
-                           .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
-                           .collect(Collectors.joining(System.lineSeparator()))
+                  """.formatted(rule.vars().getFirst(), rule.vars().getFirst())
+                + jsonConfig.demographicFields()
+                            .stream()
+                            .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
+                            .collect(Collectors.joining(System.lineSeparator()))
                 + System.lineSeparator()
                 + """
                      }
@@ -242,10 +245,10 @@ public final class Programs {
                       .mapToObj(varIdx -> {
                          final var varName = rule.vars().get(varIdx);
                          return """
-                                   var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.demographic_field_%02d, $%s)) {
+                                   var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.%s, $%s)) {
                                       %c as uid
                                    }
-                                """.formatted(fieldIndexOf(jsonConfig, varName), varName, 'A' + varIdx);
+                                """.formatted(varName,  varName, 'A' + varIdx);
                       })
                       .collect(Collectors.joining(System.lineSeparator()))
                 + """
@@ -259,9 +262,10 @@ public final class Programs {
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
                   """.formatted(postfixToInfix(rule.vars(), postfix))
-                + IntStream.range(0, jsonConfig.demographicFields().size())
-                           .mapToObj("      GoldenRecord.demographic_field_%02d"::formatted)
-                           .collect(Collectors.joining(System.lineSeparator()))
+                + jsonConfig.demographicFields()
+                            .stream()
+                            .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
+                            .collect(Collectors.joining(System.lineSeparator()))
                 + System.lineSeparator()
                 + """
                      }
@@ -372,12 +376,6 @@ public final class Programs {
       });
       return deterministicPrograms;
    }
-
-
-/*
-[match(given_name,3), match(family_name,3), and, match(given_name,3), match(city,3), and, or, match(family_name,3), match(city,
-3)), and, or, match(phone_number,2), or, match(national_id,3), or]
-*/
 
 
    public static List<BlockProgram> generateBlockPrograms(

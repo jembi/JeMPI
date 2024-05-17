@@ -26,9 +26,10 @@ public final class MutationCreateLinkedGoldenRecordTriple {
                               jsonConfig.auxGoldenRecordFields().get(i).scFieldName() + ">")).collect(
                   Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + IntStream.range(0, jsonConfig.demographicFields().size())
-                        .mapToObj("_:%%s  <GoldenRecord.demographic_field_%02d>          %%s ."::formatted)
-                        .collect(Collectors.joining(System.lineSeparator()))
+             + jsonConfig.demographicFields()
+                         .stream()
+                         .map(demographicField -> "_:%%s  <GoldenRecord.%-30s %%s .".formatted(demographicField.scFieldName() + ">"))
+                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + """                              
                _:%s  <GoldenRecord.interactions>                  <%s> (score=%f) .

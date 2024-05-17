@@ -21,9 +21,10 @@ public final class MutationCreateInteractionTriple {
                               jsonConfig.auxInteractionFields().get(i).scFieldName() + ">")).collect(
                   Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
-             + IntStream.range(0, jsonConfig.demographicFields().size())
-                        .mapToObj("_:%%s  <Interaction.demographic_field_%02d>          %%s ."::formatted)
-                        .collect(Collectors.joining(System.lineSeparator()))
+             + jsonConfig.demographicFields()
+                         .stream()
+                         .map(demographicField -> "_:%%s  <Interaction.%-30s %%s .".formatted(demographicField.scFieldName() + ">"))
+                         .collect(Collectors.joining(System.lineSeparator()))
              + System.lineSeparator()
              + """              
                _:%s  <dgraph.type>                               "Interaction" .
