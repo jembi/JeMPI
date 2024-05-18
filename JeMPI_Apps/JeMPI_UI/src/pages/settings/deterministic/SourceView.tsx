@@ -1,37 +1,43 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  OutlinedInput,
-  InputLabel,
-  FormControl
-} from '@mui/material';
+import React, { useState, ChangeEvent, FC } from 'react';
+import { Typography, Box, TextField, Button, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, OutlinedInput } from '@mui/material';
 
-type Field = "nationalId" | "givenName" | "familyName" | "phoneNumber" | "dob";
+interface Rule {
+  field: string;
+  operator: string;
+}
 
-const SourceView: React.FC = () => {
-  const [selectedFields, setSelectedFields] = useState<Field[]>([]);
+const Source: FC = () => {
+  const [fieldValue, setFieldValue] = useState<string>('');
+  const [selectedField, setSelectedField] = useState<string>('nationalId');
+  const [selectedOperator, setSelectedOperator] = useState<string>('and');
+  const [rules, setRules] = useState<string[]>([]);
 
-  const handleAddField = (field: Field) => {
-    setSelectedFields((prevSelectedFields) => [...prevSelectedFields, field]);
+  const handleAddRule = () => {
+    let newRule: string;
+    if (selectedField === 'nationalId') {
+      newRule = `eq(${selectedField})`;
+    } else {
+      newRule = `eq(${selectedField}) ${selectedOperator} eq(phone number)`;
+    }
+    setRules([...rules, newRule]);
   };
 
-  const handleRemoveField = () => {
-    setSelectedFields((prevSelectedFields) => {
-      const updatedFields = [...prevSelectedFields];
-      updatedFields.pop();
-      return updatedFields;
-    });
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFieldValue(event.target.value);
+  };
+
+  const handleSelectFieldChange = (event: SelectChangeEvent<string>) => {
+    setSelectedField(event.target.value as string);
+  };
+
+  const handleSelectOperatorChange = (event: SelectChangeEvent<string>) => {
+    setSelectedOperator(event.target.value as string);
   };
 
   return (
     <Box
       sx={{
-        width: '40%',
+        width: '50%',
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
@@ -40,47 +46,53 @@ const SourceView: React.FC = () => {
       }}
     >
       <FormControl fullWidth>
-        <InputLabel id="add-rule-label">Add Rule</InputLabel>
+        <InputLabel>Field</InputLabel>
         <Select
-          labelId="add-rule-label"
-          value=''
-          id="add-rule-select"
-          sx={{
-            width: '50%',
-          }}
+          value={selectedField}
+          onChange={handleSelectFieldChange}
           input={<OutlinedInput label="Add Rule" />}
-          onChange={(e) => handleAddField(e.target.value as Field)}
         >
           <MenuItem value="nationalId">National ID</MenuItem>
           <MenuItem value="givenName">Given Name</MenuItem>
           <MenuItem value="familyName">Family Name</MenuItem>
           <MenuItem value="phoneNumber">Phone Number</MenuItem>
-          <MenuItem value="dob">Date of Birth</MenuItem>
         </Select>
       </FormControl>
-
-      {selectedFields.map((field, index) => (
-        <TextField
-          key={index}
-          label={field === 'dob' ? 'Date of Birth' : field}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value=""
-          // onChange={(e) => handleInputChange(field, e.target.value)}
-        />
-      ))}
-      {selectedFields.length > 0 && (
-        <Button
-         variant="outlined" onClick={handleRemoveField}>
-          Remove Last Field
-        </Button>
-      )}
+      <FormControl fullWidth>
+        <InputLabel>Operator</InputLabel>
+        <Select
+          value={selectedOperator}
+          onChange={handleSelectOperatorChange}
+          input={<OutlinedInput label="Add Rule" />}
+        >
+          <MenuItem value="and">And</MenuItem>
+          <MenuItem value="or">Or</MenuItem>
+        </Select>
+      </FormControl>
+      <Button variant="contained" onClick={handleAddRule}>
+        Add Rule
+      </Button>
+      <Box
+        sx={{
+          width: '50%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          marginTop: 2,
+          padding: 2,
+          border: '1px solid grey',
+          borderRadius: '8px'
+        }}
+      >
+        <Typography variant="h6">Generated Rules</Typography>
+        {rules.map((rule, index) => (
+          <Typography key={index} variant="body1">
+            {rule}
+          </Typography>
+        ))}
+      </Box>
     </Box>
   );
 };
 
-export default SourceView;
+export default Source;

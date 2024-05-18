@@ -8,11 +8,10 @@ import {
   FormControl,
   IconButton,
   InputLabel,
-  Select,
-  Typography
+  Select
 } from '@mui/material'
 import React from 'react'
-import SourceView from './SourceView'
+import Source from './SourceView'
 
 const Deterministic = () => {
   const [viewType, setViewType] = React.useState(0)
@@ -97,7 +96,7 @@ const Deterministic = () => {
                 alignItems: 'center'
               }}
             >
-              <SourceView/>
+              <Source/>
             </Box>
           )}
         </CardContent>
