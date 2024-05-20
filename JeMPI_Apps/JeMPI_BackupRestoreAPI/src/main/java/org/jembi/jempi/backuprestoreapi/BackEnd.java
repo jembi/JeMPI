@@ -4,9 +4,6 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import io.vavr.control.Either;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,13 +11,7 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
-import org.jembi.jempi.shared.utils.AppUtils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +25,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgNotificationsDb;
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
-   private final PsqlAuditTrail psqlAuditTrail;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
@@ -64,7 +54,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
          psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
-         psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
       } catch (Exception e) {
          LOGGER.error(e.getMessage(), e);
@@ -97,27 +86,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
-   }
-
-   private static void appendUploadConfigToFile(
-         final UploadConfig uploadConfig,
-         final File file) throws IOException {
-      LineIterator lineIterator = FileUtils.lineIterator(file);
-      File tempFile = File.createTempFile("prependPrefix", ".tmp");
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
-
-      try {
-         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
-         while (lineIterator.hasNext()) {
-            bufferedWriter.write(lineIterator.next());
-            bufferedWriter.write(System.lineSeparator());
-         }
-      } finally {
-         IOUtils.closeQuietly(bufferedWriter);
-         bufferedWriter.close();
-      }
-      FileUtils.deleteQuietly(file);
-      FileUtils.moveFile(tempFile, file);
    }
 
    private void openMPI(
@@ -315,21 +283,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record GetGoldenRecordAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
-   }
-
-   public record GetInteractionAuditTrailRequest(
-         ActorRef<GetInteractionAuditTrailResponse> replyTo,
-         String uid) implements Event {
-   }
-
-   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) {
-   }
-
-   public record SQLDashboardDataRequest(
-         ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
-   }
-
-   public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
    }
 
    public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event {
