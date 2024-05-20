@@ -9,6 +9,7 @@ import org.jembi.jempi.shared.config.input.DeterministicRule;
 import org.jembi.jempi.shared.config.input.JsonConfig;
 import org.jembi.jempi.shared.config.input.ProbabilisticRule;
 import org.jembi.jempi.shared.models.DemographicData;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -100,7 +101,7 @@ public final class Programs {
       evalStack.push(l || r);
    }
 
-   private static String postfixToInfix(
+   private static String postfixToInfix1(
          final List<String> vars,
          final List<String> postfix) {
       final Deque<String> evalStack = new ArrayDeque<>();
@@ -138,12 +139,52 @@ public final class Programs {
       return evalStack.pop();
    }
 
+   private static String postfixToInfix2(
+         final List<CompileMetaData> meta,
+         final List<String> postfix) {
+      final Deque<String> evalStack = new ArrayDeque<>();
+
+      for (final String s : postfix) {
+         if (s.startsWith("eq(")) {
+            final var pattern = Pattern.compile("^eq\\((?<field>\\w+)\\)$");
+            final var matcher = pattern.matcher(s);
+            if (matcher.find()) {
+               final var field = matcher.group("field");
+               int i = 0;
+               while (i < meta.size() && !field.equals(meta.get(i).alias)) {
+                  i++;
+               }
+               evalStack.push("uid(%c)".formatted('A' + i));
+            }
+         } else if (s.startsWith("match(")) {
+            final var pattern = Pattern.compile("^match\\((?<field>\\w+),(?<distance>\\d+)\\)$");
+            final var matcher = pattern.matcher(s);
+            if (matcher.find()) {
+               final var field = matcher.group("field");
+               final var distance = Integer.valueOf(matcher.group("distance"));
+               int i = 0;
+               while (i < meta.size() && !(AppUtils.snakeToCamelCase("match_%d_%s".formatted(distance, field))
+                                                   .equals(meta.get(i).alias))) {
+                  i++;
+               }
+               evalStack.push("uid(%s)".formatted(meta.get(i).alias));
+            }
+         } else {
+            final var operand1 = evalStack.pop();
+            final var operand2 = evalStack.pop();
+            evalStack.push("(" + operand2 + " %s ".formatted(s.toUpperCase()) + operand1 + ")");
+         }
+      }
+      return evalStack.pop();
+   }
+
    private static String blockSelectQuery(
          final String type,
          final JsonConfig jsonConfig,
          final int ruleNumber,
          final List<String> postfix,
          final ProbabilisticRule rule) {
+
       if (rule.vars().size() == 1) {
          return "query query_%s_block_%02d(".formatted(type, ruleNumber)
                 + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(","))
@@ -168,23 +209,55 @@ public final class Programs {
                   }
                   """;
       } else {
+         final var filters = postfix
+               .stream()
+               .filter(o -> !(o.equals("and") || o.equals("or")))
+               .map(o -> {
+                  var matcher = Pattern.compile("^eq\\((?<field>\\w+)\\)$").matcher(o);
+                  if (matcher.find()) {
+                     final var field = matcher.group("field");
+                     return new CompileMetaData(
+                           AppUtils.snakeToCamelCase("eq_%s".formatted(field)),
+                           "eq",
+                           field,
+                           null);
+                  }
+                  matcher = Pattern.compile("^match\\((?<field>\\w+),(?<distance>\\d+)\\)$").matcher(o);
+                  if (matcher.find()) {
+                     final var field = matcher.group("field");
+                     final var distance = Integer.valueOf(matcher.group("distance"));
+                     return new CompileMetaData(
+                           AppUtils.snakeToCamelCase("match_%d_%s".formatted(distance, field)),
+                           "match",
+                           field,
+                           distance);
+                  }
+                  return new CompileMetaData(null, null, null, null);
+               })
+               .collect(Collectors.toSet())
+               .stream().toList();
+         final var vars = rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(", "));
+         final var aliasFilters = filters
+               .stream()
+               .map(filter -> {
+                  return """
+                            var(func:type(GoldenRecord)) @filter(%s(GoldenRecord.%s, $%s%s)) {
+                               %s as uid
+                            }
+                         """.formatted(filter.func, filter.field, filter.field,
+                                       filter.param == null
+                                             ? ""
+                                             : ", %d".formatted(filter.param),
+                                       filter.alias);
+               })
+               .collect(Collectors.joining(System.lineSeparator()));
          return "query query_%s_deterministic_%02d(".formatted(type, ruleNumber)
-                + rule.vars().stream().map("$%s: string"::formatted).collect(Collectors.joining(", "))
+                + vars
                 + ") {"
                 + System.lineSeparator()
-                + IntStream
-                      .range(0, rule.vars().size())
-                      .mapToObj(varIdx -> {
-                         final var varName = rule.vars().get(varIdx);
-                         return """
-                                   var(func:type(GoldenRecord)) @filter(match(GoldenRecord.%s, $%s, 3)) {
-                                      %c as uid
-                                   }
-                                """.formatted(varName, varName, 'A' + varIdx);
-                      })
-                      .collect(Collectors.joining(System.lineSeparator()))
+                + aliasFilters
                 + """
-                                    
+                  
                      all(func:type(GoldenRecord)) @filter(%s) {
                         uid
                         GoldenRecord.source_id {
@@ -193,7 +266,7 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(postfixToInfix(rule.vars(), postfix))
+                  """.formatted(postfixToInfix2(filters, postfix))
                 + jsonConfig.demographicFields()
                             .stream()
                             .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
@@ -248,7 +321,7 @@ public final class Programs {
                                    var(func:type(GoldenRecord)) @filter(eq(GoldenRecord.%s, $%s)) {
                                       %c as uid
                                    }
-                                """.formatted(varName,  varName, 'A' + varIdx);
+                                """.formatted(varName, varName, 'A' + varIdx);
                       })
                       .collect(Collectors.joining(System.lineSeparator()))
                 + """
@@ -261,7 +334,7 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                  """.formatted(postfixToInfix(rule.vars(), postfix))
+                  """.formatted(postfixToInfix1(rule.vars(), postfix))
                 + jsonConfig.demographicFields()
                             .stream()
                             .map(demographicField -> "      GoldenRecord.%s".formatted(demographicField.scFieldName()))
@@ -376,7 +449,6 @@ public final class Programs {
       });
       return deterministicPrograms;
    }
-
 
    public static List<BlockProgram> generateBlockPrograms(
          final String type,
@@ -552,6 +624,13 @@ public final class Programs {
          }
       }
       return false;
+   }
+
+   private record CompileMetaData(
+         String alias,
+         String func,
+         String field,
+         Integer param) {
    }
 
    /**

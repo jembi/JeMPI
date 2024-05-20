@@ -833,27 +833,27 @@ final class TestConstants {
    static final String SELECT_QUERY_LINK_BLOCK_00_1 =
          """
          query query_link_deterministic_00($given_name: string, $family_name: string, $city: string, $phone_number: string, $national_id: string) {
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.given_name, $given_name, 3)) {
-               A as uid
-            }
-                  
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.family_name, $family_name, 3)) {
-               B as uid
-            }
-                  
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.city, $city, 3)) {
-               C as uid
+               match3City as uid
             }
                   
-            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.phone_number, $phone_number, 3)) {
-               D as uid
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.given_name, $given_name, 3)) {
+               match3GivenName as uid
             }
                   
             var(func:type(GoldenRecord)) @filter(match(GoldenRecord.national_id, $national_id, 3)) {
-               E as uid
+               match3NationalId as uid
             }
                   
-            all(func:type(GoldenRecord)) @filter((((((uid(A) AND uid(B)) OR (uid(A) AND uid(C))) OR (uid(B) AND uid(C))) OR uid(D)) OR uid(E))) {
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.family_name, $family_name, 3)) {
+               match3FamilyName as uid
+            }
+                  
+            var(func:type(GoldenRecord)) @filter(match(GoldenRecord.phone_number, $phone_number, 2)) {
+               match2PhoneNumber as uid
+            }
+                  
+            all(func:type(GoldenRecord)) @filter((((((uid(match3GivenName) AND uid(match3FamilyName)) OR (uid(match3GivenName) AND uid(match3City))) OR (uid(match3FamilyName) AND uid(match3City))) OR uid(match2PhoneNumber)) OR uid(match3NationalId))) {
                uid
                GoldenRecord.source_id {
                   uid
