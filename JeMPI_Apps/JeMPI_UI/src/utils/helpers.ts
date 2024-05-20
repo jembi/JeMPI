@@ -1,5 +1,4 @@
 import { GridColDef } from '@mui/x-data-grid'
-import { DemographicFields } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
@@ -22,6 +21,13 @@ interface Field {
     u: number
   }
 }
+
+type Params = {
+  row?: {
+    fieldName?: string;
+  };
+};
+
 
 export interface Configuration {
   uniqueInteractionFields: Field[]
@@ -134,7 +140,9 @@ export function processIndex(index: string) {
   return ''
 }
 
-export const transformFieldName = (params: any) =>
-  (params?.row?.fieldName || '')
+export const transformFieldName = (input: Params | string): string => {
+  const fieldName = typeof input === 'string' ? input : input?.row?.fieldName || '';
+  return fieldName
     .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+    .replace(/\b\w/g, (char: string) => char.toUpperCase());
+};
