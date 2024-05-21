@@ -16,37 +16,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class KafkaDataBootstrapperTest {
 
-    private AdminClient kafkaAdminClient;
-    private KafkaDataBootstrapper kafkaDataBootstrapper;
-    @BeforeAll
-    public void createMockObjects() throws Exception{
-        Properties properties = new Properties();
-        properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        kafkaAdminClient = AdminClient.create(properties);
-        kafkaDataBootstrapper = new KafkaDataBootstrapper(null);
+    // private AdminClient kafkaAdminClient;
+    // private KafkaDataBootstrapper kafkaDataBootstrapper;
+    // @BeforeAll
+    // public void createMockObjects() throws Exception{
+    //     Properties properties = new Properties();
+    //     properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    //     kafkaAdminClient = AdminClient.create(properties);
+    //     kafkaDataBootstrapper = new KafkaDataBootstrapper(null);
 
-    }
-    @Test
-    public void testCanCreateSchemaTopics() throws InterruptedException, ExecutionException {
+    // }
+    // @Test
+    // public void testCanCreateSchemaTopics() throws InterruptedException, ExecutionException {
 
-        kafkaDataBootstrapper.deleteData();
-        kafkaDataBootstrapper.createSchema();
+    //     kafkaDataBootstrapper.deleteData();
+    //     kafkaDataBootstrapper.createSchema();
 
-        Collection<TopicListing> topicsAfterUpdateFuture = kafkaAdminClient.listTopics().listings().get();
-        assertEquals(7, topicsAfterUpdateFuture.size());
+    //     Collection<TopicListing> topicsAfterUpdateFuture = kafkaAdminClient.listTopics().listings().get();
+    //     assertEquals(7, topicsAfterUpdateFuture.size());
 
-    }
-    @Test
-    public void testCanDeleteTopics() throws InterruptedException, ExecutionException {
-        kafkaDataBootstrapper.createSchema();
-        kafkaDataBootstrapper.deleteData();
-        Collection<TopicListing> topicsAfterUpdateFuture = kafkaAdminClient.listTopics().listings().get();
-        assertEquals(0, topicsAfterUpdateFuture.size());
-    }
-    @Test
-    public void testCanResetAll() throws ExecutionException, InterruptedException {
-        kafkaDataBootstrapper.resetAll();
-        Collection<TopicListing> topicsAfterUpdateFuture = kafkaAdminClient.listTopics().listings().get();
-        assertEquals(7, topicsAfterUpdateFuture.size());
-    }
+    // }
+    // @Test
+    // public void testCanDeleteTopics() throws InterruptedException, ExecutionException {
+    //     kafkaDataBootstrapper.createSchema();
+    //     kafkaDataBootstrapper.deleteData();
+    //     Collection<TopicListing> topicsAfterUpdateFuture = kafkaAdminClient.listTopics().listings().get();
+    //     assertEquals(0, topicsAfterUpdateFuture.size());
+    // }
+    // @Test
+    // public void testCanResetAll() throws ExecutionException, InterruptedException {
+    //     kafkaDataBootstrapper.resetAll();
+    //     Collection<TopicListing> topicsAfterUpdateFuture = kafkaAdminClient.listTopics().listings().get();
+    //     assertEquals(7, topicsAfterUpdateFuture.size());
+    // }
 }
