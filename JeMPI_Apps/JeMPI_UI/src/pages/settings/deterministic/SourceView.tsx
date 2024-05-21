@@ -1,38 +1,81 @@
-import React, { useState, ChangeEvent, FC } from 'react';
-import { Typography, Box, TextField, Button, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, OutlinedInput } from '@mui/material';
+import { useState, useEffect, FC } from 'react'
+import {
+  Typography,
+  Box,
+  Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  Chip
+} from '@mui/material'
+import { SelectChangeEvent } from '@mui/material/Select'
+import { toSnakeCase } from 'utils/helpers'
 
 interface Rule {
-  field: string;
-  operator: string;
+  fields: string[]
+  operator: string
 }
 
-const Source: FC = () => {
-  const [fieldValue, setFieldValue] = useState<string>('');
-  const [selectedField, setSelectedField] = useState<string>('nationalId');
-  const [selectedOperator, setSelectedOperator] = useState<string>('and');
-  const [rules, setRules] = useState<string[]>([]);
+const SourceView: FC = () => {
+  const [selectedFields, setSelectedFields] = useState<string[]>([])
+  const [selectedOperator, setSelectedOperator] = useState<string>('and')
+  const [rules, setRules] = useState<Rule[]>([])
+
+  useEffect(() => {
+    const savedRules = localStorage.getItem('rules')
+    if(savedRules) {
+        const parsedRules = JSON.parse(savedRules)
+        setRules(parsedRules)
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('rules', JSON.stringify(rules))
+  }, [rules])
 
   const handleAddRule = () => {
-    let newRule: string;
-    if (selectedField === 'nationalId') {
-      newRule = `eq(${selectedField})`;
-    } else {
-      newRule = `eq(${selectedField}) ${selectedOperator} eq(phone number)`;
+    if (selectedFields.length === 0) return
+
+    const newRule: Rule = {
+      fields: selectedFields.map(field => toSnakeCase(field)),
+      operator: selectedFields.length > 1 ? selectedOperator : ''
     }
-    setRules([...rules, newRule]);
-  };
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFieldValue(event.target.value);
-  };
+    setRules([...rules, newRule])
+    setSelectedFields([])
+    setSelectedOperator('and')
+  }
 
-  const handleSelectFieldChange = (event: SelectChangeEvent<string>) => {
-    setSelectedField(event.target.value as string);
-  };
+  const handleSelectFieldChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value as string[]
+    setSelectedFields(value)
+  }
 
   const handleSelectOperatorChange = (event: SelectChangeEvent<string>) => {
-    setSelectedOperator(event.target.value as string);
-  };
+    setSelectedOperator(event.target.value as string)
+  }
+
+  const handleDeleteField = (fieldToDelete: string) => {
+    setSelectedFields(selectedFields.filter(field => field !== fieldToDelete))
+  }
+
+  const renderRule = (rule: Rule, index: number) => {
+    if (rule.fields.length > 1) {
+      return (
+        <Typography key={index} variant="body1" data-testid={`rule-${index}`}>
+          {rule.fields.map(field => `eq(${field})`).join(` ${rule.operator} `)}
+        </Typography>
+      )
+    } else {
+      return (
+        <Typography key={index} variant="body1" data-testid={`rule-${index}`}>
+          eq({rule.fields[0]})
+        </Typography>
+      )
+    }
+  }
 
   return (
     <Box
@@ -44,13 +87,29 @@ const Source: FC = () => {
         justifyContent: 'center',
         alignItems: 'center'
       }}
+      data-testid="source-component"
     >
       <FormControl fullWidth>
-        <InputLabel>Field</InputLabel>
+        <InputLabel id="fields-label">Fields</InputLabel>
         <Select
-          value={selectedField}
+          labelId="fields-label"
+          id="fields-select"
+          multiple
+          value={selectedFields}
           onChange={handleSelectFieldChange}
-          input={<OutlinedInput label="Add Rule" />}
+          input={<OutlinedInput label="Fields" />}
+          renderValue={selected => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map(value => (
+                <Chip
+                  key={value}
+                  label={value}
+                  onDelete={() => handleDeleteField(value)}
+                  data-testid={`chip-${value}`}
+                />
+              ))}
+            </Box>
+          )}
         >
           <MenuItem value="nationalId">National ID</MenuItem>
           <MenuItem value="givenName">Given Name</MenuItem>
@@ -58,20 +117,33 @@ const Source: FC = () => {
           <MenuItem value="phoneNumber">Phone Number</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth>
-        <InputLabel>Operator</InputLabel>
-        <Select
-          value={selectedOperator}
-          onChange={handleSelectOperatorChange}
-          input={<OutlinedInput label="Add Rule" />}
-        >
-          <MenuItem value="and">And</MenuItem>
-          <MenuItem value="or">Or</MenuItem>
-        </Select>
-      </FormControl>
-      <Button variant="contained" onClick={handleAddRule}>
-        Add Rule
+
+      {selectedFields.length > 1 && (
+        <FormControl fullWidth>
+          <InputLabel id="operator-label">Operator</InputLabel>
+          <Select
+            labelId="operator-label"
+            id="operator-select"
+            value={selectedOperator}
+            onChange={handleSelectOperatorChange}
+            input={<OutlinedInput label="Operator" />}
+          >
+            <MenuItem value="and">And</MenuItem>
+            <MenuItem value="or">Or</MenuItem>
+          </Select>
+        </FormControl>
+      )}
+
+      <Button
+        variant="contained"
+        onClick={handleAddRule}
+        id="add-rule-button"
+        data-testid="add-rule-button"
+      >
+        {' '}
+        Add Rule{' '}
       </Button>
+
       <Box
         sx={{
           width: '50%',
@@ -83,16 +155,19 @@ const Source: FC = () => {
           border: '1px solid grey',
           borderRadius: '8px'
         }}
+        id="rules-box"
       >
-        <Typography variant="h6">Generated Rules</Typography>
+        <Typography variant="h6" id="generated-rules-title">
+          Generated Rules
+        </Typography>
         {rules.map((rule, index) => (
-          <Typography key={index} variant="body1">
-            {rule}
+          <Typography key={index} variant="body1" data-testid={`rule-${index}`}>
+            {renderRule(rule, index)}
           </Typography>
         ))}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default Source;
+export default SourceView

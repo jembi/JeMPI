@@ -11,7 +11,7 @@ import {
   Select
 } from '@mui/material'
 import React from 'react'
-import Source from './SourceView'
+import SourceView from './SourceView'
 
 const Deterministic = () => {
   const [viewType, setViewType] = React.useState(0)
@@ -96,7 +96,7 @@ const Deterministic = () => {
                 alignItems: 'center'
               }}
             >
-              <Source/>
+              <SourceView/>
             </Box>
           )}
         </CardContent>

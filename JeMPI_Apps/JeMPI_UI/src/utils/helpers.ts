@@ -127,9 +127,7 @@ export const generateId = (configuration: Configuration): Configuration => {
 
 export function processIndex(index: string) {
   if (index) {
-    return index
-      .replace(/@index\(|\)(?=, trigram|$)/g, ' ')
-      .replace(/,/g, ', ')
+    return index.replace(/@index\(|\)(?=, trigram|$)/g, ' ').replace(/,/g, ', ')
   }
   return ''
 }
@@ -138,3 +136,8 @@ export const transformFieldName = (params: any) =>
   (params?.row?.fieldName || '')
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char: string) => char.toUpperCase())
+
+export const toSnakeCase = (str: string) =>
+  str
+    .replace(/([A-Z])/g, letter => `_${letter.toLowerCase()}`)
+    .replace(/^_/, '')
