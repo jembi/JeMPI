@@ -525,6 +525,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new PostConfigurationResponse("ok"));
       } catch (Exception exception) {
          LOGGER.error("postConfigurationHandler failed with error: {}", exception.getMessage());
+         request.replyTo.tell(new PostConfigurationResponse("error: " + exception.getMessage()));
       }
 
       return Behaviors.same();
