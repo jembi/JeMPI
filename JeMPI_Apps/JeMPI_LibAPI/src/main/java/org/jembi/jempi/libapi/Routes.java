@@ -7,7 +7,6 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
@@ -15,13 +14,11 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.ApiModels.ApiInteraction;
 import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.utils.AppUtils;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.File;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static akka.http.javadsl.server.Directives.*;
@@ -33,7 +30,6 @@ public final class Routes {
 
    private static final Logger LOGGER = LogManager.getLogger(Routes.class);
    private static final Marshaller<Object, RequestEntity> JSON_MARSHALLER = Jackson.marshaller(OBJECT_MAPPER);
-   private static final Function<Map.Entry<String, String>, String> PARAM_STRING = Map.Entry::getValue;
 
    private Routes() {
    }
@@ -47,8 +43,7 @@ public final class Routes {
 
       return entity(Jackson.unmarshaller(NotificationResolution.class),
                     obj -> onComplete(
-                          Ask.postIidNewGidLink(actorSystem, backEnd, obj.currentGoldenId(),
-                                                obj.interactionId()),
+                          Ask.postIidNewGidLink(actorSystem, backEnd, obj.currentGoldenId(), obj.interactionId()),
                           result -> {
                              if (!result.isSuccess()) {
                                 return handleError(result.failed().get());
@@ -59,16 +54,12 @@ public final class Routes {
                                           .fold(error -> error,
                                                 linkInfo -> onComplete(
                                                       processOnNotificationResolution(
-                                                            controllerIp,
-                                                            controllerPort,
-                                                            http,
-                                                            new NotificationResolutionProcessorData(
-                                                                  obj,
-                                                                  linkInfo)),
-                                                      r -> complete(StatusCodes.OK,
-                                                                    linkInfo,
-                                                                    JSON_MARSHALLER)));
-                          }));
+                                                            controllerIp, controllerPort, http,
+                                                            new NotificationResolutionProcessorData(obj, linkInfo)),
+                                                      r -> complete(StatusCodes.OK, linkInfo, JSON_MARSHALLER))
+                                               );
+                          })
+                   );
    }
 
    private static Route postIidGidLink(
@@ -182,15 +173,14 @@ public final class Routes {
    private static Route postInteractionAuditTrail(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), obj -> {
-         return onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, obj),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 return handleError(result.failed().get());
-                              }
-                              return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
-                           });
-      });
+      return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class),
+                    obj -> onComplete(Ask.getInteractionAuditTrail(actorSystem, backEnd, obj.uid()),
+                                      result -> {
+                                         if (!result.isSuccess()) {
+                                            return handleError(result.failed().get());
+                                         }
+                                         return complete(StatusCodes.OK, result.get().auditTrail(), JSON_MARSHALLER);
+                                      }));
    }
 
    private static Route countGoldenRecords(
@@ -280,96 +270,92 @@ public final class Routes {
    private static Route getExpandedGoldenRecordsForUidList(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
-         return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 return handleError(result.failed().get());
-                              }
-                              return result.get()
-                                           .expandedGoldenRecords()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                   expandedGoldenRecords.stream()
-                                                                                                        .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                                        .toList(),
-                                                                                   JSON_MARSHALLER));
-                           });
-      });
+      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class),
+                    request -> onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+                                          result -> {
+                                             if (!result.isSuccess()) {
+                                                return handleError(result.failed().get());
+                                             }
+                                             return result.get()
+                                                          .expandedGoldenRecords()
+                                                          .mapLeft(MapError::mapError)
+                                                          .fold(error -> error,
+                                                                expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                                                  expandedGoldenRecords.stream()
+                                                                                                                       .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                                       .toList(),
+                                                                                                  JSON_MARSHALLER));
+                                          }));
    }
 
    private static Route postExpandedGoldenRecordsFromUsingCSV(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
-         return onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 return handleError(result.failed().get());
-                              }
-                              return result.get()
-                                           .expandedGoldenRecords()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 expandedGoldenRecords -> complete(StatusCodes.OK,
-                                                                                   expandedGoldenRecords.stream()
-                                                                                                        .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
-                                                                                                        .toList(),
-                                                                                   JSON_MARSHALLER));
-                           });
-      });
+      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class),
+                    request -> onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+                                          result -> {
+                                             if (!result.isSuccess()) {
+                                                return handleError(result.failed().get());
+                                             }
+                                             return result.get()
+                                                          .expandedGoldenRecords()
+                                                          .mapLeft(MapError::mapError)
+                                                          .fold(error -> error,
+                                                                expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                                                                  expandedGoldenRecords.stream()
+                                                                                                                       .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                                                                                       .toList(),
+                                                                                                  JSON_MARSHALLER));
+                                          }));
    }
 
    private static Route postExpandedInteractionsUsingCSV(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class), request -> {
-         return onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, request),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 return handleError(result.failed().get());
-                              }
-                              return result.get()
-                                           .expandedPatientRecords()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 expandedPatientRecords -> complete(StatusCodes.OK,
-                                                                                    expandedPatientRecords.stream()
-                                                                                                          .map(ApiModels.ApiExpandedInteraction::fromExpandedInteraction)
-                                                                                                          .toList(),
-                                                                                    JSON_MARSHALLER));
-                           });
-      });
+      return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class),
+                    request -> onComplete(Ask.getExpandedInteractions(actorSystem, backEnd, request.uidList()),
+                                          result -> {
+                                             if (!result.isSuccess()) {
+                                                return handleError(result.failed().get());
+                                             }
+                                             return result.get()
+                                                          .expandedPatientRecords()
+                                                          .mapLeft(MapError::mapError)
+                                                          .fold(error -> error,
+                                                                expandedPatientRecords -> complete(StatusCodes.OK,
+                                                                                                   expandedPatientRecords.stream()
+                                                                                                                         .map(ApiModels.ApiExpandedInteraction::fromExpandedInteraction)
+                                                                                                                         .toList(),
+                                                                                                   JSON_MARSHALLER));
+                                          }));
    }
 
    private static Route postExpandedGoldenRecord(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
-      return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
-         return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request),
-                           result -> {
-                              if (!result.isSuccess()) {
-                                 return handleError(result.failed().get());
-                              }
-                              return result.get()
-                                           .goldenRecord()
-                                           .mapLeft(MapError::mapError)
-                                           .fold(error -> error,
-                                                 goldenRecord -> complete(StatusCodes.OK,
-                                                                          ApiModels.ApiExpandedGoldenRecord
-                                                                                .fromExpandedGoldenRecord(
-                                                                                      goldenRecord),
-                                                                          Jackson.marshaller(OBJECT_MAPPER)));
-                           });
-      });
+      return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class),
+                    request -> onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request.gid()),
+                                          result -> {
+                                             if (!result.isSuccess()) {
+                                                return handleError(result.failed().get());
+                                             }
+                                             return result.get()
+                                                          .goldenRecord()
+                                                          .mapLeft(MapError::mapError)
+                                                          .fold(error -> error,
+                                                                goldenRecord -> complete(StatusCodes.OK,
+                                                                                         ApiModels.ApiExpandedGoldenRecord
+                                                                                               .fromExpandedGoldenRecord(
+                                                                                                     goldenRecord),
+                                                                                         Jackson.marshaller(OBJECT_MAPPER)));
+                                          }));
    }
 
    private static Route postInteraction(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(ApiInteraction.class),
-                    request -> onComplete(Ask.getInteraction(actorSystem, backEnd, request),
+                    request -> onComplete(Ask.getInteraction(actorSystem, backEnd, request.uid()),
                                           result -> {
                                              if (!result.isSuccess()) {
                                                 return handleError(result.failed().get());
@@ -394,8 +380,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(
-                                e.getLocalizedMessage()));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
                     }));
@@ -448,24 +433,20 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
       LOGGER.info("Simple search on {}", recordType);
-      return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class),
-                    searchParameters -> onComplete(() -> {
-                       if (recordType == RecordType.GoldenRecord) {
-                          return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd,
-                                                                   searchParameters);
-                       } else {
-                          return Ask.postSimpleSearchInteractions(actorSystem, backEnd,
-                                                                  searchParameters);
-                       }
-                    }, response -> {
-                       if (!response.isSuccess()) {
-                          final var e = response.failed().get();
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(
-                                e.getLocalizedMessage()));
-                       }
-                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
-                    }));
+      return entity(Jackson.unmarshaller(ApiModels.ApiSimpleSearchRequestPayload.class), searchParameters -> onComplete(() -> {
+         if (recordType == RecordType.GoldenRecord) {
+            return Ask.postSimpleSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+         } else {
+            return Ask.postSimpleSearchInteractions(actorSystem, backEnd, searchParameters);
+         }
+      }, response -> {
+         if (!response.isSuccess()) {
+            final var e = response.failed().get();
+            LOGGER.error(e.getLocalizedMessage(), e);
+            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+         }
+         return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+      }));
    }
 
    private static Route postFilterGids(
@@ -473,18 +454,14 @@ public final class Routes {
          final ActorRef<BackEnd.Event> backEnd) {
       LOGGER.info("Filter Guids");
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, FilterGidsRequestPayload.class),
-                    searchParameters -> onComplete(
-                          () -> Ask.postFilterGids(actorSystem, backEnd, searchParameters),
-                          response -> {
-                             if (!response.isSuccess()) {
-                                final var e = response.failed().get();
-                                LOGGER.error(e.getLocalizedMessage(), e);
-                                return mapError(new MpiServiceError.InternalError(
-                                      e.getLocalizedMessage()));
-                             }
-                             return complete(StatusCodes.OK, response.get(),
-                                             JSON_MARSHALLER);
-                          }));
+                    searchParameters -> onComplete(() -> Ask.postFilterGids(actorSystem, backEnd, searchParameters), response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                       }
+                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+                    }));
    }
 
    private static Route postFilterGidsWithInteractionCount(
@@ -498,8 +475,7 @@ public final class Routes {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(
-                                e.getLocalizedMessage()));
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
                        return complete(StatusCodes.OK, response.get(),
                                        JSON_MARSHALLER);
@@ -510,23 +486,19 @@ public final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
          final RecordType recordType) {
-      return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class),
-                    searchParameters -> onComplete(() -> {
-                       if (recordType == RecordType.GoldenRecord) {
-                          return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd,
-                                                                   searchParameters);
-                       } else {
-                          return Ask.postCustomSearchInteractions(actorSystem, backEnd,
-                                                                  searchParameters);
-                       }
-                    }, response -> {
-                       if (!response.isSuccess()) {
-                          final var e = response.failed().get();
-                          LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(
-                                e.getLocalizedMessage()));
-                       }
-                       return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
+      return entity(Jackson.unmarshaller(CustomSearchRequestPayload.class), searchParameters -> onComplete(() -> {
+         if (recordType == RecordType.GoldenRecord) {
+            return Ask.postCustomSearchGoldenRecords(actorSystem, backEnd, searchParameters);
+         } else {
+            return Ask.postCustomSearchInteractions(actorSystem, backEnd, searchParameters);
+         }
+      }, response -> {
+         if (!response.isSuccess()) {
+            final var e = response.failed().get();
+            LOGGER.error(e.getLocalizedMessage(), e);
+            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+         }
+         return complete(StatusCodes.OK, response.get(), JSON_MARSHALLER);
 
                     }));
    }

@@ -39,7 +39,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private final String pgIP;
-   private final Integer pgPort;
    private final String pgUser;
    private final String pgPassword;
    private final String pgNotificationsDb;
@@ -75,7 +74,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.dgraphHosts = dgraphHosts;
          this.dgraphPorts = dgraphPorts;
          this.pgIP = sqlIP;
-         this.pgPort = sqlPort;
+         Integer pgPort = sqlPort;
          this.pgUser = sqlUser;
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
@@ -403,7 +402,12 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var goldenId = request.goldenId;
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(), field.newValue());
+         final var result = libMPI.updateGoldenRecordField(null,
+                                                           goldenId,
+                                                           field.name(),
+                                                           field.oldValue(),
+                                                           field.newValue(),
+                                                           field.name());
          if (result) {
             updatedFields.add(field);
          } else {
@@ -526,94 +530,94 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   public interface Event {}
+   public interface Event { }
 
-   public interface EventResponse {}
+   public interface EventResponse { }
 
-   public record CountGoldenRecordsRequest(ActorRef<CountGoldenRecordsResponse> replyTo) implements Event {}
+   public record CountGoldenRecordsRequest(ActorRef<CountGoldenRecordsResponse> replyTo) implements Event { }
 
-   public record CountGoldenRecordsResponse(Either<MpiGeneralError, Long> count) implements EventResponse {}
+   public record CountGoldenRecordsResponse(Either<MpiGeneralError, Long> count) implements EventResponse { }
 
-   public record CountInteractionsRequest(ActorRef<CountInteractionsResponse> replyTo) implements Event {}
+   public record CountInteractionsRequest(ActorRef<CountInteractionsResponse> replyTo) implements Event { }
 
-   public record CountInteractionsResponse(Either<MpiGeneralError, Long> count) implements EventResponse {}
+   public record CountInteractionsResponse(Either<MpiGeneralError, Long> count) implements EventResponse { }
 
-   public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event {}
+   public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event { }
 
    public record CountRecordsResponse(
          long goldenRecords,
-         long patientRecords) implements EventResponse {}
+         long patientRecords) implements EventResponse { }
 
    public record GetGidsPagedRequest(
          ActorRef<GetGidsPagedResponse> replyTo,
          long offset,
-         long length) implements Event {}
+         long length) implements Event { }
 
-   public record GetGidsPagedResponse(List<String> goldenIds) implements EventResponse {}
+   public record GetGidsPagedResponse(List<String> goldenIds) implements EventResponse { }
 
    public record GetGoldenRecordAuditTrailRequest(
          ActorRef<GetGoldenRecordAuditTrailResponse> replyTo,
-         String uid) implements Event {}
+         String uid) implements Event { }
 
-   public record GetGoldenRecordAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {}
+   public record GetGoldenRecordAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) { }
 
    public record GetInteractionAuditTrailRequest(
          ActorRef<GetInteractionAuditTrailResponse> replyTo,
-         String uid) implements Event {}
+         String uid) implements Event { }
 
-   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) {}
+   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) { }
 
    public record SQLDashboardDataRequest(
-         ActorRef<SQLDashboardDataResponse> replyTo) implements Event {}
+         ActorRef<SQLDashboardDataResponse> replyTo) implements Event { }
 
-   public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {}
+   public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) { }
 
-   public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event {}
+   public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event { }
 
-   public record GetGidsAllResponse(List<String> records) implements EventResponse {}
+   public record GetGidsAllResponse(List<String> records) implements EventResponse { }
 
-   public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event {}
+   public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event { }
 
-   public record GetConfigurationResponse(Configuration configuration) implements EventResponse {}
+   public record GetConfigurationResponse(Configuration configuration) implements EventResponse { }
 
    public record PostConfigurationRequest(
          ActorRef<PostConfigurationResponse> replyTo,
-         Configuration configuration) implements Event {}
+         Configuration configuration) implements Event { }
 
-   public record PostConfigurationResponse(String response) implements EventResponse {}
+   public record PostConfigurationResponse(String response) implements EventResponse { }
 
    public record FindExpandedSourceIdRequest(
          ActorRef<FindExpandedSourceIdResponse> replyTo,
          String facility,
-         String client) implements Event {}
+         String client) implements Event { }
 
-   public record FindExpandedSourceIdResponse(List<ExpandedSourceId> records) implements EventResponse {}
+   public record FindExpandedSourceIdResponse(List<ExpandedSourceId> records) implements EventResponse { }
 
    public record GetExpandedGoldenRecordRequest(
          ActorRef<GetExpandedGoldenRecordResponse> replyTo,
-         String goldenId) implements Event {}
+         String goldenId) implements Event { }
 
-   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse {}
+   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse { }
 
    public record GetExpandedGoldenRecordsRequest(
          ActorRef<GetExpandedGoldenRecordsResponse> replyTo,
-         List<String> goldenIds) implements Event {}
+         List<String> goldenIds) implements Event { }
 
    public record GetExpandedGoldenRecordsResponse(
-         Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse {}
+         Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse { }
 
    public record GetExpandedInteractionsRequest(
          ActorRef<GetExpandedInteractionsResponse> replyTo,
-         List<String> patientIds) implements Event {}
+         List<String> patientIds) implements Event { }
 
    public record GetExpandedInteractionsResponse(
-         Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse {}
+         Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse { }
 
    public record GetInteractionRequest(
          ActorRef<GetInteractionResponse> replyTo,
-         String iid) implements Event {}
+         String iid) implements Event { }
 
-   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse {}
+   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse { }
 
    public record GetNotificationsRequest(
          ActorRef<GetNotificationsResponse> replyTo,
@@ -621,90 +625,90 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          int offset,
          Timestamp startDate,
          Timestamp endDate,
-         List<String> states) implements Event {}
+         List<String> states) implements Event { }
 
    public record GetNotificationsResponse(
          int count,
          int skippedRecords,
-         List<HashMap<String, Object>> records) implements EventResponse {}
+         List<HashMap<String, Object>> records) implements EventResponse { }
 
    public record UpdateGoldenRecordRequest(
          ActorRef<UpdateGoldenRecordResponse> replyTo,
          String goldenId,
-         List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {}
+         List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event { }
 
-   public record UpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse {}
+   public record UpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse { }
 
    public record PostIidGidLinkRequest(
          ActorRef<PostIidGidLinkResponse> replyTo,
          String currentGoldenId,
          String newGoldenId,
          String patientId,
-         Float score) implements Event {}
+         Float score) implements Event { }
 
-   public record PostIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {}
+   public record PostIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse { }
 
    public record PostIidNewGidLinkRequest(
          ActorRef<PostIidNewGidLinkResponse> replyTo,
          String currentGoldenId,
          String patientId,
-         Float score) implements Event {}
+         Float score) implements Event { }
 
-   public record PostIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {}
+   public record PostIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse { }
 
    public record PostUpdateNotificationRequest(
          ActorRef<PostUpdateNotificationResponse> replyTo,
          String notificationId,
          String oldGoldenId,
-         String currentGoldenId) implements Event {}
+         String currentGoldenId) implements Event { }
 
-   public record PostUpdateNotificationResponse() implements EventResponse {}
+   public record PostUpdateNotificationResponse() implements EventResponse { }
 
    /**
     * Search events
     */
    public record PostSimpleSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,
-         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {}
+         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event { }
 
    public record PostFilterGidsRequest(
          ActorRef<PostFilterGidsResponse> replyTo,
-         FilterGidsRequestPayload filterGidsRequestPayload) implements Event {}
+         FilterGidsRequestPayload filterGidsRequestPayload) implements Event { }
 
    public record PostFilterGidsResponse(
-         LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse {}
+         LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse { }
 
    public record PostFilterGidsWithInteractionCountRequest(
          ActorRef<PostFilterGidsWithInteractionCountResponse> replyTo,
-         FilterGidsRequestPayload filterGidsRequestPayload) implements Event {}
+         FilterGidsRequestPayload filterGidsRequestPayload) implements Event { }
 
    public record PostFilterGidsWithInteractionCountResponse(
-         PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse {}
+         PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse { }
 
    public record PostCustomSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,
-         CustomSearchRequestPayload customSearchRequestPayload) implements Event {}
+         CustomSearchRequestPayload customSearchRequestPayload) implements Event { }
 
    public record PostSearchGoldenRecordsResponse(
-         LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {}
+         LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse { }
 
    public record PostSimpleSearchInteractionsRequest(
          ActorRef<PostSearchInteractionsResponse> replyTo,
-         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {}
+         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event { }
 
    public record PostCustomSearchInteractionsRequest(
          ActorRef<PostSearchInteractionsResponse> replyTo,
-         CustomSearchRequestPayload customSearchRequestPayload) implements Event {}
+         CustomSearchRequestPayload customSearchRequestPayload) implements Event { }
 
    public record PostSearchInteractionsResponse(
-         LibMPIPaginatedResultSet<Interaction> records) implements EventResponse {}
+         LibMPIPaginatedResultSet<Interaction> records) implements EventResponse { }
 
    public record PostUploadCsvFileRequest(
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
          File file,
-         UploadConfig uploadConfig) implements Event {}
+         UploadConfig uploadConfig) implements Event { }
 
-   public record PostUploadCsvFileResponse() implements EventResponse {}
+   public record PostUploadCsvFileResponse() implements EventResponse { }
 
 }
