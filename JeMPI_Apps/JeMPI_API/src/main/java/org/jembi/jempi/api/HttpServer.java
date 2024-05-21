@@ -64,7 +64,7 @@ public final class HttpServer extends AllDirectives {
       final RejectionHandler rejectionHandler = RejectionHandler.defaultHandler().mapRejectionResponse(response -> {
          if (response.entity() instanceof HttpEntity.Strict) {
             String message = ((HttpEntity.Strict) response.entity()).getData().utf8String();
-            LOGGER.warn("Request was rejected. Reason: %s".formatted(message));
+            LOGGER.warn(String.format("Request was rejected. Reason: %s", message));
          }
 
          return response;

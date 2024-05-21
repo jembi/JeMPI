@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.scala.{
   DefaultScalaModule
 }
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.jembi.jempi.em.Probability
+import org.jembi.jempi.em.MU
 import org.jembi.jempi.em.kafka.Config.{
   CFG_KAFKA_BOOTSTRAP_SERVERS,
   CFG_KAFKA_TOPIC_MU_CONTROLLER,
@@ -18,7 +18,7 @@ import scala.collection.immutable.ArraySeq
 
 object Producer {
 
-  def send(tag: String, muSeqLink: ArraySeq[Probability], muSeqValidate: ArraySeq[Probability], muSeqMatch: ArraySeq[Probability]): Unit = {
+  def send(tag: String, muSeqLink: ArraySeq[MU], muSeqValidate: ArraySeq[MU], muSeqMatch: ArraySeq[MU]): Unit = {
     val mapper = new ObjectMapper() with ClassTagExtensions
     mapper.registerModule(DefaultScalaModule)
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

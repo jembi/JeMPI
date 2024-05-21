@@ -6,7 +6,6 @@ import akka.http.javadsl.model.StatusCodes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,6 +47,7 @@ public abstract class ApiModels {
               Thread.currentThread().getStackTrace()[3].getLineNumber());
       }
 
+
    }
 
    public record ApiGoldenRecordCount(Long count) {
@@ -65,11 +65,11 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrCandidatesRequest(
          Float candidateThreshold,
-         JsonNode demographicData) {
+         CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrCandidatesResponse(List<ApiGoldenRecord> goldenRecords) {
+   public record ApiCrCandidatesResponse(List<GoldenRecord> goldenRecords) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -92,38 +92,38 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
-   public record ApiCrFindResponse(List<ApiGoldenRecord> goldenRecords) {
+   public record ApiCrFindResponse(List<GoldenRecord> goldenRecords) {
    }
 
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrRegisterRequest(
-         @JsonProperty("candidateThreshold") Float candidateThreshold,
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
+         Float candidateThreshold,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkToGidUpdateRequest(
-         @JsonProperty("gid") String gid,
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
+         String gid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdRequest(
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkBySourceIdUpdateRequest(
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -131,18 +131,18 @@ public abstract class ApiModels {
          String stan,
          ExternalLinkRange externalLinkRange,
          Float matchThreshold,
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
 /*
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record LinkInteractionToGidSyncBody(
          String stan,
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData,
          String gid) {
    }
 */
@@ -231,40 +231,40 @@ public abstract class ApiModels {
       }
    }
 
-   public record ApiFilteredGidsPaginatedResultSet(
+   public record ApiFiteredGidsPaginatedResultSet(
          List<String> data,
          ApiPagination pagination) implements ApiPaginatedResultSet {
-      public static ApiFilteredGidsPaginatedResultSet fromLibMPIPaginatedResultSet(
+      public static ApiFiteredGidsPaginatedResultSet fromLibMPIPaginatedResultSet(
             final LibMPIPaginatedResultSet<String> resultSet) {
          final var data = resultSet.data().stream().toList();
-         return new ApiFilteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+         return new ApiFiteredGidsPaginatedResultSet(data, ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
-   public record ApiFilteredGidsWithInteractionCountPaginatedResultSet(
+   public record ApiFiteredGidsWithInteractionCountPaginatedResultSet(
          List<String> data,
          InteractionCount interactionCount,
          ApiPagination pagination) implements ApiPaginatedResultSet {
-      public static ApiFilteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
+      public static ApiFiteredGidsWithInteractionCountPaginatedResultSet fromPaginatedGidsWithInteractionCount(
             final PaginatedGIDsWithInteractionCount resultSet) {
          final var data = resultSet.data().stream().toList();
-         return new ApiFilteredGidsWithInteractionCountPaginatedResultSet(data,
-                                                                          InteractionCount.fromInteractionCount(resultSet.interactionCount()),
-                                                                          ApiPagination.fromLibMPIPagination(resultSet.pagination()));
+         return new ApiFiteredGidsWithInteractionCountPaginatedResultSet(data,
+                                                                         InteractionCount.fromInteractionCount(resultSet.interactionCount()),
+                                                                         ApiPagination.fromLibMPIPagination(resultSet.pagination()));
       }
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecord(
-         @JsonProperty("uid") String uid,
-         @JsonProperty("sourceId") List<SourceId> sourceId,
-         @JsonProperty("uniqueGoldenRecordData") JsonNode auxGoldenRecordData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
-      public static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
+         String uid,
+         List<CustomSourceId> sourceId,
+         CustomUniqueGoldenRecordData uniqueGoldenRecordData,
+         CustomDemographicData demographicData) {
+      static ApiGoldenRecord fromGoldenRecord(final GoldenRecord goldenRecord) {
          return new ApiGoldenRecord(goldenRecord.goldenId(),
                                     goldenRecord.sourceId(),
-                                    AuxGoldenRecordData.fromAuxGoldenRecordData(goldenRecord.auxGoldenRecordData()),
-                                    DemographicData.fromDemographicData(goldenRecord.demographicData()));
+                                    goldenRecord.customUniqueGoldenRecordData(),
+                                    goldenRecord.demographicData());
       }
    }
 
@@ -304,15 +304,15 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiInteraction(
-         @JsonProperty("uid") String uid,
-         @JsonProperty("sourceId") SourceId sourceId,
-         @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
-         @JsonProperty("demographicData") JsonNode demographicData) {
+         String uid,
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
       public static ApiInteraction fromInteraction(final Interaction interaction) {
          return new ApiInteraction(interaction.interactionId(),
                                    interaction.sourceId(),
-                                   AuxInteractionData.fromAuxInteractionData(interaction.auxInteractionData()),
-                                   DemographicData.fromDemographicData(interaction.demographicData()));
+                                   interaction.uniqueInteractionData(),
+                                   interaction.demographicData());
       }
    }
 
@@ -333,17 +333,18 @@ public abstract class ApiModels {
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiAuditTrail(
-         List<LinkingAuditEntry> entries) {
+           List<LinkingAuditEntry> entries) {
 
       @JsonInclude(JsonInclude.Include.NON_NULL)
       public record LinkingAuditEntry(
-            @JsonProperty("inserted_at") String insertedAt,
-            @JsonProperty("created_at") String createdAt,
-            @JsonProperty("interaction_id") String interactionId,
-            @JsonProperty("golden_id") String goldenId,
-            @JsonProperty("entry") String entry,
-            @JsonProperty("score") Float score,
-            @JsonProperty("linking_rule") String linkingRule) {
+             @JsonProperty("inserted_at") String insertedAt,
+             @JsonProperty("created_at") String createdAt,
+             @JsonProperty("interaction_id") String interactionId,
+             @JsonProperty("golden_id") String goldenId,
+             @JsonProperty("entry") String entry,
+             @JsonProperty("score") Float score,
+             @JsonProperty("linking_rule") String linkingRule
+      ) {
       }
    }
 
@@ -377,9 +378,9 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiGoldenRecords(
          String gid,
-         SourceId sourceId,
-         AuxInteractionData auxInteractionData,
-         DemographicData demographicData) {
+         CustomSourceId sourceId,
+         CustomUniqueInteractionData uniqueInteractionData,
+         CustomDemographicData demographicData) {
    }
 
    public record ApiCalculateScoresResponse(

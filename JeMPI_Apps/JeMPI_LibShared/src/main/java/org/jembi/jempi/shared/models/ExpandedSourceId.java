@@ -6,6 +6,6 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ExpandedSourceId(
-      SourceId sourceId,
+      CustomSourceId sourceId,
       List<GoldenRecord> goldenRecords) {
 }

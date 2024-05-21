@@ -17,6 +17,7 @@ const {
   patientRecord,
   goldenRecord,
   goldenRecords,
+  auditTrail,
   currentUser,
   searchGoldenRecordResult,
   searchPatientRecordResult

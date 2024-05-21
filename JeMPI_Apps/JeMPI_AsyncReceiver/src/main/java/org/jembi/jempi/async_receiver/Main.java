@@ -11,7 +11,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
+import org.jembi.jempi.shared.models.UploadConfig;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 
@@ -26,9 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.file.StandardWatchEventKinds.*;
-import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
-import static org.jembi.jempi.shared.config.Config.INPUT_INTERFACE_CONFIG;
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class Main {
 
@@ -40,7 +40,7 @@ public final class Main {
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
    }
 
-   public static void main(final String[] args) throws ExecutionException {
+   public static void main(final String[] args) throws InterruptedException, ExecutionException, IOException {
       new Main().run();
    }
 
@@ -68,51 +68,7 @@ public final class Main {
       return in;
    }
 
-   static AuxInteractionData auxInteractionData(final CSVRecord csvRecord) {
-      return new AuxInteractionData(
-            java.time.LocalDateTime.now(),
-            FIELDS_CONFIG.userAuxInteractionFields
-                  .stream()
-                  .map(f -> new AuxInteractionData.AuxInteractionUserField(f.scName(),
-                                                                           f.ccName(),
-                                                                           csvRecord.get(f.source().csvCol())))
-                  .toList());
-   }
-
-   static SourceId sourceIdData(final CSVRecord csvRecord) {
-      return new SourceId(
-            null,
-            csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdFacilityCsvCol),
-            csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
-   }
-
-   private static String applyFunction(final String func) {
-      return switch (func) {
-         case "AppUtils::autoGenerateId" -> AppUtils.autoGenerateId();
-         default -> null;
-      };
-   }
-
-   private static DemographicData demographicData(final CSVRecord csvRecord) {
-
-      final var data = new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataSource
-                                                 .stream()
-                                                 .map(f -> new DemographicData.DemographicField(
-                                                       f.getLeft(),
-                                                       (f.getRight().csvCol() != null)
-                                                             ? csvRecord.get(f.getRight().csvCol())
-                                                             : applyFunction(f.getRight().generate().func())))
-                                                 .toList());
-
-      try {
-         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(data));
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
-      return data;
-   }
-
-   private void sendToKafka(
+   private void sendInteractionToKafka(
          final String key,
          final InteractionEnvelop interactionEnvelop) throws InterruptedException, ExecutionException {
       try {
@@ -120,6 +76,17 @@ public final class Main {
       } catch (NullPointerException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
+   }
+
+   private long getRowSize(final String[] values) {
+      long size = 0;
+
+      for (String str : values) {
+         if (str != null) {
+            size += 24 + (str.length() * 2L);
+         }
+      }
+      return size;
    }
 
    private void apacheReadCSV(
@@ -135,7 +102,6 @@ public final class Main {
          final var tag = FilenameUtils.getBaseName(FilenameUtils.removeExtension(fileName));
 
          try (var reader = Files.newBufferedReader(filePathUri)) {
-
             //ignore the first line when upload config exists
             if (config != null) {
                reader.readLine();
@@ -150,43 +116,33 @@ public final class Main {
                                                    .parse(reader);
 
             int index = 0;
-            sendToKafka(uuid,
-                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
-                                               tag,
-                                               updateStan(stanDate, index),
-                                               null,
-                                               createSessionMetadata(index, updateStan(stanDate, index), config)));
+            sendInteractionToKafka(uuid,
+                                   new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_START_SENTINEL,
+                                                          tag,
+                                                          String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                          null, null));
             for (CSVRecord csvRecord : csvParser) {
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
-                                                                     updateStan(stanDate, ++index),
+                                                                     String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
                                                                      new Interaction(null,
-                                                                                     sourceIdData(csvRecord),
-                                                                                     auxInteractionData(csvRecord),
-                                                                                     demographicData(csvRecord)),
-                                                                     createSessionMetadata(index,
-                                                                                           updateStan(stanDate, index),
-                                                                                           config));
-               sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
+                                                                                     CustomAsyncHelper.customSourceId(csvRecord),
+                                                                                     CustomAsyncHelper.customUniqueInteractionData(
+                                                                                           csvRecord),
+                                                                                     CustomAsyncHelper.customDemographicData(
+                                                                                           csvRecord)), config);
+
+               sendInteractionToKafka(UUID.randomUUID().toString(), interactionEnvelop);
             }
-            sendToKafka(uuid,
-                        new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
-                                               tag,
-                                               updateStan(stanDate, ++index),
-                                               null,
-                                               createSessionMetadata(index,
-                                                                     updateStan(stanDate, index),
-                                                                     config)));
+            sendInteractionToKafka(uuid,
+                                   new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
+                                                          tag,
+                                                          String.format(Locale.ROOT, "%s:%07d", stanDate, ++index),
+                                                          null, null));
          }
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
-   }
-
-   private String updateStan(
-         final String stanDate,
-         final int recCount) {
-      return String.format(Locale.ROOT, "%s:%07d", stanDate, recCount);
    }
 
    private UploadConfig readUploadConfigFromFile(final String fileName) {
@@ -209,9 +165,9 @@ public final class Main {
       WatchEvent.Kind<?> kind = event.kind();
       LOGGER.info("EVENT: {}", kind);
       if (ENTRY_CREATE.equals(kind)) {
-         final WatchEvent<Path> ev = cast(event);
-         final Path filename = ev.context();
-         final String name = filename.toString();
+         WatchEvent<Path> ev = cast(event);
+         Path filename = ev.context();
+         String name = filename.toString();
          LOGGER.info("A new file {} was created", filename);
          if (name.endsWith("uploadConfig.csv")) {
             UploadConfig config = readUploadConfigFromFile("csv/" + filename);
@@ -220,7 +176,9 @@ public final class Main {
             LOGGER.info("Process CSV file: {}", filename);
             apacheReadCSV("csv/" + filename, null);
          }
-      } else if (ENTRY_MODIFY.equals(kind) || ENTRY_DELETE.equals(kind)) {
+      } else if (ENTRY_MODIFY.equals(kind)) {
+         LOGGER.info("EVENT: {}", kind);
+      } else if (ENTRY_DELETE.equals(kind)) {
          LOGGER.info("EVENT: {}", kind);
       }
    }
@@ -233,7 +191,7 @@ public final class Main {
       return new JsonPojoSerializer<>();
    }
 
-   private void run() throws ExecutionException {
+   private void run() throws InterruptedException, ExecutionException, IOException {
       LOGGER.info("KAFKA: {} {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS, AppConfig.KAFKA_CLIENT_ID);
       interactionEnvelopProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                          GlobalConstants.TOPIC_INTERACTION_ETL,
@@ -255,17 +213,5 @@ public final class Main {
       } catch (InterruptedException e) {
          LOGGER.warn(e.getLocalizedMessage(), e);
       }
-   }
-
-   private SessionMetadata createSessionMetadata(
-         final int index,
-         final String stan,
-         final UploadConfig config) {
-      return new SessionMetadata(new CommonMetaData(stan, config),
-                                 new UIMetadata(null),
-                                 new AsyncReceiverMetadata(AppUtils.timeStamp()),
-                                 new ETLMetadata(null),
-                                 new ControllerMetadata(null),
-                                 new LinkerMetadata(null));
    }
 }

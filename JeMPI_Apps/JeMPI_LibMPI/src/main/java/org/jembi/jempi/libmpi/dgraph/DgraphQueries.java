@@ -1,33 +1,24 @@
 package org.jembi.jempi.libmpi.dgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.vavr.Function1;
 import io.vavr.control.Either;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.libmpi.common.PaginatedResultSet;
-import org.jembi.jempi.libmpi.common.PartialFunction;
-import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.IntStream;
 
-import static org.jembi.jempi.shared.config.Config.*;
+import static org.jembi.jempi.libmpi.dgraph.CustomDgraphConstants.GOLDEN_RECORD_FIELD_NAMES;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-/**
- * The type Dgraph queries.
- */
 final class DgraphQueries {
 
-   /**
-    * The Empty field sentinel.
-    */
    static final String EMPTY_FIELD_SENTINEL = "EMPTY_FIELD_SENTINEL";
    private static final Logger LOGGER = LogManager.getLogger(DgraphQueries.class);
    private static final String GET_SOURCE_ID =
@@ -75,94 +66,6 @@ final class DgraphQueries {
            }
          }""";
 
-   private static final String[] DETERMINISTIC_LINK_QUERIES;
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_LINK_FUNCTIONS;
-
-   private static final String[] BLOCK_LINK_QUERIES;
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> BLOCK_LINK_FUNCTIONS;
-
-   private static final String[] DETERMINISTIC_MATCH_QUERIES;
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> DETERMINISTIC_MATCH_FUNCTIONS;
-
-   private static final String[] BLOCK_MATCH_QUERIES;
-   private static final List<PartialFunction<DemographicData, List<GoldenRecord>>> BLOCK_MATCH_FUNCTIONS;
-
-   static {
-      LOGGER.info("no. deterministic link programs: {}", LINKER_CONFIG.deterministicLinkPrograms.size());
-      LOGGER.info("no. deterministic match programs: {}", LINKER_CONFIG.deterministicMatchPrograms.size());
-      LOGGER.info("no. block link programs: {}", LINKER_CONFIG.blockLinkPrograms.size());
-      LOGGER.info("no. block match programs: {}", LINKER_CONFIG.blockMatchPrograms.size());
-
-      DETERMINISTIC_LINK_FUNCTIONS = new ArrayList<>();
-      if (JSON_CONFIG.rules().link() == null
-          || JSON_CONFIG.rules().link().deterministic() == null
-          || JSON_CONFIG.rules().link().deterministic().isEmpty()) {
-         DETERMINISTIC_LINK_QUERIES = new String[]{null};
-      } else {
-         DETERMINISTIC_LINK_QUERIES = new String[LINKER_CONFIG.deterministicLinkPrograms.size()];
-         IntStream.range(0, LINKER_CONFIG.deterministicLinkPrograms.size())
-                  .forEach(i -> {
-                     final var query = LINKER_CONFIG.deterministicLinkPrograms.get(i).selectQuery();
-                     DETERMINISTIC_LINK_QUERIES[i] = query;
-                     DETERMINISTIC_LINK_FUNCTIONS.add(i,
-                                                      demographicData -> queryLinkDeterministic(demographicData,
-                                                                                                i,
-                                                                                                query).data());
-                  });
-      }
-
-      BLOCK_LINK_FUNCTIONS = new ArrayList<>();
-      if (JSON_CONFIG.rules().link() == null
-          || JSON_CONFIG.rules().link().probabilistic() == null
-          || JSON_CONFIG.rules().link().probabilistic().isEmpty()) {
-         BLOCK_LINK_QUERIES = new String[]{null};
-      } else {
-         BLOCK_LINK_QUERIES = new String[LINKER_CONFIG.blockLinkPrograms.size()];
-         IntStream.range(0, LINKER_CONFIG.blockLinkPrograms.size())
-                  .forEach(i -> {
-                     final var query = LINKER_CONFIG.blockLinkPrograms.get(i).selectQuery();
-                     BLOCK_LINK_QUERIES[i] = query;
-                     BLOCK_LINK_FUNCTIONS.add(i,
-                                              demographicData -> queryLinkProbabilisticBlock(demographicData, i, query).data());
-                  });
-      }
-
-      DETERMINISTIC_MATCH_FUNCTIONS = new ArrayList<>();
-      if (JSON_CONFIG.rules().matchNotification() == null
-          || JSON_CONFIG.rules().matchNotification().deterministic() == null
-          || JSON_CONFIG.rules().matchNotification().deterministic().isEmpty()) {
-         DETERMINISTIC_MATCH_QUERIES = new String[]{null};
-      } else {
-         DETERMINISTIC_MATCH_QUERIES = new String[LINKER_CONFIG.deterministicMatchPrograms.size()];
-         IntStream.range(0, LINKER_CONFIG.deterministicMatchPrograms.size())
-                  .forEach(i -> {
-                     final var query = LINKER_CONFIG.deterministicMatchPrograms.get(i).selectQuery();
-                     DETERMINISTIC_MATCH_QUERIES[i] = query;
-                     DETERMINISTIC_MATCH_FUNCTIONS.add(i,
-                                                       demographicData -> queryMatchDeterministic(demographicData,
-                                                                                                  i,
-                                                                                                  query).data());
-                  });
-      }
-
-      BLOCK_MATCH_FUNCTIONS = new ArrayList<>();
-      if (JSON_CONFIG.rules().matchNotification() == null
-          || JSON_CONFIG.rules().matchNotification().probabilistic() == null
-          || JSON_CONFIG.rules().matchNotification().probabilistic().isEmpty()) {
-         BLOCK_MATCH_QUERIES = new String[]{null};
-      } else {
-         BLOCK_MATCH_QUERIES = new String[LINKER_CONFIG.blockMatchPrograms.size()];
-         IntStream.range(0, LINKER_CONFIG.blockMatchPrograms.size())
-                  .forEach(i -> {
-                     final var query = LINKER_CONFIG.blockMatchPrograms.get(i).selectQuery();
-                     BLOCK_MATCH_QUERIES[i] = query;
-                     BLOCK_MATCH_FUNCTIONS.add(i,
-                                               demographicData -> queryMatchProbabilisticBlock(demographicData, i, query).data());
-                  });
-      }
-
-   }
-
    private DgraphQueries() {
    }
 
@@ -179,63 +82,34 @@ final class DgraphQueries {
       return new DgraphSourceIds(List.of());
    }
 
-   private static List<ExpandedSourceId> runReverseGoldenRecordListFromSourceId(
+   private static DgraphReverseGoldenRecordListFromSourceId runReverseGoldenRecordListFromSourceId(
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(GET_EXPANDED_SOURCE_ID_LIST, vars);
          if (!StringUtils.isBlank(json)) {
-            return new JsonNodeReverseGoldenRecordListFromSourceId(json).toExpandedSourceId();
+            return OBJECT_MAPPER.readValue(json, DgraphReverseGoldenRecordListFromSourceId.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return List.of();
+      return new DgraphReverseGoldenRecordListFromSourceId(List.of());
    }
 
-   private static PaginatedResultSet<GoldenRecord> runGoldenRecordsQuery(
+   static DgraphInteractions runInteractionsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-            return new JsonNodeGoldenRecords(json).toGoldenRecordList();
-         }
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage());
-      }
-      return new PaginatedResultSet<>(List.of(), List.of());
-   }
-
-
-   private static PaginatedResultSet<InteractionWithScore> runInteractionsWithScoreQuery(
-         final String query,
-         final Map<String, String> vars) {
-      try {
-         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
-         if (!StringUtils.isBlank(json)) {
-            return new JsonNodeInteractions(json).toInteractionsWithScore();
+            return OBJECT_MAPPER.readValue(json, DgraphInteractions.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
-      return new PaginatedResultSet<>(List.of(), List.of());
+      return new DgraphInteractions(List.of());
    }
 
-   private static PaginatedResultSet<Interaction> runInteractionsQuery(
-         final String query,
-         final Map<String, String> vars) {
-      try {
-         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
-         if (!StringUtils.isBlank(json)) {
-            return new JsonNodeInteractions(json).toInteractions();
-         }
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
-      return new PaginatedResultSet<>(List.of(), List.of());
-   }
-
-   private static DgraphPaginatedUidList runFilterGidsQuery(
+   static DgraphPaginatedUidList runfilterGidsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
@@ -249,13 +123,6 @@ final class DgraphQueries {
       return new DgraphPaginatedUidList(List.of());
    }
 
-   /**
-    * Run filter gids with interaction count query dgraph pagination uid list with interaction count.
-    *
-    * @param query the query
-    * @param vars  the vars
-    * @return the dgraph pagination uid list with interaction count
-    */
    static DgraphPaginationUidListWithInteractionCount runFilterGidsWithInteractionCountQuery(
          final String query,
          final Map<String, String> vars) {
@@ -270,74 +137,60 @@ final class DgraphQueries {
       return new DgraphPaginationUidListWithInteractionCount(List.of(), List.of());
    }
 
-
-   /**
-    * Run expanded golden records query paginated result set.
-    *
-    * @param query the query
-    * @param vars  the vars
-    * @return the paginated result set
-    */
-   static PaginatedResultSet<ExpandedGoldenRecord> runExpandedGoldenRecordsQuery(
+   static DgraphGoldenRecords runGoldenRecordsQuery(
          final String query,
          final Map<String, String> vars) {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
          if (!StringUtils.isBlank(json)) {
-
-            return new JsonNodeExpandedGoldenRecords(json).toExpandedGoldenRecordList();
+            return OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
          }
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
       }
-      return new PaginatedResultSet<>(List.of(), List.of());
+      return new DgraphGoldenRecords(List.of());
    }
 
-   /**
-    * Find interaction interaction.
-    *
-    * @param interactionId the interaction id
-    * @return the interaction
-    */
+   static DgraphExpandedGoldenRecords runExpandedGoldenRecordsQuery(
+         final String query,
+         final Map<String, String> vars) {
+      try {
+         final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, vars);
+         if (!StringUtils.isBlank(json)) {
+            return OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
+         }
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage());
+      }
+      return new DgraphExpandedGoldenRecords(List.of());
+   }
+
    static Interaction findInteraction(final String interactionId) {
       if (StringUtils.isBlank(interactionId)) {
          return null;
       }
       final var vars = Map.of("$uid", interactionId);
-      final var interactionList = runInteractionsQuery(DGRAPH_CONFIG.queryGetInteractionByUid, vars);
-      if (AppUtils.isNullOrEmpty(interactionList.data())) {
+      final var interactionList = runInteractionsQuery(CustomDgraphConstants.QUERY_GET_INTERACTION_BY_UID, vars).all();
+      if (AppUtils.isNullOrEmpty(interactionList)) {
          return null;
       }
-      return interactionList.data().getFirst();
+      return interactionList.get(0).toInteractionWithScore().interaction();
    }
 
-   /**
-    * Find dgraph golden record golden record.
-    *
-    * @param goldenId the golden id
-    * @return the golden record
-    */
-   static GoldenRecord findDgraphGoldenRecord(final String goldenId) {
+   static CustomDgraphGoldenRecord findDgraphGoldenRecord(final String goldenId) {
       if (StringUtils.isBlank(goldenId)) {
          return null;
       }
       final var vars = Map.of("$uid", goldenId);
-      final var paginatedResultSet = runGoldenRecordsQuery(DGRAPH_CONFIG.queryGetGoldenRecordByUid, vars);
+      final var goldenRecordList = runGoldenRecordsQuery(CustomDgraphConstants.QUERY_GET_GOLDEN_RECORD_BY_UID, vars).all();
 
-      if (paginatedResultSet.data().isEmpty()) {
+      if (AppUtils.isNullOrEmpty(goldenRecordList)) {
          LOGGER.warn("No goldenRecord for {}", goldenId);
          return null;
       }
-      return paginatedResultSet.data().getFirst();
+      return goldenRecordList.get(0);
    }
 
-
-   /**
-    * Find expanded golden ids list.
-    *
-    * @param goldenId the golden id
-    * @return the list
-    */
    static List<String> findExpandedGoldenIds(final String goldenId) {
       try {
          final Map<String, String> map = new HashMap<>();
@@ -356,11 +209,6 @@ final class DgraphQueries {
       return List.of();
    }
 
-   /**
-    * Gets golden ids.
-    *
-    * @return the golden ids
-    */
    static List<String> getGoldenIds() {
       final String query = """
                            query recordGoldenId() {
@@ -380,13 +228,6 @@ final class DgraphQueries {
       return List.of();
    }
 
-   /**
-    * Fetch golden ids list.
-    *
-    * @param offset the offset
-    * @param length the length
-    * @return the list
-    */
    static List<String> fetchGoldenIds(
          final long offset,
          final long length) {
@@ -415,18 +256,13 @@ final class DgraphQueries {
       try {
          final var json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
          final var response = OBJECT_MAPPER.readValue(json, DgraphCountList.class);
-         return response.list().getFirst().count();
+         return response.list().get(0).count();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
       }
       return 0L;
    }
 
-   /**
-    * Count golden records long.
-    *
-    * @return the long
-    */
    static long countGoldenRecords() {
       final var query = """
                         query recordCount() {
@@ -437,12 +273,6 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   /**
-    * Count golden record entities long.
-    *
-    * @param goldenId the golden id
-    * @return the long
-    */
    static long countGoldenRecordEntities(final String goldenId) {
       final var query = String.format(Locale.ROOT, """
                                                    query recordCount() {
@@ -453,11 +283,6 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   /**
-    * Count interactions long.
-    *
-    * @return the long
-    */
    static long countInteractions() {
       final var query = """
                         query recordCount() {
@@ -468,69 +293,73 @@ final class DgraphQueries {
       return getCount(query);
    }
 
-   private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
-         final List<PartialFunction<DemographicData, List<GoldenRecord>>> queryFunctions,
-         final DemographicData demographicData) {
-      final LinkedList<GoldenRecord> candidateGoldenRecords = new LinkedList<>();
-      for (PartialFunction<DemographicData, List<GoldenRecord>> queryFunction : queryFunctions) {
-         final var block = queryFunction.apply(demographicData);
-         if (!AppUtils.isNullOrEmpty(block)) {
-            candidateGoldenRecords.addAll(block);
-            return candidateGoldenRecords;
+   static LinkedList<CustomDgraphGoldenRecord> deterministicFilter(
+         final List<Function1<CustomDemographicData, DgraphGoldenRecords>> listFunction,
+         final CustomDemographicData interaction) {
+      final LinkedList<CustomDgraphGoldenRecord> candidateGoldenRecords = new LinkedList<>();
+      for (Function1<CustomDemographicData, DgraphGoldenRecords> deterministicFunction : listFunction) {
+         final var block = deterministicFunction.apply(interaction);
+         if (!block.all().isEmpty()) {
+            final var list = block.all();
+            if (!AppUtils.isNullOrEmpty(list)) {
+               candidateGoldenRecords.addAll(list);
+               return candidateGoldenRecords;
+            }
          }
       }
       return candidateGoldenRecords;
    }
 
-   /**
-    * Find expanded interactions list.
-    *
-    * @param ids the ids
-    * @return the list
-    */
-   static List<ExpandedInteraction> findExpandedInteractions(final List<String> ids) {
-      final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetExpandedInteractions, String.join(",", ids));
+   static List<CustomDgraphExpandedInteraction> findExpandedInteractions(final List<String> ids) {
+      final String query =
+            String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_EXPANDED_INTERACTIONS, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         return new JsonNodeExpandedInteractions(json).toExpandedInteractions().data();
+         final var records = OBJECT_MAPPER.readValue(json, DgraphExpandedInteractions.class);
+         return records.all();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return List.of();
       }
    }
 
-   /**
-    * Find golden records either.
-    *
-    * @param ids the ids
-    * @return the either
-    */
-   static Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> findGoldenRecords(final List<String> ids) {
+   static Either<MpiGeneralError, List<CustomDgraphGoldenRecord>> findGoldenRecords(final List<String> ids) {
       final var idListAsString = String.join(",", ids);
-      final String query = String.format(Locale.ROOT, DGRAPH_CONFIG.queryGetGoldenRecords, idListAsString);
+      final String query = String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_GOLDEN_RECORDS, idListAsString);
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         return Either.right(new JsonNodeGoldenRecords(json).toGoldenRecordList());
+         final var records = OBJECT_MAPPER.readValue(json, DgraphGoldenRecords.class);
+         return Either.right(records.all());
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
          return Either.left(new MpiServiceError.CRGidDoesNotExistError(idListAsString));
       }
    }
 
-   /**
-    * Gets expanded golden records.
-    *
-    * @param ids the ids
-    * @return the expanded golden records
-    */
-   static PaginatedResultSet<ExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
-      final String query = DGRAPH_CONFIG.queryGetExpandedGoldenRecords.formatted(String.join(",", ids));
+
+/*
+   private static List<String> findRecordFieldNamesByType(final RecordType recordType) {
+      List<String> fieldNames = new ArrayList<>();
+      // Class C = CustomDemographicData.class
+      Field[] fields = CustomDemographicData.class.getDeclaredFields();
+      fieldNames.add("uid");
+      for (Field field : fields) {
+         fieldNames.add(recordType + "." + camelToSnake(field.getName()));
+      }
+      return fieldNames;
+   }
+*/
+
+   static List<CustomDgraphExpandedGoldenRecord> getExpandedGoldenRecords(final List<String> ids) {
+      final String query =
+            String.format(Locale.ROOT, CustomDgraphConstants.QUERY_GET_EXPANDED_GOLDEN_RECORDS, String.join(",", ids));
       final String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
       try {
-         return new JsonNodeExpandedGoldenRecords(json).toExpandedGoldenRecordList();
+         final var records = OBJECT_MAPPER.readValue(json, DgraphExpandedGoldenRecords.class);
+         return records.all();
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage());
-         return new PaginatedResultSet<>(List.of(), List.of());
+         return List.of();
       }
    }
 
@@ -595,25 +424,23 @@ final class DgraphQueries {
             String fieldName = AppUtils.camelToSnake(param.fieldName());
             Integer distance = param.distance();
             String value = param.value();
-            switch (distance) {
-               case -1 -> {
-                  if (value.contains("_")) {
-                     gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
-                                    + "\") AND le("
-                                    + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
-                  } else {
-                     gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
-                  }
+            if (distance == -1) {
+               if (value.contains("_")) {
+                  gqlFilters.add("ge(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_"))
+                                 + "\") AND le("
+                                 + recordType + "." + fieldName + ", \"" + value.substring(value.indexOf("_") + 1) + "\")");
+               } else {
+                  gqlFilters.add("le(" + recordType + "." + fieldName + ", \"" + value + "\")");
                }
-               case 0 -> {
-                  if (value.contains("_")) {
-                     gqlFilters.add(
-                           "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
-                  } else {
-                     gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
-                  }
+            } else if (distance == 0) {
+               if (value.contains("_")) {
+                  gqlFilters.add(
+                        "eq(" + recordType + "." + fieldName + ", \"" + value.substring(0, value.indexOf("_")) + "\")");
+               } else {
+                  gqlFilters.add("eq(" + recordType + "." + fieldName + ", \"" + value + "\")");
                }
-               default -> gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
+            } else {
+               gqlFilters.add("match(" + recordType + "." + fieldName + ", $" + fieldName + ", " + distance + ")");
             }
          }
       }
@@ -675,7 +502,7 @@ final class DgraphQueries {
       return String.format(Locale.ROOT, "pagination(func: type(%s)) @filter(%s) {%ntotal: count(uid)%n}", recordType, gqlFilters);
    }
 
-   private static PaginatedResultSet<ExpandedGoldenRecord> searchGoldenRecords(
+   private static DgraphExpandedGoldenRecords searchGoldenRecords(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -689,7 +516,7 @@ final class DgraphQueries {
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += DGRAPH_CONFIG.expandedGoldenRecordFieldNames;
+      gql += CustomDgraphConstants.EXPANDED_GOLDEN_RECORD_FIELD_NAMES;
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
@@ -697,17 +524,7 @@ final class DgraphQueries {
       return runExpandedGoldenRecordsQuery(gql, gqlVars);
    }
 
-   /**
-    * Simple search golden records paginated result set.
-    *
-    * @param params  the params
-    * @param offset  the offset
-    * @param limit   the limit
-    * @param sortBy  the sort by
-    * @param sortAsc the sort asc
-    * @return the paginated result set
-    */
-   static PaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
+   static DgraphExpandedGoldenRecords simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -720,17 +537,7 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   /**
-    * Custom search golden records paginated result set.
-    *
-    * @param payloads the payloads
-    * @param offset   the offset
-    * @param limit    the limit
-    * @param sortBy   the sort by
-    * @param sortAsc  the sort asc
-    * @return the paginated result set
-    */
-   static PaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
+   static DgraphExpandedGoldenRecords customSearchGoldenRecords(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,
@@ -743,7 +550,7 @@ final class DgraphQueries {
       return searchGoldenRecords(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   private static PaginatedResultSet<InteractionWithScore> searchInteractions(
+   private static DgraphInteractions searchInteractions(
          final String gqlFilters,
          final List<String> gqlArgs,
          final HashMap<String, String> gqlVars,
@@ -756,12 +563,12 @@ final class DgraphQueries {
       String gql = "query search(" + String.join(", ", gqlArgs) + ") {\n";
       gql += String.format(Locale.ROOT, "all(%s) @filter(%s)", gqlFunc, gqlFilters);
       gql += "{\n";
-      gql += DGRAPH_CONFIG.interactionFieldNames;
+      gql += CustomDgraphConstants.INTERACTION_FIELD_NAMES;
       gql += "}\n";
       gql += gqlPagination;
       gql += "}";
 
-      return runInteractionsWithScoreQuery(gql, gqlVars);
+      return runInteractionsQuery(gql, gqlVars);
    }
 
    private static Either<DgraphPaginatedUidList, DgraphPaginationUidListWithInteractionCount> filterGidsFunc(
@@ -796,18 +603,9 @@ final class DgraphQueries {
 
       return Boolean.TRUE.equals(getInteractionCount)
             ? Either.right(runFilterGidsWithInteractionCountQuery(gql, gqlVars))
-            : Either.left(runFilterGidsQuery(gql, gqlVars));
+            : Either.left(runfilterGidsQuery(gql, gqlVars));
    }
 
-   /**
-    * Filter gids with params either.
-    *
-    * @param params              the params
-    * @param createdAt           the created at
-    * @param paginationOptions   the pagination options
-    * @param getInteractionCount the get interaction count
-    * @return the either
-    */
    static Either<DgraphPaginatedUidList, DgraphPaginationUidListWithInteractionCount> filterGidsWithParams(
          final List<ApiModels.ApiSearchParameter> params,
          final LocalDateTime createdAt,
@@ -823,17 +621,7 @@ final class DgraphQueries {
       return filterGidsFunc(gqlFilters, gqlArgs, gqlVars, paginationOptions, getInteractionCount);
    }
 
-   /**
-    * Simple search interactions paginated result set.
-    *
-    * @param params  the params
-    * @param offset  the offset
-    * @param limit   the limit
-    * @param sortBy  the sort by
-    * @param sortAsc the sort asc
-    * @return the paginated result set
-    */
-   static PaginatedResultSet<InteractionWithScore> simpleSearchInteractions(
+   static DgraphInteractions simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -846,17 +634,7 @@ final class DgraphQueries {
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   /**
-    * Custom search interactions paginated result set.
-    *
-    * @param payloads the payloads
-    * @param offset   the offset
-    * @param limit    the limit
-    * @param sortBy   the sort by
-    * @param sortAsc  the sort asc
-    * @return the paginated result set
-    */
-   static PaginatedResultSet<InteractionWithScore> customSearchInteractions(
+   static DgraphInteractions customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> payloads,
          final Integer offset,
          final Integer limit,
@@ -869,14 +647,7 @@ final class DgraphQueries {
       return searchInteractions(gqlFilters, gqlArgs, gqlVars, offset, limit, sortBy, sortAsc);
    }
 
-   /**
-    * Find source id list list.
-    *
-    * @param facility the facility
-    * @param patient  the patient
-    * @return the list
-    */
-   static List<SourceId> findSourceIdList(
+   static List<CustomSourceId> findSourceIdList(
          final String facility,
          final String patient) {
       if (StringUtils.isBlank(facility) || StringUtils.isBlank(patient)) {
@@ -888,13 +659,6 @@ final class DgraphQueries {
       return runSourceIdQuery(map).all().stream().map(DgraphSourceId::toSourceId).toList();
    }
 
-   /**
-    * Find expanded source id list list.
-    *
-    * @param facility the facility
-    * @param patient  the patient
-    * @return the list
-    */
    static List<ExpandedSourceId> findExpandedSourceIdList(
          final String facility,
          final String patient) {
@@ -904,16 +668,13 @@ final class DgraphQueries {
       final var map = new HashMap<String, String>();
       map.put("$facility_id", facility);
       map.put("$patient_id", patient);
-      return runReverseGoldenRecordListFromSourceId(map);
+      return runReverseGoldenRecordListFromSourceId(map).all()
+                                                        .stream()
+                                                        .map(DgraphReverseGoldenRecordFromSourceId::toExpandedSourceId)
+                                                        .toList();
    }
 
-   /**
-    * Find golden records either.
-    *
-    * @param req the req
-    * @return the either
-    */
-   static Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
+   static Either<MpiGeneralError, DgraphGoldenRecords> findGoldenRecords(final ApiModels.ApiCrFindRequest req) {
       final var setFunctions = new HashSet<String>();
       setFunctions.add("eq");
       setFunctions.add("match");
@@ -991,7 +752,7 @@ final class DgraphQueries {
                queryBuilder.append(" ").append(o.operator()).append(" uid(").append(++alias).append(")");
             }
          }
-         queryBuilder.append(") {\n").append(DGRAPH_CONFIG.goldenRecordFieldNames).append("  }\n}\n");
+         queryBuilder.append(") {\n").append(GOLDEN_RECORD_FIELD_NAMES).append("  }\n}\n");
          final var query = queryBuilder.toString();
          final var map = new HashMap<String, String>();
          map.put("$" + AppUtils.camelToSnake(operand.name()), operand.value());
@@ -1010,171 +771,17 @@ final class DgraphQueries {
       }
    }
 
-   private static void mergeCandidates(
-         final List<GoldenRecord> goldenRecords,
-         final List<GoldenRecord> block) {
-      if (!block.isEmpty()) {
-         block.forEach(candidate -> {
-            var found = false;
-            for (GoldenRecord goldenRecord : goldenRecords) {
-               if (candidate.goldenId().equals(goldenRecord.goldenId())) {
-                  found = true;
-                  break;
-               }
-            }
-            if (!found) {
-               goldenRecords.add(candidate);
-            }
-         });
-      }
-   }
-
-   /**
-    * Find link candidates list.
-    *
-    * @param interaction the interaction
-    * @return the list
-    */
-   static List<GoldenRecord> findLinkCandidates(
-         final DemographicData interaction) {
-      var result = deterministicSelectGoldenRecords(DETERMINISTIC_LINK_FUNCTIONS, interaction);
-      if (!result.isEmpty()) {
-         return result;
-      }
-      result = new LinkedList<>();
-      if (!(BLOCK_LINK_FUNCTIONS == null || BLOCK_LINK_FUNCTIONS.isEmpty())) {
-         final var candidates = BLOCK_LINK_FUNCTIONS.getFirst().apply(interaction);
-         if (!candidates.isEmpty()) {
-            mergeCandidates(result, candidates);
-         }
-      }
-      return result;
-   }
-
-   /**
-    * Find match candidates list.
-    *
-    * @param interaction the interaction
-    * @return the list
-    */
-   static List<GoldenRecord> findMatchCandidates(
-         final DemographicData interaction) {
-      var result = deterministicSelectGoldenRecords(DETERMINISTIC_MATCH_FUNCTIONS, interaction);
-      if (!result.isEmpty()) {
-         return result;
-      }
-      result = new LinkedList<>();
-      if (!(BLOCK_MATCH_FUNCTIONS == null || BLOCK_MATCH_FUNCTIONS.isEmpty())) {
-         final var candidates = BLOCK_MATCH_FUNCTIONS.getFirst().apply(interaction);
-         if (!candidates.isEmpty()) {
-            mergeCandidates(result, candidates);
-         }
-      }
-      return result;
-   }
-
-   private static PaginatedResultSet<GoldenRecord> queryMatchProbabilisticBlock(
-         final DemographicData demographicData,
-         final int ruleNumber,
-         final String query) {
-      if (LINKER_CONFIG.probabilisticLinkFields.isEmpty()) {
-         return new PaginatedResultSet<>(List.of(), List.of());
-      }
-      final Map<String, String> map = new HashMap<>();
-      JSON_CONFIG.rules().matchNotification().probabilistic().get(ruleNumber).vars().forEach(scFieldName -> {
-         final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
-         final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
-         final var fieldValue = demographicData.fields.get(fieldIdx).value();
-         map.put("$" + scFieldName,
-                 StringUtils.isNotBlank(fieldValue)
-                       ? fieldValue
-                       : EMPTY_FIELD_SENTINEL);
-      });
-      return runGoldenRecordsQuery(query, map);
-   }
-
-
-   private static PaginatedResultSet<GoldenRecord> queryLinkProbabilisticBlock(
-         final DemographicData demographicData,
-         final int ruleNumber,
-         final String query) {
-      if (LINKER_CONFIG.probabilisticLinkFields.isEmpty()) {
-         return new PaginatedResultSet<>(List.of(), List.of());
-      }
-      final Map<String, String> map = new HashMap<>();
-      JSON_CONFIG.rules().link().probabilistic().get(ruleNumber).vars().forEach(scFieldName -> {
-         final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
-         final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
-         final var fieldValue = demographicData.fields.get(fieldIdx).value();
-         map.put("$" + scFieldName,
-                 StringUtils.isNotBlank(fieldValue)
-                       ? fieldValue
-                       : EMPTY_FIELD_SENTINEL);
-      });
-      return runGoldenRecordsQuery(query, map);
-   }
-
-   private static PaginatedResultSet<GoldenRecord> queryLinkDeterministic(
-         final DemographicData demographicData,
-         final int ruleNumber,
-         final String query) {
-      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicLinkPrograms.get(ruleNumber), demographicData)) {
-         return new PaginatedResultSet<>(List.of(), List.of());
-      }
-      final Map<String, String> map = new HashMap<>();
-      JSON_CONFIG.rules().link().deterministic().get(ruleNumber).vars().forEach(scFieldName -> {
-         final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
-         final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
-         final var fieldValue = demographicData.fields.get(fieldIdx).value();
-         map.put("$" + scFieldName,
-                 StringUtils.isNotBlank(fieldValue)
-                       ? fieldValue
-                       : EMPTY_FIELD_SENTINEL);
-      });
-      return runGoldenRecordsQuery(query, map);
-   }
-
-   private static PaginatedResultSet<GoldenRecord> queryMatchDeterministic(
-         final DemographicData demographicData,
-         final int ruleNumber,
-         final String query) {
-      if (!Programs.canApplyDeterministicLinking(LINKER_CONFIG.deterministicMatchPrograms.get(ruleNumber), demographicData)) {
-         return new PaginatedResultSet<>(List.of(), List.of());
-      }
-      final Map<String, String> map = new HashMap<>();
-      JSON_CONFIG.rules().matchNotification().deterministic().get(ruleNumber).vars().forEach(scFieldName -> {
-         final var ccFieldName = AppUtils.snakeToCamelCase(scFieldName);
-         final var fieldIdx = FIELDS_CONFIG.findIndexOfDemographicField(ccFieldName);
-         final var fieldValue = demographicData.fields.get(fieldIdx).value();
-         map.put("$" + scFieldName,
-                 StringUtils.isNotBlank(fieldValue)
-                       ? fieldValue
-                       : EMPTY_FIELD_SENTINEL);
-      });
-      return runGoldenRecordsQuery(query, map);
-   }
-
-
    private static class InvalidFunctionException extends Exception {
-      /**
-       * Instantiates a new Invalid function exception.
-       *
-       * @param errorMessage the error message
-       */
       InvalidFunctionException(final String errorMessage) {
          super(errorMessage);
       }
    }
 
    private static class InvalidOperatorException extends Exception {
-      /**
-       * Instantiates a new Invalid operator exception.
-       *
-       * @param errorMessage the error message
-       */
       InvalidOperatorException(final String errorMessage) {
          super(errorMessage);
       }
    }
+
 
 }

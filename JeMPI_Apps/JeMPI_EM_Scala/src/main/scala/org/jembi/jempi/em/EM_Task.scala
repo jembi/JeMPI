@@ -1,6 +1,7 @@
 package org.jembi.jempi.em
 
 import com.typesafe.scalalogging.LazyLogging
+import org.jembi.jempi.em.CustomFields.FIELDS
 import org.jembi.jempi.em.Utils._
 
 import java.lang.Math.log
@@ -12,10 +13,9 @@ import scala.util.Random
 object EM_Task extends LazyLogging {
 
   def run(
-      fields: ArraySeq[Field],
       xxxCols: ArraySeq[Int],
       interactions: ParVector[ArraySeq[String]]
-  ): ArraySeq[Probability] = {
+  ): ArraySeq[MU] = {
 
     val (gamma, ms2) = Profile.profile(
       Gamma.getGamma(
@@ -54,10 +54,10 @@ object EM_Task extends LazyLogging {
         randIndexes.map(idx => interactions(idx)).toVector
       )
       val (tallies2, ms1) = Profile.profile(
-        scan(fields, xxxCols, isPairMatch2(0.92), randInteractions)
+        scan(xxxCols, isPairMatch2(0.92), randInteractions)
       )
       val lockedU = computeMU(tallies2)
-      fields.zipWithIndex.foreach(x =>
+      FIELDS.zipWithIndex.foreach(x =>
         printTalliesAndMU(
           x._1.name,
           tallies2.colTally(x._2),
@@ -65,26 +65,24 @@ object EM_Task extends LazyLogging {
         )
       )
       logger.info(s"$ms1 ms")
-      runEM(fields, xxxCols, 0, lockedU.map(x => Probability(0.8, x.u)), gamma)
+      runEM(xxxCols, 0, lockedU.map(x => MU(0.8, x.u)), gamma)
     } else {
       runEM(
-        fields,
         xxxCols,
         0,
-        for { _ <- fields } yield Probability(m = 0.8, u = 0.0001),
+        for { _ <- FIELDS } yield MU(m = 0.8, u = 0.0001),
         gamma
-        )
+      )
     }
   }
 
   @tailrec
   private def runEM(
-                     fields: ArraySeq[Field],
-                     xxxCols: ArraySeq[Int],
-                     iterations: Int,
-                     currentMU: ArraySeq[Probability],
-                     gamma: Map[String, Long]
-  ): ArraySeq[Probability] = {
+      xxxCols: ArraySeq[Int],
+      iterations: Int,
+      currentMU: ArraySeq[MU],
+      gamma: Map[String, Long]
+  ): ArraySeq[MU] = {
 
     case class GammaMetrics(
         matches: Array[Int],
@@ -156,21 +154,20 @@ object EM_Task extends LazyLogging {
       val newMU = computeMU(tallies)
       for (i <- xxxCols.indices) {
         printTalliesAndMU(
-          fields.apply(xxxCols.apply(i)).name,
+          FIELDS.apply(xxxCols.apply(i)).name,
           tallies.colTally(i),
           newMU(i)
         )
       }
       if (LOCK_U) {
-        runEM(fields, xxxCols, iterations + 1, mergeMU(newMU, currentMU), gamma)
+        runEM(xxxCols, iterations + 1, mergeMU(newMU, currentMU), gamma)
       } else {
-        runEM(fields, xxxCols, iterations + 1, newMU, gamma)
+        runEM(xxxCols, iterations + 1, newMU, gamma)
       }
     }
   }
 
   private def scan(
-      fields: ArraySeq[Field],
       xxxCols: ArraySeq[Int],
       isMatch: (ArraySeq[String], ArraySeq[String]) => ContributionSplit,
       interactions: ParVector[ArraySeq[String]]
@@ -195,7 +192,7 @@ object EM_Task extends LazyLogging {
 
       val split = isMatch(left, right)
       Tallies(
-        fields.map(field => tallyFieldContribution(split, field.csvCol))
+        FIELDS.map(field => tallyFieldContribution(split, field.csvCol))
       )
     }
 

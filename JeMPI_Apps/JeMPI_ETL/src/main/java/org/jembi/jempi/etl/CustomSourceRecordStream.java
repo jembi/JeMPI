@@ -15,10 +15,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.Interaction;
+import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -47,7 +48,6 @@ public final class CustomSourceRecordStream {
       final KStream<String, InteractionEnvelop> sourceKStream =
             streamsBuilder.stream(GlobalConstants.TOPIC_INTERACTION_ETL, Consumed.with(stringSerde, interactionEnvelopSerde));
       sourceKStream.map((key, rec) -> {
-         rec = updateETLMetadata(rec);
          if (rec.contentType() == InteractionEnvelop.ContentType.BATCH_INTERACTION) {
             final var interaction = rec.interaction();
             final var demographicData = interaction.demographicData();
@@ -56,12 +56,13 @@ public final class CustomSourceRecordStream {
                                                           rec.stan(),
                                                           new Interaction(null,
                                                                           rec.interaction().sourceId(),
-                                                                          interaction.auxInteractionData(),
+                                                                          interaction.uniqueInteractionData(),
                                                                           demographicData.clean()),
-                                                          rec.sessionMetadata());
+                                                          rec.config());
             return KeyValue.pair(key, newEnvelop);
+         } else {
+            return KeyValue.pair(key, rec);
          }
-         return KeyValue.pair(key, rec);
       }).to(GlobalConstants.TOPIC_INTERACTION_CONTROLLER, Produced.with(stringSerde, interactionEnvelopSerde));
       interactionKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
       interactionKafkaStreams.cleanUp();
@@ -78,19 +79,5 @@ public final class CustomSourceRecordStream {
       props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID);
       props.put(StreamsConfig.POLL_MS_CONFIG, 10);
       return props;
-   }
-
-   private InteractionEnvelop updateETLMetadata(final InteractionEnvelop interactionEnvelop) {
-      var sessionMetadata = interactionEnvelop.sessionMetadata();
-      return new InteractionEnvelop(interactionEnvelop.contentType(),
-                                    interactionEnvelop.tag(),
-                                    interactionEnvelop.stan(),
-                                    interactionEnvelop.interaction(),
-                                    new SessionMetadata(sessionMetadata.commonMetaData(),
-                                                        sessionMetadata.uiMetadata(),
-                                                        sessionMetadata.asyncReceiverMetadata(),
-                                                        new ETLMetadata(AppUtils.timeStamp()),
-                                                        sessionMetadata.controllerMetadata(),
-                                                        sessionMetadata.linkerMetadata()));
    }
 }

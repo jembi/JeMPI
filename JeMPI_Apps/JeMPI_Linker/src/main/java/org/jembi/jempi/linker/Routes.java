@@ -84,12 +84,7 @@ final class Routes {
                           return mapError(rsp.goldenRecords().getLeft());
                        }
                        return complete(StatusCodes.OK,
-                                       new ApiModels.ApiCrCandidatesResponse(
-                                             rsp.goldenRecords()
-                                                .get()
-                                                .stream()
-                                                .map(ApiModels.ApiGoldenRecord::fromGoldenRecord)
-                                                .toList()),
+                                       new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                        Jackson.marshaller(OBJECT_MAPPER));
                     }));
    }
@@ -109,12 +104,7 @@ final class Routes {
                           return mapError(rsp.goldenRecords().getLeft());
                        }
                        return complete(StatusCodes.OK,
-                                       new ApiModels.ApiCrCandidatesResponse(
-                                             rsp.goldenRecords()
-                                                .get()
-                                                .stream()
-                                                .map(ApiModels.ApiGoldenRecord::fromGoldenRecord)
-                                                .toList()),
+                                       new ApiModels.ApiCrCandidatesResponse(rsp.goldenRecords().get()),
                                        Jackson.marshaller(OBJECT_MAPPER));
                     }));
    }

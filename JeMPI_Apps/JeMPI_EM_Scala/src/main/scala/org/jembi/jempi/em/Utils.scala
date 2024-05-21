@@ -23,25 +23,25 @@ object Utils extends LazyLogging {
   private val MIN_U: Double = 1e-10
   private val MAX_M: Double = 1.0 - 1e-10
 
-  def printTalliesAndMU(label: String, tally: Tally, mu: Probability): Unit = {
+  def printTalliesAndMU(label: String, tally: Tally, mu: MU): Unit = {
     logger.info(
       f"$label%-15s ${tally.a}%15.1f ${tally.b}%15.1f ${tally.c}%15.1f ${tally.d}%15.1f ->  ${mu.m}%9.7f, ${mu.u}%9.7f"
     )
   }
 
-  def printMU(label: String, mu: Probability): Unit = {
+  def printMU(label: String, mu: MU): Unit = {
     logger.info(f"$label%-15s ->  ${mu.m}%9.7f, ${mu.u}%9.7f")
   }
 
-  def mergeMU(mSource: ArraySeq[Probability], uSource: ArraySeq[Probability]): ArraySeq[Probability] = {
+  def mergeMU(mSource: ArraySeq[MU], uSource: ArraySeq[MU]): ArraySeq[MU] = {
     mSource.zipWithIndex.map(x =>
-      Probability(mSource.apply(x._2).m, uSource.apply(x._2).u)
+      MU(mSource.apply(x._2).m, uSource.apply(x._2).u)
     )
   }
 
-  def computeMU(tallies: Tallies): ArraySeq[Probability] = {
+  def computeMU(tallies: Tallies): ArraySeq[MU] = {
     tallies.colTally.map(tally =>
-      Probability(
+      MU(
         m = Math.min(tally.a / (tally.a + tally.b), MAX_M),
         u = Math.max(tally.c / (tally.c + tally.d), MIN_U)
       )
@@ -83,8 +83,8 @@ object Utils extends LazyLogging {
   }
 
   def isPairMatch3(
-                    muSeq: ArraySeq[Probability],
-                    fieldThreshold: Double
+      muSeq: ArraySeq[MU],
+      fieldThreshold: Double
   )(left: ArraySeq[String], right: ArraySeq[String]): ContributionSplit = {
 
     val omega = muSeq.zipWithIndex.foldLeft(LOG_LAMBDA)((acc, v) =>
@@ -111,20 +111,5 @@ object Utils extends LazyLogging {
         .map(idx => addTally(x.colTally(idx), y.colTally(idx)))
     )
   }
-  def camelCaseToSnakeCase(name: String): String = "[A-Z\\d]".r.replaceAllIn(
-    name,
-    { m =>
-      "_" + m.group(0).toLowerCase()
-    }
-    )
-
-  def snakeCaseToCamelCase(name: String): String = "_([a-z\\d])".r.replaceAllIn(
-    name,
-    { m =>
-      m.group(1).toUpperCase()
-    }
-    )
-
-
 
 }

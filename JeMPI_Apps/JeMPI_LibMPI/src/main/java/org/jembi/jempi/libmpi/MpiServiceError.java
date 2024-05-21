@@ -1,6 +1,6 @@
 package org.jembi.jempi.libmpi;
 
-import org.jembi.jempi.shared.models.DemographicData;
+import org.jembi.jempi.shared.models.CustomDemographicData;
 
 import java.util.List;
 
@@ -40,8 +40,8 @@ public sealed interface MpiServiceError extends MpiGeneralError {
    }
 
    record CRClientExistsError(
-         List<DemographicData> exists,
-         DemographicData request) implements MpiServiceError {
+         List<CustomDemographicData> exists,
+         CustomDemographicData request) implements MpiServiceError {
    }
 
    record CRGidDoesNotExistError(
@@ -49,7 +49,7 @@ public sealed interface MpiServiceError extends MpiGeneralError {
    }
 
    record CRLinkUpdateError(
-         DemographicData interaction) implements MpiServiceError {
+         CustomDemographicData interaction) implements MpiServiceError {
    }
 
    record InvalidFunctionError(

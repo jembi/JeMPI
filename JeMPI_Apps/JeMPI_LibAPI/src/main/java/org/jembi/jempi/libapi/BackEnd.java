@@ -38,6 +38,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private static final Logger LOGGER = LogManager.getLogger(BackEnd.class);
    private final String pgIP;
+   private final Integer pgPort;
    private final String pgUser;
    private final String pgPassword;
    private final String pgNotificationsDb;
@@ -67,7 +68,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.dgraphHosts = dgraphHosts;
          this.dgraphPorts = dgraphPorts;
          this.pgIP = sqlIP;
-         Integer pgPort = sqlPort;
+         this.pgPort = sqlPort;
          this.pgUser = sqlUser;
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
@@ -106,6 +107,27 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
+   }
+
+   private static void appendUploadConfigToFile(
+         final UploadConfig uploadConfig,
+         final File file) throws IOException {
+      LineIterator lineIterator = FileUtils.lineIterator(file);
+      File tempFile = File.createTempFile("prependPrefix", ".tmp");
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
+
+      try {
+         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
+         while (lineIterator.hasNext()) {
+            bufferedWriter.write(lineIterator.next());
+            bufferedWriter.write(System.lineSeparator());
+         }
+      } finally {
+         IOUtils.closeQuietly(bufferedWriter);
+         bufferedWriter.close();
+      }
+      FileUtils.deleteQuietly(file);
+      FileUtils.moveFile(tempFile, file);
    }
 
    private void openMPI(
@@ -210,27 +232,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       var recs = libMPI.filterGids(parameters, createdAt, paginationOptions);
       request.replyTo.tell(new PostFilterGidsResponse(recs));
       return Behaviors.same();
-   }
-
-   private static void appendUploadConfigToFile(
-         final UploadConfig uploadConfig,
-         final File file) throws IOException {
-      LineIterator lineIterator = FileUtils.lineIterator(file);
-      File tempFile = File.createTempFile("prependPrefix", ".tmp");
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
-
-      try {
-         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
-         while (lineIterator.hasNext()) {
-            bufferedWriter.write(lineIterator.next());
-            bufferedWriter.write(System.lineSeparator());
-         }
-      } finally {
-         IOUtils.closeQuietly(bufferedWriter);
-         bufferedWriter.close();
-      }
-      FileUtils.deleteQuietly(file);
-      FileUtils.moveFile(tempFile, file);
    }
 
    private Behavior<Event> postFilterGidsWithInteractionCountHandler(
@@ -373,7 +374,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          interaction = libMPI.findInteraction(request.iid);
       } catch (Exception exception) {
-         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid, exception.getMessage());
+         LOGGER.error("libMPI.findPatientRecord failed for patientId: {} with error: {}", request.iid,
+                      exception.getMessage());
       }
 
       if (interaction == null) {
@@ -391,12 +393,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       final var goldenId = request.goldenId;
       final var updatedFields = new ArrayList<GoldenRecordUpdateRequestPayload.Field>();
       for (final GoldenRecordUpdateRequestPayload.Field field : fields) {
-         final var result = libMPI.updateGoldenRecordField(null,
-                                                           goldenId,
-                                                           field.name(),
-                                                           field.oldValue(),
-                                                           field.newValue(),
-                                                           field.name());
+         final var result = libMPI.updateGoldenRecordField(null, goldenId, field.name(), field.oldValue(),
+                                                           field.newValue());
          if (result) {
             updatedFields.add(field);
          } else {
@@ -408,7 +406,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postIidGidLinkHandler(final PostIidGidLinkRequest request) {
-      final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId, request.score);
+      final var linkInfo = libMPI.updateLink(request.currentGoldenId, request.newGoldenId, request.patientId,
+                                             request.score);
       request.replyTo.tell(new PostIidGidLinkResponse(linkInfo));
       return Behaviors.same();
    }
@@ -439,7 +438,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postUpdateNotificationHandler(final PostUpdateNotificationRequest request) {
       try {
-         psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId, request.currentGoldenId);
+         psqlNotifications.updateNotificationState(request.notificationId, request.oldGoldenId,
+                                                   request.currentGoldenId);
          libMPI.sendUpdatedNotificationEvent(request.notificationId, request.oldGoldenId, request.currentGoldenId);
       } catch (SQLException exception) {
          LOGGER.error(exception.getMessage());

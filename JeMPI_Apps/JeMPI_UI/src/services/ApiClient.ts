@@ -5,6 +5,7 @@ import {
   ApiSearchResponse,
   ApiSearchResult,
   CustomSearchQuery,
+  FilterQuery,
   SearchQuery
 } from '../types/SimpleSearch'
 import { OAuthParams } from '../types/User'
@@ -94,13 +95,14 @@ export class ApiClient {
     endDate: string,
     states: string[]
   ): Promise<Notifications> {
-    const includeClosed = states.includes(NotificationState.CLOSED.toString())
-    const includeAll = states.includes(NotificationState.ALL.toString())
+    const includeClosed = states.includes(NotificationState.CLOSED.toString());
+    const includeAll = states.includes(NotificationState.ALL.toString());
+  
     const notificationState = includeAll
       ? [NotificationState.CLOSED, NotificationState.OPEN]
       : includeClosed
       ? [NotificationState.CLOSED]
-      : [NotificationState.OPEN]
+      : [NotificationState.OPEN];
     const { data } = await this.client.post<NotificationResponse>(
       ROUTES.POST_NOTIFICATIONS,
       {
@@ -111,6 +113,7 @@ export class ApiClient {
         states: notificationState
       }
     )
+    
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -385,10 +388,13 @@ export class ApiClient {
     for (const field of request.fields) {
       const { name, oldValue, newValue } = field
       try {
-        await this.client.post(ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS, {
-          goldenId: uid,
-          fields: [{ name, oldValue, newValue }]
-        })
+        const response = await this.client.post(
+          ROUTES.POST_UPDATE_GOLDEN_RECORD_FIELDS,
+          { 
+            "goldenId":uid,
+            fields: [{ name, oldValue, newValue }]
+          }
+        )
       } catch (error) {
         console.error('Error occurred while making the request:', error)
       }

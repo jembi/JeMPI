@@ -176,8 +176,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
                                                          new Interaction(null,
                                                                          request.link.sourceId(),
-                                                                         AuxInteractionData.fromCustomAuxInteractionData(request.link.auxInteractionData()),
-                                                                         DemographicData.fromCustomDemographicData(request.link.demographicData())),
+                                                                         request.link.uniqueInteractionData(),
+                                                                         request.link.demographicData()),
                                                          request.link.externalLinkRange(),
                                                          request.link.matchThreshold() == null
                                                                ? AppConfig.LINKER_MATCH_THRESHOLD
@@ -207,8 +207,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
             LinkerDWH.linkInteraction(libMPI,
                                       req.batchInteraction.interaction(),
                                       null,
-                                      req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
-                                            ? req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig().linkThreshold().floatValue()
+                                      req.batchInteraction.config() != null
+                                            ? req.batchInteraction.config().linkThreshold().floatValue()
                                             : AppConfig.LINKER_MATCH_THRESHOLD,
                                       req.batchInteraction.stan());
       if (linkInfo.isRight()) {
@@ -303,7 +303,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          final var scores = goldenRecords.get().parallelStream()
                                          .unordered()
                                          .map(goldenRecord -> new ApiModels.ApiCalculateScoresResponse.ApiScore(goldenRecord.goldenId(),
-                                                                                                                LinkerUtils.calcNormalizedLinkScore(
+                                                                                                                LinkerUtils.calcNormalizedScore(
                                                                                                                       goldenRecord.demographicData(),
                                                                                                                       interaction.demographicData())))
                                          .sorted((o1, o2) -> Float.compare(o2.score(), o1.score()))
@@ -318,7 +318,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
 
 
    private Behavior<Request> eventUpdateMUReqHandler(final EventUpdateMUReq req) {
-      LinkerProbabilistic.updateMU(req.mu);
+      CustomLinkerProbabilistic.updateMU(req.mu);
       req.replyTo.tell(new EventUpdateMURsp(true));
       return Behaviors.same();
    }
@@ -347,7 +347,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    public record EventUpdateMUReq(
-         MUPacket mu,
+         CustomMU mu,
          ActorRef<EventUpdateMURsp> replyTo) implements Request {
    }
 

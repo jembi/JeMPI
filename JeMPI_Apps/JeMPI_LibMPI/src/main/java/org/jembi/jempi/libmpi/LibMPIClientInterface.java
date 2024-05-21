@@ -2,7 +2,6 @@ package org.jembi.jempi.libmpi;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
-import org.jembi.jempi.libmpi.common.PaginatedResultSet;
 import org.jembi.jempi.shared.models.*;
 
 import java.time.LocalDateTime;
@@ -37,7 +36,7 @@ public interface LibMPIClientInterface {
 
    long countGoldenRecords();
 
-   List<SourceId> findSourceId(
+   List<CustomSourceId> findSourceId(
          String facility,
          String client);
 
@@ -51,9 +50,9 @@ public interface LibMPIClientInterface {
 
    List<ExpandedInteraction> findExpandedInteractions(List<String> interactionIDs);
 
-   Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> findGoldenRecords(List<String> goldenIds);
+   Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(List<String> goldenIds);
 
-   PaginatedResultSet<ExpandedGoldenRecord> findExpandedGoldenRecords(List<String> goldenIds);
+   List<ExpandedGoldenRecord> findExpandedGoldenRecords(List<String> goldenIds);
 
    List<String> findGoldenIds();
 
@@ -61,32 +60,32 @@ public interface LibMPIClientInterface {
          long offset,
          long length);
 
-   List<GoldenRecord> findLinkCandidates(DemographicData demographicData);
+   List<GoldenRecord> findLinkCandidates(CustomDemographicData demographicData);
 
-   List<GoldenRecord> findMatchCandidates(DemographicData demographicData);
+   List<GoldenRecord> findMatchCandidates(CustomDemographicData demographicData);
 
-   PaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
+   LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   PaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
+   LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
          List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   PaginatedResultSet<Interaction> simpleSearchInteractions(
+   LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
          List<ApiModels.ApiSearchParameter> params,
          Integer offset,
          Integer limit,
          String sortBy,
          Boolean sortAsc);
 
-   PaginatedResultSet<Interaction> customSearchInteractions(
+   LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
          List<ApiModels.ApiSimpleSearchRequestPayload> params,
          Integer offset,
          Integer limit,
@@ -103,7 +102,7 @@ public interface LibMPIClientInterface {
          LocalDateTime createdAt,
          PaginationOptions paginationOptions);
 
-   Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> apiCrFindGoldenRecords(ApiModels.ApiCrFindRequest request);
+   Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(ApiModels.ApiCrFindRequest request);
 
    /*
     * *****************************************************************************

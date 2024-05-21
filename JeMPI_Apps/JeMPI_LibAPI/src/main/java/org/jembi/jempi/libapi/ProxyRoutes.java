@@ -19,11 +19,7 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static akka.http.javadsl.server.Directives.*;
 import static org.jembi.jempi.libapi.MapError.mapError;
@@ -38,7 +34,7 @@ public final class ProxyRoutes {
    private ProxyRoutes() {
    }
 
-   private static CompletionStage<HttpResponse> proxyPostCalculateScoresDoIt(
+   private static CompletionStage<HttpResponse> proxyPostCalculateScores(
          final String linkerIP,
          final Integer linkerPort,
          final Http http,
@@ -51,10 +47,11 @@ public final class ProxyRoutes {
          LOGGER.error(e.getLocalizedMessage(), e);
          throw e;
       }
-      final var request = HttpRequest.create("http://%s:%d/JeMPI/%s".formatted(
-                                           linkerIP,
-                                           linkerPort,
-                                           GlobalConstants.SEGMENT_PROXY_POST_SCORES))
+      final var request = HttpRequest.create(String.format(Locale.ROOT,
+                                                           "http://%s:%d/JeMPI/%s",
+                                                           linkerIP,
+                                                           linkerPort,
+                                                           GlobalConstants.SEGMENT_PROXY_POST_SCORES))
                                      .withMethod(HttpMethods.POST)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
@@ -68,7 +65,7 @@ public final class ProxyRoutes {
       return entity(Jackson.unmarshaller(ApiModels.ApiCalculateScoresRequest.class),
                     obj -> {
                        try {
-                          return onComplete(proxyPostCalculateScoresDoIt(linkerIp, linkerPort, http, obj),
+                          return onComplete(proxyPostCalculateScores(linkerIp, linkerPort, http, obj),
                                             response -> {
                                                if (!response.isSuccess()) {
                                                   final var e = response.failed().get();
@@ -432,7 +429,7 @@ public final class ProxyRoutes {
                                                            linkerIP,
                                                            linkerPort,
                                                            GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS))
-                                     .withMethod(HttpMethods.PATCH)
+                                     .withMethod(HttpMethods.POST)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
@@ -461,41 +458,61 @@ public final class ProxyRoutes {
                     });
    }
 
-   private static CompletionStage<HttpResponse> proxyGetCandidatesWithScoreDoIt(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http,
-         final String iid) {
-      final var uri = String.format(Locale.ROOT,
-                                    "http://%s:%d/JeMPI/%s?iid=%s",
-                                    linkerIP,
-                                    linkerPort,
-                                    GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
-                                    iid);
-      final var request = HttpRequest.create(uri);
-      final var stage = http.singleRequest(request);
-      return stage.thenApply(response -> response);
+   private static CompletionStage<HttpResponse> proxyPostCandidatesWithScore(
+        final String linkerIP,
+        final Integer linkerPort,
+        final Http http,
+        final ApiModels.ApiInteractionUid body) throws JsonProcessingException  {
+        final byte[] json;
+
+        try {
+         json = OBJECT_MAPPER.writeValueAsBytes(body);
+         } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            throw e;
+         }
+         // Construct the URI without query parameters
+         final var uri = String.format(Locale.ROOT,
+                  "http://%s:%d/JeMPI/%s",
+                  linkerIP,
+                  linkerPort,
+                  GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS);
+         // Create the POST request with the JSON body
+         final var request = HttpRequest.create(uri)
+                  .withMethod(HttpMethods.POST)
+                  .withEntity(ContentTypes.APPLICATION_JSON, json);
+
+         // Send the request and return the completion stage
+         return http.singleRequest(request);
    }
 
+
    static Route proxyPostCandidatesWithScore(
-         final String linkerIP,
-         final Integer linkerPort,
-         final Http http) {
-      return parameter("iid",
-                       iid -> onComplete(proxyGetCandidatesWithScoreDoIt(linkerIP, linkerPort, http, iid),
-                                         response -> {
-                                            if (!response.isSuccess()) {
-                                               final var e = response.failed().get();
-                                               if (e instanceof IllegalUriException illegalUriException) {
-                                                  LOGGER.error(illegalUriException.getLocalizedMessage(), illegalUriException);
-                                               } else {
-                                                  LOGGER.error(e.getLocalizedMessage(), e);
-                                               }
-                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                                            }
-                                            return complete(response.get());
-                                         }));
-   }
+        final String linkerIP,
+        final Integer linkerPort,
+        final Http http) {
+    return entity(Jackson.unmarshaller(ApiModels.ApiInteractionUid.class), obj -> {
+        try {
+            return onComplete(proxyPostCandidatesWithScore(linkerIP, linkerPort, http, obj),
+                    response -> {
+                        if (!response.isSuccess()) {
+                            final var e = response.failed().get();
+                            if (e instanceof IllegalUriException illegalUriException) {
+                                LOGGER.error(illegalUriException.getLocalizedMessage(), illegalUriException);
+                            } else {
+                                LOGGER.error(e.getLocalizedMessage(), e);
+                            }
+                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                        }
+                        return complete(response.get());
+                    });
+        } catch (JsonProcessingException e) {
+            LOGGER.error(e.getLocalizedMessage(), e);
+            return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
+        }
+    });
+}
+
 
    static Route proxyPostDashboardData(
          final ActorSystem<Void> actorSystem,

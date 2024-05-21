@@ -1,0 +1,11 @@
+target
+.bsp
+.idea
+.bloop
+.metals
+deprecated
+*.json
+kenya
+!openmrs/*
+!reference/config-reference-api.json
+!reference/config-reference.json

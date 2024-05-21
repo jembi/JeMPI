@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LinkStatsMeta(
       ConfusionMatrix confusionMatrix,
-     FieldTallies fieldTallies) {
+      CustomFieldTallies customFieldTallies) {
 
    public static final ConfusionMatrix CONFUSION_MATRIX_IDENTITY = new ConfusionMatrix(0.0, 0.0, 0.0, 0.0);
 
