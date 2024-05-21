@@ -21,7 +21,7 @@ runs:
         version: '21.0.3-tem'
     - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
       name: Set up Maven
-      uses: ./.github/workflows/actions/sdkman-installers
+      uses: ./.github/workflows/actions/sdkman-installer
       with:
         candidate: maven
         version: '3.9.6'
