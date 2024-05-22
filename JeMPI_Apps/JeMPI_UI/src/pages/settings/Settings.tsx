@@ -132,7 +132,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             Deterministic
-            <Deterministic />
+            <Deterministic linkingRules={configuration.rules.link} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             Blocking

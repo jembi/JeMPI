@@ -1,4 +1,4 @@
-import { AddOutlined } from '@mui/icons-material'
+import { AddOutlined } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -8,13 +8,21 @@ import {
   FormControl,
   IconButton,
   InputLabel,
-  Select
-} from '@mui/material'
-import React from 'react'
-import SourceView from './SourceView'
+  Select,
+  Typography
+} from '@mui/material';
+import React from 'react';
+import { Configuration } from 'types/Configuration';
 
-const Deterministic = () => {
-  const [viewType, setViewType] = React.useState(0)
+interface DeterministicProps {
+  linkingRules: Configuration['rules']['link'];
+}
+
+const Deterministic = ({ linkingRules }: DeterministicProps) => {
+  const [viewType, setViewType] = React.useState(0);
+
+  const deterministicRules = linkingRules.deterministic || {};
+
   return (
     <>
       <Card sx={{ minWidth: 275 }}>
@@ -93,10 +101,14 @@ const Deterministic = () => {
                 flexDirection: 'column',
                 gap: 2,
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'right'
               }}
             >
-              <SourceView/>
+             {Object.keys(deterministicRules).map((key, index) => (
+                <Typography key={index} variant="h5" sx={{ fontSize: '1.1rem' }}>
+                  {`${index + 1}. ${deterministicRules[key].text}`}
+                </Typography>
+              ))}
             </Box>
           )}
         </CardContent>
@@ -107,7 +119,7 @@ const Deterministic = () => {
         </CardActions>
       </Card>
     </>
-  )
+  );
 }
 
-export default Deterministic
+export default Deterministic;

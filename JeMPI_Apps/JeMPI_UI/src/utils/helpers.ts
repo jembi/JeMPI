@@ -1,5 +1,4 @@
 import { GridColDef } from '@mui/x-data-grid'
-import { DemographicFields } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
