@@ -101,7 +101,7 @@ const Deterministic = ({ linkingRules }: DeterministicProps) => {
                 flexDirection: 'column',
                 gap: 2,
                 justifyContent: 'center',
-                alignItems: 'right'
+                alignItems: 'flex-start'
               }}
             >
              {Object.keys(deterministicRules).map((key, index) => (
