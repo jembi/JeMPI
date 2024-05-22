@@ -108,6 +108,16 @@ export const generateId = (configuration: Configuration): Configuration => {
     }))
   }
 
+  const generateIdForNodes = (
+    nodes: { nodeName: string; fields: Field[] }[]
+  ): { nodeName: string; fields: Field[] }[] => {
+    return nodes.map(node => ({
+      id: randomId(),
+      ...node,
+      fields: generateIdForFields(node.fields)
+    }))
+  }
+
   return {
     ...configuration,
     uniqueInteractionFields: generateIdForFields(
@@ -117,10 +127,7 @@ export const generateId = (configuration: Configuration): Configuration => {
       configuration.uniqueGoldenRecordFields
     ),
     demographicFields: generateIdForFields(configuration.demographicFields),
-    additionalNodes: configuration.additionalNodes.map(node => ({
-      ...node,
-      fields: generateIdForFields(node.fields)
-    }))
+    additionalNodes: generateIdForNodes(configuration.additionalNodes)
   }
 }
 
@@ -136,7 +143,24 @@ export const transformFieldName = (params: any) =>
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char: string) => char.toUpperCase())
 
+
 export const toSnakeCase = (str: string) =>
   str
     .replace(/([A-Z])/g, letter => `_${letter.toLowerCase()}`)
     .replace(/^_/, '')
+
+export const formatNodeName = (nodeName: string): string => {
+  return nodeName
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(
+      /\b(\w)(\w*)/g,
+      (_, first, rest) => first.toUpperCase() + rest.toLowerCase()
+    )
+    .replace(/\bId\b/g, 'ID')
+    .trim()
+}
+
+export const toUpperCase = (word: string): string => {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+}
+

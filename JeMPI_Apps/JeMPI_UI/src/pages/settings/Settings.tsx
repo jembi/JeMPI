@@ -1,6 +1,6 @@
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { SyntheticEvent, useState } from 'react'
+import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
@@ -58,9 +58,9 @@ const Settings = () => {
     setValue(newValue)
   }
 
- 
-  const configuration: Configuration = fields ? generateId(fields) : {} as Configuration
-
+  const configuration = useMemo(() => {
+    return fields ? generateId(fields) : ({} as Configuration)
+  }, [fields])
 
   if (isLoading) {
     return <Loading />
@@ -109,26 +109,34 @@ const Settings = () => {
               <Typography variant="h5" sx={{ py: 3 }}>
                 Setup common properties
               </Typography>
-              <CommonSettings demographicData={configuration.demographicFields} />
+              <CommonSettings
+                demographicData={configuration.demographicFields}
+              />
             </>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Unique to Golden record
             </Typography>
-            <UniqueToGR uniqueToGoldenRecordData={configuration.uniqueGoldenRecordFields} />
+            <UniqueToGR
+              uniqueToGoldenRecordData={configuration.uniqueGoldenRecordFields}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Unique to Interaction
             </Typography>
-            <UniqueToInteraction uniqueInteractionData={configuration.uniqueInteractionFields}/>
+            <UniqueToInteraction
+              uniqueInteractionData={configuration.uniqueInteractionFields}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden Records Lists{' '}
             </Typography>
-            <GoldenRecordLists />
+            <GoldenRecordLists
+              goldenRecordList={fields?.additionalNodes}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             Deterministic
