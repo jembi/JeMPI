@@ -1,27 +1,24 @@
-import { AddOutlined } from '@mui/icons-material';
 import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   FormControl,
-  IconButton,
   InputLabel,
   Select,
   Typography
-} from '@mui/material';
-import React from 'react';
-import { Configuration } from 'types/Configuration';
+} from '@mui/material'
+import React from 'react'
+import { Configuration } from 'types/Configuration'
 
 interface DeterministicProps {
-  linkingRules: Configuration['rules']['link'];
+  linkingRules: Configuration['rules']['link']
 }
 
 const Deterministic = ({ linkingRules }: DeterministicProps) => {
-  const [viewType, setViewType] = React.useState(0);
+  const [viewType, setViewType] = React.useState(0)
 
-  const deterministicRules = linkingRules.deterministic || {};
+  const deterministicRules = linkingRules.deterministic || {}
 
   return (
     <>
@@ -104,22 +101,21 @@ const Deterministic = ({ linkingRules }: DeterministicProps) => {
                 alignItems: 'flex-start'
               }}
             >
-             {Object.keys(deterministicRules).map((key, index) => (
-                <Typography key={index} variant="h5" sx={{ fontSize: '1.1rem' }}>
-                  {`${index + 1}. ${deterministicRules[key].text}`}
+              {Object.keys(deterministicRules).map((key, index) => (
+                <Typography
+                  key={index}
+                  variant="h5"
+                  sx={{ fontSize: '1.1rem' }}
+                >
+                  {`Rule ${index + 1}:  ${deterministicRules[key].text}`}
                 </Typography>
               ))}
             </Box>
           )}
         </CardContent>
-        <CardActions>
-          <IconButton aria-label="delete" size="small">
-            <AddOutlined fontSize="small" />
-          </IconButton>
-        </CardActions>
       </Card>
     </>
-  );
+  )
 }
 
-export default Deterministic;
+export default Deterministic

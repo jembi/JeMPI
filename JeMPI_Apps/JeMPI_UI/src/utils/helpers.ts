@@ -143,7 +143,6 @@ export const transformFieldName = (params: any) =>
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char: string) => char.toUpperCase())
 
-
 export const toSnakeCase = (str: string) =>
   str
     .replace(/([A-Z])/g, letter => `_${letter.toLowerCase()}`)
@@ -163,4 +162,3 @@ export const formatNodeName = (nodeName: string): string => {
 export const toUpperCase = (word: string): string => {
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
 }
-

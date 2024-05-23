@@ -2,34 +2,34 @@ const configuration = {
   uniqueInteractionFields: [
     {
       fieldName: 'aux_date_created',
-      fieldType: 'DateTime',
+      fieldType: 'DateTime'
     },
     {
       fieldName: 'aux_id',
       fieldType: 'String',
-      csvCol: 0,
+      csvCol: 0
     },
     {
       fieldName: 'aux_clinical_data',
       fieldType: 'String',
-      csvCol: 10,
-    },
+      csvCol: 10
+    }
   ],
   uniqueGoldenRecordFields: [
     {
       fieldName: 'aux_date_created',
-      fieldType: 'DateTime',
+      fieldType: 'DateTime'
     },
     {
       fieldName: 'aux_auto_update_enabled',
       fieldType: 'Bool',
-      default: 'true',
+      default: 'true'
     },
     {
       fieldName: 'aux_id',
       fieldType: 'String',
-      source: 'aux_id',
-    },
+      source: 'aux_id'
+    }
   ],
   additionalNodes: [
     {
@@ -38,22 +38,22 @@ const configuration = {
         {
           fieldName: 'facility',
           fieldType: 'String',
-          csvCol: 8,
+          csvCol: 8
         },
         {
           fieldName: 'patient',
           fieldType: 'String',
-          csvCol: 9,
-        },
-      ],
-    },
+          csvCol: 9
+        }
+      ]
+    }
   ],
   demographicFields: [
     {
       fieldName: 'given_name',
       fieldType: 'String',
       source: {
-        csvCol: 1,
+        csvCol: 1
       },
       indexGoldenRecord: '@index(exact,trigram)',
       indexInteraction: '@index(exact,trigram)',
@@ -61,14 +61,14 @@ const configuration = {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.8806329,
-        u: 0.0026558,
-      },
+        u: 0.0026558
+      }
     },
     {
       fieldName: 'family_name',
       fieldType: 'String',
       source: {
-        csvCol: 2,
+        csvCol: 2
       },
       indexGoldenRecord: '@index(exact,trigram)',
       indexInteraction: '@index(exact,trigram)',
@@ -76,69 +76,69 @@ const configuration = {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.9140443,
-        u: 0.0006275,
-      },
+        u: 0.0006275
+      }
     },
     {
       fieldName: 'gender',
       fieldType: 'String',
       source: {
-        csvCol: 3,
+        csvCol: 3
       },
       indexGoldenRecord: '@index(exact,trigram)',
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.9468393,
-        u: 0.4436446,
-      },
+        u: 0.4436446
+      }
     },
     {
       fieldName: 'dob',
       fieldType: 'String',
       source: {
-        csvCol: 4,
+        csvCol: 4
       },
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.7856196,
-        u: 0.0000465,
-      },
+        u: 0.0000465
+      }
     },
     {
       fieldName: 'city',
       fieldType: 'String',
       source: {
-        csvCol: 5,
+        csvCol: 5
       },
       indexGoldenRecord: '@index(trigram)',
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.8445694,
-        u: 0.0355741,
-      },
+        u: 0.0355741
+      }
     },
     {
       fieldName: 'phone_number',
       fieldType: 'String',
       source: {
-        csvCol: 6,
+        csvCol: 6
       },
       indexGoldenRecord: '@index(exact,trigram)',
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.84085,
-        u: 0.0000004,
-      },
+        u: 0.0000004
+      }
     },
     {
       fieldName: 'national_id',
       fieldType: 'String',
       source: {
-        csvCol: 7,
+        csvCol: 7
       },
       indexGoldenRecord: '@index(exact,trigram)',
       indexInteraction: '@index(exact,trigram)',
@@ -146,36 +146,36 @@ const configuration = {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
         m: 0.8441029,
-        u: 0.0000002,
-      },
-    },
+        u: 0.0000002
+      }
+    }
   ],
   rules: {
     link: {
       deterministic: [
         {
-          vars: ["national_id"],
-          text: "eq(national_id)",
+          vars: ['national_id'],
+          text: 'eq(national_id)'
         },
         {
-          vars: ["given_name", "family_name", "phone_number"],
-          text: "eq(given_name) and eq(family_name) and eq(phone_number)",
-        },
+          vars: ['given_name', 'family_name', 'phone_number'],
+          text: 'eq(given_name) and eq(family_name) and eq(phone_number)'
+        }
       ],
       probabilistic: [
         {
           vars: [
-            "given_name",
-            "family_name",
-            "city",
-            "phone_number",
-            "national_id",
+            'given_name',
+            'family_name',
+            'city',
+            'phone_number',
+            'national_id'
           ],
-          text: "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)",
-        },
-      ],
-    },
-  },
-};
+          text: 'match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)'
+        }
+      ]
+    }
+  }
+}
 
-export default configuration;
+export default configuration
