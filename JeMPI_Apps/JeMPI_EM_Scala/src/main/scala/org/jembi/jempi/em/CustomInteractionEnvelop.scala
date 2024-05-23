@@ -20,25 +20,14 @@ case class Interaction(
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class UniqueInteractionData(auxId: String)
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-case class DemographicData(
-    givenName: String,
-    familyName: String,
-    gender: String,
-    dob: String,
-    city: String,
-    phoneNumber: String,
-    nationalId: String
-) {
 
-   def toArray: Array[String] =
-      Array(givenName,
-            familyName,
-            gender,
-            dob,
-            city,
-            phoneNumber,
-            nationalId)
+@JsonIgnoreProperties(ignoreUnknown = true)
+case class MyField(tag: String, value: String)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+case class DemographicData(fields: Array[MyField]) {
+
+   def toArray: Array[String] = fields.map(f => f.value)
 
 }
 

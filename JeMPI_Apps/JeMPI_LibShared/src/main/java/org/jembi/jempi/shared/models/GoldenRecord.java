@@ -7,14 +7,14 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record GoldenRecord(
       String goldenId,
-      List<CustomSourceId> sourceId,
-      CustomUniqueGoldenRecordData customUniqueGoldenRecordData,
-      CustomDemographicData demographicData) {
+      List<SourceId> sourceId,
+      AuxGoldenRecordData auxGoldenRecordData,
+      DemographicData demographicData) {
 
    public GoldenRecord(final Interaction interaction) {
       this(null,
            List.of(interaction.sourceId()),
-           new CustomUniqueGoldenRecordData(interaction.uniqueInteractionData()),
+           new AuxGoldenRecordData(interaction.auxInteractionData()),
            interaction.demographicData());
    }
 

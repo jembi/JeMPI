@@ -8,12 +8,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.shared.models.CustomDemographicData;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,30 +63,31 @@ public final class AppUtils implements Serializable {
       }
    }
 
-   public static String getNames(final CustomDemographicData demographicData) {
-      ArrayList<String> names = new ArrayList<>();
-
-      for (Method method : CustomDemographicData.class.getMethods()) {
-         if ((method.getName().toLowerCase().contains("name"))) {
-            try {
-               final var name = (String) method.invoke(demographicData);
-               if (!StringUtils.isBlank(name)) {
-                  names.add(name.trim());
-               }
-            } catch (IllegalAccessException | InvocationTargetException e) {
-               LOGGER.error(e.getLocalizedMessage(), e);
-            }
-         }
-      }
-      if (names.isEmpty()) {
-         return null;
-      } else {
-         return StringUtils.join(names, ",");
-      }
-   }
-
    public static String autoGenerateId() {
       return Long.toString(++autoIncrement);
+   }
+
+   public static String camelToSnake(final String str) {
+      final var s = str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
+      return s.startsWith("_")
+            ? s.substring(1)
+            : s;
+   }
+
+   public static String snakeToCamelCase(final String str) {
+      String[] words = str.split("_");
+      StringBuilder result = new StringBuilder(words[0]);
+      for (int i = 1; i < words.length; i++) {
+         result.append(words[i].substring(0, 1).toUpperCase()).append(words[i].substring(1));
+      }
+      return result.toString();
+   }
+
+   public static String timeStamp() {
+      final var dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
+      final var now = LocalDateTime.now();
+      final var stanDate = dtf.format(now);
+      return stanDate;
    }
 
    @Serial
@@ -98,10 +97,6 @@ public final class AppUtils implements Serializable {
 
    private static class UtilsSingletonHolder {
       public static final AppUtils INSTANCE = new AppUtils();
-   }
-
-   public static String camelToSnake(final String str) {
-      return str.replaceAll("([A-Z]+)", "\\_$1").toLowerCase();
    }
 
 }

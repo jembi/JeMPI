@@ -21,7 +21,7 @@ public class SPLinkStatsMeta extends ContextualProcessor<String, LinkStatsMeta, 
          final var updatedConfusionMatrix =
                linkStatsMeta.confusionMatrix().sum(recordToProcess.value().confusionMatrix());
          final var updatedCustomFieldTallies =
-               linkStatsMeta.customFieldTallies().sum(recordToProcess.value().customFieldTallies());
+               linkStatsMeta.fieldTallies().sum(recordToProcess.value().fieldTallies());
          final var updatedLinkStatsMeta = new LinkStatsMeta(updatedConfusionMatrix, updatedCustomFieldTallies);
          LinkStatsMetaCache.set(updatedLinkStatsMeta);
          keyValueStore.put("Totals", updatedLinkStatsMeta);

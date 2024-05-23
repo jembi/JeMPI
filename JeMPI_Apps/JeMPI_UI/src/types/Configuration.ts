@@ -28,7 +28,7 @@ interface ProbabilisticRule {
   [key: string]: Rule
 }
 
-interface LinkRules {
+export interface LinkRules {
   deterministic: DeterministicRule
   probabilistic: ProbabilisticRule
 }

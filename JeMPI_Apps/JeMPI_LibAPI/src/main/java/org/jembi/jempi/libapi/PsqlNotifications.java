@@ -178,7 +178,6 @@ final class PsqlNotifications {
          int rowsAffected = stmt.executeUpdate();
          if (rowsAffected > 0) {
             LOGGER.info("Updated notification {} with new currentGoldenId {}", notificationId, currentGoldenId);
-            psqlClient.commit();
          } else {
             LOGGER.warn("Notification with ID {} not found", notificationId);
          }

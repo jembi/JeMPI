@@ -15,8 +15,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -34,16 +34,16 @@ public final class SPMU {
       LOGGER.info("Stream Processor");
       final Properties props = loadConfig();
       final Serde<String> stringSerde = Serdes.String();
-      final Serializer<CustomMU> customMUSerializer = new JsonPojoSerializer<>();
-      final Deserializer<CustomMU> customMUDeserializer = new JsonPojoDeserializer<>(CustomMU.class);
-      final Serde<CustomMU> customMUSerde = Serdes.serdeFrom(customMUSerializer, customMUDeserializer);
+      final Serializer<MUPacket> customMUSerializer = new JsonPojoSerializer<>();
+      final Deserializer<MUPacket> customMUDeserializer = new JsonPojoDeserializer<>(MUPacket.class);
+      final Serde<MUPacket> customMUSerde = Serdes.serdeFrom(customMUSerializer, customMUDeserializer);
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
-      final KStream<String, CustomMU> customMUKStream = streamsBuilder.stream(GlobalConstants.TOPIC_MU_CONTROLLER,
+      final KStream<String, MUPacket> customMUKStream = streamsBuilder.stream(GlobalConstants.TOPIC_MU_CONTROLLER,
                                                                               Consumed.with(stringSerde, customMUSerde));
       customMUKStream
-            .peek((key, customMU) -> {
+            .peek((key, muPacket) -> {
                try {
-                  LOGGER.debug(AppUtils.OBJECT_MAPPER.writeValueAsString(customMU));
+                  LOGGER.debug(AppUtils.OBJECT_MAPPER.writeValueAsString(muPacket));
                } catch (JsonProcessingException e) {
                   LOGGER.error(e.getLocalizedMessage(), e);
                }

@@ -11,7 +11,6 @@ public final class GlobalConstants {
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
-   public static final String TOPIC_UPLOAD_CONFIG = "JeMPI-upload-config";
 
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
 
@@ -21,6 +20,7 @@ public final class GlobalConstants {
     *
     */
    public static final String SEGMENT_GET_CONFIGURATION = "configuration";
+   public static final String SEGMENT_POST_CONFIGURATION = "configuration";
    public static final String SEGMENT_COUNT_INTERACTIONS = "countInteractions";
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "countGoldenRecords";
    public static final String SEGMENT_COUNT_RECORDS = "countRecords";

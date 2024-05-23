@@ -152,18 +152,18 @@ const configuration = {
   ],
   rules: {
     link: {
-      deterministic: {
-        QUERY_LINK_DETERMINISTIC_A: {
+      deterministic: [
+        {
           vars: ['national_id'],
           text: 'eq(national_id)'
         },
-        QUERY_LINK_DETERMINISTIC_B: {
+        {
           vars: ['given_name', 'family_name', 'phone_number'],
           text: 'eq(given_name) and eq(family_name) and eq(phone_number)'
         }
-      },
-      probabilistic: {
-        QUERY_LINK_PROBABILISTIC: {
+      ],
+      probabilistic: [
+        {
           vars: [
             'given_name',
             'family_name',
@@ -171,10 +171,11 @@ const configuration = {
             'phone_number',
             'national_id'
           ],
-          text: '(match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)) or match(phone_number,2) or match(national_id,3)'
+          text: 'match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)'
         }
-      }
+      ]
     }
   }
 }
+
 export default configuration
