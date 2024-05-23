@@ -1,20 +1,25 @@
-import { AddOutlined } from '@mui/icons-material'
 import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   FormControl,
-  IconButton,
   InputLabel,
   Select,
   Typography
 } from '@mui/material'
 import React from 'react'
+import { Configuration } from 'types/Configuration'
 
-const Deterministic = () => {
+interface DeterministicProps {
+  linkingRules: Configuration['rules']['link']
+}
+
+const Deterministic = ({ linkingRules }: DeterministicProps) => {
   const [viewType, setViewType] = React.useState(0)
+
+  const deterministicRules = linkingRules.deterministic || {}
+
   return (
     <>
       <Card sx={{ minWidth: 275 }}>
@@ -93,22 +98,21 @@ const Deterministic = () => {
                 flexDirection: 'column',
                 gap: 2,
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'flex-start'
               }}
             >
-              <Typography variant="h5">eq (National ID)</Typography>
-              Or
-              <Typography variant="h5">
-                eq (given name) and eq(family name, 3) and eq (phone number)
-              </Typography>
+              {Object.keys(deterministicRules).map((key, index) => (
+                <Typography
+                  key={index}
+                  variant="h5"
+                  sx={{ fontSize: '1.1rem' }}
+                >
+                  {`Rule ${index + 1}:  ${deterministicRules[key].text}`}
+                </Typography>
+              ))}
             </Box>
           )}
         </CardContent>
-        <CardActions>
-          <IconButton aria-label="delete" size="small">
-            <AddOutlined fontSize="small" />
-          </IconButton>
-        </CardActions>
       </Card>
     </>
   )

@@ -4,7 +4,7 @@ import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
-import Deterministic from './deterministic/deterministic'
+import Deterministic from './deterministic/Deterministic'
 import Blocking from './blocking/Blocking'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
@@ -97,26 +97,24 @@ const Settings = () => {
             >
               <Tab label="Common" {...a11yProps(0)} />
               <Tab label="Unique to Golden record" {...a11yProps(1)} />
-              <Tab label=" Unique to Interaction" {...a11yProps(2)} />
+              <Tab label="Unique to Interaction" {...a11yProps(2)} />
               <Tab label="Golden Records Lists" {...a11yProps(3)} />
               <Tab label="Deterministic" {...a11yProps(4)} />
-              <Tab label=" Blocking" {...a11yProps(5)} />
+              <Tab label="Blocking" {...a11yProps(5)} />
               <Tab label="Probabilistic" {...a11yProps(6)} />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            <>
-              <Typography variant="h5" sx={{ py: 3 }}>
-                Setup common properties
-              </Typography>
-              <CommonSettings
-                demographicData={configuration.demographicFields}
-              />
-            </>
+            <Typography variant="h5" sx={{ py: 3 }}>
+              Setup common properties
+            </Typography>
+            <CommonSettings
+              demographicData={configuration.demographicFields}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
-              Unique to Golden record
+            Setup properties that are unique to the golden record
             </Typography>
             <UniqueToGR
               uniqueToGoldenRecordData={configuration.uniqueGoldenRecordFields}
@@ -124,7 +122,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
-              Unique to Interaction
+            Setup properties that are unique to the interaction
             </Typography>
             <UniqueToInteraction
               uniqueInteractionData={configuration.uniqueInteractionFields}
@@ -132,15 +130,14 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
-              Setup properties for Golden Records Lists{' '}
+              Setup properties for Golden record lists
             </Typography>
             <GoldenRecordLists
               goldenRecordList={fields?.additionalNodes}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-            Deterministic
-            <Deterministic />
+            <Deterministic linkingRules={configuration.rules.link} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             Blocking
