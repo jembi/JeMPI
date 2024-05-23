@@ -47,7 +47,8 @@ public final class API {
                                                                         "CLIENT_ID_API-" + UUID.randomUUID(),
                                                                         AppConfig.API_CONFIG_DIR,
                                                                         AppConfig.API_CONFIG_REFERENCE_FILENAME,
-                                                                        AppConfig.API_CONFIG_MASTER_FILENAME), "BackEnd");
+                                                                        AppConfig.API_CONFIG_MASTER_FILENAME,
+                                                                        AppConfig.API_FIELDS_CONFIG_FILENAME), "BackEnd");
          context.watch(backEnd);
          httpServer = HttpServer.create();
          httpServer.open("0.0.0.0", AppConfig.API_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);

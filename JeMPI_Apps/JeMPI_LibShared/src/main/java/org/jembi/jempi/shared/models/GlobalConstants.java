@@ -20,6 +20,7 @@ public final class GlobalConstants {
     *
     */
    public static final String SEGMENT_GET_CONFIGURATION = "configuration";
+   public static final String SEGMENT_GET_FIELDS_CONFIGURATION = "fieldsConfiguration";
    public static final String SEGMENT_POST_CONFIGURATION = "configuration";
    public static final String SEGMENT_COUNT_INTERACTIONS = "countInteractions";
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "countGoldenRecords";

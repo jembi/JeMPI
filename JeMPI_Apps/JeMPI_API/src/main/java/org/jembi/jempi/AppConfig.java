@@ -52,6 +52,7 @@ public final class AppConfig {
    public static final String API_CONFIG_DIR = CONFIG.getString("API_CONFIG_DIR");
    public static final String API_CONFIG_REFERENCE_FILENAME = CONFIG.getString("API_CONFIG_REFERENCE_FILENAME");
    public static final String API_CONFIG_MASTER_FILENAME = CONFIG.getString("API_CONFIG_MASTER_FILENAME");
+   public static final String API_FIELDS_CONFIG_FILENAME = CONFIG.getString("API_FIELDS_CONFIG_FILENAME");
 
    private AppConfig() {
    }
