@@ -12,11 +12,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
-import org.jembi.jempi.shared.models.CustomMU;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
-import org.jembi.jempi.shared.models.UploadConfig;
+import org.jembi.jempi.shared.models.LinkerMetadata;
+import org.jembi.jempi.shared.models.SessionMetadata;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -46,17 +47,12 @@ public final class SPInteractions {
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final InteractionEnvelop interactionEnvelop) {
-
-      if (interactionEnvelop.contentType() != BATCH_INTERACTION) {
-
-         return;
-      }
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
-            .toCompletableFuture();
+                                       .toCompletableFuture();
       try {
          final var reply = completableFuture.get(65, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
-            LOGGER.error("BACK END RESPONSE(ERROR)");
+            LOGGER.warn("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
@@ -71,15 +67,17 @@ public final class SPInteractions {
       LOGGER.info("SPInteractions Stream Processor");
       final Properties props = loadConfig();
       final var stringSerde = Serdes.String();
-      final UploadConfig[] uploadConfig = {null};
       final var interactionEnvelopSerde = Serdes.serdeFrom(new JsonPojoSerializer<>(),
-            new JsonPojoDeserializer<>(InteractionEnvelop.class));
+                                                           new JsonPojoDeserializer<>(InteractionEnvelop.class));
       final StreamsBuilder streamsBuilder = new StreamsBuilder();
       final KStream<String, InteractionEnvelop> interactionStream = streamsBuilder.stream(topic,
-            Consumed.with(stringSerde, interactionEnvelopSerde));
+                                                                                          Consumed.with(stringSerde,
+                                                                                                        interactionEnvelopSerde));
       interactionStream.foreach((key, interactionEnvelop) -> {
-         linkPatient(system, backEnd, key, interactionEnvelop);
-         if (!CustomMU.SEND_INTERACTIONS_TO_EM && interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
+         interactionEnvelop = updateLinkerMetadata(interactionEnvelop);
+         if (interactionEnvelop.contentType() == BATCH_INTERACTION) {
+            linkPatient(system, backEnd, key, interactionEnvelop);
+         } else if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
             this.closeInteractionStream();
          }
       });
@@ -101,4 +99,17 @@ public final class SPInteractions {
       return props;
    }
 
+   private InteractionEnvelop updateLinkerMetadata(final InteractionEnvelop interactionEnvelop) {
+      var sessionMetadata = interactionEnvelop.sessionMetadata();
+      return new InteractionEnvelop(interactionEnvelop.contentType(),
+                                    interactionEnvelop.tag(),
+                                    interactionEnvelop.stan(),
+                                    interactionEnvelop.interaction(),
+                                    new SessionMetadata(sessionMetadata.commonMetaData(),
+                                                        sessionMetadata.uiMetadata(),
+                                                        sessionMetadata.asyncReceiverMetadata(),
+                                                        sessionMetadata.etlMetadata(),
+                                                        sessionMetadata.controllerMetadata(),
+                                                        new LinkerMetadata(AppUtils.timeStamp())));
+   }
 }

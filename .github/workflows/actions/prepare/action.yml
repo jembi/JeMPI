@@ -18,13 +18,13 @@ runs:
       uses: ./.github/workflows/actions/sdkman-installer
       with:
         candidate: java
-        version: '21.0.1-tem'
+        version: '21.0.3-tem'
     - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
       name: Set up Maven
       uses: ./.github/workflows/actions/sdkman-installer
       with:
         candidate: maven
-        version: '3.9.5'
+        version: '3.9.6'
     - if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
       name: Set Scala Build Tools
       uses: ./.github/workflows/actions/sdkman-installer

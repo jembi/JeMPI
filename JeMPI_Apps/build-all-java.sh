@@ -3,9 +3,8 @@
 set -e
 set -u
 
-cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API/src/main/resources/config-api.json
-cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API_KC/src/main/resources/config-api.json
-cp -L -f ./JeMPI_Configuration/reference/config-reference.json ${DATA_DIR_API}/conf/config-reference.json
+# cp -L -f ../JeMPI_Configuration/config-api.json ./JeMPI_API/src/main/resources/config-api.json
+# cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API_KC/src/main/resources/config-api.json
 
 mvn clean package
 pushd JeMPI_EM_Scala
