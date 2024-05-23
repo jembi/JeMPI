@@ -42,7 +42,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
-   private final String apiConfigDirectory;
+   private final String systemConfigDirectory;
    private final String configReferenceFileName;
    private final String configMasterFileName;
    private final String fieldsConfigurationFileName;
@@ -63,7 +63,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId,
-         final String apiConfigDirectory,
+         final String systemConfigDirectory,
          final String configReferenceFileName,
          final String configMasterFileName,
          final String fieldsConfigurationFileName) {
@@ -78,7 +78,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
-         this.apiConfigDirectory = apiConfigDirectory;
+         this.systemConfigDirectory = systemConfigDirectory;
          this.configReferenceFileName = configReferenceFileName;
          this.configMasterFileName = configMasterFileName;
          this.fieldsConfigurationFileName = fieldsConfigurationFileName;
@@ -104,7 +104,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId,
-         final String apiConfigDirectory,
+         final String systemConfigDirectory,
          final String configReferenceFileName,
          final String configMasterFileName,
          final String fieldsConfigurationFileName) {
@@ -120,7 +120,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId,
-                                                    apiConfigDirectory,
+                                                    systemConfigDirectory,
                                                     configReferenceFileName,
                                                     configMasterFileName,
                                                     fieldsConfigurationFileName));
@@ -488,8 +488,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
-      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
-      Path configReferenceJsonFilePath = Paths.get(apiConfigDirectory, configReferenceFileName);
+      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
+      Path configReferenceJsonFilePath = Paths.get(systemConfigDirectory, configReferenceFileName);
 
       Path configFilePath = configMasterJsonFilePath;
       if (!Files.exists(configFilePath)) {
@@ -527,7 +527,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
-      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
+      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
       ObjectMapper objectMapper = new ObjectMapper();
       Configuration configJson = request.configuration;
 

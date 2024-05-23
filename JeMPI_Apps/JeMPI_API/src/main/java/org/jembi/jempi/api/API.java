@@ -45,7 +45,7 @@ public final class API {
                                                                         AppConfig.POSTGRESQL_AUDIT_DB,
                                                                         AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                                         "CLIENT_ID_API-" + UUID.randomUUID(),
-                                                                        AppConfig.API_CONFIG_DIR,
+                                                                        AppConfig.SYSTEM_CONFIG_DIR,
                                                                         AppConfig.API_CONFIG_REFERENCE_FILENAME,
                                                                         AppConfig.API_CONFIG_MASTER_FILENAME,
                                                                         AppConfig.API_FIELDS_CONFIG_FILENAME), "BackEnd");
