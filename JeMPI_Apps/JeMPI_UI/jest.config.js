@@ -12,6 +12,11 @@ module.exports = {
     collectCoverageFrom: [
       "**/src/**"
     ],
+    ecmaFeatures: {
+      experimental: {
+        throwExpressions: true,
+      },
+    },
     transform: {
       '^.+\\.(ts|tsx)?$': ['ts-jest', { isolatedModules:true }]
     },

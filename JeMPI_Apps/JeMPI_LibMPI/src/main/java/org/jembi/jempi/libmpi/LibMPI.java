@@ -24,7 +24,6 @@ public final class LibMPI {
    private final AuditTrailBridge auditTrailUtil;
 
 
-
    public LibMPI(
          final Level level,
          final String[] host,
@@ -92,12 +91,16 @@ public final class LibMPI {
       return client.countGoldenRecords();
    }
 
-   public List<CustomSourceId> findSourceId(final String facility, final String patient) {
+   public List<SourceId> findSourceId(
+         final String facility,
+         final String patient) {
       client.connect();
       return client.findSourceId(facility, patient);
    }
 
-   public List<ExpandedSourceId> findExpandedSourceIdList(final String facility, final String patient) {
+   public List<ExpandedSourceId> findExpandedSourceIdList(
+         final String facility,
+         final String patient) {
       client.connect();
       return client.findExpandedSourceIdList(facility, patient);
    }
@@ -107,7 +110,7 @@ public final class LibMPI {
       return client.findInteraction(iid);
    }
 
-   public List<Interaction> findInteraction(final List<String> iidList) {
+   public List<Interaction> findInteractions(final List<String> iidList) {
       client.connect();
       return client.findInteractions(iidList);
    }
@@ -121,8 +124,8 @@ public final class LibMPI {
       client.connect();
       final var records = client.findGoldenRecords(List.of(goldenId));
       if (records.isRight()) {
-         if (!records.get().isEmpty()) {
-            return Either.right(records.get().getFirst());
+         if (!records.get().data().isEmpty()) {
+            return Either.right(records.get().data().getFirst());
          } else {
             return Either.left(new MpiServiceError.CRGidDoesNotExistError(goldenId));
          }
@@ -132,21 +135,25 @@ public final class LibMPI {
 
    public Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final List<String> goldenIds) {
       client.connect();
-      return client.findGoldenRecords(goldenIds);
+      final var results = client.findGoldenRecords(goldenIds);
+      if (results.isLeft()) {
+         return Either.left(results.getLeft());
+      }
+      return Either.right(results.get().data());
    }
 
    public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
       client.connect();
-      final var records = client.findExpandedGoldenRecords(List.of(goldenId));
-      if (!records.isEmpty()) {
-         return records.getFirst();
+      final var results = client.findExpandedGoldenRecords(List.of(goldenId));
+      if (!results.data().isEmpty()) {
+         return results.data().getFirst();
       }
       return null;
    }
 
    public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
       client.connect();
-      return client.findExpandedGoldenRecords(goldenIds);
+      return client.findExpandedGoldenRecords(goldenIds).data();
    }
 
    public List<String> findGoldenIds() {
@@ -161,19 +168,23 @@ public final class LibMPI {
       return client.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
+   public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
       client.connect();
       return client.findLinkCandidates(demographicData);
    }
 
-   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
+   public List<GoldenRecord> findMatchCandidates(final DemographicData demographicData) {
       client.connect();
       return client.findMatchCandidates(demographicData);
    }
 
    public Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       client.connect();
-      return client.apiCrFindGoldenRecords(request);
+      final var results = client.apiCrFindGoldenRecords(request);
+      if (results.isLeft()) {
+         return Either.left(results.getLeft());
+      }
+      return Either.right(results.get().data());
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
@@ -183,7 +194,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      final var results = client.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
@@ -193,7 +205,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      final var results = client.customSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
@@ -203,7 +216,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      final var results = client.simpleSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
@@ -213,7 +227,8 @@ public final class LibMPI {
          final String sortBy,
          final Boolean sortAsc) {
       client.connect();
-      return client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      final var results = client.customSearchInteractions(params, offset, limit, sortBy, sortAsc);
+      return new LibMPIPaginatedResultSet<>(results.data(), results.pagination().getFirst());
    }
 
    public LibMPIPaginatedResultSet<String> filterGids(
@@ -250,13 +265,13 @@ public final class LibMPI {
       if (result) {
          sendAuditEvent(interactionID,
                         goldenID,
-                        String.format(Locale.ROOT, "score: %.5f -> %.5f", oldScore, newScore),
+                        "score: %.5f -> %.5f".formatted(oldScore, newScore),
                         newScore,
                         LinkingRule.UPDATE);
       } else {
          sendAuditEvent(interactionID,
                         goldenID,
-                        String.format(Locale.ROOT, "set score error: %.5f -> %.5f", oldScore, newScore),
+                        "set score error: %.5f -> %.5f".formatted(oldScore, newScore),
                         newScore,
                         LinkingRule.UPDATE);
 
@@ -278,23 +293,16 @@ public final class LibMPI {
          final String goldenId,
          final String fieldName,
          final String oldValue,
-         final String newValue) {
+         final String newValue,
+         final String alias) {
       client.connect();
       final var result = client.updateGoldenRecordField(goldenId, fieldName, newValue);
       if (result) {
-         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
-                                                               "%s: '%s' -> '%s'",
-                                                               fieldName,
-                                                               oldValue,
-                                                               newValue),
+         sendAuditEvent(interactionId, goldenId, "%s: '%s' -> '%s'".formatted(alias, oldValue, newValue),
                         -1.0F,
                         LinkingRule.UPDATE);
       } else {
-         sendAuditEvent(interactionId, goldenId, String.format(Locale.ROOT,
-                                                               "%s: error updating '%s' -> '%s'",
-                                                               fieldName,
-                                                               oldValue,
-                                                               newValue),
+         sendAuditEvent(interactionId, goldenId, "%s: error updating '%s' -> '%s'".formatted(alias, oldValue, newValue),
                         -1.0F,
                         LinkingRule.UPDATE);
       }
