@@ -1,7 +1,8 @@
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { DemographicField } from 'types/Configuration'
-import Deterministic from 'pages/settings/deterministic/deterministic'
+import { Configuration, DemographicField } from 'types/Configuration'
+import Deterministic from 'pages/settings/deterministic/Deterministic'
+
 
 const mockDemographicData: DemographicField[] = [
   {
@@ -93,9 +94,19 @@ const mockDemographicData: DemographicField[] = [
 ]
 
 describe('Deterministic Component', () => {
+  const mockLinkingRules : Configuration['rules']['link'] = {
+    deterministic: {
+      rule1: { vars: ['national_id'], text: 'eq(national_id)' },
+      rule2: { vars: ['given_name', 'family_name', 'phone_number'], text: 'eq(given_name) and eq(family_name) and eq(phone_number)' }
+    },
+    probabilistic: {
+      rule1: { vars: ['given_name', 'family_name', 'city', 'phone_number', 'national_id'], text: 'match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)' }
+    }
+  };
+  
   test('renders correctly', () => {
     const { getByText, getByLabelText } = render(
-      <Deterministic demographicData={mockDemographicData} />
+      <Deterministic demographicData={mockDemographicData} linkingRules={mockLinkingRules}/>
     )
 
     expect(getByText('Design View')).toBeInTheDocument()
@@ -107,7 +118,7 @@ describe('Deterministic Component', () => {
 
   test('handles comparator change', () => {
     const { getByLabelText } = render(
-      <Deterministic demographicData={mockDemographicData} />
+      <Deterministic demographicData={mockDemographicData} linkingRules={mockLinkingRules} />
     )
     const selectComparator = getByLabelText(
       'Select Comparator Function'
@@ -123,7 +134,7 @@ describe('Deterministic Component', () => {
 
   test('handles field change', () => {
     const { getByLabelText } = render(
-      <Deterministic demographicData={mockDemographicData} />
+      <Deterministic demographicData={mockDemographicData} linkingRules={mockLinkingRules}/>
     )
     const selectField = getByLabelText('Select Field') as HTMLSelectElement
     selectField.value = 'family_name'
@@ -133,7 +144,7 @@ describe('Deterministic Component', () => {
 
   test('handles operator change', () => {
     const { getByLabelText } = render(
-      <Deterministic demographicData={mockDemographicData} />
+      <Deterministic demographicData={mockDemographicData} linkingRules={mockLinkingRules} />
     )
     const selectOperator = getByLabelText(
       'Select Operator'

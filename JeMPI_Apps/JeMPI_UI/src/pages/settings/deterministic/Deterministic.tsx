@@ -75,7 +75,7 @@ const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProp
 
   useEffect(() => {
     localStorage.setItem('rules', JSON.stringify(rules));
-    setIsOperatorDisabled(rules.length === 0); // Disable if no rules
+    setIsOperatorDisabled(rules.length === 0); 
     console.log('Current rules:', rules);
   }, [rules]);
 
@@ -193,21 +193,25 @@ const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProp
           </Box>
         ) : (
           <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
-          >
-            {rules.map((rule, index) => (
-              <Typography key={index} variant="h5">
-                {`${rule.text}`}
-              </Typography>
-            ))}
-          </Box>
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            justifyContent: 'center',
+            alignItems: 'flex-start'
+          }}
+        >
+          {Object.keys(deterministicRules).map((key, index) => (
+            <Typography
+              key={index}
+              variant="h5"
+              sx={{ fontSize: '1.1rem' }}
+            >
+              {`Rule ${index + 1}:  ${deterministicRules[key].text}`}
+            </Typography>
+          ))}
+        </Box>
         )}
       </CardContent>
       <CardActions>
