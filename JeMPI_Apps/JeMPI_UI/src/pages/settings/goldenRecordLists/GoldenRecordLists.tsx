@@ -1,137 +1,129 @@
-import React from 'react'
-import Box from '@mui/material/Box'
-import EditIcon from '@mui/icons-material/Edit'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Close'
+import Box from '@mui/material/Box';
 import {
-  GridRowsProp,
-  GridRowModesModel,
-  GridRowModes,
   DataGrid,
   GridColDef,
-  GridToolbarContainer,
-  GridActionsCellItem,
   GridEventListener,
+  GridRowEditStopReasons,
   GridRowId,
   GridRowModel,
-  GridRowEditStopReasons
-} from '@mui/x-data-grid'
+  GridRowModes,
+  GridRowModesModel,
+  GridActionsCellItem
+} from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import { useEffect, useState } from 'react';
+import { EditToolbar } from 'components/shared/EditToolBar';
+import { formatNodeName, toUpperCase } from 'utils/helpers';
 
-
-const randomId = () => {
-  return Math.random().toString(36).substring(2, 9)
+interface RowData {
+  id: string;
+  nodeName: string;
+  fieldName: string;
+  fieldType: string;
+  csvCol: number;
 }
 
-const initialRows: GridRowsProp = [
-  {
-    id: randomId(),
-    listName: 'Source ID' ,
-    propertyName: 'Facility ID',
-    type: 'string'
-  },
-  {
-    id: randomId(),
-    listName: '',
-    propertyName: 'Patient ID',
-    type: 'string'
-  },
-  {
-    id: randomId(),
-    listName: 'Biometric ID',
-    propertyName: 'Subject ID',
-    type: 'string'
-  }
-]
+const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
+  const [rows, setRows] = useState<RowData[]>([]);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
-interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void
-}
+  useEffect(() => {
+    if (goldenRecordList) {
+      const rowsWithIds = goldenRecordList.flatMap(
+        (node: { fields: any[]; nodeName: string }, index: number) => {
+          return node.fields
+            ? node.fields.map((field, fieldIndex) => ({
+                id: `${node.nodeName}_${index}_${fieldIndex}`,
+                nodeName: node.nodeName,
+                fieldName: field.fieldName,
+                fieldType: field.fieldType,
+                csvCol: field.csvCol
+              }))
+            : [];
+        }
+      );
+      setRows(rowsWithIds);
+    }
+  }, [goldenRecordList]);
 
-function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props
+  const handleEditClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
 
-  const handleClick = () => {
-    const id = randomId()
-    setRows(oldRows => [...oldRows, { id, name: '', age: '', isNew: true }])
-    setRowModesModel(oldModel => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' }
-    }))
-  }
+  const handleSaveClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
 
-  return <GridToolbarContainer></GridToolbarContainer>
-}
+  const handleCancelClick = (id: GridRowId) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true }
+    });
+  };
 
-const GoldenRecordLists = () => {
-  const [rows, setRows] = React.useState(initialRows)
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
-  )
+  const processRowUpdate = (newRow: GridRowModel) => {
+    const { id, ...updatedRow } = newRow;
+    setRows(rows.map(row => (row.id === id ? updatedRow as RowData : row)));
+    return updatedRow as RowData;
+  };
+
+  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
+
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
     params,
     event
   ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true
+      event.defaultMuiPrevented = true;
     }
-  }
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
-  }
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-  }
-  const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter(row => row.id !== id))
-  }
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
+  };
 
-    const editedRow = rows.find(row => row.id === id)
-    if (editedRow!.isNew) {
-      setRows(rows.filter(row => row.id !== id))
-    }
-  }
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false }
-    setRows(rows.map(row => (row.id === newRow.id ? updatedRow : row)))
-    return updatedRow
-  }
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel)
-  }
   const columns: GridColDef[] = [
     {
-      field: 'listName',
+      field: 'Name',
       headerName: 'List Name',
       width: 300,
       editable: true,
-      align: 'center',
-      headerAlign: 'center'
+      align: 'left',
+      headerAlign: 'left',
+      valueGetter: params => {
+        if (params.row.fieldName === 'patient') return '';
+        else return formatNodeName(params.row.nodeName);
+      }
     },
     {
-      field: 'propertyName',
+      field: 'fieldName',
       headerName: 'Property Name',
       type: 'string',
-      width: 300,
+      width: 180,
       align: 'center',
       headerAlign: 'center',
-      editable: false
+      editable: true,
+      valueGetter: params => toUpperCase(params.row.fieldName)
     },
     {
-      field: 'type',
+      field: 'fieldType',
       headerName: 'Type',
       type: 'string',
-      width: 300,
+      width: 180,
       align: 'center',
       headerAlign: 'center',
-      editable: false
+      editable: false,
+      valueGetter: params => params.row.fieldType
+    },
+    {
+      field: 'csvCol',
+      headerName: 'Csv Col',
+      type: 'number',
+      width: 180,
+      align: 'center',
+      headerAlign: 'center',
+      editable: true,
+      valueGetter: params => params.row.csvCol
     },
     {
       field: 'actions',
@@ -142,11 +134,12 @@ const GoldenRecordLists = () => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
+              id="save-button"
               label="Save"
               sx={{
                 color: 'white'
@@ -155,28 +148,29 @@ const GoldenRecordLists = () => {
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
+              id="cancel-button"
               label="Cancel"
               className="textPrimary"
               onClick={handleCancelClick(id)}
               color="inherit"
             />
-          ]
+          ];
         }
 
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
+            id="edit-button"
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
           />
-        ]
+        ];
       }
     }
-  ]
+  ];
 
-  
   return (
     <Box
       sx={{
@@ -190,23 +184,24 @@ const GoldenRecordLists = () => {
         }
       }}
     >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        slots={{
-          toolbar: EditToolbar
-        }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel }
-        }}
-      />
+      {goldenRecordList && (
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          slots={{
+            toolbar: EditToolbar
+          }}
+          slotProps={{
+            toolbar: { setRows, setRowModesModel }
+          }}
+        />
+      )}
     </Box>
-  )
-}
+  );
+};
 
-export default GoldenRecordLists
+export default GoldenRecordLists;

@@ -151,6 +151,7 @@ export const transformFieldName = (input: Params | string): string => {
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char: string) => char.toUpperCase())
 
+}
 export const formatNodeName = (nodeName: string): string => {
   return nodeName
     .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -161,7 +162,7 @@ export const formatNodeName = (nodeName: string): string => {
     .replace(/\bId\b/g, 'ID')
     .trim()
 }
-
+  
 export const toUpperCase = (word: string): string => {
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
 }

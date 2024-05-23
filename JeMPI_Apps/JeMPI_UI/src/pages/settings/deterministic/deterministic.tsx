@@ -51,9 +51,9 @@ const Deterministic = ({ demographicData = [] }: DeterministicProps) => {
     if (savedRules) {
       const parsedRules = JSON.parse(savedRules);
       setRules(parsedRules);
-      setIsOperatorDisabled(parsedRules.length === 0); // Disabled if no rules
+      setIsOperatorDisabled(parsedRules.length === 0); 
     } else {
-      setIsOperatorDisabled(true); // Disabled if no rules in localStorage
+      setIsOperatorDisabled(true);
     }
 
     console.log('Loaded rules from storage:', savedRules ? JSON.parse(savedRules) : []);
