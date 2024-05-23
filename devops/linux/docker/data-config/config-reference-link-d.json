@@ -1,0 +1,143 @@
+{
+  "auxInteractionFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 0
+      }
+    },
+    {
+      "fieldName": "aux_clinical_data",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 10
+      }
+    }
+  ],
+  "auxGoldenRecordFields": [
+    {
+      "fieldName": "aux_date_created",
+      "fieldType": "DateTime"
+    },
+    {
+      "fieldName": "aux_auto_update_enabled",
+      "fieldType": "Bool",
+      "default": "true"
+    },
+    {
+      "fieldName": "aux_id",
+      "fieldType": "String",
+      "source": {
+        "interactionField": "aux_id"
+      }
+    }
+  ],
+  "additionalNodes": [
+    {
+      "nodeName": "SourceId",
+      "fields": [
+        {
+          "fieldName": "facility",
+          "fieldType": "String",
+          "source": {
+            "csvCol": 8
+          }
+        },
+        {
+          "fieldName": "patient",
+          "fieldType": "String",
+          "source": {
+            "csvCol": 9
+          }
+        }
+      ]
+    }
+  ],
+  "demographicFields": [
+    {
+      "fieldName": "given_name",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 1
+      },
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "family_name",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 2
+      },
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "gender",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 3
+      }
+    },
+    {
+      "fieldName": "dob",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 4
+      }
+    },
+    {
+      "fieldName": "city",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 5
+      }
+    },
+    {
+      "fieldName": "phone_number",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 6
+      },
+      "indexGoldenRecord": "@index(exact)"
+    },
+    {
+      "fieldName": "national_id",
+      "fieldType": "String",
+      "source": {
+        "csvCol": 7
+      },
+      "indexGoldenRecord": "@index(exact)"
+    }
+  ],
+  "rules": {
+    "link": {
+      "deterministic": [
+        {
+          "vars": [
+            "national_id"
+          ],
+          "text": "eq(national_id)"
+        },
+        {
+          "vars": [
+            "national_id",
+            "phone_number"
+          ],
+          "text": "null(national_id) and eq(phone_number)"
+        },
+        {
+          "vars": [
+            "given_name",
+            "family_name",
+            "phone_number"
+          ],
+          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
+        }
+      ]
+    }
+  }
+}

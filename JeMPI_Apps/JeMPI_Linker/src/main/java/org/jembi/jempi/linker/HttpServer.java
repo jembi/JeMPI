@@ -37,36 +37,4 @@ final class HttpServer extends AllDirectives {
       LOGGER.info("Server online at http://{}:{}", "0.0.0.0", AppConfig.LINKER_HTTP_PORT);
    }
 
-/*
-   private Route createRoute(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Request> backEnd) {
-      return pathPrefix("JeMPI",
-                        () -> concat(patch(() -> path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
-                                                      () -> Routes.proxyPatchCrUpdateField(actorSystem, backEnd))),
-                                     post(() -> concat(path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK,
-                                                            () -> Routes.proxyPostLinkInteraction(actorSystem, backEnd)),
-//                                                       path(GlobalConstants.SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID,
-//                                                            () -> Routes.proxyPostLinkInteractionToGID(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_SCORES,
-                                                            () -> Routes.proxyPostCalculateScores(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_CANDIDATES,
-                                                            () -> Routes.proxyGetCrCandidates(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_FIND,
-                                                            () -> Routes.proxyGetCrFind(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_REGISTER,
-                                                            () -> Routes.proxyPostCrRegister(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_TO_GID_UPDATE,
-                                                            () -> Routes.proxyPostCrLinkToGidUpdate(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID,
-                                                            () -> Routes.proxyPostCrLinkBySourceId(actorSystem, backEnd)),
-                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CR_LINK_BY_SOURCE_ID_UPDATE,
-                                                            () -> Routes.proxyPostCrLinkBySourceIdUpdate(actorSystem, backEnd)))),
-                                     get(() -> concat(// path("mu", () -> Routes.routeMU(actorSystem, backEnd)),
-                                                      path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
-                                                           () -> Routes.proxyGetCandidatesWithScore(actorSystem, backEnd))))));
-   }
-*/
-
-
 }

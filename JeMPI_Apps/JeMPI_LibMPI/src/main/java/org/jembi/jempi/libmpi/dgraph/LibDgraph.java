@@ -9,8 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.libmpi.common.PaginatedResultSet;
 import org.jembi.jempi.shared.models.*;
-import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,7 +56,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return List.of();
    }
 
-   public List<CustomSourceId> findSourceId(
+   public List<SourceId> findSourceId(
          final String facility,
          final String patient) {
       return DgraphQueries.findSourceIdList(facility, patient);
@@ -69,25 +69,15 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public List<ExpandedInteraction> findExpandedInteractions(final List<String> interactionIds) {
-      final var list = DgraphQueries.findExpandedInteractions(interactionIds);
-      return list.stream().map(CustomDgraphExpandedInteraction::toExpandedInteraction).toList();
+      return DgraphQueries.findExpandedInteractions(interactionIds);
    }
 
-   public Either<MpiGeneralError, List<GoldenRecord>> findGoldenRecords(final List<String> ids) {
-      final var list = DgraphQueries.findGoldenRecords(ids);
-      if (list.isRight()) {
-         return Either.right(list.get().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
-      } else {
-         return Either.left(list.getLeft());
-      }
+   public Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> findGoldenRecords(final List<String> ids) {
+      return DgraphQueries.findGoldenRecords(ids);
    }
 
-   public List<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
-      final var list = DgraphQueries.getExpandedGoldenRecords(goldenIds);
-      if (list == null || list.isEmpty() || AppUtils.isNullOrEmpty(list)) {
-         return List.of();
-      }
-      return list.stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
+   public PaginatedResultSet<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
+      return DgraphQueries.getExpandedGoldenRecords(goldenIds);
    }
 
    public List<String> findGoldenIds() {
@@ -100,42 +90,29 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.fetchGoldenIds(offset, length);
    }
 
-   public List<GoldenRecord> findLinkCandidates(final CustomDemographicData demographicData) {
-      final var candidates = CustomDgraphQueries.findLinkCandidates(demographicData);
-      return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+   public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
+      return DgraphQueries.findLinkCandidates(demographicData);
    }
 
-   public List<GoldenRecord> findMatchCandidates(final CustomDemographicData demographicData) {
-      final var candidates = CustomDgraphQueries.findMatchCandidates(demographicData);
-      return candidates.stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList();
+   public List<GoldenRecord> findMatchCandidates(final DemographicData demographicData) {
+      return DgraphQueries.findMatchCandidates(demographicData);
    }
 
-   public Either<MpiGeneralError, List<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {
+   public Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> apiCrFindGoldenRecords(final ApiModels.ApiCrFindRequest request) {
       final var goldenRecords = DgraphQueries.findGoldenRecords(request);
       if (goldenRecords.isRight()) {
-         return Either.right(goldenRecords.get().all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
+         return Either.right(goldenRecords.get()); // .all().stream().map(CustomDgraphGoldenRecord::toGoldenRecord).toList());
       } else {
          return Either.left(goldenRecords.getLeft());
       }
    }
 
-   private LibMPIPaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(
-         final DgraphExpandedGoldenRecords list) {
-      if (list == null) {
-         return null;
-      }
-      final var data = list.all().stream().map(CustomDgraphExpandedGoldenRecord::toExpandedGoldenRecord).toList();
-      final var pagination = list.pagination().getFirst();
-      return new LibMPIPaginatedResultSet<>(data, pagination);
+   private PaginatedResultSet<ExpandedGoldenRecord> paginatedExpandedGoldenRecords(final PaginatedResultSet<ExpandedGoldenRecord> list) {
+      return list;
    }
 
-   private LibMPIPaginatedResultSet<Interaction> paginatedInteractions(final DgraphInteractions list) {
-      if (list == null) {
-         return null;
-      }
-      final var data = list.all().stream().map(CustomDgraphInteraction::toInteraction).toList();
-      final var pagination = list.pagination().get(0);
-      return new LibMPIPaginatedResultSet<>(data, pagination);
+   private PaginatedResultSet<Interaction> paginatedInteractions(final PaginatedResultSet<InteractionWithScore> list) {
+      return new PaginatedResultSet<>(list.data().stream().map(InteractionWithScore::interaction).toList(), list.pagination());
    }
 
    private LibMPIPaginatedResultSet<String> paginatedGids(final DgraphPaginatedUidList list) {
@@ -143,7 +120,7 @@ public final class LibDgraph implements LibMPIClientInterface {
          return null;
       }
       final var data = list.all().stream().map(DgraphUid::uid).toList();
-      final var pagination = list.pagination().get(0);
+      final var pagination = list.pagination().getFirst();
       return new LibMPIPaginatedResultSet<>(data, pagination);
    }
 
@@ -152,12 +129,12 @@ public final class LibDgraph implements LibMPIClientInterface {
          return null;
       }
       final var data = list.all().stream().map(DgraphUid::uid).toList();
-      final var pagination = list.pagination().get(0);
-      final var interactionCount = list.interactionCount().get(0);
+      final var pagination = list.pagination().getFirst();
+      final var interactionCount = list.interactionCount().getFirst();
       return new PaginatedGIDsWithInteractionCount(data, pagination, interactionCount);
    }
 
-   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
+   public PaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -167,7 +144,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return paginatedExpandedGoldenRecords(list);
    }
 
-   public LibMPIPaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
+   public PaginatedResultSet<ExpandedGoldenRecord> customSearchGoldenRecords(
          final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
@@ -177,7 +154,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return paginatedExpandedGoldenRecords(list);
    }
 
-   public LibMPIPaginatedResultSet<Interaction> simpleSearchInteractions(
+   public PaginatedResultSet<Interaction> simpleSearchInteractions(
          final List<ApiModels.ApiSearchParameter> params,
          final Integer offset,
          final Integer limit,
@@ -187,7 +164,7 @@ public final class LibDgraph implements LibMPIClientInterface {
       return paginatedInteractions(list);
    }
 
-   public LibMPIPaginatedResultSet<Interaction> customSearchInteractions(
+   public PaginatedResultSet<Interaction> customSearchInteractions(
          final List<ApiModels.ApiSimpleSearchRequestPayload> params,
          final Integer offset,
          final Integer limit,
