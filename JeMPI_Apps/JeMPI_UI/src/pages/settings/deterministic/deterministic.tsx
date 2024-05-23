@@ -1,4 +1,3 @@
-import { AddOutlined } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -6,7 +5,6 @@ import {
   CardActions,
   CardContent,
   FormControl,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -36,42 +34,70 @@ enum Operator {
 const Deterministic = ({ demographicData = [] }: DeterministicProps) => {
   const [viewType, setViewType] = useState<number>(0);
   const [selectedComparator, setSelectedComparator] = useState<number>(0);
-  const [selectedField, setSelectedField] = useState<string>('');
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [selectedOperator, setSelectedOperator] = useState<Operator | ''>('');
+  const [rules, setRules] = useState<any[]>([]);
+  const [isOperatorDisabled, setIsOperatorDisabled] = useState<boolean>(true);
 
   useEffect(() => {
     const savedComparator = localStorage.getItem('selectedComparator');
-    const savedField = localStorage.getItem('selectedField');
+    const savedFields = localStorage.getItem('selectedFields');
     const savedOperator = localStorage.getItem('selectedOperator');
+    const savedRules = localStorage.getItem('rules');
 
     if (savedComparator) setSelectedComparator(Number(savedComparator));
-    if (savedField) setSelectedField(savedField);
+    if (savedFields) setSelectedFields(JSON.parse(savedFields));
     if (savedOperator) setSelectedOperator(savedOperator as Operator);
-  }, []);
+    if (savedRules) {
+      const parsedRules = JSON.parse(savedRules);
+      setRules(parsedRules);
+      setIsOperatorDisabled(parsedRules.length === 0); // Disabled if no rules
+    } else {
+      setIsOperatorDisabled(true); // Disabled if no rules in localStorage
+    }
 
+    console.log('Loaded rules from storage:', savedRules ? JSON.parse(savedRules) : []);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('selectedComparator', selectedComparator.toString());
   }, [selectedComparator]);
 
   useEffect(() => {
-    localStorage.setItem('selectedField', selectedField);
-  }, [selectedField]);
+    localStorage.setItem('selectedFields', JSON.stringify(selectedFields));
+  }, [selectedFields]);
 
   useEffect(() => {
     localStorage.setItem('selectedOperator', selectedOperator);
   }, [selectedOperator]);
 
+  useEffect(() => {
+    localStorage.setItem('rules', JSON.stringify(rules));
+    setIsOperatorDisabled(rules.length === 0); // Disable if no rules
+    console.log('Current rules:', rules);
+  }, [rules]);
+
   const handleComparatorChange = (event: SelectChangeEvent<typeof selectedComparator>) => {
     setSelectedComparator(event.target.value as number);
   };
 
-  const handleFieldChange = (event: SelectChangeEvent<typeof selectedField>) => {
-    setSelectedField(event.target.value);
+  const handleFieldChange = (event: SelectChangeEvent<typeof selectedFields>) => {
+    setSelectedFields(event.target.value as string[]);
   };
 
   const handleOperatorChange = (event: SelectChangeEvent<typeof selectedOperator>) => {
     setSelectedOperator(event.target.value as Operator);
+  };
+
+  const handleAddRule = () => {
+    const formattedFields = selectedFields.map(field => `eq(${field})`);
+    const newRule = {
+      vars: selectedFields,
+      text: formattedFields.join(selectedOperator === Operator.AND ? ' and ' : ' or ')
+    };
+    setRules([...rules, newRule]);
+    setSelectedFields([]);
+    setSelectedOperator('');
   };
 
   return (
@@ -120,7 +146,7 @@ const Deterministic = ({ demographicData = [] }: DeterministicProps) => {
                 value={selectedComparator}
                 label="Select Comparator Function"
                 onChange={handleComparatorChange}
-              > 
+              >
                 {options.map((option, index) => (
                   <MenuItem value={option.value} key={index}>
                     {option.label}
@@ -133,9 +159,10 @@ const Deterministic = ({ demographicData = [] }: DeterministicProps) => {
               <Select
                 labelId="select-field-label"
                 id="select-field"
-                value={selectedField}
+                value={selectedFields}
                 label="Select Field"
                 onChange={handleFieldChange}
+                multiple
               >
                 {Array.isArray(demographicData) && demographicData.map((field, index) => (
                   <MenuItem key={index} value={field.fieldName}>
@@ -152,6 +179,7 @@ const Deterministic = ({ demographicData = [] }: DeterministicProps) => {
                 value={selectedOperator}
                 label="Select Operator"
                 onChange={handleOperatorChange}
+                disabled={isOperatorDisabled}
               >
                 {Object.values(Operator).map((op, index) => (
                   <MenuItem key={index} value={op}>
@@ -172,18 +200,23 @@ const Deterministic = ({ demographicData = [] }: DeterministicProps) => {
               alignItems: 'center'
             }}
           >
-            <Typography variant="h5">eq (National ID)</Typography>
-            Or
-            <Typography variant="h5">
-              eq (given name) and eq(family name, 3) and eq (phone number)
-            </Typography>
+            {rules.map((rule, index) => (
+              <Typography key={index} variant="h5">
+                {`${rule.text}`}
+              </Typography>
+            ))}
           </Box>
         )}
       </CardContent>
       <CardActions>
-        <IconButton aria-label="add" size="small">
-          <AddOutlined fontSize="small" />
-        </IconButton>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleAddRule}
+          disabled={selectedFields.length === 0 || (selectedFields.length > 1 && !selectedOperator)}
+        >
+          Add Rule
+        </Button>
       </CardActions>
     </Card>
   );

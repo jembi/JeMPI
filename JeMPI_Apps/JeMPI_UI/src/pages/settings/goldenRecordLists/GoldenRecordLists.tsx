@@ -16,11 +16,7 @@ import {
   GridRowModel,
   GridRowEditStopReasons
 } from '@mui/x-data-grid'
-import { useSnackbar } from 'notistack'
 
-const randomTraderName = () => {
-  return Math.random().toString(36).substring(2, 7)
-}
 
 const randomId = () => {
   return Math.random().toString(36).substring(2, 9)

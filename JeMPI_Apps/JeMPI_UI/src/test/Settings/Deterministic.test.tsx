@@ -105,15 +105,6 @@ describe('Deterministic Component', () => {
     expect(getByLabelText('Select Operator')).toBeInTheDocument()
   })
 
-  test('changes viewType on button click', () => {
-    const { getByText, queryByText } = render(
-      <Deterministic demographicData={mockDemographicData} />
-    )
-    expect(queryByText('eq (National ID)')).not.toBeInTheDocument()
-    fireEvent.click(getByText('Source View'))
-    expect(getByText('eq (National ID)')).toBeInTheDocument()
-  })
-
   test('handles comparator change', () => {
     const { getByLabelText } = render(
       <Deterministic demographicData={mockDemographicData} />
