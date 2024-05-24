@@ -60,7 +60,7 @@ const Deterministic = ({
       setSelectedOperator(savedOperator ? (savedOperator as Operator) : '')
       setIsOperatorDisabled(parsedRules.length === 0)
     }
-  }, [selectedComparator, selectedFields, selectedOperator, rules])
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('selectedComparator', selectedComparator.toString())
@@ -157,8 +157,8 @@ const Deterministic = ({
                 label="Select Comparator Function"
                 onChange={handleComparatorChange}
               >
-                {options.map((option, index) => (
-                  <MenuItem value={option.value} key={index}>
+                {options.map(option => (
+                  <MenuItem value={option.value} key={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -175,8 +175,8 @@ const Deterministic = ({
                 multiple
               >
                 {Array.isArray(demographicData) &&
-                  demographicData.map((field, index) => (
-                    <MenuItem key={index} value={field.fieldName}>
+                  demographicData.map(field => (
+                    <MenuItem key={field.fieldName} value={field.fieldName}>
                       {transformFieldName(field.fieldName)}
                     </MenuItem>
                   ))}
@@ -194,8 +194,8 @@ const Deterministic = ({
                 onChange={handleOperatorChange}
                 disabled={isOperatorDisabled}
               >
-                {Object.values(Operator).map((op, index) => (
-                  <MenuItem key={index} value={op}>
+                {Object.values(Operator).map(op => (
+                  <MenuItem key={op} value={op}>
                     {op}
                   </MenuItem>
                 ))}
