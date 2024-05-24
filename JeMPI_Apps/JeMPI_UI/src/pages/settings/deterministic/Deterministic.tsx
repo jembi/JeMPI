@@ -10,13 +10,13 @@ import {
   Select,
   SelectChangeEvent,
   Typography
-} from '@mui/material';
-import { useEffect, useState } from 'react';
-import { DemographicField, Configuration } from 'types/Configuration';
-import { transformFieldName } from 'utils/helpers';
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { DemographicField, Configuration } from 'types/Configuration'
+import { transformFieldName } from 'utils/helpers'
 
 interface DeterministicProps {
-  demographicData: DemographicField[];
+  demographicData: DemographicField[]
   linkingRules: Configuration['rules']['link']
 }
 
@@ -25,80 +25,90 @@ const options = [
   { value: 1, label: 'Low Fuzziness' },
   { value: 2, label: 'Medium Fuzziness' },
   { value: 3, label: 'High Fuzziness' }
-];
+]
 
 enum Operator {
   AND = 'And',
   OR = 'Or'
 }
 
-const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProps) => {
-  const [viewType, setViewType] = useState<number>(0);
-  const [selectedComparator, setSelectedComparator] = useState<number>(0);
-  const [selectedFields, setSelectedFields] = useState<string[]>([]);
-  const [selectedOperator, setSelectedOperator] = useState<Operator | ''>('');
-  const [rules, setRules] = useState<any[]>([]);
-  const [isOperatorDisabled, setIsOperatorDisabled] = useState<boolean>(true);
+const Deterministic = ({
+  demographicData = [],
+  linkingRules
+}: DeterministicProps) => {
+  const [viewType, setViewType] = useState<number>(0)
+  const [selectedComparator, setSelectedComparator] = useState<number>(0)
+  const [selectedFields, setSelectedFields] = useState<string[]>([])
+  const [selectedOperator, setSelectedOperator] = useState<Operator | ''>('')
+  const [rules, setRules] = useState<any[]>([])
+  const [isOperatorDisabled, setIsOperatorDisabled] = useState<boolean>(true)
 
   const deterministicRules = linkingRules.deterministic || {}
   useEffect(() => {
-    const savedComparator = localStorage.getItem('selectedComparator');
-    const savedFields = localStorage.getItem('selectedFields');
-    const savedOperator = localStorage.getItem('selectedOperator');
-    const savedRules = localStorage.getItem('rules');
+    const savedComparator = localStorage.getItem('selectedComparator')
+    const savedFields = localStorage.getItem('selectedFields')
+    const savedOperator = localStorage.getItem('selectedOperator')
+    const savedRules = localStorage.getItem('rules')
 
     if (savedComparator || savedFields || savedOperator || savedRules) {
-      const parsedRules = savedRules ? JSON.parse(savedRules) : [];
-      setRules(parsedRules);
-      setSelectedComparator(savedComparator ? Number(savedComparator) : selectedComparator);
-      setSelectedFields(savedFields ? JSON.parse(savedFields) : selectedFields);
-      setSelectedOperator(savedOperator ? savedOperator as Operator : '');
-      setIsOperatorDisabled(parsedRules.length === 0);
+      const parsedRules = savedRules ? JSON.parse(savedRules) : []
+      setRules(parsedRules)
+      setSelectedComparator(
+        savedComparator ? Number(savedComparator) : selectedComparator
+      )
+      setSelectedFields(savedFields ? JSON.parse(savedFields) : selectedFields)
+      setSelectedOperator(savedOperator ? (savedOperator as Operator) : '')
+      setIsOperatorDisabled(parsedRules.length === 0)
     }
-
-    console.log('Loaded rules from storage:', savedRules ? JSON.parse(savedRules) : []);
-  }, []);
+  }, [selectedComparator, selectedFields, selectedOperator, rules])
 
   useEffect(() => {
-    localStorage.setItem('selectedComparator', selectedComparator.toString());
-  }, [selectedComparator]);
+    localStorage.setItem('selectedComparator', selectedComparator.toString())
+  }, [selectedComparator])
 
   useEffect(() => {
-    localStorage.setItem('selectedFields', JSON.stringify(selectedFields));
-  }, [selectedFields]);
+    localStorage.setItem('selectedFields', JSON.stringify(selectedFields))
+  }, [selectedFields])
 
   useEffect(() => {
-    localStorage.setItem('selectedOperator', selectedOperator);
-  }, [selectedOperator]);
+    localStorage.setItem('selectedOperator', selectedOperator)
+  }, [selectedOperator])
 
   useEffect(() => {
-    localStorage.setItem('rules', JSON.stringify(rules));
-    setIsOperatorDisabled(rules.length === 0); 
-    console.log('Current rules:', rules);
-  }, [rules]);
+    localStorage.setItem('rules', JSON.stringify(rules))
+    setIsOperatorDisabled(rules.length === 0)
+  }, [rules])
 
-  const handleComparatorChange = (event: SelectChangeEvent<typeof selectedComparator>) => {
-    setSelectedComparator(event.target.value as number);
-  };
+  const handleComparatorChange = (
+    event: SelectChangeEvent<typeof selectedComparator>
+  ) => {
+    setSelectedComparator(event.target.value as number)
+  }
 
-  const handleFieldChange = (event: SelectChangeEvent<typeof selectedFields>) => {
-    setSelectedFields(event.target.value as string[]);
-  };
+  const handleFieldChange = (
+    event: SelectChangeEvent<typeof selectedFields>
+  ) => {
+    setSelectedFields(event.target.value as string[])
+  }
 
-  const handleOperatorChange = (event: SelectChangeEvent<typeof selectedOperator>) => {
-    setSelectedOperator(event.target.value as Operator);
-  };
+  const handleOperatorChange = (
+    event: SelectChangeEvent<typeof selectedOperator>
+  ) => {
+    setSelectedOperator(event.target.value as Operator)
+  }
 
   const handleAddRule = () => {
-    const formattedFields = selectedFields.map(field => `eq(${field})`);
+    const formattedFields = selectedFields.map(field => `eq(${field})`)
     const newRule = {
       vars: selectedFields,
-      text: formattedFields.join(selectedOperator === Operator.AND ? ' and ' : ' or ')
-    };
-    setRules([...rules, newRule]);
-    setSelectedFields([]);
-    setSelectedOperator('');
-  };
+      text: formattedFields.join(
+        selectedOperator === Operator.AND ? ' and ' : ' or '
+      )
+    }
+    setRules([...rules, newRule])
+    setSelectedFields([])
+    setSelectedOperator('')
+  }
 
   return (
     <Card sx={{ minWidth: 275 }}>
@@ -164,15 +174,18 @@ const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProp
                 onChange={handleFieldChange}
                 multiple
               >
-                {Array.isArray(demographicData) && demographicData.map((field, index) => (
-                  <MenuItem key={index} value={field.fieldName}>
-                    {transformFieldName(field.fieldName)}
-                  </MenuItem>
-                ))}
+                {Array.isArray(demographicData) &&
+                  demographicData.map((field, index) => (
+                    <MenuItem key={index} value={field.fieldName}>
+                      {transformFieldName(field.fieldName)}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel id="select-operator-label">Select Operator</InputLabel>
+              <InputLabel id="select-operator-label">
+                Select Operator
+              </InputLabel>
               <Select
                 labelId="select-operator-label"
                 id="select-operator"
@@ -191,25 +204,21 @@ const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProp
           </Box>
         ) : (
           <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            justifyContent: 'center',
-            alignItems: 'flex-start'
-          }}
-        >
-          {Object.keys(deterministicRules).map((key, index) => (
-            <Typography
-              key={index}
-              variant="h5"
-              sx={{ fontSize: '1.1rem' }}
-            >
-              {`Rule ${index + 1}:  ${deterministicRules[key].text}`}
-            </Typography>
-          ))}
-        </Box>
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              justifyContent: 'center',
+              alignItems: 'flex-start'
+            }}
+          >
+            {Object.keys(deterministicRules).map((key, index) => (
+              <Typography key={index} variant="h5" sx={{ fontSize: '1.1rem' }}>
+                {`Rule ${index + 1}:  ${deterministicRules[key].text}`}
+              </Typography>
+            ))}
+          </Box>
         )}
       </CardContent>
       <CardActions>
@@ -217,13 +226,16 @@ const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProp
           variant="contained"
           size="small"
           onClick={handleAddRule}
-          disabled={selectedFields.length === 0 || (selectedFields.length > 1 && !selectedOperator)}
+          disabled={
+            selectedFields.length === 0 ||
+            (selectedFields.length > 1 && !selectedOperator)
+          }
         >
           Add Rule
         </Button>
       </CardActions>
     </Card>
-  );
-};
+  )
+}
 
-export default Deterministic;
+export default Deterministic
