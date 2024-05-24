@@ -1,13 +1,13 @@
 
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import configuration from 'services/configurationData';
+import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
 import GoldenRecordLists from 'pages/settings/goldenRecordLists/GoldenRecordLists';
 
 
 describe('GoldenRecordLists', () => {
-  const goldenRecordListsWithIds = configuration.uniqueGoldenRecordFields.map((row, index) => ({
+  const goldenRecordListsWithIds = mockData.configuration.uniqueGoldenRecordFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));

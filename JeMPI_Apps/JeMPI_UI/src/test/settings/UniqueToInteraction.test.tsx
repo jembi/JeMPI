@@ -1,12 +1,12 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import configuration from 'services/configurationData';
+import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
 import UniqueToInteraction from 'pages/settings/uniqueToInteraction/UniqueToInteraction';
 
 
 describe('UniqueToInteraction', () => {
-  const uniqueGoldenRecordFieldsWithIds = configuration.uniqueGoldenRecordFields.map((row, index) => ({
+  const uniqueGoldenRecordFieldsWithIds = mockData.configuration.uniqueGoldenRecordFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));
