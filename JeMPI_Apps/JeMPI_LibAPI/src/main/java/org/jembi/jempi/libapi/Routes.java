@@ -578,7 +578,6 @@ public final class Routes {
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String jsonFields,
          final String linkerIP,
          final Integer linkerPort,
          final String controllerIP,
@@ -652,8 +651,6 @@ public final class Routes {
                                () -> Routes.postExpandedInteractionsUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL,
                                () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
-                               () -> complete(StatusCodes.OK, jsonFields)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_CONFIGURATION,
