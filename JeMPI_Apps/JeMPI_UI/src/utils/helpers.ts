@@ -146,7 +146,7 @@ export function processIndex(index: string) {
 }
 
 export const transformFieldName = (input: Params | string): string => {
-  const fieldName = typeof input === 'string' ? input : input?.row?.fieldName || '';
+  const fieldName = typeof input === 'string' ? input : input?.row?.fieldName || 'Unknown Field';
   return fieldName
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (char: string) => char.toUpperCase())
