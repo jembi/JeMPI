@@ -47,15 +47,13 @@ const Deterministic = ({ demographicData = [], linkingRules }: DeterministicProp
     const savedOperator = localStorage.getItem('selectedOperator');
     const savedRules = localStorage.getItem('rules');
 
-    if (savedComparator) setSelectedComparator(Number(savedComparator));
-    if (savedFields) setSelectedFields(JSON.parse(savedFields));
-    if (savedOperator) setSelectedOperator(savedOperator as Operator);
-    if (savedRules) {
-      const parsedRules = JSON.parse(savedRules);
+    if (savedComparator || savedFields || savedOperator || savedRules) {
+      const parsedRules = savedRules ? JSON.parse(savedRules) : [];
       setRules(parsedRules);
+      setSelectedComparator(savedComparator ? Number(savedComparator) : selectedComparator);
+      setSelectedFields(savedFields ? JSON.parse(savedFields) : selectedFields);
+      setSelectedOperator(savedOperator ? savedOperator as Operator : '');
       setIsOperatorDisabled(parsedRules.length === 0);
-    } else {
-      setIsOperatorDisabled(true);
     }
 
     console.log('Loaded rules from storage:', savedRules ? JSON.parse(savedRules) : []);
