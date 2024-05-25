@@ -142,8 +142,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> crRegister(final CrRegisterRequest req) {
-      final var result = LinkerCR.crRegister(libMPI, req.crRegister);
-      req.replyTo.tell(new CrRegisterResponse(result));
+      try {
+         final var result = LinkerCR.crRegister(libMPI, req.crRegister);
+         req.replyTo.tell(new CrRegisterResponse(result));
+      } catch (Exception e) {
+         LOGGER.error("crRegister failed with error: {}", e.getLocalizedMessage());
+         req.replyTo.tell(new CrRegisterResponse(Either.left(new MpiServiceError.GeneralError(e.getLocalizedMessage()))));
+      }
       return Behaviors.same();
    }
 

@@ -30,6 +30,22 @@ public record AuxInteractionData(
    }
 
    public static AuxInteractionData fromCustomAuxInteractionData(final JsonNode node) {
+      final var dt = node.get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).textValue();
+      final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
+      return new AuxInteractionData(
+            d,
+            FIELDS_CONFIG.userAuxInteractionFields
+                  .stream()
+                  .map(auxField -> new AuxInteractionUserField(
+                        auxField.scName(),
+                        auxField.ccName(),
+                        node.get(auxField.ccName()) != null
+                              ? node.get(auxField.ccName()).textValue()
+                              : ""))
+                  .toList());
+   }
+
+   public static AuxInteractionData fromAuxInteractionData(final JsonNode node) {
       final var dt = node.get(DGraphConfig.PREDICATE_INTERACTION_AUX_DATE_CREATED).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
       return new AuxInteractionData(
