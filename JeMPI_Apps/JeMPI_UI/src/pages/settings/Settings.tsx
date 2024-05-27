@@ -137,7 +137,7 @@ const Settings = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-            <Deterministic linkingRules={configuration.rules.link} />
+            <Deterministic linkingRules={configuration.rules.link} demographicData={fields?.demographicFields || []} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             Blocking

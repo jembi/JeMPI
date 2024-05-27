@@ -65,7 +65,7 @@ axiosMockAdapterInstance
   })
   .onGet(ROUTES.GET_CONFIGURATION)
   .reply(200, configuration)
-  .onPost(ROUTES.POST_FIELDS_CONFIG)
+  .onGet(ROUTES.GET_FIELDS_CONFIG)
   .reply(200, mockFields)
   .onPost(`${ROUTES.POST_SIMPLE_SEARCH}/golden`)
   .reply(200, searchGoldenRecordResult)

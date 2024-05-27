@@ -333,6 +333,17 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.GetFieldsConfigurationResponse> getFieldsConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.GetFieldsConfigurationResponse> stage = AskPattern
+            .ask(backEnd,
+                 BackEnd.GetFieldsConfigurationRequest::new,
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.PostConfigurationResponse> postConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,

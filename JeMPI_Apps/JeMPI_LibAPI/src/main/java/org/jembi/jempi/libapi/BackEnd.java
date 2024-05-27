@@ -30,10 +30,7 @@ import java.nio.file.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -45,9 +42,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
-   private final String apiConfigDirectory;
+   private final String systemConfigDirectory;
    private final String configReferenceFileName;
    private final String configMasterFileName;
+   private final String fieldsConfigurationFileName;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
@@ -65,9 +63,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId,
-         final String apiConfigDirectory,
+         final String systemConfigDirectory,
          final String configReferenceFileName,
-         final String configMasterFileName) {
+         final String configMasterFileName,
+         final String fieldsConfigurationFileName) {
       super(context);
       try {
          this.libMPI = null;
@@ -79,9 +78,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
-         this.apiConfigDirectory = apiConfigDirectory;
+         this.systemConfigDirectory = systemConfigDirectory;
          this.configReferenceFileName = configReferenceFileName;
          this.configMasterFileName = configMasterFileName;
+         this.fieldsConfigurationFileName = fieldsConfigurationFileName;
          psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
@@ -104,9 +104,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId,
-         final String apiConfigDirectory,
+         final String systemConfigDirectory,
          final String configReferenceFileName,
-         final String configMasterFileName) {
+         final String configMasterFileName,
+         final String fieldsConfigurationFileName) {
       return Behaviors.setup(context -> new BackEnd(level,
                                                     context,
                                                     dgraphHosts,
@@ -119,9 +120,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId,
-                                                    apiConfigDirectory,
+                                                    systemConfigDirectory,
                                                     configReferenceFileName,
-                                                    configMasterFileName));
+                                                    configMasterFileName,
+                                                    fieldsConfigurationFileName));
    }
 
    private static void appendUploadConfigToFile(
@@ -186,6 +188,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
                     .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
                     .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
+                    .onMessage(GetFieldsConfigurationRequest.class, this::getFieldsConfigurationHandler)
                     .build();
    }
 
@@ -485,8 +488,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
-      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
-      Path configReferenceJsonFilePath = Paths.get(apiConfigDirectory, configReferenceFileName);
+      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
+      Path configReferenceJsonFilePath = Paths.get(systemConfigDirectory, configReferenceFileName);
 
       Path configFilePath = configMasterJsonFilePath;
       if (!Files.exists(configFilePath)) {
@@ -505,8 +508,26 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
+      final var separator = FileSystems.getDefault().getSeparator();
+      final var filePath =
+            new File("%sapp%sconf_system%s%s".formatted(separator, separator, separator, fieldsConfigurationFileName)).toPath();
+      try {
+         String configFileContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+         FieldsConfiguration fieldsConfiguration = AppUtils.OBJECT_MAPPER.readValue(configFileContent, FieldsConfiguration.class);
+         ArrayList<FieldsConfiguration.Field> fields = new ArrayList<>();
+         fields.addAll(fieldsConfiguration.systemFields());
+         fields.addAll(fieldsConfiguration.fields());
+         request.replyTo.tell(new GetFieldsConfigurationResponse(fields));
+      } catch (Exception exception) {
+         LOGGER.error("getFieldsConfigurationHandler failed with error: {}", exception.getLocalizedMessage());
+      }
+
+      return Behaviors.same();
+   }
+
    private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
-      Path configMasterJsonFilePath = Paths.get(apiConfigDirectory, configMasterFileName);
+      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
       ObjectMapper objectMapper = new ObjectMapper();
       Configuration configJson = request.configuration;
 
@@ -580,6 +601,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event { }
 
    public record GetConfigurationResponse(Configuration configuration) implements EventResponse { }
+
+   public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
+
+   public record GetFieldsConfigurationResponse(List<FieldsConfiguration.Field> fields) implements EventResponse { }
 
    public record PostConfigurationRequest(
          ActorRef<PostConfigurationResponse> replyTo,

@@ -27,10 +27,8 @@ import static ch.megard.akka.http.cors.javadsl.CorsDirectives.cors;
 public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
    private static final Logger LOGGER = LogManager.getLogger(HttpServer.class);
    private CompletionStage<ServerBinding> binding = null;
-
    private ActorSystem<Void> actorSystem;
    private ActorRef<BackEnd.Event> backEnd;
-   private String jsonFields;
    private Http akkaHttpServer = null;
 
    public HttpServer(final MessageDispatcher dispatcher) {
@@ -46,12 +44,10 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
          final String httpServerHost,
          final int httpPort,
          final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd,
-         final String jsonFields) {
+         final ActorRef<BackEnd.Event> backEnd) {
 
       this.actorSystem = actorSystem;
       this.backEnd = backEnd;
-      this.jsonFields = jsonFields;
       Configurator.setLevel(this.getClass(), AppConfig.GET_LOG_LEVEL);
 
       akkaHttpServer = Http.get(actorSystem);
@@ -65,10 +61,6 @@ public final class HttpServer extends HttpSessionAwareDirectives<UserSession> {
 
    public Http getAkkaHttpServer() {
       return akkaHttpServer;
-   }
-
-   public String getJsonFields() {
-      return jsonFields;
    }
 
    public ActorRef<BackEnd.Event> getBackEnd() {

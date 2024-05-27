@@ -8,9 +8,10 @@ export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
 export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
 
-export API_CONFIG_DIR="/app/conf"
-export API_CONFIG_REFERENCE_FILENAME="config-reference.json"
+export SYSTEM_CONFIG_DIR="/app/conf_system"
+export API_CONFIG_REFERENCE_FILENAME="config.json"
 export API_CONFIG_MASTER_FILENAME="config-master.json"
+export API_FIELDS_CONFIG_FILENAME="config-api.json"
 
 export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
