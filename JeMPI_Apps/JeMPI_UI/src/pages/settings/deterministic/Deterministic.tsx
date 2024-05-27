@@ -9,11 +9,14 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Tab,
+  Tabs,
   Typography
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { DemographicField, Configuration } from 'types/Configuration'
 import { transformFieldName } from 'utils/helpers'
+import { CustomTabPanel, a11yProps } from './BasicTabs'
 
 interface DeterministicProps {
   demographicData: DemographicField[]
@@ -42,6 +45,12 @@ const Deterministic = ({
   const [selectedOperator, setSelectedOperator] = useState<Operator | ''>('')
   const [rules, setRules] = useState<any[]>([])
   const [isOperatorDisabled, setIsOperatorDisabled] = useState<boolean>(true)
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
 
   const deterministicRules = linkingRules.deterministic || {}
   useEffect(() => {
@@ -120,6 +129,24 @@ const Deterministic = ({
           gap: 6
         }}
       >
+      <Box sx={{ width: '100%' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          <Tab label="Validate" {...a11yProps(0)} />
+          <Tab label="Linking" {...a11yProps(1)} />
+          <Tab label="Matching" {...a11yProps(2)} />
+        </Tabs>
+      </Box>
+      <CustomTabPanel value={value} index={0}>
+        Validate
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={1}>
+        Linking
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={2}>
+        Matching
+      </CustomTabPanel>
+    </Box>
         <Box sx={{ mr: 'auto', display: 'flex', flexDirection: 'row', gap: 2 }}>
           <Button
             variant="outlined"
@@ -135,7 +162,7 @@ const Deterministic = ({
           >
             Source View
           </Button>
-        </Box>
+        </Box>z
         {viewType === 0 ? (
           <Box
             sx={{
