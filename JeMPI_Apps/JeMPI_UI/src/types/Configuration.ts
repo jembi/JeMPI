@@ -34,8 +34,8 @@ export interface LinkRules {
 }
 
 export interface Configuration {
-  uniqueInteractionFields: Field[]
-  uniqueGoldenRecordFields: Field[]
+  auxInteractionFields: Field[]
+  auxGoldenRecordFields: Field[]
   additionalNodes: {
     nodeName: string
     fields: Field[]
