@@ -218,7 +218,7 @@ case $choice in
         exit 0
         ;;
     6)
-        BACKUP_DATE_TIME=$(date +%Y%m%d_%H%M%S)
+        BACKUP_DATE_TIME=$(date +%Y-%m-%d_%H%M%S)
         echo "Started Backup at- $BACKUP_DATE_TIME"
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
             source dgraph-backup-api.sh $BACKUP_DATE_TIME

@@ -74,6 +74,8 @@ public final class Routes {
        return concat(post(() -> concat(
                        /* proxy for linker/controller services*/
                        path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
+                               () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
+                       path("createGolden",
                                () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd))
                        )),
                get(() -> concat(

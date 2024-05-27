@@ -54,7 +54,7 @@ def backup_dgraph_data():
 
 
 def create_backup_json(backup_data, file_name):
-    backup_path_folder = os.path.join(backup_path, date.today().strftime("%Y-%m-%d"))
+    backup_path_folder = os.path.join(backup_path, current_datetime)
     create_folder_if_not_exists(backup_path_folder)
     with open(os.path.join(backup_path_folder, file_name), 'w') as json_file:
         json.dump(backup_data, json_file, indent=4)
