@@ -548,6 +548,18 @@ public final class Routes {
                         });
    }
 
+   private static Route getFieldsConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(Ask.getFieldsConfiguration(actorSystem, backEnd),
+                        result -> {
+                           if (!result.isSuccess()) {
+                              return handleError(result.failed().get());
+                           }
+                           return complete(StatusCodes.OK, result.get().fields(), JSON_MARSHALLER);
+                        });
+   }
+
    private static Route postConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -566,7 +578,6 @@ public final class Routes {
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
-         final String jsonFields,
          final String linkerIP,
          final Integer linkerPort,
          final String controllerIP,
@@ -640,8 +651,6 @@ public final class Routes {
                                () -> Routes.postExpandedInteractionsUsingCSV(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL,
                                () -> Routes.getGoldenRecordAuditTrail(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_POST_FIELDS_CONFIG,
-                               () -> complete(StatusCodes.OK, jsonFields)),
                           path(GlobalConstants.SEGMENT_POST_UPLOAD_CSV_FILE,
                                () -> Routes.postUploadCsvFile(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_CONFIGURATION,
@@ -666,7 +675,9 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
                                () -> Routes.getGidsAll(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
-                               () -> Routes.getConfiguration(actorSystem, backEnd)))));
+                               () -> Routes.getConfiguration(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
+                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
    }
 
 }

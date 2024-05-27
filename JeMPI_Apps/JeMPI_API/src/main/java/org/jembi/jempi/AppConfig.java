@@ -49,9 +49,10 @@ public final class AppConfig {
    public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
-   public static final String API_CONFIG_DIR = CONFIG.getString("API_CONFIG_DIR");
+   public static final String SYSTEM_CONFIG_DIR = CONFIG.getString("SYSTEM_CONFIG_DIR");
    public static final String API_CONFIG_REFERENCE_FILENAME = CONFIG.getString("API_CONFIG_REFERENCE_FILENAME");
    public static final String API_CONFIG_MASTER_FILENAME = CONFIG.getString("API_CONFIG_MASTER_FILENAME");
+   public static final String API_FIELDS_CONFIG_FILENAME = CONFIG.getString("API_FIELDS_CONFIG_FILENAME");
 
    private AppConfig() {
    }

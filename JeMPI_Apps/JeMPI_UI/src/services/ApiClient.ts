@@ -84,7 +84,7 @@ export class ApiClient {
   }
 
   async fetchFields() {
-    const { data } = await this.client.post<Fields>(ROUTES.POST_FIELDS_CONFIG)
+    const { data } = await this.client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
     return data
   }
 
