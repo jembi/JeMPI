@@ -7,7 +7,7 @@ import UniqueToGR from 'pages/settings/uniqueToGR/UniqueToGR';
 
 
 describe('UniqueToGR', () => {
-  const uniqueGoldenRecordFieldsWithIds = mockData.configuration.uniqueGoldenRecordFields.map((row, index) => ({
+  const uniqueGoldenRecordFieldsWithIds = mockData.configuration.auxGoldenRecordFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));

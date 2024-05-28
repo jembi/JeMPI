@@ -7,7 +7,7 @@ import GoldenRecordLists from 'pages/settings/goldenRecordLists/GoldenRecordList
 
 
 describe('GoldenRecordLists', () => {
-  const goldenRecordListsWithIds = mockData.configuration.uniqueGoldenRecordFields.map((row, index) => ({
+  const goldenRecordListsWithIds = mockData.configuration.auxGoldenRecordFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));

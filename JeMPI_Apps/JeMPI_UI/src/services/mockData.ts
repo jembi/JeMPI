@@ -332,9 +332,8 @@ const currentUser: User = {
   provider: 'keycloak'
 }
 
-
 const configuration = {
-  uniqueInteractionFields: [
+  auxInteractionFields: [
     {
       fieldName: 'aux_date_created',
       fieldType: 'DateTime'
@@ -342,15 +341,19 @@ const configuration = {
     {
       fieldName: 'aux_id',
       fieldType: 'String',
-      csvCol: 0
+      source: {
+        csvCol: 0
+      }
     },
     {
       fieldName: 'aux_clinical_data',
       fieldType: 'String',
-      csvCol: 10
+      source: {
+        csvCol: 10
+      }
     }
   ],
-  uniqueGoldenRecordFields: [
+  auxGoldenRecordFields: [
     {
       fieldName: 'aux_date_created',
       fieldType: 'DateTime'
@@ -363,7 +366,9 @@ const configuration = {
     {
       fieldName: 'aux_id',
       fieldType: 'String',
-      source: 'aux_id'
+      source: {
+        interactionField: 'aux_id'
+      }
     }
   ],
   additionalNodes: [
@@ -373,12 +378,16 @@ const configuration = {
         {
           fieldName: 'facility',
           fieldType: 'String',
-          csvCol: 8
+          source: {
+            csvCol: 8
+          }
         },
         {
           fieldName: 'patient',
           fieldType: 'String',
-          csvCol: 9
+          source: {
+            csvCol: 9
+          }
         }
       ]
     }

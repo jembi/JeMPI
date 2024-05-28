@@ -6,7 +6,7 @@ import UniqueToInteraction from 'pages/settings/uniqueToInteraction/UniqueToInte
 
 
 describe('UniqueToInteraction', () => {
-  const uniqueGoldenRecordFieldsWithIds = mockData.configuration.uniqueGoldenRecordFields.map((row, index) => ({
+  const uniqueGoldenRecordFieldsWithIds = mockData.configuration.auxGoldenRecordFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));
