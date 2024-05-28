@@ -8,6 +8,7 @@ public final class GlobalConstants {
    public static final String TOPIC_INTERACTION_EM = "JeMPI-interaction-em";
    public static final String TOPIC_INTERACTION_LINKER = "JeMPI-interaction-linker";
    public static final String TOPIC_INTERACTION_VALIDATE = "JeMPI-interaction-validate";
+   public static final String TOPIC_INTERACTION_MATCH = "JeMPI-interaction-match";
    public static final String TOPIC_MU_CONTROLLER = "JeMPI-mu-controller";
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
