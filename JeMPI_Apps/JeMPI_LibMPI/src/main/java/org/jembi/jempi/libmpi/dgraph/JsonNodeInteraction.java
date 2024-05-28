@@ -39,7 +39,7 @@ record JsonNodeInteraction(JsonNode node) {
                                         (!(patientNode == null || patientNode.isMissingNode()))
                                               ? patientNode.textValue()
                                               : null);
-      final var auxInteractionData = AuxInteractionData.fromCustomAuxInteractionData(node);
+      final var auxInteractionData = AuxInteractionData.fromAuxInteractionData(node);
       final var demographicData =
             new DemographicData(
                   JSON_CONFIG.demographicFields().stream().map(demographicField -> {
