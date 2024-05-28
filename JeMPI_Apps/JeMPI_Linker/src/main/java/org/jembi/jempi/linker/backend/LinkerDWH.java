@@ -203,11 +203,13 @@ public final class LinkerDWH {
                              {}""";
                LOGGER.info(f, i, g);
 
-               matchNoficationProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                               GlobalConstants.TOPIC_INTERACTION_MATCH,
-                                                               stringSerializer(),
-                                                               matchNotificationSerializer(),
-                                                               "LinkerDWH-INTERACTION-MATCH-NOTIFICATIONS");
+               if (matchNoficationProducer == null) {
+                  matchNoficationProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                                  GlobalConstants.TOPIC_INTERACTION_MATCH,
+                                                                  stringSerializer(),
+                                                                  matchNotificationSerializer(),
+                                                                  "LinkerDWH-INTERACTION-MATCH-NOTIFICATIONS");
+               }
 
                matchNoficationProducer.produceSync(UUID.randomUUID().toString(),
                                                    new MatchNotification(interaction,
