@@ -24,6 +24,7 @@ test('fetchConfiguration should return configuration data from the server', asyn
   console.log('result')
   // Then
   expect(mockAxios.post).toHaveBeenCalledWith(ROUTES.GET_CONFIGURATION)
+  mockAxios.get.mockResolvedValue(mockResponse)
 
   expect(result).toEqual(configuration)
 })
