@@ -1,10 +1,9 @@
-import React from 'react';
-import configuration from 'services/configurationData';
 import { useQuery } from '@tanstack/react-query';
 import { useConfig } from 'hooks/useConfig';
 import { renderHook } from '@testing-library/react';
+import mockData from 'services/mockData';
 
-const mockConfiguration = configuration;
+const mockConfiguration = mockData.configuration;
 jest.mock('hooks/useConfig', () => ({
   useConfig: () => ({
     apiClient: {
@@ -32,7 +31,7 @@ describe('Settings Component', () => {
       return { fields, isLoading };
     });
 
-    expect(result.current.fields).toEqual(configuration);
+    expect(result.current.fields).toEqual(mockConfiguration);
     expect(result.current.isLoading).toBe(false);
   });
 });

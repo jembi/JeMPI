@@ -117,7 +117,7 @@ const Settings = () => {
             Setup properties that are unique to the golden record
             </Typography>
             <UniqueToGR
-              uniqueToGoldenRecordData={configuration.uniqueGoldenRecordFields}
+              uniqueToGoldenRecordData={configuration.auxGoldenRecordFields}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
@@ -125,7 +125,7 @@ const Settings = () => {
             Setup properties that are unique to the interaction
             </Typography>
             <UniqueToInteraction
-              uniqueInteractionData={configuration.uniqueInteractionFields}
+              uniqueInteractionData={configuration.auxInteractionFields}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>

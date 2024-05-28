@@ -29,8 +29,8 @@ type Params = {
 }
 
 export interface Configuration {
-  uniqueInteractionFields: Field[]
-  uniqueGoldenRecordFields: Field[]
+  auxInteractionFields: Field[]
+  auxGoldenRecordFields: Field[]
   additionalNodes: {
     nodeName: string
     fields: Field[]
@@ -126,11 +126,11 @@ export const generateId = (configuration: Configuration): Configuration => {
 
   return {
     ...configuration,
-    uniqueInteractionFields: generateIdForFields(
-      configuration.uniqueInteractionFields
+    auxInteractionFields: generateIdForFields(
+      configuration.auxInteractionFields
     ),
-    uniqueGoldenRecordFields: generateIdForFields(
-      configuration.uniqueGoldenRecordFields
+    auxGoldenRecordFields: generateIdForFields(
+      configuration.auxGoldenRecordFields
     ),
     demographicFields: generateIdForFields(configuration.demographicFields),
     additionalNodes: generateIdForNodes(configuration.additionalNodes)

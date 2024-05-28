@@ -1,5 +1,6 @@
 const ROUTES = {
   GET_FIELDS_CONFIG: '/fieldsConfiguration',
+  GET_CONFIGURATION: '/configuration',
   POST_CONFIGURATION: '/configuration',
   POST_NOTIFICATIONS: '/notifications',
   POST_INTERACTION: '/interaction',
