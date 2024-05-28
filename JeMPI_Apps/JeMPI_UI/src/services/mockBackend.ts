@@ -4,7 +4,6 @@ import { NotificationState } from '../types/Notification'
 import ROUTES from './apiRoutes'
 import mockData from './mockData'
 import mockFields from './mockFields'
-import configuration from './configurationData'
 
 const moxios = axios.create()
 
@@ -19,7 +18,8 @@ const {
   goldenRecords,
   currentUser,
   searchGoldenRecordResult,
-  searchPatientRecordResult
+  searchPatientRecordResult,
+  configuration
 } = mockData
 
 axiosMockAdapterInstance
@@ -63,7 +63,7 @@ axiosMockAdapterInstance
   .reply(() => {
     return [200, notifications]
   })
-  .onPost(ROUTES.POST_CONFIGURATION)
+  .onGet(ROUTES.GET_CONFIGURATION)
   .reply(200, configuration)
   .onGet(ROUTES.GET_FIELDS_CONFIG)
   .reply(200, mockFields)

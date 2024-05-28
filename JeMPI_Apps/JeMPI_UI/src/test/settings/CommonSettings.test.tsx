@@ -2,12 +2,12 @@
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CommonSettings from 'pages/settings/common/Common';
-import configuration from 'services/configurationData';
+import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
 
 
 describe('CommonSettings Component', () => {
-  const demographicWithIds = configuration.demographicFields.map((row, index) => ({
+  const demographicWithIds = mockData.configuration.demographicFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));
