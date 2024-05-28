@@ -15,12 +15,14 @@ import org.jembi.jempi.shared.utils.AuditTrailBridge;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public final class LibMPI {
 
    private static final Logger LOGGER = LogManager.getLogger(LibMPI.class);
    private final LibMPIClientInterface client;
    private final MyKafkaProducer<String, AuditEvent> topicAuditEvents;
+   private final MyKafkaProducer<String, Validation> topicValidation;
    private final AuditTrailBridge auditTrailUtil;
 
 
@@ -37,6 +39,11 @@ public final class LibMPI {
                                                new JsonPojoSerializer<>(),
                                                kafkaClientId);
       auditTrailUtil = new AuditTrailBridge(topicAuditEvents);
+      topicValidation = new MyKafkaProducer<>(kafkaBootstrapServers,
+                                              GlobalConstants.TOPIC_INTERACTION_VALIDATE,
+                                              new StringSerializer(),
+                                              new JsonPojoSerializer<>(),
+                                              kafkaClientId);
       client = new LibDgraph(level, host, port);
       client.connect();
    }
@@ -388,6 +395,17 @@ public final class LibMPI {
                                       result.score(),
                                       deterministicValidation,
                                       probabilisticValidation), result.score(), linkingRule);
+
+         topicValidation.produceAsync(UUID.randomUUID().toString(),
+                                      new Validation(result.interactionUID(),
+                                                     result.goldenUID(),
+                                                     deterministicValidation,
+                                                     probabilisticValidation),
+                                      (metadata, exception) -> {
+                                       if (exception != null) {
+                                          LOGGER.error(exception.getMessage(), exception);
+                                       }
+                                    });
       } else {
          sendAuditEvent(interaction.interactionId(),
                         goldenIdScore.goldenId(),
