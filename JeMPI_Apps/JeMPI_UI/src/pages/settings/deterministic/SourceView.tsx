@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 
-interface RowData {
+export interface RowData {
   id: string;
   ruleNumber: number;
   ruleText: string;
@@ -125,7 +125,10 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
         },
         '& .textPrimary': {
           color: '#fff'
-        }
+        },
+        '& .MuiDataGrid-columnHeaders': {
+          display: 'none',
+        },
       }}
     >
       <DataGrid
@@ -136,6 +139,8 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
         onRowModesModelChange={handleRowModesModelChange}
         onRowEditStop={handleRowEditStop}
         processRowUpdate={processRowUpdate}
+        hideFooter
+        disableColumnSelector
       />
     </Box>
   );
