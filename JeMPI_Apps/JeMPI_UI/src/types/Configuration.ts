@@ -20,7 +20,7 @@ interface Rule {
   text: string
 }
 
-interface DeterministicRule {
+export interface DeterministicRule {
   [key: string]: Rule
 }
 

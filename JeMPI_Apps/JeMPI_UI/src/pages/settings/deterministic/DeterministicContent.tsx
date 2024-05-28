@@ -9,9 +9,9 @@ import {
     Typography
   } from '@mui/material'
   import { useState, useEffect } from 'react'
-  import { DemographicField, Configuration } from 'types/Configuration'
+  import { DemographicField, Configuration, DeterministicRule } from 'types/Configuration'
   import { transformFieldName } from 'utils/helpers'
-import SourceView from './SourceView'
+import SourceView, { RowData } from './SourceView'
   
   interface DeterministicContentProps {
     demographicData: DemographicField[]
@@ -29,6 +29,13 @@ import SourceView from './SourceView'
     AND = 'And',
     OR = 'Or'
   }
+  const transformRulesToRowData = (rules: DeterministicRule): RowData[] => {
+    return Object.keys(rules).map((key, index) => ({
+      id: key,
+      ruleNumber: index + 1,
+      ruleText: rules[key].text
+    }));
+  };
   
   const DeterministicContent = ({
     demographicData = [],
@@ -41,7 +48,7 @@ import SourceView from './SourceView'
     const [rules, setRules] = useState<any[]>([])
     const [isOperatorDisabled, setIsOperatorDisabled] = useState<boolean>(true)
   
-    const deterministicRules = linkingRules.deterministic || {}
+    const deterministicRules = transformRulesToRowData(linkingRules.deterministic);
     
     useEffect(() => {
       const savedComparator = localStorage.getItem('selectedComparator')
@@ -116,19 +123,35 @@ import SourceView from './SourceView'
           <Button
             variant="outlined"
             size="medium"
-            onClick={() => setViewType(1)}
+            onClick={() => setViewType(0)}
           >
             Source View
           </Button>
           <Button
             variant="outlined"
             size="medium"
-            onClick={() => setViewType(0)}
+            onClick={() => setViewType(1)}
+            disabled={true}
           >
             Design View
           </Button>
         </Box>
-        {viewType != 0 ? (
+        {viewType === 0 ?  (
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              justifyContent: 'center',
+              alignItems: 'flex-start'
+            }}
+          >
+            <SourceView data={deterministicRules}/>
+          </Box>
+        )
+        :
+        (
           <Box
             sx={{
               display: 'flex',
@@ -194,25 +217,7 @@ import SourceView from './SourceView'
               </Select>
             </FormControl>
           </Box>
-        ) : (
-          <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              justifyContent: 'center',
-              alignItems: 'flex-start'
-            }}
-          >
-            {/* {Object.keys(deterministicRules).map((key, index) => (
-              <Typography key={index} variant="h5" sx={{ fontSize: '1.1rem' }}>
-                {`Rule ${index + 1}:  ${deterministicRules[key].text}`}
-              </Typography>
-            ))} */}
-            <SourceView data={[]}/>
-          </Box>
-        )}
+        ) }
         <Button
           variant="contained"
           size="small"
