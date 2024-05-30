@@ -6,18 +6,29 @@ import {
   Tabs
 } from '@mui/material'
 import { useState } from 'react'
-import { DemographicField, Configuration } from 'types/Configuration'
+import { Field, Rule } from 'types/Configuration'
 import { CustomTabPanel, a11yProps } from './BasicTabs'
 import DeterministicContent from './DeterministicContent'
 
 interface DeterministicProps {
-  demographicData: DemographicField[]
-  linkingRules: Configuration['rules']['link']
+  demographicData: Field[];
+  rules: {
+    link: {
+      deterministic: Rule[];
+    };
+    validate: {
+      deterministic: Rule[];
+    };
+    matchNotification: {
+      deterministic: Rule[];
+    };
+  };
 }
+
 
 const Deterministic = ({
   demographicData = [],
-  linkingRules
+  rules
 }: DeterministicProps) => {
   const [value, setValue] = useState(0);
 
@@ -44,13 +55,22 @@ const Deterministic = ({
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            <DeterministicContent demographicData={demographicData} linkingRules={linkingRules} />
+            <DeterministicContent
+              demographicData={demographicData}
+              linkingRules={{ link: { deterministic: rules.link.deterministic } }}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <DeterministicContent demographicData={demographicData} linkingRules={linkingRules} />
+            <DeterministicContent
+              demographicData={demographicData}
+              linkingRules={{ link: { deterministic: rules.validate.deterministic } }}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            <DeterministicContent demographicData={demographicData} linkingRules={linkingRules} />
+            <DeterministicContent
+              demographicData={demographicData}
+              linkingRules={{ link: { deterministic: rules.matchNotification.deterministic } }}
+            />
           </CustomTabPanel>
         </Box>
       </CardContent>
