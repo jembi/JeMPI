@@ -10,9 +10,10 @@ import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import './Shapes.css'
 import { useConfig } from 'hooks/useConfig'
 import { useQuery } from '@tanstack/react-query'
-import { Configuration, generateId } from 'utils/helpers'
+import { generateId } from 'utils/helpers'
 import Loading from 'components/common/Loading'
 import InteractiveNode from './interactiveNode/InteractiveNode'
+import { Configuration } from 'types/Configuration'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -137,7 +138,7 @@ const Settings = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-            <Deterministic linkingRules={configuration.rules.link} demographicData={fields?.demographicFields || []} />
+          <Deterministic rules={configuration.rules} demographicData={fields?.demographicFields || []} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             Blocking

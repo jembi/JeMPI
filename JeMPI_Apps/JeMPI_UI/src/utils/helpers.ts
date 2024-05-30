@@ -1,25 +1,11 @@
 import { GridColDef } from '@mui/x-data-grid'
+import { Configuration, CustomNode, Field, LinkingRules } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
   regex?: string
   required: boolean
   onErrorMessage: string
-}
-interface Field {
-  fieldName: string
-  fieldType: string
-  csvCol?: number
-  source?: string
-  default?: string
-  indexGoldenRecord?: string
-  indexInteraction?: string
-  linkMetaData?: {
-    comparison: string
-    comparisonLevels: number[]
-    m: number
-    u: number
-  }
 }
 
 type Params = {
@@ -28,21 +14,7 @@ type Params = {
   }
 }
 
-export interface Configuration {
-  auxInteractionFields: Field[]
-  auxGoldenRecordFields: Field[]
-  additionalNodes: {
-    nodeName: string
-    fields: Field[]
-  }[]
-  demographicFields: Field[]
-  rules: {
-    link: {
-      deterministic: Record<string, { vars: string[]; text: string }>
-      probabilistic: Record<string, { vars: string[]; text: string }>
-    }
-  }
-}
+
 
 export const isInputValid = (value: unknown, validation?: ValidationObject) => {
   if (validation && typeof value === 'string') {
@@ -106,37 +78,30 @@ export const randomId = () => {
   return Math.random().toString(36).substring(2, 9)
 }
 
+
+
 export const generateId = (configuration: Configuration): Configuration => {
   const generateIdForFields = (fields: Field[]): Field[] => {
-    return fields.map(item => ({
-      id: randomId(),
-      ...item
-    }))
-  }
+    return fields.map((item) => ({ ...item, id: Math.random().toString(36).substr(2, 9) }));
+  };
 
-  const generateIdForNodes = (
-    nodes: { nodeName: string; fields: Field[] }[]
-  ): { nodeName: string; fields: Field[] }[] => {
-    return nodes.map(node => ({
-      id: randomId(),
+  const generateIdForNodes = (nodes: CustomNode[]): CustomNode[] => {
+    return nodes.map((node) => ({
       ...node,
-      fields: generateIdForFields(node.fields)
-    }))
-  }
+      id: Math.random().toString(36).substr(2, 9),
+      fields: generateIdForFields(node.fields),
+    }));
+  };
 
   return {
     ...configuration,
-    auxInteractionFields: generateIdForFields(
-      configuration.auxInteractionFields
-    ),
-    auxGoldenRecordFields: generateIdForFields(
-      configuration.auxGoldenRecordFields
-    ),
+    auxInteractionFields: generateIdForFields(configuration.auxInteractionFields),
+    auxGoldenRecordFields: generateIdForFields(configuration.auxGoldenRecordFields),
     demographicFields: generateIdForFields(configuration.demographicFields),
-    additionalNodes: generateIdForNodes(configuration.additionalNodes)
-  }
-}
-
+    additionalNodes: generateIdForNodes(configuration.additionalNodes),
+  };
+};
+  
 export function processIndex(index: string) {
   if (index) {
     return index.replace(/@index\(|\)(?=, trigram|$)/g, ' ').replace(/,/g, ', ')
