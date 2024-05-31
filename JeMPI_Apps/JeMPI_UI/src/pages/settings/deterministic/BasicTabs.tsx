@@ -36,32 +36,3 @@ export function a11yProps(index: number) {
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
-
-export default function BasicTabs() {
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
-  return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-          <Tab label="Validate" {...a11yProps(0)} />
-          <Tab label="Linking" {...a11yProps(1)} />
-          <Tab label="Matching" {...a11yProps(2)} />
-        </Tabs>
-      </Box>
-      <CustomTabPanel value={value} index={0}>
-        Validate
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        Linking
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        Matching
-      </CustomTabPanel>
-    </Box>
-  );
-}

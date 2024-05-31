@@ -1,58 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridEventListener, GridRowEditStopReasons, GridRowId, GridRowModel, GridRowModes, GridRowModesModel, GridActionsCellItem } from '@mui/x-data-grid';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
+import React, { useState, useEffect } from 'react'
+import Box from '@mui/material/Box'
+import {
+  DataGrid,
+  GridColDef,
+  GridEventListener,
+  GridRowEditStopReasons,
+  GridRowId,
+  GridRowModel,
+  GridRowModes,
+  GridRowModesModel,
+  GridActionsCellItem
+} from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
+import CancelIcon from '@mui/icons-material/Close'
 
 export interface RowData {
-  id: string;
-  ruleNumber: number;
-  ruleText: string;
+  id: number
+  ruleNumber: number
+  ruleText: string
 }
 
 interface SourceViewProps {
-  data: RowData[];
+  data: RowData[]
+  onEditRow: (row: RowData) => void
 }
 
-const SourceView: React.FC<SourceViewProps> = ({ data }) => {
-  const [rows, setRows] = useState<RowData[]>([]);
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
+  const [rows, setRows] = useState<RowData[]>([])
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    setRows(data);
-  }, [data]);
+    setRows(data)
+  }, [data])
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
+    const row = rows.find(row => row.id === id)
+    if (row) {
+      onEditRow(row)
+    }
+  }
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+  }
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    });
-  };
+    })
+  }
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const { id, ...updatedRow } = newRow;
-    setRows(rows.map(row => (row.id === id ? updatedRow as RowData : row)));
-    return updatedRow as RowData;
-  };
+    const { id, ...updatedRow } = newRow
+    setRows(rows.map(row => (row.id === id ? (updatedRow as RowData) : row)))
+    return updatedRow as RowData
+  }
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
+    setRowModesModel(newRowModesModel)
+  }
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
+    params,
+    event
+  ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
+      event.defaultMuiPrevented = true
     }
-  };
+  }
 
   const columns: GridColDef[] = [
     {
@@ -61,7 +78,7 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
       width: 150,
       align: 'center',
       headerAlign: 'center',
-      editable: false,
+      editable: false
     },
     {
       field: 'ruleText',
@@ -69,7 +86,7 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
       width: 500,
       align: 'left',
       headerAlign: 'left',
-      editable: true,
+      editable: true
     },
     {
       field: 'actions',
@@ -80,40 +97,20 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
       headerAlign: 'center',
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              id="save-button"
-              label="Save"
-              sx={{ color: 'white' }}
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              id="cancel-button"
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
-            />
-          ];
-        }
-
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
-            id="edit-button"
+            id={`edit-button-${id}`}
+            data-testid={`edit-button-${id}`}
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
           />
-        ];
+        ]
       }
     }
-  ];
+  ]
 
   return (
     <Box
@@ -127,8 +124,8 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
           color: '#fff'
         },
         '& .MuiDataGrid-columnHeaders': {
-          display: 'none',
-        },
+          display: 'none'
+        }
       }}
     >
       <DataGrid
@@ -143,7 +140,7 @@ const SourceView: React.FC<SourceViewProps> = ({ data }) => {
         disableColumnSelector
       />
     </Box>
-  );
-};
+  )
+}
 
-export default SourceView;
+export default SourceView
