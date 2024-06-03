@@ -10,6 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 
 interface PageHeaderProps {
+  id?: string;
   breadcrumbs?: Array<{ icon?: JSX.Element; title?: string; link?: string }>
   buttons?: JSX.Element[]
   title: string

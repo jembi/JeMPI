@@ -76,6 +76,7 @@ const NotificationWorklist = () => {
   return (
     <Container maxWidth={false}>
       <PageHeader
+        id="page-header"
         title={'Notification Worklist'}
         breadcrumbs={[
           {
@@ -102,7 +103,8 @@ const NotificationWorklist = () => {
               slotProps={{
                 textField: {
                   variant: 'outlined',
-                  label: 'Start Date'
+                  label: 'Start Date',
+                  inputProps: { id: 'start-date-filter' }
                 }
               }}
             />
@@ -113,7 +115,8 @@ const NotificationWorklist = () => {
               slotProps={{
                 textField: {
                   variant: 'outlined',
-                  label: 'End Date'
+                  label: 'End Date',
+                  inputProps: { id: 'end-date-filter' }
                 }
               }}
             />
@@ -128,7 +131,12 @@ const NotificationWorklist = () => {
               defaultSelectedValues={[NotificationState.OPEN]}
               multiple={false}
             />
-            <Button variant="contained" onClick={() => refetch()} size="large">
+            <Button
+              id="filter-button"
+              variant="contained"
+              onClick={() => refetch()}
+              size="large"
+            >
               Filter
             </Button>
           </Box>
