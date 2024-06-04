@@ -1,6 +1,6 @@
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
+import React, { SyntheticEvent, useMemo, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'

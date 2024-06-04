@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -35,7 +35,7 @@ enum Operator {
   OR = 'Or'
 }
 
-const transformRulesToRowData = (rules: any): RowData[] => {
+const transformRulesToRowData = (rules: { link: { deterministic: Rule[] } }): RowData[] => {
   return rules.link.deterministic.map((rule: any, index: any) => ({
     id: index,
     ruleNumber: index + 1,
@@ -138,7 +138,6 @@ const DeterministicContent = ({
       vars,
       text
     };
-    console.log(rules)
     setRules([...rules, rule]);
     setInitialState({
       comparators: [...comparators],
@@ -238,12 +237,12 @@ const DeterministicContent = ({
               }}
             >
               <FormControl fullWidth>
-                <InputLabel id={`select-comparator-label`}>
+                <InputLabel id="select-comparator-label">
                   Select Comparator Function
                 </InputLabel>
                 <Select
                   labelId={`select-comparator-label-${index}`}
-                  id={`select-comparator-function`}
+                  id="select-comparator-function"
                   value={comparators[index]}
                   label="Select Comparator Function"
                   onChange={(event) => handleComparatorChange(index, event)}
@@ -259,7 +258,7 @@ const DeterministicContent = ({
                 <InputLabel id={`select-field-label-${index}`}>Select Field</InputLabel>
                 <Select
                   labelId={`select-field-label-${index}`}
-                  id={`select-field`}
+                  id="select-field"
                   value={field}
                   label="Select Field"
                   onChange={(event) => handleFieldChange(index, event)}
@@ -284,7 +283,7 @@ const DeterministicContent = ({
                 </InputLabel>
                 <Select
                   labelId={`select-operator-label-${index}`}
-                  id={`select-operator`}
+                  id="select-operator"
                   value={operators[index]}
                   label="Select Operator"
                   onChange={(event) => handleOperatorChange(index, event)}
