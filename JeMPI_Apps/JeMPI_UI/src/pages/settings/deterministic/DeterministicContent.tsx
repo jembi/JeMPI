@@ -23,14 +23,14 @@ interface DeterministicContentProps {
   };
 }
 
-const options = [
+export const options = [
   { value: 0, label: 'Exact' },
   { value: 1, label: 'Low Fuzziness' },
   { value: 2, label: 'Medium Fuzziness' },
   { value: 3, label: 'High Fuzziness' }
 ];
 
-enum Operator {
+export enum Operator {
   AND = 'And',
   OR = 'Or'
 }
@@ -130,7 +130,9 @@ const DeterministicContent = ({
     const vars = fields.filter(field => field !== '');
     const text = vars.map((field, index) => {
       const operator = index > 0 ? ` ${operators[index - 1].toLowerCase()} ` : '';
-      return `${operator}eq(${field})`;
+      const comparator = comparators[index];
+      const comparatorFunction = comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`;
+      return `${operator}${comparatorFunction}`;
     }).join('');
 
     const rule = {
@@ -138,6 +140,7 @@ const DeterministicContent = ({
       vars,
       text
     };
+    console.log('rule', rule)
     setRules([...rules, rule]);
     setInitialState({
       comparators: [...comparators],
@@ -147,14 +150,16 @@ const DeterministicContent = ({
   };
 
   const handleRowEdit = (row: RowData) => {
-    const regex = /eq\(([^)]+)\)/g;
+    const regex = /(eq|match)\(([^),]+)(?:, (\d+))?\)/g;
     const matchedFields = [];
+    const matchedComparators = [];
     let match;
     while ((match = regex.exec(row.ruleText)) !== null) {
-      matchedFields.push(match[1]);
+      matchedFields.push(match[2]);
+      matchedComparators.push(match[1] === 'eq' ? 0 : parseInt(match[3], 10));
     }
 
-    setComparators(new Array(matchedFields.length).fill(0));
+    setComparators(matchedComparators);
     setFields(matchedFields);
     setOperators(new Array(matchedFields.length - 1).fill(Operator.AND));
     setViewType(1);
