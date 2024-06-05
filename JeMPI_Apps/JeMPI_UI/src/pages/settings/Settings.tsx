@@ -141,8 +141,13 @@ const Settings = () => {
           <Deterministic rules={configuration.rules} demographicData={fields?.demographicFields || []} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
-            Blocking
-            <Blocking />
+            <Blocking demographicData={fields?.demographicFields || []}
+             rules={{
+              matchNotification: {
+                probabilistic: configuration.rules.matchNotification.probabilistic || []
+              }
+            }}
+              />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
             Probabilistic
