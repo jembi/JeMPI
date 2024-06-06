@@ -22,9 +22,11 @@ const baseRouter = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <DashboardDataProvider>
-                    <Dashboard />
-                  </DashboardDataProvider>
+        element: (
+          <DashboardDataProvider>
+            <Dashboard />
+          </DashboardDataProvider>
+        )
       },
       {
         path: 'browse-records',
