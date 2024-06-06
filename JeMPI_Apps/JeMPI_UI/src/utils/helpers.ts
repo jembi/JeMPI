@@ -1,5 +1,5 @@
 import { GridColDef } from '@mui/x-data-grid'
-import { Configuration, CustomNode, Field, LinkingRules } from 'types/Configuration'
+import { Configuration, CustomNode, Field } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
@@ -13,8 +13,6 @@ type Params = {
     fieldName?: string
   }
 }
-
-
 
 export const isInputValid = (value: unknown, validation?: ValidationObject) => {
   if (validation && typeof value === 'string') {
@@ -78,30 +76,35 @@ export const randomId = () => {
   return Math.random().toString(36).substring(2, 9)
 }
 
-
-
 export const generateId = (configuration: Configuration): Configuration => {
   const generateIdForFields = (fields: Field[]): Field[] => {
-    return fields.map((item) => ({ ...item, id: Math.random().toString(36).substr(2, 9) }));
-  };
+    return fields.map(item => ({
+      ...item,
+      id: Math.random().toString(36).substr(2, 9)
+    }))
+  }
 
   const generateIdForNodes = (nodes: CustomNode[]): CustomNode[] => {
-    return nodes.map((node) => ({
+    return nodes.map(node => ({
       ...node,
       id: Math.random().toString(36).substr(2, 9),
-      fields: generateIdForFields(node.fields),
-    }));
-  };
+      fields: generateIdForFields(node.fields)
+    }))
+  }
 
   return {
     ...configuration,
-    auxInteractionFields: generateIdForFields(configuration.auxInteractionFields),
-    auxGoldenRecordFields: generateIdForFields(configuration.auxGoldenRecordFields),
+    auxInteractionFields: generateIdForFields(
+      configuration.auxInteractionFields
+    ),
+    auxGoldenRecordFields: generateIdForFields(
+      configuration.auxGoldenRecordFields
+    ),
     demographicFields: generateIdForFields(configuration.demographicFields),
-    additionalNodes: generateIdForNodes(configuration.additionalNodes),
-  };
-};
-  
+    additionalNodes: generateIdForNodes(configuration.additionalNodes)
+  }
+}
+
 export function processIndex(index: string) {
   if (index) {
     return index.replace(/@index\(|\)(?=, trigram|$)/g, ' ').replace(/,/g, ', ')
