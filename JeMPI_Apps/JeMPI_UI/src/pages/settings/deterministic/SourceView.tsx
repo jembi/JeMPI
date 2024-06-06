@@ -98,6 +98,7 @@ const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
+            key={`action-item-${id}`}
             id={`edit-button-${id}`}
             data-testid={`edit-button-${id}`}
             label="Edit"

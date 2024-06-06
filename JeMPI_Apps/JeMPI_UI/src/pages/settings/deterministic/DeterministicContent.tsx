@@ -36,7 +36,7 @@ export enum Operator {
 }
 
 const transformRulesToRowData = (rules: { link: { deterministic: Rule[] } }): RowData[] => {
-  return rules.link.deterministic.map((rule: any, index: any) => ({
+  return rules.link.deterministic.map((rule: Rule, index: number) => ({
     id: index,
     ruleNumber: index + 1,
     ruleText: rule.text,
@@ -51,7 +51,7 @@ const DeterministicContent = ({
   const [comparators, setComparators] = useState<number[]>([]);
   const [fields, setFields] = useState<string[]>([]);
   const [operators, setOperators] = useState<Operator[]>([]);
-  const [rules, setRules] = useState<any[]>([]);
+  const [rules, setRules] = useState<Rule[]>([]);
   const [initialState, setInitialState] = useState({
     comparators: [] as number[],
     fields: [] as string[],
