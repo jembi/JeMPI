@@ -89,9 +89,7 @@ export class ApiClient {
   }
 
   async fetchConfiguration() {
-    const { data } = await moxios.get<Configuration>(
-      ROUTES.GET_CONFIGURATION
-    )
+    const { data } = await moxios.get<Configuration>(ROUTES.GET_CONFIGURATION)
     return data
   }
 
