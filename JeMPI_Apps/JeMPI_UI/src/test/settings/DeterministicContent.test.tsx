@@ -29,6 +29,7 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
+        hasUndefinedRule={false}
       />
     )
     expect(container).toMatchSnapshot()
@@ -39,6 +40,7 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
+        hasUndefinedRule={false}
       />
     )
 
@@ -56,6 +58,7 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
+        hasUndefinedRule={false}
       />
     )
     const selectField = document.getElementById('select-field')
@@ -70,6 +73,7 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
+        hasUndefinedRule={false}
       />
     )
     const selectOperator = document.getElementById('select operator')
@@ -84,6 +88,7 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
+        hasUndefinedRule={false}
       />
     )
     const addRuleButton = document.getElementById('add-rule-button')
@@ -99,6 +104,7 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
+        hasUndefinedRule={false}
       />
     )
     const closeButton = document.getElementById('close-button')
