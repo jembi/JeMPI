@@ -7,11 +7,12 @@ import {
   GridRowEditStopReasons,
   GridRowId,
   GridRowModel,
-  GridRowModes,
   GridRowModesModel,
   GridActionsCellItem
 } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
+import AddIcon from '@mui/icons-material/Add'
+import IconButton from '@mui/material/IconButton'
 
 export interface RowData {
   id: number
@@ -22,9 +23,16 @@ export interface RowData {
 interface SourceViewProps {
   data: RowData[]
   onEditRow: (row: RowData) => void
+  onAddUndefinedRule: () => void
+  hasUndefinedRule: boolean
 }
 
-const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
+const SourceView: React.FC<SourceViewProps> = ({
+  data,
+  onEditRow,
+  onAddUndefinedRule,
+  hasUndefinedRule
+}) => {
   const [rows, setRows] = useState<RowData[]>([])
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
@@ -37,17 +45,6 @@ const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
     if (row) {
       onEditRow(row)
     }
-  }
-
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-  }
-
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
   }
 
   const processRowUpdate = (newRow: GridRowModel) => {
@@ -74,7 +71,7 @@ const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
       field: 'ruleNumber',
       headerName: 'Rule Number',
       width: 150,
-      align: 'center',
+      align: 'left',
       headerAlign: 'center',
       editable: false
     },
@@ -98,6 +95,7 @@ const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
+            key={`action-item-${id}`}
             id={`edit-button-${id}`}
             data-testid={`edit-button-${id}`}
             label="Edit"
@@ -123,20 +121,42 @@ const SourceView: React.FC<SourceViewProps> = ({ data, onEditRow }) => {
         },
         '& .MuiDataGrid-columnHeaders': {
           display: 'none'
+        },
+        '& .MuiDataGrid-root': {
+          borderLeft: 'none',
+          borderRight: 'none',
+          borderBottom: 'none'
         }
       }}
     >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        hideFooter
-        disableColumnSelector
-      />
+      {hasUndefinedRule ? (
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <IconButton key="add-undefined-rule" onClick={onAddUndefinedRule}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+      ) : (
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          hideFooter
+          disableColumnSelector
+        />
+      )}
     </Box>
   )
 }

@@ -1,8 +1,6 @@
-import React from 'react'
-import { render, fireEvent, screen } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import SourceView, { RowData } from 'pages/settings/deterministic/SourceView'
-import { debug } from 'console'
 
 describe('SourceView Component', () => {
   const mockData: RowData[] = [
@@ -16,7 +14,14 @@ describe('SourceView Component', () => {
   const mockOnEditRow = jest.fn()
 
   it('renders the component with initial data', () => {
-    render(<SourceView data={mockData} onEditRow={mockOnEditRow} />)
+    render(
+      <SourceView
+        data={mockData}
+        onEditRow={mockOnEditRow}
+        onAddUndefinedRule={()=> {}}
+        hasUndefinedRule={false}
+      />
+    )
     expect(document.body).toHaveTextContent('eq(national_id)')
     expect(document.body).toHaveTextContent(
       'eq(given_name) and eq(family_name) and eq(phone_number)'
@@ -24,7 +29,14 @@ describe('SourceView Component', () => {
   })
 
   it('edits a row', async () => {
-    render(<SourceView data={mockData} onEditRow={mockOnEditRow} />)
+    render(
+      <SourceView
+        data={mockData}
+        onEditRow={mockOnEditRow}
+        onAddUndefinedRule={()=> {}}
+        hasUndefinedRule={false}
+      />
+    )
     fireEvent.click(document.getElementById('edit-button-1')!)
     expect(mockOnEditRow).toHaveBeenCalledWith({
       id: 1,

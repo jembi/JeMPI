@@ -1,50 +1,20 @@
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { SyntheticEvent, useMemo, useState } from 'react'
+import { SyntheticEvent, useMemo, useState } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/Deterministic'
 import Blocking from './blocking/Blocking'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
-import './Shapes.css'
 import { useConfig } from 'hooks/useConfig'
 import { useQuery } from '@tanstack/react-query'
 import { generateId } from 'utils/helpers'
 import Loading from 'components/common/Loading'
 import InteractiveNode from './interactiveNode/InteractiveNode'
 import { Configuration } from 'types/Configuration'
+import { CustomTabPanel, a11yProps } from './deterministic/BasicTabs'
 
-interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
-}
-
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`settings-tabpanel-${index}`}
-      aria-labelledby={`settings-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3, backgroundColor: '#f5f5f5' }}>{children}</Box>
-      )}
-    </div>
-  )
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `settings-tab-${index}`,
-    'aria-controls': `settings-tabpanel-${index}`
-  }
-}
 const Settings = () => {
   const [value, setValue] = useState(0)
   const { apiClient } = useConfig()
@@ -109,13 +79,11 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup common properties
             </Typography>
-            <CommonSettings
-              demographicData={configuration.demographicFields}
-            />
+            <CommonSettings demographicData={configuration.demographicFields} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
-            Setup properties that are unique to the golden record
+              Setup properties that are unique to the golden record
             </Typography>
             <UniqueToGR
               uniqueToGoldenRecordData={configuration.auxGoldenRecordFields}
@@ -123,7 +91,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
-            Setup properties that are unique to the interaction
+              Setup properties that are unique to the interaction
             </Typography>
             <UniqueToInteraction
               uniqueInteractionData={configuration.auxInteractionFields}
@@ -133,12 +101,13 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden record lists
             </Typography>
-            <GoldenRecordLists
-              goldenRecordList={fields?.additionalNodes}
-            />
+            <GoldenRecordLists goldenRecordList={fields?.additionalNodes} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-          <Deterministic rules={configuration.rules} demographicData={fields?.demographicFields || []} />
+            <Deterministic
+              rules={configuration.rules}
+              demographicData={fields?.demographicFields || []}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             <Blocking demographicData={fields?.demographicFields || []}
