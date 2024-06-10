@@ -35,6 +35,7 @@ public final class LinkerDWH {
    private static final Logger LOGGER = LogManager.getLogger(LinkerDWH.class);
 
    private static MyKafkaProducer<String, LinkStatsMeta> linkStatsMetaProducer = null;
+   private static MyKafkaProducer<String, MatchNotification> matchNoficationProducer = null;
 
    private LinkerDWH() {
    }
@@ -201,8 +202,25 @@ public final class LinkerDWH {
                              {}
                              {}""";
                LOGGER.info(f, i, g);
+
+               if (matchNoficationProducer == null) {
+                  matchNoficationProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
+                                                                  GlobalConstants.TOPIC_INTERACTION_MATCH,
+                                                                  stringSerializer(),
+                                                                  matchNotificationSerializer(),
+                                                                  "LinkerDWH-INTERACTION-MATCH-NOTIFICATIONS");
+               }
+
+               matchNoficationProducer.produceSync(UUID.randomUUID().toString(),
+                                                   new MatchNotification(interaction,
+                                                                         new GoldenRecordWithScore(workCandidate.goldenRecord,
+                                                                                                   workCandidate.score)));
             } catch (JsonProcessingException e) {
                LOGGER.error(e.getLocalizedMessage(), e);
+            } catch (ExecutionException e) {
+               throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+               LOGGER.error("matchNotificationProducer failed with error: {}", e.getLocalizedMessage());
             }
          }
       }
@@ -407,6 +425,10 @@ public final class LinkerDWH {
    }
 
    private static Serializer<LinkStatsMeta> linkStatsMetaSerializer() {
+      return new JsonPojoSerializer<>();
+   }
+
+   private static Serializer<MatchNotification> matchNotificationSerializer() {
       return new JsonPojoSerializer<>();
    }
 
