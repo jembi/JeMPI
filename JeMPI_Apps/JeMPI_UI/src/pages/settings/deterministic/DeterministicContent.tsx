@@ -280,10 +280,10 @@ const DeterministicContent = ({
                 <Select
                   labelId={`select-operator-label-${index}`}
                   id="select-operator"
-                  value={operators[index]}
+                  value={index === 0 ? '' : operators[index - 1] || ''}
                   label="Select Operator"
-                  onChange={event => handleOperatorChange(index, event)}
-                  disabled={index == 0}
+                  onChange={event => handleOperatorChange(index - 1, event)}
+                  disabled={index === 0}  
                 >
                   {Object.values(Operator).map(op => (
                     <MenuItem key={op} value={op}>
