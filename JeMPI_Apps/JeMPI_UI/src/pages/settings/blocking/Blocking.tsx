@@ -1,17 +1,12 @@
-import {
-  Card,
-  CardContent,
-  Tab,
-  Tabs
-} from '@mui/material'
+import { Card, CardContent, Tab, Tabs } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useState } from 'react'
-import { Field, Rule } from 'types/Configuration';
-import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs';
-import BlockingContent from './BlockingContent';
+import { Field, Rule } from 'types/Configuration'
+import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs'
+import BlockingContent from './BlockingContent'
 
 interface BlockingProps {
-  demographicData: Field[];
+  demographicData: Field[]
   rules: {
     link?: {
       deterministic?: Rule[]
@@ -32,6 +27,7 @@ const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
   }
 
   const matchNotificationRules = rules.matchNotification?.probabilistic ?? []
+  const linkingRules = rules.link?.deterministic ?? []
 
   return (
     <Card sx={{ minWidth: 275 }}>
@@ -53,15 +49,15 @@ const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
             <Tab label="Matching" {...a11yProps(1)} />
           </Tabs>
           <CustomTabPanel value={value} index={0}>
-            <BlockingContent 
-              demographicData={demographicData} 
-              hasUndefinedRule={false}
+            <BlockingContent
+              demographicData={demographicData}
+              hasUndefinedRule={true}
               linkingRules={{}}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <BlockingContent 
-              demographicData={demographicData} 
+            <BlockingContent
+              demographicData={demographicData}
               hasUndefinedRule={matchNotificationRules.length === 0}
               linkingRules={{
                 matchNotification: { probabilistic: matchNotificationRules }
