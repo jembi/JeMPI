@@ -1,41 +1,31 @@
+import React, { useMemo, useState } from 'react'
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import { SyntheticEvent, useMemo, useState } from 'react'
+import { SyntheticEvent } from 'react'
 import CommonSettings from './common/Common'
 import UniqueToGR from './uniqueToGR/UniqueToGR'
 import UniqueToInteraction from './uniqueToInteraction/UniqueToInteraction'
 import Deterministic from './deterministic/Deterministic'
 import Blocking from './blocking/Blocking'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
-import { useConfig } from 'hooks/useConfig'
-import { useQuery } from '@tanstack/react-query'
-import { generateId } from 'utils/helpers'
-import Loading from 'components/common/Loading'
 import InteractiveNode from './interactiveNode/InteractiveNode'
-import { Configuration } from 'types/Configuration'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 import { CustomTabPanel, a11yProps } from './deterministic/BasicTabs'
+
+import { Configuration } from 'types/Configuration'
+import { generateId } from 'utils/helpers'
 
 const Settings = () => {
   const [value, setValue] = useState(0)
-  const { apiClient } = useConfig()
-
-  const { data: fields, isLoading } = useQuery<Configuration>({
-    queryKey: ['configuration'],
-    queryFn: () => apiClient.fetchConfiguration(),
-    refetchOnWindowFocus: false
-  })
+  const { configuration: data } = useConfiguration()
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
 
-  const configuration = useMemo(() => {
-    return fields ? generateId(fields) : ({} as Configuration)
-  }, [fields])
-
-  if (isLoading) {
-    return <Loading />
-  }
+  const configurationData = useMemo(() => {
+    return data ? generateId(data) : ({} as Configuration)
+  }, [data])
 
   return (
     <Grid container spacing={4}>
@@ -79,14 +69,18 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup common properties
             </Typography>
-            <CommonSettings demographicData={configuration.demographicFields} />
+            <CommonSettings
+              demographicData={configurationData.demographicFields}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the golden record
             </Typography>
             <UniqueToGR
-              uniqueToGoldenRecordData={configuration.auxGoldenRecordFields}
+              uniqueToGoldenRecordData={
+                configurationData?.auxGoldenRecordFields || []
+              }
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
@@ -94,25 +88,30 @@ const Settings = () => {
               Setup properties that are unique to the interaction
             </Typography>
             <UniqueToInteraction
-              uniqueInteractionData={configuration.auxInteractionFields}
+              uniqueInteractionData={
+                configurationData?.auxInteractionFields || []
+              }
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden record lists
             </Typography>
-            <GoldenRecordLists goldenRecordList={fields?.additionalNodes} />
+            <GoldenRecordLists
+              goldenRecordList={configurationData?.additionalNodes || []}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             <Deterministic
-              rules={configuration.rules}
-              demographicData={fields?.demographicFields || []}
+              rules={configurationData.rules}
+              demographicData={configurationData.demographicFields || []}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
-            <Blocking demographicData={fields?.demographicFields || []}
-             rules={configuration.rules}
-              />
+            <Blocking
+              demographicData={configurationData.demographicFields}
+              rules={configurationData?.rules || {}}
+            />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
             Probabilistic
