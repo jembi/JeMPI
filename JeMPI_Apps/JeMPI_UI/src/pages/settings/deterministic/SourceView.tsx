@@ -137,7 +137,8 @@ const SourceView: React.FC<SourceViewProps> = ({
             flexDirection: 'column',
             gap: 2,
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            backgroundColor: '#f5f5f5'
           }}
         >
           <IconButton key="add-undefined-rule" onClick={onAddUndefinedRule}>

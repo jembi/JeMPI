@@ -111,11 +111,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             <Blocking demographicData={fields?.demographicFields || []}
-             rules={{
-              matchNotification: {
-                probabilistic: configuration.rules.matchNotification.probabilistic || []
-              }
-            }}
+             rules={configuration.rules}
               />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>

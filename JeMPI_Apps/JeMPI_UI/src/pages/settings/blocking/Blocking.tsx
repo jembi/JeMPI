@@ -1,156 +1,76 @@
-import { AddOutlined, Source } from '@mui/icons-material'
 import {
   Card,
   CardContent,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  CardActions,
-  IconButton,
-  Typography
+  Tab,
+  Tabs
 } from '@mui/material'
 import { Box } from '@mui/system'
-import React from 'react'
+import React, { useState } from 'react'
 import { Field, Rule } from 'types/Configuration';
-import SourceView, { RowData } from '../deterministic/SourceView';
+import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs';
+import BlockingContent from './BlockingContent';
 
 interface BlockingProps {
   demographicData: Field[];
-  rules : {
-    matchNotification: {
-      probabilistic: Rule[]
+  rules: {
+    link?: {
+      deterministic?: Rule[]
+    }
+    validate?: {
+      probabilistic?: Rule[]
+    }
+    matchNotification?: {
+      probabilistic?: Rule[]
     }
   }
 }
 
-const transformRulesToRowData = (rules: { probabilistic: Rule[] }): RowData[] => {
-  return rules.probabilistic.map((rule: any, index: any) => ({
-    id: index,
-    ruleNumber: index + 1,
-    ruleText: rule.text,
-  }));
-};
+const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
+  const [value, setValue] = useState(0)
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue)
+  }
 
+  const matchNotificationRules = rules.matchNotification?.probabilistic ?? []
 
-const Blocking = ({demographicData= [], rules}: BlockingProps) => {
-  const [viewType, setViewType] = React.useState(0);
-
-  const probabilisticRows = transformRulesToRowData(rules.matchNotification);
-const handleRowEdit = (row: RowData) => {
-  console.log('row data', row)
-  // const regex = /eq\(([^)]+)\)/g;
-  // const matchedFields = [];
-  // let match;
-  // while ((match = regex.exec(row.ruleText)) !== null) {
-  //   matchedFields.push(match[1]);
-  // }
-
-  // setComparators(new Array(matchedFields.length).fill(0));
-  // setFields(matchedFields);
-  // setOperators(new Array(matchedFields.length - 1).fill(Operator.AND));
-  // setViewType(1);
-};
   return (
-    <>
-      <Card sx={{ minWidth: 275 }}>
-        <CardContent
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6
-          }}
-        >
-          <Box
-            sx={{ mr: 'auto', display: 'flex', flexDirection: 'row', gap: 2 }}
+    <Card sx={{ minWidth: 275 }}>
+      <CardContent
+        sx={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#f5f5f5'
+        }}
+      >
+        <Box sx={{ width: '100%' }}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
           >
-            <Button
-              variant="outlined"
-              size="medium"
-              onClick={() => setViewType(0)}
-            >
-              Source View
-            </Button>
-            <Button
-              variant="outlined"
-              size="medium"
-              onClick={() => setViewType(1)}
-            >
-              Design View
-            </Button>
-            
-          </Box>
-          {viewType === 0 ? (
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                justifyContent: 'center',
-                alignItems: 'center'
+            <Tab label="Linking" {...a11yProps(0)} />
+            <Tab label="Matching" {...a11yProps(1)} />
+          </Tabs>
+          <CustomTabPanel value={value} index={0}>
+            <BlockingContent 
+              demographicData={demographicData} 
+              hasUndefinedRule={false}
+              linkingRules={{}}
+            />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <BlockingContent 
+              demographicData={demographicData} 
+              hasUndefinedRule={matchNotificationRules.length === 0}
+              linkingRules={{
+                matchNotification: { probabilistic: matchNotificationRules }
               }}
-            >
-              <SourceView data={probabilisticRows} onEditRow={handleRowEdit}/>
-              {/* <Typography variant='h5' >Match (phone number, 3)</Typography>
-              Or
-              <Typography variant='h5'>Match (National ID, 3)</Typography> Or
-              <Typography variant='h5'>
-                Int (Match (given name , 3)) + Int(Match (family name, 3)) +
-                Int(Match (city, 3)) ≥ 3
-              </Typography> */}
-            </Box>
-          ):(
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                width: '100%',
-                justifyContent: 'center',
-                gap: 2
-              }}
-            >
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Comparator Function
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Select Comparator Function"
-                ></Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Field
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Select Field"
-                ></Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Operator
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Select Operator"
-                ></Select>
-              </FormControl>
-            </Box>
-          ) }
-        </CardContent>
-        <CardActions>
-          <IconButton aria-label="delete" size="small">
-            <AddOutlined fontSize="small" />
-          </IconButton>
-        </CardActions>
-      </Card>
-    </>
+            />
+          </CustomTabPanel>
+        </Box>
+      </CardContent>
+    </Card>
   )
 }
 
