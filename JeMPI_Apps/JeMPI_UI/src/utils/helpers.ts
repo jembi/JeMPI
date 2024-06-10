@@ -1,4 +1,5 @@
 import { GridColDef } from '@mui/x-data-grid'
+import { Configuration, CustomNode, Field } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
@@ -6,41 +7,10 @@ interface ValidationObject {
   required: boolean
   onErrorMessage: string
 }
-interface Field {
-  fieldName: string
-  fieldType: string
-  csvCol?: number
-  source?: string
-  default?: string
-  indexGoldenRecord?: string
-  indexInteraction?: string
-  linkMetaData?: {
-    comparison: string
-    comparisonLevels: number[]
-    m: number
-    u: number
-  }
-}
 
 type Params = {
   row?: {
     fieldName?: string
-  }
-}
-
-export interface Configuration {
-  auxInteractionFields: Field[]
-  auxGoldenRecordFields: Field[]
-  additionalNodes: {
-    nodeName: string
-    fields: Field[]
-  }[]
-  demographicFields: Field[]
-  rules: {
-    link: {
-      deterministic: Record<string, { vars: string[]; text: string }>
-      probabilistic: Record<string, { vars: string[]; text: string }>
-    }
   }
 }
 
@@ -109,17 +79,15 @@ export const randomId = () => {
 export const generateId = (configuration: Configuration): Configuration => {
   const generateIdForFields = (fields: Field[]): Field[] => {
     return fields.map(item => ({
-      id: randomId(),
-      ...item
+      ...item,
+      id: Math.random().toString(36).substr(2, 9)
     }))
   }
 
-  const generateIdForNodes = (
-    nodes: { nodeName: string; fields: Field[] }[]
-  ): { nodeName: string; fields: Field[] }[] => {
+  const generateIdForNodes = (nodes: CustomNode[]): CustomNode[] => {
     return nodes.map(node => ({
-      id: randomId(),
       ...node,
+      id: Math.random().toString(36).substr(2, 9),
       fields: generateIdForFields(node.fields)
     }))
   }

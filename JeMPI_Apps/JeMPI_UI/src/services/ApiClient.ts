@@ -89,9 +89,7 @@ export class ApiClient {
   }
 
   async fetchConfiguration() {
-    const { data } = await this.client.get<Configuration>(
-      ROUTES.GET_CONFIGURATION
-    )
+    const { data } = await this.client.get<Configuration>(ROUTES.GET_CONFIGURATION)
     return data
   }
 

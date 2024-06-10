@@ -500,7 +500,19 @@ const configuration = {
         {
           vars: ['national_id'],
           text: 'eq(national_id)'
-        },
+        }
+      ]
+    },
+    validate: {
+      deterministic: [
+        {
+          vars: ['given_name', 'family_name', 'phone_number'],
+          text: 'eq(given_name) and eq(family_name) and eq(phone_number)'
+        }
+      ]
+    },
+    matchNotification: {
+      deterministic: [
         {
           vars: ['given_name', 'family_name', 'phone_number'],
           text: 'eq(given_name) and eq(family_name) and eq(phone_number)'
@@ -508,14 +520,8 @@ const configuration = {
       ],
       probabilistic: [
         {
-          vars: [
-            'given_name',
-            'family_name',
-            'city',
-            'phone_number',
-            'national_id'
-          ],
-          text: 'match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)'
+          vars: ['given_name', 'family_name', 'phone_number'],
+          text: 'match(given_name,3) and match(family_name,3) or match(given_name,3) and match(phone_number,3) or match(family_name,3) and match(phone_number,3)'
         }
       ]
     }
