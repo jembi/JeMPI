@@ -1,6 +1,6 @@
 import { Card, CardContent, Tab, Tabs } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Field, Rule } from 'types/Configuration'
 import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs'
 import BlockingContent from './BlockingContent'
@@ -9,7 +9,7 @@ interface BlockingProps {
   demographicData: Field[]
   rules: {
     link?: {
-      deterministic?: Rule[]
+      probabilistic?: Rule[]
     }
     validate?: {
       probabilistic?: Rule[]
@@ -27,7 +27,7 @@ const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
   }
 
   const matchNotificationRules = rules.matchNotification?.probabilistic ?? []
-  const linkingRules = rules.link?.deterministic ?? []
+  const linkingRules = rules.link?.probabilistic ?? []
 
   return (
     <Card sx={{ minWidth: 275 }}>
@@ -51,8 +51,8 @@ const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
           <CustomTabPanel value={value} index={0}>
             <BlockingContent
               demographicData={demographicData}
-              hasUndefinedRule={true}
-              linkingRules={{}}
+              hasUndefinedRule={linkingRules.length === 0}
+              linkingRules={{ link: { probabilistic: linkingRules } }}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>

@@ -38,6 +38,7 @@ const SourceView: React.FC<SourceViewProps> = ({
 
   useEffect(() => {
     setRows(data)
+    console.log(data)
   }, [data])
 
   const handleEditClick = (id: GridRowId) => () => {
