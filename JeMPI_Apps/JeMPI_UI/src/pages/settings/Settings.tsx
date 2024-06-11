@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Grid, Tab, Tabs, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { SyntheticEvent } from 'react'
@@ -9,7 +9,6 @@ import Deterministic from './deterministic/Deterministic'
 import Blocking from './blocking/Blocking'
 import GoldenRecordLists from './goldenRecordLists/GoldenRecordLists'
 import InteractiveNode from './interactiveNode/InteractiveNode'
-import { useConfiguration } from 'hooks/useUIConfiguration'
 import { CustomTabPanel, a11yProps } from './deterministic/BasicTabs'
 
 import { Configuration } from 'types/Configuration'
@@ -17,15 +16,15 @@ import { generateId } from 'utils/helpers'
 
 const Settings = () => {
   const [value, setValue] = useState(0)
-  const { configuration: data } = useConfiguration()
-
+  const storeddata = localStorage.getItem('configuration')
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
-
   const configurationData = useMemo(() => {
-    return data ? generateId(data) : ({} as Configuration)
-  }, [data])
+    return storeddata
+      ? generateId(JSON.parse(storeddata))
+      : ({} as Configuration)
+  }, [storeddata])
 
   return (
     <Grid container spacing={4}>
