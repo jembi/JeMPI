@@ -38,13 +38,25 @@ export const ConfigurationProvider = ({
     refetchOnWindowFocus: false
   })
 
-  const [configuration, setConfiguration] = useState<Configuration | null>(null)
+  const [configuration, setConfiguration] = useState<Configuration | null>(
+    () => {
+      const savedConfig = localStorage.getItem('configuration')
+      return savedConfig ? JSON.parse(savedConfig) : null
+    }
+  )
 
   useEffect(() => {
-    if (data) {
+    if (data && !configuration) {
       setConfiguration(data)
+      localStorage.setItem('configuration', JSON.stringify(data))
     }
-  }, [data])
+  }, [data, configuration])
+
+  useEffect(() => {
+    if (configuration) {
+      localStorage.setItem('configuration', JSON.stringify(configuration))
+    }
+  }, [configuration])
 
   if (isLoading) {
     return <Loading />
@@ -52,10 +64,6 @@ export const ConfigurationProvider = ({
 
   if (isError) {
     return <div>Error: {(error as AxiosError).message}</div>
-  }
-
-  if (!configuration) {
-    return <div>Loading...</div>
   }
 
   return (
