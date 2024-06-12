@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useReducer, useCallback, useEffect } from 'react'
 import { AddOutlined, DeleteOutline } from '@mui/icons-material'
 import {
   Button,
@@ -23,6 +23,9 @@ interface BlockingContentProps {
     link?: { probabilistic?: Rule[] }
     matchNotification?: { probabilistic?: Rule[] }
   }
+  handleAddRule?: () => void
+  handleDeleteRow?: () => void
+  handleRowEdit?: () => void
 }
 
 const transformRulesToRowData = (rules: {
@@ -35,132 +38,175 @@ const transformRulesToRowData = (rules: {
   }))
 }
 
+const initialState = {
+  comparators: [] as number[],
+  fields: [] as string[],
+  operators: [] as Operator[],
+  rules: [] as Rule[],
+  editIndex: null as number | null,
+  viewType: 0,
+  hasChanges: false
+}
+
+type State = typeof initialState
+type Action =
+  | { type: 'SET_FIELDS'; payload: string[] }
+  | { type: 'SET_COMPARATORS'; payload: number[] }
+  | { type: 'SET_OPERATORS'; payload: Operator[] }
+  | { type: 'SET_RULES'; payload: Rule[] }
+  | { type: 'SET_EDIT_INDEX'; payload: number | null }
+  | { type: 'SET_VIEW_TYPE'; payload: number }
+  | { type: 'SET_HAS_CHANGES'; payload: boolean }
+  | { type: 'RESET' }
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_FIELDS':
+      return { ...state, fields: action.payload }
+    case 'SET_COMPARATORS':
+      return { ...state, comparators: action.payload }
+    case 'SET_OPERATORS':
+      return { ...state, operators: action.payload }
+    case 'SET_RULES':
+      return { ...state, rules: action.payload }
+    case 'SET_EDIT_INDEX':
+      return { ...state, editIndex: action.payload }
+    case 'SET_VIEW_TYPE':
+      return { ...state, viewType: action.payload }
+    case 'SET_HAS_CHANGES':
+      return { ...state, hasChanges: action.payload }
+    case 'RESET':
+      return initialState
+    default:
+      return state
+  }
+}
+
 const BlockingContent = ({
   demographicData = [],
   hasUndefinedRule,
   linkingRules
 }: BlockingContentProps) => {
   const { configuration, setConfiguration } = useConfiguration()
-  const probabilisticRows =
-    linkingRules.matchNotification?.probabilistic ??
-    linkingRules.link?.probabilistic ??
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const [probabilisticRows, setProbabilisticRows] = React.useState<RowData[]>(
     []
-  const [comparators, setComparators] = useState<number[]>([])
-  const [fields, setFields] = useState<string[]>([])
-  const [operators, setOperators] = useState<Operator[]>([])
-  const [rules, setRules] = useState<Rule[]>([])
-  const [editIndex, setEditIndex] = useState<number | null>(null) // Track the index of the rule being edited
-  const [initialState, setInitialState] = useState({
-    comparators: [] as number[],
-    fields: [] as string[],
-    operators: [] as Operator[]
-  })
-  const [hasChanges, setHasChanges] = useState(false) // Track if there are changes
+  )
 
   useEffect(() => {
-    console.log('linking rules', linkingRules)
     if (configuration) {
       const initialRules =
         linkingRules.matchNotification?.probabilistic ??
         linkingRules.link?.probabilistic ??
         []
-      setRules(initialRules)
+      dispatch({ type: 'SET_RULES', payload: initialRules })
+      setProbabilisticRows(
+        transformRulesToRowData({ probabilistic: initialRules })
+      )
     }
   }, [configuration, linkingRules])
 
-  const handleComparatorChange = (
-    index: number,
-    event: SelectChangeEvent<number>
-  ) => {
-    const newComparators = [...comparators]
-    newComparators[index] = event.target.value as number
-    setComparators(newComparators)
-    setHasChanges(true)
-  }
+  const handleUpdateConfiguration = useCallback(
+    (newRules: Rule[], ruleType: 'matchNotification' | 'link') => {
+      setConfiguration(prevConfig => {
+        if (!prevConfig) return prevConfig
+
+        const updatedConfig: Configuration = {
+          ...prevConfig,
+          rules: {
+            ...prevConfig.rules,
+            [ruleType]: {
+              ...prevConfig.rules[ruleType],
+              probabilistic: newRules
+            }
+          }
+        }
+
+        localStorage.setItem('configuration', JSON.stringify(updatedConfig))
+        return updatedConfig
+      })
+
+      setProbabilisticRows(transformRulesToRowData({ probabilistic: newRules }))
+    },
+    [setConfiguration]
+  )
+
+  const handleAddRule = useCallback(
+    (ruleType: 'matchNotification' | 'link') => {
+      const vars = state.fields.filter(
+        (field, index) => field !== '' && state.fields.indexOf(field) === index
+      )
+      const text = vars
+        .map((field, index) => {
+          const operator =
+            index > 0 ? ` ${state.operators[index - 1].toLowerCase()} ` : ''
+          const comparator = state.comparators[index]
+          const comparatorFunction =
+            comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`
+          return `${operator}${comparatorFunction}`
+        })
+        .join('')
+
+      const newRule: Rule = {
+        vars,
+        text
+      }
+
+      let updatedRules = [...state.rules]
+      if (state.editIndex !== null) {
+        updatedRules[state.editIndex] = newRule
+        dispatch({ type: 'SET_EDIT_INDEX', payload: null })
+      } else {
+        updatedRules = [...state.rules, newRule]
+      }
+
+      handleUpdateConfiguration(updatedRules, ruleType)
+      dispatch({ type: 'SET_RULES', payload: updatedRules })
+      dispatch({ type: 'SET_HAS_CHANGES', payload: false })
+      dispatch({ type: 'SET_VIEW_TYPE', payload: 0 })
+    },
+    [
+      state.fields,
+      state.operators,
+      state.comparators,
+      state.rules,
+      state.editIndex,
+      handleUpdateConfiguration
+    ]
+  )
 
   const handleFieldChange = (
     index: number,
     event: SelectChangeEvent<string>
   ) => {
-    const newFields = [...fields]
+    const newFields = [...state.fields]
     newFields[index] = event.target.value as string
-    setFields(newFields)
-    setHasChanges(true)
+    dispatch({ type: 'SET_FIELDS', payload: newFields })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: true })
+  }
+
+  const handleComparatorChange = (
+    index: number,
+    event: SelectChangeEvent<number>
+  ) => {
+    const newComparators = [...state.comparators]
+    newComparators[index] = event.target.value as number
+    dispatch({ type: 'SET_COMPARATORS', payload: newComparators })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: true })
   }
 
   const handleOperatorChange = (
     index: number,
     event: SelectChangeEvent<Operator>
   ) => {
-    const newOperators = [...operators]
+    const newOperators = [...state.operators]
     newOperators[index] = event.target.value as Operator
-    setOperators(newOperators)
-    setHasChanges(true)
-  }
-
-  const handleUpdateConfiguration = (
-    newRules: Rule[],
-    ruleType: 'matchNotification' | 'link'
-  ) => {
-    setConfiguration(prevConfig => {
-      if (!prevConfig) return prevConfig
-
-      const updatedConfig: Configuration = {
-        ...prevConfig,
-        rules: {
-          ...prevConfig.rules,
-          [ruleType]: {
-            ...prevConfig.rules[ruleType],
-            probabilistic: newRules
-          }
-        }
-      }
-
-      localStorage.setItem('configuration', JSON.stringify(updatedConfig))
-      console.log('Updated configuration in local storage', updatedConfig)
-      return updatedConfig
-    })
-  }
-
-  const handleAddRule = (ruleType: 'matchNotification' | 'link') => {
-    const vars = fields.filter(
-      (field, index) => field !== '' && fields.indexOf(field) === index
-    )
-    const text = vars
-      .map((field, index) => {
-        const operator =
-          index > 0 ? ` ${operators[index - 1].toLowerCase()} ` : ''
-        const comparator = comparators[index]
-        const comparatorFunction =
-          comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`
-        return `${operator}${comparatorFunction}`
-      })
-      .join('')
-
-    const newRule: Rule = {
-      vars,
-      text
-    }
-
-    let updatedRules = [...rules]
-    if (editIndex !== null) {
-      updatedRules[editIndex] = newRule
-      setEditIndex(null)
-    } else {
-      updatedRules = [...rules, newRule]
-    }
-
-    handleUpdateConfiguration(updatedRules, ruleType)
-    setRules(updatedRules)
-    setInitialState({
-      comparators: [...comparators],
-      fields: [...fields],
-      operators: [...operators]
-    })
-    setHasChanges(false)
+    dispatch({ type: 'SET_OPERATORS', payload: newOperators })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: true })
   }
 
   const handleRowEdit = (row: RowData) => {
+    dispatch({ type: 'SET_VIEW_TYPE', payload: 1 })
     const regex = /(?:eq|match)\(([^),]+)(?:,\s*(\d+))?\)/g
     const operatorsRegex = /\s+(and|or)\s+/g
     const matchedFields: string[] = []
@@ -178,67 +224,68 @@ const BlockingContent = ({
       matchedOperators.push(operatorMatch[1])
     }
 
-    setFields(matchedFields)
-    setComparators(matchedComparators)
+    dispatch({ type: 'SET_FIELDS', payload: matchedFields })
+    dispatch({ type: 'SET_COMPARATORS', payload: matchedComparators })
 
     const operatorLength = Math.max(matchedFields.length - 1, 0)
     const filledOperators =
       matchedOperators.length > 0
         ? matchedOperators.slice(0, operatorLength)
         : []
-    setOperators(
-      filledOperators.map(op => (op === 'or' ? Operator.OR : Operator.AND))
-    )
-    setEditIndex(row.id)
-    setHasChanges(false)
+    dispatch({
+      type: 'SET_OPERATORS',
+      payload: filledOperators.map(op =>
+        op === 'or' ? Operator.OR : Operator.AND
+      )
+    })
+    dispatch({ type: 'SET_EDIT_INDEX', payload: row.id })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: false })
   }
 
   const handleAddRow = () => {
-    setComparators([...comparators, 0])
-    setFields([...fields, ''])
-    setOperators([...operators, Operator.AND])
-    setHasChanges(true)
+    dispatch({ type: 'SET_COMPARATORS', payload: [...state.comparators, 0] })
+    dispatch({ type: 'SET_FIELDS', payload: [...state.fields, ''] })
+    dispatch({
+      type: 'SET_OPERATORS',
+      payload: [...state.operators, Operator.AND]
+    })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: true })
   }
 
   const handleClose = () => {
-    setEditIndex(null)
-    setFields([])
-    setComparators([])
-    setOperators([])
-    setHasChanges(false)
+    dispatch({ type: 'RESET' })
+    dispatch({ type: 'SET_VIEW_TYPE', payload: 0 })
   }
 
   const isAddRuleDisabled = () => {
     if (
-      fields.length === 0 ||
-      fields.some(field => field.length === 0) ||
-      operators.some(
-        (operator, index) => index < fields.length - 1 && !operator
+      state.fields.length === 0 ||
+      state.fields.some(field => field.length === 0) ||
+      state.operators.some(
+        (operator, index) => index < state.fields.length - 1 && !operator
       )
     ) {
       return true
     }
 
-    return !hasChanges
+    return !state.hasChanges
   }
 
   const handleAddUndefinedRule = () => {
     handleAddRow()
-    setEditIndex(null)
+    dispatch({ type: 'SET_VIEW_TYPE', payload: 1 })
   }
 
   const handleDeleteRow = (index: number) => {
-    const newFields = fields.filter((_, i) => i !== index)
-    const newComparators = comparators.filter((_, i) => i !== index)
-    const newOperators = operators.filter((_, i) => i !== index)
-
-    const updatedRules = rules.filter((_, i) => i !== index)
-
-    setFields(newFields)
-    setComparators(newComparators)
-    setOperators(newOperators)
-    setRules(updatedRules)
-    setHasChanges(true)
+    const newFields = state.fields.filter((_, i) => i !== index)
+    const newComparators = state.comparators.filter((_, i) => i !== index)
+    const newOperators = state.operators.filter((_, i) => i !== index)
+    const updatedRules = state.rules.filter((_, i) => i !== index)
+    dispatch({ type: 'SET_FIELDS', payload: newFields })
+    dispatch({ type: 'SET_COMPARATORS', payload: newComparators })
+    dispatch({ type: 'SET_OPERATORS', payload: newOperators })
+    dispatch({ type: 'SET_RULES', payload: updatedRules })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: true })
 
     const ruleType = linkingRules.matchNotification?.probabilistic
       ? 'matchNotification'
@@ -259,22 +306,24 @@ const BlockingContent = ({
       >
         <Button
           variant="outlined"
-          disabled={editIndex === null}
+          disabled={state.viewType === 1}
           size="medium"
+          id="source-view-button"
           onClick={handleClose}
         >
           Source View
         </Button>
         <Button
           variant="outlined"
-          disabled={editIndex !== null}
+          disabled={state.viewType === 0}
           size="medium"
-          onClick={() => setEditIndex(null)}
+          id="design-view-button"
+          onClick={() => dispatch({ type: 'SET_VIEW_TYPE', payload: 0 })}
         >
           Design View
         </Button>
       </Box>
-      {editIndex === null ? (
+      {state.viewType !== 1 ? (
         <Box
           sx={{
             width: '100%',
@@ -286,7 +335,7 @@ const BlockingContent = ({
           }}
         >
           <SourceView
-            data={transformRulesToRowData({ probabilistic: probabilisticRows })}
+            data={probabilisticRows}
             onEditRow={handleRowEdit}
             onAddUndefinedRule={handleAddUndefinedRule}
             hasUndefinedRule={hasUndefinedRule}
@@ -294,7 +343,7 @@ const BlockingContent = ({
         </Box>
       ) : (
         <>
-          {fields.map((field, index) => (
+          {state.fields.map((field, index) => (
             <Box
               key={index}
               sx={{
@@ -314,7 +363,7 @@ const BlockingContent = ({
                 <Select
                   labelId={`select-operator-label-${index}`}
                   id="select-operator"
-                  value={index === 0 ? '' : operators[index - 1] || ''}
+                  value={index === 0 ? '' : state.operators[index - 1] || ''}
                   label="Select Operator"
                   onChange={event => handleOperatorChange(index - 1, event)}
                   disabled={index === 0}
@@ -361,7 +410,7 @@ const BlockingContent = ({
                 <Select
                   labelId={`select-comparator-label-${index}`}
                   id="select-comparator"
-                  value={comparators[index]}
+                  value={state.comparators[index]}
                   label="Select Comparator"
                   onChange={event => handleComparatorChange(index, event)}
                 >
@@ -375,6 +424,7 @@ const BlockingContent = ({
               <IconButton
                 aria-label="delete"
                 color="secondary"
+                id="delete-button"
                 onClick={() => handleDeleteRow(index)}
                 sx={{ alignSelf: 'center' }}
               >
@@ -405,6 +455,7 @@ const BlockingContent = ({
             <Button
               variant="contained"
               color="primary"
+              id="add-rule-button"
               onClick={() => {
                 const ruleType = linkingRules.matchNotification?.probabilistic
                   ? 'matchNotification'
@@ -413,7 +464,7 @@ const BlockingContent = ({
               }}
               disabled={isAddRuleDisabled()}
             >
-              {editIndex !== null ? 'Save Rule' : 'Add Rule'}
+              {state.editIndex !== null ? 'Save Rule' : 'Add Rule'}
             </Button>
             <Button
               variant="contained"
