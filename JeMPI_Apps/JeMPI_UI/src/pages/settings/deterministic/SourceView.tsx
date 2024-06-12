@@ -38,7 +38,6 @@ const SourceView: React.FC<SourceViewProps> = ({
 
   useEffect(() => {
     setRows(data)
-    console.log(data)
   }, [data])
 
   const handleEditClick = (id: GridRowId) => () => {
@@ -71,7 +70,7 @@ const SourceView: React.FC<SourceViewProps> = ({
     {
       field: 'ruleNumber',
       headerName: 'Rule Number',
-      width: 150,
+      width: 50,
       align: 'left',
       headerAlign: 'center',
       editable: false
@@ -79,10 +78,10 @@ const SourceView: React.FC<SourceViewProps> = ({
     {
       field: 'ruleText',
       headerName: 'Rule',
-      width: 500,
+      width: 900,
       align: 'left',
       headerAlign: 'left',
-      editable: true
+      editable: false
     },
     {
       field: 'actions',
@@ -157,6 +156,8 @@ const SourceView: React.FC<SourceViewProps> = ({
           processRowUpdate={processRowUpdate}
           hideFooter
           disableColumnSelector
+        
+          
         />
       )}
     </Box>
