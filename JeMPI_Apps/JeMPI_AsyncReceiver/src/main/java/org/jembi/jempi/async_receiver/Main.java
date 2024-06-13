@@ -75,7 +75,12 @@ public final class Main {
                   .stream()
                   .map(f -> new AuxInteractionData.AuxInteractionUserField(f.scName(),
                                                                            f.ccName(),
-                                                                           csvRecord.get(f.source().csvCol())))
+                                                                           f.source().csvCol() != null
+                                                                                 ?
+                                                                                 csvRecord.get(f.source().csvCol())
+                                                                                 :
+                                                                                       AppUtils.applyFunction(f.source().generate().func())
+                  ))
                   .toList());
    }
 
@@ -86,13 +91,6 @@ public final class Main {
             csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
    }
 
-   private static String applyFunction(final String func) {
-      return switch (func) {
-         case "AppUtils::autoGenerateId" -> AppUtils.autoGenerateId();
-         default -> null;
-      };
-   }
-
    private static DemographicData demographicData(final CSVRecord csvRecord) {
 
       final var data = new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataSource
@@ -101,7 +99,7 @@ public final class Main {
                                                        f.getLeft(),
                                                        (f.getRight().csvCol() != null)
                                                              ? csvRecord.get(f.getRight().csvCol())
-                                                             : applyFunction(f.getRight().generate().func())))
+                                                             : AppUtils.applyFunction(f.getRight().generate().func())))
                                                  .toList());
 
       try {

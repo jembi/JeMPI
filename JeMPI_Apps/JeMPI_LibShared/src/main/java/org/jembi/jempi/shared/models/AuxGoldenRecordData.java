@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.config.FieldsConfig;
+import org.jembi.jempi.shared.utils.AppUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public record AuxGoldenRecordData(
                                                                                                                     .interactionField()))
                                                  .toList()
                                                  .getFirst().value()
-                             : null))
+                             : AppUtils.applyFunction(auxGoldenRecordUserField.source().generate().func())))
                  .toList());
    }
 

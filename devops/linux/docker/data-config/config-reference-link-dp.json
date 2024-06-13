@@ -17,6 +17,15 @@
       "source": {
         "csvCol": 10
       }
+    },
+    {
+      "fieldName": "aux_iid",
+      "fieldType": "String",
+      "source": {
+        "generate": {
+          "func": "AppUtils::autoGenerateId"
+        }
+      }
     }
   ],
   "auxGoldenRecordFields": [
@@ -34,6 +43,15 @@
       "fieldType": "String",
       "source": {
         "interactionField": "aux_id"
+      }
+    },
+    {
+      "fieldName": "aux_gid",
+      "fieldType": "String",
+      "source": {
+        "generate": {
+          "func": "AppUtils::autoGenerateId"
+        }
       }
     }
   ],
