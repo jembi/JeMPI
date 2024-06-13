@@ -126,6 +126,10 @@ const SourceView: React.FC<SourceViewProps> = ({
           borderLeft: 'none',
           borderRight: 'none',
           borderBottom: 'none'
+        },
+        '& .MuiDataGrid-cell': {
+          whiteSpace: 'normal',
+          overflowWrap: 'break-word',
         }
       }}
     >
@@ -147,6 +151,7 @@ const SourceView: React.FC<SourceViewProps> = ({
         </Box>
       ) : (
         <DataGrid
+          getRowHeight={() => 60}  
           rows={rows}
           columns={columns}
           editMode="row"

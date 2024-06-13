@@ -76,7 +76,7 @@ const Settings = () => {
               variant="scrollable"
             >
               <Tab label="Common" {...a11yProps(0)} />
-              <Tab label="Unique to Golden record" {...a11yProps(1)} />
+              <Tab label="Unique to Golden Record" {...a11yProps(1)} />
               <Tab label="Unique to Interaction" {...a11yProps(2)} />
               <Tab label="Golden Records Lists" {...a11yProps(3)} />
               <Tab label="Deterministic" {...a11yProps(4)} />
@@ -127,7 +127,9 @@ const Settings = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
-            Probabilistic
+            <Typography variant="h5" sx={{ py: 3 }}>
+              Probabilistic
+            </Typography>
           </CustomTabPanel>
         </Box>
       </Grid>

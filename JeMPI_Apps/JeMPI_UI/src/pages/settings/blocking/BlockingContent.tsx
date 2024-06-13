@@ -136,17 +136,18 @@ const BlockingContent = ({
       const vars = state.fields.filter(
         (field, index) => field !== '' && state.fields.indexOf(field) === index
       )
-      const text = vars
-        .map((field, index) => {
-          const operator =
-            index > 0 ? ` ${state.operators[index - 1].toLowerCase()} ` : ''
-          const comparator = state.comparators[index]
-          const comparatorFunction =
-            comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`
-          return `${operator}${comparatorFunction}`
-        })
-        .join('')
-
+      const text = state.fields
+      .map((field, index) => {
+        const operator =
+          index > 0 ? ` ${state.operators[index - 1].toLowerCase()} ` : '';
+        const comparator = state.comparators[index];
+        const comparatorFunction =
+          comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`;
+        return `${operator}${comparatorFunction}`;
+      })
+      .join('');
+       
+    
       const newRule: Rule = {
         vars,
         text
