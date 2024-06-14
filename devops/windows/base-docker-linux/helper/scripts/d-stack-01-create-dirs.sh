@@ -34,6 +34,8 @@ pushd .
   mkdir -p ${DATA_POSTGRESQL_DIR}
   cp conf/postgres/*.* ${DATA_POSTGRESQL_DIR}/.
   
+  mkdir -p ${DATA_POSTGRESQL_DB_DIR}
+  sudo chmod -R 777 ${DATA_POSTGRESQL_DB_DIR}
   echo
 
 popd

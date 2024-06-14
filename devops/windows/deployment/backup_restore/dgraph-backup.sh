@@ -36,11 +36,11 @@ backup_dgraph_node() {
 backup_dgraph_dir() {
     local dir=$1
     local dir_name=$(basename "$dir")
-    echo "Starting Dgraph database Backup..."
+    echo "Starting Dgraph database Backup for $dir_name..."
     echo "$(date) - Starting backup for DGraph directory at $dir" >> "${LOG_FILE}"
     tar -czvf "${BACKUP_PATH}/${dir_name}_$(date +%Y%m%d_%H%M%S).tar.gz" -C "$dir" .
     echo "$(date) - Backup completed for DGraph directory at $dir" >> "${LOG_FILE}"
-    echo "Database Dgraph Backup completed."
+    echo "Database Dgraph Backup of $dir_name completed."
 }
 
 
