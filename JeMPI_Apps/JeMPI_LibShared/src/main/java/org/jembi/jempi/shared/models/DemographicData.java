@@ -71,7 +71,10 @@ public class DemographicData {
    public static DemographicData fromCustomDemographicData(final JsonNode jsonNode) {
       final var fields = new ArrayList<DemographicField>();
       API_CONFIG.demographicDataFields.forEach(field -> {
-         final var val = jsonNode.get(field.getLeft()).textValue();
+         var val = "";
+         if (jsonNode.get(field.getLeft()) != null) {
+            val = jsonNode.get(field.getLeft()).textValue();
+         }
          fields.add(field.getRight(), new DemographicField(field.getLeft(), val));
       });
       return new DemographicData(fields);
