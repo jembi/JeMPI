@@ -12,6 +12,7 @@ import InteractiveNode from './interactiveNode/InteractiveNode';
 import { CustomTabPanel, a11yProps } from './deterministic/BasicTabs';
 import { Configuration } from 'types/Configuration';
 import { generateId } from 'utils/helpers';
+import Probabilisitic from './probabilistic/Probabilistic';
 
 const Settings = () => {
   const [value, setValue] = useState(0);
@@ -128,7 +129,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
             <Typography variant="h5" sx={{ py: 3 }}>
-              Probabilistic
+              <Probabilisitic/>
             </Typography>
           </CustomTabPanel>
         </Box>
