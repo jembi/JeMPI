@@ -18,7 +18,7 @@ describe('SourceView Component', () => {
       <SourceView
         data={mockData}
         onEditRow={mockOnEditRow}
-        onAddUndefinedRule={()=> {}}
+        onAddUndefinedRule={()=> { return null }}
         hasUndefinedRule={false}
       />
     )
@@ -33,7 +33,7 @@ describe('SourceView Component', () => {
       <SourceView
         data={mockData}
         onEditRow={mockOnEditRow}
-        onAddUndefinedRule={()=> {}}
+        onAddUndefinedRule={()=> { return null }}
         hasUndefinedRule={false}
       />
     )

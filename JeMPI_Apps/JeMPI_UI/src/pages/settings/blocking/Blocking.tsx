@@ -1,118 +1,72 @@
-import { AddOutlined } from '@mui/icons-material'
-import {
-  Card,
-  CardContent,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  CardActions,
-  IconButton,
-  Typography
-} from '@mui/material'
+import { Card, CardContent, Tab, Tabs } from '@mui/material'
 import { Box } from '@mui/system'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { Field, Rule } from 'types/Configuration'
+import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs'
+import BlockingContent from './BlockingContent'
 
-const Blocking = () => {
-  const [viewType, setViewType] = React.useState(0)
+interface BlockingProps {
+  demographicData: Field[]
+  rules: {
+    link?: {
+      probabilistic?: Rule[]
+    }
+    validate?: {
+      probabilistic?: Rule[]
+    }
+    matchNotification?: {
+      probabilistic?: Rule[]
+    }
+  }
+}
+
+const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
+  const [value, setValue] = useState(0)
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue)
+  }
+
+  const matchNotificationRules = rules.matchNotification?.probabilistic ?? []
+  const linkingRules = rules.link?.probabilistic ?? []
+
   return (
-    <>
-      <Card sx={{ minWidth: 275 }}>
-        <CardContent
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6
-          }}
-        >
-          <Box
-            sx={{ mr: 'auto', display: 'flex', flexDirection: 'row', gap: 2 }}
+    <Card sx={{ minWidth: 275 }}>
+      <CardContent
+        sx={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#f5f5f5'
+        }}
+      >
+        <Box sx={{ width: '100%' }}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
           >
-            <Button
-              variant="outlined"
-              size="medium"
-              onClick={() => setViewType(0)}
-            >
-              Design View
-            </Button>
-            <Button
-              variant="outlined"
-              size="medium"
-              onClick={() => setViewType(1)}
-            >
-              Source View
-            </Button>
-          </Box>
-          {viewType === 0 ? (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                width: '100%',
-                justifyContent: 'center',
-                gap: 2
+            <Tab label="Linking" {...a11yProps(0)} />
+            <Tab label="Matching" {...a11yProps(1)} />
+          </Tabs>
+          <CustomTabPanel value={value} index={0}>
+            <BlockingContent
+              demographicData={demographicData}
+              hasUndefinedRule={linkingRules.length === 0}
+              linkingRules={{ link: { probabilistic: linkingRules } }}
+            />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>
+            <BlockingContent
+              demographicData={demographicData}
+              hasUndefinedRule={matchNotificationRules.length === 0}
+              linkingRules={{
+                matchNotification: { probabilistic: matchNotificationRules }
               }}
-            >
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Comparator Function
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Select Comparator Function"
-                ></Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Field
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Select Field"
-                ></Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Select Operator
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  label="Select Operator"
-                ></Select>
-              </FormControl>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <Typography variant='h5' >Match (phone number, 3)</Typography>
-              Or
-              <Typography variant='h5'>Match (National ID, 3)</Typography> Or
-              <Typography variant='h5'>
-                Int (Match (given name , 3)) + Int(Match (family name, 3)) +
-                Int(Match (city, 3)) ≥ 3
-              </Typography>
-            </Box>
-          )}
-        </CardContent>
-        <CardActions>
-          <IconButton aria-label="delete" size="small">
-            <AddOutlined fontSize="small" />
-          </IconButton>
-        </CardActions>
-      </Card>
-    </>
+            />
+          </CustomTabPanel>
+        </Box>
+      </CardContent>
+    </Card>
   )
 }
 

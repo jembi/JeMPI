@@ -43,7 +43,7 @@ const Deterministic = ({
           backgroundColor: '#f5f5f5'
         }}
       >
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%', backgroundColor: '#f5f5f5' }}>
           <Box>
             <Tabs
               value={value}

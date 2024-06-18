@@ -70,7 +70,7 @@ const SourceView: React.FC<SourceViewProps> = ({
     {
       field: 'ruleNumber',
       headerName: 'Rule Number',
-      width: 150,
+      width: 50,
       align: 'left',
       headerAlign: 'center',
       editable: false
@@ -78,10 +78,10 @@ const SourceView: React.FC<SourceViewProps> = ({
     {
       field: 'ruleText',
       headerName: 'Rule',
-      width: 500,
+      width: 900,
       align: 'left',
       headerAlign: 'left',
-      editable: true
+      editable: false
     },
     {
       field: 'actions',
@@ -126,6 +126,10 @@ const SourceView: React.FC<SourceViewProps> = ({
           borderLeft: 'none',
           borderRight: 'none',
           borderBottom: 'none'
+        },
+        '& .MuiDataGrid-cell': {
+          whiteSpace: 'normal',
+          overflowWrap: 'break-word',
         }
       }}
     >
@@ -137,7 +141,8 @@ const SourceView: React.FC<SourceViewProps> = ({
             flexDirection: 'column',
             gap: 2,
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            backgroundColor: '#f5f5f5'
           }}
         >
           <IconButton key="add-undefined-rule" onClick={onAddUndefinedRule}>
@@ -146,6 +151,7 @@ const SourceView: React.FC<SourceViewProps> = ({
         </Box>
       ) : (
         <DataGrid
+          getRowHeight={() => 60}  
           rows={rows}
           columns={columns}
           editMode="row"
@@ -155,6 +161,8 @@ const SourceView: React.FC<SourceViewProps> = ({
           processRowUpdate={processRowUpdate}
           hideFooter
           disableColumnSelector
+        
+          
         />
       )}
     </Box>

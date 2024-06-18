@@ -1,28 +1,13 @@
-import React from 'react'
 import { render, fireEvent, waitFor } from '@testing-library/react'
 import DeterministicContent from 'pages/settings/deterministic/DeterministicContent'
-import { Field } from 'types/Configuration'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
+import mockData from 'services/mockData'
 
 describe('DeterministicContent', () => {
-  const demographicData: Field[] = [
-    { fieldName: 'national_id', fieldType: 'String' },
-    { fieldName: 'given_name', fieldType: 'String' },
-    { fieldName: 'family_name', fieldType: 'String' }
-  ]
+  const demographicData: any = mockData.configuration.demographicFields
 
-  const linkingRules = {
-    link: {
-      deterministic: [
-        { vars: ['national_id'], text: 'eq(national_id)' },
-        {
-          vars: ['given_name', 'family_name'],
-          text: 'eq(given_name) and eq(family_name)'
-        }
-      ]
-    }
-  }
+  const linkingRules = mockData.configuration.rules
 
   it('renders correctly', () => {
     const { container } = render(

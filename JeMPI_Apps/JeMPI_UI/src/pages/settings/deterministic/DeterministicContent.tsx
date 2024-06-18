@@ -283,7 +283,7 @@ const DeterministicContent = ({
                   value={index === 0 ? '' : operators[index - 1] || ''}
                   label="Select Operator"
                   onChange={event => handleOperatorChange(index - 1, event)}
-                  disabled={index === 0}  
+                  disabled={index === 0}
                 >
                   {Object.values(Operator).map(op => (
                     <MenuItem key={op} value={op}>
@@ -347,7 +347,11 @@ const DeterministicContent = ({
               marginTop: '20px'
             }}
           >
-            <IconButton id="add-row-button" onClick={handleAddRow}>
+            <IconButton
+              id="add-row-button"
+              sx={{ marginBottom: '40px', marginTop: '40px' }}
+              onClick={handleAddRow}
+            >
               <AddIcon />
             </IconButton>
           </Box>
