@@ -23,6 +23,8 @@ export interface Field {
   linkMetaData?: LinkMetaData;
 }
 
+
+
 export interface CustomNode {
   id?: string;
   name: string;
@@ -33,6 +35,10 @@ export interface Rule {
   id?: string;
   vars: string[];
   text: string;
+  linkThreshold?: number; 
+  marginWindowSize?: number; 
+  doNotLinkWindow?: { low: number, high: number };
+  reviewThresholdRange?: { low: number, high: number }; 
 }
 
 export interface LinkingRules {
