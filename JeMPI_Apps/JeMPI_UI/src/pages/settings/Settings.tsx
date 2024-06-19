@@ -129,7 +129,7 @@ const Settings = () => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
             <Typography variant="h5" sx={{ py: 3 }}>
-              <Probabilisitic/>
+              <Probabilisitic rules={configurationData?.rules || {}}/>
             </Typography>
           </CustomTabPanel>
         </Box>
