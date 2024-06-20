@@ -13,7 +13,6 @@ public final class GlobalConstants {
    public static final String TOPIC_MU_LINKER = "JeMPI-mu-linker";
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
-
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
 
    /*
@@ -21,6 +20,9 @@ public final class GlobalConstants {
     * HTTP SEGMENTS
     *
     */
+   public static final String SEGMENT_GET_CONFIGURATION = "configuration";
+   public static final String SEGMENT_GET_FIELDS_CONFIGURATION = "fieldsConfiguration";
+   public static final String SEGMENT_POST_CONFIGURATION = "configuration";
    public static final String SEGMENT_COUNT_INTERACTIONS = "countInteractions";
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "countGoldenRecords";
    public static final String SEGMENT_COUNT_RECORDS = "countRecords";
@@ -33,8 +35,6 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_EXPANDED_INTERACTIONS_FOR_INTERACTION_IDS = "expandedInteractionsCsv";
    public static final String SEGMENT_POST_GOLDEN_RECORD_AUDIT_TRAIL = "goldenRecordAuditTrail";
    public static final String SEGMENT_POST_INTERACTION_AUDIT_TRAIL = "interactionAuditTrail";
-   public static final String SEGMENT_POST_FIELDS_CONFIG = "config";
-   public static final String SEGMENT_POST_LINKED_RECORDS = "linkedRecords";
    public static final String SEGMENT_POST_NOTIFICATIONS = "notifications";
    public static final String SEGMENT_POST_GOLDEN_RECORD = "updateGoldenRecordFieldsForId";
    public static final String SEGMENT_POST_RELINK = "relink";
@@ -58,8 +58,6 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_DASHBOARD_DATA = "dashboardData";
    public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "onNotificationResolution";
    public static final String SEGMENT_PROXY_POST_CR_LINK = "crLink";
-   // public static final String SEGMENT_PROXY_POST_LINK_INTERACTION_TO_GID =
-   // "linkInteractionToGid";
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "currentUser";
@@ -68,7 +66,7 @@ public final class GlobalConstants {
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;
    public static final int TIMEOUT_DGRAPH_QUERY_SECS = (TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS
-         * TIMEOUT_DGRAPH_RECONNECT_RETRIES);
+                                                        * TIMEOUT_DGRAPH_RECONNECT_RETRIES);
    public static final int TIMEOUT_GENERAL_SECS = 60;
    public static final int TIMEOUT_TEA_TIME_SECS = 5;
 

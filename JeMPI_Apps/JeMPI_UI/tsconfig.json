@@ -17,6 +17,7 @@
     "jsx": "react-jsx",
     "rootDir": "./",
     "baseUrl": "./src",
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
       "types/*": ["types/*"],
       "components/*": ["components/*"],

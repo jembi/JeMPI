@@ -12,6 +12,7 @@ import SearchResult from 'components/searchResult/SearchResult'
 import Login from 'components/user/Login'
 import Dashboard from 'components/dashboard/Dashboard'
 import { DashboardDataProvider } from 'hooks/useDashboardData'
+import Settings from 'pages/settings/Settings'
 
 const baseRouter = createBrowserRouter([
   { path: 'login', element: <Login /> },
@@ -21,13 +22,19 @@ const baseRouter = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <DashboardDataProvider>
-                    <Dashboard />
-                  </DashboardDataProvider> 
+        element: (
+          <DashboardDataProvider>
+            <Dashboard />
+          </DashboardDataProvider>
+        )
       },
       {
         path: 'browse-records',
         element: <BrowseRecords />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
       },
       {
         path: 'record-details/:uid',

@@ -332,6 +332,202 @@ const currentUser: User = {
   provider: 'keycloak'
 }
 
+const configuration = {
+  auxInteractionFields: [
+    {
+      fieldName: 'aux_date_created',
+      fieldType: 'DateTime'
+    },
+    {
+      fieldName: 'aux_id',
+      fieldType: 'String',
+      source: {
+        csvCol: 0
+      }
+    },
+    {
+      fieldName: 'aux_clinical_data',
+      fieldType: 'String',
+      source: {
+        csvCol: 10
+      }
+    }
+  ],
+  auxGoldenRecordFields: [
+    {
+      fieldName: 'aux_date_created',
+      fieldType: 'DateTime'
+    },
+    {
+      fieldName: 'aux_auto_update_enabled',
+      fieldType: 'Bool',
+      default: 'true'
+    },
+    {
+      fieldName: 'aux_id',
+      fieldType: 'String',
+      source: {
+        interactionField: 'aux_id'
+      }
+    }
+  ],
+  additionalNodes: [
+    {
+      nodeName: 'SourceId',
+      fields: [
+        {
+          fieldName: 'facility',
+          fieldType: 'String',
+          source: {
+            csvCol: 8
+          }
+        },
+        {
+          fieldName: 'patient',
+          fieldType: 'String',
+          source: {
+            csvCol: 9
+          }
+        }
+      ]
+    }
+  ],
+  demographicFields: [
+    {
+      fieldName: 'given_name',
+      fieldType: 'String',
+      source: {
+        csvCol: 1
+      },
+      indexGoldenRecord: '@index(exact,trigram)',
+      indexInteraction: '@index(exact,trigram)',
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.8806329,
+        u: 0.0026558
+      }
+    },
+    {
+      fieldName: 'family_name',
+      fieldType: 'String',
+      source: {
+        csvCol: 2
+      },
+      indexGoldenRecord: '@index(exact,trigram)',
+      indexInteraction: '@index(exact,trigram)',
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.9140443,
+        u: 0.0006275
+      }
+    },
+    {
+      fieldName: 'gender',
+      fieldType: 'String',
+      source: {
+        csvCol: 3
+      },
+      indexGoldenRecord: '@index(exact,trigram)',
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.9468393,
+        u: 0.4436446
+      }
+    },
+    {
+      fieldName: 'dob',
+      fieldType: 'String',
+      source: {
+        csvCol: 4
+      },
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.7856196,
+        u: 0.0000465
+      }
+    },
+    {
+      fieldName: 'city',
+      fieldType: 'String',
+      source: {
+        csvCol: 5
+      },
+      indexGoldenRecord: '@index(trigram)',
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.8445694,
+        u: 0.0355741
+      }
+    },
+    {
+      fieldName: 'phone_number',
+      fieldType: 'String',
+      source: {
+        csvCol: 6
+      },
+      indexGoldenRecord: '@index(exact,trigram)',
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.84085,
+        u: 0.0000004
+      }
+    },
+    {
+      fieldName: 'national_id',
+      fieldType: 'String',
+      source: {
+        csvCol: 7
+      },
+      indexGoldenRecord: '@index(exact,trigram)',
+      indexInteraction: '@index(exact,trigram)',
+      linkMetaData: {
+        comparison: 'JARO_WINKLER_SIMILARITY',
+        comparisonLevels: [0.92],
+        m: 0.8441029,
+        u: 0.0000002
+      }
+    }
+  ],
+  rules: {
+    link: {
+      deterministic: [
+        {
+          vars: ['national_id'],
+          text: 'eq(national_id)'
+        }
+      ]
+    },
+    validate: {
+      deterministic: [
+        {
+          vars: ['given_name', 'family_name', 'phone_number'],
+          text: 'eq(given_name) and eq(family_name) and eq(phone_number)'
+        }
+      ]
+    },
+    matchNotification: {
+      deterministic: [
+        {
+          vars: ['given_name', 'family_name', 'phone_number'],
+          text: 'eq(given_name) and eq(family_name) and eq(phone_number)'
+        }
+      ],
+      probabilistic: [
+        {
+          vars: ['given_name', 'family_name', 'phone_number'],
+          text: 'match(given_name,3) and match(family_name,3) or match(given_name,3) and match(phone_number,3) or match(family_name,3) and match(phone_number,3)'
+        }
+      ]
+    }
+  }
+}
+
 const mockData = {
   auditTrail,
   notifications,
@@ -342,7 +538,8 @@ const mockData = {
   currentUser,
   linkedRecords,
   searchGoldenRecordResult,
-  searchPatientRecordResult
+  searchPatientRecordResult,
+  configuration
 }
 
 export default mockData

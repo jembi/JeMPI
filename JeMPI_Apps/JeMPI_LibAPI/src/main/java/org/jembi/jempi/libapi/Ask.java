@@ -7,6 +7,7 @@ import akka.http.javadsl.server.directives.FileInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 
 import java.io.File;
 import java.util.List;
@@ -317,6 +318,41 @@ public final class Ask {
                                                                       notificationRequest.oldGoldenId(),
                                                                       notificationRequest.currentGoldenId()),
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.GetConfigurationResponse> getConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.GetConfigurationResponse> stage = AskPattern
+            .ask(backEnd,
+                 BackEnd.GetConfigurationRequest::new,
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.GetFieldsConfigurationResponse> getFieldsConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      CompletionStage<BackEnd.GetFieldsConfigurationResponse> stage = AskPattern
+            .ask(backEnd,
+                 BackEnd.GetFieldsConfigurationRequest::new,
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.PostConfigurationResponse> postConfiguration(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd,
+         final Configuration configuration) {
+      CompletionStage<BackEnd.PostConfigurationResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.PostConfigurationRequest(replyTo,
+                                                                 configuration),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }

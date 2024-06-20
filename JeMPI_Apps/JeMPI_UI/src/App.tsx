@@ -10,7 +10,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import ScrollBackButtons from 'components/shared/ScrollBackButtons'
 import { AuthProvider } from 'hooks/useAuth'
 import { SnackbarProvider } from 'notistack'
-import React from 'react'
+import { ConfigurationProvider } from 'hooks/useUIConfiguration'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,11 +28,13 @@ const App = () => {
       <SnackbarProvider anchorOrigin={{ horizontal: 'right', vertical: 'top' }}>
         <QueryClientProvider client={queryClient}>
           <ConfigProvider>
-            <AuthProvider>
-              <ScrollBackButtons />
-              <RouterProvider router={baseRouter} />
-            </AuthProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
+            <ConfigurationProvider>
+              <AuthProvider>
+                <ScrollBackButtons />
+                <RouterProvider router={baseRouter} />
+              </AuthProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </ConfigurationProvider>
           </ConfigProvider>
         </QueryClientProvider>
       </SnackbarProvider>

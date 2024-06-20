@@ -18,7 +18,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "given_name",
+      "fieldName": "givenName",
       "fieldType": "String",
       "fieldLabel": "First Name",
       "groups": [
@@ -45,7 +45,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "family_name",
+      "fieldName": "familyName",
       "fieldType": "String",
       "fieldLabel": "Last Name",
       "groups": [
@@ -147,7 +147,7 @@
       }
     },
     {
-      "fieldName": "phone_number",
+      "fieldName": "phoneNumber",
       "fieldType": "String",
       "fieldLabel": "Phone No",
       "groups": [
@@ -166,7 +166,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "national_id",
+      "fieldName": "nationalId",
       "fieldType": "String",
       "fieldLabel": "National ID",
       "groups": [
@@ -274,40 +274,5 @@
       ],
       "accessLevel": []
     }
-  ],
-  "rules": {
-    "deterministic": {
-      "QUERY_DETERMINISTIC_GOLDEN_RECORD_CANDIDATES": {
-        "vars": [
-          "given_name",
-          "family_name",
-          "phone_number",
-          "national_id"
-        ],
-        "text": "eq(national_id) or (eq(given_name) and eq(family_name) and eq(phone_number))"
-      }
-    },
-    "probabilistic": {
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_DISTANCE": {
-        "vars": [
-          "given_name",
-          "family_name",
-          "city"
-        ],
-        "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_PHONE_NUMBER": {
-        "vars": [
-          "phone_number"
-        ],
-        "text": "match(phone_number,3)"
-      },
-      "QUERY_MATCH_GOLDEN_RECORD_CANDIDATES_BY_NATIONAL_ID": {
-        "vars": [
-          "national_id"
-        ],
-        "text": "match(national_id,3)"
-      }
-    }
-  }
+  ]
 }

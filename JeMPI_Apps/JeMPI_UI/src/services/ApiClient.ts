@@ -30,6 +30,7 @@ import { Notifications, NotificationState } from 'types/Notification'
 import { Config } from 'config'
 import axios from 'axios'
 import { getCookie } from '../utils/misc'
+import { Configuration } from 'types/Configuration'
 
 const apiClientAuth = (() => {
   const authKey = 'jempi-auth-key'
@@ -83,7 +84,12 @@ export class ApiClient {
   }
 
   async fetchFields() {
-    const { data } = await this.client.post<Fields>(ROUTES.POST_FIELDS_CONFIG)
+    const { data } = await this.client.get<Fields>(ROUTES.GET_FIELDS_CONFIG)
+    return data
+  }
+
+  async fetchConfiguration() {
+    const { data } = await this.client.get<Configuration>(ROUTES.GET_CONFIGURATION)
     return data
   }
 
@@ -96,6 +102,7 @@ export class ApiClient {
   ): Promise<Notifications> {
     const includeClosed = states.includes(NotificationState.CLOSED.toString())
     const includeAll = states.includes(NotificationState.ALL.toString())
+
     const notificationState = includeAll
       ? [NotificationState.CLOSED, NotificationState.OPEN]
       : includeClosed
@@ -111,6 +118,7 @@ export class ApiClient {
         states: notificationState
       }
     )
+
     const { records, skippedRecords, count } = data
 
     const formattedRecords = records.map(record => ({
@@ -390,7 +398,7 @@ export class ApiClient {
           fields: [{ name, oldValue, newValue }]
         })
       } catch (error) {
-        console.error('Error occurred while making the request:', error)
+        throw new Error('Failed to updateGoldenRecord with error: ' + error)
       }
     }
     return Promise.resolve()

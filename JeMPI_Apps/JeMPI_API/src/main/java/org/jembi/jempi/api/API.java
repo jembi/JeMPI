@@ -9,17 +9,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
-import org.jembi.jempi.libapi.JsonFieldsConfig;
 
 import java.util.UUID;
 
 public final class API {
 
    private static final Logger LOGGER = LogManager.getLogger(API.class);
-   private static final String CONFIG_RESOURCE_FILE_NAME = "config-api.json";
-   private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
-
 
    private API() {
       LOGGER.info("API started.");
@@ -45,10 +41,14 @@ public final class API {
                                                                         AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
                                                                         AppConfig.POSTGRESQL_AUDIT_DB,
                                                                         AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                                                                        "CLIENT_ID_API-" + UUID.randomUUID()), "BackEnd");
+                                                                        "CLIENT_ID_API-" + UUID.randomUUID(),
+                                                                        AppConfig.SYSTEM_CONFIG_DIR,
+                                                                        AppConfig.API_CONFIG_REFERENCE_FILENAME,
+                                                                        AppConfig.API_CONFIG_MASTER_FILENAME,
+                                                                        AppConfig.API_FIELDS_CONFIG_FILENAME), "BackEnd");
          context.watch(backEnd);
          httpServer = HttpServer.create();
-         httpServer.open("0.0.0.0", AppConfig.API_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);
+         httpServer.open("0.0.0.0", AppConfig.API_HTTP_PORT, context.getSystem(), backEnd);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
             httpServer.close(context.getSystem());
             return Behaviors.stopped();
@@ -59,9 +59,6 @@ public final class API {
    private void run() {
       LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.API_HTTP_PORT);
       try {
-         LOGGER.info("Loading fields configuration file ");
-         jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);
-         LOGGER.info("Fields configuration file successfully loaded");
          ActorSystem.create(this.create(), "API-App");
       } catch (Exception e) {
          LOGGER.error("Unable to start the API", e);

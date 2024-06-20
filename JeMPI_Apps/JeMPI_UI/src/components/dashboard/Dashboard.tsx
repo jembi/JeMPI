@@ -103,7 +103,13 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="Golden Record"
-                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.goldenRecordCount : 0}
+                            value={
+                              /* TODO: Improve */ dashboardData.isReady
+                                ? dashboardData?.data?.dashboardData
+                                    ?.dashboardData?.linker_stats
+                                    ?.goldenRecordCount
+                                : 0
+                            }
                             icon={<Person sx={{ fontSize: '3.5rem' }} />}
                             iconBackgroundColor={'#FFD700'}
                           />
@@ -111,7 +117,13 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="Interactions "
-                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.interactionsCount : 0}
+                            value={
+                              /* TODO: Improve */ dashboardData.isReady
+                                ? dashboardData?.data?.dashboardData
+                                    ?.dashboardData?.linker_stats
+                                    ?.interactionsCount
+                                : 0
+                            }
                             icon={<Layers sx={{ fontSize: '3.5rem' }} />}
                             iconBackgroundColor={'primary.main'}
                           />
@@ -126,7 +138,13 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="New/Open"
-                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData.data?.sqlDashboardData?.dashboardData?.notificationStats?.openNotifications : 0}
+                            value={
+                              /* TODO: Improve */ dashboardData.isReady
+                                ? dashboardData.data?.sqlDashboardData
+                                    ?.dashboardData?.notificationStats
+                                    ?.openNotifications
+                                : 0
+                            }
                             icon={
                               <NotificationAdd sx={{ fontSize: '3.5rem' }} />
                             }
@@ -136,7 +154,13 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={6}>
                           <CountWidget
                             label="Closed"
-                            value={/* TODO: Improve */ dashboardData.isReady ? dashboardData.data?.sqlDashboardData?.dashboardData?.notificationStats?.closedNotifications : 0}
+                            value={
+                              /* TODO: Improve */ dashboardData.isReady
+                                ? dashboardData.data?.sqlDashboardData
+                                    ?.dashboardData?.notificationStats
+                                    ?.closedNotifications
+                                : 0
+                            }
                             icon={
                               <NotificationsOff sx={{ fontSize: '3.5rem' }} />
                             }
@@ -147,14 +171,28 @@ const Dashboard = () => {
                     </Box>
                   </Grid>
                   <Grid item xs={12}>
-                    <BetaFscore data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.tptn?.tptnfScore : null} />
+                    <BetaFscore
+                      data={
+                        /* TODO: Improve */ dashboardData.isReady
+                          ? dashboardData?.data?.dashboardData?.dashboardData
+                              ?.tptn?.tptnfScore
+                          : null
+                      }
+                    />
                   </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12} lg={6}>
                 <Box component="fieldset" minHeight={'550px'}>
                   <legend>Confusion Matrix</legend>
-                  <ConfusionMatrix data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.tptn : null}  />
+                  <ConfusionMatrix
+                    data={
+                      /* TODO: Improve */ dashboardData.isReady
+                        ? dashboardData?.data?.dashboardData?.dashboardData
+                            ?.tptn
+                        : null
+                    }
+                  />
                 </Box>
               </Grid>
             </Grid>
@@ -162,12 +200,26 @@ const Dashboard = () => {
           <CustomTabPanel value={currentTabIndex} index={1}>
             <Grid container sx={{ minHeight: { lg: '450px' } }}>
               <Grid item xs={6}>
-                <MandU data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.m_and_u : null} />
+                <MandU
+                  data={
+                    /* TODO: Improve */ dashboardData.isReady
+                      ? dashboardData?.data?.dashboardData?.dashboardData
+                          ?.m_and_u
+                      : null
+                  }
+                />
               </Grid>
             </Grid>
           </CustomTabPanel>
           <CustomTabPanel value={currentTabIndex} index={2}>
-            <ImportProcessWidget data={/* TODO: Improve */ dashboardData.isReady ? dashboardData?.data?.dashboardData?.dashboardData?.linker_stats?.linkerProgressStats : null} />
+            <ImportProcessWidget
+              data={
+                /* TODO: Improve */ dashboardData.isReady
+                  ? dashboardData?.data?.dashboardData?.dashboardData
+                      ?.linker_stats?.linkerProgressStats
+                  : null
+              }
+            />
           </CustomTabPanel>
         </Box>
       </Stack>

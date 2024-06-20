@@ -22,8 +22,7 @@
     },
     {
       "fieldName": "aux_auto_update_enabled",
-      "fieldType": "Bool",
-      "default": "true"
+      "fieldType": "Bool"
     },
     {
       "fieldName": "aux_id",
