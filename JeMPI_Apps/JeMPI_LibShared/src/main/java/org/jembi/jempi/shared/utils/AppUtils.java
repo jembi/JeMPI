@@ -63,8 +63,11 @@ public final class AppUtils implements Serializable {
       }
    }
 
-   public static String autoGenerateId() {
-      return Long.toString(++autoIncrement);
+   public static String applyFunction(final String func) {
+      return switch (func) {
+         case "AppUtils::autoGenerateId" -> Long.toString(++autoIncrement);
+         default -> null;
+      };
    }
 
    public static String camelToSnake(final String str) {
