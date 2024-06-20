@@ -38,7 +38,9 @@ public record AuxGoldenRecordData(
                                                                                                                     .interactionField()))
                                                  .toList()
                                                  .getFirst().value()
-                             : AppUtils.applyFunction(auxGoldenRecordUserField.source().generate().func())))
+                             : auxGoldenRecordUserField.source().generate() != null
+                                   ? AppUtils.applyFunction(auxGoldenRecordUserField.source().generate().func())
+                                   : null))
                  .toList());
    }
 
