@@ -42,10 +42,10 @@ public final class APIKC {
                                                                               AppConfig.POSTGRESQL_AUDIT_DB,
                                                                               AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                                               "CLIENT_ID_API_KC-" + UUID.randomUUID(),
-                                                                              null,
-                                                                              null,
-                                                                              null,
-                                                                              null),
+                                                                              AppConfig.SYSTEM_CONFIG_DIR,
+                                                                              AppConfig.API_CONFIG_REFERENCE_FILENAME,
+                                                                              AppConfig.API_CONFIG_MASTER_FILENAME,
+                                                                              AppConfig.API_FIELDS_CONFIG_FILENAME),
                                                                "BackEnd");
          context.watch(backEnd);
          final DispatcherSelector selector = DispatcherSelector.fromConfig("akka.actor.default-dispatcher");
