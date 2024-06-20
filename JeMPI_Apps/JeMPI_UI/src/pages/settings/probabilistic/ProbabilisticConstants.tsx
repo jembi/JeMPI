@@ -16,7 +16,7 @@ export const marks = [
     minThreshold: '0.55',
     linkThreshold: '0.65',
     maxThreshold: '0.75',
-    doNotLinkWindowStart: '0.6',
+    doNotLinkWindowStart: '0.5',
     doNotLinkWindowEnd: '0.8',
     marginWindowSize: '0.1'
   };

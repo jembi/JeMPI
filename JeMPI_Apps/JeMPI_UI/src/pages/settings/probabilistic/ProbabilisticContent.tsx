@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Typography, Grid, TextField, Slider, Button } from '@mui/material'
 import { Box } from '@mui/system'
 import { useFormik } from 'formik'
@@ -143,47 +142,62 @@ const ProbabilisticContent = ({
       }
     })
 
-  const handleValidatedChange = (field: string, value: string) => {
-    const parsedValue = parseFloat(value)
-    switch (field) {
-      case 'linkThreshold':
-        if (
-          parsedValue > parseFloat(values.minThreshold) &&
-          parsedValue < parseFloat(values.maxThreshold)
-        ) {
-          setFieldValue(field, value)
-        }
-        break
-      case 'minThreshold':
-        if (parsedValue < parseFloat(values.linkThreshold)) {
-          setFieldValue(field, value)
-        }
-        break
-      case 'maxThreshold':
-        if (parsedValue > parseFloat(values.linkThreshold)) {
-          setFieldValue(field, value)
-        }
-        break
-      case 'doNotLinkWindowStart':
-        if (parsedValue < parseFloat(values.minThreshold)) {
-          setFieldValue(field, value)
-        }
-        break
-      case 'doNotLinkWindowEnd':
-        if (parsedValue > parseFloat(values.maxThreshold)) {
-          setFieldValue(field, value)
-        }
-        break
-      default:
-        setFieldValue(field, value)
-        break
+   
+const handleValidatedChange = (field: string, value: string) => {
+  const parsedValue = parseFloat(value);
+  const adjustmentFactor = 0.1;
+  const roundToTwoDecimals = (num: number) => parseFloat(num.toFixed(2));
+
+  if (field === 'linkThreshold') {
+    if (parsedValue >= parseFloat(values.minThreshold) && parsedValue <= parseFloat(values.maxThreshold)) {
+      setFieldValue('linkThreshold', value);
+    } else {
+      const newMinThreshold = roundToTwoDecimals(Math.max(0, parsedValue - adjustmentFactor));
+      const newMaxThreshold = roundToTwoDecimals(Math.min(1, parsedValue + adjustmentFactor));
+      const newDoNotLinkWindowStart = roundToTwoDecimals(Math.max(0, newMinThreshold - adjustmentFactor));
+      const newDoNotLinkWindowEnd = roundToTwoDecimals(Math.min(1, newMaxThreshold + adjustmentFactor));
+      setFieldValue('linkThreshold', value);
+      setFieldValue('minThreshold', newMinThreshold.toString());
+      setFieldValue('maxThreshold', newMaxThreshold.toString());
+      setFieldValue('doNotLinkWindowStart', newDoNotLinkWindowStart.toString());
+      setFieldValue('doNotLinkWindowEnd', newDoNotLinkWindowEnd.toString());
     }
+  } else if (field === 'minThreshold') {
+    if (parsedValue <= parseFloat(values.doNotLinkWindowStart)) {
+      setFieldValue(field, value);
+    } else {
+      const newDoNotLinkWindowStart = roundToTwoDecimals(Math.max(0, parsedValue - adjustmentFactor));
+      setFieldValue(field, value);
+      setFieldValue('doNotLinkWindowStart', newDoNotLinkWindowStart.toString());
+    }
+  } else if (field === 'maxThreshold') {
+    if (parsedValue >= parseFloat(values.doNotLinkWindowEnd)) {
+      const newDoNotLinkWindowEnd = roundToTwoDecimals(Math.min(1, parsedValue + adjustmentFactor));
+      setFieldValue(field, value);
+      setFieldValue('doNotLinkWindowEnd', newDoNotLinkWindowEnd.toString());
+    } else {
+      setFieldValue(field, value);
+    }
+  } else if (field === 'doNotLinkWindowStart') {
+    if (parsedValue >= parseFloat(values.minThreshold)) {
+      setFieldValue(field, value);
+    }
+  } else if (field === 'doNotLinkWindowEnd') {
+    if (parsedValue >= parseFloat(values.maxThreshold)) {
+      setFieldValue(field, value);
+    }
+  } else {
+    setFieldValue(field, value);
   }
+};
+    
+    
+  
 
   return (
     <Box
       sx={{
-        height: '70vh',
+        height: '55vh',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -205,34 +219,35 @@ const ProbabilisticContent = ({
             spacing={2}
             sx={{ marginBottom: '10px', alignItems: 'center' }}
           >
-            <Slider
-              id="slider-summary"
-              getAriaValueText={e => e.toString()}
-              valueLabelDisplay="auto"
-              step={0.05}
-              marks={marks}
-              aria-labelledby="slider-summary"
-              min={0}
-              max={1}
-              value={[
-                parseFloat(values.minThreshold),
-                parseFloat(values.linkThreshold),
-                parseFloat(values.maxThreshold),
-                parseFloat(values.doNotLinkWindowEnd),
-                parseFloat(values.doNotLinkWindowStart)
-              ]}
-              sx={{
-                width: '50%',
-                '& .MuiSlider-thumb': {
-                  "&[data-index='0']": { backgroundColor: 'red' },
-                  "&[data-index='1']": { backgroundColor: 'green' },
-                  "&[data-index='2']": { backgroundColor: 'red' },
-                  "&[data-index='3']": { backgroundColor: 'blue' },
-                  "&[data-index='4']": { backgroundColor: 'blue' }
-                }
-              }}
-              track={false}
-            />
+        <Slider
+        id="slider-summary"
+        getAriaValueText={e => e.toString()}
+        valueLabelDisplay="auto"
+        step={0.05}
+        marks={marks}
+        aria-labelledby="slider-summary"
+        min={0}
+        max={1}
+        value={[
+          parseFloat(values.doNotLinkWindowStart),
+          parseFloat(values.minThreshold),
+          parseFloat(values.linkThreshold),
+          parseFloat(values.maxThreshold),
+          parseFloat(values.doNotLinkWindowEnd)
+        ]}
+        sx={{
+          width: '50%',
+          '& .MuiSlider-thumb': {
+            "&[data-index='0']": { backgroundColor: 'blue' },
+            "&[data-index='1']": { backgroundColor: 'red' },
+            "&[data-index='2']": { backgroundColor: 'green' },
+            "&[data-index='3']": { backgroundColor: 'red' },
+            "&[data-index='4']": { backgroundColor: 'blue' }
+          }
+        }}
+        track={false}
+      />
+
 
             <Grid item xs={8}>
               <Grid container spacing={2} sx={{ alignItems: 'center' }}>
@@ -256,6 +271,7 @@ const ProbabilisticContent = ({
                       touched.linkThreshold && Boolean(errors.linkThreshold)
                     }
                     helperText={touched.linkThreshold && errors.linkThreshold}
+                    inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
               </Grid>
@@ -282,6 +298,7 @@ const ProbabilisticContent = ({
                     }
                     error={touched.minThreshold && Boolean(errors.minThreshold)}
                     helperText={touched.minThreshold && errors.minThreshold}
+                    inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
                 <Grid item xs={3}>
@@ -297,6 +314,7 @@ const ProbabilisticContent = ({
                     }
                     error={touched.maxThreshold && Boolean(errors.maxThreshold)}
                     helperText={touched.maxThreshold && errors.maxThreshold}
+                    inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
               </Grid>
@@ -307,7 +325,7 @@ const ProbabilisticContent = ({
               >
                 <Grid item xs={3}>
                   <Typography sx={{ color: 'blue' }}>
-                    Do not link window
+                    Do Not Link Window
                   </Typography>
                 </Grid>
                 <Grid item xs={3}>
@@ -332,6 +350,7 @@ const ProbabilisticContent = ({
                       touched.doNotLinkWindowStart &&
                       errors.doNotLinkWindowStart
                     }
+                    inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
                 <Grid item xs={3}>
@@ -355,29 +374,29 @@ const ProbabilisticContent = ({
                     helperText={
                       touched.doNotLinkWindowEnd && errors.doNotLinkWindowEnd
                     }
+                    inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
               </Grid>
               <Grid
                 container
                 spacing={2}
-                sx={{ alignItems: 'center', marginTop: '20px' }}
+                sx={{ alignItems: 'center', marginTop: '10px' }}
               >
                 <Grid item xs={3}>
-                  <Typography>Margin window size</Typography>
+                  <Typography>Margin Window Size</Typography>
                 </Grid>
                 <Grid item xs={3}>
                   <TextField
                     id="margin-window-size"
                     name="marginWindowSize"
-                    label="Enter floating point number"
+                    label="Enter floating point"
                     variant="outlined"
                     size="small"
                     value={values.marginWindowSize}
                     onChange={handleChange}
                     error={
-                      touched.marginWindowSize &&
-                      Boolean(errors.marginWindowSize)
+                      touched.marginWindowSize && Boolean(errors.marginWindowSize)
                     }
                     helperText={
                       touched.marginWindowSize && errors.marginWindowSize
@@ -500,24 +519,18 @@ const ProbabilisticContent = ({
               </Grid>
             </Grid>
           </Grid>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: '20px'
-            }}
-          >
-            <Button variant="outlined">Edit</Button>
-            <Box sx={{ justifyContent: 'space-evenly' }}>
-              <Button
-                variant="outlined"
-                sx={{ marginRight: '10px' }}
-                type="submit"
-              >
-                Save
-              </Button>
-              <Button variant="outlined">Generate</Button>
-            </Box>
+
+          <Box sx={{ marginTop: '20px' }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={
+                Object.values(errors).some(error => error !== undefined)
+              }
+            >
+              Save
+            </Button>
           </Box>
         </form>
       </Box>
