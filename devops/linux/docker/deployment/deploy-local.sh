@@ -3,7 +3,7 @@
 cd ../../../../
 export JEMPI_HOME="$(pwd)"
 echo "$JEMPI_HOME"
-export JAVA_VERSION=21.0.1-tem
+export JAVA_VERSION=21.0.3-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
@@ -186,7 +186,6 @@ case $choice in
         install_sdkman_and_java_sbt_maven
         hostname_setup
         run_enviroment_configuration_and_helper_script
-        run_field_configuration_file
         initialize_swarm
         pull_docker_images_and_push_local
         initialize_db_build_all_stack_and_reboot
@@ -195,7 +194,6 @@ case $choice in
         echo "Deploy JeMPI"
         hostname_setup
         run_enviroment_configuration_and_helper_script
-        run_field_configuration_file
         initialize_swarm
         pull_docker_images_and_push_local
         initialize_db_build_all_stack_and_reboot
