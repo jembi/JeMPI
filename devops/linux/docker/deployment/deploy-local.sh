@@ -131,7 +131,6 @@ pull_docker_images_and_push_local(){
 }
 build_all_stack_and_reboot(){
     # run_enviroment_configuration_and_helper_script
-    run_field_configuration_file
     # Build and reboot the entire stack
     echo "Build and reboot the entire stack"
     pushd "$JEMPI_HOME/devops/linux/docker/deployment/build_and_reboot"

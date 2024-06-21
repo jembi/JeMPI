@@ -630,6 +630,11 @@ services:
       CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
     networks:
     - backend
+    volumes:
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
