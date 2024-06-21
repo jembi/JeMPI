@@ -1,8 +1,7 @@
 import { Typography, Grid, TextField, Slider, Button } from '@mui/material'
 import { Box } from '@mui/system'
 import { useFormik } from 'formik'
-import * as Yup from 'yup'
-import { defaultValues, marks } from './ProbabilisticConstants'
+import { defaultValues, initializeValues, marks, validationSchema } from './ProbabilisticConstants'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration } from 'types/Configuration'
 
@@ -21,10 +20,13 @@ interface ProbabilisticContentProps {
     validate?: { probabilistic?: Rule[] }
     matchNotification?: { probabilistic?: Rule[] }
   }
+  currentTab: 'link' | 'validate' | 'matchNotification'
+
 }
 
 const ProbabilisticContent = ({
-  linkingRules = {}
+  linkingRules = {},
+  currentTab
 }: ProbabilisticContentProps) => {
   const { configuration, setConfiguration } = useConfiguration()
 
@@ -35,77 +37,29 @@ const ProbabilisticContent = ({
   ]
 
   const rule = probabilisticRules[0] || {}
-
-  const initialValues = {
-    minThreshold:
-      rule.reviewThresholdRange?.low.toString() || defaultValues.minThreshold,
-    linkThreshold:
-      rule.linkThreshold?.toString() || defaultValues.linkThreshold,
-    maxThreshold:
-      rule.reviewThresholdRange?.high.toString() || defaultValues.maxThreshold,
-    doNotLinkWindowStart:
-      rule.doNotLinkWindow?.low.toString() ||
-      defaultValues.doNotLinkWindowStart,
-    doNotLinkWindowEnd:
-      rule.doNotLinkWindow?.high.toString() || defaultValues.doNotLinkWindowEnd,
-    marginWindowSize:
-      rule.marginWindowSize?.toString() || defaultValues.marginWindowSize
-  }
-
-  const validationSchema = Yup.object({
-    linkThreshold: Yup.number()
-      .min(0, 'Must be between 0 and 1')
-      .max(1, 'Must be between 0 and 1')
-      .required('Required'),
-    minThreshold: Yup.number()
-      .min(0, 'Must be between 0 and 1')
-      .max(1, 'Must be between 0 and 1')
-      .required('Required'),
-    maxThreshold: Yup.number()
-      .min(0, 'Must be between 0 and 1')
-      .max(1, 'Must be between 0 and 1')
-      .required('Required'),
-    doNotLinkWindowStart: Yup.number()
-      .min(0, 'Must be between 0 and 1')
-      .max(1, 'Must be between 0 and 1')
-      .required('Required'),
-    doNotLinkWindowEnd: Yup.number()
-      .min(0, 'Must be between 0 and 1')
-      .max(1, 'Must be between 0 and 1')
-      .required('Required'),
-    marginWindowSize: Yup.number()
-      .min(0, 'Must be between 0 and 1')
-      .max(1, 'Must be between 0 and 1')
-      .required('Required')
-  })
-
+  const initialValues = initializeValues(rule);
+ 
   const { handleChange, handleSubmit, values, setFieldValue, errors, touched } =
     useFormik({
       initialValues,
       validationSchema,
       onSubmit: values => {
         const finalValues = {
-          minThreshold:
-            parseFloat(values.minThreshold) ||
-            parseFloat(defaultValues.minThreshold),
+          minReviewThreshold:
+            parseFloat(values.minReviewThreshold) ||
+            parseFloat(defaultValues.minReviewThreshold),
           linkThreshold:
             parseFloat(values.linkThreshold) ||
             parseFloat(defaultValues.linkThreshold),
-          maxThreshold:
-            parseFloat(values.maxThreshold) ||
-            parseFloat(defaultValues.maxThreshold),
-          doNotLinkWindowStart:
-            parseFloat(values.doNotLinkWindowStart) ||
-            parseFloat(defaultValues.doNotLinkWindowStart),
-          doNotLinkWindowEnd:
-            parseFloat(values.doNotLinkWindowEnd) ||
-            parseFloat(defaultValues.doNotLinkWindowEnd),
+          maxReviewThreshold:
+            parseFloat(values.maxReviewThreshold) ||
+            parseFloat(defaultValues.maxReviewThreshold),
           marginWindowSize:
             parseFloat(values.marginWindowSize) ||
             parseFloat(defaultValues.marginWindowSize)
         }
 
-        const handleUpdateConfiguration = () => {
+        const handleUpdateConfiguration = (tab: 'link' | 'validate' | 'matchNotification') => {
           setConfiguration(prevConfig => {
             if (!prevConfig) return prevConfig
 
@@ -113,19 +67,15 @@ const ProbabilisticContent = ({
               ...prevConfig,
               rules: {
                 ...prevConfig.rules,
-                matchNotification: {
-                  ...prevConfig.rules.matchNotification,
+                [tab]: {
+                  ...prevConfig.rules[tab],
                   probabilistic: [
                     {
                       ...rule,
                       linkThreshold: finalValues.linkThreshold,
                       reviewThresholdRange: {
-                        low: finalValues.minThreshold,
-                        high: finalValues.maxThreshold
-                      },
-                      doNotLinkWindow: {
-                        low: finalValues.doNotLinkWindowStart,
-                        high: finalValues.doNotLinkWindowEnd
+                        low: finalValues.minReviewThreshold,
+                        high: finalValues.maxReviewThreshold
                       },
                       marginWindowSize: finalValues.marginWindowSize
                     }
@@ -137,7 +87,7 @@ const ProbabilisticContent = ({
           })
         }
 
-        handleUpdateConfiguration()
+        handleUpdateConfiguration(currentTab)
         localStorage.setItem('configuration', JSON.stringify(configuration))
       }
     })
@@ -149,7 +99,7 @@ const handleValidatedChange = (field: string, value: string) => {
   const roundToTwoDecimals = (num: number) => parseFloat(num.toFixed(2));
 
   if (field === 'linkThreshold') {
-    if (parsedValue >= parseFloat(values.minThreshold) && parsedValue <= parseFloat(values.maxThreshold)) {
+    if (parsedValue >= parseFloat(values.minReviewThreshold) && parsedValue <= parseFloat(values.maxReviewThreshold)) {
       setFieldValue('linkThreshold', value);
     } else {
       const newMinThreshold = roundToTwoDecimals(Math.max(0, parsedValue - adjustmentFactor));
@@ -162,33 +112,9 @@ const handleValidatedChange = (field: string, value: string) => {
       setFieldValue('doNotLinkWindowStart', newDoNotLinkWindowStart.toString());
       setFieldValue('doNotLinkWindowEnd', newDoNotLinkWindowEnd.toString());
     }
-  } else if (field === 'minThreshold') {
-    if (parsedValue <= parseFloat(values.doNotLinkWindowStart)) {
-      setFieldValue(field, value);
-    } else {
-      const newDoNotLinkWindowStart = roundToTwoDecimals(Math.max(0, parsedValue - adjustmentFactor));
-      setFieldValue(field, value);
-      setFieldValue('doNotLinkWindowStart', newDoNotLinkWindowStart.toString());
-    }
-  } else if (field === 'maxThreshold') {
-    if (parsedValue >= parseFloat(values.doNotLinkWindowEnd)) {
-      const newDoNotLinkWindowEnd = roundToTwoDecimals(Math.min(1, parsedValue + adjustmentFactor));
-      setFieldValue(field, value);
-      setFieldValue('doNotLinkWindowEnd', newDoNotLinkWindowEnd.toString());
-    } else {
-      setFieldValue(field, value);
-    }
-  } else if (field === 'doNotLinkWindowStart') {
-    if (parsedValue >= parseFloat(values.minThreshold)) {
-      setFieldValue(field, value);
-    }
-  } else if (field === 'doNotLinkWindowEnd') {
-    if (parsedValue >= parseFloat(values.maxThreshold)) {
-      setFieldValue(field, value);
-    }
-  } else {
-    setFieldValue(field, value);
-  }
+
+  } 
+
 };
     
     
@@ -217,7 +143,7 @@ const handleValidatedChange = (field: string, value: string) => {
           <Grid
             container
             spacing={2}
-            sx={{ marginBottom: '10px', alignItems: 'center' }}
+            sx={{ marginBottom: '80px', alignItems: 'center' }}
           >
         <Slider
         id="slider-summary"
@@ -229,34 +155,29 @@ const handleValidatedChange = (field: string, value: string) => {
         min={0}
         max={1}
         value={[
-          parseFloat(values.doNotLinkWindowStart),
-          parseFloat(values.minThreshold),
+          parseFloat(values.minReviewThreshold),
           parseFloat(values.linkThreshold),
-          parseFloat(values.maxThreshold),
-          parseFloat(values.doNotLinkWindowEnd)
+          parseFloat(values.maxReviewThreshold),
         ]}
         sx={{
           width: '50%',
           '& .MuiSlider-thumb': {
-            "&[data-index='0']": { backgroundColor: 'blue' },
             "&[data-index='1']": { backgroundColor: 'red' },
             "&[data-index='2']": { backgroundColor: 'green' },
             "&[data-index='3']": { backgroundColor: 'red' },
-            "&[data-index='4']": { backgroundColor: 'blue' }
-          }
+          },
+          marginBottom: '80px'
         }}
         track={false}
       />
-
-
             <Grid item xs={8}>
               <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <Typography sx={{ color: 'green' }}>
                     Link Threshold
                   </Typography>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <TextField
                     id="link-threshold"
                     name="linkThreshold"
@@ -280,40 +201,24 @@ const handleValidatedChange = (field: string, value: string) => {
                 spacing={2}
                 sx={{ alignItems: 'center', marginTop: '10px' }}
               >
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <Typography sx={{ color: 'red' }}>
                     Review Threshold range
                   </Typography>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <TextField
-                    id="min-threshold"
-                    name="minThreshold"
+                    id="min-review-threshold"
+                    name="min-review-threshold"
                     label="Min"
                     variant="outlined"
                     size="small"
-                    value={values.minThreshold}
+                    value={values.minReviewThreshold}
                     onChange={e =>
                       handleValidatedChange('minThreshold', e.target.value)
                     }
-                    error={touched.minThreshold && Boolean(errors.minThreshold)}
-                    helperText={touched.minThreshold && errors.minThreshold}
-                    inputProps={{ min: 0, max: 1 }}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    id="max-threshold"
-                    name="maxThreshold"
-                    label="Max"
-                    variant="outlined"
-                    size="small"
-                    value={values.maxThreshold}
-                    onChange={e =>
-                      handleValidatedChange('maxThreshold', e.target.value)
-                    }
-                    error={touched.maxThreshold && Boolean(errors.maxThreshold)}
-                    helperText={touched.maxThreshold && errors.maxThreshold}
+                    error={touched.minReviewThreshold && Boolean(errors.minReviewThreshold)}
+                    helperText={touched.minReviewThreshold && errors.minReviewThreshold}
                     inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
@@ -323,70 +228,47 @@ const handleValidatedChange = (field: string, value: string) => {
                 spacing={2}
                 sx={{ alignItems: 'center', marginTop: '10px' }}
               >
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <Typography sx={{ color: 'blue' }}>
-                    Do Not Link Window
+                    Max Review Threshold
                   </Typography>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <TextField
-                    id="do-not-link-window-start"
-                    name="doNotLinkWindowStart"
+                    id="max-review-threshold"
+                    name="max-review-threshold"
                     label="Start"
                     variant="outlined"
                     size="small"
-                    value={values.doNotLinkWindowStart}
+                    value={values.maxReviewThreshold}
                     onChange={e =>
                       handleValidatedChange(
-                        'doNotLinkWindowStart',
+                        'max-review-threshold',
                         e.target.value
                       )
                     }
                     error={
-                      touched.doNotLinkWindowStart &&
-                      Boolean(errors.doNotLinkWindowStart)
+                      touched.maxReviewThreshold &&
+                      Boolean(errors.maxReviewThreshold)
                     }
                     helperText={
-                      touched.doNotLinkWindowStart &&
-                      errors.doNotLinkWindowStart
+                      touched.maxReviewThreshold &&
+                      errors.maxReviewThreshold
                     }
                     inputProps={{ min: 0, max: 1 }}
                   />
                 </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    id="do-not-link-window-end"
-                    name="doNotLinkWindowEnd"
-                    label="End"
-                    variant="outlined"
-                    size="small"
-                    value={values.doNotLinkWindowEnd}
-                    onChange={e =>
-                      handleValidatedChange(
-                        'doNotLinkWindowEnd',
-                        e.target.value
-                      )
-                    }
-                    error={
-                      touched.doNotLinkWindowEnd &&
-                      Boolean(errors.doNotLinkWindowEnd)
-                    }
-                    helperText={
-                      touched.doNotLinkWindowEnd && errors.doNotLinkWindowEnd
-                    }
-                    inputProps={{ min: 0, max: 1 }}
-                  />
-                </Grid>
+              
               </Grid>
               <Grid
                 container
                 spacing={2}
                 sx={{ alignItems: 'center', marginTop: '10px' }}
               >
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <Typography>Margin Window Size</Typography>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                   <TextField
                     id="margin-window-size"
                     name="marginWindowSize"
@@ -405,119 +287,7 @@ const handleValidatedChange = (field: string, value: string) => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={4}>
-              <Grid container spacing={2} direction="column">
-                <Grid item xs={12}>
-                  <Slider
-                    min={0}
-                    max={1}
-                    value={parseFloat(values.linkThreshold)}
-                    onChange={(_, value) => {
-                      const linkThreshold = parseFloat(value.toString())
-                      if (
-                        linkThreshold > parseFloat(values.minThreshold) &&
-                        linkThreshold < parseFloat(values.maxThreshold)
-                      ) {
-                        setFieldValue('linkThreshold', value.toString())
-                      }
-                    }}
-                    marks={marks}
-                    aria-labelledby="link-threshold-slider"
-                    sx={{
-                      width: '100%',
-                      '& .MuiSlider-thumb': { color: 'green' }
-                    }}
-                    track={false}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Slider
-                    min={0}
-                    max={1}
-                    value={[
-                      parseFloat(values.minThreshold),
-                      parseFloat(values.maxThreshold)
-                    ]}
-                    onChange={(_, value) => {
-                      if (!Array.isArray(value)) return
-                      const [minThreshold, maxThreshold] = value
-                      if (
-                        minThreshold < parseFloat(values.linkThreshold) &&
-                        maxThreshold > parseFloat(values.linkThreshold)
-                      ) {
-                        setFieldValue('minThreshold', minThreshold.toString())
-                        setFieldValue('maxThreshold', maxThreshold.toString())
-                      }
-                    }}
-                    marks={marks}
-                    aria-labelledby="review-threshold-range-slider"
-                    sx={{
-                      width: '100%',
-                      '& .MuiSlider-thumb': { color: 'red' },
-                      '& .MuiSlider-track': { color: 'red' },
-                      '& .MuiSlider-rail': { color: '#acc4e4' }
-                    }}
-                    track={false}
-                  />
-                </Grid>
-                <Grid item xs={12} sx={{ marginTop: '20px' }}>
-                  <Slider
-                    min={0}
-                    max={1}
-                    value={[
-                      parseFloat(values.doNotLinkWindowStart),
-                      parseFloat(values.doNotLinkWindowEnd)
-                    ]}
-                    onChange={(_, value) => {
-                      if (!Array.isArray(value)) return
-                      const [doNotLinkWindowStart, doNotLinkWindowEnd] = value
-                      if (
-                        doNotLinkWindowStart <
-                          parseFloat(values.minThreshold) &&
-                        doNotLinkWindowEnd > parseFloat(values.maxThreshold)
-                      ) {
-                        setFieldValue(
-                          'doNotLinkWindowStart',
-                          doNotLinkWindowStart.toString()
-                        )
-                        setFieldValue(
-                          'doNotLinkWindowEnd',
-                          doNotLinkWindowEnd.toString()
-                        )
-                      }
-                    }}
-                    marks={marks}
-                    aria-labelledby="do-not-link-window-slider"
-                    sx={{
-                      width: '100%',
-                      '& .MuiSlider-thumb': { color: 'blue' },
-                      '& .MuiSlider-track': { color: 'blue' },
-                      '& .MuiSlider-rail': { color: '#acc4e4' }
-                    }}
-                    track={false}
-                  />
-                </Grid>
-                <Grid item xs={12} sx={{ marginTop: '20px' }}>
-                  <Slider
-                    min={0}
-                    max={1}
-                    value={parseFloat(values.marginWindowSize)}
-                    onChange={(_, value) => {
-                      setFieldValue('marginWindowSize', value.toString())
-                    }}
-                    marks={marks}
-                    aria-labelledby="margin-window-size-slider"
-                    sx={{
-                      width: '100%',
-                      '& .MuiSlider-thumb': { color: 'gray' },
-                      '& .MuiSlider-track': { color: 'gray' },
-                      '& .MuiSlider-rail': { color: '#acc4e4' }
-                    }}
-                    track={false}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
+         
           </Grid>
 
           <Box sx={{ marginTop: '20px' }}>
