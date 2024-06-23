@@ -28,6 +28,7 @@
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
     "@mui/icons-material": "^5.10.9",
+    "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.13.4",
     "@mui/system": "^5.4.1",
     "@mui/x-data-grid": "^6.6.0",
