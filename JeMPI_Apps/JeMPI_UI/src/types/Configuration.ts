@@ -37,7 +37,6 @@ export interface Rule {
   text: string;
   linkThreshold?: number; 
   marginWindowSize?: number; 
-  doNotLinkWindow?: { low: number, high: number };
   reviewThresholdRange?: { low: number, high: number }; 
 }
 

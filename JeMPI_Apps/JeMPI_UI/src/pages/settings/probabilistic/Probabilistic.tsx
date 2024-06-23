@@ -26,10 +26,6 @@ const Probabilistic = ({ rules = {} }: ProbabilisticProps) => {
     setValue(newValue)
   }
 
-  useEffect(() => {
-    console.log('rules', rules)
-  }, [])
-
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent
@@ -57,6 +53,7 @@ const Probabilistic = ({ rules = {} }: ProbabilisticProps) => {
               linkingRules={{
                 link: { probabilistic: rules.link?.probabilistic ?? [] }
               }}
+              currentTab= {'link'}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
@@ -64,6 +61,7 @@ const Probabilistic = ({ rules = {} }: ProbabilisticProps) => {
               linkingRules={{
                 validate: { probabilistic: rules.validate?.probabilistic ?? [] }
               }}
+              currentTab= {'validate'}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
@@ -72,7 +70,9 @@ const Probabilistic = ({ rules = {} }: ProbabilisticProps) => {
                 matchNotification: {
                   probabilistic: rules.matchNotification?.probabilistic ?? []
                 }
+                
               }}
+              currentTab= {'matchNotification'}
             />
           </CustomTabPanel>
         </Box>
