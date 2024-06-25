@@ -110,6 +110,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(GetInteractionRequest.class, this::getInteractionHandler)
                     .onMessage(GetExpandedInteractionsRequest.class, this::getExpandedInteractionsHandler)
                     .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+                    .onMessage(PostGoldenRecordRequest.class, this::postGoldenRecordRequestHandler)
                     .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
                     .build();
    }
@@ -197,6 +198,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> postGoldenRecordRequestHandler(final PostGoldenRecordRequest request) {
+      ApiModels.RestoreGoldenRecord goldenRecords = null;
+      try {
+         goldenRecords = libMPI.postGoldenRecord(request.goldenRecord);
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.postGoldenRecord failed for goldenIds: {} with error: {}",
+                 request.goldenRecord,
+                 exception.getMessage());
+      }
+      request.replyTo.tell(new PostGoldenRecordResponse(goldenRecords));
       return Behaviors.same();
    }
 
@@ -333,6 +347,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse {
+   }
+
+   public record PostGoldenRecordRequest(
+           ActorRef<PostGoldenRecordResponse> replyTo,
+           ApiModels.RestoreGoldenRecord goldenRecord) implements Event {
+   }
+
+   public record PostGoldenRecordResponse(ApiModels.RestoreGoldenRecord goldenRecord)
+           implements EventResponse {
    }
 
 

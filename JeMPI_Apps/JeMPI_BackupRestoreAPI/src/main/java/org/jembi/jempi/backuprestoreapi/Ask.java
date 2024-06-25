@@ -40,4 +40,18 @@ public final class Ask {
                       actorSystem.scheduler());
       return stage.thenApply(response -> response);
    }
+
+   static CompletionStage<BackEnd.PostGoldenRecordResponse> postGoldenRecord(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final ApiModels.RestoreGoldenRecord payload) {
+      LOGGER.info(".......................ASK......................");
+      LOGGER.error(payload);
+      CompletionStage<BackEnd.PostGoldenRecordResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.PostGoldenRecordRequest(replyTo, payload),
+                      java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
 }

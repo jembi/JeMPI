@@ -80,6 +80,13 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getExpandedGoldenRecords(goldenIds);
    }
 
+   public ApiModels.RestoreGoldenRecord restoreGoldenRecord(
+           final ApiModels.RestoreGoldenRecord goldenRecord) {
+      LOGGER.info(".............LibDgraph.................");
+      LOGGER.error("44444444444444444444444444444444444444");
+      return dgraphMutations.restoreGoldenRecord(goldenRecord);
+   }
+
    public List<String> findGoldenIds() {
       return DgraphQueries.getGoldenIds();
    }

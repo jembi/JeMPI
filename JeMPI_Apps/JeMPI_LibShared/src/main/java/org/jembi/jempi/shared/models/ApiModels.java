@@ -105,6 +105,14 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record RestoreGoldenRecord(
+         @JsonProperty("candidateThreshold") Float candidateThreshold,
+         @JsonProperty("sourceId") List<SourceId> sourceId,
+         @JsonProperty("uniqueGoldenRecordData") JsonNode auxInteractionData,
+         @JsonProperty("demographicData") JsonNode demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkToGidUpdateRequest(
          @JsonProperty("gid") String gid,
          @JsonProperty("sourceId") SourceId sourceId,

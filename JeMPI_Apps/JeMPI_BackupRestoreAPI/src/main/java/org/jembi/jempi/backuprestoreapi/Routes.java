@@ -44,6 +44,32 @@ public final class Routes {
                 });
     }
 
+    private static Route postGoldenRecord(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        LOGGER.error("1111111111111111");
+        LOGGER.info("1111111111111111");
+        return entity(Jackson.unmarshaller(ApiModels.RestoreGoldenRecord.class),
+                payload -> payload != null
+                        ? onComplete(Ask.postGoldenRecord(actorSystem, backEnd, payload),
+
+                        result -> {
+                            if (result.isSuccess()) {
+                                final var updatedFields = result.get().goldenRecord();
+                                if (updatedFields.sourceId().isEmpty()) {
+                                    return complete(StatusCodes.BAD_REQUEST);
+                                } else {
+                                    return complete(StatusCodes.OK,
+                                            result.get(),
+                                            JSON_MARSHALLER);
+                                }
+                            } else {
+                                return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                            }
+                        })
+                        : complete(StatusCodes.NO_CONTENT));
+    }
+
     private static Route postExpandedGoldenRecord(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd) {
@@ -67,21 +93,21 @@ public final class Routes {
         });
     }
 
-   public static Route createCoreAPIRoutes(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd
-        ) {
-       return concat(post(() -> concat(
-                       /* proxy for linker/controller services*/
-                       path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
-                               () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
-                       path("createGolden",
-                               () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd))
-                       )),
-               get(() -> concat(
-                       path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
-                               () -> Routes.getGidsAll(actorSystem, backEnd))
-               )));
-   }
+    public static Route createCoreAPIRoutes(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd
+    ) {
+        return concat(post(() -> concat(
+                        /* proxy for linker/controller services*/
+                        path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
+                                () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
+                        path("createGolden",
+                                () -> Routes.postGoldenRecord(actorSystem, backEnd))
+                )),
+                get(() -> concat(
+                        path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
+                                () -> Routes.getGidsAll(actorSystem, backEnd))
+                )));
+    }
 
 }

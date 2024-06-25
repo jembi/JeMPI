@@ -101,6 +101,21 @@ final class DgraphMutations {
       return updateGoldenRecordPredicate(goldenId, predicate, val);
    }
 
+   ApiModels.RestoreGoldenRecord restoreGoldenRecord(
+           final ApiModels.RestoreGoldenRecord goldenRecord) {
+      LOGGER.info(".............DgraphMutations.................");
+      LOGGER.error("5555555555555555555555555555555555555");
+      LOGGER.info(goldenRecord);
+      LOGGER.info("......................demographicData........................");
+      LOGGER.info(goldenRecord.demographicData());
+      LOGGER.info("......................auxInteractionData........................");
+      LOGGER.info(goldenRecord.auxInteractionData());
+
+
+//      String predicate = "GoldenRecord." + AppUtils.camelToSnake(goldenRecord);
+       return goldenRecord;
+   }
+
    private String createSourceIdTriple(final SourceId sourceId) {
       final String uuid = UUID.randomUUID().toString();
       return """
