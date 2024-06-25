@@ -163,6 +163,13 @@ public final class LibMPI {
       return client.findExpandedGoldenRecords(goldenIds).data();
    }
 
+   public ApiModels.RestoreGoldenRecord postGoldenRecord(final ApiModels.RestoreGoldenRecord goldenRecord) {
+      client.connect();
+      LOGGER.info(".............LibMpi.................");
+      LOGGER.error("4444444444444444444444444444444444");
+      return client.restoreGoldenRecord(goldenRecord);
+   }
+
    public List<String> findGoldenIds() {
       client.connect();
       return client.findGoldenIds();
