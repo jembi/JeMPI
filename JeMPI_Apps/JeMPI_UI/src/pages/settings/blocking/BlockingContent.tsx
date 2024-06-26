@@ -104,32 +104,30 @@ const BlockingContent = ({
         transformRulesToRowData({ probabilistic: initialRules })
       )
     }
-  }, [configuration, linkingRules])
+  }, [configuration])
 
-  const handleUpdateConfiguration = useCallback(
-    (newRules: Rule[], ruleType: 'matchNotification' | 'link') => {
-      setConfiguration(prevConfig => {
-        if (!prevConfig) return prevConfig
-
-        const updatedConfig: Configuration = {
-          ...prevConfig,
-          rules: {
-            ...prevConfig.rules,
-            [ruleType]: {
-              ...prevConfig.rules[ruleType],
-              probabilistic: newRules
-            }
+  const handleUpdateConfiguration = (newRules: Rule[], ruleType: 'matchNotification' | 'link') => {
+    setConfiguration(prevConfig => {
+      if (!prevConfig) return prevConfig;
+  
+      const updatedConfig: Configuration = {
+        ...prevConfig,
+        rules: {
+          ...prevConfig.rules,
+          [ruleType]: {
+            ...prevConfig.rules[ruleType],
+            probabilistic: newRules
           }
         }
-
-        localStorage.setItem('configuration', JSON.stringify(updatedConfig))
-        return updatedConfig
-      })
-
-      setProbabilisticRows(transformRulesToRowData({ probabilistic: newRules }))
-    },
-    [configuration]
-  )
+      };
+  
+      localStorage.setItem('configuration', JSON.stringify(updatedConfig));
+      return updatedConfig;
+    });
+  
+    setProbabilisticRows(transformRulesToRowData({ probabilistic: newRules }));
+  };
+  
 
   const handleAddRule = useCallback(
     (ruleType: 'matchNotification' | 'link') => {
