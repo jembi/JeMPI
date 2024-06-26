@@ -15,7 +15,8 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
-import { formatNodeName, toUpperCase } from 'utils/helpers'
+import { formatNodeName, toSnakeCase, toUpperCase } from 'utils/helpers'
+import { Configuration } from 'types/Configuration'
 
 interface RowData {
   id: string
@@ -28,6 +29,7 @@ interface RowData {
 const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
   const [rows, setRows] = useState<RowData[]>([])
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const [configuration, setConfiguration] = useState<Configuration>();
 
   useEffect(() => {
     if (goldenRecordList) {
@@ -54,7 +56,21 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
 
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    
   }
+
+  // const handleUpdateConfiguration = () => {
+  //   setConfiguration(previousConfiguration => {
+  //     if(!previousConfiguration) return previousConfiguration
+  //     const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
+  //     localStorage.setItem('configuration',updatedConfiguration)
+  //     return updatedConfiguration
+  //   })
+  // }
+
+  // const getUpdatedConfiguration = (updatedRow:any, rowIndex:number, currentConfiguration: Configuration) : Configuration=>{
+  //   const fieldname = toSnakeCase(updatedRow.fieldName)
+  // }
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
