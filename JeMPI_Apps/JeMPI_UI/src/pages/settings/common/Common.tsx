@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react'
 import Box from '@mui/material/Box'
 import {
   DataGrid,
@@ -13,21 +14,26 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
-import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { processIndex, transformFieldName } from 'utils/helpers'
+import { useConfiguration } from 'hooks/useUIConfiguration'
+import { Configuration, LinkMetaData } from 'types/Configuration'
+
+const toSnakeCase = (str: string) => {
+  return str
+    .replace(/\s+/g, '_')
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .toLowerCase()
+}
 
 const CommonSettings = ({ demographicData }: { demographicData: any }) => {
-  const [rows, setRows] = useState(demographicData)
+  const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
-
-  useEffect(() => {
-    const rowsWithIds = demographicData.map((row: any, index: number) => ({
-      ...row,
-      id: index.toString()
-    }))
-    setRows(rowsWithIds)
-  }, [demographicData])
+  const [rows, setRows] = useState<any[]>(() =>
+    demographicData.map((row: any, rowIndex: number) => {
+      return { id: rowIndex + 1, ...row, rowIndex }
+    })
+  )
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
@@ -35,34 +41,67 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
 
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    const updatedRow = rows.find(row => row.id === id)
+    console.log('inside handle save click', updatedRow)
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
   }
 
-  const handleDeleteClick = (id: any) => () => {
-    setRows(rows?.filter((row: { id: any }) => row.id !== id))
+  const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
+    setConfiguration(previousConfiguration => {
+      if (!previousConfiguration) return previousConfiguration
+      const updatedConfiguration = getUpdatedConfiguration(
+        updatedRow,
+        rowIndex,
+        previousConfiguration
+      )
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
+      return updatedConfiguration
+    })
+  }
+
+  const getUpdatedConfiguration = (
+    updatedRow: any,
+    rowIndex: number,
+    currentConfiguration: Configuration
+  ): Configuration => {
+    const fieldName = toSnakeCase(updatedRow.fieldName)
+
+    const fieldToUpdate = currentConfiguration.demographicFields[rowIndex]
+
+    fieldToUpdate.fieldName = fieldName
+
+    if (updatedRow?.indexGoldenRecord) {
+      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord})`
+    }
+
+    if (updatedRow?.m) {
+      fieldToUpdate.linkMetaData = {
+        ...fieldToUpdate.linkMetaData,
+        m: updatedRow.m as number
+      } as LinkMetaData
+    }
+
+    if (updatedRow?.u) {
+      fieldToUpdate.linkMetaData = {
+        ...fieldToUpdate.linkMetaData,
+        u: updatedRow.u as number
+      } as LinkMetaData
+    }
+    console.log('field to update', fieldToUpdate)
+    currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
+
+    return currentConfiguration
   }
 
   const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }
+    setRowModesModel(prevRowModesModel => {
+      const newRowModesModel = { ...prevRowModesModel }
+      delete newRowModesModel[id]
+      return newRowModesModel
     })
-
-    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id))
-    }
-  }
-
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const { isNew, ...updatedRow } = newRow
-    setRows(
-      rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
-    )
-    return updatedRow
-  }
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel)
   }
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
@@ -72,6 +111,22 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true
     }
+  }
+
+  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+    setRowModesModel(newRowModesModel)
+  }
+
+  const handleProcessRowUpdate = (
+    newRow: GridRowModel,
+    oldRow: GridRowModel
+  ) => {
+    setRows(
+      rows.map(row =>
+        row.id === oldRow.id ? { ...newRow, rowIndex: oldRow.rowIndex } : row
+      )
+    ) // Preserve rowIndex
+    return newRow
   }
 
   const columns: GridColDef[] = [
@@ -93,7 +148,6 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerAlign: 'center',
       editable: false
     },
-
     {
       field: 'indexGoldenRecord',
       headerName: 'Index',
@@ -199,12 +253,12 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
           editMode="row"
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
+          processRowUpdate={handleProcessRowUpdate}
           onRowEditStop={handleRowEditStop}
-          processRowUpdate={processRowUpdate}
-          slots={{
-            toolbar: EditToolbar
+          components={{
+            Toolbar: EditToolbar
           }}
-          slotProps={{
+          componentsProps={{
             toolbar: { setRows, setRowModesModel }
           }}
         />

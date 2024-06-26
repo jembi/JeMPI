@@ -128,7 +128,7 @@ const BlockingContent = ({
 
       setProbabilisticRows(transformRulesToRowData({ probabilistic: newRules }))
     },
-    [setConfiguration]
+    [configuration]
   )
 
   const handleAddRule = useCallback(
