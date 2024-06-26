@@ -46,6 +46,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
             : []
         }
       )
+      console.log('rowsWithIds',rowsWithIds)
       setRows(rowsWithIds)
     }
   }, [goldenRecordList])
@@ -55,22 +56,29 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
   }
 
   const handleSaveClick = (id: GridRowId) => () => {
+    const updatedRow = rows.find((row => row.id === id))
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    // handleUpdateConfiguration(updatedRow, updatedRow.Index)
     
   }
 
-  // const handleUpdateConfiguration = () => {
-  //   setConfiguration(previousConfiguration => {
-  //     if(!previousConfiguration) return previousConfiguration
-  //     const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
-  //     localStorage.setItem('configuration',updatedConfiguration)
-  //     return updatedConfiguration
-  //   })
-  // }
+  const handleUpdateConfiguration = (updatedRow:any, rowIndex:number) => {
+    setConfiguration(previousConfiguration => {
+      if(!previousConfiguration) return previousConfiguration
+      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
+      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
+      return updatedConfiguration
+    })
+  }
 
-  // const getUpdatedConfiguration = (updatedRow:any, rowIndex:number, currentConfiguration: Configuration) : Configuration=>{
-  //   const fieldname = toSnakeCase(updatedRow.fieldName)
-  // }
+  const getUpdatedConfiguration = (updatedRow:any, rowIndex:number, currentConfiguration: Configuration) : Configuration=>{
+    const fieldName = toSnakeCase(updatedRow.fieldName)
+      const fieldToUpdate = currentConfiguration.demographicFields[rowIndex]
+      fieldToUpdate.fieldName = fieldName
+      currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
+      return currentConfiguration;
+  }
+  
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
