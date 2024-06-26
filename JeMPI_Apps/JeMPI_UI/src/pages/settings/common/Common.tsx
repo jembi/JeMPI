@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import {
   DataGrid,
@@ -21,6 +21,7 @@ import { Configuration, LinkMetaData } from 'types/Configuration'
 
 const toSnakeCase = (str: string) => {
   return str
+    .trim()
     .replace(/\s+/g, '_')
     .replace(/([a-z])([A-Z])/g, '$1_$2')
     .toLowerCase()
@@ -35,15 +36,23 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     })
   )
 
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
-  }
+  const handleEditClick = useCallback((id: GridRowId) => {
+    setRowModesModel(prevRowModesModel => ({
+      ...prevRowModesModel,
+      [id]: { mode: GridRowModes.Edit }
+    }))
+  }, [])
 
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+  const handleSaveClick = (id: GridRowId) => {
     const updatedRow = rows.find(row => row.id === id)
-    console.log('inside handle save click', updatedRow)
-    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
+    if (updatedRow) {
+      const newRowModesModel = {
+        ...rowModesModel,
+        [id]: { mode: GridRowModes.View }
+      }
+      setRowModesModel(newRowModesModel)
+      handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
+    }
   }
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
@@ -80,17 +89,16 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     if (updatedRow?.m) {
       fieldToUpdate.linkMetaData = {
         ...fieldToUpdate.linkMetaData,
-        m: updatedRow.m as number
+        m: Number(updatedRow.m)
       } as LinkMetaData
     }
 
     if (updatedRow?.u) {
       fieldToUpdate.linkMetaData = {
         ...fieldToUpdate.linkMetaData,
-        u: updatedRow.u as number
+        u: Number(updatedRow.u)
       } as LinkMetaData
     }
-    console.log('field to update', fieldToUpdate)
     currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
 
     return currentConfiguration
@@ -104,14 +112,8 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     })
   }
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true
-    }
-  }
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = ({ reason }) =>
+    reason === GridRowEditStopReasons.rowFocusOut
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel)
@@ -125,7 +127,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       rows.map(row =>
         row.id === oldRow.id ? { ...newRow, rowIndex: oldRow.rowIndex } : row
       )
-    ) // Preserve rowIndex
+    )
     return newRow
   }
 
@@ -171,10 +173,10 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerAlign: 'center',
       valueGetter: params => {
         const linkMetaData = params.row.linkMetaData
-        if (linkMetaData) {
+        if (linkMetaData && typeof linkMetaData.m === 'number') {
           return linkMetaData.m.toFixed(1)
         }
-        return ''
+        return
       }
     },
     {
@@ -187,10 +189,9 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerAlign: 'center',
       valueGetter: params => {
         const linkMetaData = params.row.linkMetaData
-        if (linkMetaData) {
+        if (linkMetaData && typeof linkMetaData.u === 'number') {
           return linkMetaData.u.toFixed(2)
         }
-        return ''
       }
     },
     {
@@ -202,8 +203,8 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
-        if (isInEditMode) {
+        const rowMode = rowModesModel[id]
+        if (rowMode && rowMode.mode === GridRowModes.Edit) {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
@@ -212,14 +213,14 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
               sx={{
                 color: 'white'
               }}
-              onClick={handleSaveClick(id)}
+              onClick={() => handleSaveClick(id)}
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
               id="cancel-button"
               label="Cancel"
               className="textPrimary"
-              onClick={handleCancelClick(id)}
+              onClick={() => handleCancelClick(id)}
               color="inherit"
             />
           ]
@@ -231,7 +232,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
             id="edit-button"
             label="Edit"
             className="textPrimary"
-            onClick={handleEditClick(id)}
+            onClick={() => handleEditClick(id)}
             color="inherit"
           />
         ]
