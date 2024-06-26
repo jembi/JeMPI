@@ -18,6 +18,7 @@ import { EditToolbar } from 'components/shared/EditToolBar'
 import { processIndex, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration, LinkMetaData } from 'types/Configuration'
+import { RowData } from '../deterministic/SourceView'
 
 const toSnakeCase = (str: string) => {
   return str
@@ -28,29 +29,27 @@ const toSnakeCase = (str: string) => {
 }
 
 const CommonSettings = ({ demographicData }: { demographicData: any }) => {
+  const [rows, setRows] = useState<any>([])
   const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
-  const [rows, setRows] = useState<any[]>(() =>
-    demographicData.map((row: any, rowIndex: number) => {
-      return { id: rowIndex + 1, ...row, rowIndex }
-    })
-  )
 
-  const handleEditClick = useCallback((id: GridRowId) => {
-    setRowModesModel(prevRowModesModel => ({
-      ...prevRowModesModel,
-      [id]: { mode: GridRowModes.Edit }
+  useEffect(() => {
+    const rowData = demographicData.map((row: any, rowIndex: number) => ({
+      id: rowIndex + 1,
+      ...row,
+      rowIndex
     }))
-  }, [])
+    setRows(rowData)
+  }, [demographicData])
 
-  const handleSaveClick = (id: GridRowId) => {
-    const updatedRow = rows.find(row => row.id === id)
+  const handleEditClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
+  }
+
+  const handleSaveClick = (id: GridRowId) => () => {
+    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
     if (updatedRow) {
-      const newRowModesModel = {
-        ...rowModesModel,
-        [id]: { mode: GridRowModes.View }
-      }
-      setRowModesModel(newRowModesModel)
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
       handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     }
   }
@@ -119,16 +118,13 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     setRowModesModel(newRowModesModel)
   }
 
-  const handleProcessRowUpdate = (
-    newRow: GridRowModel,
-    oldRow: GridRowModel
-  ) => {
-    setRows(
-      rows.map(row =>
-        row.id === oldRow.id ? { ...newRow, rowIndex: oldRow.rowIndex } : row
-      )
+  const processRowUpdate = (newRow: GridRowModel) => {
+    const { id, ...updatedRow } = newRow
+    const updatedRows = rows.map((row: { id: any }) =>
+      row.id === id ? ({ ...updatedRow, id } as RowData) : row
     )
-    return newRow
+    setRows(updatedRows)
+    return { ...updatedRow, id } as RowData
   }
 
   const columns: GridColDef[] = [
@@ -203,8 +199,8 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const rowMode = rowModesModel[id]
-        if (rowMode && rowMode.mode === GridRowModes.Edit) {
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+        if (isInEditMode) {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
@@ -213,14 +209,14 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
               sx={{
                 color: 'white'
               }}
-              onClick={() => handleSaveClick(id)}
+              onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
               id="cancel-button"
               label="Cancel"
               className="textPrimary"
-              onClick={() => handleCancelClick(id)}
+              onClick={handleCancelClick(id)}
               color="inherit"
             />
           ]
@@ -232,7 +228,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
             id="edit-button"
             label="Edit"
             className="textPrimary"
-            onClick={() => handleEditClick(id)}
+            onClick={handleEditClick(id)}
             color="inherit"
           />
         ]
@@ -254,12 +250,13 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
           editMode="row"
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
-          processRowUpdate={handleProcessRowUpdate}
+          processRowUpdate={processRowUpdate}
           onRowEditStop={handleRowEditStop}
-          components={{
-            Toolbar: EditToolbar
+          getRowId={row => row.id}
+          slots={{
+            toolbar: EditToolbar
           }}
-          componentsProps={{
+          slotProps={{
             toolbar: { setRows, setRowModesModel }
           }}
         />
