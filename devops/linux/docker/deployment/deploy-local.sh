@@ -6,6 +6,7 @@ echo "$JEMPI_HOME"
 export JAVA_VERSION=21.0.3-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
+JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
 
 # Display menu options
 echo "Select an option for local deployment:"
@@ -83,7 +84,7 @@ run_enviroment_configuration_and_helper_script(){
     # Navigate to environment configuration directory
     echo "Navigate to environment configuration directory"
     pushd "$JEMPI_HOME/devops/linux/docker/conf/env/"
-        source create-env-linux-low-1.sh
+        source $JEMPI_ENV_CONFIGURATION
     popd    
 
     # Running Docker helper scripts 
@@ -130,7 +131,6 @@ pull_docker_images_and_push_local(){
 }
 build_all_stack_and_reboot(){
     # run_enviroment_configuration_and_helper_script
-    run_field_configuration_file
     # Build and reboot the entire stack
     echo "Build and reboot the entire stack"
     pushd "$JEMPI_HOME/devops/linux/docker/deployment/build_and_reboot"
@@ -139,7 +139,7 @@ build_all_stack_and_reboot(){
 }
 initialize_db_build_all_stack_and_reboot(){
     echo "Create DB and Deploy"
-    pushd "$JEMPI_HOME/devops/linux/docker/deployment/from_scratch"
+    pushd "$JEMPI_HOME/devops/linux/docker/deployment/install_from_scratch"
         yes | source d-stack-1-create-db-build-all-reboot.sh
     popd
 }
@@ -176,9 +176,6 @@ restore_postgres_db(){
         # Continue with the rest of your script
     fi
 }
-
-
-
 
 # Process user choice
 case $choice in
@@ -218,12 +215,13 @@ case $choice in
         exit 0
         ;;
     6)
-        echo "Backup"
+        BACKUP_DATE_TIME=$(date +%Y%m%d_%H%M%S)
+        echo "Started Backup at- $BACKUP_DATE_TIME"
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
-            sudo bash dgraph-backup.sh
-            sudo bash postgres-backup.sh
-        popd
-
+            source dgraph-backup-api.sh $BACKUP_DATE_TIME
+            sudo bash postgres-backup.sh $BACKUP_DATE_TIME
+        popd            
+        
         ;;
     7)
         echo "Restore Databases"

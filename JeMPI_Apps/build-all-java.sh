@@ -3,9 +3,6 @@
 set -e
 set -u
 
-# cp -L -f ../JeMPI_Configuration/config-api.json ./JeMPI_API/src/main/resources/config-api.json
-# cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API_KC/src/main/resources/config-api.json
-
 mvn clean package
 pushd JeMPI_EM_Scala
   sbt clean assembly
@@ -35,6 +32,9 @@ popd
 pushd JeMPI_Bootstrapper
   ./build.sh || exit 1
 popd
+pushd JeMPI_BackupRestoreAPI
+  ./build.sh || exit 1
+popd
 pushd JeMPI_AsyncReceiver
   ./push.sh
 popd
@@ -57,6 +57,10 @@ pushd JeMPI_API_KC
   ./push.sh
 popd
 pushd JeMPI_Bootstrapper
+  ./push.sh
+popd
+
+pushd JeMPI_BackupRestoreAPI
   ./push.sh
 popd
 
