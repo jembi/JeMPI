@@ -58,14 +58,12 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const updatedRow = rows.find((row: { id: GridRowId; }) => row.id === id);
-
+    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
     if (updatedRow) {
-      console.log('updated row', updatedRow)
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-      handleUpdateConfiguration(updatedRow, updatedRow.fieldIndex);
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+      handleUpdateConfiguration(updatedRow, updatedRow.fieldIndex)
     }
-  };
+  }
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
     setConfiguration(previousConfiguration => {
@@ -79,7 +77,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
         console.error('Configuration is not initialized')
         return previousConfiguration
       }
-      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration)
+      const updatedConfiguration = getUpdatedConfiguration(updatedRow, 0,rowIndex, previousConfiguration)
       localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
       return updatedConfiguration
     })
@@ -89,15 +87,18 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
 
   const getUpdatedConfiguration = (
     updatedRow: any,
-    rowIndex: number,
+    nodeIndex: number,
+    fieldIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
     const fieldName = toSnakeCase(updatedRow.fieldName);
-    console.log('field name in get configuration',updatedRow)
-    const fieldToUpdate = { ...currentConfiguration.additionalNodes[rowIndex], fieldName };
+    const updatedNode = { ...currentConfiguration.additionalNodes[nodeIndex] };
+    updatedNode.fields = updatedNode.fields.map((field, index) =>
+      index === fieldIndex ? { ...field, fieldName } : field
+    );
+  
     const updatedAdditionalNodes = [...currentConfiguration.additionalNodes];
-    updatedAdditionalNodes[rowIndex] = fieldToUpdate;
-
+    updatedAdditionalNodes[nodeIndex] = updatedNode;
     return {
       ...currentConfiguration,
       additionalNodes: updatedAdditionalNodes
@@ -105,17 +106,17 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    });
-  };
+    setRowModesModel(prevRowModesModel => {
+      const newRowModesModel = { ...prevRowModesModel }
+      delete newRowModesModel[id]
+      return newRowModesModel
+    })
+  }
 
   const processRowUpdate = (newRow: GridRowModel) => {
     const { id, ...updatedRow } = newRow;
     const updatedRows = rows.map((row: { id: any; }) => (row.id === id ? { ...updatedRow, id } as RowData : row));
     setRows(updatedRows);
-    console.log('Row updated:', updatedRow);
     return { ...updatedRow, id } as RowData;
   };
 
