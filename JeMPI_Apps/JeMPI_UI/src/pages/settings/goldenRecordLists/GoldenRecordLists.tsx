@@ -1,4 +1,4 @@
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 import {
   DataGrid,
   GridColDef,
@@ -9,78 +9,114 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridActionsCellItem
-} from '@mui/x-data-grid'
-import EditIcon from '@mui/icons-material/Edit'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Close'
-import { useEffect, useState } from 'react'
-import { EditToolbar } from 'components/shared/EditToolBar'
-import { formatNodeName, toUpperCase } from 'utils/helpers'
+} from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import { useEffect, useState } from 'react';
+import { EditToolbar } from 'components/shared/EditToolBar';
+import { formatNodeName, toSnakeCase, toUpperCase } from 'utils/helpers';
+import { Configuration } from 'types/Configuration';
 
 interface RowData {
-  id: string
-  nodeName: string
-  fieldName: string
-  fieldType: string
-  csvCol: number
+  id: string;
+  nodeName: string;
+  fieldName: string;
+  fieldType: string;
+  csvCol: number;
 }
 
 const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
-  const [rows, setRows] = useState<RowData[]>([])
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const [rows, setRows] = useState<any>([]);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [configuration, setConfiguration] = useState<Configuration>();
 
   useEffect(() => {
     if (goldenRecordList) {
       const rowsWithIds = goldenRecordList.flatMap(
-        (node: { fields: any[]; nodeName: string }, index: number) => {
+        (node: { fields: any[]; nodeName: string }, nodeIndex: number) => {
           return node.fields
             ? node.fields.map((field, fieldIndex) => ({
-                id: `${node.nodeName}_${index}_${fieldIndex}`,
+                id: `${node.nodeName}_${nodeIndex}_${fieldIndex}`,
                 nodeName: node.nodeName,
                 fieldName: field.fieldName,
                 fieldType: field.fieldType,
-                csvCol: field.csvCol
+                csvCol: field.csvCol,
+                nodeIndex,
+                fieldIndex
               }))
-            : []
+            : [];
         }
-      )
-      setRows(rowsWithIds)
+      );
+
+      setRows(rowsWithIds);
     }
-  }, [goldenRecordList])
+  }, [goldenRecordList]);
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
-  }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-  }
+    const updatedRow = rows.find((row: { id: GridRowId; }) => row.id === id);
+
+    if (updatedRow) {
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+      handleUpdateConfiguration(updatedRow, updatedRow.fieldIndex);
+    }
+  };
+
+  const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
+  
+    setConfiguration(previousConfiguration => {
+      if (!previousConfiguration) return previousConfiguration;
+      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
+      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
+      return updatedConfiguration;
+    });
+  };
+
+  const getUpdatedConfiguration = (
+    updatedRow: any,
+    rowIndex: number,
+    currentConfiguration: Configuration
+  ): Configuration => {
+
+    const fieldName = toSnakeCase(updatedRow.fieldName);
+    const fieldToUpdate = { ...currentConfiguration.additionalNodes[rowIndex], fieldName };
+    const updatedAdditionalNodes = [...currentConfiguration.additionalNodes];
+    updatedAdditionalNodes[rowIndex] = fieldToUpdate;
+
+    return {
+      ...currentConfiguration,
+      additionalNodes: updatedAdditionalNodes
+    };
+  };
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
-  }
+    });
+  };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const { id, ...updatedRow } = newRow
-    setRows(rows.map(row => (row.id === id ? updatedRow as RowData : row)))
-    return updatedRow as RowData
-  }
+    const { id, ...updatedRow } = newRow;
+    const updatedRows = rows.map((row: { id: any; }) => (row.id === id ? { ...updatedRow, id } as RowData : row));
+    setRows(updatedRows);
+    console.log('Row updated:', updatedRow);
+    return { ...updatedRow, id } as RowData;
+  };
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel)
-  }
+    setRowModesModel(newRowModesModel);
+  };
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event
-  ) => {
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true
+      event.defaultMuiPrevented = true;
     }
-  }
+  };
 
   const columns: GridColDef[] = [
     {
@@ -90,9 +126,9 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       editable: true,
       align: 'left',
       headerAlign: 'left',
-      valueGetter: params => {
-        if (params.row.fieldName === 'patient') return ''
-        else return formatNodeName(params.row.nodeName)
+      valueGetter: (params) => {
+        if (params.row.fieldName === 'patient') return '';
+        else return formatNodeName(params.row.nodeName);
       }
     },
     {
@@ -103,7 +139,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'center',
       headerAlign: 'center',
       editable: true,
-      valueGetter: params => toUpperCase(params.row.fieldName)
+      valueGetter: (params) => toUpperCase(params.row.fieldName)
     },
     {
       field: 'fieldType',
@@ -113,7 +149,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'center',
       headerAlign: 'center',
       editable: false,
-      valueGetter: params => params.row.fieldType
+      valueGetter: (params) => params.row.fieldType
     },
     {
       field: 'csvCol',
@@ -123,7 +159,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'center',
       headerAlign: 'center',
       editable: true,
-      valueGetter: params => params.row.csvCol
+      valueGetter: (params) => params.row.csvCol
     },
     {
       field: 'actions',
@@ -134,16 +170,14 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
               id="save-button"
               label="Save"
-              sx={{
-                color: 'white'
-              }}
+              sx={{ color: 'white' }}
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
@@ -154,7 +188,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
               onClick={handleCancelClick(id)}
               color="inherit"
             />
-          ]
+          ];
         }
 
         return [
@@ -166,10 +200,10 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
             onClick={handleEditClick(id)}
             color="inherit"
           />
-        ]
+        ];
       }
     }
-  ]
+  ];
 
   return (
     <Box
@@ -192,6 +226,8 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
           onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          getRowId={(row) => row.id}
           slots={{
             toolbar: EditToolbar
           }}
@@ -201,7 +237,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
         />
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default GoldenRecordLists
+export default GoldenRecordLists;

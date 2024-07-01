@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import {
   DataGrid,
@@ -13,20 +14,32 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
-import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { processIndex, transformFieldName } from 'utils/helpers'
+import { useConfiguration } from 'hooks/useUIConfiguration'
+import { Configuration, LinkMetaData } from 'types/Configuration'
+import { RowData } from '../deterministic/SourceView'
+
+const toSnakeCase = (str: string) => {
+  return str
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .toLowerCase()
+}
 
 const CommonSettings = ({ demographicData }: { demographicData: any }) => {
-  const [rows, setRows] = useState(demographicData)
+  const [rows, setRows] = useState<any>([])
+  const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    const rowsWithIds = demographicData.map((row: any, index: number) => ({
+    const rowData = demographicData.map((row: any, rowIndex: number) => ({
+      id: rowIndex + 1,
       ...row,
-      id: index.toString()
+      rowIndex
     }))
-    setRows(rowsWithIds)
+    setRows(rowData)
   }, [demographicData])
 
   const handleEditClick = (id: GridRowId) => () => {
@@ -34,44 +47,84 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
   }
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-  }
-
-  const handleDeleteClick = (id: any) => () => {
-    setRows(rows?.filter((row: { id: any }) => row.id !== id))
-  }
-
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true }
-    })
-
-    const editedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (editedRow!.isNew) {
-      setRows(rows.filter((row: { id: GridRowId }) => row.id !== id))
+    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
+    if (updatedRow) {
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+      handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     }
   }
 
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const { isNew, ...updatedRow } = newRow
-    setRows(
-      rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
-    )
-    return updatedRow
+  const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
+    setConfiguration(previousConfiguration => {
+      if (!previousConfiguration) return previousConfiguration
+      const updatedConfiguration = getUpdatedConfiguration(
+        updatedRow,
+        rowIndex,
+        previousConfiguration
+      )
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
+      return updatedConfiguration
+    })
   }
+
+  const getUpdatedConfiguration = (
+    updatedRow: any,
+    rowIndex: number,
+    currentConfiguration: Configuration
+  ): Configuration => {
+    const fieldName = toSnakeCase(updatedRow.fieldName)
+
+    const fieldToUpdate = currentConfiguration.demographicFields[rowIndex]
+
+    fieldToUpdate.fieldName = fieldName
+
+    if (updatedRow?.indexGoldenRecord) {
+      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord})`
+    }
+
+    if (updatedRow?.m) {
+      fieldToUpdate.linkMetaData = {
+        ...fieldToUpdate.linkMetaData,
+        m: Number(updatedRow.m)
+      } as LinkMetaData
+    }
+
+    if (updatedRow?.u) {
+      fieldToUpdate.linkMetaData = {
+        ...fieldToUpdate.linkMetaData,
+        u: Number(updatedRow.u)
+      } as LinkMetaData
+    }
+    currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
+
+    return currentConfiguration
+  }
+
+  const handleCancelClick = (id: GridRowId) => () => {
+    setRowModesModel(prevRowModesModel => {
+      const newRowModesModel = { ...prevRowModesModel }
+      delete newRowModesModel[id]
+      return newRowModesModel
+    })
+  }
+
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = ({ reason }) =>
+    reason === GridRowEditStopReasons.rowFocusOut
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel)
   }
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true
-    }
+  const processRowUpdate = (newRow: GridRowModel) => {
+    const { id, ...updatedRow } = newRow
+    const updatedRows = rows.map((row: { id: any }) =>
+      row.id === id ? ({ ...updatedRow, id } as RowData) : row
+    )
+    setRows(updatedRows)
+    return { ...updatedRow, id } as RowData
   }
 
   const columns: GridColDef[] = [
@@ -93,7 +146,6 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerAlign: 'center',
       editable: false
     },
-
     {
       field: 'indexGoldenRecord',
       headerName: 'Index',
@@ -117,10 +169,10 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerAlign: 'center',
       valueGetter: params => {
         const linkMetaData = params.row.linkMetaData
-        if (linkMetaData) {
+        if (linkMetaData && typeof linkMetaData.m === 'number') {
           return linkMetaData.m.toFixed(1)
         }
-        return ''
+        return
       }
     },
     {
@@ -133,10 +185,9 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       headerAlign: 'center',
       valueGetter: params => {
         const linkMetaData = params.row.linkMetaData
-        if (linkMetaData) {
+        if (linkMetaData && typeof linkMetaData.u === 'number') {
           return linkMetaData.u.toFixed(2)
         }
-        return ''
       }
     },
     {
@@ -199,8 +250,9 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
           editMode="row"
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
-          onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
+          onRowEditStop={handleRowEditStop}
+          getRowId={row => row.id}
           slots={{
             toolbar: EditToolbar
           }}
