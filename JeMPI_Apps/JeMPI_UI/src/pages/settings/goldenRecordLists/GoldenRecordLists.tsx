@@ -77,7 +77,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
         console.error('Configuration is not initialized')
         return previousConfiguration
       }
-      const updatedConfiguration = getUpdatedConfiguration(updatedRow, 0,rowIndex, previousConfiguration)
+      const updatedConfiguration = getUpdatedConfiguration(updatedRow,rowIndex, previousConfiguration)
       localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
       return updatedConfiguration
     })
@@ -87,23 +87,40 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
 
   const getUpdatedConfiguration = (
     updatedRow: any,
-    nodeIndex: number,
     fieldIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
+    const nodeIndex = updatedRow.nodeIndex
     const fieldName = toSnakeCase(updatedRow.fieldName);
+    const csvCol = updatedRow.csvCol !== undefined ? updatedRow.csvCol : null;
+    const nodeName = updatedRow.nodeName !== undefined ? updatedRow.nodeName : null;
+  
     const updatedNode = { ...currentConfiguration.additionalNodes[nodeIndex] };
-    updatedNode.fields = updatedNode.fields.map((field, index) =>
-      index === fieldIndex ? { ...field, fieldName } : field
-    );
+  
+    if (nodeName !== null) {
+      updatedNode.name = nodeName;
+    }
+  
+    updatedNode.fields = updatedNode.fields.map((field, index) => {
+      if (index === fieldIndex) {
+        const updatedField = { ...field, fieldName };
+        if (csvCol !== null) {
+          updatedField.source = { ...field.source, csvCol };
+        }
+        return updatedField;
+      }
+      return field;
+    });
   
     const updatedAdditionalNodes = [...currentConfiguration.additionalNodes];
     updatedAdditionalNodes[nodeIndex] = updatedNode;
+  
     return {
       ...currentConfiguration,
       additionalNodes: updatedAdditionalNodes
     };
   };
+  
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel(prevRowModesModel => {
