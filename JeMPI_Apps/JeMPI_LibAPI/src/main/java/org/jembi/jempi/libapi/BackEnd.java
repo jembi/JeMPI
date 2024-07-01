@@ -221,6 +221,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
       try {
          bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
+         bufferedWriter.newLine();
          while (lineIterator.hasNext()) {
             bufferedWriter.write(lineIterator.next());
             bufferedWriter.write(System.lineSeparator());
