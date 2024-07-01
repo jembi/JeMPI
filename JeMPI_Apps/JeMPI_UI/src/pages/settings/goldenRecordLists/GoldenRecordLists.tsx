@@ -51,7 +51,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
 
       setRows(rowsWithIds);
     }
-  }, [goldenRecordList]);
+  }, [goldenRecordList,configuration]);
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
@@ -61,29 +61,39 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
     const updatedRow = rows.find((row: { id: GridRowId; }) => row.id === id);
 
     if (updatedRow) {
-      console.log('Updated row before save:', updatedRow);
+      console.log('updated row', updatedRow)
       setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
       handleUpdateConfiguration(updatedRow, updatedRow.fieldIndex);
     }
   };
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
-  
     setConfiguration(previousConfiguration => {
-      if (!previousConfiguration) return previousConfiguration;
-      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
-      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
-      return updatedConfiguration;
-    });
-  };
+      if (!previousConfiguration) {
+        const initialConfig = localStorage.getItem('configuration')
+        if (initialConfig) {
+          previousConfiguration = JSON.parse(initialConfig)
+        }
+      }
+      if (!previousConfiguration) {
+        console.error('Configuration is not initialized')
+        return previousConfiguration
+      }
+      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration)
+      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
+      return updatedConfiguration
+    })
+  }
+
+
 
   const getUpdatedConfiguration = (
     updatedRow: any,
     rowIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
-  console.log('inside config update', updatedRow.fieldName)
     const fieldName = toSnakeCase(updatedRow.fieldName);
+    console.log('field name in get configuration',updatedRow)
     const fieldToUpdate = { ...currentConfiguration.additionalNodes[rowIndex], fieldName };
     const updatedAdditionalNodes = [...currentConfiguration.additionalNodes];
     updatedAdditionalNodes[rowIndex] = fieldToUpdate;
