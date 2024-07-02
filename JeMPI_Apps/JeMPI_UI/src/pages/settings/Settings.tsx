@@ -111,7 +111,6 @@ const Settings = () => {
               Setup properties for Golden record lists
             </Typography>
             <GoldenRecordLists
-              goldenRecordList={configurationData?.additionalNodes || []}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>

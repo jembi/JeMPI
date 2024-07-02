@@ -1,4 +1,4 @@
-import React, { useEffect, useState, FC } from 'react';
+import { useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import {
   DataGrid,
@@ -16,7 +16,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import { EditToolbar } from 'components/shared/EditToolBar';
 import { formatNodeName, toSnakeCase, toUpperCase } from 'utils/helpers';
-import { Configuration } from 'types/Configuration';
+import { Configuration, CustomNode } from 'types/Configuration';
+import { useConfiguration } from 'hooks/useUIConfiguration';
 
 interface RowData {
   id: string;
@@ -28,33 +29,28 @@ interface RowData {
   fieldIndex: number;
 }
 
-interface GoldenRecordListsProps {
-  goldenRecordList: any;
-}
 
-const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => {
+const GoldenRecordLists = () => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  const [, setConfiguration] = useState<Configuration>();
+  const { configuration, setConfiguration } = useConfiguration();
 
   useEffect(() => {
-    if (goldenRecordList) {
-      const rowsWithIds = goldenRecordList.flatMap((node: { fields: any[]; nodeName: string }, nodeIndex: number) => {
-        return node.fields
-          ? node.fields.map((field, fieldIndex) => ({
-              id: `${node.nodeName}_${nodeIndex}_${fieldIndex}`,
-              nodeName: node.nodeName,
-              fieldName: field.fieldName,
-              fieldType: field.fieldType,
-              csvCol: field.csvCol,
-              nodeIndex,
-              fieldIndex,
-            }))
-          : [];
+    if (configuration && configuration.additionalNodes) {
+      const rowsWithIds = configuration.additionalNodes.flatMap((node: CustomNode, nodeIndex: number) => {
+        return node.fields.map((field, fieldIndex) => ({
+          id: `${node.name}_${nodeIndex}_${fieldIndex}`,
+          nodeName: node.name,
+          fieldName: field.fieldName,
+          fieldType: field.fieldType,
+          csvCol: field.source?.csvCol ?? 0,
+          nodeIndex,
+          fieldIndex,
+        }));
       });
       setRows(rowsWithIds);
     }
-  }, [goldenRecordList]);
+  }, [configuration]);
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.Edit } }));
@@ -67,16 +63,16 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
     }
   };
 
+
+
   const handleUpdateConfiguration = (updatedRow: RowData, rowIndex: number) => {
     const storedConfiguration = localStorage.getItem('configuration');
     const currentConfiguration = storedConfiguration ? JSON.parse(storedConfiguration) : {};
     const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, currentConfiguration);
-    localStorage.setItem(
-      'configuration',
-      JSON.stringify(updatedConfiguration)
-    )
+    localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
     setConfiguration(updatedConfiguration);
-    }
+  };
+
   const getUpdatedConfiguration = (updatedRow: RowData, fieldIndex: number, currentConfig: Configuration): Configuration => {
     const nodeIndex = updatedRow.nodeIndex;
     const fieldName = toSnakeCase(updatedRow.fieldName);
@@ -125,6 +121,7 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
     return { ...updatedRow, id } as RowData;
   };
 
+
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel);
   };
@@ -133,6 +130,10 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = true;
     }
+  };
+
+  const handleProcessRowUpdateError = (error: any) => {
+    console.error('Error during row update:', error);
   };
 
   const columns: GridColDef[] = [
@@ -235,7 +236,7 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
         },
       }}
     >
-      {goldenRecordList && (
+      {configuration && (
         <DataGrid
           rows={rows}
           columns={columns}
@@ -244,6 +245,7 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
           onRowModesModelChange={handleRowModesModelChange}
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
+          onProcessRowUpdateError={handleProcessRowUpdateError}
           getRowId={(row) => row.id}
           slots={{
             toolbar: EditToolbar,
