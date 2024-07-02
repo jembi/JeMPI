@@ -1,4 +1,5 @@
-import Box from '@mui/material/Box'
+import React, { useEffect, useState, FC } from 'react';
+import Box from '@mui/material/Box';
 import {
   DataGrid,
   GridColDef,
@@ -8,64 +9,63 @@ import {
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
-  GridActionsCellItem
-} from '@mui/x-data-grid'
-import EditIcon from '@mui/icons-material/Edit'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Close'
-import { useEffect, useState } from 'react'
-import { EditToolbar } from 'components/shared/EditToolBar'
-import { formatNodeName, toSnakeCase, toUpperCase } from 'utils/helpers'
-import { Configuration } from 'types/Configuration'
+  GridActionsCellItem,
+} from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import { EditToolbar } from 'components/shared/EditToolBar';
+import { formatNodeName, toSnakeCase, toUpperCase } from 'utils/helpers';
+import { Configuration } from 'types/Configuration';
 
 interface RowData {
-  id: string
-  nodeName: string
-  fieldName: string
-  fieldType: string
-  csvCol: number
+  id: string;
+  nodeName: string;
+  fieldName: string;
+  fieldType: string;
+  csvCol: number;
+  nodeIndex: number;
+  fieldIndex: number;
 }
 
-const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
-  const [rows, setRows] = useState<any>([])
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
-  const [configuration, setConfiguration] = useState<Configuration>()
+interface GoldenRecordListsProps {
+  goldenRecordList: any;
+}
+
+const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => {
+  const [rows, setRows] = useState<RowData[]>([]);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [configuration, setConfiguration] = useState<Configuration>();
 
   useEffect(() => {
     if (goldenRecordList) {
-      const rowsWithIds = goldenRecordList.flatMap(
-        (node: { fields: any[]; nodeName: string }, nodeIndex: number) => {
-          return node.fields
-            ? node.fields.map((field, fieldIndex) => ({
-                id: `${node.nodeName}_${nodeIndex}_${fieldIndex}`,
-                nodeName: node.nodeName,
-                fieldName: field.fieldName,
-                fieldType: field.fieldType,
-                csvCol: field.csvCol,
-                nodeIndex,
-                fieldIndex
-              }))
-            : []
-        }
-      )
-
-      setRows(rowsWithIds)
+      const rowsWithIds = goldenRecordList.flatMap((node: { fields: any[]; nodeName: string }, nodeIndex: number) => {
+        return node.fields
+          ? node.fields.map((field, fieldIndex) => ({
+              id: `${node.nodeName}_${nodeIndex}_${fieldIndex}`,
+              nodeName: node.nodeName,
+              fieldName: field.fieldName,
+              fieldType: field.fieldType,
+              csvCol: field.csvCol,
+              nodeIndex,
+              fieldIndex,
+            }))
+          : [];
+      });
+      setRows(rowsWithIds);
     }
-  }, [goldenRecordList, configuration,rows, rowModesModel])
-
+  }, [goldenRecordList]);
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
-  }
+    setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.Edit } }));
+  };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
+    const updatedRow = rows.find((row) => row.id === id);
     if (updatedRow) {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-      handleUpdateConfiguration(updatedRow, updatedRow.fieldIndex)
+      setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.View } }));
     }
-  }
-
+  };
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
     setConfiguration(previousConfiguration => {
       if (!previousConfiguration) {
@@ -83,80 +83,76 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
         rowIndex,
         previousConfiguration
       )
+      console.log('i have updated config',updatedConfiguration)
       localStorage.setItem(
         'configuration',
         JSON.stringify(updatedConfiguration)
       )
+      setConfiguration(updatedConfiguration)
       return updatedConfiguration
     })
   }
 
-  const getUpdatedConfiguration = (
-    updatedRow: any,
-    fieldIndex: number,
-    currentConfiguration: Configuration
-  ): Configuration => {
-    const nodeIndex = updatedRow.nodeIndex
-    const fieldName = toSnakeCase(updatedRow.fieldName)
-    const csvCol = updatedRow.csvCol !== undefined ? updatedRow.csvCol : null
-    const nodeName =
-      updatedRow.nodeName !== undefined ? updatedRow.nodeName : null
+  const getUpdatedConfiguration = (updatedRow: RowData, fieldIndex: number, currentConfig: Configuration): Configuration => {
+    const nodeIndex = updatedRow.nodeIndex;
+    const fieldName = toSnakeCase(updatedRow.fieldName);
+    const csvCol = updatedRow.csvCol !== undefined ? updatedRow.csvCol : null;
+    const nodeName = updatedRow.nodeName !== undefined ? updatedRow.nodeName : null;
 
-    const updatedNode = { ...currentConfiguration.additionalNodes[nodeIndex] }
-
+    const updatedNode = { ...currentConfig.additionalNodes[nodeIndex] };
     if (nodeName !== null) {
-      updatedNode.name = nodeName
+      updatedNode.name = nodeName;
     }
 
     updatedNode.fields = updatedNode.fields.map((field, index) => {
       if (index === fieldIndex) {
-        const updatedField = { ...field, fieldName }
+        const updatedField = { ...field, fieldName };
         if (csvCol !== null) {
-          updatedField.source = { ...field.source, csvCol }
+          updatedField.source = { ...field.source, csvCol };
         }
-        return updatedField
+        return updatedField;
       }
-      return field
-    })
+      return field;
+    });
 
-    const updatedAdditionalNodes = [...currentConfiguration.additionalNodes]
-    updatedAdditionalNodes[nodeIndex] = updatedNode
+    const updatedAdditionalNodes = [...currentConfig.additionalNodes];
+    updatedAdditionalNodes[nodeIndex] = updatedNode;
 
     return {
-      ...currentConfiguration,
-      additionalNodes: updatedAdditionalNodes
-    }
-  }
+      ...currentConfig,
+      additionalNodes: updatedAdditionalNodes,
+    };
+  };
 
   const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel(prevRowModesModel => {
-      const newRowModesModel = { ...prevRowModesModel }
-      delete newRowModesModel[id]
-      return newRowModesModel
-    })
-  }
+    setRowModesModel((prevModel) => {
+      const newModel = { ...prevModel };
+      delete newModel[id];
+      return newModel;
+    });
+  };
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const { id, ...updatedRow } = newRow
-    const updatedRows = rows.map((row: { id: any }) =>
-      row.id === id ? ({ ...updatedRow, id } as RowData) : row
-    )
-    setRows(updatedRows)
-    return { ...updatedRow, id } as RowData
-  }
+    const { id, ...updatedRow } = newRow;
+    const updatedRows = rows.map((row) => (row.id === id ? ({ ...updatedRow, id } as RowData) : row));
+    console.log('updated row in process row update', updatedRows);
+    setRows(updatedRows);
+    
+    // Update the configuration immediately after setting the rows
+    handleUpdateConfiguration(updatedRow as RowData, updatedRow.fieldIndex);
+  
+    return { ...updatedRow, id } as RowData;
+  };
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel)
-  }
+    setRowModesModel(newRowModesModel);
+  };
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
-    params,
-    event
-  ) => {
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true
+      event.defaultMuiPrevented = true;
     }
-  }
+  };
 
   const columns: GridColDef[] = [
     {
@@ -166,10 +162,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       editable: true,
       align: 'left',
       headerAlign: 'left',
-      valueGetter: params => {
-        if (params.row.fieldName === 'patient') return ''
-        else return formatNodeName(params.row.nodeName)
-      }
+      valueGetter: (params) => (params.row.fieldName === 'patient' ? '' : formatNodeName(params.row.nodeName)),
     },
     {
       field: 'fieldName',
@@ -179,7 +172,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'center',
       headerAlign: 'center',
       editable: true,
-      valueGetter: params => toUpperCase(params.row.fieldName)
+      valueGetter: (params) => toUpperCase(params.row.fieldName),
     },
     {
       field: 'fieldType',
@@ -189,7 +182,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'center',
       headerAlign: 'center',
       editable: false,
-      valueGetter: params => params.row.fieldType
+      valueGetter: (params) => params.row.fieldType,
     },
     {
       field: 'csvCol',
@@ -199,7 +192,7 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       align: 'center',
       headerAlign: 'center',
       editable: true,
-      valueGetter: params => params.row.csvCol
+      valueGetter: (params) => params.row.csvCol,
     },
     {
       field: 'actions',
@@ -210,11 +203,12 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
+              key="save"
               id="save-button"
               label="Save"
               sx={{ color: 'white' }}
@@ -222,28 +216,30 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
+              key="cancel"
               id="cancel-button"
               label="Cancel"
               className="textPrimary"
               onClick={handleCancelClick(id)}
               color="inherit"
-            />
-          ]
+            />,
+          ];
         }
 
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
+            key="edit"
             id="edit-button"
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
             color="inherit"
-          />
-        ]
-      }
-    }
-  ]
+          />,
+        ];
+      },
+    },
+  ];
 
   return (
     <Box
@@ -251,11 +247,11 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
         height: 500,
         width: '100%',
         '& .actions': {
-          color: '#fff'
+          color: '#fff',
         },
         '& .textPrimary': {
-          color: '#fff'
-        }
+          color: '#fff',
+        },
       }}
     >
       {goldenRecordList && (
@@ -267,17 +263,17 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
           onRowModesModelChange={handleRowModesModelChange}
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
-          getRowId={row => row.id}
+          getRowId={(row) => row.id}
           slots={{
-            toolbar: EditToolbar
+            toolbar: EditToolbar,
           }}
           slotProps={{
-            toolbar: { setRows, setRowModesModel }
+            toolbar: { setRows, setRowModesModel },
           }}
         />
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default GoldenRecordLists
+export default GoldenRecordLists;
