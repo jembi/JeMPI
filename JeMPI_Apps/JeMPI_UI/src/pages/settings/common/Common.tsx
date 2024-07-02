@@ -28,19 +28,22 @@ const toSnakeCase = (str: string) => {
     .toLowerCase()
 }
 
-const CommonSettings = ({ demographicData }: { demographicData: any }) => {
+const CommonSettings = () => {
   const [rows, setRows] = useState<any>([])
   const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    const rowData = demographicData.map((row: any, rowIndex: number) => ({
-      id: rowIndex + 1,
-      ...row,
-      rowIndex
-    }))
-    setRows(rowData)
-  }, [demographicData])
+    if(configuration && configuration.demographicFields){
+      const rowData = configuration?.demographicFields.map((row: any, rowIndex: number) => ({
+        id: rowIndex + 1,
+        ...row,
+        rowIndex
+      }))
+      setRows(rowData)
+    }
+   
+  }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
@@ -49,9 +52,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
   const handleSaveClick = (id: GridRowId) => () => {
     const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
     if (updatedRow) {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-      handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
-    }
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })    }
   }
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
@@ -62,11 +63,11 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
         rowIndex,
         previousConfiguration
       )
-      console.log('updating config', updatedRow)
       localStorage.setItem(
         'configuration',
         JSON.stringify(updatedConfiguration)
       )
+      setConfiguration(updatedConfiguration)
       return updatedConfiguration
     })
   }
@@ -134,7 +135,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     const { id, ...updatedRow } = newRow;
     const updatedRows = rows.map((row: { id: any }) => (row.id === id ? ({ ...updatedRow, id } as RowData) : row));
     setRows(updatedRows);
-
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return { ...updatedRow, id } as RowData;
   };
 
@@ -254,7 +255,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
         width: '100%'
       }}
     >
-      {demographicData && (
+      {configuration && (
         <DataGrid
           rows={rows}
           columns={columns}
