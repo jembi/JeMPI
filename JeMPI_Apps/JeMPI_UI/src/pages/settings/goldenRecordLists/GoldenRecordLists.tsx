@@ -51,7 +51,8 @@ const GoldenRecordLists = ({ goldenRecordList }: { goldenRecordList: any }) => {
 
       setRows(rowsWithIds)
     }
-  }, [goldenRecordList, configuration])
+  }, [goldenRecordList, configuration,rows, rowModesModel])
+
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
