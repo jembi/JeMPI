@@ -35,7 +35,7 @@ interface GoldenRecordListsProps {
 const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => {
   const [rows, setRows] = useState<RowData[]>([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  const [configuration, setConfiguration] = useState<Configuration>();
+  const [, setConfiguration] = useState<Configuration>();
 
   useEffect(() => {
     if (goldenRecordList) {
@@ -56,23 +56,6 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
     }
   }, [goldenRecordList]);
 
-  useEffect(() => {
-    if (configuration) {
-      const rowsWithIds = configuration.additionalNodes.flatMap((node, nodeIndex) => {
-        return node.fields.map((field, fieldIndex) => ({
-          id: `${node.name}_${nodeIndex}_${fieldIndex}`,
-          nodeName: node.name,
-          fieldName: field.fieldName,
-          fieldType: field.fieldType,
-          csvCol: field.source?.csvCol ?? 0,
-          nodeIndex,
-          fieldIndex,
-        }));
-      });
-      setRows(rowsWithIds);
-    }
-  }, [configuration]);
-
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.Edit } }));
   };
@@ -85,14 +68,15 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
   };
 
   const handleUpdateConfiguration = (updatedRow: RowData, rowIndex: number) => {
-    setConfiguration(previousConfiguration => {
-      if (!previousConfiguration) return previousConfiguration
-      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
-      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
-      return updatedConfiguration;
-    });
-  };
-
+    const storedConfiguration = localStorage.getItem('configuration');
+    const currentConfiguration = storedConfiguration ? JSON.parse(storedConfiguration) : {};
+    const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, currentConfiguration);
+    localStorage.setItem(
+      'configuration',
+      JSON.stringify(updatedConfiguration)
+    )
+    setConfiguration(updatedConfiguration);
+    }
   const getUpdatedConfiguration = (updatedRow: RowData, fieldIndex: number, currentConfig: Configuration): Configuration => {
     const nodeIndex = updatedRow.nodeIndex;
     const fieldName = toSnakeCase(updatedRow.fieldName);
