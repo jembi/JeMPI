@@ -14,23 +14,17 @@ export interface UIConfigurationProviderProps {
   children: React.ReactNode
 }
 
-export const ConfigurationContext = createContext<
-  ConfigurationContextType | undefined
->(undefined)
+export const ConfigurationContext = createContext<ConfigurationContextType | undefined>(undefined)
 
 export const useConfiguration = () => {
   const context = useContext(ConfigurationContext)
   if (!context) {
-    throw new Error(
-      'useConfiguration must be used within a ConfigurationProvider'
-    )
+    throw new Error('useConfiguration must be used within a ConfigurationProvider')
   }
   return context
 }
 
-export const ConfigurationProvider = ({
-  children
-}: UIConfigurationProviderProps) => {
+export const ConfigurationProvider = ({ children }: UIConfigurationProviderProps) => {
   const { apiClient } = useConfig()
   const { data, error, isLoading, isError } = useQuery<Configuration>({
     queryKey: ['configuration'],
@@ -38,12 +32,10 @@ export const ConfigurationProvider = ({
     refetchOnWindowFocus: false
   })
 
-  const [configuration, setConfiguration] = useState<Configuration | null>(
-    () => {
-      const savedConfig = localStorage.getItem('configuration')
-      return savedConfig ? JSON.parse(savedConfig) : null
-    }
-  )
+  const [configuration, setConfiguration] = useState<Configuration | null>(() => {
+    const savedConfig = localStorage.getItem('configuration')
+    return savedConfig ? JSON.parse(savedConfig) : null
+  })
 
   useEffect(() => {
     if (data && !configuration) {

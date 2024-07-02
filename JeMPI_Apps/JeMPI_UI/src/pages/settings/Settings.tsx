@@ -37,14 +37,14 @@ const Settings = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [configurationData]);
+  }, []);
 
   useEffect(() => {
     const storedData = localStorage.getItem('configuration');
     if (storedData) {
       setConfigurationData(generateId(JSON.parse(storedData)));
     }
-  }, [configurationData]);
+  }, []);
 
   return (
     <Grid container spacing={4}>
@@ -111,7 +111,6 @@ const Settings = () => {
               Setup properties for Golden record lists
             </Typography>
             <GoldenRecordLists
-              goldenRecordList={configurationData?.additionalNodes || []}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
