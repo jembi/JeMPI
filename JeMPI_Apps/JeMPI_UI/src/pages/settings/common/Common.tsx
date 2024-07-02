@@ -62,6 +62,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
         rowIndex,
         previousConfiguration
       )
+      console.log('updating config', updatedRow)
       localStorage.setItem(
         'configuration',
         JSON.stringify(updatedConfiguration)
@@ -75,33 +76,44 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     rowIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
-    const fieldName = toSnakeCase(updatedRow.fieldName)
-
-    const fieldToUpdate = currentConfiguration.demographicFields[rowIndex]
-
-    fieldToUpdate.fieldName = fieldName
-
-    if (updatedRow?.indexGoldenRecord) {
-      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord})`
+    const fieldName = toSnakeCase(updatedRow.fieldName);
+    if (!currentConfiguration.demographicFields) {
+      console.error('demographicFields is undefined');
+      return currentConfiguration;
     }
-
+  
+    const fieldToUpdate = currentConfiguration.demographicFields[rowIndex];
+  
+    if (!fieldToUpdate) {
+      console.error(`No field found at row index ${rowIndex}`);
+      return currentConfiguration;
+    }
+  
+    fieldToUpdate.fieldName = fieldName;
+  
+    if (updatedRow?.indexGoldenRecord) {
+      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord})`;
+    }
+  
     if (updatedRow?.m) {
       fieldToUpdate.linkMetaData = {
         ...fieldToUpdate.linkMetaData,
         m: Number(updatedRow.m)
-      } as LinkMetaData
+      } as LinkMetaData;
     }
-
+  
     if (updatedRow?.u) {
       fieldToUpdate.linkMetaData = {
         ...fieldToUpdate.linkMetaData,
         u: Number(updatedRow.u)
-      } as LinkMetaData
+      } as LinkMetaData;
     }
-    currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
-
-    return currentConfiguration
+  
+    currentConfiguration.demographicFields[rowIndex] = fieldToUpdate;
+  
+    return currentConfiguration;
   }
+  
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel(prevRowModesModel => {
@@ -119,13 +131,12 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
   }
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const { id, ...updatedRow } = newRow
-    const updatedRows = rows.map((row: { id: any }) =>
-      row.id === id ? ({ ...updatedRow, id } as RowData) : row
-    )
-    setRows(updatedRows)
-    return { ...updatedRow, id } as RowData
-  }
+    const { id, ...updatedRow } = newRow;
+    const updatedRows = rows.map((row: { id: any }) => (row.id === id ? ({ ...updatedRow, id } as RowData) : row));
+    setRows(updatedRows);
+
+    return { ...updatedRow, id } as RowData;
+  };
 
   const columns: GridColDef[] = [
     {
