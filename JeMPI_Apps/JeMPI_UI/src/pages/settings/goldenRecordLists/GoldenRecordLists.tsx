@@ -56,6 +56,23 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
     }
   }, [goldenRecordList]);
 
+  useEffect(() => {
+    if (configuration) {
+      const rowsWithIds = configuration.additionalNodes.flatMap((node, nodeIndex) => {
+        return node.fields.map((field, fieldIndex) => ({
+          id: `${node.name}_${nodeIndex}_${fieldIndex}`,
+          nodeName: node.name,
+          fieldName: field.fieldName,
+          fieldType: field.fieldType,
+          csvCol: field.source?.csvCol ?? 0,
+          nodeIndex,
+          fieldIndex,
+        }));
+      });
+      setRows(rowsWithIds);
+    }
+  }, [configuration]);
+
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.Edit } }));
   };
@@ -66,32 +83,15 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
       setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.View } }));
     }
   };
-  const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
+
+  const handleUpdateConfiguration = (updatedRow: RowData, rowIndex: number) => {
     setConfiguration(previousConfiguration => {
-      if (!previousConfiguration) {
-        const initialConfig = localStorage.getItem('configuration')
-        if (initialConfig) {
-          previousConfiguration = JSON.parse(initialConfig)
-        }
-      }
-      if (!previousConfiguration) {
-        console.error('Configuration is not initialized')
-        return previousConfiguration
-      }
-      const updatedConfiguration = getUpdatedConfiguration(
-        updatedRow,
-        rowIndex,
-        previousConfiguration
-      )
-      console.log('i have updated config',updatedConfiguration)
-      localStorage.setItem(
-        'configuration',
-        JSON.stringify(updatedConfiguration)
-      )
-      setConfiguration(updatedConfiguration)
-      return updatedConfiguration
-    })
-  }
+      if (!previousConfiguration) return previousConfiguration
+      const updatedConfiguration = getUpdatedConfiguration(updatedRow, rowIndex, previousConfiguration);
+      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
+      return updatedConfiguration;
+    });
+  };
 
   const getUpdatedConfiguration = (updatedRow: RowData, fieldIndex: number, currentConfig: Configuration): Configuration => {
     const nodeIndex = updatedRow.nodeIndex;
@@ -135,12 +135,9 @@ const GoldenRecordLists: FC<GoldenRecordListsProps> = ({ goldenRecordList }) => 
   const processRowUpdate = (newRow: GridRowModel) => {
     const { id, ...updatedRow } = newRow;
     const updatedRows = rows.map((row) => (row.id === id ? ({ ...updatedRow, id } as RowData) : row));
-    console.log('updated row in process row update', updatedRows);
     setRows(updatedRows);
-    
-    // Update the configuration immediately after setting the rows
     handleUpdateConfiguration(updatedRow as RowData, updatedRow.fieldIndex);
-  
+
     return { ...updatedRow, id } as RowData;
   };
 
