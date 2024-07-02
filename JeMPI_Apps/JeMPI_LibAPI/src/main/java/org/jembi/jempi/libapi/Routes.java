@@ -428,7 +428,7 @@ public final class Routes {
                                                                                       try {
                                                                                          return File.createTempFile(
                                                                                                "import-",
-                                                                                               "uploadConfig.csv.tmp");
+                                                                                               "uploadConfig.csv");
                                                                                       } catch (Exception e) {
                                                                                          LOGGER.error(e.getMessage(), e);
                                                                                          return null;

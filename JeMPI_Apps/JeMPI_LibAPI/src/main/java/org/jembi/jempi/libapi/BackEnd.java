@@ -455,7 +455,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          if (request.uploadConfig != null) {
             appendUploadConfigToFile(request.uploadConfig, file);
          }
-         Files.move(file.toPath(), Paths.get("/app/csv/" + file.getName().replace(".tmp", "")));
+         Files.move(file.toPath(), Paths.get("/app/csv/" + file.getName()));
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
       } catch (SecurityException | IOException e) {
