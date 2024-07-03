@@ -16,32 +16,35 @@ import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { useConfiguration } from 'hooks/useUIConfiguration'
+import { Configuration } from 'types/Configuration'
+import { toSnakeCase } from 'utils/helpers'
 
 const UniqueToInteraction = () => {
-  const [rows, setRows] = useState<any>()
+  const [rows, setRows] = useState<any[]>([])
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
-  const { configuration, setConfiguration } = useConfiguration();
-
+  const { configuration, setConfiguration } = useConfiguration()
 
   useEffect(() => {
-    if (configuration && configuration.auxInteractionFields) { 
-      const rowsWithIds = configuration.auxInteractionFields.map(
-        (row: any, index: number) => ({
+    if (configuration && Array.isArray(configuration.auxInteractionFields)) {
+      const rowData = configuration.auxInteractionFields.map(
+        (row: any, rowIndex: number) => ({
+          id: rowIndex + 1,
           ...row,
-          id: index.toString()
+          rowIndex
         })
       )
-      setRows(rowsWithIds)
+      setRows(rowData)
     }
-   
   }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
   }
-
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
+    if (updatedRow) {
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    }
   }
 
   const handleDeleteClick = (id: any) => () => {
@@ -65,7 +68,47 @@ const UniqueToInteraction = () => {
     setRows(
       rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
     )
+    handleUpdateConfiguration(updatedRow, 0)
     return updatedRow
+  }
+
+  const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
+    setConfiguration(previousConfiguration => {
+      if (!previousConfiguration) return previousConfiguration
+      const updatedConfiguration = getUpdatedConfiguration(
+        updatedRow,
+        rowIndex,
+        previousConfiguration
+      )
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
+      setConfiguration(updatedConfiguration)
+      return updatedConfiguration
+    })
+  }
+
+  const getUpdatedConfiguration = (
+    updatedRow: { fieldName: string; csvCol: undefined },
+    rowIndex: number,
+    currentConfig: Configuration
+  ) => {
+    const fieldName = toSnakeCase(updatedRow.fieldName)
+    const csvCol = updatedRow.csvCol !== undefined ? updatedRow.csvCol : null
+
+    const fieldToUpdate = currentConfig.auxInteractionFields[rowIndex]
+    if (fieldToUpdate !== null) {
+      fieldToUpdate.fieldName = fieldName
+    }
+
+    if (csvCol !== null) {
+      fieldToUpdate.source = { ...fieldToUpdate.source, csvCol }
+    }
+
+    currentConfig.auxInteractionFields[rowIndex] = fieldToUpdate
+
+    return currentConfig
   }
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
