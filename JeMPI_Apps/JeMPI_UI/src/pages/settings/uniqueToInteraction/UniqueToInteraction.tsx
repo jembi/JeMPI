@@ -68,7 +68,7 @@ const UniqueToInteraction = () => {
     setRows(
       rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
     )
-    handleUpdateConfiguration(updatedRow, 0)
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return updatedRow
   }
 
