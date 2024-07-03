@@ -15,25 +15,29 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
-import { transformFieldName } from 'utils/helpers'
+import { toSnakeCase, transformFieldName } from 'utils/helpers'
+import { useConfiguration } from 'hooks/useUIConfiguration'
+import { Configuration } from 'types/Configuration'
 
-const UniqueToGR = ({
-  uniqueToGoldenRecordData
-}: {
-  uniqueToGoldenRecordData: any
-}) => {
-  const [rows, setRows] = useState(uniqueToGoldenRecordData)
+const UniqueToGR = () => {
+  const [rows, setRows] = useState<any>([])
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const {configuration, setConfiguration} = useConfiguration();
 
   useEffect(() => {
-    const rowsWithIds = uniqueToGoldenRecordData.map(
-      (row: any, index: number) => ({
-        ...row,
-        id: index.toString()
-      })
-    )
-    setRows(rowsWithIds)
-  }, [uniqueToGoldenRecordData])
+
+    if(configuration && configuration.auxGoldenRecordFields){
+      const rowData = configuration.auxGoldenRecordFields.map(
+        (row: any, rowIndex: number) => ({
+          id: rowIndex + 1,
+          ...row,
+          rowIndex
+        })
+      )
+      setRows(rowData)
+    }
+  
+  }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
@@ -64,7 +68,46 @@ const UniqueToGR = ({
     setRows(
       rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
     )
+    handleUpdateConfiguration(updatedRow, updatedRow.index)
     return updatedRow
+  }
+  const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
+    setConfiguration(previousConfiguration => {
+      if (!previousConfiguration) return previousConfiguration
+      const updatedConfiguration = getUpdatedConfiguration(
+        updatedRow,
+        rowIndex,
+        previousConfiguration
+      )
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
+      setConfiguration(updatedConfiguration)
+      return updatedConfiguration
+    })
+  }
+
+  const getUpdatedConfiguration = (
+    updatedRow: { fieldName: string; csvCol: undefined },
+    rowIndex: number,
+    currentConfig: Configuration
+  ) => {
+    const fieldName = toSnakeCase(updatedRow.fieldName)
+    const csvCol = updatedRow.csvCol !== undefined ? updatedRow.csvCol : null
+
+    const fieldToUpdate = currentConfig.auxGoldenRecordFields[rowIndex]
+    if (fieldToUpdate !== null) {
+      fieldToUpdate.fieldName = fieldName
+    }
+
+    if (csvCol !== null) {
+      fieldToUpdate.source = { ...fieldToUpdate.source, csvCol }
+    }
+
+    currentConfig.auxGoldenRecordFields[rowIndex] = fieldToUpdate
+
+    return currentConfig
   }
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
@@ -158,7 +201,7 @@ const UniqueToGR = ({
         }
       }}
     >
-      {uniqueToGoldenRecordData && (
+      {configuration && (
         <DataGrid
           rows={rows}
           columns={columns}

@@ -94,9 +94,7 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the golden record
             </Typography>
-            <UniqueToGR
-              uniqueToGoldenRecordData={configurationData?.auxGoldenRecordFields || []}
-            />
+            <UniqueToGR/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
