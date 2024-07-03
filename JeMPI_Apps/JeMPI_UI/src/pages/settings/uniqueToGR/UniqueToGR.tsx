@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { toSnakeCase, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
-import { Configuration } from 'types/Configuration'
+import { Configuration, Field } from 'types/Configuration'
 
 const UniqueToGR = () => {
   const [rows, setRows] = useState<any>([])
@@ -25,7 +25,6 @@ const UniqueToGR = () => {
   const {configuration, setConfiguration} = useConfiguration();
 
   useEffect(() => {
-
     if(configuration && configuration.auxGoldenRecordFields){
       const rowData = configuration.auxGoldenRecordFields.map(
         (row: any, rowIndex: number) => ({
@@ -44,9 +43,11 @@ const UniqueToGR = () => {
   }
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
+    if (updatedRow) {
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+    }
   }
-
   const handleDeleteClick = (id: any) => () => {
     setRows(rows?.filter((row: { id: any }) => row.id !== id))
   }
@@ -68,9 +69,10 @@ const UniqueToGR = () => {
     setRows(
       rows.map((row: { id: any }) => (row.id === newRow.id ? updatedRow : row))
     )
-    handleUpdateConfiguration(updatedRow, updatedRow.index)
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return updatedRow
   }
+
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
     setConfiguration(previousConfiguration => {
       if (!previousConfiguration) return previousConfiguration
@@ -109,7 +111,6 @@ const UniqueToGR = () => {
 
     return currentConfig
   }
-
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel)
   }
