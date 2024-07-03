@@ -15,24 +15,26 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import { EditToolbar } from 'components/shared/EditToolBar'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
-const UniqueToInteraction = ({
-  uniqueInteractionData
-}: {
-  uniqueInteractionData: any
-}) => {
-  const [rows, setRows] = useState(uniqueInteractionData)
+const UniqueToInteraction = () => {
+  const [rows, setRows] = useState<any>()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const { configuration, setConfiguration } = useConfiguration();
+
 
   useEffect(() => {
-    const rowsWithIds = uniqueInteractionData.map(
-      (row: any, index: number) => ({
-        ...row,
-        id: index.toString()
-      })
-    )
-    setRows(rowsWithIds)
-  }, [uniqueInteractionData])
+    if (configuration && configuration.auxInteractionFields) { 
+      const rowsWithIds = configuration.auxInteractionFields.map(
+        (row: any, index: number) => ({
+          ...row,
+          id: index.toString()
+        })
+      )
+      setRows(rowsWithIds)
+    }
+   
+  }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
@@ -160,7 +162,7 @@ const UniqueToInteraction = ({
         }
       }}
     >
-      {uniqueInteractionData && (
+      {configuration && (
         <DataGrid
           rows={rows}
           columns={columns}
