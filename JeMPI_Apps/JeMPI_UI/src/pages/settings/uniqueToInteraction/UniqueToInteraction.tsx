@@ -70,21 +70,21 @@ const UniqueToInteraction = () => {
   }
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
-    setConfiguration(previousConfiguration => {
-      if (!previousConfiguration) return previousConfiguration
-      const updatedConfiguration = getUpdatedConfiguration(
-        updatedRow,
-        rowIndex,
-        previousConfiguration
-      )
-      localStorage.setItem(
-        'configuration',
-        JSON.stringify(updatedConfiguration)
-      )
-      setConfiguration(updatedConfiguration)
-      return updatedConfiguration
-    })
+    if (!configuration) return
+
+    const updatedConfiguration = getUpdatedConfiguration(
+      updatedRow,
+      rowIndex,
+      configuration
+    )
+
+    localStorage.setItem(
+      'configuration',
+      JSON.stringify(updatedConfiguration)
+    )
+    setConfiguration(updatedConfiguration)
   }
+
 
   const getUpdatedConfiguration = (
     updatedRow: { fieldName: string; csvCol: undefined },
@@ -107,6 +107,7 @@ const UniqueToInteraction = () => {
 
     return currentConfig
   }
+
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel)
