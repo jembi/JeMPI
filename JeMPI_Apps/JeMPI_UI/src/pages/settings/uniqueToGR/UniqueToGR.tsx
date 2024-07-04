@@ -22,10 +22,10 @@ import { Configuration, Field } from 'types/Configuration'
 const UniqueToGR = () => {
   const [rows, setRows] = useState<any>([])
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
-  const {configuration, setConfiguration} = useConfiguration();
+  const { configuration, setConfiguration } = useConfiguration()
 
   useEffect(() => {
-    if(configuration && configuration.auxGoldenRecordFields){
+    if (configuration && configuration.auxGoldenRecordFields) {
       const rowData = configuration.auxGoldenRecordFields.map(
         (row: any, rowIndex: number) => ({
           id: rowIndex + 1,
@@ -35,7 +35,6 @@ const UniqueToGR = () => {
       )
       setRows(rowData)
     }
-  
   }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
@@ -43,11 +42,9 @@ const UniqueToGR = () => {
   }
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (updatedRow) {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-    }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   }
+
   const handleDeleteClick = (id: any) => () => {
     setRows(rows?.filter((row: { id: any }) => row.id !== id))
   }
@@ -74,20 +71,14 @@ const UniqueToGR = () => {
   }
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
-    setConfiguration(previousConfiguration => {
-      if (!previousConfiguration) return previousConfiguration
-      const updatedConfiguration = getUpdatedConfiguration(
-        updatedRow,
-        rowIndex,
-        previousConfiguration
-      )
-      localStorage.setItem(
-        'configuration',
-        JSON.stringify(updatedConfiguration)
-      )
-      setConfiguration(updatedConfiguration)
-      return updatedConfiguration
-    })
+    if (!configuration) return
+    const updatedConfiguration = getUpdatedConfiguration(
+      updatedRow,
+      rowIndex,
+      configuration
+    )
+    localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
+    setConfiguration(updatedConfiguration)
   }
 
   const getUpdatedConfiguration = (
@@ -106,9 +97,7 @@ const UniqueToGR = () => {
     if (csvCol !== null) {
       fieldToUpdate.source = { ...fieldToUpdate.source, csvCol }
     }
-
     currentConfig.auxGoldenRecordFields[rowIndex] = fieldToUpdate
-
     return currentConfig
   }
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
