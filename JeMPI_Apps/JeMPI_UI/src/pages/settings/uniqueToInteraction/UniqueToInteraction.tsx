@@ -41,10 +41,7 @@ const UniqueToInteraction = () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
   }
   const handleSaveClick = (id: GridRowId) => () => {
-    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (updatedRow) {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-    }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   }
 
   const handleDeleteClick = (id: any) => () => {
