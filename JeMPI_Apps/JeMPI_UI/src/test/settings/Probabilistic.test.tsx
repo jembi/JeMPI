@@ -4,7 +4,8 @@ import { BrowserRouter } from 'react-router-dom'
 import mockData from 'services/mockData'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConfigProvider } from 'hooks/useConfig'
-import ProbabilisticContent from 'pages/settings/probabilistic/ProbabilisticContent'
+import ProbabilisticContent from 'pages/settings/probabilistic/Probabilistic'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -12,17 +13,25 @@ const queryClient = new QueryClient({
     }
   })
 
-
-const linkingRules: any = mockData.configuration.rules
+  jest.mock('hooks/useUIConfiguration', () => ({
+    useConfiguration: jest.fn(),
+  }));
+  
 
 describe('ProbabilisticContent Component', () => {
+  const mockConfiguration = mockData.configuration.rules
+  beforeEach(() => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      configuration: mockConfiguration,
+      setConfiguration: jest.fn(),
+    });
+  });
     it('renders correctly', () => {
       const { container } = render(
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <ConfigProvider>
-              <ProbabilisticContent
-                          linkingRules={linkingRules} currentTab={'link'}              />
+              <ProbabilisticContent />
             </ConfigProvider>
           </BrowserRouter>
         </QueryClientProvider>
@@ -36,7 +45,7 @@ describe('ProbabilisticContent Component', () => {
               <QueryClientProvider client={queryClient}>
                 <BrowserRouter>
                   <ConfigProvider>
-                    <ProbabilisticContent linkingRules={linkingRules} currentTab={'link'} />
+                    <ProbabilisticContent />
                   </ConfigProvider>
                 </BrowserRouter>
               </QueryClientProvider>
@@ -74,7 +83,7 @@ describe('ProbabilisticContent Component', () => {
         <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <ConfigProvider>
-            <ProbabilisticContent linkingRules={linkingRules} currentTab={'link'} />
+            <ProbabilisticContent />
           </ConfigProvider>
         </BrowserRouter>
         </QueryClientProvider>)
