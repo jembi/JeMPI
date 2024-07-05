@@ -115,10 +115,7 @@ const Settings = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-            <Deterministic
-              rules={configurationData.rules}
-              demographicData={configurationData.demographicFields || []}
-            />
+            <Deterministic />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             <Blocking

@@ -3,35 +3,19 @@ import { useState } from 'react'
 import { Field, Rule } from 'types/Configuration'
 import { CustomTabPanel, a11yProps } from './BasicTabs'
 import DeterministicContent from './DeterministicContent'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
-interface DeterministicProps {
-  demographicData: Field[]
-  rules: {
-    link?: {
-      deterministic?: Rule[]
-    }
-    validate?: {
-      deterministic?: Rule[]
-    }
-    matchNotification?: {
-      deterministic?: Rule[]
-    }
-  }
-}
-
-const Deterministic = ({
-  demographicData = [],
-  rules = {}
-}: DeterministicProps) => {
+const Deterministic = () => {
   const [value, setValue] = useState(0)
+  const {configuration, setConfiguration} = useConfiguration()
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
 
-  const linkingRules = rules.link?.deterministic ?? []
-  const validateRules = rules.validate?.deterministic ?? []
-  const matchNotificationRules = rules.matchNotification?.deterministic ?? []
+  const linkingRules = configuration?.rules.link?.deterministic ?? []
+  const validateRules = configuration?.rules.validate?.deterministic ?? []
+  const matchNotificationRules = configuration?.rules.matchNotification?.deterministic ?? []
 
   return (
     <Card sx={{ minWidth: 275 }}>
@@ -57,21 +41,21 @@ const Deterministic = ({
           </Box>
           <CustomTabPanel value={value} index={0}>
             <DeterministicContent
-              demographicData={demographicData}
+              demographicData={configuration?.demographicFields || []}
               linkingRules={{ link: { deterministic: linkingRules } }}
               hasUndefinedRule={linkingRules.length === 0}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <DeterministicContent
-              demographicData={demographicData}
+              demographicData={configuration?.demographicFields || []}
               linkingRules={{ link: { deterministic: validateRules } }}
               hasUndefinedRule={validateRules.length === 0}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <DeterministicContent
-              demographicData={demographicData}
+              demographicData={configuration?.demographicFields || []}
               linkingRules={{ link: { deterministic: matchNotificationRules } }}
               hasUndefinedRule={matchNotificationRules.length === 0}
             />

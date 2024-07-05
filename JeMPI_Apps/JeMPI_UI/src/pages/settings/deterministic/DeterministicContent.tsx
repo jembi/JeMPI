@@ -64,11 +64,13 @@ const DeterministicContent = ({
 
   const deterministicRules = transformRulesToRowData(linkingRules)
 
+
   useEffect(() => {
     const savedComparators = localStorage.getItem('comparators')
     const savedFields = localStorage.getItem('fields')
     const savedOperators = localStorage.getItem('operators')
     const savedRules = localStorage.getItem('rules')
+
 
     if (savedComparators || savedFields || savedOperators || savedRules) {
       const parsedRules = savedRules ? JSON.parse(savedRules) : []
@@ -151,6 +153,7 @@ const DeterministicContent = ({
       text
     }
     setRules([...rules, rule])
+    console.log('rules', rules)
     setInitialState({
       comparators: [...comparators],
       fields: [...fields],
@@ -159,6 +162,8 @@ const DeterministicContent = ({
   }
 
   const handleRowEdit = (row: RowData) => {
+    console.log('row data i still have rule and ids',row)
+    // capture the index or rule number being edited here
     const regex = /(eq|match)\(([^),]+)(?:, (\d+))?\)/g
     const matchedFields = []
     const matchedComparators = []
@@ -167,7 +172,6 @@ const DeterministicContent = ({
       matchedFields.push(match[2])
       matchedComparators.push(match[1] === 'eq' ? 0 : parseInt(match[3], 10))
     }
-
     setComparators(matchedComparators)
     setFields(matchedFields)
     setOperators(new Array(matchedFields.length - 1).fill(Operator.AND))
