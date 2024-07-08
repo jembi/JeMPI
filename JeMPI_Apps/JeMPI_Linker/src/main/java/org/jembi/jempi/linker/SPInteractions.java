@@ -78,7 +78,8 @@ public final class SPInteractions {
          if (interactionEnvelop.contentType() == BATCH_INTERACTION) {
             linkPatient(system, backEnd, key, interactionEnvelop);
          } else if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
-            this.closeInteractionStream();
+            // this.closeInteractionStream();
+            LOGGER.debug("Batch End Sentinel");
          }
       });
       interactionEnvelopKafkaStreams = new KafkaStreams(streamsBuilder.build(), props);
