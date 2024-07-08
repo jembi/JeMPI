@@ -294,7 +294,7 @@ public final class LibMPI {
       if (client.updateGoldenRecordField(goldenId, fieldName, newValue)) {
          sendAuditEvent(null,
                         goldenId,
-                        "Update field fieldName: %s -> newValue: %s".formatted(fieldName, newValue),
+                        "Update Golden Record Field: %s -> %s".formatted(fieldName, newValue),
                         -1.0F,
                         LinkingRule.UPDATE);
          return true;
