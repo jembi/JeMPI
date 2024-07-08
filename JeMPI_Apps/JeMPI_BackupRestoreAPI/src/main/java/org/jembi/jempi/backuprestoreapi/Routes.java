@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.RestoreGoldenRecords;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -47,16 +48,13 @@ public final class Routes {
     private static Route postGoldenRecord(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd) {
-        LOGGER.error("1111111111111111");
-        LOGGER.info("1111111111111111");
-        return entity(Jackson.unmarshaller(ApiModels.RestoreGoldenRecord.class),
+        return entity(Jackson.unmarshaller(RestoreGoldenRecords.class),
                 payload -> payload != null
                         ? onComplete(Ask.postGoldenRecord(actorSystem, backEnd, payload),
-
                         result -> {
                             if (result.isSuccess()) {
                                 final var updatedFields = result.get().goldenRecord();
-                                if (updatedFields.sourceId().isEmpty()) {
+                                if (updatedFields.isEmpty()) {
                                     return complete(StatusCodes.BAD_REQUEST);
                                 } else {
                                     return complete(StatusCodes.OK,
@@ -70,7 +68,7 @@ public final class Routes {
                         : complete(StatusCodes.NO_CONTENT));
     }
 
-    private static Route postExpandedGoldenRecord(
+    private static Route getExpandedGoldenRecord(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd) {
         return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
@@ -100,8 +98,8 @@ public final class Routes {
         return concat(post(() -> concat(
                         /* proxy for linker/controller services*/
                         path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
-                                () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd)),
-                        path("createGolden",
+                                () -> Routes.getExpandedGoldenRecord(actorSystem, backEnd)),
+                        path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_RESTORE,
                                 () -> Routes.postGoldenRecord(actorSystem, backEnd))
                 )),
                 get(() -> concat(

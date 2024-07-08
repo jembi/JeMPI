@@ -202,7 +202,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> postGoldenRecordRequestHandler(final PostGoldenRecordRequest request) {
-      ApiModels.RestoreGoldenRecord goldenRecords = null;
+      String goldenRecords = null;
       try {
          goldenRecords = libMPI.postGoldenRecord(request.goldenRecord);
       } catch (Exception exception) {
@@ -351,10 +351,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record PostGoldenRecordRequest(
            ActorRef<PostGoldenRecordResponse> replyTo,
-           ApiModels.RestoreGoldenRecord goldenRecord) implements Event {
+           RestoreGoldenRecords goldenRecord) implements Event {
    }
 
-   public record PostGoldenRecordResponse(ApiModels.RestoreGoldenRecord goldenRecord)
+   public record PostGoldenRecordResponse(String goldenRecord)
            implements EventResponse {
    }
 

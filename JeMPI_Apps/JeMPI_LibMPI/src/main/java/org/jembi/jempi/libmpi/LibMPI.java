@@ -1,5 +1,6 @@
 package org.jembi.jempi.libmpi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -163,10 +164,8 @@ public final class LibMPI {
       return client.findExpandedGoldenRecords(goldenIds).data();
    }
 
-   public ApiModels.RestoreGoldenRecord postGoldenRecord(final ApiModels.RestoreGoldenRecord goldenRecord) {
+   public String postGoldenRecord(final RestoreGoldenRecords goldenRecord) throws JsonProcessingException {
       client.connect();
-      LOGGER.info(".............LibMpi.................");
-      LOGGER.error("4444444444444444444444444444444444");
       return client.restoreGoldenRecord(goldenRecord);
    }
 

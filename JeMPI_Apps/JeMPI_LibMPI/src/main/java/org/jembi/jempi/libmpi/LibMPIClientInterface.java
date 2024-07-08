@@ -1,5 +1,6 @@
 package org.jembi.jempi.libmpi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.jembi.jempi.libmpi.common.PaginatedResultSet;
@@ -63,7 +64,7 @@ public interface LibMPIClientInterface {
 
    List<GoldenRecord> findLinkCandidates(DemographicData demographicData);
 
-   ApiModels.RestoreGoldenRecord restoreGoldenRecord(ApiModels.RestoreGoldenRecord goldenRecord);
+   String restoreGoldenRecord(RestoreGoldenRecords goldenRecord) throws JsonProcessingException;
 
    List<GoldenRecord> findMatchCandidates(DemographicData demographicData);
 
