@@ -18,6 +18,7 @@ export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
+export SCALE_LINKER=1
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
