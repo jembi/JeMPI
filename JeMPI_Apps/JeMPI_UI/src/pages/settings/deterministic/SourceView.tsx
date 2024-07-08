@@ -17,7 +17,8 @@ import IconButton from '@mui/material/IconButton'
 export interface RowData {
   id: number
   ruleNumber: number
-  ruleText: string
+  ruleText: string,
+  rowIndex?: number
 }
 
 interface SourceViewProps {

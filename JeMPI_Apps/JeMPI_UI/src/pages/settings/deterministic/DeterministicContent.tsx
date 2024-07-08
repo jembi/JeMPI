@@ -13,6 +13,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { Field, Rule } from 'types/Configuration'
 import { transformFieldName } from 'utils/helpers'
 import SourceView, { RowData } from './SourceView'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
 interface DeterministicContentProps {
   demographicData: Field[]
@@ -21,7 +22,8 @@ interface DeterministicContentProps {
     link: {
       deterministic: Rule[]
     }
-  }
+  },
+  currentTab: 'link' | 'validate' | 'matchNotification'
 }
 
 export const options = [
@@ -42,35 +44,36 @@ const transformRulesToRowData = (rules: {
   return rules.link.deterministic.map((rule: Rule, index: number) => ({
     id: index,
     ruleNumber: index + 1,
-    ruleText: rule.text
+    ruleText: rule.text,
+    rowIndex: index
   }))
-}
+};
 
 const DeterministicContent = ({
   demographicData = [],
   linkingRules,
-  hasUndefinedRule
+  hasUndefinedRule,
+  currentTab
 }: DeterministicContentProps) => {
   const [viewType, setViewType] = useState<number>(0)
   const [comparators, setComparators] = useState<number[]>([])
   const [fields, setFields] = useState<string[]>([])
   const [operators, setOperators] = useState<Operator[]>([])
   const [rules, setRules] = useState<Rule[]>([])
+  const [editedRowIndex, setEditedRowIndex] = useState<number>(0);
   const [initialState, setInitialState] = useState({
     comparators: [] as number[],
     fields: [] as string[],
     operators: [] as Operator[]
   })
-
+  const { configuration, setConfiguration } = useConfiguration();
   const deterministicRules = transformRulesToRowData(linkingRules)
-
 
   useEffect(() => {
     const savedComparators = localStorage.getItem('comparators')
     const savedFields = localStorage.getItem('fields')
     const savedOperators = localStorage.getItem('operators')
     const savedRules = localStorage.getItem('rules')
-
 
     if (savedComparators || savedFields || savedOperators || savedRules) {
       const parsedRules = savedRules ? JSON.parse(savedRules) : []
@@ -116,6 +119,47 @@ const DeterministicContent = ({
     setComparators(newComparators)
   }
 
+  const handleUpdateConfiguration = (newRule: Rule) => {
+    if (!configuration) return
+    const updatedConfiguration = getUpdatedConfiguration(newRule)
+    console.log('updated config', updatedConfiguration)
+    if (updatedConfiguration) {
+      setConfiguration(updatedConfiguration);
+      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
+    }
+  }
+
+  const getUpdatedConfiguration = (newRule: Rule) => {
+    if (!configuration) return;
+
+    const updatedConfiguration = { ...configuration };
+
+    switch (currentTab) {
+      case 'link':
+        if (!updatedConfiguration.rules.link.deterministic) {
+          updatedConfiguration.rules.link.deterministic = [];
+        }
+        updatedConfiguration.rules.link.deterministic[editedRowIndex] = newRule;
+        break;
+      case 'validate':
+        if (!updatedConfiguration.rules.validate.deterministic) {
+          updatedConfiguration.rules.validate.deterministic = [];
+        }
+        updatedConfiguration.rules.validate.deterministic[editedRowIndex] = newRule;
+        break;
+      case 'matchNotification':
+        if (!updatedConfiguration.rules.matchNotification.deterministic) {
+          updatedConfiguration.rules.matchNotification.deterministic = [];
+        }
+        updatedConfiguration.rules.matchNotification.deterministic[editedRowIndex] = newRule;
+        break;
+      default:
+        return;
+    }
+
+    return updatedConfiguration;
+  };
+
   const handleFieldChange = (
     index: number,
     event: SelectChangeEvent<string>
@@ -142,18 +186,18 @@ const DeterministicContent = ({
           index > 0 ? ` ${operators[index - 1].toLowerCase()} ` : ''
         const comparator = comparators[index]
         const comparatorFunction =
-          comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`
+          comparator === 0 ? `eq(${field})` : `match(${field},${comparator})`
         return `${operator}${comparatorFunction}`
       })
       .join('')
 
-    const rule = {
-      function: comparators[0],
+    const rule: Rule = {
       vars,
       text
     }
+
     setRules([...rules, rule])
-    console.log('rules', rules)
+    handleUpdateConfiguration(rule)
     setInitialState({
       comparators: [...comparators],
       fields: [...fields],
@@ -162,16 +206,20 @@ const DeterministicContent = ({
   }
 
   const handleRowEdit = (row: RowData) => {
-    console.log('row data i still have rule and ids',row)
-    // capture the index or rule number being edited here
+    if (row.rowIndex !== undefined) {
+      setEditedRowIndex(row.rowIndex);
+    }
+
     const regex = /(eq|match)\(([^),]+)(?:, (\d+))?\)/g
-    const matchedFields = []
-    const matchedComparators = []
+    const matchedFields: string[] = []
+    const matchedComparators: number[] = []
     let match
+
     while ((match = regex.exec(row.ruleText)) !== null) {
       matchedFields.push(match[2])
       matchedComparators.push(match[1] === 'eq' ? 0 : parseInt(match[3], 10))
     }
+
     setComparators(matchedComparators)
     setFields(matchedFields)
     setOperators(new Array(matchedFields.length - 1).fill(Operator.AND))
