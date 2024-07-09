@@ -14,6 +14,7 @@ import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
+import org.apache.commons.codec.language.Soundex;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -75,7 +76,12 @@ public final class Main {
                   .stream()
                   .map(f -> new AuxInteractionData.AuxInteractionUserField(f.scName(),
                                                                            f.ccName(),
-                                                                           csvRecord.get(f.source().csvCol())))
+                                                                           f.source().csvCol() != null
+                                                                                 ?
+                                                                                 csvRecord.get(f.source().csvCol())
+                                                                                 :
+                                                                                       AppUtils.applyFunction(f.source().generate().func())
+                  ))
                   .toList());
    }
 
@@ -86,13 +92,6 @@ public final class Main {
             csvRecord.get(INPUT_INTERFACE_CONFIG.sourceIdPatientCsvCol));
    }
 
-   private static String applyFunction(final String func) {
-      return switch (func) {
-         case "AppUtils::autoGenerateId" -> AppUtils.autoGenerateId();
-         default -> null;
-      };
-   }
-
    private static DemographicData demographicData(final CSVRecord csvRecord) {
 
       final var data = new DemographicData(INPUT_INTERFACE_CONFIG.demographicDataSource
@@ -101,7 +100,7 @@ public final class Main {
                                                        f.getLeft(),
                                                        (f.getRight().csvCol() != null)
                                                              ? csvRecord.get(f.getRight().csvCol())
-                                                             : applyFunction(f.getRight().generate().func())))
+                                                             : AppUtils.applyFunction(f.getRight().generate().func())))
                                                  .toList());
 
       try {
@@ -156,7 +155,30 @@ public final class Main {
                                                updateStan(stanDate, index),
                                                null,
                                                createSessionMetadata(index, updateStan(stanDate, index), config)));
+
             for (CSVRecord csvRecord : csvParser) {
+               final var patientRecord = demographicData(csvRecord);
+               String givenName = patientRecord.fields.stream()
+                  .filter(field -> "given_name".equals(field.ccTag()))
+                  .map(DemographicData.DemographicField::value)
+                  .findFirst()
+                  .orElse("");
+               String familyName = patientRecord.fields.stream()
+                  .filter(field -> "family_name".equals(field.ccTag()))
+                  .map(DemographicData.DemographicField::value)
+                  .findFirst()
+                  .orElse("");
+
+               String partitionKey;
+               if (!givenName.isEmpty()) {
+                  partitionKey = new Soundex().soundex(givenName);
+               } else if (!familyName.isEmpty()) {
+                  partitionKey = new Soundex().soundex(familyName);
+               } else {
+                  partitionKey = "Unknown";
+               }
+               LOGGER.info("Kafka topic/partition for patient: " + partitionKey);
+
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
                                                                      updateStan(stanDate, ++index),
@@ -167,8 +189,9 @@ public final class Main {
                                                                      createSessionMetadata(index,
                                                                                            updateStan(stanDate, index),
                                                                                            config));
-               sendToKafka(UUID.randomUUID().toString(), interactionEnvelop);
+               sendToKafka(partitionKey, interactionEnvelop);
             }
+
             sendToKafka(uuid,
                         new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_END_SENTINEL,
                                                tag,
