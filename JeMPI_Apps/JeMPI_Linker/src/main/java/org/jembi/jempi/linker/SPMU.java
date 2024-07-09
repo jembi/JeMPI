@@ -19,6 +19,7 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
+import java.util.UUID;
 
 import java.util.Properties;
 import java.util.concurrent.CompletionStage;
@@ -57,13 +58,14 @@ public final class SPMU {
          final var reply = completableFuture.get(6, TimeUnit.SECONDS);
          LOGGER.debug("Update MU Request: {}", reply);
          if (reply.rc()) {
-            final SPInteractions spInteractions = SPInteractions.create(mu.tag());
-            spInteractions.open(system, backEnd);
+            LOGGER.debug("MU Updated");
          } else {
             LOGGER.error("BACK END RESPONSE(ERROR)");
+            // Add error handling
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
+         // Add error handling
          close();
       }
    }
@@ -93,7 +95,7 @@ public final class SPMU {
    private Properties loadConfig() {
       final Properties props = new Properties();
       props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.KAFKA_BOOTSTRAP_SERVERS);
-      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_MU);
+      props.put(StreamsConfig.APPLICATION_ID_CONFIG, AppConfig.KAFKA_APPLICATION_ID_MU + "-" + UUID.randomUUID().toString());
       return props;
    }
 

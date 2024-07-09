@@ -30,7 +30,7 @@
     },
     "JeMPI-interaction-linker": {
       "topicName": "JeMPI-interaction-linker",
-      "partition": 1,
+      "partition": 30,
       "replications": 1,
       "retention_ms": 86400000,
       "segments_bytes": 4194304
