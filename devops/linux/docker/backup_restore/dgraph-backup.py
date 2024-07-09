@@ -3,7 +3,6 @@ import json
 from datetime import datetime
 import os
 from dotenv import dotenv_values
-from datetime import date
 import sys
 
 env_vars = dotenv_values('../conf.env')

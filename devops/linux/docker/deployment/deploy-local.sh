@@ -151,7 +151,7 @@ restore_dgraph_db(){
     if [ "$dgraph_confirmation" == "yes" ] || [ "$dgraph_confirmation" == "y" ]; then
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
             echo "Starting Dgraph database restore..."
-            bash dgraph-restore.sh
+            bash dgraph-restore-api.sh
             echo "Database Dgraph restore completed."
         popd
     else

@@ -1,7 +1,15 @@
 import json
-import datetime
+import requests
 import sys
 import os
+from datetime import datetime
+from dotenv import dotenv_values
+
+
+env_vars = dotenv_values('../conf.env')
+
+host = env_vars['NODE1_IP']
+port = "50010"
 
 
 def main(json_file):
@@ -25,35 +33,48 @@ def main(json_file):
     print("JSON data processed successfully.")
 
 
-def process_json_data(data):
-    for item in data:
-        golden_record = item.get('goldenRecord')
-        if golden_record:
-            uid = golden_record.get('uid', 'N/A')
-            demographic_data = golden_record.get('demographicData', {})
-            given_name = demographic_data.get('givenName', 'N/A')
-            print(f"UID: {uid}, Given Name: {given_name}")
+def convert_datetime_format(date_str):
+    input_formats = [
+        "%Y-%m-%dT%H:%M:%S.%f",  # With milliseconds
+        "%Y-%m-%dT%H:%M:%S"      # Without milliseconds
+    ]
+    for input_format in input_formats:
+        try:
+            dt = datetime.strptime(date_str[:26], input_format)  # Take only the first 26 characters to match the format
+            break
+        except ValueError:
+            continue
+    else:
+        return date_str  # If the format is not correct, return the original string
+    
+    output_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+    output_str = dt.strftime(output_format)
+    output_str = output_str[:23] + 'Z'  # Keep only the first 2 decimal places of the seconds part
+    return output_str
 
-            source_ids = golden_record.get('sourceId', [])
-            if isinstance(source_ids, list):
-                for source_id in source_ids:
-                    facility = source_id.get('facility', 'N/A')
-                    patient = source_id.get('patient', 'N/A')
-                    print(f"  Facility: {facility}, Patient: {patient}")
-            else:
-                print("  No source IDs found or source IDs not in expected format.")
-
-        interactions_with_score = item.get('interactionsWithScore', [])
-        if isinstance(interactions_with_score, list):
-            for interaction in interactions_with_score:
-                interaction_data = interaction.get('interaction', {})
-                interaction_uid = interaction_data.get('uid', 'N/A')
-                interaction_demographic_data = interaction_data.get('demographicData', {})
-                interaction_given_name = interaction_demographic_data.get('givenName', 'N/A')
-                print(f"  Interaction UID: {interaction_uid}, Given Name: {interaction_given_name}")
-        else:
-            print("  No interactions found or interactions not in expected format.")
-
+def process_json_data(golden_records):
+    
+    for golden_record in golden_records:
+        
+        golden_record['goldenRecord']['uniqueGoldenRecordData']['auxDateCreated'] = convert_datetime_format(
+        golden_record['goldenRecord']['uniqueGoldenRecordData']['auxDateCreated'])
+        for interaction in golden_record['interactionsWithScore']:
+            interaction['interaction']['uniqueInteractionData']['auxDateCreated'] = convert_datetime_format(
+                interaction['interaction']['uniqueInteractionData']['auxDateCreated']
+            )
+        
+        
+        response = send_golden_record_to_api(golden_record)
+        print(response.text)
+    
+def send_golden_record_to_api(golden_record_payload):
+    get_expanded_golden_record_url = f'http://{host}:{port}/JeMPI/restoreGoldenRecord'
+    payload = json.dumps(golden_record_payload)
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    response = requests.post(get_expanded_golden_record_url, headers=headers, data=payload)
+    return response
 
 if __name__ == "__main__":
     # Check if a JSON file path is provided as an argument
