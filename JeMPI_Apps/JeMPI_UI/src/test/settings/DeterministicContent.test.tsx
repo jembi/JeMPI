@@ -14,7 +14,9 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
-        hasUndefinedRule={false} currentTab={'link'}      />
+        hasUndefinedRule={false}
+        currentTab={'link'}
+      />
     )
     expect(container).toMatchSnapshot()
   })
@@ -24,7 +26,9 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
-        hasUndefinedRule={false} currentTab={'link'}      />
+        hasUndefinedRule={false}
+        currentTab={'link'}
+      />
     )
 
     const selectComparator = document.getElementById(
@@ -41,7 +45,9 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
-        hasUndefinedRule={false} currentTab={'link'}      />
+        hasUndefinedRule={false}
+        currentTab={'link'}
+      />
     )
     const selectField = document.getElementById('select-field')
     if (selectField) {
@@ -55,7 +61,9 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
-        hasUndefinedRule={false} currentTab={'link'}      />
+        hasUndefinedRule={false}
+        currentTab={'link'}
+      />
     )
     const selectOperator = document.getElementById('select operator')
     if (selectOperator) {
@@ -69,7 +77,9 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
-        hasUndefinedRule={false} currentTab={'link'}      />
+        hasUndefinedRule={false}
+        currentTab={'link'}
+      />
     )
     const addRuleButton = document.getElementById('add-rule-button')
     if (addRuleButton) {
@@ -84,7 +94,9 @@ describe('DeterministicContent', () => {
       <DeterministicContent
         demographicData={demographicData}
         linkingRules={linkingRules}
-        hasUndefinedRule={false} currentTab={'link'}      />
+        hasUndefinedRule={false}
+        currentTab={'link'}
+      />
     )
     const closeButton = document.getElementById('close-button')
     const sourceViewBUtton = document.getElementById('')

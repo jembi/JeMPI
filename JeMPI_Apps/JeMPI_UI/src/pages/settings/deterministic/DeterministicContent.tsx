@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Button,
@@ -22,7 +22,7 @@ interface DeterministicContentProps {
     link: {
       deterministic: Rule[]
     }
-  },
+  }
   currentTab: 'link' | 'validate' | 'matchNotification'
 }
 
@@ -47,7 +47,20 @@ const transformRulesToRowData = (rules: {
     ruleText: rule.text,
     rowIndex: index
   }))
-};
+}
+
+const useLocalStorageState = <T,>(key: string, defaultValue: T) => {
+  const [state, setState] = useState<T>(() => {
+    const storedValue = localStorage.getItem(key)
+    return storedValue ? JSON.parse(storedValue) : defaultValue
+  })
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state))
+  }, [state, key])
+
+  return [state, setState] as const
+}
 
 const DeterministicContent = ({
   demographicData = [],
@@ -55,60 +68,20 @@ const DeterministicContent = ({
   hasUndefinedRule,
   currentTab
 }: DeterministicContentProps) => {
-  const [viewType, setViewType] = useState<number>(0)
-  const [comparators, setComparators] = useState<number[]>([])
-  const [fields, setFields] = useState<string[]>([])
-  const [operators, setOperators] = useState<Operator[]>([])
-  const [rules, setRules] = useState<Rule[]>([])
-  const [editedRowIndex, setEditedRowIndex] = useState<number>(0);
-  const [initialState, setInitialState] = useState({
-    comparators: [] as number[],
-    fields: [] as string[],
-    operators: [] as Operator[]
-  })
-  const { configuration, setConfiguration } = useConfiguration();
+  const [viewType, setViewType] = useState(0)
+  const [comparators, setComparators] = useLocalStorageState<number[]>(
+    'comparators',
+    []
+  )
+  const [fields, setFields] = useLocalStorageState<string[]>('fields', [])
+  const [operators, setOperators] = useLocalStorageState<Operator[]>(
+    'operators',
+    []
+  )
+  const [rules, setRules] = useLocalStorageState<Rule[]>('rules', [])
+  const [editedRowIndex, setEditedRowIndex] = useState<number>(0)
+  const { configuration, setConfiguration } = useConfiguration()
   const deterministicRules = transformRulesToRowData(linkingRules)
-
-  useEffect(() => {
-    const savedComparators = localStorage.getItem('comparators')
-    const savedFields = localStorage.getItem('fields')
-    const savedOperators = localStorage.getItem('operators')
-    const savedRules = localStorage.getItem('rules')
-
-    if (savedComparators || savedFields || savedOperators || savedRules) {
-      const parsedRules = savedRules ? JSON.parse(savedRules) : []
-      setRules(parsedRules)
-      const parsedComparators = savedComparators
-        ? JSON.parse(savedComparators)
-        : []
-      const parsedFields = savedFields ? JSON.parse(savedFields) : []
-      const parsedOperators = savedOperators ? JSON.parse(savedOperators) : []
-      setComparators(parsedComparators)
-      setFields(parsedFields)
-      setOperators(parsedOperators)
-      setInitialState({
-        comparators: parsedComparators,
-        fields: parsedFields,
-        operators: parsedOperators
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('comparators', JSON.stringify(comparators))
-  }, [comparators])
-
-  useEffect(() => {
-    localStorage.setItem('fields', JSON.stringify(fields))
-  }, [fields])
-
-  useEffect(() => {
-    localStorage.setItem('operators', JSON.stringify(operators))
-  }, [operators])
-
-  useEffect(() => {
-    localStorage.setItem('rules', JSON.stringify(rules))
-  }, [rules])
 
   const handleComparatorChange = (
     index: number,
@@ -118,44 +91,6 @@ const DeterministicContent = ({
     newComparators[index] = event.target.value as number
     setComparators(newComparators)
   }
-
-  const handleUpdateConfiguration = (newRule: Rule) => {
-    if (!configuration) return
-    const updatedConfiguration = getUpdatedConfiguration(newRule)
-    if (updatedConfiguration) {
-      setConfiguration(updatedConfiguration);
-      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
-    }
-  }
-
-  const getUpdatedConfiguration = (newRule: Rule) => {
-    if (!configuration) return;
-    const updatedConfiguration = { ...configuration };
-    switch (currentTab) {
-      case 'link':
-        if (!updatedConfiguration.rules.link) {
-          updatedConfiguration.rules.link = { deterministic: [] };
-        }
-        updatedConfiguration.rules.link.deterministic[editedRowIndex] = newRule;
-        break;
-      case 'validate':
-        if (!updatedConfiguration.rules.validate) {
-          updatedConfiguration.rules.validate = { deterministic: [] };
-        }
-        updatedConfiguration.rules.validate.deterministic[editedRowIndex] = newRule;
-        break;
-      case 'matchNotification':
-        if (!updatedConfiguration.rules.matchNotification) {
-          updatedConfiguration.rules.matchNotification = { deterministic: [] };
-        }
-        updatedConfiguration.rules.matchNotification.deterministic[editedRowIndex] = newRule;
-        break;
-      default:
-        return;
-    }
-    return updatedConfiguration;
-  };
-  
 
   const handleFieldChange = (
     index: number,
@@ -175,36 +110,19 @@ const DeterministicContent = ({
     setOperators(newOperators)
   }
 
-  const handleAddRule = () => {
-    const vars = fields.filter(field => field !== '')
-    const text = vars
-      .map((field, index) => {
-        const operator =
-          index > 0 ? ` ${operators[index - 1].toLowerCase()} ` : ''
-        const comparator = comparators[index]
-        const comparatorFunction =
-          comparator === 0 ? `eq(${field})` : `match(${field},${comparator})`
-        return `${operator}${comparatorFunction}`
-      })
-      .join('')
+  const handleAddRow = () => {
+    setComparators([...comparators, 0])
+    setFields([...fields, ''])
+    setOperators([...operators, Operator.AND])
+  }
 
-    const rule: Rule = {
-      vars,
-      text
-    }
-
-    setRules([...rules, rule])
-    handleUpdateConfiguration(rule)
-    setInitialState({
-      comparators: [...comparators],
-      fields: [...fields],
-      operators: [...operators]
-    })
+  const handleClose = () => {
+    setViewType(0)
   }
 
   const handleRowEdit = (row: RowData) => {
     if (row.rowIndex !== undefined) {
-      setEditedRowIndex(row.rowIndex);
+      setEditedRowIndex(row.rowIndex)
     }
 
     const regex = /(eq|match)\(([^),]+)(?:, (\d+))?\)/g
@@ -223,17 +141,7 @@ const DeterministicContent = ({
     setViewType(1)
   }
 
-  const handleAddRow = () => {
-    setComparators([...comparators, 0])
-    setFields([...fields, ''])
-    setOperators([...operators, Operator.AND])
-  }
-
-  const handleClose = () => {
-    setViewType(0)
-  }
-
-  const isAddRuleDisabled = () => {
+  const isAddRuleDisabled = useCallback(() => {
     if (
       fields.length === 0 ||
       fields.some(field => field.length === 0) ||
@@ -244,19 +152,92 @@ const DeterministicContent = ({
       return true
     }
 
-    return (
-      JSON.stringify(initialState) ===
-      JSON.stringify({
-        comparators,
-        fields,
-        operators
+    return false
+  }, [fields, operators])
+
+  const handleAddRule = useCallback(() => {
+    const vars = fields.filter(field => field !== '')
+    const text = vars
+      .map((field, index) => {
+        const operator =
+          index > 0 ? ` ${operators[index - 1].toLowerCase()} ` : ''
+        const comparator = comparators[index]
+        const comparatorFunction =
+          comparator === 0 ? `eq(${field})` : `match(${field},${comparator})`
+        return `${operator}${comparatorFunction}`
       })
-    )
-  }
+      .join('')
+
+    const rule: Rule = { vars, text }
+
+    handleUpdateConfiguration(rule)
+
+    setRules([...rules, rule])
+    setComparators([])
+    setFields([])
+    setOperators([])
+    setViewType(0)
+  }, [
+    comparators,
+    fields,
+    operators,
+    rules,
+    setComparators,
+    setFields,
+    setOperators,
+    setRules
+  ])
 
   const handleAddUndefinedRule = () => {
     handleAddRow()
     setViewType(1)
+  }
+
+  const handleUpdateConfiguration = (newRule: Rule) => {
+    if (!configuration) return
+    const updatedConfiguration = getUpdatedConfiguration(newRule)
+    if (updatedConfiguration) {
+      setConfiguration(updatedConfiguration)
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
+    }
+  }
+
+  const getUpdatedConfiguration = (newRule: Rule) => {
+    if (!configuration) return
+
+    const updatedConfiguration = { ...configuration }
+
+    switch (currentTab) {
+      case 'link':
+        if (!updatedConfiguration.rules.link) {
+          updatedConfiguration.rules.link = { deterministic: [] }
+        }
+        updatedConfiguration.rules.link.deterministic[editedRowIndex] = newRule
+        break
+      case 'validate':
+        if (!updatedConfiguration.rules.validate) {
+          updatedConfiguration.rules.validate = { deterministic: [] }
+        }
+        updatedConfiguration.rules.validate.deterministic[editedRowIndex] =
+          newRule
+        break
+      case 'matchNotification':
+        if (!updatedConfiguration.rules.matchNotification) {
+          updatedConfiguration.rules.matchNotification = { deterministic: [] }
+        }
+        updatedConfiguration.rules.matchNotification.deterministic[
+          editedRowIndex
+        ] = newRule
+
+        break
+      default:
+        return
+    }
+
+    return updatedConfiguration
   }
 
   return (
