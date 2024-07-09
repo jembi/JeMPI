@@ -122,7 +122,6 @@ const DeterministicContent = ({
   const handleUpdateConfiguration = (newRule: Rule) => {
     if (!configuration) return
     const updatedConfiguration = getUpdatedConfiguration(newRule)
-    console.log('updated config', updatedConfiguration)
     if (updatedConfiguration) {
       setConfiguration(updatedConfiguration);
       localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
@@ -131,34 +130,32 @@ const DeterministicContent = ({
 
   const getUpdatedConfiguration = (newRule: Rule) => {
     if (!configuration) return;
-
     const updatedConfiguration = { ...configuration };
-
     switch (currentTab) {
       case 'link':
-        if (!updatedConfiguration.rules.link.deterministic) {
-          updatedConfiguration.rules.link.deterministic = [];
+        if (!updatedConfiguration.rules.link) {
+          updatedConfiguration.rules.link = { deterministic: [] };
         }
         updatedConfiguration.rules.link.deterministic[editedRowIndex] = newRule;
         break;
       case 'validate':
-        if (!updatedConfiguration.rules.validate.deterministic) {
-          updatedConfiguration.rules.validate.deterministic = [];
+        if (!updatedConfiguration.rules.validate) {
+          updatedConfiguration.rules.validate = { deterministic: [] };
         }
         updatedConfiguration.rules.validate.deterministic[editedRowIndex] = newRule;
         break;
       case 'matchNotification':
-        if (!updatedConfiguration.rules.matchNotification.deterministic) {
-          updatedConfiguration.rules.matchNotification.deterministic = [];
+        if (!updatedConfiguration.rules.matchNotification) {
+          updatedConfiguration.rules.matchNotification = { deterministic: [] };
         }
         updatedConfiguration.rules.matchNotification.deterministic[editedRowIndex] = newRule;
         break;
       default:
         return;
     }
-
     return updatedConfiguration;
   };
+  
 
   const handleFieldChange = (
     index: number,
