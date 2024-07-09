@@ -209,33 +209,18 @@ const DeterministicContent = ({
     if (!configuration) return
 
     const updatedConfiguration = { ...configuration }
+    const ruleType =
+      currentTab === 'link'
+        ? 'link'
+        : currentTab === 'validate'
+        ? 'validate'
+        : 'matchNotification'
 
-    switch (currentTab) {
-      case 'link':
-        if (!updatedConfiguration.rules.link) {
-          updatedConfiguration.rules.link = { deterministic: [] }
-        }
-        updatedConfiguration.rules.link.deterministic[editedRowIndex] = newRule
-        break
-      case 'validate':
-        if (!updatedConfiguration.rules.validate) {
-          updatedConfiguration.rules.validate = { deterministic: [] }
-        }
-        updatedConfiguration.rules.validate.deterministic[editedRowIndex] =
-          newRule
-        break
-      case 'matchNotification':
-        if (!updatedConfiguration.rules.matchNotification) {
-          updatedConfiguration.rules.matchNotification = { deterministic: [] }
-        }
-        updatedConfiguration.rules.matchNotification.deterministic[
-          editedRowIndex
-        ] = newRule
-
-        break
-      default:
-        return
+    if (!updatedConfiguration.rules[ruleType]) {
+      updatedConfiguration.rules[ruleType] = { deterministic: [] }
     }
+
+    updatedConfiguration.rules[ruleType].deterministic[editedRowIndex] = newRule
 
     return updatedConfiguration
   }
