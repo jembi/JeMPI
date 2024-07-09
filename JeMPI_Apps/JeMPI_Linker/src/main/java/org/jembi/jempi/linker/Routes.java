@@ -278,7 +278,7 @@ final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return entity(Jackson.unmarshaller(ApiModels.ApiCrUpdateFieldsRequest.class),
-                    obj -> onComplete(Ask.patchCrUpdateField(actorSystem, backEnd, obj), response -> {
+                    obj -> onComplete(Ask.postCrUpdateField(actorSystem, backEnd, obj), response -> {
                        if (!response.isSuccess()) {
                           final var e = response.failed().get();
                           LOGGER.error(e.getLocalizedMessage(), e);
