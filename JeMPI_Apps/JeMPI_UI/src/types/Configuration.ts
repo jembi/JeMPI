@@ -9,8 +9,8 @@ export interface LinkMetaData {
   m: number;
   u: number;
 }
-export type FieldType = 'String' | 'DateTime' | 'Bool' | 'Number';
 
+export type FieldType = 'String' | 'DateTime' | 'Bool' | 'Number';
 
 export interface Field {
   id?: string;
@@ -23,9 +23,11 @@ export interface Field {
   linkMetaData?: LinkMetaData;
 }
 
+
+
 export interface CustomNode {
   id?: string;
-  name: string;
+  nodeName: string;
   fields: Field[];
 }
 
@@ -33,6 +35,9 @@ export interface Rule {
   id?: string;
   vars: string[];
   text: string;
+  linkThreshold?: number; 
+  marginWindowSize?: number; 
+  reviewThresholdRange?: { low: number, high: number }; 
 }
 
 export interface LinkingRules {
