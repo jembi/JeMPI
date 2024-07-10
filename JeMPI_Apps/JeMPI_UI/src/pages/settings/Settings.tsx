@@ -19,9 +19,11 @@ import { useSnackbar } from 'notistack'
 const Settings = () => {
   const [value, setValue] = useState(0)
   const [configurationData, setConfigurationData] = useState(() => {
-    const storedData = localStorage.getItem('configuration');
-    return storedData ? generateId(JSON.parse(storedData)) : ({} as Configuration);
-  });
+    const storedData = localStorage.getItem('configuration')
+    return storedData
+      ? generateId(JSON.parse(storedData))
+      : ({} as Configuration)
+  })
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const { apiClient } = useConfig();
@@ -137,10 +139,7 @@ const Settings = () => {
             <GoldenRecordLists/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-            <Deterministic
-              rules={configurationData.rules}
-              demographicData={configurationData.demographicFields || []}
-            />
+            <Deterministic />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
             <Blocking
