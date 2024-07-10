@@ -133,7 +133,7 @@ final class Ask {
       });
    }
 
-   static CompletionStage<BackEnd.CrUpdateFieldResponse> patchCrUpdateField(
+   static CompletionStage<BackEnd.CrUpdateFieldResponse> postCrUpdateField(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,
          final ApiModels.ApiCrUpdateFieldsRequest body) {
