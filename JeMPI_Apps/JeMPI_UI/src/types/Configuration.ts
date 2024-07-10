@@ -27,7 +27,7 @@ export interface Field {
 
 export interface CustomNode {
   id?: string;
-  name: string;
+  nodeName: string;
   fields: Field[];
 }
 

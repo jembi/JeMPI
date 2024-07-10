@@ -39,8 +39,8 @@ const GoldenRecordLists = () => {
     if (configuration && configuration.additionalNodes) {
       const rowsWithIds = configuration.additionalNodes.flatMap((node: CustomNode, nodeIndex: number) => {
         return node.fields.map((field, fieldIndex) => ({
-          id: `${node.name}_${nodeIndex}_${fieldIndex}`,
-          nodeName: node.name,
+          id: `${node.nodeName}_${nodeIndex}_${fieldIndex}`,
+          nodeName: node.nodeName,
           fieldName: field.fieldName,
           fieldType: field.fieldType,
           csvCol: field.source?.csvCol ?? 0,
@@ -81,7 +81,7 @@ const GoldenRecordLists = () => {
 
     const updatedNode = { ...currentConfig.additionalNodes[nodeIndex] };
     if (nodeName !== null) {
-      updatedNode.name = nodeName;
+      updatedNode.nodeName = nodeName;
     }
 
     updatedNode.fields = updatedNode.fields.map((field, index) => {
@@ -123,10 +123,8 @@ const GoldenRecordLists = () => {
 
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
-    setRowModesModel(newRowModesModel);
-  };
+    setRowModesModel(newRowModesModel)
+  }
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -189,7 +187,6 @@ const GoldenRecordLists = () => {
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
@@ -197,7 +194,6 @@ const GoldenRecordLists = () => {
               key="save"
               id="save-button"
               label="Save"
-              sx={{ color: 'white' }}
               sx={{ color: 'white' }}
               onClick={handleSaveClick(id)}
             />,
