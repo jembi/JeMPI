@@ -10,6 +10,8 @@ import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration } from 'types/Configuration'
 import { LoadingButton } from '@mui/lab'
 import { useEffect, useState } from 'react'
+import { useSnackbar } from 'notistack'
+
 
 interface Rule {
   vars: string[]
@@ -31,6 +33,7 @@ const Probabilistic = () => {
       high: defaultValues.maxReviewThreshold
     }
   })
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
     if (configuration) {
@@ -76,6 +79,9 @@ const Probabilistic = () => {
 
     setConfiguration(updatedConfiguration)
     localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
+    enqueueSnackbar(`Successfully saved probabilistic rule`, {
+      variant: 'success'
+    })
   }
 
   const initialValues = initializeValues(rule)

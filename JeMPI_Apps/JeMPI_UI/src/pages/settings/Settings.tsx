@@ -14,6 +14,7 @@ import { Configuration } from 'types/Configuration'
 import { generateId } from 'utils/helpers'
 import Probabilistic from './probabilistic/Probabilistic'
 import { useConfig } from 'hooks/useConfig';
+import { useSnackbar } from 'notistack'
 
 const Settings = () => {
   const [value, setValue] = useState(0)
@@ -28,15 +29,21 @@ const Settings = () => {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleSave = async () => {
     setIsSaving(true);
     const response = await apiClient.saveConfiguration();
     setIsSaving(false);
     if (response && response.response === 'ok') {
-      console.log('handleSave result', response.data);
+      enqueueSnackbar(`Successfully saved configuration`, {
+        variant: 'success'
+      })
     }
     if (response && response.response === 'error') {
+      enqueueSnackbar(`Error saving configuration`, {
+        variant: 'error'
+      })
       console.log('handleSave error', response.data);
     }
   };
@@ -117,21 +124,13 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the golden record
             </Typography>
-            <UniqueToGR
-              uniqueToGoldenRecordData={
-                configurationData?.auxGoldenRecordFields || []
-              }
-            />
+            <UniqueToGR/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the interaction
             </Typography>
-            <UniqueToInteraction
-              uniqueInteractionData={
-                configurationData?.auxInteractionFields || []
-              }
-            />
+            <UniqueToInteraction/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
