@@ -45,18 +45,22 @@ public final class SPInteractions {
                                           batchPatient = updateControllerMetadataTimeStamp(batchPatient);
                                           return batchPatient.sessionMetadata()
                                                              .commonMetaData()
-                                                             .uploadConfig()
-                                                             .uploadWorkflow()
-                                                             .equals(UploadConfig.UploadWorkflow.UPLOAD_WORKFLOW_EM);
-                                       },
+                                                             .uploadConfig() != null && batchPatient.sessionMetadata()
+                                                                                                    .commonMetaData()
+                                                                                                    .uploadConfig()
+                                                                                                    .uploadWorkflow()
+                                                                                                    .equals(UploadConfig.UploadWorkflow.UPLOAD_WORKFLOW_EM);
+                                             },
                                        Branched.withConsumer((ks) -> ks.to(GlobalConstants.TOPIC_INTERACTION_EM)))
                                .branch((key, batchPatient) -> {
                                           batchPatient = updateControllerMetadataTimeStamp(batchPatient);
                                           return batchPatient.sessionMetadata()
                                                              .commonMetaData()
-                                                             .uploadConfig()
-                                                             .uploadWorkflow()
-                                                             .equals(UploadConfig.UploadWorkflow.UPLOAD_WORKFLOW_LINK);
+                                                             .uploadConfig() == null || batchPatient.sessionMetadata()
+                                                                                                    .commonMetaData()
+                                                                                                    .uploadConfig()
+                                                                                                    .uploadWorkflow()
+                                                                                                    .equals(UploadConfig.UploadWorkflow.UPLOAD_WORKFLOW_LINK);
                                        },
                                        Branched.withConsumer((ks) -> ks.to(GlobalConstants.TOPIC_INTERACTION_LINKER)))
                                .noDefaultBranch();

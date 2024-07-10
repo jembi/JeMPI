@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jembi.jempi.shared.config.input.Source;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ConfigurationModel(
@@ -22,7 +23,7 @@ public record ConfigurationModel(
                         String fieldName,
                         String fieldType,
                         Integer csvCol,
-                        SourceDetail source,
+                        Source source,
                         @JsonProperty("default") boolean defaultValue) {
         }
 
@@ -34,15 +35,10 @@ public record ConfigurationModel(
         public record DemographicField(
                         String fieldName,
                         String fieldType,
-                        SourceDetail source,
+                        Source source,
                         String indexGoldenRecord,
                         String indexInteraction,
                         LinkMetaData linkMetaData) {
-        }
-
-        public record SourceDetail(
-              int csvCol,
-              String interactionField) {
         }
 
         public record LinkMetaData(
@@ -53,17 +49,32 @@ public record ConfigurationModel(
         }
 
         public record Rules(
-                        LinkRules link) {
+                        LinkRules link,
+                        LinkRules matchNotification,
+                        LinkRules validate) {
         }
 
-        public record Rule(
+        public record DeterministicRule(
               List<String> vars,
               String text) {
         }
 
+        public record ProbabilisticRule(
+              List<String> vars,
+              String text,
+              double linkThreshold,
+              double marginWindowSize,
+              ReviewThresholdRange reviewThresholdRange) {
+        }
+
+        public record ReviewThresholdRange(
+              double low,
+              double high) {
+        }
+
         public record LinkRules(
-                        List<Rule> deterministic,
-                        List<Rule> probabilistic) {
+                        List<DeterministicRule> deterministic,
+                        List<ProbabilisticRule> probabilistic) {
         }
 
 }

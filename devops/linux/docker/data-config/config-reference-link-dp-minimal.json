@@ -84,7 +84,6 @@
         "csvCol": 1
       },
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -101,7 +100,6 @@
         "csvCol": 2
       },
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [
@@ -181,7 +179,6 @@
         "csvCol": 7
       },
       "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
       "linkMetaData": {
         "comparison": "JARO_WINKLER_SIMILARITY",
         "comparisonLevels": [

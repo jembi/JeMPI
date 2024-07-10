@@ -125,9 +125,12 @@ const GoldenRecordLists = () => {
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel);
   };
+    setRowModesModel(newRowModesModel);
+  };
 
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
       event.defaultMuiPrevented = true;
     }
   };
@@ -186,6 +189,7 @@ const GoldenRecordLists = () => {
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
           return [
             <GridActionsCellItem
@@ -193,6 +197,7 @@ const GoldenRecordLists = () => {
               key="save"
               id="save-button"
               label="Save"
+              sx={{ color: 'white' }}
               sx={{ color: 'white' }}
               onClick={handleSaveClick(id)}
             />,
