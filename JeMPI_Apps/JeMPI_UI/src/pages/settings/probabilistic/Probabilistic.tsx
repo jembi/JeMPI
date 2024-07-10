@@ -209,7 +209,7 @@ const Probabilistic = () => {
                   >
                     <Grid item xs={4}>
                       <Typography sx={{ color: 'red' }}>
-                        Review Threshold range
+                        Min Review Threshold
                       </Typography>
                     </Grid>
                     <Grid item xs={4}>
