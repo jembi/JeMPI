@@ -166,7 +166,7 @@ const CommonSettings = () => {
       valueGetter: params => {
         const linkMetaData = params.row.linkMetaData
         if (linkMetaData && typeof linkMetaData.m === 'number') {
-          return linkMetaData.m.toFixed(1)
+          return linkMetaData.m.toFixed(7)
         }
         return
       }
@@ -182,7 +182,7 @@ const CommonSettings = () => {
       valueGetter: params => {
         const linkMetaData = params.row.linkMetaData
         if (linkMetaData && typeof linkMetaData.u === 'number') {
-          return linkMetaData.u.toFixed(2)
+          return linkMetaData.u.toFixed(7)
         }
       }
     },
