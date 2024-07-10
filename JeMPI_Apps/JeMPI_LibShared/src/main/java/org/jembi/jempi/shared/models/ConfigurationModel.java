@@ -49,17 +49,32 @@ public record ConfigurationModel(
         }
 
         public record Rules(
-                        LinkRules link) {
+                        LinkRules link,
+                        LinkRules matchNotification,
+                        LinkRules validate) {
         }
 
-        public record Rule(
+        public record DeterministicRule(
               List<String> vars,
               String text) {
         }
 
+        public record ProbabilisticRule(
+              List<String> vars,
+              String text,
+              double linkThreshold,
+              double marginWindowSize,
+              ReviewThresholdRange reviewThresholdRange) {
+        }
+
+        public record ReviewThresholdRange(
+              double low,
+              double high) {
+        }
+
         public record LinkRules(
-                        List<Rule> deterministic,
-                        List<Rule> probabilistic) {
+                        List<DeterministicRule> deterministic,
+                        List<ProbabilisticRule> probabilistic) {
         }
 
 }
