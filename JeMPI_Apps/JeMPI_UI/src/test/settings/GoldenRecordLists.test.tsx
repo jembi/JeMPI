@@ -4,19 +4,27 @@ import userEvent from '@testing-library/user-event';
 import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
 import GoldenRecordLists from 'pages/settings/goldenRecordLists/GoldenRecordLists';
+import { useConfiguration } from 'hooks/useUIConfiguration';
 
+jest.mock('hooks/useUIConfiguration', () => ({
+  useConfiguration: jest.fn(),
+}));
 
 describe('GoldenRecordLists', () => {
-  const goldenRecordListsWithIds = mockData.configuration.auxGoldenRecordFields.map((row, index) => ({
-    ...row,
-    id: `row_${index}`, 
-  }));
+  const mockConfiguration = mockData.configuration.additionalNodes;
+
+  beforeEach(() => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      configuration: mockConfiguration,
+      setConfiguration: jest.fn(),
+    });
+  });
   it('renders without crashing', () => {
-    render(<GoldenRecordLists goldenRecordList={goldenRecordListsWithIds} />);
+    render(<GoldenRecordLists  />);
   });
 
   it('handles edit mode', async () => {
-    render(<GoldenRecordLists goldenRecordList={goldenRecordListsWithIds} />);
+    render(<GoldenRecordLists />);
   
     const editIcon = await waitFor(() => document.getElementById('edit-button'));
     const saveButton = await waitFor(() => document.getElementById('save-button'));
