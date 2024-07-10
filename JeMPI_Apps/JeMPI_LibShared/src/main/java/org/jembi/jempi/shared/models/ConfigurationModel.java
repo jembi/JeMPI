@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jembi.jempi.shared.config.input.Source;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ConfigurationModel(
@@ -22,7 +23,7 @@ public record ConfigurationModel(
                         String fieldName,
                         String fieldType,
                         Integer csvCol,
-                        SourceDetail source,
+                        Source source,
                         @JsonProperty("default") boolean defaultValue) {
         }
 
@@ -34,15 +35,10 @@ public record ConfigurationModel(
         public record DemographicField(
                         String fieldName,
                         String fieldType,
-                        SourceDetail source,
+                        Source source,
                         String indexGoldenRecord,
                         String indexInteraction,
                         LinkMetaData linkMetaData) {
-        }
-
-        public record SourceDetail(
-              int csvCol,
-              String interactionField) {
         }
 
         public record LinkMetaData(

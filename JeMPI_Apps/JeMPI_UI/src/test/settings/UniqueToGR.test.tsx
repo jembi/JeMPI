@@ -4,20 +4,28 @@ import userEvent from '@testing-library/user-event';
 import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
 import UniqueToGR from 'pages/settings/uniqueToGR/UniqueToGR';
+import { useConfiguration } from 'hooks/useUIConfiguration';
 
+jest.mock('hooks/useUIConfiguration', () => ({
+  useConfiguration: jest.fn(),
+}));
 
 describe('UniqueToGR', () => {
-  const uniqueGoldenRecordFieldsWithIds = mockData.configuration.auxGoldenRecordFields.map((row, index) => ({
-    ...row,
-    id: `row_${index}`, 
-  }));
+  const mockConfiguration = mockData.configuration.auxGoldenRecordFields;
+
+  beforeEach(() => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      configuration: mockConfiguration,
+      setConfiguration: jest.fn(),
+    });
+  });
   it('renders without crashing', () => {
-    render(<UniqueToGR uniqueToGoldenRecordData={uniqueGoldenRecordFieldsWithIds} />);
+    render(<UniqueToGR />);
   });
 
   it('handles edit mode', async () => {
     
-    render(<UniqueToGR uniqueToGoldenRecordData={uniqueGoldenRecordFieldsWithIds} />);
+    render(<UniqueToGR  />);
     const editIcon = document.getElementById('edit-button');
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');

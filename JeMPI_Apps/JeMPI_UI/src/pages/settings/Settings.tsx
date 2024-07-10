@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Grid, Tab, Tabs, Typography } from '@mui/material'
+import { Grid, Tab, Tabs, Typography, Button } from '@mui/material'
 import { Box } from '@mui/system'
 import { SyntheticEvent } from 'react'
 import CommonSettings from './common/Common'
@@ -13,19 +13,33 @@ import { CustomTabPanel, a11yProps } from './deterministic/BasicTabs'
 import { Configuration } from 'types/Configuration'
 import { generateId } from 'utils/helpers'
 import Probabilistic from './probabilistic/Probabilistic'
+import { useConfig } from 'hooks/useConfig';
 
 const Settings = () => {
   const [value, setValue] = useState(0)
   const [configurationData, setConfigurationData] = useState(() => {
-    const storedData = localStorage.getItem('configuration')
-    return storedData
-      ? generateId(JSON.parse(storedData))
-      : ({} as Configuration)
-  })
+    const storedData = localStorage.getItem('configuration');
+    return storedData ? generateId(JSON.parse(storedData)) : ({} as Configuration);
+  });
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const { apiClient } = useConfig();
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
-    setValue(newValue)
-  }
+    setValue(newValue);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const response = await apiClient.saveConfiguration();
+    setIsSaving(false);
+    if (response && response.response === 'ok') {
+      console.log('handleSave result', response.data);
+    }
+    if (response && response.response === 'error') {
+      console.log('handleSave error', response.data);
+    }
+  };
 
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
@@ -144,6 +158,23 @@ const Settings = () => {
               <Probabilistic />
             </Typography>
           </CustomTabPanel>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 2 }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              {/* <Button variant="outlined" color="secondary">Edit</Button>
+              <Button variant="outlined" color="secondary">Clear</Button>
+              <Button variant="outlined" color="secondary">Set to Reference</Button> */}
+            </Box>
+            <Box>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handleSave} 
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </Grid>
     </Grid>

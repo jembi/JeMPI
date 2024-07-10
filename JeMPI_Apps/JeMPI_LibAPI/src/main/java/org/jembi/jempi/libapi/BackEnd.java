@@ -126,27 +126,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     fieldsConfigurationFileName));
    }
 
-   private static void appendUploadConfigToFile(
-         final UploadConfig uploadConfig,
-         final File file) throws IOException {
-      LineIterator lineIterator = FileUtils.lineIterator(file);
-      File tempFile = File.createTempFile("prependPrefix", ".tmp");
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
-
-      try {
-         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
-         while (lineIterator.hasNext()) {
-            bufferedWriter.write(lineIterator.next());
-            bufferedWriter.write(System.lineSeparator());
-         }
-      } finally {
-         IOUtils.closeQuietly(bufferedWriter);
-         bufferedWriter.close();
-      }
-      FileUtils.deleteQuietly(file);
-      FileUtils.moveFile(tempFile, file);
-   }
-
    private void openMPI(
          final String kafkaBootstrapServers,
          final String kafkaClientId,
@@ -252,6 +231,28 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       var recs = libMPI.filterGids(parameters, createdAt, paginationOptions);
       request.replyTo.tell(new PostFilterGidsResponse(recs));
       return Behaviors.same();
+   }
+
+   private static void appendUploadConfigToFile(
+         final UploadConfig uploadConfig,
+         final File file) throws IOException {
+      LineIterator lineIterator = FileUtils.lineIterator(file);
+      File tempFile = File.createTempFile("prependPrefix", ".tmp");
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile));
+
+      try {
+         bufferedWriter.write(AppUtils.OBJECT_MAPPER.writeValueAsString(uploadConfig));
+         bufferedWriter.newLine();
+         while (lineIterator.hasNext()) {
+            bufferedWriter.write(lineIterator.next());
+            bufferedWriter.write(System.lineSeparator());
+         }
+      } finally {
+         IOUtils.closeQuietly(bufferedWriter);
+         bufferedWriter.close();
+      }
+      FileUtils.deleteQuietly(file);
+      FileUtils.moveFile(tempFile, file);
    }
 
    private Behavior<Event> postFilterGidsWithInteractionCountHandler(
@@ -468,8 +469,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          if (request.uploadConfig != null) {
             appendUploadConfigToFile(request.uploadConfig, file);
          }
-         Files.copy(file.toPath(), Paths.get("/app/csv/" + file.getName()));
-         Files.delete(file.toPath());
+         Files.move(file.toPath(), Paths.get("/app/csv/" + file.getName()));
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
       } catch (SecurityException | IOException e) {

@@ -18,7 +18,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "given_name",
+      "fieldName": "givenName",
       "fieldType": "String",
       "fieldLabel": "First Name",
       "groups": [
@@ -45,7 +45,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "family_name",
+      "fieldName": "familyName",
       "fieldType": "String",
       "fieldLabel": "Last Name",
       "groups": [
@@ -147,7 +147,7 @@
       }
     },
     {
-      "fieldName": "phone_number",
+      "fieldName": "phoneNumber",
       "fieldType": "String",
       "fieldLabel": "Phone No",
       "groups": [
@@ -166,7 +166,7 @@
       "accessLevel": []
     },
     {
-      "fieldName": "national_id",
+      "fieldName": "nationalId",
       "fieldType": "String",
       "fieldLabel": "National ID",
       "groups": [

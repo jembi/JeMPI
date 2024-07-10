@@ -23,6 +23,7 @@ export SCALE_ZERO_01=1
 export SCALE_ALPHA_01=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
+export SCALE_LINKER=1
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
@@ -58,9 +59,14 @@ export JEMPI_SESSION_DOMAIN_NAME="localhost"
 # NODE_ENV production || development
 export NODE_ENV="production"
 export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
+
+#enable use of keycloak
+#export REACT_APP_JEMPI_BASE_API_PORT=50001
+#export REACT_APP_ENABLE_SSO="true"
+
 export REACT_APP_JEMPI_BASE_API_PORT=50000
-export REACT_APP_MOCK_BACKEND="false"
 export REACT_APP_ENABLE_SSO="false"
+export REACT_APP_MOCK_BACKEND="false"
 export KC_FRONTEND_URL=http://${NODE1_IP}:8080
 
 # ram limit for linker

@@ -93,6 +93,30 @@ export class ApiClient {
     return data
   }
 
+  async saveConfiguration() {
+    const configuration = localStorage.getItem('configuration');
+    let payload = configuration;
+    if (!payload) return; // Avoid overwriting the configuration with nothing
+    if (typeof payload == 'string') payload = JSON.parse(payload); // Avoid overwriting the configuration with garbage
+    
+    try {
+      const { data } = await this.client.post<Configuration>(
+        ROUTES.POST_CONFIGURATION,
+        payload
+      )
+      return {
+        response: "ok",
+        data
+      }
+    } catch (error) {
+      console.error('Error saving configuration:', error)
+      return {
+        response: "error",
+        error
+      }
+    }
+  }
+
   async fetchMatches(
     limit: number,
     offset: number,
