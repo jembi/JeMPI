@@ -116,9 +116,7 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup common properties
             </Typography>
-            <CommonSettings
-              demographicData={configurationData.demographicFields}
-            />
+            <CommonSettings />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
@@ -136,9 +134,7 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden record lists
             </Typography>
-            <GoldenRecordLists
-              goldenRecordList={configurationData?.additionalNodes || []}
-            />
+            <GoldenRecordLists goldenRecordList={[]}/>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             <Deterministic

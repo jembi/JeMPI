@@ -4,20 +4,31 @@ import userEvent from '@testing-library/user-event';
 import CommonSettings from 'pages/settings/common/Common';
 import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
+import { useConfiguration } from 'hooks/useUIConfiguration';
+
+jest.mock('hooks/useUIConfiguration', () => ({
+  useConfiguration: jest.fn(),
+}));
 
 
 describe('CommonSettings Component', () => {
-  const demographicWithIds = mockData.configuration.demographicFields.map((row, index) => ({
+  const configData = mockData.configuration.demographicFields.map((row, index) => ({
     ...row,
     id: `row_${index}`, 
   }));
+  beforeEach(() => {
+    (useConfiguration as jest.Mock).mockReturnValue({
+      configuration: configData,
+      setConfiguration: jest.fn(),
+    });
+  });
   it('renders without crashing', () => {
-    render(<CommonSettings demographicData={demographicWithIds} />);
+    render(<CommonSettings  />);
   });
 
   it('handles edit mode', async () => {
     
-    render(<CommonSettings demographicData={demographicWithIds} />);
+    render(<CommonSettings  />);
     const editIcon = document.getElementById('edit-button');
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');

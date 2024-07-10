@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import {
   DataGrid,
@@ -15,59 +15,46 @@ import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
 import { EditToolbar } from 'components/shared/EditToolBar'
-import { processIndex, transformFieldName } from 'utils/helpers'
+import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration, LinkMetaData } from 'types/Configuration'
 import { RowData } from '../deterministic/SourceView'
 
-const toSnakeCase = (str: string) => {
-  return str
-    .trim()
-    .replace(/\s+/g, '_')
-    .replace(/([a-z])([A-Z])/g, '$1_$2')
-    .toLowerCase()
-}
-
-const CommonSettings = ({ demographicData }: { demographicData: any }) => {
+const CommonSettings = () => {
   const [rows, setRows] = useState<any>([])
   const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   useEffect(() => {
-    const rowData = demographicData.map((row: any, rowIndex: number) => ({
-      id: rowIndex + 1,
-      ...row,
-      rowIndex
-    }))
-    setRows(rowData)
-  }, [demographicData])
+    if (configuration && configuration.demographicFields) {
+      const rowData = configuration?.demographicFields.map(
+        (row: any, rowIndex: number) => ({
+          id: rowIndex + 1,
+          ...row,
+          rowIndex
+        })
+      )
+      setRows(rowData)
+    }
+  }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
   }
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const updatedRow = rows.find((row: { id: GridRowId }) => row.id === id)
-    if (updatedRow) {
-      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
-      handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
-    }
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   }
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
-    setConfiguration(previousConfiguration => {
-      if (!previousConfiguration) return previousConfiguration
-      const updatedConfiguration = getUpdatedConfiguration(
-        updatedRow,
-        rowIndex,
-        previousConfiguration
-      )
-      localStorage.setItem(
-        'configuration',
-        JSON.stringify(updatedConfiguration)
-      )
-      return updatedConfiguration
-    })
+    if (!configuration) return
+    const updatedConfiguration = getUpdatedConfiguration(
+      updatedRow,
+      rowIndex,
+      configuration
+    )
+    localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
+    setConfiguration(updatedConfiguration)
   }
 
   const getUpdatedConfiguration = (
@@ -76,8 +63,15 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
     currentConfiguration: Configuration
   ): Configuration => {
     const fieldName = toSnakeCase(updatedRow.fieldName)
+    if (!currentConfiguration.demographicFields) {
+      return currentConfiguration
+    }
 
     const fieldToUpdate = currentConfiguration.demographicFields[rowIndex]
+
+    if (!fieldToUpdate) {
+      return currentConfiguration
+    }
 
     fieldToUpdate.fieldName = fieldName
 
@@ -98,6 +92,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
         u: Number(updatedRow.u)
       } as LinkMetaData
     }
+
     currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
 
     return currentConfiguration
@@ -124,6 +119,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
       row.id === id ? ({ ...updatedRow, id } as RowData) : row
     )
     setRows(updatedRows)
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return { ...updatedRow, id } as RowData
   }
 
@@ -243,7 +239,7 @@ const CommonSettings = ({ demographicData }: { demographicData: any }) => {
         width: '100%'
       }}
     >
-      {demographicData && (
+      {configuration && (
         <DataGrid
           rows={rows}
           columns={columns}
