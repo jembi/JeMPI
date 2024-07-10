@@ -76,7 +76,7 @@ const CommonSettings = () => {
     fieldToUpdate.fieldName = fieldName
 
     if (updatedRow?.indexGoldenRecord) {
-      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord})`
+      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(' ', '')})`
     }
 
     if (updatedRow?.m) {
