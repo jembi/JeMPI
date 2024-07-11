@@ -76,7 +76,8 @@ public final class GlobalConstants {
    public enum AuditEventType {
       LINKING_EVENT,
       NOTIFICATION_EVENT,
-      UNKNOWN_EVENT
+      UNKNOWN_EVENT,
+      UPDATE_EVENT
    }
 
 }

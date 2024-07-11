@@ -432,7 +432,7 @@ public final class ProxyRoutes {
                                                            linkerIP,
                                                            linkerPort,
                                                            GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS))
-                                     .withMethod(HttpMethods.PATCH)
+                                     .withMethod(HttpMethods.POST)
                                      .withEntity(ContentTypes.APPLICATION_JSON, json);
       final var stage = http.singleRequest(request);
       return stage.thenApply(response -> response);
