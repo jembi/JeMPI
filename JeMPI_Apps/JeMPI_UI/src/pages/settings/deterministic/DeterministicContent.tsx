@@ -10,10 +10,11 @@ import {
   IconButton
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import { Field, Rule } from 'types/Configuration'
+import { Configuration, Field, Rule } from 'types/Configuration'
 import { transformFieldName } from 'utils/helpers'
 import SourceView, { RowData } from './SourceView'
 import { useConfiguration } from 'hooks/useUIConfiguration'
+import { DeleteOutline } from '@mui/icons-material'
 
 interface DeterministicContentProps {
   demographicData: Field[]
@@ -225,6 +226,46 @@ const DeterministicContent = ({
     return updatedConfiguration
   }
 
+  const handleDeleteRow = (index: number) => {
+    const newComparators = [...comparators]
+    const newFields = [...fields]
+    const newOperators = [...operators]
+    newComparators.splice(index, 1)
+    newFields.splice(index, 1)
+
+    if (index > 0) {
+      newOperators.splice(index - 1, 1)
+    }
+
+    setComparators(newComparators)
+    setFields(newFields)
+    setOperators(newOperators)
+
+    const updatedConfiguration = { ...configuration }
+    const ruleType =
+      currentTab === 'link'
+        ? 'link'
+        : currentTab === 'validate'
+        ? 'validate'
+        : 'matchNotification'
+
+    if (newFields.length === 0) {
+      const newRules = [...rules]
+      newRules.splice(index, 1)
+      setRules(newRules)
+
+      if (updatedConfiguration.rules && updatedConfiguration.rules[ruleType]) {
+        updatedConfiguration.rules[ruleType].deterministic.splice(index, 1)
+      }
+
+      setConfiguration(updatedConfiguration as Configuration)
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
+    }
+  }
+
   return (
     <Box>
       <Box
@@ -318,6 +359,9 @@ const DeterministicContent = ({
                   label="Select Field"
                   onChange={event => handleFieldChange(index, event)}
                 >
+                  <MenuItem value="" disabled>
+                    Select a field
+                  </MenuItem>
                   {Array.isArray(demographicData) &&
                     demographicData.map(demographicField => (
                       <MenuItem
@@ -353,6 +397,15 @@ const DeterministicContent = ({
                   ))}
                 </Select>
               </FormControl>
+              <IconButton
+                aria-label="delete"
+                color="secondary"
+                id="delete-button"
+                onClick={() => handleDeleteRow(index)}
+                sx={{ alignSelf: 'center' }}
+              >
+                <DeleteOutline />
+              </IconButton>
             </Box>
           ))}
           <Box
