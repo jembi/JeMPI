@@ -26,6 +26,15 @@
           "func": "AppUtils::autoGenerateId"
         }
       }
+    },
+    {
+      "fieldName": "aux_gid",
+      "fieldType": "String",
+      "source": {
+        "generate": {
+          "func": "AppUtils::autoGenerateId"
+        }
+      }
     }
   ],
   "auxGoldenRecordFields": [
@@ -50,7 +59,8 @@
       "fieldType": "String",
       "source": {
         "generate": {
-          "func": "AppUtils::autoGenerateId"
+          "func": "AppUtils::autoGenerateId",
+          "interactionField": "aux_gid"
         }
       }
     }
