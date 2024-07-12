@@ -60,7 +60,7 @@ public record AuxGoldenRecordData(
       objectNode.put(FieldsConfig.GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED_FIELD_NAME_CC,
                      auxGoldenRecordData.auxAutoUpdateEnabled.booleanValue());
       auxGoldenRecordData.auxUserFields.forEach(field -> {
-        if (field.ccTag != null && !field.ccTag.isEmpty()) {
+         if (field.ccTag != null && !field.ccTag.isEmpty()) {
             objectNode.put(field.ccTag, field.value);
          }
       });
