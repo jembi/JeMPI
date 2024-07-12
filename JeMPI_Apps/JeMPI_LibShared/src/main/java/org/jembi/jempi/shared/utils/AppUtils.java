@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -21,7 +19,6 @@ public final class AppUtils implements Serializable {
    public static final ObjectMapper OBJECT_MAPPER =
          new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).registerModule(new JavaTimeModule());
 
-   private static final Logger LOGGER = LogManager.getLogger(AppUtils.class);
    @Serial
    private static final long serialVersionUID = 1L;
    static Long autoIncrement = 0L;
@@ -53,6 +50,29 @@ public final class AppUtils implements Serializable {
 
    public static boolean isNullOrEmpty(final Map<?, ?> m) {
       return m == null || m.isEmpty();
+   }
+
+   public static <T> T defaultIfFalsy(final T value, final T defaultValue) {
+      // Similar to Objects.requireNonNullElse but for broader "falsy" values
+      if (value == null) {
+          return defaultValue;
+      }
+      if (value instanceof String && ((String) value).isEmpty()) {
+          return defaultValue;
+      }
+      if (value instanceof Number && ((Number) value).doubleValue() == 0) {
+          return defaultValue;
+      }
+      if (value instanceof Boolean && !((Boolean) value)) {
+          return defaultValue;
+      }
+      if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+         return defaultValue;
+      }
+      if (value.getClass().isArray() && java.lang.reflect.Array.getLength(value) == 0) {
+         return defaultValue;
+      }
+      return value;
    }
 
    public static String quotedValue(final String field) {
