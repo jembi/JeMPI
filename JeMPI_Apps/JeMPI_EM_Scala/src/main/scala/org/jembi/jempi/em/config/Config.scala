@@ -36,7 +36,10 @@ case class Source(
     interactionField: Option[String]
 )
 
-case class Generate(func: String)
+case class Generate(
+    func: String,
+    interactionField: Option[String] = None
+)
 
 case class ProbabilisticMetaData(
     comparison: String,
