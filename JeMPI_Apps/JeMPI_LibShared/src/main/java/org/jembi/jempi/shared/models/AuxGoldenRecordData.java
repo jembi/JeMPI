@@ -28,8 +28,7 @@ public record AuxGoldenRecordData(
                  .stream()
                  .map(auxGoldenRecordUserField -> new AuxGoldenRecordUserField(
                        auxGoldenRecordUserField.ccName(),
-                       (auxGoldenRecordUserField.source()
-                                                .interactionField() != null)
+                       (auxGoldenRecordUserField.source().interactionField() != null)
                              ? auxInteractionData.auxUserFields().stream()
                                                  .filter(auxInteractionUserField ->
                                                                auxInteractionUserField.scTag()
@@ -39,18 +38,29 @@ public record AuxGoldenRecordData(
                                                  .toList()
                                                  .getFirst().value()
                              : auxGoldenRecordUserField.source().generate() != null
-                                   ? AppUtils.applyFunction(auxGoldenRecordUserField.source().generate().func())
+                                   ? (auxGoldenRecordUserField.source().generate().interactionField() != null
+                                         ? AppUtils.defaultIfFalsy(auxInteractionData.auxUserFields().stream()
+                                                             .filter(auxInteractionUserField ->
+                                                                   auxInteractionUserField.scTag()
+                                                                                          .equals(
+                                                                                                auxGoldenRecordUserField.source()
+                                                                                                                        .generate()
+                                                                                                                        .interactionField()))
+                                                             .toList()
+                                                             .getFirst().value(), AppUtils.applyFunction(auxGoldenRecordUserField.source().generate().func()))
+                                         : AppUtils.applyFunction(auxGoldenRecordUserField.source().generate().func()))
                                    : null))
                  .toList());
    }
 
+   
    public static JsonNode fromAuxGoldenRecordData(final AuxGoldenRecordData auxGoldenRecordData) {
       final var objectNode = OBJECT_MAPPER.createObjectNode();
       objectNode.put(FieldsConfig.GOLDEN_RECORD_AUX_DATE_CREATED_FIELD_NAME_CC, auxGoldenRecordData.auxDateCreated.toString());
       objectNode.put(FieldsConfig.GOLDEN_RECORD_AUX_AUTO_UPDATE_ENABLED_FIELD_NAME_CC,
                      auxGoldenRecordData.auxAutoUpdateEnabled.booleanValue());
       auxGoldenRecordData.auxUserFields.forEach(field -> {
-         if (field.ccTag != null && !field.ccTag.isEmpty()) {
+        if (field.ccTag != null && !field.ccTag.isEmpty()) {
             objectNode.put(field.ccTag, field.value);
          }
       });
