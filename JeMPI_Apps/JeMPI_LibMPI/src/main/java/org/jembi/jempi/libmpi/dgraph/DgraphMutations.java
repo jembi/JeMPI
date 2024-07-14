@@ -1,5 +1,7 @@
 package org.jembi.jempi.libmpi.dgraph;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.protobuf.ByteString;
 import io.dgraph.DgraphProto;
 import io.vavr.control.Either;
@@ -14,6 +16,7 @@ import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,8 @@ import static org.jembi.jempi.shared.config.Config.DGRAPH_CONFIG;
 import static org.jembi.jempi.shared.config.Config.FIELDS_CONFIG;
 
 final class DgraphMutations {
+   public static final ObjectMapper OBJECT_MAPPER =
+           new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).registerModule(new JavaTimeModule());
 
    private static final Logger LOGGER = LogManager.getLogger(DgraphMutations.class);
 
@@ -99,6 +104,101 @@ final class DgraphMutations {
          final String val) {
       String predicate = "GoldenRecord." + AppUtils.camelToSnake(fieldName);
       return updateGoldenRecordPredicate(goldenId, predicate, val);
+   }
+
+   private String restoreSourceIdQuery(final SourceId sourceId) {
+      final String uuid = UUID.randomUUID().toString();
+      return """
+               _:%s  <SourceId.facility>                 %s          .
+               _:%s  <SourceId.patient>                  %s          .
+               _:%s  <dgraph.type>                      "SourceId"   .
+               """.formatted(uuid,
+              AppUtils.quotedValue(sourceId.facility()),
+              uuid,
+              AppUtils.quotedValue(sourceId.patient()),
+              uuid);
+   }
+
+   public String restoreGoldenRecord(final RestoreGoldenRecords goldenRecord) {
+      String goldenID = "";
+
+      for (ApiModels.RestoreInteractionRecord restoreInteraction : goldenRecord.interactionsWithScore()) {
+         final var sourceId = restoreInteraction.interaction().sourceId();
+         final var facility = sourceId.facility();
+         final var patient = sourceId.patient();
+
+         var sourceIdUid = restoreSourceIds(sourceId, facility, patient);
+         var interactionID = restoreInteraction(restoreInteraction, sourceId, sourceIdUid);
+
+         if (goldenID.isEmpty()) {
+            goldenID = createGoldenRecord(goldenRecord, interactionID, sourceIdUid);
+         } else {
+            updateGoldenRecord(goldenID, interactionID, sourceIdUid);
+         }
+      }
+
+      return goldenID;
+   }
+
+   private String createGoldenRecord(final RestoreGoldenRecords goldenRecord, final String interactionID, final String sourceIdUid) {
+      var goldenDemographicData = DemographicData.fromCustomDemographicData(goldenRecord.goldenRecord().demographicData());
+      var goldenData = new Interaction(
+              null,
+              null,
+              AuxInteractionData.fromCustomAuxInteractionData(goldenRecord.goldenRecord().auxInteractionData()),
+              goldenDemographicData);
+
+      return cloneGoldenRecordFromInteraction(
+              goldenData.demographicData(),
+              interactionID,
+              sourceIdUid,
+              1.0F,
+              new AuxGoldenRecordData(goldenData.auxInteractionData()));
+   }
+
+   private void updateGoldenRecord(final String goldenID, final String interactionID, final String sourceIdUid) {
+      var interactionScoreList = new ArrayList<DgraphPairWithScore>();
+      var goldenIdScore = new LibMPIClientInterface.GoldenIdScore(goldenID, 1.0F);
+
+      interactionScoreList.add(new DgraphPairWithScore(goldenID, interactionID, goldenIdScore.score()));
+      addScoreFacets(interactionScoreList);
+      addSourceId(goldenID, sourceIdUid);
+   }
+
+   private String restoreInteraction(final ApiModels.RestoreInteractionRecord restoreInteraction, final SourceId sourceId, final String sourceIdUid) {
+      var interactionDemographicData = DemographicData.fromCustomDemographicData(
+              restoreInteraction.interaction().demographicData());
+
+      var interaction = new Interaction(
+              null,
+              sourceId,
+              AuxInteractionData.fromCustomAuxInteractionData(restoreInteraction.interaction().auxInteractionData()),
+              interactionDemographicData);
+
+      var interactionNquads = createInteractionTriple(
+              interaction.auxInteractionData(),
+              interaction.demographicData(),
+              sourceIdUid);
+
+      var interactionMutation = DgraphProto.Mutation.newBuilder()
+              .setSetNquads(ByteString.copyFromUtf8(interactionNquads))
+              .build();
+
+      return DgraphClient.getInstance().doMutateTransaction(interactionMutation);
+   }
+
+   private String restoreSourceIds(final SourceId sourceId, final String facility, final String patient) {
+      var restoreSourceIdQuery = restoreSourceIdQuery(sourceId);
+      var sourceIdMutation = DgraphProto.Mutation.newBuilder()
+              .setSetNquads(ByteString.copyFromUtf8(restoreSourceIdQuery))
+              .build();
+
+      var sourceIdList = DgraphQueries.findSourceIdList(facility, patient);
+      if (sourceIdList.isEmpty()) {
+         return DgraphClient.getInstance().doMutateTransaction(sourceIdMutation);
+      } else {
+         return sourceIdList.getFirst().uid();
+      }
    }
 
    private String createSourceIdTriple(final SourceId sourceId) {

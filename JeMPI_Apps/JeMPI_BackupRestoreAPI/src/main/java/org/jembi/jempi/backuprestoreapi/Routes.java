@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.GlobalConstants;
+import org.jembi.jempi.shared.models.RestoreGoldenRecords;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -44,7 +45,30 @@ public final class Routes {
                 });
     }
 
-    private static Route postExpandedGoldenRecord(
+    private static Route postGoldenRecord(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(RestoreGoldenRecords.class),
+                payload -> payload != null
+                        ? onComplete(Ask.postGoldenRecord(actorSystem, backEnd, payload),
+                        result -> {
+                            if (result.isSuccess()) {
+                                final var updatedFields = result.get().goldenRecord();
+                                if (updatedFields.isEmpty()) {
+                                    return complete(StatusCodes.BAD_REQUEST);
+                                } else {
+                                    return complete(StatusCodes.OK,
+                                            result.get(),
+                                            JSON_MARSHALLER);
+                                }
+                            } else {
+                                return complete(StatusCodes.INTERNAL_SERVER_ERROR);
+                            }
+                        })
+                        : complete(StatusCodes.NO_CONTENT));
+    }
+
+    private static Route getExpandedGoldenRecord(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd) {
         return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
@@ -67,19 +91,21 @@ public final class Routes {
         });
     }
 
-   public static Route createCoreAPIRoutes(
-         final ActorSystem<Void> actorSystem,
-         final ActorRef<BackEnd.Event> backEnd
-        ) {
-       return concat(post(() -> concat(
-                       /* proxy for linker/controller services*/
-                       path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
-                               () -> Routes.postExpandedGoldenRecord(actorSystem, backEnd))
-                       )),
-               get(() -> concat(
-                       path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
-                               () -> Routes.getGidsAll(actorSystem, backEnd))
-               )));
-   }
+    public static Route createCoreAPIRoutes(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd
+    ) {
+        return concat(post(() -> concat(
+                        /* proxy for linker/controller services*/
+                        path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
+                                () -> Routes.getExpandedGoldenRecord(actorSystem, backEnd)),
+                        path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_RESTORE,
+                                () -> Routes.postGoldenRecord(actorSystem, backEnd))
+                )),
+                get(() -> concat(
+                        path(GlobalConstants.SEGMENT_GET_GIDS_ALL,
+                                () -> Routes.getGidsAll(actorSystem, backEnd))
+                )));
+    }
 
 }

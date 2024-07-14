@@ -151,7 +151,7 @@ restore_dgraph_db(){
     if [ "$dgraph_confirmation" == "yes" ] || [ "$dgraph_confirmation" == "y" ]; then
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
             echo "Starting Dgraph database restore..."
-            bash dgraph-restore.sh
+            bash dgraph-restore-api.sh
             echo "Database Dgraph restore completed."
         popd
     else
@@ -215,7 +215,7 @@ case $choice in
         exit 0
         ;;
     6)
-        BACKUP_DATE_TIME=$(date +%Y%m%d_%H%M%S)
+        BACKUP_DATE_TIME=$(date +%Y-%m-%d_%H%M%S)
         echo "Started Backup at- $BACKUP_DATE_TIME"
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
             source dgraph-backup-api.sh $BACKUP_DATE_TIME
