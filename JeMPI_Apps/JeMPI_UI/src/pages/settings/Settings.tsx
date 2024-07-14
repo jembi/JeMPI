@@ -13,7 +13,7 @@ import { CustomTabPanel, a11yProps } from './deterministic/BasicTabs'
 import { Configuration } from 'types/Configuration'
 import { generateId } from 'utils/helpers'
 import Probabilistic from './probabilistic/Probabilistic'
-import { useConfig } from 'hooks/useConfig';
+import { useConfig } from 'hooks/useConfig'
 import { useSnackbar } from 'notistack'
 
 const Settings = () => {
@@ -24,19 +24,19 @@ const Settings = () => {
       ? generateId(JSON.parse(storedData))
       : ({} as Configuration)
   })
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false)
 
-  const { apiClient } = useConfig();
+  const { apiClient } = useConfig()
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+    setValue(newValue)
+  }
   const { enqueueSnackbar } = useSnackbar()
 
   const handleSave = async () => {
-    setIsSaving(true);
-    const response = await apiClient.saveConfiguration();
-    setIsSaving(false);
+    setIsSaving(true)
+    const response = await apiClient.saveConfiguration()
+    setIsSaving(false)
     if (response && response.response === 'ok') {
       enqueueSnackbar(`Successfully saved configuration`, {
         variant: 'success'
@@ -46,9 +46,9 @@ const Settings = () => {
       enqueueSnackbar(`Error saving configuration`, {
         variant: 'error'
       })
-      console.log('handleSave error', response.data);
+      console.log('handleSave error', response.data)
     }
-  };
+  }
 
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
@@ -124,28 +124,25 @@ const Settings = () => {
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the golden record
             </Typography>
-            <UniqueToGR/>
+            <UniqueToGR />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the interaction
             </Typography>
-            <UniqueToInteraction/>
+            <UniqueToInteraction />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden record lists
             </Typography>
-            <GoldenRecordLists/>
+            <GoldenRecordLists />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
             <Deterministic />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={5}>
-            <Blocking
-              demographicData={configurationData.demographicFields}
-              rules={configurationData?.rules || {}}
-            />
+            <Blocking />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={6}>
             <Typography variant="h5" sx={{ py: 3 }}>
@@ -159,10 +156,10 @@ const Settings = () => {
               <Button variant="outlined" color="secondary">Set to Reference</Button> */}
             </Box>
             <Box>
-              <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={handleSave} 
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSave}
                 disabled={isSaving}
               >
                 {isSaving ? 'Saving...' : 'Save'}
