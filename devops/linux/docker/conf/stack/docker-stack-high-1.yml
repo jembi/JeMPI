@@ -129,7 +129,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.labels.name == $PLACEMENT_KAFKA_01
+          - node.labels.name == $PLACEMENT_NODE1
   
   kafka-02:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
@@ -169,7 +169,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.labels.name == $PLACEMENT_KAFKA_02
+          - node.labels.name == $PLACEMENT_NODE2
   
   kafka-03:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
@@ -209,7 +209,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.labels.name == $PLACEMENT_KAFKA_03
+          - node.labels.name == $PLACEMENT_NODE3
 
   zero-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
@@ -241,7 +241,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
+        - node.labels.name == $PLACEMENT_NODE1
     command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   zero-02:
@@ -274,7 +274,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+        - node.labels.name == $PLACEMENT_NODE2
     command: dgraph zero --my=zero-02:5080 --raft idx=2 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"  
 
   zero-03:
@@ -307,7 +307,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+        - node.labels.name == $PLACEMENT_NODE3
     command: dgraph zero --my=zero-03:5080 --raft idx=3 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"  
 
   alpha-01:
@@ -340,7 +340,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
+        - node.labels.name == $PLACEMENT_NODE1
     command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
@@ -373,7 +373,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
+        - node.labels.name == $PLACEMENT_NODE2
     command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
 
   alpha-03:
@@ -406,7 +406,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
+        - node.labels.name == $PLACEMENT_NODE3
     command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 2 --telemetry "reports=false; sentry=false;"
 
   ratel:
