@@ -766,6 +766,11 @@ services:
     image: ${IMAGE_REGISTRY}$BOOTSTRAPPER_IMAGE
     networks:
       - backend
+    volumes:
+      - type: bind
+        source: $DATA_SYSTEM_CONFIG_DIR
+        target: /app/conf_system
+        read_only: true
     environment:
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
