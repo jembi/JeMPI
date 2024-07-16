@@ -18,7 +18,7 @@ import Notification, {
   Notifications
 } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
