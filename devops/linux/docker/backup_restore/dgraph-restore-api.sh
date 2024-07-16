@@ -83,6 +83,7 @@ backup_data() {
 stop_services
 start_backup_restore_service
 
+source helper/bootstrapper/bootstrapper-docker.sh data resetAll
 
 for backup_file in ${BACKUP_DIR}/dgraph_backup*.json; do
     # Assuming the first directory is for alpha nodes

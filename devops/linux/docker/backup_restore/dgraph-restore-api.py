@@ -4,6 +4,7 @@ import sys
 import os
 from datetime import datetime
 from dotenv import dotenv_values
+import uuid
 
 env_vars = dotenv_values('../conf.env')
 
@@ -34,8 +35,17 @@ def main(json_file):
 
 def convert_datetime_format(date_str):
     input_formats = [
-        "%Y-%m-%dT%H:%M:%S.%f",  # With milliseconds
-        "%Y-%m-%dT%H:%M:%S"      # Without milliseconds
+        "%Y-%m-%dT%H:%M:%S.%fZ",         # With microseconds and Z timezone
+        "%Y-%m-%dT%H:%M:%S.%f",          # With microseconds
+        "%Y-%m-%dT%H:%M:%S.%f%z",        # With microseconds and UTC offset
+        "%Y-%m-%dT%H:%M:%S",             # Without microseconds
+        "%Y-%m-%dT%H:%M:%S%z",           # Without microseconds and UTC offset
+        "%Y-%m-%dT%H:%M:%S.%fZ",         # With microseconds and Z timezone (redundant but kept for completeness)
+        "%Y-%m-%dT%H:%M:%S.%f%Z",        # With microseconds and full timezone name
+        "%Y-%m-%dT%H:%M:%S.%f %Z",       # With microseconds and space before timezone name
+        "%Y-%m-%dT%H:%M:%S.%f %z",       # With microseconds and space before UTC offset
+        "%Y-%m-%dT%H:%M",                # Without seconds
+        "%Y-%m-%dT%H",                   # Without minutes
     ]
     for input_format in input_formats:
         try:
@@ -48,7 +58,7 @@ def convert_datetime_format(date_str):
     
     output_format = "%Y-%m-%dT%H:%M:%S.%fZ"
     output_str = dt.strftime(output_format)
-    output_str = output_str[:23] + 'Z'  # Keep only the first 2 decimal places of the seconds part
+    output_str = output_str[:26] + 'Z'  # Keep only the first 2 decimal places of the seconds part
     return output_str
 
 def process_json_data(golden_records):
