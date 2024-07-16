@@ -84,7 +84,8 @@ run_enviroment_configuration_and_helper_script(){
     # Navigate to environment configuration directory
     echo "Navigate to environment configuration directory"
     pushd "$JEMPI_HOME/devops/linux/docker/conf/env/"
-        source $JEMPI_ENV_CONFIGURATION
+        # shellcheck source=path/to/create-env-linux-low-1.sh
+        source "$JEMPI_ENV_CONFIGURATION"
     popd    
 
     # Running Docker helper scripts 
@@ -139,7 +140,7 @@ build_all_stack_and_reboot(){
 }
 initialize_db_build_all_stack_and_reboot(){
     echo "Create DB and Deploy"
-    pushd "$JEMPI_HOME/devops/linux/docker/deployment/install_from_scratch"
+    pushd "$JEMPI_HOME/devops/linux/docker/deployment/install_from_scratch" || exit
         yes | source d-stack-1-create-db-build-all-reboot.sh
     popd
 }
@@ -217,10 +218,10 @@ case $choice in
     6)
         BACKUP_DATE_TIME=$(date +%Y-%m-%d_%H%M%S)
         echo "Started Backup at- $BACKUP_DATE_TIME"
-        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
-            source dgraph-backup-api.sh $BACKUP_DATE_TIME
-            sudo bash postgres-backup.sh $BACKUP_DATE_TIME
-        popd            
+        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore" || exit
+            source dgraph-backup-api.sh "$BACKUP_DATE_TIME" || { echo "Dgraph backup failed"; exit 1; }
+            sudo bash postgres-backup.sh "$BACKUP_DATE_TIME" || { echo "Postgres backup failed"; exit 1; }
+        popd || exit
         
         ;;
     7)

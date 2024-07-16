@@ -38,7 +38,7 @@ final class PsqlClient {
             connection = DriverManager.getConnection(url, user, password);
             return connection.isValid(5);
          } catch (SQLException e) {
-            LOGGER.error("{} {} {}", url, user, password);
+            LOGGER.error("Connection error with URL: {}", url);
             LOGGER.error(e.getLocalizedMessage(), e);
             connection = null;
             return false;

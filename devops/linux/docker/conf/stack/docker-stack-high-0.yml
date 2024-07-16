@@ -339,7 +339,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == $PLACEMENT_NODE1
+        - node.labels.name == ${PLACEMENT_NODE1}
     command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
@@ -372,7 +372,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == $PLACEMENT_NODE2
+        - node.labels.name == ${PLACEMENT_NODE2}
     command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
 
   alpha-03:
@@ -405,7 +405,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == $PLACEMENT_NODE3
+        - node.labels.name == ${PLACEMENT_NODE3}
     command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 2 --telemetry "reports=false; sentry=false;"
 
   ratel:
@@ -822,11 +822,11 @@ services:
       DGRAPH_PORTS: ${DGRAPH_PORTS}
     deploy:
       mode: global
-  
+
   backup-restore-api:
     image: ${IMAGE_REGISTRY}${BACKUP_RESTORE_API_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}

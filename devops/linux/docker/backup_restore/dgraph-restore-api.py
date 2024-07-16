@@ -4,7 +4,6 @@ import sys
 import os
 from datetime import datetime
 from dotenv import dotenv_values
-import uuid
 
 env_vars = dotenv_values('../conf.env')
 
