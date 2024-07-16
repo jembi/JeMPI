@@ -557,6 +557,10 @@ services:
       source: $DATA_DIR_EM_SCALA/data
       target: /app/data
       read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 1
@@ -601,6 +605,10 @@ services:
     - type: bind
       source: $DATA_DIR_LINKER/conf
       target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
       read_only: true
     deploy:
       mode: replicated
@@ -649,6 +657,10 @@ services:
       source: $DATA_DIR_ASYNC_RECEIVER/csv
       target: /app/csv
       read_only: false
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 1
@@ -707,6 +719,10 @@ services:
       source: $DATA_DIR_ASYNC_RECEIVER/csv
       target: /app/csv
       read_only: false
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 1
