@@ -71,24 +71,24 @@ public final class Routes {
     private static Route getExpandedGoldenRecord(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd) {
-        return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class), request -> {
-            return onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request),
-                    result -> {
-                        if (!result.isSuccess()) {
-                            final var e = result.failed().get();
-                            LOGGER.error(e.getLocalizedMessage(), e);
-                            return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
-                        }
-                        return result.get()
-                                .goldenRecord()
-                                .mapLeft(MapError::mapError)
-                                .fold(error -> error,
-                                        goldenRecord -> complete(StatusCodes.OK,
-                                                ApiModels.ApiExpandedGoldenRecord
-                                                        .fromExpandedGoldenRecord(goldenRecord),
-                                                Jackson.marshaller(OBJECT_MAPPER)));
-                    });
-        });
+       return entity(Jackson.unmarshaller(ApiModels.ApiGoldenRecords.class),
+                     request -> onComplete(Ask.getExpandedGoldenRecord(actorSystem, backEnd, request),
+                                           result -> {
+                                              if (!result.isSuccess()) {
+                                                 final var e = result.failed().get();
+                                                 LOGGER.error(e.getLocalizedMessage(), e);
+                                                 return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                              }
+                                              return result.get()
+                                                           .goldenRecord()
+                                                           .mapLeft(MapError::mapError)
+                                                           .fold(error -> error,
+                                                                 goldenRecord -> complete(StatusCodes.OK,
+                                                                                          ApiModels.ApiExpandedGoldenRecord
+                                                                                                .fromExpandedGoldenRecord(
+                                                                                                      goldenRecord),
+                                                                                          Jackson.marshaller(OBJECT_MAPPER)));
+                                           }));
     }
 
     public static Route createCoreAPIRoutes(
@@ -96,7 +96,6 @@ public final class Routes {
             final ActorRef<BackEnd.Event> backEnd
     ) {
         return concat(post(() -> concat(
-                        /* proxy for linker/controller services*/
                         path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
                                 () -> Routes.getExpandedGoldenRecord(actorSystem, backEnd)),
                         path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_RESTORE,
