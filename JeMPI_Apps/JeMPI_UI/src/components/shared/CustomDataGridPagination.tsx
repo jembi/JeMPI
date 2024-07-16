@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { GridPagination } from '@mui/x-data-grid';
 import MuiPagination from '@mui/material/Pagination';
 import { TablePaginationProps as MuiTablePaginationProps } from '@mui/material/TablePagination';
@@ -12,7 +12,6 @@ interface PaginationProps {
     page: number
   ) => void;
   boundaryCount?: number;
-  [key: string]: any;
 }
 
 const Pagination = ({
@@ -38,12 +37,22 @@ const Pagination = ({
   );
 };
 
-interface CustomPaginationProps extends Omit<MuiTablePaginationProps, 'component' | 'ref'> {
-  [key: string]: any;
-}
+const CustomPagination = forwardRef<HTMLDivElement, MuiTablePaginationProps>((props, ref) => {
+  return (
+    <GridPagination
+      ActionsComponent={(subProps: any) => <Pagination {...subProps} />}
+      ref={ref as any}
+      slotProps={{
+        actions: {
+          previousButton: props.slotProps?.actions?.previousButton,
+          nextButton: props.slotProps?.actions?.nextButton,
+        },
+      }}
+      {...props}
+    />
+  );
+});
 
-function CustomPagination(props: CustomPaginationProps) {
-  return <GridPagination ActionsComponent={(subProps: any) => <Pagination {...subProps} />} {...props} />;
-}
+CustomPagination.displayName = 'CustomPagination';
 
 export default CustomPagination;
