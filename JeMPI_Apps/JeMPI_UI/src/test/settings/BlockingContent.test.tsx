@@ -11,8 +11,6 @@ const queryClient = new QueryClient({
     queries: {}
   }
 })
-
-const demographicData: any = mockData.configuration.demographicFields
 const linkingRules: any = mockData.configuration.rules
 
 describe('BlockingContent Component', () => {
@@ -22,7 +20,6 @@ describe('BlockingContent Component', () => {
         <BrowserRouter>
           <ConfigProvider>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={false}
               linkingRules={linkingRules}
               handleAddRule={jest.fn()}
@@ -41,7 +38,6 @@ describe('BlockingContent Component', () => {
         <BrowserRouter>
           <ConfigProvider>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={false}
               linkingRules={linkingRules}
               handleAddRule={jest.fn()}
@@ -67,7 +63,6 @@ describe('BlockingContent Component', () => {
         <BrowserRouter>
           <ConfigProvider>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={false}
               linkingRules={linkingRules}
               handleAddRule={jest.fn()}
@@ -92,7 +87,6 @@ describe('BlockingContent Component', () => {
         <BrowserRouter>
           <ConfigProvider>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={false}
               linkingRules={linkingRules}
               handleAddRule={handleAddRuleMock}
@@ -117,7 +111,6 @@ describe('BlockingContent Component', () => {
         <BrowserRouter>
           <ConfigProvider>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={false}
               linkingRules={linkingRules}
               handleAddRule={jest.fn}
@@ -141,7 +134,6 @@ describe('BlockingContent Component', () => {
         <BrowserRouter>
           <ConfigProvider>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={false}
               linkingRules={linkingRules}
               handleAddRule={jest.fn}
