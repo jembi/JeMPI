@@ -9,15 +9,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.backuprestoreapi.AppConfig;
 import org.jembi.jempi.backuprestoreapi.BackEnd;
-import org.jembi.jempi.backuprestoreapi.JsonFieldsConfig;
 
 import java.util.UUID;
 
 public final class BackupRestoreAPI {
 
    private static final Logger LOGGER = LogManager.getLogger(BackupRestoreAPI.class);
-   private static final String CONFIG_RESOURCE_FILE_NAME = "config-api.json";
-   private final JsonFieldsConfig jsonFieldsConfig = new JsonFieldsConfig(CONFIG_RESOURCE_FILE_NAME);
    private HttpServer httpServer;
 
 
@@ -48,7 +45,7 @@ public final class BackupRestoreAPI {
                                                                         "CLIENT_ID_API-" + UUID.randomUUID()), "BackEnd");
          context.watch(backEnd);
          httpServer = HttpServer.create();
-         httpServer.open("0.0.0.0", AppConfig.BACKUP_RESTORE_API_HTTP_PORT, context.getSystem(), backEnd, jsonFieldsConfig.jsonFields);
+         httpServer.open("0.0.0.0", AppConfig.BACKUP_RESTORE_API_HTTP_PORT, context.getSystem(), backEnd);
          return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
             httpServer.close(context.getSystem());
             return Behaviors.stopped();
@@ -59,9 +56,6 @@ public final class BackupRestoreAPI {
    private void run() {
       LOGGER.info("interface:port {}:{}", "0.0.0.0", AppConfig.BACKUP_RESTORE_API_HTTP_PORT);
       try {
-         LOGGER.info("Loading fields configuration file");
-         jsonFieldsConfig.load(CONFIG_RESOURCE_FILE_NAME);
-         LOGGER.info("Fields configuration file successfully loaded.");
          ActorSystem.create(this.create(), "BackupRestoreAPI-App");
       } catch (Exception e) {
          LOGGER.error("Unable to start the BackupRestoreAPI", e);

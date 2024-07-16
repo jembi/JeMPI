@@ -30,7 +30,6 @@ public final class AppConfig {
    public static final String POSTGRESQL_NOTIFICATIONS_DB = CONFIG.getString("POSTGRESQL_NOTIFICATIONS_DB");
    public static final String POSTGRESQL_AUDIT_DB = CONFIG.getString("POSTGRESQL_AUDIT_DB");
    public static final String KAFKA_BOOTSTRAP_SERVERS = CONFIG.getString("KAFKA_BOOTSTRAP_SERVERS");
-   public static final String KAFKA_APPLICATION_ID = CONFIG.getString("KAFKA_APPLICATION_ID");
    private static final String[] DGRAPH_ALPHA_HOSTS = CONFIG.getString("DGRAPH_HOSTS").split(",");
    private static final int[] DGRAPH_ALPHA_PORTS = Arrays.stream(CONFIG.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
       try {
@@ -40,12 +39,6 @@ public final class AppConfig {
       }
    }).toArray();
 
-   public static final String LINKER_IP = CONFIG.getString("LINKER_IP");
-   public static final Integer LINKER_HTTP_PORT = CONFIG.getInt("LINKER_HTTP_PORT");
-
-   public static final String CONTROLLER_IP = CONFIG.getString("CONTROLLER_IP");
-   public static final Integer CONTROLLER_HTTP_PORT = CONFIG.getInt("CONTROLLER_HTTP_PORT");
-   public static final Integer API_HTTP_PORT = CONFIG.getInt("API_HTTP_PORT");
    public static final Integer BACKUP_RESTORE_API_HTTP_PORT = CONFIG.getInt("BACKUP_RESTORE_API_HTTP_PORT");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
