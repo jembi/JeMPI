@@ -1,10 +1,17 @@
 import { GridColDef } from '@mui/x-data-grid'
+import { Configuration, CustomNode, Field } from 'types/Configuration'
 import { AnyRecord } from 'types/PatientRecord'
 
 interface ValidationObject {
   regex?: string
   required: boolean
   onErrorMessage: string
+}
+
+type Params = {
+  row?: {
+    fieldName?: string
+  }
 }
 
 export const isInputValid = (value: unknown, validation?: ValidationObject) => {
@@ -63,4 +70,75 @@ export const decodeQueryString = <T>(queryString: string): any => {
     }
   }
   return decodedQueryString as T
+}
+
+export const randomId = () => {
+  return Math.random().toString(36).substring(2, 9)
+}
+
+export const generateId = (configuration: Configuration): Configuration => {
+  const generateIdForFields = (fields: Field[]): Field[] => {
+    return fields.map(item => ({
+      ...item,
+      id: Math.random().toString(36).substr(2, 9)
+    }))
+  }
+
+  const generateIdForNodes = (nodes: CustomNode[]): CustomNode[] => {
+    return nodes.map(node => ({
+      ...node,
+      id: Math.random().toString(36).substr(2, 9),
+      fields: generateIdForFields(node.fields)
+    }))
+  }
+
+  return {
+    ...configuration,
+    auxInteractionFields: generateIdForFields(
+      configuration.auxInteractionFields
+    ),
+    auxGoldenRecordFields: generateIdForFields(
+      configuration.auxGoldenRecordFields
+    ),
+    demographicFields: generateIdForFields(configuration.demographicFields),
+    additionalNodes: generateIdForNodes(configuration.additionalNodes)
+  }
+}
+
+export function processIndex(index: string) {
+  if (index) {
+    return index
+      .replace(/@index\(|\)(?=, trigram|$)/g, '')
+      .replace(/,/g, ', ')
+  }
+  return ''
+}
+
+export const transformFieldName = (input: Params | string): string => {
+  const fieldName =
+    typeof input === 'string' ? input : input?.row?.fieldName || 'Unknown Field'
+  return fieldName
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char: string) => char.toUpperCase())
+}
+
+export const toSnakeCase = (str: string) =>
+  str
+    .replace(' ', '')
+    .replace(/([A-Z])/g, letter => `_${letter.toLowerCase()}`)
+    .replace(/^_/, '')
+
+export const formatNodeName = (nodeName: string): string => {
+  return nodeName
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(
+      /\b(\w)(\w*)/g,
+      (_, first, rest) => first.toUpperCase() + rest.toLowerCase()
+    )
+    .replace(/\bId\b/g, 'ID')
+    .trim()
+}
+
+export const toUpperCase = (word: string): string => {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
 }
