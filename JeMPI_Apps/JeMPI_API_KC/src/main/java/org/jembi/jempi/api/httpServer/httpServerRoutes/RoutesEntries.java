@@ -19,7 +19,6 @@ public final class RoutesEntries extends ApiHttpServerRouteEntries {
       return concat(new UserRoutes(this.httpServer).getRouteEntries(),
                     requireSession(Routes.createCoreAPIRoutes(this.httpServer.getActorSystem(),
                                                               this.httpServer.getBackEnd(),
-                                                              this.httpServer.getJsonFields(),
                                                               AppConfig.LINKER_IP,
                                                               AppConfig.LINKER_HTTP_PORT,
                                                               AppConfig.CONTROLLER_IP,

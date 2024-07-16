@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 networks:
   backend:
@@ -11,24 +11,23 @@ networks:
     attachable: true
 
 services:
-
   postgresql:
     image: ${IMAGE_REGISTRY}${POSTGRESQL_IMAGE}
     networks:
-    - backend
+      - backend
     ports:
-    - published: 5432
-      target: 5432
-      protocol: tcp
-      mode: host
+      - published: 5432
+        target: 5432
+        protocol: tcp
+        mode: host
     volumes:
-    - type: bind
-      source: ${DATA_POSTGRESQL_DIR}
-      target: /conf
-      read_only: true
-    - type: bind
-      source: ${DATA_POSTGRESQL_DB_DIR}
-      target: /bitnami/postgresql
+      - type: bind
+        source: ${DATA_POSTGRESQL_DIR}
+        target: /conf
+        read_only: true
+      - type: bind
+        source: ${DATA_POSTGRESQL_DB_DIR}
+        target: /bitnami/postgresql
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
@@ -49,7 +48,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_POSTGRESQL}
+          - node.labels.name == ${PLACEMENT_POSTGRESQL}
 
   haproxy:
     image: ${IMAGE_REGISTRY}$HAPROXY_IMAGE
@@ -90,20 +89,20 @@ services:
         limits:
           memory: ${HAPROXY_RAM_LIMIT}
     command: haproxy -f /etc/haproxy/haproxy.cfg
-      
+
   kafka-01:
     image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
     networks:
       - backend
     environment:
-      BITNAMI_DEBUG: 'true'
-    # KRaft settings
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      BITNAMI_DEBUG: "true"
+      # KRaft settings
+      KAFKA_KRAFT_CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
       KAFKA_CFG_NODE_ID: 1
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
-    # Listeners
+      # Listeners
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
@@ -130,25 +129,25 @@ services:
       placement:
         constraints:
           - node.labels.name == $PLACEMENT_KAFKA_01
-  
+
   kafka-02:
-    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
     networks:
       - backend
     environment:
-      BITNAMI_DEBUG: 'true'
-    # KRaft settings  
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      BITNAMI_DEBUG: "true"
+      # KRaft settings
+      KAFKA_KRAFT_CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
       KAFKA_CFG_NODE_ID: 2
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
-    # Listeners      
+      # Listeners
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-02:9092
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CFG_BROKER_ID: 2
       KAFKA_CFG_MESSAGE_MAX_BYTES: 1048576
     volumes:
@@ -170,25 +169,25 @@ services:
       placement:
         constraints:
           - node.labels.name == $PLACEMENT_KAFKA_02
-  
+
   kafka-03:
-    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE 
+    image: ${IMAGE_REGISTRY}$KAFKA_IMAGE
     user: root
     networks:
       - backend
     environment:
-      BITNAMI_DEBUG: 'true'
-    # KRaft settings  
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      BITNAMI_DEBUG: "true"
+      # KRaft settings
+      KAFKA_KRAFT_CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
       KAFKA_CFG_NODE_ID: 3
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
-    # Listeners      
+      # Listeners
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-03:9092
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT  
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CFG_BROKER_ID: 3
       KAFKA_CFG_MESSAGE_MAX_BYTES: 1048576
     volumes:
@@ -215,20 +214,20 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "zero-01"
     networks:
-    - backend
+      - backend
     ports:
-    - published: 5080
-      target: 5080
-      protocol: tcp
-      mode: host
-    - published: 6080
-      target: 6080
-      protocol: tcp
-      mode: host
+      - published: 5080
+        target: 5080
+        protocol: tcp
+        mode: host
+      - published: 6080
+        target: 6080
+        protocol: tcp
+        mode: host
     volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ZERO_01_DIR}
-      target: /dgraph
+      - type: bind
+        source: ${DATA_DGRAPH_ZERO_01_DIR}
+        target: /dgraph
     deploy:
       replicas: 0
       resources:
@@ -241,27 +240,27 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
+          - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_01}
     command: dgraph zero --my=zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   zero-02:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "zero-02"
     networks:
-    - backend
+      - backend
     ports:
-    - published: 5081
-      target: 5080
-      protocol: tcp
-      mode: host
-    - published: 6081
-      target: 6080
-      protocol: tcp
-      mode: host
+      - published: 5081
+        target: 5080
+        protocol: tcp
+        mode: host
+      - published: 6081
+        target: 6080
+        protocol: tcp
+        mode: host
     volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ZERO_02_DIR}
-      target: /dgraph
+      - type: bind
+        source: ${DATA_DGRAPH_ZERO_02_DIR}
+        target: /dgraph
     deploy:
       replicas: 0
       resources:
@@ -274,27 +273,27 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
-    command: dgraph zero --my=zero-02:5080 --raft idx=2 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"  
+          - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+    command: dgraph zero --my=zero-02:5080 --raft idx=2 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   zero-03:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "zero-03"
     networks:
-    - backend
+      - backend
     ports:
-    - published: 5082
-      target: 5080
-      protocol: tcp
-      mode: host
-    - published: 6082
-      target: 6080
-      protocol: tcp
-      mode: host
+      - published: 5082
+        target: 5080
+        protocol: tcp
+        mode: host
+      - published: 6082
+        target: 6080
+        protocol: tcp
+        mode: host
     volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ZERO_03_DIR}
-      target: /dgraph
+      - type: bind
+        source: ${DATA_DGRAPH_ZERO_03_DIR}
+        target: /dgraph
     deploy:
       replicas: 0
       resources:
@@ -307,27 +306,27 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
-    command: dgraph zero --my=zero-03:5080 --raft idx=3 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"  
+          - node.labels.name == ${PLACEMENT_DGRAPH_ZERO_02}
+    command: dgraph zero --my=zero-03:5080 --raft idx=3 --peer zero-01:5080 --replicas 1 --telemetry "reports=false; sentry=false;"
 
   alpha-01:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "alpha-01"
     networks:
-    - backend
+      - backend
     volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ALPHA_01_DIR}
-      target: /dgraph
+      - type: bind
+        source: ${DATA_DGRAPH_ALPHA_01_DIR}
+        target: /dgraph
     ports:
-    - published: 8081
-      target: 8080
-      protocol: tcp
-      mode: host
-    - published: 9080
-      target: 9080
-      protocol: tcp
-      mode: host
+      - published: 8081
+        target: 8080
+        protocol: tcp
+        mode: host
+      - published: 9080
+        target: 9080
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 0
       resources:
@@ -347,20 +346,20 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "alpha-02"
     networks:
-    - backend
+      - backend
     volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ALPHA_02_DIR}
-      target: /dgraph
+      - type: bind
+        source: ${DATA_DGRAPH_ALPHA_02_DIR}
+        target: /dgraph
     ports:
-    - published: 8082
-      target: 8081
-      protocol: tcp
-      mode: host
-    - published: 9081
-      target: 9081
-      protocol: tcp
-      mode: host
+      - published: 8082
+        target: 8081
+        protocol: tcp
+        mode: host
+      - published: 9081
+        target: 9081
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 0
       resources:
@@ -380,20 +379,20 @@ services:
     image: ${IMAGE_REGISTRY}${DGRAPH_IMAGE}
     hostname: "alpha-03"
     networks:
-    - backend
+      - backend
     volumes:
-    - type: bind
-      source: ${DATA_DGRAPH_ALPHA_03_DIR}
-      target: /dgraph
+      - type: bind
+        source: ${DATA_DGRAPH_ALPHA_03_DIR}
+        target: /dgraph
     ports:
-    - published: 8083
-      target: 8082
-      protocol: tcp
-      mode: host
-    - published: 9082
-      target: 9082
-      protocol: tcp
-      mode: host
+      - published: 8083
+        target: 8082
+        protocol: tcp
+        mode: host
+      - published: 9082
+        target: 9082
+        protocol: tcp
+        mode: host
     deploy:
       replicas: 0
       resources:
@@ -412,12 +411,12 @@ services:
   ratel:
     image: ${IMAGE_REGISTRY}${RATEL_IMAGE}
     ports:
-    - published: 8010
-      target: 8000
-      protocol: tcp
-      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+      - published: 8010
+        target: 8000
+        protocol: tcp
+        mode: host
     networks:
-    - backend
+      - backend
     deploy:
       replicas: 0
       resources:
@@ -430,17 +429,17 @@ services:
         condition: on-failure
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_RATEL}
+          - node.labels.name == ${PLACEMENT_RATEL}
     command: dgraph-ratel
 
   async-receiver:
     image: ${IMAGE_REGISTRY}${ASYNC_RECEIVER_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_CLIENT_ID: client-id-syncrx
     networks:
-    - backend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_ASYNC_RECEIVER/csv
@@ -469,16 +468,16 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
+          - node.labels.name == ${PLACEMENT_ASYNC_RECEIVER}
 
   etl:
     image: ${IMAGE_REGISTRY}${ETL_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
       KAFKA_APPLICATION_ID: app-id-etl
     networks:
-    - backend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_ETL/conf
@@ -503,12 +502,12 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_ETL}
+          - node.labels.name == ${PLACEMENT_ETL}
 
   controller:
     image: ${IMAGE_REGISTRY}${CONTROLLER_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
@@ -526,7 +525,7 @@ services:
       LINKER_IP: linker
       LINKER_HTTP_PORT: 50000
     networks:
-    - backend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_CONTROLLER/conf
@@ -551,15 +550,15 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_CONTROLLER}
+          - node.labels.name == ${PLACEMENT_CONTROLLER}
 
   em-scala:
     image: ${IMAGE_REGISTRY}${EM_SCALA_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       KAFKA_SERVERS: ${KAFKA_SERVERS}
     networks:
-    - backend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_EM_SCALA/conf
@@ -588,12 +587,12 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_EM_SCALA}
+          - node.labels.name == ${PLACEMENT_EM_SCALA}
 
   linker:
     image: ${IMAGE_REGISTRY}${LINKER_IMAGE}
     environment:
-      LOG4J2_LEVEL: "TRACE" 
+      LOG4J2_LEVEL: "TRACE"
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
@@ -612,7 +611,7 @@ services:
       LINKER_MATCH_THRESHOLD: 0.65
       LINKER_MATCH_THRESHOLD_MARGIN: 0.1
     networks:
-    - backend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_LINKER/conf
@@ -637,12 +636,12 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_LINKER}
+          - node.labels.name == ${PLACEMENT_LINKER}
 
   api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
@@ -658,8 +657,12 @@ services:
       LINKER_HTTP_PORT: 50000
       CONTROLLER_IP: controller
       CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
+      SYSTEM_CONFIG_DIR: ${SYSTEM_CONFIG_DIR}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
     networks:
-    - backend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_API/conf
@@ -688,12 +691,12 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_API}
+          - node.labels.name == ${PLACEMENT_API}
 
   api-kc:
     image: ${IMAGE_REGISTRY}${API_KC_IMAGE}
     environment:
-      LOG4J2_LEVEL: "DEBUG" 
+      LOG4J2_LEVEL: "DEBUG"
       KC_REALM_NAME: ${KC_REALM_NAME}
       KC_API_URL: ${KC_API_URL}
       KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
@@ -719,9 +722,13 @@ services:
       LINKER_HTTP_PORT: ${LINKER_HTTP_PORT}
       CONTROLLER_IP: controller
       CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
+      SYSTEM_CONFIG_DIR: ${SYSTEM_CONFIG_DIR}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
     networks:
-    - frontend
-    - backend
+      - frontend
+      - backend
     volumes:
     - type: bind
       source: $DATA_DIR_API_KC/conf
@@ -750,7 +757,7 @@ services:
         max_attempts: 0
       placement:
         constraints:
-        - node.labels.name == ${PLACEMENT_API_KC}
+          - node.labels.name == ${PLACEMENT_API_KC}
 
   keycloak-test-server:
     image: ${IMAGE_REGISTRY}$KEYCLOAK_IMAGE
@@ -766,12 +773,12 @@ services:
       DB_USER: ${POSTGRESQL_USERNAME}
       DB_PASSWORD: ${POSTGRESQL_PASSWORD}
       DB_DATABASE: ${POSTGRESQL_KC_TEST_DB}
-    healthcheck: 
-      test: 
-      - "CMD"
-      - "curl"
-      - "-f"
-      - "http://localhost:8080"
+    healthcheck:
+      test:
+        - "CMD"
+        - "curl"
+        - "-f"
+        - "http://localhost:8080"
       interval: "5s"
       timeout: "5s"
       retries: 36
@@ -865,7 +872,7 @@ services:
     environment:
       REACT_APP_JEMPI_BASE_API_HOST: ${REACT_APP_JEMPI_BASE_API_HOST}
       REACT_APP_JEMPI_BASE_API_PORT: ${REACT_APP_JEMPI_BASE_API_PORT}
-      REACT_APP_MOCK_BACKEND: "${REACT_APP_MOCK_BACKEND}"  
+      REACT_APP_MOCK_BACKEND: "${REACT_APP_MOCK_BACKEND}"
       REACT_APP_ENABLE_SSO: "${REACT_APP_ENABLE_SSO}"
       REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES: ${REACT_APP_MAX_UPLOAD_CSV_SIZE_IN_MEGABYTES}
       NODE_ENV: ${NODE_ENV}

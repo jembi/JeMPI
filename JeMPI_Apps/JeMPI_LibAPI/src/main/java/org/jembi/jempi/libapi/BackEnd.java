@@ -4,6 +4,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.control.Either;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -15,6 +16,7 @@ import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
+import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 import org.jembi.jempi.shared.utils.AppUtils;
@@ -23,16 +25,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -44,6 +42,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
+   private final String systemConfigDirectory;
+   private final String configReferenceFileName;
+   private final String configMasterFileName;
+   private final String fieldsConfigurationFileName;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
@@ -60,7 +62,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlNotificationsDb,
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
-         final String kafkaClientId) {
+         final String kafkaClientId,
+         final String systemConfigDirectory,
+         final String configReferenceFileName,
+         final String configMasterFileName,
+         final String fieldsConfigurationFileName) {
       super(context);
       try {
          this.libMPI = null;
@@ -72,6 +78,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
+         this.systemConfigDirectory = systemConfigDirectory;
+         this.configReferenceFileName = configReferenceFileName;
+         this.configMasterFileName = configMasterFileName;
+         this.fieldsConfigurationFileName = fieldsConfigurationFileName;
          psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
@@ -93,7 +103,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlNotificationsDb,
          final String sqlAuditDb,
          final String kafkaBootstrapServers,
-         final String kafkaClientId) {
+         final String kafkaClientId,
+         final String systemConfigDirectory,
+         final String configReferenceFileName,
+         final String configMasterFileName,
+         final String fieldsConfigurationFileName) {
       return Behaviors.setup(context -> new BackEnd(level,
                                                     context,
                                                     dgraphHosts,
@@ -105,7 +119,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlNotificationsDb,
                                                     sqlAuditDb,
                                                     kafkaBootstrapServers,
-                                                    kafkaClientId));
+                                                    kafkaClientId,
+                                                    systemConfigDirectory,
+                                                    configReferenceFileName,
+                                                    configMasterFileName,
+                                                    fieldsConfigurationFileName));
    }
 
    private void openMPI(
@@ -147,6 +165,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostFilterGidsWithInteractionCountRequest.class, this::postFilterGidsWithInteractionCountHandler)
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
+                    .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
+                    .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
+                    .onMessage(GetFieldsConfigurationRequest.class, this::getFieldsConfigurationHandler)
                     .build();
    }
 
@@ -267,8 +288,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new CountGoldenRecordsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countGoldenRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(
-               new CountGoldenRecordsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
+         request.replyTo.tell(new CountGoldenRecordsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
@@ -279,8 +299,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new CountInteractionsResponse(Either.right(count)));
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
-         request.replyTo.tell(
-               new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
+         request.replyTo.tell(new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
@@ -311,16 +330,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          expandedGoldenRecord = libMPI.findExpandedGoldenRecord(request.goldenId);
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}",
-                      request.goldenId,
-                      e.getMessage());
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}", request.goldenId, e.getMessage());
       }
 
       if (expandedGoldenRecord == null) {
-         request.replyTo
-               .tell(new GetExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
-                     "Golden Record does not exist",
-                     request.goldenId))));
+         request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+               "Golden Record does not exist",
+               request.goldenId))));
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
       }
@@ -338,10 +354,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (goldenRecords == null) {
-         request.replyTo
-               .tell(new GetExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
-                     "Golden Records do not exist",
-                     Collections.singletonList(request.goldenIds).toString()))));
+         request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+               "Golden Records do not exist",
+               Collections.singletonList(request.goldenIds).toString()))));
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
@@ -359,10 +374,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
 
       if (expandedInteractions == null) {
-         request.replyTo
-               .tell(new GetExpandedInteractionsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
-                     "Patient Records do not exist",
-                     Collections.singletonList(request.patientIds).toString()))));
+         request.replyTo.tell(new GetExpandedInteractionsResponse(Either.left(new MpiServiceError.InteractionIdDoesNotExistError(
+               "Patient Records do not exist",
+               Collections.singletonList(request.patientIds).toString()))));
       } else {
          request.replyTo.tell(new GetExpandedInteractionsResponse(Either.right(expandedInteractions)));
       }
@@ -473,113 +487,163 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   public interface Event {
+   private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
+      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
+      Path configReferenceJsonFilePath = Paths.get(systemConfigDirectory, configReferenceFileName);
+
+      Path configFilePath = configMasterJsonFilePath;
+      if (!Files.exists(configFilePath)) {
+         configFilePath = configReferenceJsonFilePath;
+      }
+
+      try {
+         String configFileContent = new String(Files.readAllBytes(configFilePath), StandardCharsets.UTF_8);
+         ObjectMapper mapper = new ObjectMapper();
+         Configuration configuration = mapper.readValue(configFileContent, Configuration.class);
+         request.replyTo.tell(new GetConfigurationResponse(configuration));
+      } catch (Exception exception) {
+         LOGGER.error("getConfigurationHandler failed with error: {}", exception.getMessage());
+      }
+
+      return Behaviors.same();
    }
 
-   public interface EventResponse {
+   private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
+      final var separator = FileSystems.getDefault().getSeparator();
+      final var filePath =
+            new File("%sapp%sconf_system%s%s".formatted(separator, separator, separator, fieldsConfigurationFileName)).toPath();
+      try {
+         String configFileContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+         FieldsConfiguration fieldsConfiguration = AppUtils.OBJECT_MAPPER.readValue(configFileContent, FieldsConfiguration.class);
+         ArrayList<FieldsConfiguration.Field> fields = new ArrayList<>();
+         fields.addAll(fieldsConfiguration.systemFields());
+         fields.addAll(fieldsConfiguration.fields());
+         request.replyTo.tell(new GetFieldsConfigurationResponse(fields));
+      } catch (Exception exception) {
+         LOGGER.error("getFieldsConfigurationHandler failed with error: {}", exception.getLocalizedMessage());
+      }
+
+      return Behaviors.same();
    }
 
-   public record CountGoldenRecordsRequest(ActorRef<CountGoldenRecordsResponse> replyTo) implements Event {
+   private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
+      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
+      ObjectMapper objectMapper = new ObjectMapper();
+      Configuration configJson = request.configuration;
+
+      if (configJson == null) {
+         request.replyTo.tell(new PostConfigurationResponse("error: configuration is missing"));
+         LOGGER.error("postConfigurationHandler failed: configuration is missing in the request");
+         return Behaviors.same();
+      }
+
+      try {
+         String jsonConfig = objectMapper.writeValueAsString(configJson);
+         Files.write(configMasterJsonFilePath,
+                     jsonConfig.getBytes(StandardCharsets.UTF_8),
+                     StandardOpenOption.CREATE,
+                     StandardOpenOption.TRUNCATE_EXISTING);
+         request.replyTo.tell(new PostConfigurationResponse("ok"));
+      } catch (Exception exception) {
+         LOGGER.error("postConfigurationHandler failed with error: {}", exception.getMessage());
+         request.replyTo.tell(new PostConfigurationResponse("error: " + exception.getMessage()));
+      }
+
+      return Behaviors.same();
    }
 
-   public record CountGoldenRecordsResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
-   }
+   public interface Event { }
 
-   public record CountInteractionsRequest(ActorRef<CountInteractionsResponse> replyTo) implements Event {
-   }
+   public interface EventResponse { }
 
-   public record CountInteractionsResponse(Either<MpiGeneralError, Long> count) implements EventResponse {
-   }
+   public record CountGoldenRecordsRequest(ActorRef<CountGoldenRecordsResponse> replyTo) implements Event { }
 
-   public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event {
-   }
+   public record CountGoldenRecordsResponse(Either<MpiGeneralError, Long> count) implements EventResponse { }
+
+   public record CountInteractionsRequest(ActorRef<CountInteractionsResponse> replyTo) implements Event { }
+
+   public record CountInteractionsResponse(Either<MpiGeneralError, Long> count) implements EventResponse { }
+
+   public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event { }
 
    public record CountRecordsResponse(
          long goldenRecords,
-         long patientRecords) implements EventResponse {
-   }
+         long patientRecords) implements EventResponse { }
 
    public record GetGidsPagedRequest(
          ActorRef<GetGidsPagedResponse> replyTo,
          long offset,
-         long length) implements Event {
-   }
+         long length) implements Event { }
 
-   public record GetGidsPagedResponse(List<String> goldenIds) implements EventResponse {
-   }
+   public record GetGidsPagedResponse(List<String> goldenIds) implements EventResponse { }
 
    public record GetGoldenRecordAuditTrailRequest(
          ActorRef<GetGoldenRecordAuditTrailResponse> replyTo,
-         String uid) implements Event {
-   }
+         String uid) implements Event { }
 
-   public record GetGoldenRecordAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
-   }
+   public record GetGoldenRecordAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) { }
 
    public record GetInteractionAuditTrailRequest(
          ActorRef<GetInteractionAuditTrailResponse> replyTo,
-         String uid) implements Event {
-   }
+         String uid) implements Event { }
 
-   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) {
-   }
+   public record SQLDashboardDataResponse(SQLDashboardData dashboardData) { }
 
    public record SQLDashboardDataRequest(
-         ActorRef<SQLDashboardDataResponse> replyTo) implements Event {
-   }
+         ActorRef<SQLDashboardDataResponse> replyTo) implements Event { }
 
-   public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) {
-   }
+   public record GetInteractionAuditTrailResponse(List<ApiModels.ApiAuditTrail.LinkingAuditEntry> auditTrail) { }
 
-   public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event {
-   }
+   public record GetGidsAllRequest(ActorRef<GetGidsAllResponse> replyTo) implements Event { }
 
-   public record GetGidsAllResponse(List<String> records) implements EventResponse {
-   }
+   public record GetGidsAllResponse(List<String> records) implements EventResponse { }
+
+   public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event { }
+
+   public record GetConfigurationResponse(Configuration configuration) implements EventResponse { }
+
+   public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
+
+   public record GetFieldsConfigurationResponse(List<FieldsConfiguration.Field> fields) implements EventResponse { }
+
+   public record PostConfigurationRequest(
+         ActorRef<PostConfigurationResponse> replyTo,
+         Configuration configuration) implements Event { }
+
+   public record PostConfigurationResponse(String response) implements EventResponse { }
 
    public record FindExpandedSourceIdRequest(
          ActorRef<FindExpandedSourceIdResponse> replyTo,
          String facility,
-         String client) implements Event {
-   }
+         String client) implements Event { }
 
-   public record FindExpandedSourceIdResponse(List<ExpandedSourceId> records) implements EventResponse {
-   }
+   public record FindExpandedSourceIdResponse(List<ExpandedSourceId> records) implements EventResponse { }
 
    public record GetExpandedGoldenRecordRequest(
          ActorRef<GetExpandedGoldenRecordResponse> replyTo,
-         String goldenId) implements Event {
-   }
+         String goldenId) implements Event { }
 
-   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord)
-         implements EventResponse {
-   }
+   public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord) implements EventResponse { }
 
    public record GetExpandedGoldenRecordsRequest(
          ActorRef<GetExpandedGoldenRecordsResponse> replyTo,
-         List<String> goldenIds) implements Event {
-   }
+         List<String> goldenIds) implements Event { }
 
    public record GetExpandedGoldenRecordsResponse(
-         Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse {
-   }
+         Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse { }
 
    public record GetExpandedInteractionsRequest(
          ActorRef<GetExpandedInteractionsResponse> replyTo,
-         List<String> patientIds) implements Event {
-   }
+         List<String> patientIds) implements Event { }
 
    public record GetExpandedInteractionsResponse(
-         Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse {
-   }
+         Either<MpiGeneralError, List<ExpandedInteraction>> expandedPatientRecords) implements EventResponse { }
 
    public record GetInteractionRequest(
          ActorRef<GetInteractionResponse> replyTo,
-         String iid) implements Event {
-   }
+         String iid) implements Event { }
 
-   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse {
-   }
+   public record GetInteractionResponse(Either<MpiGeneralError, Interaction> patient) implements EventResponse { }
 
    public record GetNotificationsRequest(
          ActorRef<GetNotificationsResponse> replyTo,
@@ -587,113 +651,90 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          int offset,
          Timestamp startDate,
          Timestamp endDate,
-         List<String> states) implements Event {
-   }
+         List<String> states) implements Event { }
 
    public record GetNotificationsResponse(
          int count,
          int skippedRecords,
-         List<HashMap<String, Object>> records) implements EventResponse {
-   }
+         List<HashMap<String, Object>> records) implements EventResponse { }
 
    public record UpdateGoldenRecordRequest(
          ActorRef<UpdateGoldenRecordResponse> replyTo,
          String goldenId,
-         List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event {
-   }
+         List<GoldenRecordUpdateRequestPayload.Field> fields) implements Event { }
 
-   public record UpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields)
-         implements EventResponse {
-   }
+   public record UpdateGoldenRecordResponse(List<GoldenRecordUpdateRequestPayload.Field> fields) implements EventResponse { }
 
    public record PostIidGidLinkRequest(
          ActorRef<PostIidGidLinkResponse> replyTo,
          String currentGoldenId,
          String newGoldenId,
          String patientId,
-         Float score) implements Event {
-   }
+         Float score) implements Event { }
 
-   public record PostIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
-   }
+   public record PostIidGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse { }
 
    public record PostIidNewGidLinkRequest(
          ActorRef<PostIidNewGidLinkResponse> replyTo,
          String currentGoldenId,
          String patientId,
-         Float score) implements Event {
-   }
+         Float score) implements Event { }
 
-   public record PostIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse {
-   }
+   public record PostIidNewGidLinkResponse(Either<MpiGeneralError, LinkInfo> linkInfo) implements EventResponse { }
 
    public record PostUpdateNotificationRequest(
          ActorRef<PostUpdateNotificationResponse> replyTo,
          String notificationId,
          String oldGoldenId,
-         String currentGoldenId) implements Event {
-   }
+         String currentGoldenId) implements Event { }
 
-   public record PostUpdateNotificationResponse() implements EventResponse {
-   }
+   public record PostUpdateNotificationResponse() implements EventResponse { }
 
    /**
     * Search events
     */
    public record PostSimpleSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,
-         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
-   }
+         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event { }
 
    public record PostFilterGidsRequest(
          ActorRef<PostFilterGidsResponse> replyTo,
-         FilterGidsRequestPayload filterGidsRequestPayload) implements Event {
-   }
+         FilterGidsRequestPayload filterGidsRequestPayload) implements Event { }
 
    public record PostFilterGidsResponse(
-         LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse {
-   }
+         LibMPIPaginatedResultSet<String> goldenIds) implements EventResponse { }
 
    public record PostFilterGidsWithInteractionCountRequest(
          ActorRef<PostFilterGidsWithInteractionCountResponse> replyTo,
-         FilterGidsRequestPayload filterGidsRequestPayload) implements Event {
-   }
+         FilterGidsRequestPayload filterGidsRequestPayload) implements Event { }
 
    public record PostFilterGidsWithInteractionCountResponse(
-         PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse {
-   }
+         PaginatedGIDsWithInteractionCount goldenIds) implements EventResponse { }
 
    public record PostCustomSearchGoldenRecordsRequest(
          ActorRef<PostSearchGoldenRecordsResponse> replyTo,
-         CustomSearchRequestPayload customSearchRequestPayload) implements Event {
-   }
+         CustomSearchRequestPayload customSearchRequestPayload) implements Event { }
 
    public record PostSearchGoldenRecordsResponse(
-         LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse {
-   }
+         LibMPIPaginatedResultSet<ExpandedGoldenRecord> records) implements EventResponse { }
 
    public record PostSimpleSearchInteractionsRequest(
          ActorRef<PostSearchInteractionsResponse> replyTo,
-         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event {
-   }
+         ApiModels.ApiSimpleSearchRequestPayload searchRequestPayload) implements Event { }
 
    public record PostCustomSearchInteractionsRequest(
          ActorRef<PostSearchInteractionsResponse> replyTo,
-         CustomSearchRequestPayload customSearchRequestPayload) implements Event {
-   }
+         CustomSearchRequestPayload customSearchRequestPayload) implements Event { }
 
    public record PostSearchInteractionsResponse(
-         LibMPIPaginatedResultSet<Interaction> records) implements EventResponse {
-   }
+         LibMPIPaginatedResultSet<Interaction> records) implements EventResponse { }
 
    public record PostUploadCsvFileRequest(
          ActorRef<PostUploadCsvFileResponse> replyTo,
          FileInfo info,
          File file,
-         UploadConfig uploadConfig) implements Event {
-   }
+         UploadConfig uploadConfig) implements Event { }
 
-   public record PostUploadCsvFileResponse() implements EventResponse {
-   }
+   public record PostUploadCsvFileResponse() implements EventResponse { }
 
 }
