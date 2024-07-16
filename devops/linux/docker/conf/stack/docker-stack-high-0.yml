@@ -450,6 +450,10 @@ services:
       source: $DATA_DIR_ASYNC_RECEIVER/conf
       target: /app/conf
       read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -479,6 +483,10 @@ services:
     - type: bind
       source: $DATA_DIR_ETL/conf
       target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
       read_only: true
     deploy:
       mode: replicated
@@ -523,6 +531,10 @@ services:
     - type: bind
       source: $DATA_DIR_CONTROLLER/conf
       target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
       read_only: true
     deploy:
       mode: replicated
@@ -863,6 +875,11 @@ services:
       REACT_APP_SHOW_BRAND_LOGO: "${REACT_APP_SHOW_BRAND_LOGO}"
     networks:
       - frontend
+    volumes:
+      - type: bind
+        source: $DATA_SYSTEM_CONFIG_DIR
+        target: /app/conf_system
+        read_only: true
     deploy:
       mode: replicated
       replicas: 0
