@@ -76,18 +76,41 @@ def process_json_data(golden_records):
             if not unique_interaction_data.get('auxIid'):
                 unique_interaction_data['auxIid'] = interaction['interaction']['uid']
         print("------------------------------------------------------")
-        print(golden_record)
+        print("Old Golden ID--"+ golden_record['goldenRecord']["uid"])
         response = send_golden_record_to_api(golden_record)
-        print(response.text)
+        if response:
+            print("After Restore Golden ID--"+ response.text)
     
 def send_golden_record_to_api(golden_record_payload):
     get_expanded_golden_record_url = f'http://{host}:{port}/JeMPI/restoreGoldenRecord'
+    # Normalize date fields in the payload
+    if 'date' in golden_record_payload:
+        golden_record_payload['date'] = convert_datetime_format(golden_record_payload['date'])
+
     payload = json.dumps(golden_record_payload)
     headers = {
         'Content-Type': 'application/json'
     }
-    response = requests.post(get_expanded_golden_record_url, headers=headers, data=payload)
-    return response
+
+    try:
+        response = requests.post(get_expanded_golden_record_url, headers=headers, data=payload)
+        response.raise_for_status()
+        response_json = response.json()
+        if 'errors' in response_json:
+            print(f"API error occurred: {response_json['errors']}")
+            return None
+        return response
+    except requests.exceptions.HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+    except requests.exceptions.ConnectionError as conn_err:
+        print(f'Connection error occurred: {conn_err}')
+    except requests.exceptions.Timeout as timeout_err:
+        print(f'Timeout error occurred: {timeout_err}')
+    except requests.exceptions.RequestException as req_err:
+        print(f'An error occurred: {req_err}')
+    except json.JSONDecodeError as json_err:
+        print(f'JSON decode error: {json_err}')
+    return None
 
 if __name__ == "__main__":
     # Check if a JSON file path is provided as an argument
