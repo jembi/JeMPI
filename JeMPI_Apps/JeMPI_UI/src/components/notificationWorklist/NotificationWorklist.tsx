@@ -6,6 +6,8 @@ import {
   Divider,
   Paper,
   Stack,
+  TextField,
+  TextFieldProps,
   debounce
 } from '@mui/material'
 import { DataGrid, GridFilterModel, gridClasses } from '@mui/x-data-grid'
@@ -96,29 +98,22 @@ const NotificationWorklist = () => {
             paddingY={'1rem'}
             flexDirection={{ xs: 'column', md: 'row' }}
           >
-            <DateTimePicker
-              value={startDateFilter}
-              format="YYYY/MM/DD HH:mm:ss"
-              onChange={value => value && setStartDateFilter(value)}
-              slotProps={{
-                textField: {
-                  variant: 'outlined',
-                  label: 'Start Date',
-                  inputProps: { id: 'start-date-filter' }
-                }
-              }}
+             < DateTimePicker
+            label="Start Date"
+            value={startDateFilter}
+            onChange={(newValue) => newValue && setStartDateFilter(newValue)}
+            slots={{
+              textField: (params) => CustomTextField(params, 'start-date-filter'),
+            }}
             />
-            <DateTimePicker
-              value={endDateFilter}
-              format="YYYY/MM/DD HH:mm:ss"
-              onChange={value => value && setEndDateFilter(value)}
-              slotProps={{
-                textField: {
-                  variant: 'outlined',
-                  label: 'End Date',
-                  inputProps: { id: 'end-date-filter' }
-                }
-              }}
+            
+            < DateTimePicker
+            label="End Date"
+            value={endDateFilter}
+            onChange={(newValue) => newValue && setEndDateFilter(newValue)}
+            slots={{
+              textField: (params) => CustomTextField(params, 'end-date-filter'),
+            }}
             />
             <SelectDropdown
               listValues={[
@@ -218,4 +213,12 @@ const NotificationWorklist = () => {
   )
 }
 
-export default NotificationWorklist
+export default NotificationWorklist;
+
+function CustomTextField(params: TextFieldProps, id: string) {
+  return (
+      <TextField variant='outlined' 
+      label="End Date"
+      inputProps={{ id: id }}{...params} />
+  );
+}
