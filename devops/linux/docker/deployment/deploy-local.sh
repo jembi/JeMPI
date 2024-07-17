@@ -144,37 +144,20 @@ initialize_db_build_all_stack_and_reboot(){
         yes | source d-stack-1-create-db-build-all-reboot.sh
     popd
 }
-restore_dgraph_db(){
-    echo "Are you sure you want to restore the Dgraph database? (yes/no)"
-    read dgraph_confirmation
-    dgraph_confirmation=$(echo "$dgraph_confirmation" | tr '[:upper:]' '[:lower:]')
-
-    if [ "$dgraph_confirmation" == "yes" ] || [ "$dgraph_confirmation" == "y" ]; then
+restore_db(){
+    echo "Are you sure you want to restore the Dgraph and Postgres database? It will wipe all data and restore from backup (Ctrl+Y for Yes, any other key for No)"
+    read -rsn1 -p "> " answer
+        # Call the confirm function
+       
+    if [[ $answer == $'\x19' ]]; then
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
             echo "Starting Dgraph database restore..."
-            bash dgraph-restore-api.sh
-            echo "Database Dgraph restore completed."
+            bash restore-dgraph-postgres.sh
+            echo "Database Dgraph and Postgres restore completed."
         popd
     else
-        echo "Dgraph Database restore cancelled. Moving ahead without restore."
+        echo "Database restore cancelled. Moving ahead without restore."
  cd de         # Continue with the rest of your script
-    fi
-}
-restore_postgres_db(){
-    echo "Are you sure you want to restore the Postgres database? (yes/no)"
-    read postgres_confirmation
-    postgres_confirmation=$(echo "$postgres_confirmation" | tr '[:upper:]' '[:lower:]')
-
-    if [ "$postgres_confirmation" == "yes" ] || [ "$postgres_confirmation" == "y" ]; then
-        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
-            echo "Starting Postgres database restore..."
-            sudo bash postgres-restore.sh
-            echo "Database Postgres restore completed."
-        popd
-        
-    else
-        echo "Postgres Database restore cancelled. Moving ahead without restore."
-        # Continue with the rest of your script
     fi
 }
 
@@ -226,8 +209,7 @@ case $choice in
         ;;
     7)
         echo "Restore Databases"
-        restore_postgres_db
-        restore_dgraph_db
+        restore_db
         ;;
     8)
         echo "Destroy"
