@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Field, Rule } from 'types/Configuration'
 import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs'
 import BlockingContent from './BlockingContent'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
 interface BlockingProps {
   demographicData: Field[]
@@ -20,14 +21,16 @@ interface BlockingProps {
   }
 }
 
-const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
+const Blocking = () => {
   const [value, setValue] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
+  const { configuration, setConfiguration } = useConfiguration()
 
-  const matchNotificationRules = rules.matchNotification?.probabilistic ?? []
-  const linkingRules = rules.link?.probabilistic ?? []
+  const matchNotificationRules =
+    configuration?.rules.matchNotification?.probabilistic ?? []
+  const linkingRules = configuration?.rules.link?.probabilistic ?? []
 
   return (
     <Card sx={{ minWidth: 275 }}>
@@ -50,14 +53,12 @@ const Blocking = ({ demographicData = [], rules = {} }: BlockingProps) => {
           </Tabs>
           <CustomTabPanel value={value} index={0}>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={linkingRules.length === 0}
               linkingRules={{ link: { probabilistic: linkingRules } }}
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <BlockingContent
-              demographicData={demographicData}
               hasUndefinedRule={matchNotificationRules.length === 0}
               linkingRules={{
                 matchNotification: { probabilistic: matchNotificationRules }

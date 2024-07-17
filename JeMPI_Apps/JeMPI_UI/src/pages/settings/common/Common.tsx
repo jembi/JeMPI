@@ -55,6 +55,11 @@ const CommonSettings = () => {
     )
     localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
     setConfiguration(updatedConfiguration)
+    setRows((prevRows: any) =>
+      prevRows.map((row: any) =>
+        row.id === updatedRow.id ? { ...updatedRow } : row
+      )
+    )
   }
 
   const getUpdatedConfiguration = (
@@ -62,12 +67,13 @@ const CommonSettings = () => {
     rowIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
+    const newConfiguration = { ...currentConfiguration } 
     const fieldName = toSnakeCase(updatedRow.fieldName)
-    if (!currentConfiguration.demographicFields) {
+    if (!newConfiguration.demographicFields) {
       return currentConfiguration
     }
 
-    const fieldToUpdate = currentConfiguration.demographicFields[rowIndex]
+    const fieldToUpdate = { ...newConfiguration.demographicFields[rowIndex] }
 
     if (!fieldToUpdate) {
       return currentConfiguration
@@ -76,7 +82,10 @@ const CommonSettings = () => {
     fieldToUpdate.fieldName = fieldName
 
     if (updatedRow?.indexGoldenRecord) {
-      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(' ', '')})`
+      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
+        ' ',
+        ''
+      )})`
     }
 
     if (updatedRow?.m) {
@@ -93,9 +102,9 @@ const CommonSettings = () => {
       } as LinkMetaData
     }
 
-    currentConfiguration.demographicFields[rowIndex] = fieldToUpdate
+    newConfiguration.demographicFields[rowIndex] = fieldToUpdate
 
-    return currentConfiguration
+    return newConfiguration
   }
 
   const handleCancelClick = (id: GridRowId) => () => {

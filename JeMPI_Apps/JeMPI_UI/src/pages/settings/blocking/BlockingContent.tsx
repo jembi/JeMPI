@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback, useEffect } from 'react'
+import React, { useReducer, useEffect } from 'react'
 import { AddOutlined, DeleteOutline } from '@mui/icons-material'
 import {
   Button,
@@ -11,13 +11,12 @@ import {
   SelectChangeEvent
 } from '@mui/material'
 import SourceView, { RowData } from '../deterministic/SourceView'
-import { Configuration, Field, Rule } from 'types/Configuration'
+import { Configuration, Rule } from 'types/Configuration'
 import { Operator, options } from '../deterministic/DeterministicContent'
 import { transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 
 interface BlockingContentProps {
-  demographicData: Field[]
   hasUndefinedRule: boolean
   linkingRules: {
     link?: { probabilistic?: Rule[] }
@@ -83,7 +82,6 @@ const reducer = (state: State, action: Action): State => {
 }
 
 const BlockingContent = ({
-  demographicData = [],
   hasUndefinedRule,
   linkingRules
 }: BlockingContentProps) => {
@@ -106,73 +104,61 @@ const BlockingContent = ({
     }
   }, [configuration])
 
-  const handleUpdateConfiguration = (newRules: Rule[], ruleType: 'matchNotification' | 'link') => {
-    setConfiguration(prevConfig => {
-      if (!prevConfig) return prevConfig;
-  
-      const updatedConfig: Configuration = {
-        ...prevConfig,
-        rules: {
-          ...prevConfig.rules,
-          [ruleType]: {
-            ...prevConfig.rules[ruleType],
-            probabilistic: newRules
-          }
-        }
-      };
-  
-      localStorage.setItem('configuration', JSON.stringify(updatedConfig));
-      return updatedConfig;
-    });
-  
-    setProbabilisticRows(transformRulesToRowData({ probabilistic: newRules }));
-  };
-  
+  const handleUpdateConfiguration = (
+    newRules: Rule[],
+    ruleType: 'matchNotification' | 'link'
+  ) => {
+    if (!configuration) return configuration
 
-  const handleAddRule = useCallback(
-    (ruleType: 'matchNotification' | 'link') => {
-      const vars = state.fields.filter(
-        (field, index) => field !== '' && state.fields.indexOf(field) === index
-      )
-      const text = state.fields
+    const updatedConfig: Configuration = {
+      ...configuration,
+      rules: {
+        ...configuration.rules,
+        [ruleType]: {
+          ...configuration.rules[ruleType],
+          probabilistic: newRules
+        }
+      }
+    }
+
+    localStorage.setItem('configuration', JSON.stringify(updatedConfig))
+    setConfiguration(updatedConfig)
+    return updatedConfig
+  }
+
+  const handleAddRule = (ruleType: 'matchNotification' | 'link') => {
+    const vars = state.fields.filter(
+      (field, index) => field !== '' && state.fields.indexOf(field) === index
+    )
+    const text = state.fields
       .map((field, index) => {
         const operator =
-          index > 0 ? ` ${state.operators[index - 1].toLowerCase()} ` : '';
-        const comparator = state.comparators[index];
+          index > 0 ? ` ${state.operators[index - 1].toLowerCase()} ` : ''
+        const comparator = state.comparators[index]
         const comparatorFunction =
-          comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`;
-        return `${operator}${comparatorFunction}`;
+          comparator === 0 ? `eq(${field})` : `match(${field}, ${comparator})`
+        return `${operator}${comparatorFunction}`
       })
-      .join('');
-       
-    
-      const newRule: Rule = {
-        vars,
-        text
-      }
+      .join('')
 
-      let updatedRules = [...state.rules]
-      if (state.editIndex !== null) {
-        updatedRules[state.editIndex] = newRule
-        dispatch({ type: 'SET_EDIT_INDEX', payload: null })
-      } else {
-        updatedRules = [...state.rules, newRule]
-      }
+    const newRule: Rule = {
+      vars,
+      text
+    }
 
-      handleUpdateConfiguration(updatedRules, ruleType)
-      dispatch({ type: 'SET_RULES', payload: updatedRules })
-      dispatch({ type: 'SET_HAS_CHANGES', payload: false })
-      dispatch({ type: 'SET_VIEW_TYPE', payload: 0 })
-    },
-    [
-      state.fields,
-      state.operators,
-      state.comparators,
-      state.rules,
-      state.editIndex,
-      handleUpdateConfiguration
-    ]
-  )
+    let updatedRules = [...state.rules]
+    if (state.editIndex !== null) {
+      updatedRules[state.editIndex] = newRule
+      dispatch({ type: 'SET_EDIT_INDEX', payload: null })
+    } else {
+      updatedRules = [...state.rules, newRule]
+    }
+
+    handleUpdateConfiguration(updatedRules, ruleType)
+    dispatch({ type: 'SET_RULES', payload: updatedRules })
+    dispatch({ type: 'SET_HAS_CHANGES', payload: false })
+    dispatch({ type: 'SET_VIEW_TYPE', payload: 0 })
+  }
 
   const handleFieldChange = (
     index: number,
@@ -385,8 +371,8 @@ const BlockingContent = ({
                   label="Select Field"
                   onChange={event => handleFieldChange(index, event)}
                 >
-                  {Array.isArray(demographicData) &&
-                    demographicData.map(demographicField => (
+                  {Array.isArray(configuration?.demographicFields) &&
+                    configuration?.demographicFields.map(demographicField => (
                       <MenuItem
                         key={demographicField.fieldName}
                         value={demographicField.fieldName}
