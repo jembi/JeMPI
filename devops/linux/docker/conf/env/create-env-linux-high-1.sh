@@ -16,6 +16,9 @@ export API_FIELDS_CONFIG_FILENAME="config-api.json"
 export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 export NODE1_IP=$(hostname -i)
+export PLACEMENT_NODE1=jempi1
+export PLACEMENT_NODE2=jempi2
+export PLACEMENT_NODE3=jempi3
 
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
@@ -29,7 +32,7 @@ export SCALE_ALPHA_02=1
 export SCALE_ALPHA_03=1
 export SCALE_RATEL=1
 export SCALE_POSTGRESQL=1
-export SCALE_LINKER=1
+export SCALE_LINKER=3
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
@@ -45,6 +48,7 @@ export DGRAPH_PORTS="9080,9081,9082"
 
 # Ports
 export API_HTTP_PORT=50000
+export BACKUP_RESTORE_API_HTTP_PORT=50000
 export API_KC_HTTP_PORT=50000
 export ETL_HTTP_PORT=50000
 export CONTROLLER_HTTP_PORT=50000

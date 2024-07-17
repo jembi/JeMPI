@@ -75,9 +75,13 @@ public final class LibDgraph implements LibMPIClientInterface {
    public Either<MpiGeneralError, PaginatedResultSet<GoldenRecord>> findGoldenRecords(final List<String> ids) {
       return DgraphQueries.findGoldenRecords(ids);
    }
-
    public PaginatedResultSet<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
       return DgraphQueries.getExpandedGoldenRecords(goldenIds);
+   }
+
+   public String restoreGoldenRecord(
+           final RestoreGoldenRecords goldenRecord) {
+      return dgraphMutations.restoreGoldenRecord(goldenRecord);
    }
 
    public List<String> findGoldenIds() {

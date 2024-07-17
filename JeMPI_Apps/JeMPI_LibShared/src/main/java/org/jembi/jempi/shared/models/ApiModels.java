@@ -105,6 +105,26 @@ public abstract class ApiModels {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record RestoreGoldenRecord(
+         @JsonProperty("uid") String uid,
+         @JsonProperty("sourceId") List<SourceId> sourceId,
+         @JsonProperty("uniqueGoldenRecordData") JsonNode auxInteractionData,
+         @JsonProperty("demographicData") JsonNode demographicData) {
+   }
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record RestoreInteraction(
+           @JsonProperty("uid") String uid,
+           @JsonProperty("sourceId") SourceId sourceId,
+           @JsonProperty("uniqueInteractionData") JsonNode auxInteractionData,
+           @JsonProperty("demographicData") JsonNode demographicData) {
+   }
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record RestoreInteractionRecord(
+           @JsonProperty("interaction") RestoreInteraction interaction,
+           @JsonProperty("score") Float score) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiCrLinkToGidUpdateRequest(
          @JsonProperty("gid") String gid,
          @JsonProperty("sourceId") SourceId sourceId,

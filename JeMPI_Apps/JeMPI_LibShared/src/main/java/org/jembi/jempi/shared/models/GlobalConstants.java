@@ -61,6 +61,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "currentUser";
+   public static final String SEGMENT_POST_GOLDEN_RECORD_RESTORE = "restoreGoldenRecord";
 
    // TIMEOUTS
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;

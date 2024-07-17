@@ -1,26 +1,12 @@
 #!/bin/bash
 source ../conf.env
-#Backup Folder Name
-while true; do
-    # Ask the user to enter a folder name
-    echo "Backup folder Path:- ${POSTGRES_BACKUP_DIRECTORY}"
-    pushd ${POSTGRES_BACKUP_DIRECTORY}
-        echo
-        echo "Recent 5 Backups list"
-        ls -lt --time=creation --sort=time | grep '^d' | tail -n 5
-        echo
-    popd
-    read -p "Please enter your Postgres Backup Folder Name: " BACKUP_FOLDER_NAME
+if [ -z "$1" ]; then
+    echo "Error: No backup folder name provided."
+    echo "Usage: $0 <backup_folder_name>"
+    exit 1
+fi
+BACKUP_FOLDER_NAME=$1
 
-    # Check if the folder exists
-    if [ -d "${POSTGRES_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME" ]; then
-        echo "Folder '$BACKUP_FOLDER_NAME' exists!"
-        break  # Exit the loop if the folder exists
-    else
-        echo "Folder '$BACKUP_FOLDER_NAME' does not exist, at ${DGRAPH_BACKUP_DIRECTORY}. "
-        echo  "Please try again"
-    fi
-done
 # PostgreSQL settings from environment variables
 DB_NAME="${POSTGRESQL_DATABASE}"
 PGHOST="${POSTGRES_HOST:-localhost}"

@@ -339,7 +339,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_01}
+        - node.labels.name == ${PLACEMENT_NODE1}
     command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 --telemetry "reports=false; sentry=false;"
 
   alpha-02:
@@ -372,7 +372,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_02}
+        - node.labels.name == ${PLACEMENT_NODE2}
     command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 1 --telemetry "reports=false; sentry=false;"
 
   alpha-03:
@@ -405,7 +405,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.labels.name == ${PLACEMENT_DGRAPH_ALPHA_03}
+        - node.labels.name == ${PLACEMENT_NODE3}
     command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --cache "size-mb=10240; percentage=50,30,20;" --security whitelist=0.0.0.0/0 -o 2 --telemetry "reports=false; sentry=false;"
 
   ratel:
@@ -441,14 +441,18 @@ services:
     networks:
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_ASYNC_RECEIVER/csv
-        target: /app/csv
-        read_only: true
-      - type: bind
-        source: $DATA_DIR_ASYNC_RECEIVER/conf
-        target: /app/conf
-        read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -475,10 +479,14 @@ services:
     networks:
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_ETL/conf
-        target: /app/conf
-        read_only: true
+    - type: bind
+      source: $DATA_DIR_ETL/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -519,10 +527,14 @@ services:
     networks:
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_CONTROLLER/conf
-        target: /app/conf
-        read_only: true
+    - type: bind
+      source: $DATA_DIR_CONTROLLER/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -548,14 +560,18 @@ services:
     networks:
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_EM_SCALA/conf
-        target: /app/conf
-        read_only: true
-      - type: bind
-        source: $DATA_DIR_EM_SCALA/data
-        target: /app/data
-        read_only: true
+    - type: bind
+      source: $DATA_DIR_EM_SCALA/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_EM_SCALA/data
+      target: /app/data
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -597,10 +613,14 @@ services:
     networks:
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_LINKER/conf
-        target: /app/conf
-        read_only: true
+    - type: bind
+      source: $DATA_DIR_LINKER/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -644,14 +664,18 @@ services:
     networks:
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_API/conf
-        target: /app/conf
-        read_only: true
-      - type: bind
-        source: $DATA_DIR_ASYNC_RECEIVER/csv
-        target: /app/csv
-        read_only: false
+    - type: bind
+      source: $DATA_DIR_API/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -706,14 +730,18 @@ services:
       - frontend
       - backend
     volumes:
-      - type: bind
-        source: $DATA_DIR_API_KC/conf
-        target: /app/conf
-        read_only: true
-      - type: bind
-        source: $DATA_DIR_ASYNC_RECEIVER/csv
-        target: /app/csv
-        read_only: false
+    - type: bind
+      source: $DATA_DIR_API_KC/conf
+      target: /app/conf
+      read_only: true
+    - type: bind
+      source: $DATA_DIR_ASYNC_RECEIVER/csv
+      target: /app/csv
+      read_only: false
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
     deploy:
       mode: replicated
       replicas: 0
@@ -773,6 +801,11 @@ services:
     image: ${IMAGE_REGISTRY}$BOOTSTRAPPER_IMAGE
     networks:
       - backend
+    volumes:
+      - type: bind
+        source: $DATA_SYSTEM_CONFIG_DIR
+        target: /app/conf_system
+        read_only: true
     environment:
       POSTGRESQL_IP: postgresql
       POSTGRESQL_PORT: 5432
@@ -790,6 +823,50 @@ services:
     deploy:
       mode: global
 
+  backup-restore-api:
+    image: ${IMAGE_REGISTRY}${BACKUP_RESTORE_API_IMAGE}
+    environment:
+      LOG4J2_LEVEL: "DEBUG"
+      POSTGRESQL_IP: postgresql
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_SERVERS}
+      KAFKA_APPLICATION_ID: app-id-backuprestoreapi
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      BACKUP_RESTORE_API_HTTP_PORT: ${BACKUP_RESTORE_API_HTTP_PORT}
+      API_HTTP_PORT: ${API_HTTP_PORT}
+      LINKER_IP: linker
+      LINKER_HTTP_PORT: 50000
+      CONTROLLER_IP: controller
+      CONTROLLER_HTTP_PORT: ${CONTROLLER_HTTP_PORT}
+    networks:
+    - backend
+    volumes:
+    - type: bind
+      source: $DATA_SYSTEM_CONFIG_DIR
+      target: /app/conf_system
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          memory: ${API_RAM_LIMIT}
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+      placement:
+        constraints:
+        - node.labels.name == ${PLACEMENT_API}
+
   ui:
     image: ${IMAGE_REGISTRY}${UI_IMAGE}
     environment:
@@ -805,6 +882,11 @@ services:
       REACT_APP_SHOW_BRAND_LOGO: "${REACT_APP_SHOW_BRAND_LOGO}"
     networks:
       - frontend
+    volumes:
+      - type: bind
+        source: $DATA_SYSTEM_CONFIG_DIR
+        target: /app/conf_system
+        read_only: true
     deploy:
       mode: replicated
       replicas: 0

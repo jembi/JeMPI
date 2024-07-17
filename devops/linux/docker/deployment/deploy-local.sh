@@ -6,6 +6,7 @@ echo "$JEMPI_HOME"
 export JAVA_VERSION=21.0.3-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
 JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
+JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
 
 # Display menu options
 echo "Select an option for local deployment:"
@@ -83,7 +84,8 @@ run_enviroment_configuration_and_helper_script(){
     # Navigate to environment configuration directory
     echo "Navigate to environment configuration directory"
     pushd "$JEMPI_HOME/devops/linux/docker/conf/env/"
-        source create-env-linux-low-1.sh
+        # shellcheck source=path/to/create-env-linux-low-1.sh
+        source "$JEMPI_ENV_CONFIGURATION"
     popd    
 
     # Running Docker helper scripts 
@@ -130,7 +132,6 @@ pull_docker_images_and_push_local(){
 }
 build_all_stack_and_reboot(){
     # run_enviroment_configuration_and_helper_script
-    run_field_configuration_file
     # Build and reboot the entire stack
     echo "Build and reboot the entire stack"
     pushd "$JEMPI_HOME/devops/linux/docker/deployment/build_and_reboot"
@@ -139,46 +140,26 @@ build_all_stack_and_reboot(){
 }
 initialize_db_build_all_stack_and_reboot(){
     echo "Create DB and Deploy"
-    pushd "$JEMPI_HOME/devops/linux/docker/deployment/from_scratch"
+    pushd "$JEMPI_HOME/devops/linux/docker/deployment/install_from_scratch" || exit
         yes | source d-stack-1-create-db-build-all-reboot.sh
     popd
 }
-restore_dgraph_db(){
-    echo "Are you sure you want to restore the Dgraph database? (yes/no)"
-    read dgraph_confirmation
-    dgraph_confirmation=$(echo "$dgraph_confirmation" | tr '[:upper:]' '[:lower:]')
-
-    if [ "$dgraph_confirmation" == "yes" ] || [ "$dgraph_confirmation" == "y" ]; then
+restore_db(){
+    echo "Are you sure you want to restore the Dgraph and Postgres database? It will wipe all data and restore from backup (Ctrl+Y for Yes, any other key for No)"
+    read -rsn1 -p "> " answer
+        # Call the confirm function
+       
+    if [[ $answer == $'\x19' ]]; then
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
             echo "Starting Dgraph database restore..."
-            bash dgraph-restore.sh
-            echo "Database Dgraph restore completed."
+            bash restore-dgraph-postgres.sh
+            echo "Database Dgraph and Postgres restore completed."
         popd
     else
-        echo "Dgraph Database restore cancelled. Moving ahead without restore."
+        echo "Database restore cancelled. Moving ahead without restore."
  cd de         # Continue with the rest of your script
     fi
 }
-restore_postgres_db(){
-    echo "Are you sure you want to restore the Postgres database? (yes/no)"
-    read postgres_confirmation
-    postgres_confirmation=$(echo "$postgres_confirmation" | tr '[:upper:]' '[:lower:]')
-
-    if [ "$postgres_confirmation" == "yes" ] || [ "$postgres_confirmation" == "y" ]; then
-        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
-            echo "Starting Postgres database restore..."
-            sudo bash postgres-restore.sh
-            echo "Database Postgres restore completed."
-        popd
-        
-    else
-        echo "Postgres Database restore cancelled. Moving ahead without restore."
-        # Continue with the rest of your script
-    fi
-}
-
-
-
 
 # Process user choice
 case $choice in
@@ -218,17 +199,17 @@ case $choice in
         exit 0
         ;;
     6)
-        echo "Backup"
-        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore"
-            sudo bash dgraph-backup.sh
-            sudo bash postgres-backup.sh
-        popd
-
+        BACKUP_DATE_TIME=$(date +%Y-%m-%d_%H%M%S)
+        echo "Started Backup at- $BACKUP_DATE_TIME"
+        pushd "$JEMPI_HOME/devops/linux/docker/backup_restore" || exit
+            source dgraph-backup-api.sh "$BACKUP_DATE_TIME" || { echo "Dgraph backup failed"; exit 1; }
+            sudo bash postgres-backup.sh "$BACKUP_DATE_TIME" || { echo "Postgres backup failed"; exit 1; }
+        popd || exit
+        
         ;;
     7)
         echo "Restore Databases"
-        restore_postgres_db
-        restore_dgraph_db
+        restore_db
         ;;
     8)
         echo "Destroy"

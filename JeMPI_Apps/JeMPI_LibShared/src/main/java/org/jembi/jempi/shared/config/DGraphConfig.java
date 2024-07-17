@@ -22,7 +22,9 @@ public class DGraphConfig {
    public final String mutationCreateAdditionalNodeFields;
    public final String mutationCreateAdditionalNodeType;
    public final String mutationCreateInteractionTriple;
+   public final String mutationCreateInteractionTripleWithUID;
    public final String mutationCreateLinkedGoldenRecordTriple;
+   public final String mutationCreateLinkedGoldenRecordTripleWithUID;
    public final String goldenRecordFieldNames;
    public final String expandedGoldenRecordFieldNames;
    public final String interactionFieldNames;
@@ -42,7 +44,9 @@ public class DGraphConfig {
       mutationCreateAdditionalNodeFields = MutationCreateAdditionalNodeFields.create(jsonConfig);
       mutationCreateAdditionalNodeType = MutationCreateAdditionalNodeType.create(jsonConfig);
       mutationCreateInteractionTriple = MutationCreateInteractionTriple.create(jsonConfig);
+      mutationCreateInteractionTripleWithUID = MutationCreateInteractionTripleWithUID.create(jsonConfig);
       mutationCreateLinkedGoldenRecordTriple = MutationCreateLinkedGoldenRecordTriple.create(jsonConfig);
+      mutationCreateLinkedGoldenRecordTripleWithUID = MutationCreateLinkedGoldenRecordTripleWithUID.create(jsonConfig);
       goldenRecordFieldNames = GoldenRecordFieldNames.create(jsonConfig);
       expandedGoldenRecordFieldNames = ExpandedGoldenRecordFieldNames.create(jsonConfig);
       interactionFieldNames = InteractionFieldNames.create(jsonConfig);

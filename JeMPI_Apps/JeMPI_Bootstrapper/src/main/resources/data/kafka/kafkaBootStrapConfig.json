@@ -35,6 +35,20 @@
       "retention_ms": 86400000,
       "segments_bytes": 4194304
     },
+    "JeMPI-interaction-validate": {
+      "topicName": "JeMPI-interaction-validate",
+      "partition": 30,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
+    "JeMPI-interaction-match": {
+      "topicName": "JeMPI-interaction-match",
+      "partition": 30,
+      "replications": 1,
+      "retention_ms": 86400000,
+      "segments_bytes": 4194304
+    },
     "JeMPI-mu-controller": {
       "topicName": "JeMPI-mu-controller",
       "partition": 1,
