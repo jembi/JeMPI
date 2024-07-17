@@ -26,7 +26,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
-import CustomPagination from 'components/shared/CustomDataGridPagination'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import SelectDropdown from 'components/shared/SelectDropdown'
@@ -172,7 +171,7 @@ const NotificationWorklist = () => {
                 }}
                 columns={NOTIFICATIONS_COLUMNS}
                 rows={data.records as Notification[]}
-                slots={{ pagination: CustomPagination }}
+                // slots={{ pagination: CustomPagination }}
                 pageSizeOptions={[25, 50, 100]}
                 paginationModel={paginationModel}
                 onPaginationModelChange={model => setPaginationModel(model)}

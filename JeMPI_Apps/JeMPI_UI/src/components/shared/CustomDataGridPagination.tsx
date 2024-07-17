@@ -37,15 +37,15 @@ const Pagination = ({
   );
 };
 
-const CustomPagination = forwardRef<HTMLDivElement, MuiTablePaginationProps>((props, ref) => {
+export const CustomPagination = forwardRef<HTMLDivElement, MuiTablePaginationProps>((props, ref) => {
   const { slotProps, ...rest } = props;
 
   return (
     <GridPagination
       ActionsComponent={(subProps: any) => <Pagination {...subProps} />}
       ref={ref as any}
-      slotProps={slotProps} // pass slotProps as it is expected by GridPagination
-      {...rest} // Spread remaining props
+      slotProps={slotProps}
+      {...rest} 
     />
   );
 });
