@@ -1,5 +1,10 @@
 #!/bin/bash
 source ../conf.env
+if [ -z "$1" ]; then
+    echo "Error: No backup folder name provided."
+    echo "Usage: $0 <backup_folder_name>"
+    exit 1
+fi
 BACKUP_FOLDER_NAME=$1
 
 # PostgreSQL settings from environment variables

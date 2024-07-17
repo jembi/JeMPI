@@ -1,6 +1,11 @@
 #!/bin/bash
 source ../conf.env
 #Backup Folder Name
+if [ -z "$1" ]; then
+    echo "Error: No backup folder name provided."
+    echo "Usage: $0 <backup_folder_name>"
+    exit 1
+fi
     BACKUP_FOLDER_NAME=$1
     SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
     cd ${SCRIPT_DIR}/..

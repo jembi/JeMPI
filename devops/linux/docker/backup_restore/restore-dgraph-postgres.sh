@@ -2,7 +2,7 @@
 source ../conf.env
 #Backup Folder Name
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
-cd ${SCRIPT_DIR}/..
+cd ${SCRIPT_DIR}/.. || exit
 JEMPI_DOCKER_HOME=$PWD
 # JEMPI_HOME = $1
 down_dir="$JEMPI_DOCKER_HOME/deployment/down"
@@ -16,10 +16,10 @@ python_cmd=$(which python3 || which python)
 echo $python_cmd
 Function to stop services
 stop_services() {
-    pushd "$down_dir"
+    pushd "$down_dir" || exit
         echo "Stopping API service"
         source d-stack-stop-services.sh
-    popd
+    popd || exit
 }
 start_services() {
     pushd "$reboot_dir" || exit

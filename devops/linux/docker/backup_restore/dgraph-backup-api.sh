@@ -3,6 +3,11 @@
 set -e
 set -u
 pushd .
+    if [ -z "$1" ]; then
+        echo "Error: No backup folder name provided."
+        echo "Usage: $0 <backup_folder_name>"
+        exit 1
+    fi
     BACKUP_DATE_TIME=$1
     SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
     cd "${SCRIPT_DIR}/.." || exit

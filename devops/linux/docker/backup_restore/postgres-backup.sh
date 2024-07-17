@@ -2,6 +2,11 @@
 source ../conf.env
 # Load Database Credentials from Environment Variables
 if [ -z "$1" ]; then
+    echo "Error: No backup folder name provided."
+    echo "Usage: $0 <backup_folder_name>"
+    exit 1
+fi
+if [ -z "$1" ]; then
     # Argument is empty, so set current datetime
     BACKUP_DATE_TIME=$(date +%Y%m%d_%H%M%S)
 else
