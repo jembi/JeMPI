@@ -526,6 +526,7 @@
         <module>JeMPI_Controller</module>
         <module>JeMPI_Linker</module>
         <module>JeMPI_Bootstrapper</module>
+        <module>JeMPI_BackupRestoreAPI</module>
     </modules>
 
 </project>

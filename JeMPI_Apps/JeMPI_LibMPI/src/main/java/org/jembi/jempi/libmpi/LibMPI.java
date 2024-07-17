@@ -163,6 +163,11 @@ public final class LibMPI {
       return client.findExpandedGoldenRecords(goldenIds).data();
    }
 
+   public String postGoldenRecord(final RestoreGoldenRecords goldenRecord) {
+      client.connect();
+      return client.restoreGoldenRecord(goldenRecord);
+   }
+
    public List<String> findGoldenIds() {
       client.connect();
       return client.findGoldenIds();

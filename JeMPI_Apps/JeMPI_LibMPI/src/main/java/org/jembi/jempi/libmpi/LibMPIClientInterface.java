@@ -63,6 +63,8 @@ public interface LibMPIClientInterface {
 
    List<GoldenRecord> findLinkCandidates(DemographicData demographicData);
 
+   String restoreGoldenRecord(RestoreGoldenRecords goldenRecord);
+
    List<GoldenRecord> findMatchCandidates(DemographicData demographicData);
 
    PaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(

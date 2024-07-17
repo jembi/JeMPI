@@ -76,12 +76,7 @@ public final class Main {
                   .stream()
                   .map(f -> new AuxInteractionData.AuxInteractionUserField(f.scName(),
                                                                            f.ccName(),
-                                                                           f.source().csvCol() != null
-                                                                                 ?
-                                                                                 csvRecord.get(f.source().csvCol())
-                                                                                 :
-                                                                                       AppUtils.applyFunction(f.source().generate().func())
-                  ))
+                                                                           csvRecord.get(f.source().csvCol())))
                   .toList());
    }
 
