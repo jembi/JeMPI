@@ -2,7 +2,6 @@
 source ../conf.env
 #Backup Folder Name
 
-    BACKUP_DATE_TIME=$1
     SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
     cd ${SCRIPT_DIR}/..
     JEMPI_DOCKER_HOME=$PWD
@@ -47,7 +46,7 @@ while true; do
         echo "Backup API"
     # Ask the user to enter a folder name
     echo "Backup folder Path:- ${DGRAPH_BACKUP_DIRECTORY}"
-    pushd ${DGRAPH_BACKUP_DIRECTORY}
+    pushd ${DGRAPH_BACKUP_DIRECTORY} || exit
         echo
         echo "Recent 5 Backups list"
         ls -lt --time=creation --sort=time | grep '^d' | tail -n 5

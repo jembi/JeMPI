@@ -10,7 +10,7 @@ host = env_vars['NODE1_IP']
 port = "50010"
 backup_path = env_vars['DGRAPH_BACKUP_DIRECTORY']
 
-if len(sys.argv) >= 1:
+if len(sys.argv) > 1:
     current_datetime = sys.argv[1]
 else:
     current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -26,8 +26,13 @@ def fetch_data_for_id(gidList):
     get_expanded_golden_record = f'http://{host}:{port}/JeMPI/expandedGoldenRecords'
     payload = json.dumps({"uidList": gidList})
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(get_expanded_golden_record, headers=headers, data=payload)
-    return response.json() if response.status_code == 200 else None
+    try:
+        response = requests.post(get_expanded_golden_record, headers=headers, data=payload)
+        if response.status_code == 200:
+           return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch data for ID {gidList}: {str(e)}")
+        return None
 
 def chunks(lst, n):
     for i in range(0, len(lst), n):
@@ -48,6 +53,9 @@ def backup_dgraph_data():
             if golden_records_data:
                 for golden_record_data in golden_records_data:
                     backup_data.append(golden_record_data)
+            if golden_records_data is None:
+                print(f"Failed to backup data for chunk: {gid_chunk}")
+                continue
 
         file_name = f'dgraph_backup_{current_datetime}.json'
         print(f'Total {str(len(backup_data))} Golden records backed up.')
@@ -61,7 +69,11 @@ def create_backup_json(backup_data, file_name):
     backup_path_folder = os.path.join(backup_path, current_datetime)
     create_folder_if_not_exists(backup_path_folder)
     with open(os.path.join(backup_path_folder, file_name), 'w') as json_file:
-        json.dump(backup_data, json_file, indent=4)
+        try:
+            json.dump(backup_data, json_file, indent=4)
+        except IOError as e:
+            print(f"Failed to write backup data to file: {str(e)}")
+            return None
     return backup_path_folder
 
 
