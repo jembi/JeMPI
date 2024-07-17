@@ -66,11 +66,10 @@ while true; do
 done
 
 BACKUP_DIR="${DGRAPH_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME"
-backup_data() {
+restore_data() {
         pushd "$backup_restore_dir"
             local dir=$1
             echo "$backup_restore_dir"
-            echo "$dir"
             sleep 20
             echo "Started Restore through API"
             $python_cmd dgraph-restore-api.py $dir
@@ -87,8 +86,8 @@ source helper/bootstrapper/bootstrapper-docker.sh data resetAll
 
 for backup_file in ${BACKUP_DIR}/dgraph_backup*.json; do
     # Assuming the first directory is for alpha nodes
-    echo "innnn"
-    backup_data $backup_file
+    echo "Backup file found : $backup_file"
+    restore_data $backup_file
 done
 
 start_services

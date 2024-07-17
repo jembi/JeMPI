@@ -21,9 +21,10 @@ def create_folder_if_not_exists(folder_path):
 
 
 # Function to fetch data for a single ID
-def fetch_data_for_id(gid):
+def fetch_data_for_id(gidList):
+    print("Backing up data for {}".format(gidList))
     get_expanded_golden_record = f'http://{host}:{port}/JeMPI/expandedGoldenRecords'
-    payload = json.dumps({"uidList": gid})
+    payload = json.dumps({"uidList": gidList})
     headers = {'Content-Type': 'application/json'}
     response = requests.post(get_expanded_golden_record, headers=headers, data=payload)
     return response.json() if response.status_code == 200 else None

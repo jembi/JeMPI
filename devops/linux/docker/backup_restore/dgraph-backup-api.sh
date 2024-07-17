@@ -35,7 +35,7 @@ pushd .
         pushd "$backup_restore_dir" || exit
             sleep 20
             echo "Started Backup through API"
-            $python_cmd dgraph-backup.py $BACKUP_DATE_TIME
+            $python_cmd dgraph-backup-api.py $BACKUP_DATE_TIME
             sleep 10
         popd || exit
     }
