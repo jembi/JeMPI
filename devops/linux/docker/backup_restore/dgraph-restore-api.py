@@ -65,16 +65,9 @@ def process_json_data(golden_records):
     for golden_record in golden_records:
         
         golden_record['goldenRecord']['uniqueGoldenRecordData']['auxDateCreated'] = convert_datetime_format(golden_record['goldenRecord']['uniqueGoldenRecordData']['auxDateCreated'])
-        unique_golden_record_data = golden_record['goldenRecord']['uniqueGoldenRecordData']
-        if not unique_golden_record_data.get('auxGid'):
-            unique_golden_record_data['auxGid'] = golden_record['goldenRecord']['uid']
-            
         for interaction in golden_record['interactionsWithScore']:
             interaction['interaction']['uniqueInteractionData']['auxDateCreated'] = convert_datetime_format(
                 interaction['interaction']['uniqueInteractionData']['auxDateCreated'])
-            unique_interaction_data = interaction['interaction']['uniqueInteractionData']
-            if not unique_interaction_data.get('auxIid'):
-                unique_interaction_data['auxIid'] = interaction['interaction']['uid']
         print("------------------------------------------------------")
         print("Old Golden ID--"+ golden_record['goldenRecord']["uid"])
         response = send_golden_record_to_api(golden_record)
