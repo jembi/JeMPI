@@ -9,6 +9,7 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.ApiModels;
 import org.jembi.jempi.shared.models.RestoreGoldenRecords;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public final class Ask {
@@ -37,6 +38,18 @@ public final class Ask {
       final CompletionStage<BackEnd.GetExpandedGoldenRecordResponse> stage = AskPattern
               .ask(backEnd,
                       replyTo -> new BackEnd.GetExpandedGoldenRecordRequest(replyTo, payload.gid()),
+                      java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> getExpandedGoldenRecords(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final List<String> gidList) {
+      CompletionStage<BackEnd.GetExpandedGoldenRecordsResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.GetExpandedGoldenRecordsRequest(replyTo, gidList),
                       java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                       actorSystem.scheduler());
       return stage.thenApply(response -> response);

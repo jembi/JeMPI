@@ -22,15 +22,15 @@ def create_folder_if_not_exists(folder_path):
 
 # Function to fetch data for a single ID
 def fetch_data_for_id(gid):
-    get_expanded_golden_record = f'http://{host}:{port}/JeMPI/expandedGoldenRecord'
-    payload = json.dumps({"gid": gid})
+    get_expanded_golden_record = f'http://{host}:{port}/JeMPI/expandedGoldenRecords'
+    payload = json.dumps({"uidList": gid})
     headers = {'Content-Type': 'application/json'}
     response = requests.post(get_expanded_golden_record, headers=headers, data=payload)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f'Error fetching data for ID {gid}: {response.status_code}')
-    return None
+    return response.json() if response.status_code == 200 else None
+
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 # Function to backup Dgraph data
 def backup_dgraph_data():
@@ -40,19 +40,21 @@ def backup_dgraph_data():
     if response.status_code == 200:
         new_golden_records = response.json()
         backup_data = []
-        for gid in new_golden_records.get("records", []):
-            try:
-                golden_record_data = fetch_data_for_id(gid)
-                if golden_record_data:
+        gids = new_golden_records.get("records")
+        chunk_size = 100
+        for gid_chunk in chunks(gids, chunk_size):
+            golden_records_data = fetch_data_for_id(gid_chunk)
+            if golden_records_data:
+                for golden_record_data in golden_records_data:
                     backup_data.append(golden_record_data)
-            except Exception as e:
-                print(f'Error processing ID {gid}: {e}')
+
         file_name = f'dgraph_backup_{current_datetime}.json'
         print(f'Total {str(len(backup_data))} Golden records backed up.')
         backup_path_folder = create_backup_json(backup_data, file_name)
         print(f'All data saved to {backup_path_folder + "/" + file_name}')
     else:
         print('Failed to retrieve list of IDs from the API')
+
 
 def create_backup_json(backup_data, file_name):
     backup_path_folder = os.path.join(backup_path, current_datetime)

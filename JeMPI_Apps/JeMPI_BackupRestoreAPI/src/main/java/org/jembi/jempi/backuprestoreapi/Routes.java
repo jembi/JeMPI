@@ -91,6 +91,29 @@ public final class Routes {
                                            }));
     }
 
+    private static Route getExpandedGoldenRecordsForUidList(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(ApiModels.ApiExpandedGoldenRecordsParameterList.class),
+                request -> onComplete(Ask.getExpandedGoldenRecords(actorSystem, backEnd, request.uidList()),
+                        result -> {
+                            if (!result.isSuccess()) {
+                                final var e = result.failed().get();
+                                LOGGER.error(e.getLocalizedMessage(), e);
+                                return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                            }
+                            return result.get()
+                                    .expandedGoldenRecords()
+                                    .mapLeft(MapError::mapError)
+                                    .fold(error -> error,
+                                            expandedGoldenRecords -> complete(StatusCodes.OK,
+                                                    expandedGoldenRecords.stream()
+                                                            .map(ApiModels.ApiExpandedGoldenRecord::fromExpandedGoldenRecord)
+                                                            .toList(),
+                                                    JSON_MARSHALLER));
+                        }));
+    }
+
     public static Route createCoreAPIRoutes(
             final ActorSystem<Void> actorSystem,
             final ActorRef<BackEnd.Event> backEnd
@@ -98,6 +121,8 @@ public final class Routes {
         return concat(post(() -> concat(
                         path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORD,
                                 () -> Routes.getExpandedGoldenRecord(actorSystem, backEnd)),
+                        path(GlobalConstants.SEGMENT_POST_EXPANDED_GOLDEN_RECORDS_FOR_UID_LIST,
+                                () -> Routes.getExpandedGoldenRecordsForUidList(actorSystem, backEnd)),
                         path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD_RESTORE,
                                 () -> Routes.postGoldenRecord(actorSystem, backEnd))
                 )),

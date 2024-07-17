@@ -12,6 +12,7 @@ import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.*;
 
+import java.util.Collections;
 import java.util.List;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
@@ -103,6 +104,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder.onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
                     .onMessage(GetExpandedGoldenRecordRequest.class, this::getExpandedGoldenRecordHandler)
+                    .onMessage(GetExpandedGoldenRecordsRequest.class, this::getExpandedGoldenRecordsHandler)
                     .onMessage(PostGoldenRecordRequest.class, this::postGoldenRecordRequestHandler)
                     .build();
    }
@@ -131,6 +133,26 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                      request.goldenId))));
       } else {
          request.replyTo.tell(new GetExpandedGoldenRecordResponse(Either.right(expandedGoldenRecord)));
+      }
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> getExpandedGoldenRecordsHandler(final GetExpandedGoldenRecordsRequest request) {
+      List<ExpandedGoldenRecord> goldenRecords = null;
+      try {
+         goldenRecords = libMPI.findExpandedGoldenRecords(request.goldenIds);
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.findExpandedGoldenRecords failed for goldenIds: {} with error: {}",
+                 request.goldenIds,
+                 exception.getMessage());
+      }
+
+      if (goldenRecords == null) {
+         request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.left(new MpiServiceError.GoldenIdDoesNotExistError(
+                 "Golden Records do not exist",
+                 Collections.singletonList(request.goldenIds).toString()))));
+      } else {
+         request.replyTo.tell(new GetExpandedGoldenRecordsResponse(Either.right(goldenRecords)));
       }
       return Behaviors.same();
    }
@@ -168,6 +190,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetExpandedGoldenRecordResponse(Either<MpiGeneralError, ExpandedGoldenRecord> goldenRecord)
          implements EventResponse {
    }
+
+   public record GetExpandedGoldenRecordsRequest(
+           ActorRef<GetExpandedGoldenRecordsResponse> replyTo,
+           List<String> goldenIds) implements Event { }
+
+   public record GetExpandedGoldenRecordsResponse(
+           Either<MpiGeneralError, List<ExpandedGoldenRecord>> expandedGoldenRecords) implements EventResponse { }
 
    public record PostGoldenRecordRequest(
            ActorRef<PostGoldenRecordResponse> replyTo,
