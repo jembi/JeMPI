@@ -198,7 +198,6 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                        GoldenRecord.aux_gid
                   """.formatted(rule.vars().getFirst(), rule.vars().getFirst())
                 + jsonConfig.demographicFields()
                             .stream()
@@ -267,7 +266,6 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                        GoldenRecord.aux_gid
                   """.formatted(postfixToInfix2(filters, postfix))
                 + jsonConfig.demographicFields()
                             .stream()
@@ -300,7 +298,6 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                        GoldenRecord.aux_gid
                   """.formatted(rule.vars().getFirst(), rule.vars().getFirst())
                 + jsonConfig.demographicFields()
                             .stream()
@@ -337,7 +334,6 @@ public final class Programs {
                         GoldenRecord.aux_date_created
                         GoldenRecord.aux_auto_update_enabled
                         GoldenRecord.aux_id
-                        GoldenRecord.aux_gid
                   """.formatted(postfixToInfix1(rule.vars(), postfix))
                 + jsonConfig.demographicFields()
                             .stream()
