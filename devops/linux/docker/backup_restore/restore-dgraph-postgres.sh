@@ -40,6 +40,7 @@ while true; do
         echo
     popd  || exit
     read -p "Please enter your Backup Folder Name: " BACKUP_FOLDER_NAME
+    BACKUP_FOLDER_NAME=$(echo $BACKUP_FOLDER_NAME | xargs)
 
     # Check if the folder exists
     if [ -d "${DGRAPH_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME" ] && [ -d "${POSTGRES_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME" ]; then

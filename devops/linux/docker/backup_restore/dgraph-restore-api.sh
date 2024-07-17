@@ -1,14 +1,14 @@
 #!/bin/bash
 source ../conf.env
 #Backup Folder Name
-if [ -z "$1" ]; then
-    echo "Error: No backup folder name provided."
-    echo "Usage: $0 <backup_folder_name>"
-    exit 1
-fi
+    if [ -z "$1" ]; then
+        echo "Error: No backup folder name provided."
+        echo "Usage: $0 <backup_folder_name>"
+        exit 1
+    fi
     BACKUP_FOLDER_NAME=$1
     SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
-    cd ${SCRIPT_DIR}/..
+    cd ${SCRIPT_DIR}/.. || exit
     JEMPI_DOCKER_HOME=$PWD
     # JEMPI_HOME = $1
     down_dir="$JEMPI_DOCKER_HOME/deployment/down"
@@ -20,23 +20,23 @@ fi
 
      # Function to start backup restore API service
     start_backup_restore_service() {
-        pushd "$reboot_dir"
+        pushd "$reboot_dir" || exit
             echo "Starting Backup Restore API service"
             source d-stack-start-backup-restore-api-services.sh
-        popd
+        popd || exit
     }
 
     # Function to stop backup restore API service
     stop_backup_restore_service() {
-        pushd "$down_dir"
+        pushd "$down_dir" || exit
             echo "Stopping Backup Restore API service"
             source d-stack-stop-backup-restore-api-services.sh
-        popd
+        popd || exit
     }
 
 BACKUP_DIR="${DGRAPH_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME"
 restore_data() {
-        pushd "$backup_restore_dir"
+        pushd "$backup_restore_dir" || exit
             local dir=$1
             echo "$backup_restore_dir"
             sleep 20
@@ -45,7 +45,7 @@ restore_data() {
             sleep 10
             # sudo bash dgraph-backup.sh
             # sudo bash postgres-backup.sh
-        popd
+        popd || exit
     }
 
 start_backup_restore_service
