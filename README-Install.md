@@ -30,14 +30,14 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 
 
 3. **Select an Option:**
-   - **Option 1:** Deploy JeMPI from Scratch (With all installations).
-   - **Option 2:** Deploy JeMPI without installations.
-   - **Option 3:** Build and Reboot.
-   - **Option 4:** Restart JeMPI.
-   - **Option 5:** Down JeMPI.
-   - **Option 6:** Backup Postgres & Dgraph.
-   - **Option 7:** Restore Postgres & Dgraph.
-   - **Option 8:** Destroy JeMPI (This process will wipe all data).
+   - **Option 1:** Deploy JeMPI (For Fresh Start).
+   - **Option 2:** Build and Reboot.
+   - **Option 3:** Restart JeMPI.
+   - **Option 4:** Down JeMPI.
+   - **Option 5:** Backup Postgres & Dgraph.
+   - **Option 6:** Restore Postgres & Dgraph.
+   - **Option 7:** Destroy JeMPI (This process will wipe all data).
+   - **Option 6:** Install Prerequisites..
 
 
 
