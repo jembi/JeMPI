@@ -37,7 +37,7 @@ This Bash script is designed for deploying JeMPI locally with various options. I
    - **Option 5:** Backup Postgres & Dgraph.
    - **Option 6:** Restore Postgres & Dgraph.
    - **Option 7:** Destroy JeMPI (This process will wipe all data).
-   - **Option 6:** Install Prerequisites..
+   - **Option 8:** Install Prerequisites..
 
 
 
@@ -56,7 +56,7 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 
 **Backup:**
 - **Backup Directory:** `JeMPI/devops/linux/docker/docker_data/data/backups/dgraph`
-- The backup process creates a folder with a timestamp, and inside it, folders are copied for each Dgraph node.
+- Dgraph backup process creates a folder with a timestamp, and inside it generate the Json file of data.
 
 **Restore:**
 - Users need to enter the folder name of the backup directory for Dgraph
