@@ -6,7 +6,7 @@ set -u
 cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API/src/main/resources/config-api.json
 cp -L -f ./JeMPI_Configuration/config-api.json ./JeMPI_API_KC/src/main/resources/config-api.json
 
-CI=${CI:-false}
+CI="${CI:-false}"
 if [ $# -eq 0 ]; then
     tag_to_use="ci-test-main" 
 else
@@ -18,28 +18,28 @@ pushd JeMPI_EM_Scala
 popd
 
 pushd JeMPI_AsyncReceiver
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_ETL
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Controller
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_EM_Scala
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Linker
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API_KC
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Bootstrapper
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_AsyncReceiver
   ./push.sh

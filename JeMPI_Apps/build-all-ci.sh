@@ -3,7 +3,7 @@
 set -e
 set -u
 
-CI=${CI:-true}
+CI="${CI:-true}"
 if [ $# -eq 0 ]; then
     tag_to_use="ci-test-main" 
 else
@@ -26,29 +26,29 @@ popd
 docker buildx create --name container --driver=docker-container
 
 pushd JeMPI_AsyncReceiver
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_ETL
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Controller
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_EM_Scala
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Linker
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API_KC
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Bootstrapper
-  $CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_UI
-  $CI TAG=$tag_to_use ./build-image.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build-image.sh || exit 1
 popd
