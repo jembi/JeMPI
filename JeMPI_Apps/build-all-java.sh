@@ -18,7 +18,7 @@ pushd JeMPI_EM_Scala
 popd
 
 pushd JeMPI_AsyncReceiver
-  CI=CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_ETL
   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
