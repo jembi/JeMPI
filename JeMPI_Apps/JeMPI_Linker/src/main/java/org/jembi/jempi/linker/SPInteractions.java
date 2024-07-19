@@ -56,7 +56,7 @@ public final class SPInteractions {
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
-         this.closeInteractionStream();
+         LOGGER.error("linkPatient failed for interaction: {}", interactionEnvelop.interaction());
       }
 
    }
