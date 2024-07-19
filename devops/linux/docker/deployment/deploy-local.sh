@@ -5,20 +5,18 @@ export JEMPI_HOME="$(pwd)"
 echo "$JEMPI_HOME"
 export JAVA_VERSION=21.0.3-tem
 echo "Setting JEMPI_HOME to: $JEMPI_HOME"
-JEMPI_CONFIGURATION_PATH=$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/reference/config-reference.json
 JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
 
 # Display menu options
 echo "Select an option for local deployment:"
-echo "1. Deploy JeMPI from Scratch (With all installations...)."
-echo "2. Deploy JeMPI without installations"
-echo "3. Build and Reboot."
-echo "4. Restart JeMPI."
-echo "5. Down the JeMPI."
-echo "6. Backup Postgres & Dgraph."
-echo "7. Restore Postgres & Dgraph."
-echo "8. Destroy JeMPI (This process will wipe all data)."
-
+echo "1. Deploy JeMPI (For Fresh Start)."
+echo "2. Build and Reboot."
+echo "3. Restart JeMPI."
+echo "4. Stop JeMPI."
+echo "5. Backup Postgres & Dgraph."
+echo "6. Restore Postgres & Dgraph."
+echo "7. Destroy JeMPI (This process will wipe all data and Volumes)."
+echo "8. Install Prerequisites."
 
 # Prompt user for choice
 read -p "Enter your choice (1-8): " choice
@@ -95,13 +93,6 @@ run_enviroment_configuration_and_helper_script(){
     popd
 }
 
-run_field_configuration_file() {
-    # Running Docker helper scripts
-    echo "Running JeMPI configuration with path: $JEMPI_CONFIGURATION_PATH"
-    pushd "$JEMPI_HOME/JeMPI_Apps/JeMPI_Configuration/"
-        source create.sh $JEMPI_CONFIGURATION_PATH
-    popd
-}
 
 initialize_swarm(){
     if docker info | grep -q "Swarm: active"; then
@@ -157,16 +148,14 @@ restore_db(){
         popd
     else
         echo "Database restore cancelled. Moving ahead without restore."
- cd de         # Continue with the rest of your script
+        # Continue with the rest of your script
     fi
 }
 
 # Process user choice
 case $choice in
     1)
-        echo "Deploy JeMPI from Scratch"
-        install_docker
-        install_sdkman_and_java_sbt_maven
+        echo "Deploy JeMPI With Fresh Start"
         hostname_setup
         run_enviroment_configuration_and_helper_script
         initialize_swarm
@@ -174,31 +163,23 @@ case $choice in
         initialize_db_build_all_stack_and_reboot
         ;;
     2)
-        echo "Deploy JeMPI"
-        hostname_setup
-        run_enviroment_configuration_and_helper_script
-        initialize_swarm
-        pull_docker_images_and_push_local
-        initialize_db_build_all_stack_and_reboot
-        ;;
-    3)
         echo "Build and Reboot"
         build_all_stack_and_reboot
         ;;
-    4)
+    3)
         echo "Restart JeMPI"
         pushd "$JEMPI_HOME/devops/linux/docker/deployment/reboot"
             source d-stack-3-reboot.sh
         popd
         ;;
-    5)
-        echo "Down JeMPI"
+    4)
+        echo "Stop JeMPI"
         pushd "$JEMPI_HOME/devops/linux/docker/deployment/down"
             source d-stack-3-down.sh
         popd
         exit 0
         ;;
-    6)
+    5)
         BACKUP_DATE_TIME=$(date +%Y-%m-%d_%H%M%S)
         echo "Started Backup at- $BACKUP_DATE_TIME"
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore" || exit
@@ -207,11 +188,11 @@ case $choice in
         popd || exit
         
         ;;
-    7)
+    6)
         echo "Restore Databases"
         restore_db
         ;;
-    8)
+    7)
         echo "Destroy"
         # Main script
         echo "Do you want to continue? (Ctrl+Y for Yes, any other key for No)"
@@ -226,6 +207,11 @@ case $choice in
             echo "You did not confirm. Exiting without performing the critical action."
         fi
         exit 0
+        ;;
+    8)
+        echo "Deploy JeMPI from Scratch"
+        install_docker
+        install_sdkman_and_java_sbt_maven
         ;;
     *)
         echo "Invalid choice. Please enter a number."
