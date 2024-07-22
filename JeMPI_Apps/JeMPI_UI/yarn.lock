@@ -2646,10 +2646,10 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@*", "@types/jest@^29.5.5":
-  "integrity" "sha512-tE4yxKEphEyxj9s4inideLHktW/x6DwesIwWZ9NN1FKf9zbJYsnhBoA9vrHA/IuIOKwPa5PcFBNV4lpMIOEzyQ=="
-  "resolved" "https://registry.npmjs.org/@types/jest/-/jest-29.5.10.tgz"
-  "version" "29.5.10"
+"@types/jest@*", "@types/jest@^29.5.12":
+  "integrity" "sha512-eDC8bTvT/QhYdxJAulQikueigY5AsdBRH2yDKW3yveW7svY3+DzN84/2NUgkw10RTiJbWqZrTtoGVdYlvFJdLw=="
+  "resolved" "https://registry.npmjs.org/@types/jest/-/jest-29.5.12.tgz"
+  "version" "29.5.12"
   dependencies:
     "expect" "^29.0.0"
     "pretty-format" "^29.0.0"
