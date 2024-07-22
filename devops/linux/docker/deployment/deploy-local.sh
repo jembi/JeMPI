@@ -114,6 +114,13 @@ create_registry(){
     popd
 
 }
+copy_ha_proxy(){
+    pushd "$JEMPI_HOME/devops/linux/docker/"
+        source conf.env
+        echo "Updating haproxy cfg file"
+        cp conf/haproxy/*.* ${DATA_HAPROXY_DIR}
+    popd
+}
 pull_docker_images_and_push_local(){
     # Navigate to Docker directory
     pushd "$JEMPI_HOME/devops/linux/docker/deployment/common"
@@ -200,6 +207,7 @@ case $choice in
     7)
         echo "Re Deploy JeMPI"
         run_enviroment_configuration_and_helper_script
+        copy_ha_proxy
         while true; do
             read -p "Do you want to get the latest docker images? " yn
             case $yn in
