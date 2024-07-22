@@ -46,19 +46,13 @@ public final class SPInteractions {
          final ActorSystem<Void> system,
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
-         final InteractionEnvelop interactionEnvelop) {
+         final InteractionEnvelop interactionEnvelop) throws ExecutionException, InterruptedException, TimeoutException {
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
                                        .toCompletableFuture();
-      try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
-         if (reply.linkInfo() == null) {
-            LOGGER.warn("BACK END RESPONSE(ERROR)");
-         }
-      } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         LOGGER.error("linkPatient failed for interaction: {}", interactionEnvelop.interaction());
+      final var reply = completableFuture.get(65, TimeUnit.SECONDS);
+      if (reply.linkInfo() == null) {
+         LOGGER.warn("BACK END RESPONSE(ERROR)");
       }
-
    }
 
    public void open(
@@ -76,7 +70,11 @@ public final class SPInteractions {
       interactionStream.foreach((key, interactionEnvelop) -> {
          interactionEnvelop = updateLinkerMetadata(interactionEnvelop);
          if (interactionEnvelop.contentType() == BATCH_INTERACTION) {
-            linkPatient(system, backEnd, key, interactionEnvelop);
+            try {
+               linkPatient(system, backEnd, key, interactionEnvelop);
+            } catch (ExecutionException | InterruptedException | TimeoutException ex) {
+               LOGGER.error("linkPatient failed with error: {}", ex.getLocalizedMessage());
+            }
          } else if (interactionEnvelop.contentType() == BATCH_END_SENTINEL) {
             // this.closeInteractionStream();
             LOGGER.debug("Batch End Sentinel");

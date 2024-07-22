@@ -95,7 +95,14 @@ public final class LibDgraph implements LibMPIClientInterface {
    }
 
    public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
-      return DgraphQueries.findLinkCandidates(demographicData);
+      List<GoldenRecord> candidates = null;
+      try {
+         candidates = DgraphQueries.findLinkCandidates(demographicData);
+      } catch (Exception ex) {
+         LOGGER.error("DgraphQueries.findLinkCandidates failed with error: {}", ex.getLocalizedMessage());
+      } finally {
+         return candidates;
+      }
    }
 
    public List<GoldenRecord> findMatchCandidates(final DemographicData demographicData) {
@@ -254,13 +261,27 @@ public final class LibDgraph implements LibMPIClientInterface {
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      return dgraphMutations.linkDGraphInteraction(interaction, goldenIdScore);
+      LinkInfo linkInfo = null;
+      try {
+         linkInfo = dgraphMutations.linkDGraphInteraction(interaction, goldenIdScore);
+      } catch (Exception ex) {
+         LOGGER.error("dgraphMutations.linkDGraphInteraction failed with error: {}", ex.getLocalizedMessage());
+      } finally {
+         return linkInfo;
+      }
    }
 
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final Float score) {
-      return dgraphMutations.addNewDGraphInteraction(interaction);
+      LinkInfo linkInfo = null;
+      try {
+         linkInfo = dgraphMutations.addNewDGraphInteraction(interaction);
+      } catch (Exception ex) {
+         LOGGER.error("dgraphMutations.addNewDGraphInteraction failed with error: {}", ex.getLocalizedMessage());
+      } finally {
+         return linkInfo;
+      }
    }
 
    /*
