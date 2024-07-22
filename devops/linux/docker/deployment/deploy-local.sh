@@ -15,8 +15,10 @@ echo "3. Restart JeMPI."
 echo "4. Stop JeMPI."
 echo "5. Backup Postgres & Dgraph."
 echo "6. Restore Postgres & Dgraph."
-echo "7. Destroy JeMPI (This process will wipe all data and Volumes)."
+echo "7. ReDeploy JeMPI"
 echo "8. Install Prerequisites."
+echo "9. Destroy JeMPI (This process will wipe all data and Volumes)."
+
 
 # Prompt user for choice
 read -p "Enter your choice (1-8): " choice
@@ -105,13 +107,16 @@ initialize_swarm(){
         popd
     fi
 }
-
-pull_docker_images_and_push_local(){
-    # Navigate to Docker directory
+create_registry(){
     pushd "$JEMPI_HOME/devops/linux/docker/deployment/common"
         echo "Create Docker registry"
         source c-registry-1-create.sh
+    popd
 
+}
+pull_docker_images_and_push_local(){
+    # Navigate to Docker directory
+    pushd "$JEMPI_HOME/devops/linux/docker/deployment/common"
         # Pull Docker images from hub
         echo "Pull Docker images from hub"
         source a-images-1-pull-from-hub.sh
@@ -122,7 +127,6 @@ pull_docker_images_and_push_local(){
     popd
 }
 build_all_stack_and_reboot(){
-    # run_enviroment_configuration_and_helper_script
     # Build and reboot the entire stack
     echo "Build and reboot the entire stack"
     pushd "$JEMPI_HOME/devops/linux/docker/deployment/build_and_reboot"
@@ -159,6 +163,7 @@ case $choice in
         hostname_setup
         run_enviroment_configuration_and_helper_script
         initialize_swarm
+        create_registry
         pull_docker_images_and_push_local
         initialize_db_build_all_stack_and_reboot
         ;;
@@ -193,6 +198,26 @@ case $choice in
         restore_db
         ;;
     7)
+        echo "Re Deploy JeMPI"
+        run_enviroment_configuration_and_helper_script
+        while true; do
+            read -p "Do you want to get the latest docker images? " yn
+            case $yn in
+                [Yy]* )
+                pull_docker_images_and_push_local
+                break;;
+                [Nn]* ) break;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+        build_all_stack_and_reboot
+        ;;
+    8)
+        echo "Deploy JeMPI from Scratch"
+        install_docker
+        install_sdkman_and_java_sbt_maven
+        ;;
+    9)
         echo "Destroy"
         # Main script
         echo "Do you want to continue? (Ctrl+Y for Yes, any other key for No)"
@@ -207,11 +232,6 @@ case $choice in
             echo "You did not confirm. Exiting without performing the critical action."
         fi
         exit 0
-        ;;
-    8)
-        echo "Deploy JeMPI from Scratch"
-        install_docker
-        install_sdkman_and_java_sbt_maven
         ;;
     *)
         echo "Invalid choice. Please enter a number."
