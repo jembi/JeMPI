@@ -211,6 +211,7 @@ case $choice in
         ;;
     7)
         echo "Re Deploy JeMPI"
+        hostname_setup
         run_enviroment_configuration_and_helper_script
         copy_ha_proxy
         while true; do
