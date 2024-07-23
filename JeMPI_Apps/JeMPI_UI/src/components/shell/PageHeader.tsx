@@ -54,6 +54,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         <Grid item>
           <Typography
             variant="h5"
+            id='page-header'
             sx={{
               fontSize: '34px',
               fontWeight: 400,
