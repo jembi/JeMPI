@@ -197,6 +197,7 @@ case $choice in
         exit 0
         ;;
     5)
+        echo "Backup Databases"
         BACKUP_DATE_TIME=$(date +%Y-%m-%d_%H%M%S)
         echo "Started Backup at- $BACKUP_DATE_TIME"
         pushd "$JEMPI_HOME/devops/linux/docker/backup_restore" || exit
@@ -227,7 +228,7 @@ case $choice in
         build_all_stack_and_reboot
         ;;
     8)
-        echo "Deploy JeMPI from Scratch"
+        echo "Install Prerequisites"
         install_docker
         install_sdkman_and_java_sbt_maven
         ;;

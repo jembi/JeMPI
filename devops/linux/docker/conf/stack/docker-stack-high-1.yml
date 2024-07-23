@@ -70,6 +70,9 @@ services:
         target: 50001
         protocol: tcp
         mode: host
+      - published: 50010
+        target: 50010
+        protocol: tcp
       - published: 3000
         target: 3000
         protocol: tcp
