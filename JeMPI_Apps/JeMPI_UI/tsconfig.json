@@ -19,7 +19,7 @@
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
-      "types/*": ["types/*"],
+      "types/*": ["types/*", "cypress"],
       "components/*": ["components/*"],
       "utils/*": ["utils/*"],
       "hooks/*": ["hooks/*"],

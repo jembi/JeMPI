@@ -1,5 +1,5 @@
 declare namespace Cypress {
-    interface Chainable {
-      populateData(): Chainable<void>;
-    }
+  interface Chainable {
+    populateData()
   }
+}

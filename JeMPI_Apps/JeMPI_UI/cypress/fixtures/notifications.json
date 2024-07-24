@@ -1,20 +1,19 @@
 [
-    {
-      "id": "123",
-      "type": "THRESHOLD",
-      "created": "2023-05-03T00:00:00.000Z",
-      "names": "Bob Smith",
-      "patient_id": "0x5a",
-      "status": "CLOSED",
-      "old_golden_id": "0x9493",
-      "current_golden_id": "0x9833",
-      "score": 0.5,
-      "candidates": [
-        {
-          "golden_id": "0x45",
-          "score": 0.4
-        }
-      ]
-    }
-  ]
-  
+  {
+    "id": "123",
+    "type": "THRESHOLD",
+    "created": "2023-05-03T00:00:00.000Z",
+    "names": "Bob Smith",
+    "patient_id": "0x5a",
+    "status": "CLOSED",
+    "old_golden_id": "0x9493",
+    "current_golden_id": "0x9833",
+    "score": 0.5,
+    "candidates": [
+      {
+        "golden_id": "0x45",
+        "score": 0.4
+      }
+    ]
+  }
+]
