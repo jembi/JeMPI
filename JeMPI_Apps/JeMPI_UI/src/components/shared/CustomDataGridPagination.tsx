@@ -1,16 +1,28 @@
-import { GridPagination } from '@mui/x-data-grid'
-import MuiPagination from '@mui/material/Pagination'
+import React, { forwardRef } from 'react';
+import { GridPagination } from '@mui/x-data-grid';
+import MuiPagination from '@mui/material/Pagination';
+import { TablePaginationProps as MuiTablePaginationProps } from '@mui/material/TablePagination';
+
+interface PaginationProps {
+  count: number;
+  page: number;
+  rowsPerPage: number;
+  onPageChange: (
+    event: React.MouseEvent<HTMLElement> | React.ChangeEvent<unknown> | null,
+    page: number
+  ) => void;
+  boundaryCount?: number;
+}
 
 const Pagination = ({
   count,
   page,
   rowsPerPage,
   onPageChange,
-  boundaryCount,
+  boundaryCount = 2,
   ...other
-}: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-any) => {
-  const pagesCount = Math.ceil(count / rowsPerPage)
+}: PaginationProps) => {
+  const pagesCount = Math.ceil(count / rowsPerPage);
 
   return (
     <MuiPagination
@@ -18,16 +30,26 @@ any) => {
       page={page + 1}
       boundaryCount={boundaryCount}
       onChange={(event, page) => {
-        onPageChange(event, page - 1)
+        onPageChange(event as React.ChangeEvent<unknown>, page - 1);
       }}
       {...other}
     />
-  )
-}
+  );
+};
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomPagination(props: any) {
-  return <GridPagination ActionsComponent={Pagination} {...props} />
-}
+export const CustomPagination = forwardRef<HTMLDivElement, MuiTablePaginationProps>((props, ref) => {
+  const { slotProps, ...rest } = props;
 
-export default CustomPagination
+  return (
+    <GridPagination
+      ActionsComponent={(subProps: any) => <Pagination {...subProps} />}
+      ref={ref as any}
+      slotProps={slotProps}
+      {...rest} 
+    />
+  );
+});
+
+CustomPagination.displayName = 'CustomPagination';
+
+export default CustomPagination;
