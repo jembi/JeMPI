@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.models.LinkerMetadata;
 import org.jembi.jempi.shared.models.SessionMetadata;
@@ -50,15 +51,17 @@ public final class SPInteractions {
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
                                        .toCompletableFuture();
       try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
+         final var reply = completableFuture.get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
             LOGGER.warn("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         this.closeInteractionStream();
+         // Log the error and skip the problematic message
+         LOGGER.error("Exception of type {} occurred: {}", ex.getClass().getSimpleName(), ex.getLocalizedMessage(), ex);
+         LOGGER.info("Failed on the following interaction: {}", interactionEnvelop);
+         // this.closeInteractionStream();
+         return; // Skip this message and continue with the next one
       }
-
    }
 
    public void open(
@@ -88,10 +91,10 @@ public final class SPInteractions {
       LOGGER.info("KafkaStreams started");
    }
 
-   private void closeInteractionStream() {
+   /* private void closeInteractionStream() {
       LOGGER.info("Stream closed");
       interactionEnvelopKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
-   }
+   } */
 
    private Properties loadConfig() {
       final Properties props = new Properties();

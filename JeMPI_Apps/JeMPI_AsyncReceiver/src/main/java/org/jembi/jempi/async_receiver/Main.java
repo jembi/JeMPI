@@ -165,12 +165,10 @@ public final class Main {
                   .orElse("");
 
                String partitionKey;
-               if (!givenName.isEmpty()) {
-                  partitionKey = new Soundex().soundex(givenName);
-               } else if (!familyName.isEmpty()) {
-                  partitionKey = new Soundex().soundex(familyName);
-               } else {
+               if (givenName.isEmpty() && familyName.isEmpty()) {
                   partitionKey = "Unknown";
+               } else {
+                  partitionKey = new Soundex().soundex(givenName + familyName);
                }
                LOGGER.info("Kafka topic/partition for patient: " + partitionKey);
 

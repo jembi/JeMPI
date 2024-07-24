@@ -3,7 +3,7 @@ import { check, sleep } from 'k6';
 import exec from 'k6/x/exec';
 
 const config = {
-  patients: 10000,
+  patients: 40000,
   records: 10,
   corruption: 0.25, // ie 0 || 0.25 etc., up to 1.
   autoClean: true, // Removes all files from results and async_receiver/csv directories
@@ -99,7 +99,7 @@ export default function () {
         const containerId = exec.command('sh', ['-c', containerIdCommand]).trim().substring(0, 12);
 
         if (containerId) {
-          const logsCommand = `docker logs -f ${containerId}`;
+          const logsCommand = `docker logs -f ${containerId} --tail=300`;
           if (!linkersSet.has(containerId)) {
             linkersSet.set(containerId, { logsCommand: logsCommand, lastCheckTime: startTime, completedTime: null, completedTimestamp: null });
           }
