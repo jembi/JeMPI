@@ -1,4 +1,4 @@
-import { Typography, Grid, TextField, Slider } from '@mui/material'
+import { Typography, Grid, TextField, Slider, Button } from '@mui/material'
 import { Box } from '@mui/system'
 import { Form, Formik } from 'formik'
 import {
@@ -8,7 +8,6 @@ import {
 } from './ProbabilisticConstants'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration } from 'types/Configuration'
-import { LoadingButton } from '@mui/lab'
 import { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 
@@ -320,15 +319,15 @@ const Probabilistic = () => {
               </Grid>
 
               <Box sx={{ marginTop: '20px' }}>
-                <LoadingButton
+                <Button
                   type="submit"
                   variant="contained"
                   color="primary"
-                  loadingPosition="start"
+               
                   disabled={isSubmitting}
                 >
                   Save
-                </LoadingButton>
+                </Button>
               </Box>
             </Form>
           </Box>
