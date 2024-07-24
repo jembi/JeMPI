@@ -15,7 +15,7 @@ echo "3. Restart JeMPI."
 echo "4. Stop JeMPI."
 echo "5. Backup Postgres & Dgraph."
 echo "6. Restore Postgres & Dgraph."
-echo "7. ReDeploy JeMPI"
+echo "7. Re-Deploy JeMPI"
 echo "8. Install Prerequisites."
 echo "9. Destroy JeMPI (This process will wipe all data and Volumes)."
 
