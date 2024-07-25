@@ -11,12 +11,14 @@ from src import helper, basefunctions
 DEFAULT_NUMBER_OF_PATIENTS = 1000
 DEFAULT_AVERAGE_NUMBER_OF_CLINICAL_RECORDS_PER_PATIENT = 5
 DEFAULT_PERCENTAGE_OF_CORRUPTED_RECORDS = 0.3
+DEFAULT_SEED = 123456
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Generate synthetic dataset.')
     parser.add_argument('--patients', type=int, default=DEFAULT_NUMBER_OF_PATIENTS, help='Number of patients')
     parser.add_argument('--records', type=int, default=DEFAULT_AVERAGE_NUMBER_OF_CLINICAL_RECORDS_PER_PATIENT, help='Average number of clinical records per patient')
     parser.add_argument('--corruption', type=float, default=DEFAULT_PERCENTAGE_OF_CORRUPTED_RECORDS, help='Percentage of corrupted records')
+    parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help='Seed for random number generator')
     return parser.parse_args()
 
 def generate_dataset(args):
@@ -82,7 +84,7 @@ def generate_dataset(args):
         field_corrupter_weight_list[fields[f_idx]['name']] = fields[f_idx]['corrupter']['weight']
 
     base_date = config['BaseDate']
-    seed = 123456
+    seed = args.seed
     rng = np.random.default_rng(seed)
     gender_generator = PatientGenerator.gender_generator(seed, 0.50)
     given_name_male_generator = PatientGenerator.name_generator(seed, 'metadata/males.csv')

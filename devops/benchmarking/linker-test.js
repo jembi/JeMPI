@@ -3,7 +3,7 @@ import { check, sleep } from 'k6';
 import exec from 'k6/x/exec';
 
 const config = {
-  patients: 40000,
+  patients: 1000,
   records: 10,
   corruption: 0.25, // ie 0 || 0.25 etc., up to 1.
   autoClean: true, // Removes all files from results and async_receiver/csv directories
@@ -13,7 +13,7 @@ const config = {
 // Add options object to set the duration
 export const options = {
   duration: '24h', // Set the test cap to n minutes/hours (e.g. 10m or 24h)
-  iterations: 1, // How many time to run this test
+  iterations: 10, // How many time to run this test
 };
 
 export default function () {
@@ -26,7 +26,9 @@ export default function () {
   }
 
   // Step 1: Trigger the Async Receiver by placing a file in its path
-  const testDataFile = exec.command('sh', ['-c', `cd ../JeMPI_TestData/Reference && python3 DataGenerator.py --patients ${config.patients} --records ${config.records} --corruption ${config.corruption}`]).trim();
+  const randomSeed = Math.floor(Math.random() * 900000) + 100000;
+  console.log(`Generated random seed: ${randomSeed}`);
+  const testDataFile = exec.command('sh', ['-c', `cd ../JeMPI_TestData/Reference && python3 DataGenerator.py --patients ${config.patients} --records ${config.records} --corruption ${config.corruption} --seed ${randomSeed}`]).trim();
   console.log(`Generated file: ${testDataFile}`);
   const filePath = `../JeMPI_TestData/Reference/results/${testDataFile}`; // Ensure no single quotes
   console.log(`File: ${filePath}`); // Add debugging information
