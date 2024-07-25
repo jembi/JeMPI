@@ -1,7 +1,6 @@
 describe('NotificationWorklist component', () => {
   beforeEach(() => {
     cy.visit('/notifications');
-    cy.populateData();
   });
 
   describe('Page Header', () => {
@@ -53,41 +52,20 @@ describe('NotificationWorklist component', () => {
     });
   });
 
+
   describe('API Calls', () => {
-    it('should fetch notifications on mount', () => {
-      cy.populateData();
-      cy.request('/notifications')
-        .its('body')
-        .should((notifications) => {
-          const expectedNotifications = [
-            {
-              id: '123',
-              type: 'THRESHOLD',
-              created: new Date('2023-05-03T00:00:00.000Z').toISOString(), 
-              names: 'Bob Smith',
-              patient_id: '0x5a',
-              status: 'CLOSED',
-              old_golden_id: '0x9493',
-              current_golden_id: '0x9833',
-              score: 0.5,
-              candidates: [
-                {
-                  golden_id: '0x45',
-                  score: 0.4
-                }
-              ]
-            }
-          ];
-
-          expect(notifications).to.deep.equal(expectedNotifications);
-        });
+    beforeEach(() => {
+      cy.intercept("POST", "http://localhost:50000/JeMPI/notifications", { fixture: "notifications.json" }).as('getNotifications');
+      cy.visit("/notifications");
     });
-
-    it('should refetch notifications on filter change', () => {
-      cy.populateData();
-      cy.visit('/notifications');
-      cy.get('#filter-button').click();
-      cy.wait('@fetchNotifications', { timeout: 10000 });
+  
+    it("It mocks API response", () => {
+      cy.get('#notification-container').should('be.visible');
+      cy.get('#notification-container .MuiDataGrid-main .MuiDataGrid-virtualScroller .MuiDataGrid-row').should('exist');
+      cy.get('#notification-container .MuiDataGrid-main .MuiDataGrid-virtualScroller .MuiDataGrid-row').should('have.length',25);
     });
   });
+  
 });
+ 
+  

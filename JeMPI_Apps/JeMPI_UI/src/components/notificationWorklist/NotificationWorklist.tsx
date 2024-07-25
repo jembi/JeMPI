@@ -146,6 +146,7 @@ const NotificationWorklist = () => {
           {!data && !isLoading && !isFetching && <NotFound />}
           <Box
             component={'div'}
+            id="notification-container"
             sx={{
               position: 'relative'
             }}

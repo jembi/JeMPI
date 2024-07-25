@@ -41,17 +41,4 @@
 
 // cypress/support/commands.ts
 
-Cypress.Commands.add('populateData', () => {
-  cy.fixture('notifications').then((notifications) => {
-    const apiEndpoint = '/notifications';
-    // Intercept the API request and provide a static response
-    cy.intercept('GET', apiEndpoint, {
-      statusCode: 200,
-      body: notifications,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).as('fetchNotifications');
-  });
-});
 
