@@ -6,6 +6,8 @@ import {
   Divider,
   Paper,
   Stack,
+  TextField,
+  TextFieldProps,
   debounce
 } from '@mui/material'
 import { DataGrid, GridFilterModel, gridClasses } from '@mui/x-data-grid'
@@ -18,13 +20,12 @@ import Notification, {
   Notifications
 } from '../../types/Notification'
 import PageHeader from '../shell/PageHeader'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import NOTIFICATIONS_COLUMNS from './notificationsColumns'
 import { useNavigate } from 'react-router-dom'
 import { useConfig } from 'hooks/useConfig'
-import CustomPagination from 'components/shared/CustomDataGridPagination'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import SelectDropdown from 'components/shared/SelectDropdown'
@@ -96,29 +97,22 @@ const NotificationWorklist = () => {
             paddingY={'1rem'}
             flexDirection={{ xs: 'column', md: 'row' }}
           >
-            <DateTimePicker
-              value={startDateFilter}
-              format="YYYY/MM/DD HH:mm:ss"
-              onChange={value => value && setStartDateFilter(value)}
-              slotProps={{
-                textField: {
-                  variant: 'outlined',
-                  label: 'Start Date',
-                  inputProps: { id: 'start-date-filter' }
-                }
-              }}
+             < DateTimePicker
+            label="Start Date"
+            value={startDateFilter}
+            onChange={(newValue) => newValue && setStartDateFilter(newValue)}
+            slots={{
+              textField: (params) => CustomTextField(params, 'start-date-filter'),
+            }}
             />
-            <DateTimePicker
-              value={endDateFilter}
-              format="YYYY/MM/DD HH:mm:ss"
-              onChange={value => value && setEndDateFilter(value)}
-              slotProps={{
-                textField: {
-                  variant: 'outlined',
-                  label: 'End Date',
-                  inputProps: { id: 'end-date-filter' }
-                }
-              }}
+            
+            < DateTimePicker
+            label="End Date"
+            value={endDateFilter}
+            onChange={(newValue) => newValue && setEndDateFilter(newValue)}
+            slots={{
+              textField: (params) => CustomTextField(params, 'end-date-filter'),
+            }}
             />
             <SelectDropdown
               listValues={[
@@ -178,7 +172,7 @@ const NotificationWorklist = () => {
                 }}
                 columns={NOTIFICATIONS_COLUMNS}
                 rows={data.records as Notification[]}
-                slots={{ pagination: CustomPagination }}
+                // slots={{ pagination: CustomPagination }}
                 pageSizeOptions={[25, 50, 100]}
                 paginationModel={paginationModel}
                 onPaginationModelChange={model => setPaginationModel(model)}
@@ -219,4 +213,12 @@ const NotificationWorklist = () => {
   )
 }
 
-export default NotificationWorklist
+export default NotificationWorklist;
+
+function CustomTextField(params: TextFieldProps, id: string) {
+  return (
+      <TextField variant='outlined' 
+      label="End Date"
+      inputProps={{ id: id }}{...params} />
+  );
+}

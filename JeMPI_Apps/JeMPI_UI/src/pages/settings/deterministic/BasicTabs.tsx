@@ -21,7 +21,12 @@ export function CustomTabPanel(props: TabPanelProps) {
     >
       {value === index && (
         <Box sx={{ py: 3, backgroundColor: '#f5f5f5' }}>
-          <Typography>{children}</Typography>
+          {React.Children.map(children, child => {
+            if (typeof child === 'string' || typeof child === 'number') {
+              return <Typography>{child}</Typography>
+            }
+            return child
+          })}
         </Box>
       )}
     </div>
