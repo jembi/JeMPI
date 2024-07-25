@@ -1,19 +1,351 @@
-[
-  {
-    "id": "123",
-    "type": "THRESHOLD",
-    "created": "2023-05-03T00:00:00.000Z",
-    "names": "Bob Smith",
-    "patient_id": "0x5a",
-    "status": "CLOSED",
-    "old_golden_id": "0x9493",
-    "current_golden_id": "0x9833",
-    "score": 0.5,
-    "candidates": [
+{
+  "count": 25,
+  "skippedRecords": 8,
+  "records": [
       {
-        "golden_id": "0x45",
-        "score": 0.4
+          "score": 0.757437,
+          "candidates": [],
+          "old_golden_id": "0xb",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x25",
+          "created": "2024-07-25T11:10:18.306+00:00",
+          "id": "5407f4b6-504d-479e-9da1-b509b4b08b8f",
+          "state": "OPEN",
+          "current_golden_id": "0xb",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.713483,
+          "candidates": [],
+          "old_golden_id": "0x44",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x46",
+          "created": "2024-07-25T11:10:18.996+00:00",
+          "id": "8d7a5e0c-14a0-4cd5-8b7e-875da3560501",
+          "state": "OPEN",
+          "current_golden_id": "0x44",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.921274,
+          "candidates": [
+              {
+                  "score": 0.8722938,
+                  "golden_id": "0xb"
+              }
+          ],
+          "old_golden_id": "0x28",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x52",
+          "created": "2024-07-25T11:10:19.200+00:00",
+          "id": "51f1c2c2-318f-41fc-a77b-7e1ac32668dc",
+          "state": "OPEN",
+          "current_golden_id": "0x28",
+          "type": "MARGIN"
+      },
+      {
+          "score": 0.767732,
+          "candidates": [],
+          "old_golden_id": "0x8",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x68",
+          "created": "2024-07-25T11:10:19.725+00:00",
+          "id": "d16d8354-41c3-47af-a0aa-d80555654f4e",
+          "state": "OPEN",
+          "current_golden_id": "0x8",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.713483,
+          "candidates": [],
+          "old_golden_id": "0x9f",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0xa1",
+          "created": "2024-07-25T11:10:20.621+00:00",
+          "id": "ef0819bf-e32d-46dd-a074-c82f01a2ef00",
+          "state": "OPEN",
+          "current_golden_id": "0x9f",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.780774,
+          "candidates": [],
+          "old_golden_id": "0xbc",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0xd7",
+          "created": "2024-07-25T11:10:21.163+00:00",
+          "id": "e605293e-64ed-4f9a-9b2f-866ecb150448",
+          "state": "OPEN",
+          "current_golden_id": "0xbc",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.6934837,
+                  "golden_id": "0xda"
+              }
+          ],
+          "old_golden_id": "0xdf",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0xde",
+          "created": "2024-07-25T11:10:21.231+00:00",
+          "id": "927c7b9b-3457-48a0-97ff-a54d7d1c2e21",
+          "state": "OPEN",
+          "current_golden_id": "0xdf",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 0.757437,
+          "candidates": [],
+          "old_golden_id": "0xe8",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0xec",
+          "created": "2024-07-25T11:10:21.367+00:00",
+          "id": "84d6adae-4f21-4114-9c2a-e2c3a668c73d",
+          "state": "OPEN",
+          "current_golden_id": "0xe8",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.642737,
+                  "golden_id": "0xa8"
+              }
+          ],
+          "old_golden_id": "0x107",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x106",
+          "created": "2024-07-25T11:10:21.637+00:00",
+          "id": "56bc8096-53d8-4c6c-8f99-1d2865240e62",
+          "state": "OPEN",
+          "current_golden_id": "0x107",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 0.780774,
+          "candidates": [],
+          "old_golden_id": "0x12d",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x135",
+          "created": "2024-07-25T11:10:22.064+00:00",
+          "id": "29c60b55-3500-40d2-8c0c-967171ed69d2",
+          "state": "OPEN",
+          "current_golden_id": "0x12d",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.796279,
+          "candidates": [],
+          "old_golden_id": "0x1a3",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x1f8",
+          "created": "2024-07-25T11:10:23.651+00:00",
+          "id": "7f61a925-7871-434a-987a-b1a76fed3eb3",
+          "state": "OPEN",
+          "current_golden_id": "0x1a3",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.65094453,
+                  "golden_id": "0x26e"
+              }
+          ],
+          "old_golden_id": "0x2ac",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x2ab",
+          "created": "2024-07-25T11:10:25.147+00:00",
+          "id": "60aa1cc1-d7a6-46a2-b610-4da4a75f6742",
+          "state": "OPEN",
+          "current_golden_id": "0x2ac",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.6762122,
+                  "golden_id": "0x161"
+              }
+          ],
+          "old_golden_id": "0x34f",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x34e",
+          "created": "2024-07-25T11:10:26.413+00:00",
+          "id": "ae4a0e5b-0d6e-4d8f-a837-23057a0f839b",
+          "state": "OPEN",
+          "current_golden_id": "0x34f",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 0.796279,
+          "candidates": [],
+          "old_golden_id": "0x264",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x448",
+          "created": "2024-07-25T11:10:28.239+00:00",
+          "id": "d8015ce9-9eef-4597-a9e8-99e7a5b5548d",
+          "state": "OPEN",
+          "current_golden_id": "0x264",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.742464,
+          "candidates": [],
+          "old_golden_id": "0x2bd",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x4a7",
+          "created": "2024-07-25T11:10:28.895+00:00",
+          "id": "41a62ef3-73be-4e8f-af65-c4260b19eb98",
+          "state": "OPEN",
+          "current_golden_id": "0x2bd",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.742464,
+          "candidates": [],
+          "old_golden_id": "0x2bd",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x4b2",
+          "created": "2024-07-25T11:10:28.975+00:00",
+          "id": "8a8f5887-246a-4e74-a11a-c9fb93223ae3",
+          "state": "OPEN",
+          "current_golden_id": "0x2bd",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.62723166,
+                  "golden_id": "0x3af"
+              }
+          ],
+          "old_golden_id": "0x517",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x516",
+          "created": "2024-07-25T11:10:29.669+00:00",
+          "id": "2f850c3c-83df-420b-a934-2eef83f927c8",
+          "state": "OPEN",
+          "current_golden_id": "0x517",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 0.767732,
+          "candidates": [],
+          "old_golden_id": "0x539",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x53b",
+          "created": "2024-07-25T11:10:29.874+00:00",
+          "id": "ffc9de81-d6e0-47cc-b714-f4a425d2085c",
+          "state": "OPEN",
+          "current_golden_id": "0x539",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.767732,
+          "candidates": [],
+          "old_golden_id": "0x539",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x53d",
+          "created": "2024-07-25T11:10:29.896+00:00",
+          "id": "3bdc432d-de46-406e-830d-df26012d2a55",
+          "state": "OPEN",
+          "current_golden_id": "0x539",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.718751,
+          "candidates": [],
+          "old_golden_id": "0x3c2",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x59c",
+          "created": "2024-07-25T11:10:30.793+00:00",
+          "id": "6ec23bc1-c64b-4936-8180-d8d9b6b91f32",
+          "state": "OPEN",
+          "current_golden_id": "0x3c2",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 0.780774,
+          "candidates": [],
+          "old_golden_id": "0x238",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x624",
+          "created": "2024-07-25T11:10:31.967+00:00",
+          "id": "d2a2eea6-23a1-46ec-b827-f51006380319",
+          "state": "OPEN",
+          "current_golden_id": "0x238",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.6934837,
+                  "golden_id": "0x64a"
+              }
+          ],
+          "old_golden_id": "0x64d",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x64c",
+          "created": "2024-07-25T11:10:32.227+00:00",
+          "id": "d7c0b4fd-757e-4b5e-9046-807b609219fc",
+          "state": "OPEN",
+          "current_golden_id": "0x64d",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 0.718751,
+          "candidates": [],
+          "old_golden_id": "0x652",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x65a",
+          "created": "2024-07-25T11:10:32.336+00:00",
+          "id": "0a7cc3a4-0c53-4759-b461-7dd95a00198c",
+          "state": "OPEN",
+          "current_golden_id": "0x652",
+          "type": "ABOVE_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.6934837,
+                  "golden_id": "0x549"
+              }
+          ],
+          "old_golden_id": "0x703",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x702",
+          "created": "2024-07-25T11:10:33.480+00:00",
+          "id": "cac53169-6c86-4dcf-9aeb-e08a0e026a6a",
+          "state": "OPEN",
+          "current_golden_id": "0x703",
+          "type": "BELOW_THRESHOLD"
+      },
+      {
+          "score": 1,
+          "candidates": [
+              {
+                  "score": 0.6934837,
+                  "golden_id": "0x73e"
+              }
+          ],
+          "old_golden_id": "0x741",
+          "names": "givenName,familyName,gender,dob,city,phoneNumber,nationalId",
+          "patient_id": "0x740",
+          "created": "2024-07-25T11:10:33.921+00:00",
+          "id": "8d7c90d3-816a-4577-9420-594aec313175",
+          "state": "OPEN",
+          "current_golden_id": "0x741",
+          "type": "BELOW_THRESHOLD"
       }
-    ]
-  }
-]
+  ]
+}
