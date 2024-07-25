@@ -26,7 +26,8 @@
       "services/*": ["services/*"]
     }
   },
-  "include": ["src", "tests", "types"],
+  "types": ["cypress", "node"],
+   "include": ["**/*.ts","src", "tests"],
   "exclude": [
     "**/*.test.ts",
     "cypress.config.ts"
