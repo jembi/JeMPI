@@ -93,6 +93,21 @@ public final class LinkerDWH {
       return changed;
    }
 
+   private static String patientName(final Interaction interaction) {
+      var patientRecord = interaction.demographicData();
+      String givenName = patientRecord.fields.stream()
+         .filter(field -> "given_name".equals(field.ccTag()))
+         .map(DemographicData.DemographicField::value)
+         .findFirst()
+         .orElse("");
+      String familyName = patientRecord.fields.stream()
+         .filter(field -> "family_name".equals(field.ccTag()))
+         .map(DemographicData.DemographicField::value)
+         .findFirst()
+         .orElse("");
+         return (givenName + " " + familyName).trim();
+   }
+
    /**
     * Helper update interactions score.
     *
@@ -126,7 +141,7 @@ public final class LinkerDWH {
             if (score <= threshold) {
                sendNotification(Notification.NotificationType.UPDATE,
                                 interaction.interactionId(),
-                                DemographicData.getAliases(),
+                                patientName(interaction),
                                 new Notification.MatchData(expandedGoldenRecord.goldenRecord().goldenId(), score),
                                 List.of());
             }
@@ -331,14 +346,13 @@ public final class LinkerDWH {
                   aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
                }
             }).filter(v -> v.score() >= matchThreshold).collect(Collectors.toCollection(ArrayList::new));
-
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
                   linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
                   if (!belowThresholdNotifications.isEmpty()) {
                      sendNotification(Notification.NotificationType.BELOW_THRESHOLD,
                                       linkInfo.interactionUID(),
-                                      DemographicData.getAliases(),
+                                      patientName(interaction),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                       belowThresholdNotifications);
                   }
@@ -365,7 +379,7 @@ public final class LinkerDWH {
                if (linkToGoldenId.score() <= matchThreshold + 0.1) {
                   sendNotification(Notification.NotificationType.ABOVE_THRESHOLD,
                                    linkInfo.interactionUID(),
-                                   DemographicData.getAliases(),
+                                   patientName(interaction),
                                    new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                    aboveThresholdNotifications.stream()
                                                               .filter(m -> !Objects.equals(m.gID(),
@@ -391,7 +405,7 @@ public final class LinkerDWH {
                   if (!marginCandidates.isEmpty()) {
                      sendNotification(Notification.NotificationType.MARGIN,
                                       linkInfo.interactionUID(),
-                                      DemographicData.getAliases(),
+                                      patientName(interaction),
                                       new Notification.MatchData(linkInfo.goldenUID(), linkInfo.score()),
                                       marginCandidates);
                   }

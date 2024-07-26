@@ -21,7 +21,7 @@ echo "9. Destroy JeMPI (This process will wipe all data and Volumes)."
 
 
 # Prompt user for choice
-read -p "Enter your choice (1-8): " choice
+read -p "Enter your choice (1-9): " choice
 
 # Function to ask for confirmation
 confirm() {
@@ -249,6 +249,6 @@ case $choice in
         exit 0
         ;;
     *)
-        echo "Invalid choice. Please enter a number."
+        echo "Invalid choice. Please enter a number between 1-9."
         ;;
 esac
