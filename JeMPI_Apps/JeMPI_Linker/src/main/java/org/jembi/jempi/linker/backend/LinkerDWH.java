@@ -105,7 +105,7 @@ public final class LinkerDWH {
          .map(DemographicData.DemographicField::value)
          .findFirst()
          .orElse("");
-      return givenName + " " + familyName;
+         return (givenName + " " + familyName).trim();
    }
 
    /**

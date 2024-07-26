@@ -249,6 +249,6 @@ case $choice in
         exit 0
         ;;
     *)
-        echo "Invalid choice. Please enter a number bitween 1-9."
+        echo "Invalid choice. Please enter a number between 1-9."
         ;;
 esac
