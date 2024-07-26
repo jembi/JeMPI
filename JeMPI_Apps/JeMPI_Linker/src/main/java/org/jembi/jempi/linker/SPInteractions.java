@@ -50,7 +50,7 @@ public final class SPInteractions {
       final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
                                        .toCompletableFuture();
       try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
+         final var reply = completableFuture.get(125, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
             LOGGER.warn("BACK END RESPONSE(ERROR)");
          }
