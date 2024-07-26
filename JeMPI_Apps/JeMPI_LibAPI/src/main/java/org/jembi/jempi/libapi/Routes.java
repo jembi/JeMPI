@@ -536,7 +536,7 @@ public final class Routes {
 
    }
 
-   private static Route getConfiguration(
+   public static Route getConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.getConfiguration(actorSystem, backEnd),
