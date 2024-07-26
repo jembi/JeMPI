@@ -164,13 +164,15 @@ public final class Main {
                   .findFirst()
                   .orElse("");
 
-               String partitionKey;
+               String partitionKey = "";
                if (!givenName.isEmpty()) {
-                  partitionKey = new Soundex().soundex(givenName);
-               } else if (!familyName.isEmpty()) {
-                  partitionKey = new Soundex().soundex(familyName);
-               } else {
-                  partitionKey = "Unknown";
+                  partitionKey += new Soundex().soundex(givenName);
+               }
+               if (!familyName.isEmpty()) {
+                  partitionKey += new Soundex().soundex(familyName);
+               }
+               if (givenName.isEmpty() && familyName.isEmpty()) {
+                  partitionKey += "Unknown";
                }
                LOGGER.info("Kafka topic/partition for patient: " + partitionKey);
 

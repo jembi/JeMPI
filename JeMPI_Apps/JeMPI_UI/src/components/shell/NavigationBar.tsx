@@ -62,6 +62,7 @@ const NavigationBar = () => {
   const handleDrawerToggle = () => {
     setMobileOpen(prevState => !prevState)
   }
+
   const drawer = (
     <>
       {config.showBrandLogo && (
@@ -89,7 +90,7 @@ const NavigationBar = () => {
       >
         {navigationItems.map(item => (
           <LabeledIconBox
-            key={item.label}
+            key={item.label} 
             icon={item.icon}
             label={item.label}
             link={item.link}
@@ -158,12 +159,12 @@ const NavigationBar = () => {
           >
             {navigationItems.map((item, index) => (
               <Box
+                key={item.label}
                 sx={{
                   ml: index < navigationItems.length - 1 ? 0 : 'auto'
                 }}
               >
                 <LabeledIconBox
-                  key={item.label}
                   icon={item.icon}
                   label={item.label}
                   link={item.link}
