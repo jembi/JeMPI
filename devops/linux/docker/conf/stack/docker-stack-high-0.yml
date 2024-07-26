@@ -637,9 +637,6 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 0
-      placement:
-        constraints:
-          - node.labels.name == ${PLACEMENT_LINKER}
 
   api:
     image: ${IMAGE_REGISTRY}${API_IMAGE}
