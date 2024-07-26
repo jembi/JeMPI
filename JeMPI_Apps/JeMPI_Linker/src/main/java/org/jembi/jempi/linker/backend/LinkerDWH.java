@@ -223,8 +223,14 @@ public final class LinkerDWH {
                LOGGER.error("matchNotificationProducer failed with error: {}", e.getLocalizedMessage());
             }
          }
+         return Either.left(List.of());
+      } else {
+         //create golden record when only link deterministic rules exist and no match rules configured
+         var linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
+         return linkInfo == null
+               ? Either.left(List.of())
+               : Either.right(linkInfo);
       }
-      return Either.left(List.of());
    }
 
    /**
