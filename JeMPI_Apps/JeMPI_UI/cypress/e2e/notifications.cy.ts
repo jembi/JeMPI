@@ -1,4 +1,4 @@
-describe('NotificationWorklist component', () => {
+describe('Notifications', () => {
   beforeEach(() => {
     cy.visit('/notifications');
   });
