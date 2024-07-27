@@ -11,8 +11,8 @@ def generate_dataset():
     rec_start_num=61000
     config = \
         {"BaseDate": "2022-01-01",
-         "NumberOfPatients": 60000,
-         "AverageNumberOfClinicalRecordsPerPatient": 5,
+         "NumberOfPatients": 83334,
+         "AverageNumberOfClinicalRecordsPerPatient": 6,
          "PercentageOfCorruptedRecords": 0.3,
          "fields": [
              {"name": "given_name",
@@ -132,11 +132,11 @@ def generate_dataset():
         if k % 1000 == 0:
             print(k)
 
-    df = df.sample(frac=1).reset_index(drop=True)
     df = pd.DataFrame(data, columns=['rec_num', 'given_name', 'family_name', 'gender', 'dob',
                                      'city', 'phone_number', 'national_id',
                                      'src_id_facility', 'src_id_patient', 'clinical_data'])
-
+    
+    df = df.sample(frac=1).reset_index(drop=True)
     df['corrupted'] = False
     number_of_records = df.shape[0]
     percentage_of_corrupted_records = config['PercentageOfCorruptedRecords']

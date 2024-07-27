@@ -124,13 +124,6 @@
         },
         {
           "vars": [
-            "national_id",
-            "phone_number"
-          ],
-          "text": "null(national_id) and eq(phone_number)"
-        },
-        {
-          "vars": [
             "given_name",
             "family_name",
             "phone_number"
