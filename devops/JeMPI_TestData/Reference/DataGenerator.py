@@ -8,10 +8,11 @@ from src import helper, basefunctions
 
 
 def generate_dataset():
+    rec_start_num=61000
     config = \
         {"BaseDate": "2022-01-01",
-         "NumberOfPatients": 500,
-         "AverageNumberOfClinicalRecordsPerPatient": 4,
+         "NumberOfPatients": 60000,
+         "AverageNumberOfClinicalRecordsPerPatient": 5,
          "PercentageOfCorruptedRecords": 0.3,
          "fields": [
              {"name": "given_name",
@@ -121,7 +122,7 @@ def generate_dataset():
         national_id = national_id_generator.send((dob, gender))
         clinical_data = clinical_data_generator.send((gender, base_date, dob, national_id))
         for j in range(0, len(clinical_data)):
-            rec_num = "rec-%010d-%02d" % (i + 1, j)
+            rec_num = "rec-%010d-%02d" % (i + 1 + rec_start_num, j)
             facility = clinical_data[j]['facility']
             patient_id = clinical_data[j]['patient_id']
             c_data = clinical_data[j]['clinical_data']
@@ -131,6 +132,7 @@ def generate_dataset():
         if k % 1000 == 0:
             print(k)
 
+    df = df.sample(frac=1).reset_index(drop=True)
     df = pd.DataFrame(data, columns=['rec_num', 'given_name', 'family_name', 'gender', 'dob',
                                      'city', 'phone_number', 'national_id',
                                      'src_id_facility', 'src_id_patient', 'clinical_data'])
