@@ -1,15 +1,16 @@
 ### Setup Instructions
 
-
+Using docker to build the xk6 binary:
+```bash
 docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 \
-  --with github.com/mostafa/xk6-kafka@v0.17.0 \
+  --with github.com/mostafa/xk6-kafka@latest \
   --with github.com/grafana/xk6-exec@latest
+```
 
-Or to build the exec binary separately:
-  xk6 build --with github.com/mostafa/xk6-kafka@v0.17.0
-  xk6 build --with github.com/grafana/xk6-exec@latest
+Benchmarking the Linker: `./k6 run linker-test.js`
 
+Benchmarking the API: 
+- Simple reads: `./k6 run api-read.js`
+- Adding records and linking: `./k6 run api-write.js`
 
-./k6 run /path/to/script.js
-
-xk6 build --with github.com/mostafa/xk6-kafka@latest
+Monitoring Kafka (WIP, for future reference): `./k6 run kafka-monitor.js`
