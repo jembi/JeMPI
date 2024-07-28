@@ -70,6 +70,9 @@ services:
         target: 50001
         protocol: tcp
         mode: host
+      - published: 50010
+        target: 50010
+        protocol: tcp
       - published: 3000
         target: 3000
         protocol: tcp
@@ -661,6 +664,7 @@ services:
       API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
       API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
       API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     networks:
       - backend
     volumes:
@@ -726,6 +730,7 @@ services:
       API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
       API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
       API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     networks:
       - frontend
       - backend

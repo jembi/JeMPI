@@ -17,8 +17,13 @@ export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 export NODE1_IP=$(hostname -i)
 export PLACEMENT_NODE1=jempi1
+export NODE1=jempi1
 export PLACEMENT_NODE2=jempi2
+export NODE2=jempi2
+export NODE2_IP=""
 export PLACEMENT_NODE3=jempi3
+export NODE3=jempi3
+export NODE3_IP=""
 
 export SCALE_KEYCLOAK_TEST_SERVER=1
 export SCALE_KAFKA_01=1
@@ -60,7 +65,7 @@ export KC_JEMPI_CLIENT_ID="jempi-oauth"
 export KC_JEMPI_CLIENT_SECRET="Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
-export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
+export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128m
 # Deployment related env vars
 export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"

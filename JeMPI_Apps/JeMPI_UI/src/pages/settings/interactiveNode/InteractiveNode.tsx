@@ -26,8 +26,7 @@ const InteractiveNode = () => {
           endPlug: 'behind',
           path: 'straight'
         }
-      )
-
+      );
       const newLine2 = new window.LeaderLine(
         document.getElementById('end1'),
         document.getElementById('start2'),
@@ -37,8 +36,7 @@ const InteractiveNode = () => {
           endPlug: 'behind',
           path: 'straight'
         }
-      )
-
+      );
       const newLine3 = new window.LeaderLine(
         document.getElementById('start1'),
         document.getElementById('start2'),
@@ -49,15 +47,19 @@ const InteractiveNode = () => {
           endPlug: 'behind',
           dash: true
         }
-      )
-
-      setLine1(newLine1)
-      setLine2(newLine2)
-      setLine3(newLine3)
+      );
+      setLine1(newLine1);
+      setLine2(newLine2);
+      setLine3(newLine3);
+      return () => {
+        newLine1.remove();
+        newLine2.remove();
+        newLine3.remove();
+      };
     } else {
-      console.error('LeaderLine library not loaded!')
+      console.error('LeaderLine library not loaded!');
     }
-  }, [])
+  }, []);
 
   const handleDrag = () => {
     if (line1) line1.position()

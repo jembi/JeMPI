@@ -12,6 +12,7 @@ import org.jembi.jempi.api.httpServer.httpServerRoutes.ApiHttpServerRouteEntries
 import org.jembi.jempi.api.keyCloak.KeyCloakAuthenticator;
 import org.jembi.jempi.api.keyCloak.OAuthCodeRequestPayload;
 import org.jembi.jempi.api.user.UserSession;
+import org.jembi.jempi.libapi.Routes;
 import org.jembi.jempi.libmpi.MpiServiceError;
 import org.jembi.jempi.shared.models.GlobalConstants;
 
@@ -82,7 +83,10 @@ public final class UserRoutes extends ApiHttpServerRouteEntries {
    public Route getRouteEntries() {
       return concat(post(() -> path(GlobalConstants.SEGMENT_VALIDATE_OAUTH, () -> routeLoginWithKeycloakRequest(checkHeader))),
                     get(() -> concat(path(GlobalConstants.SEGMENT_CURRENT_USER, this::routeCurrentUser),
-                                     path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout)))
+                                     path(GlobalConstants.SEGMENT_LOGOUT, this::routeLogout),
+                                     path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
+                                          () -> Routes.getConfiguration(this.httpServer.getActorSystem(),
+                                                                        this.httpServer.getBackEnd()))))
 
                    );
    }
