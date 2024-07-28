@@ -48,19 +48,23 @@ public final class SPInteractions {
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final InteractionEnvelop interactionEnvelop) {
-      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
-                                       .toCompletableFuture();
+
       try {
+         final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
+                                       .toCompletableFuture();
          final var reply = completableFuture.get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
          if (reply.linkInfo() == null) {
             LOGGER.warn("BACK END RESPONSE(ERROR)");
          }
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+         if (ex instanceof InterruptedException) {
+            Thread.currentThread().interrupt(); // Explicitly set the interrupt status
+         }
          // Log the error and skip the problematic message
          LOGGER.error("Exception of type {} occurred: {}", ex.getClass().getSimpleName(), ex.getLocalizedMessage(), ex);
          LOGGER.info("Failed on the following interaction: {}", interactionEnvelop);
          // this.closeInteractionStream();
-         return; // Skip this message and continue with the next one
+         // Continue to the next message
       }
    }
 

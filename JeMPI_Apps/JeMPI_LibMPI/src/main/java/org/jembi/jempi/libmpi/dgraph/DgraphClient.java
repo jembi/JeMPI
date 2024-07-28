@@ -151,7 +151,7 @@ public final class DgraphClient {
          }
          try {
             final var request = DgraphProto.Request.newBuilder().setCommitNow(true).addMutations(mutation).build();
-            final var response = txn.doRequest(request, 10, TimeUnit.SECONDS);
+            final var response = txn.doRequest(request, GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
             uid = response.getUidsMap().values().stream().findFirst().orElse(StringUtils.EMPTY);
          } catch (RuntimeException ex) {
             if (--retry == 0) {
