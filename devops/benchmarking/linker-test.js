@@ -8,6 +8,7 @@ const config = {
   corruption: 0.25, // ie 0 || 0.25 etc., up to 1.
   autoClean: true, // Removes all files from results and async_receiver/csv directories
   verbose: false, // Spits out container logs in this thread
+  logsTimeout: 30000, // If we don't see logs for so many milliseconds, consider it done
 }
 
 // Add options object to set the duration
@@ -68,18 +69,14 @@ export default function () {
   if (fileExists) {
     console.log(`File found. Attempting to copy...`);
     const copyResponse = exec.command('sh', ['-c', `cp "${filePath}" "${destinationFolder}" 2>&1 || echo "Copy failed with exit code $?"`]);
-    console.log(`Copy response: ${copyResponse}`);
   } else {
     console.error(`File not found after multiple retries: ${filePath}`);
     console.log(`Final check of current directory: ${exec.command('ls', ['-l'])}`);
     exec.command('sh', ['-c', `exit 1`]);
   }
 
-  console.log(`Datestamp: ${exec.command("date")}`);
-
   // Step 2: Detect the number of linkers in the swarm
   const linkersResponse = exec.command('docker', ['service', 'ls', '--filter', 'name=jempi_linker', '--format', '{{.Replicas}}']);
-  console.log(linkersResponse);
   let numLinkers = parseInt(linkersResponse.trim().split('/')[1]);
 
   console.log(`Number of linkers: ${numLinkers}`);
@@ -103,7 +100,14 @@ export default function () {
         if (containerId) {
           const logsCommand = `docker logs -f ${containerId} --tail=300`;
           if (!linkersSet.has(containerId)) {
-            linkersSet.set(containerId, { logsCommand: logsCommand, lastCheckTime: startTime, completedTime: null, completedTimestamp: null });
+            linkersSet.set(containerId, {
+              logsCommand: logsCommand,
+              lastCheckTime: startTime,
+              completedTime: null,
+              completedTimestamp: null,
+              lastLogsSeen: null,
+              timeout: false,
+            });
           }
         }
       }
@@ -138,16 +142,25 @@ export default function () {
             if (config.verbose) console.log(`Container ${containerId}: ${logs}`);
 
             // Update lastCheckTime for this container
-            containerInfo.lastCheckTime = new Date().toISOString();
+            const currentTime = new Date().toISOString();
+            containerInfo.lastCheckTime = currentTime;
+            if (logs && logs.length > 0) containerInfo.lastLogsSeen = currentTime;
 
             // Check if the linker has completed
-            if ((logs.match(/TEA TIME/g) || []).length > 0 || (logs.match(/Stream closed/g) || []).length > 0) {
+            const sinceLastLogs = containerInfo.lastLogsSeen ? new Date(currentTime) - new Date(containerInfo.lastLogsSeen) : 0;
+            if (
+              (logs.match(/TEA TIME/g) || []).length > 0
+              || (logs.match(/Stream closed/g) || []).length > 0
+              || sinceLastLogs > config.logsTimeout) {
               if (!config.verbose) console.log(`Logs for container ${containerId}: ${logs}`); // Logs summary portion only in quiet mode
-              containerInfo.completedTimestamp = new Date().toISOString(); // Store finish time
-              const completedDate = new Date(containerInfo.completedTimestamp);
-              const hours = String(completedDate.getHours()).padStart(2, '0');
-              const minutes = String(completedDate.getMinutes()).padStart(2, '0');
-              containerInfo.completedTime = `${hours}:${minutes}`; // Store finish time
+              if (!containerInfo.completedTimestamp) {
+                containerInfo.completedTimestamp = new Date().toISOString(); // Store finish time
+                const completedDate = new Date(containerInfo.completedTimestamp);
+                const hours = String(completedDate.getHours()).padStart(2, '0');
+                const minutes = String(completedDate.getMinutes()).padStart(2, '0');
+                containerInfo.completedTime = `${hours}:${minutes}`; // Store finish time
+                if (sinceLastLogs > config.logsTimeout) containerInfo.timeout = true;
+              }
             }
             if ((logs.match(/Batch End Sentinel/g) || []).length > 0) {
               console.log(`Received Batch End Sentinel: ${containerId}: ${logs}`);
@@ -163,7 +176,7 @@ export default function () {
     console.log(`\n\nCompleted linkers: ${completedLinkers}/${numLinkers}`);
     for (const [containerId, info] of linkersSet.entries()) {
       const clickableLink = `\x1b]8;;${info.logsCommand}\x1b\\${info.logsCommand}\x1b]8;;\x1b\\`;
-      const status = info.completedTimestamp ? ` (Completed at ${info.completedTime})` : ' (In Progress)';
+      const status = info.completedTimestamp ? ` (${info.timeout ? 'Stopped' : 'Completed'} at ${info.completedTime})` : ' (In Progress)';
       console.log(`${clickableLink} ${status}`);
     }
     
