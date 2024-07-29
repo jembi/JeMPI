@@ -1,0 +1,963 @@
+{
+    "data": [
+       
+        {
+            "goldenRecord": {
+                "uid": "0xd2b",
+                "sourceId": [
+                    {
+                        "uid": "0x794",
+                        "facility": "Antigen Laboratories, Inc.",
+                        "patient": "803192"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:43.245393040",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "803192"
+                },
+                "demographicData": {
+                    "givenName": "habtamu",
+                    "familyName": "oldu",
+                    "gender": "male",
+                    "dob": "",
+                    "city": "mocun",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xd2a",
+                        "sourceId": {
+                            "uid": "0x794",
+                            "facility": "Antigen Laboratories, Inc.",
+                            "patient": "803192"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.716592474",
+                            "auxId": "803192",
+                            "auxClinicalData": "803192"
+                        },
+                        "demographicData": {
+                            "givenName": "habtamu",
+                            "familyName": "oldu",
+                            "gender": "male",
+                            "dob": "",
+                            "city": "mocun",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xd27",
+                "sourceId": [
+                    {
+                        "uid": "0x479",
+                        "facility": "Dolgencorp Inc",
+                        "patient": "5371p7"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:43.202157445",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "5371p7"
+                },
+                "demographicData": {
+                    "givenName": "",
+                    "familyName": "mekasha",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "dailing",
+                    "phoneNumber": "0999170216",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xd26",
+                        "sourceId": {
+                            "uid": "0x479",
+                            "facility": "Dolgencorp Inc",
+                            "patient": "5371p7"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.783813190",
+                            "auxId": "5371p7",
+                            "auxClinicalData": "5371p7"
+                        },
+                        "demographicData": {
+                            "givenName": "",
+                            "familyName": "mekasha",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "dailing",
+                            "phoneNumber": "0999170216",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xcff",
+                "sourceId": [
+                    {
+                        "uid": "0x5cd",
+                        "facility": "Harris Pharmaceutical, Inc.",
+                        "patient": "602705"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:42.712901471",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "602705"
+                },
+                "demographicData": {
+                    "givenName": "saba",
+                    "familyName": "gutemma",
+                    "gender": "male",
+                    "dob": "",
+                    "city": "jiuting",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xcfe",
+                        "sourceId": {
+                            "uid": "0x5cd",
+                            "facility": "Harris Pharmaceutical, Inc.",
+                            "patient": "602705"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.815179412",
+                            "auxId": "602705",
+                            "auxClinicalData": "602705"
+                        },
+                        "demographicData": {
+                            "givenName": "saba",
+                            "familyName": "gutemma",
+                            "gender": "male",
+                            "dob": "",
+                            "city": "jiuting",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xcf7",
+                "sourceId": [
+                    {
+                        "uid": "0x5bd",
+                        "facility": "Baxter Healthcare Corporation",
+                        "patient": "571712"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:42.622883541",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "571712"
+                },
+                "demographicData": {
+                    "givenName": "",
+                    "familyName": "hintsa",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "bartica",
+                    "phoneNumber": "0344401062",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xcf6",
+                        "sourceId": {
+                            "uid": "0x5bd",
+                            "facility": "Baxter Healthcare Corporation",
+                            "patient": "571712"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.664916503",
+                            "auxId": "571712",
+                            "auxClinicalData": "571712"
+                        },
+                        "demographicData": {
+                            "givenName": "",
+                            "familyName": "hintsa",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "bartica",
+                            "phoneNumber": "0344401062",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xcc6",
+                "sourceId": [
+                    {
+                        "uid": "0x57d",
+                        "facility": "Energique, Inc.",
+                        "patient": "736910"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:42.045857477",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "736910"
+                },
+                "demographicData": {
+                    "givenName": "melat",
+                    "familyName": "yime5",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "yeliguan",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xcc5",
+                        "sourceId": {
+                            "uid": "0x57d",
+                            "facility": "Energique, Inc.",
+                            "patient": "736910"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.845504541",
+                            "auxId": "736910",
+                            "auxClinicalData": "736910"
+                        },
+                        "demographicData": {
+                            "givenName": "melat",
+                            "familyName": "yime5",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "yeliguan",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xc9a",
+                "sourceId": [
+                    {
+                        "uid": "0x7de",
+                        "facility": "The Medicines Company",
+                        "patient": "955865"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:41.469816279",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "955865"
+                },
+                "demographicData": {
+                    "givenName": "rahel",
+                    "familyName": "",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "dontan",
+                    "phoneNumber": "0475563131",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xc99",
+                        "sourceId": {
+                            "uid": "0x7de",
+                            "facility": "The Medicines Company",
+                            "patient": "955865"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.840945584",
+                            "auxId": "955865",
+                            "auxClinicalData": "955865"
+                        },
+                        "demographicData": {
+                            "givenName": "rahel",
+                            "familyName": "",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "dontan",
+                            "phoneNumber": "0475563131",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xc7a",
+                "sourceId": [
+                    {
+                        "uid": "0x87b",
+                        "facility": "Astellas Pharma US, Inc.",
+                        "patient": "998699"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:40.986232586",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "998699"
+                },
+                "demographicData": {
+                    "givenName": "aste",
+                    "familyName": "",
+                    "gender": "male",
+                    "dob": "",
+                    "city": "jiantian",
+                    "phoneNumber": "0120327373",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xc79",
+                        "sourceId": {
+                            "uid": "0x87b",
+                            "facility": "Astellas Pharma US, Inc.",
+                            "patient": "998699"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.640900334",
+                            "auxId": "998699",
+                            "auxClinicalData": "998699"
+                        },
+                        "demographicData": {
+                            "givenName": "aste",
+                            "familyName": "",
+                            "gender": "male",
+                            "dob": "",
+                            "city": "jiantian",
+                            "phoneNumber": "0120327373",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xc4f",
+                "sourceId": [
+                    {
+                        "uid": "0x88f",
+                        "facility": "Lake Erie Medical & Surgical Supply DBA Quality Care Products LLC",
+                        "patient": "958678"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:40.439236864",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "958678"
+                },
+                "demographicData": {
+                    "givenName": "hadas",
+                    "familyName": "",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "pemba",
+                    "phoneNumber": "0581111526",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xc4e",
+                        "sourceId": {
+                            "uid": "0x88f",
+                            "facility": "Lake Erie Medical & Surgical Supply DBA Quality Care Products LLC",
+                            "patient": "958678"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.244977124",
+                            "auxId": "958678",
+                            "auxClinicalData": "958678"
+                        },
+                        "demographicData": {
+                            "givenName": "hadas",
+                            "familyName": "",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "pemba",
+                            "phoneNumber": "0581111526",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xc02",
+                "sourceId": [
+                    {
+                        "uid": "0x61c",
+                        "facility": "Novartis Consumer Health",
+                        "patient": "172200"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:39.446858159",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "172200"
+                },
+                "demographicData": {
+                    "givenName": "hailu",
+                    "familyName": "mekoonnen",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "torresnovas",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xc01",
+                        "sourceId": {
+                            "uid": "0x61c",
+                            "facility": "Novartis Consumer Health",
+                            "patient": "172200"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.144352280",
+                            "auxId": "172200",
+                            "auxClinicalData": "172200"
+                        },
+                        "demographicData": {
+                            "givenName": "hailu",
+                            "familyName": "mekoonnen",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "torresnovas",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xbe1",
+                "sourceId": [
+                    {
+                        "uid": "0x74b",
+                        "facility": "Autumn Harp, Inc.",
+                        "patient": "702205"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:39.003479982",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "702205"
+                },
+                "demographicData": {
+                    "givenName": "yeshimebet",
+                    "familyName": "",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "liusi",
+                    "phoneNumber": "099i662720",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xbe0",
+                        "sourceId": {
+                            "uid": "0x74b",
+                            "facility": "Autumn Harp, Inc.",
+                            "patient": "702205"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.099389109",
+                            "auxId": "702205",
+                            "auxClinicalData": "702205"
+                        },
+                        "demographicData": {
+                            "givenName": "yeshimebet",
+                            "familyName": "",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "liusi",
+                            "phoneNumber": "099i662720",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xbdc",
+                "sourceId": [
+                    {
+                        "uid": "0x742",
+                        "facility": "Apotheca Company",
+                        "patient": "276930"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:38.969952486",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "276930"
+                },
+                "demographicData": {
+                    "givenName": "bsthelhem",
+                    "familyName": "diressie",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "padangan",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xbdb",
+                        "sourceId": {
+                            "uid": "0x742",
+                            "facility": "Apotheca Company",
+                            "patient": "276930"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.076306059",
+                            "auxId": "276930",
+                            "auxClinicalData": "276930"
+                        },
+                        "demographicData": {
+                            "givenName": "bsthelhem",
+                            "familyName": "diressie",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "padangan",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xbd4",
+                "sourceId": [
+                    {
+                        "uid": "0xbd2",
+                        "facility": "AvPAK",
+                        "patient": ""
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:38.884630393",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": ""
+                },
+                "demographicData": {
+                    "givenName": "yeshimebet",
+                    "familyName": "",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "pora",
+                    "phoneNumber": "0027245115",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xbd3",
+                        "sourceId": {
+                            "uid": "0xbd2",
+                            "facility": "AvPAK",
+                            "patient": ""
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:29.911887863",
+                            "auxId": "",
+                            "auxClinicalData": ""
+                        },
+                        "demographicData": {
+                            "givenName": "yeshimebet",
+                            "familyName": "",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "pora",
+                            "phoneNumber": "0027245115",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xbc7",
+                "sourceId": [
+                    {
+                        "uid": "0x72a",
+                        "facility": "UNITED EXCHANGE CORP.",
+                        "patient": "133w05"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:38.733832157",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "133w05"
+                },
+                "demographicData": {
+                    "givenName": "girma",
+                    "familyName": "tibebu",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "shanmu",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xbc6",
+                        "sourceId": {
+                            "uid": "0x72a",
+                            "facility": "UNITED EXCHANGE CORP.",
+                            "patient": "133w05"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:30.224143877",
+                            "auxId": "133w05",
+                            "auxClinicalData": "133w05"
+                        },
+                        "demographicData": {
+                            "givenName": "girma",
+                            "familyName": "tibebu",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "shanmu",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+
+        {
+            "goldenRecord": {
+                "uid": "0xb5a",
+                "sourceId": [
+                    {
+                        "uid": "0x4bd",
+                        "facility": "Mylan Pharmaceuticals Inc.",
+                        "patient": "573891"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:37.422721372",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "573891"
+                },
+                "demographicData": {
+                    "givenName": "bayush",
+                    "familyName": "mekonnen",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "genissa",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xb59",
+                        "sourceId": {
+                            "uid": "0x4bd",
+                            "facility": "Mylan Pharmaceuticals Inc.",
+                            "patient": "573891"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:29.837898586",
+                            "auxId": "573891",
+                            "auxClinicalData": "573891"
+                        },
+                        "demographicData": {
+                            "givenName": "bayush",
+                            "familyName": "mekonnen",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "genissa",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xb45",
+                "sourceId": [
+                    {
+                        "uid": "0x4a8",
+                        "facility": "American Sales Company",
+                        "patient": "539817"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:37.187559105",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "539817"
+                },
+                "demographicData": {
+                    "givenName": "alemtsehay",
+                    "familyName": "demoz",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "kelungkung",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xb44",
+                        "sourceId": {
+                            "uid": "0x4a8",
+                            "facility": "American Sales Company",
+                            "patient": "539817"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:29.706861526",
+                            "auxId": "539817",
+                            "auxClinicalData": "539817"
+                        },
+                        "demographicData": {
+                            "givenName": "alemtsehay",
+                            "familyName": "demoz",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "kelungkung",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xb0c",
+                "sourceId": [
+                    {
+                        "uid": "0x461",
+                        "facility": "AvKARE, Inc.",
+                        "patient": "369810"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:36.462260701",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "369810"
+                },
+                "demographicData": {
+                    "givenName": "ayush",
+                    "familyName": "zewudie",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "kotlyarevskaya",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xb0b",
+                        "sourceId": {
+                            "uid": "0x461",
+                            "facility": "AvKARE, Inc.",
+                            "patient": "369810"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:29.732352239",
+                            "auxId": "369810",
+                            "auxClinicalData": "369810"
+                        },
+                        "demographicData": {
+                            "givenName": "ayush",
+                            "familyName": "zewudie",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "kotlyarevskaya",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xade",
+                "sourceId": [
+                    {
+                        "uid": "0x23f",
+                        "facility": "American Sales Company",
+                        "patient": "891539"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:35.821035877",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "891539"
+                },
+                "demographicData": {
+                    "givenName": "harejywoin",
+                    "familyName": "",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "kawahmanuk",
+                    "phoneNumber": "0587730441",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xadd",
+                        "sourceId": {
+                            "uid": "0x23f",
+                            "facility": "American Sales Company",
+                            "patient": "891539"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:29.794927832",
+                            "auxId": "891539",
+                            "auxClinicalData": "891539"
+                        },
+                        "demographicData": {
+                            "givenName": "harejywoin",
+                            "familyName": "",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "kawahmanuk",
+                            "phoneNumber": "0587730441",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        },
+        {
+            "goldenRecord": {
+                "uid": "0xadc",
+                "sourceId": [
+                    {
+                        "uid": "0x23c",
+                        "facility": "REMEDYREPACK INC.",
+                        "patient": "891539"
+                    }
+                ],
+                "uniqueGoldenRecordData": {
+                    "auxDateCreated": "2024-07-26T10:31:35.808722025",
+                    "auxAutoUpdateEnabled": true,
+                    "auxId": "891539"
+                },
+                "demographicData": {
+                    "givenName": "haregewoin",
+                    "familyName": "arage",
+                    "gender": "female",
+                    "dob": "",
+                    "city": "derzhavnsk",
+                    "phoneNumber": "",
+                    "nationalId": ""
+                }
+            },
+            "interactionsWithScore": [
+                {
+                    "interaction": {
+                        "uid": "0xadb",
+                        "sourceId": {
+                            "uid": "0x23c",
+                            "facility": "REMEDYREPACK INC.",
+                            "patient": "891539"
+                        },
+                        "uniqueInteractionData": {
+                            "auxDateCreated": "2024-07-26T10:31:29.792612160",
+                            "auxId": "891539",
+                            "auxClinicalData": "891539"
+                        },
+                        "demographicData": {
+                            "givenName": "haregewoin",
+                            "familyName": "arage",
+                            "gender": "female",
+                            "dob": "",
+                            "city": "derzhavnsk",
+                            "phoneNumber": "",
+                            "nationalId": ""
+                        }
+                    },
+                    "score": 1.0
+                }
+            ]
+        }
+    ],
+    "pagination": {
+        "total": 398
+    }
+}

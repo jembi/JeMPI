@@ -48,6 +48,7 @@ import getCellComponent from 'components/shared/getCellComponent'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search } from '@mui/icons-material'
 import { useConfig } from 'hooks/useConfig'
+import { CustomTextField } from 'components/notificationWorklist/NotificationWorklist'
 
 // TODO: Later -  We can update this at a later stage, such the field configuration info can contain the getAlignment, since this can be dynamic
 const getAlignment = (fieldName: string) =>
@@ -141,6 +142,7 @@ const Records = () => {
           return acc
         }, [])
   }, [isFetchingInteractions, data])
+  
   useEffect(() => {
     setSearchParams(
       Object.entries(filterPayload).reduce(
@@ -228,23 +230,19 @@ const Records = () => {
                     <DateTimePicker
                       value={startDateFilter}
                       format="YYYY/MM/DD HH:mm:ss"
+                      label='Start Date'
                       onChange={value => value && setStartDateFilter(value)}
-                      slotProps={{
-                        textField: {
-                          variant: 'outlined',
-                          label: 'Start Date'
-                        }
+                      slots={{
+                        textField: (params) => CustomTextField(params, 'end-date-filter'),
                       }}
                     />
                     <DateTimePicker
                       value={endDateFilter}
                       format="YYYY/MM/DD HH:mm:ss"
+                      label='End Date'
                       onChange={value => value && setEndDateFilter(value)}
-                      slotProps={{
-                        textField: {
-                          variant: 'outlined',
-                          label: 'End Date'
-                        }
+                      slots={{
+                        textField: (params) => CustomTextField(params, 'end-date-filter'),
                       }}
                     />
                   </Box>
@@ -259,6 +257,7 @@ const Records = () => {
                     />
                   }
                   label="Get Interactions"
+                  id='interactions-switch'
                 />
               </Stack>
               <FilterTable

@@ -39,7 +39,6 @@ describe('Dashboard Component', () => {
     })
   })
 
-
   it('should render correctly with no data', () => {
     // Mock the useDashboardData hook to return no data
     cy.intercept('GET', '/api/dashboard-data', {
@@ -49,11 +48,11 @@ describe('Dashboard Component', () => {
         }
       }
     })
-  
+
     // Visit the page and click on the dashboard tab
     cy.visit('/')
     cy.get('[id="dashboard-tab-0"]').click()
-  
+
     // Verify that the page renders correctly with no data
     cy.get('#dashboard-tabpanel-0').within(() => {
       cy.get('fieldset legend').contains('Records').should('be.visible')
@@ -64,8 +63,8 @@ describe('Dashboard Component', () => {
 
   it('should display loading state correctly', () => {
     // Mock the useDashboardData hook to simulate loading state
-    cy.intercept('GET', '/api/dashboard-data', (req) => {
-      req.on('response', (res) => {
+    cy.intercept('GET', '/api/dashboard-data', req => {
+      req.on('response', res => {
         res.setDelay(1000)
       })
     })
