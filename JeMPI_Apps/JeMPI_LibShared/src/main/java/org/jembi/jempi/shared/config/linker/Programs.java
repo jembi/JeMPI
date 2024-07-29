@@ -130,6 +130,17 @@ public final class Programs {
                }
                evalStack.push("uid(%c)".formatted('A' + i));
             }
+         } else if (s.startsWith("null(")) {
+            final var pattern = Pattern.compile("^null\\((?<field>\\w+)\\)$");
+            final var matcher = pattern.matcher(s);
+            if (matcher.find()) {
+               final var field = matcher.group("field");
+               int i = 0;
+               while (i < vars.size() && !field.equals(vars.get(i))) {
+                  i++;
+               }
+               evalStack.push("uid(%c)".formatted('A' + i));
+            }
          } else {
             final var operand1 = evalStack.pop();
             final var operand2 = evalStack.pop();
@@ -402,8 +413,8 @@ public final class Programs {
                } else {
                   LOGGER.error("Match error: [{}]", s);
                }
-            } else if (s.startsWith("isNull")) {
-               final var pattern = Pattern.compile("^isNull\\((?<field>\\w+)\\)$");
+            } else if (s.startsWith("null")) {
+               final var pattern = Pattern.compile("^null\\((?<field>\\w+)\\)$");
                final var matcher = pattern.matcher(s);
                if (matcher.find()) {
                   final var field = matcher.group("field");
