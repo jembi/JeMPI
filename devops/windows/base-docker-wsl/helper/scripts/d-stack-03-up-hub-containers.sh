@@ -10,6 +10,8 @@ pushd .
   cd ${SCRIPT_DIR}/../..
 
   source ./conf.env
+  echo "........................."
+  echo ${DATA_POSTGRESQL_DB_DIR}
 
   docker service scale ${STACK_NAME}_postgresql=${SCALE_POSTGRESQL}
 #  docker service scale ${STACK_NAME}_keycloak-test-server=${SCALE_KEYCLOAK_TEST_SERVER}
@@ -22,5 +24,6 @@ pushd .
   if [ ! -z ${SCALE_ALPHA_03+x} ] ; then docker service scale ${STACK_NAME}_alpha-03=${SCALE_ALPHA_03}; fi
   docker service scale ${STACK_NAME}_ratel=${SCALE_RATEL}
 
+  echo ${DATA_POSTGRESQL_DB_DIR}
 
 popd

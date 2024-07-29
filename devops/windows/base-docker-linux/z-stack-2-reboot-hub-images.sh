@@ -10,7 +10,6 @@ source ./helper/scripts/d-stack-09-wait-removed.sh
 
 echo
 echo "Up app containers"
-source ./helper/scripts/d-stack-01-create-dirs.sh
 sleep 2
 source ./helper/scripts/d-stack-02-deploy-0.sh
 sleep 2

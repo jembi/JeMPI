@@ -22,10 +22,13 @@ services:
       protocol: tcp
       mode: host
     volumes:
+    # - type: bind
+    #   source: ${DATA_POSTGRESQL_DIR}
+    #   target: /conf
+    #   read_only: true
     - type: bind
-      source: ${DATA_POSTGRESQL_DIR}
-      target: /conf
-      read_only: true
+      source: ${DATA_POSTGRESQL_DB_DIR}
+      target: /bitnami/postgresql
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
