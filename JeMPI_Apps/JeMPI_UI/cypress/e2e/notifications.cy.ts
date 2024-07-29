@@ -11,11 +11,11 @@ describe('Notifications', () => {
 
   describe('Filters', () => {
     it('should display the start date filter', () => {
-      cy.get('#start-date-filter').should('be.visible');
+      cy.contains('Start Date').should('be.visible');
     });
 
     it('should display the end date filter', () => {
-      cy.get('#end-date-filter').should('be.visible');
+      cy.contains('End Date').should('be.visible');
     });
 
     it('should display the states dropdown', () => {
@@ -44,11 +44,11 @@ describe('Notifications', () => {
 
   describe('Data Grid', () => {
     it('should display the data grid', () => {
-      cy.get('.MuiDataGrid-root').should('be.visible');
+      cy.contains('OPEN').should('be.visible');
     });
 
     it('should display the pagination', () => {
-      cy.get('.MuiPagination-root').should('be.visible');
+      cy.contains('Rows per page:').should('be.visible');
     });
   });
 
