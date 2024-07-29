@@ -7,8 +7,11 @@ set -u
 source ./conf.env
 source ./conf/images/conf-app-images.sh
 
-echo
-echo "Down apps: $@"
+# Define valid apps
+valid_apps=("linker" "api" "api_kc" "asyncreceiver" "configuration" "controller" "etl" "libapi" "libmpi" "libshared")
+
+# Initialize an array to hold invalid apps
+invalid_apps=()
 
 # Function to scale down, build, push, and scale up an app
 process_app() {
@@ -23,17 +26,19 @@ process_app() {
     docker wait $name
   fi
 
-  echo "Building $app"
-  
-  # Find the directory name case-insensitively
+  # Find the directory name (case-insensitive)
   local app_dir=$(find ../../../JeMPI_Apps/ -maxdepth 1 -type d -iname "jempi_$app" | head -n 1)
   if [ -z "$app_dir" ]; then
     echo "Error: Directory for $app not found"
     exit 1
   fi
 
-  echo "Path: $app_dir"
+  # Delete JAR files in the target app docker directory
+  find "$app_dir/docker" -maxdepth 1 -type f -name "*.jar" -delete
+
   pushd $app_dir
+    echo "Path: $app_dir"
+    echo "Building $app"
     ./build.sh || exit 1
   popd
   sleep 2
@@ -54,12 +59,27 @@ process_app() {
 
     # Verify the image used by the service
     current_image=$(docker service inspect --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' $service)
-    echo "Current image for $service: $current_image"
+    echo "Current image for $service: $current_image\n\n"
   fi
 }
 
+# Build the java stack once and deploy selected apps
+pushd ../../../JeMPI_Apps
+  mvn clean package
+popd
+sleep 1
+
 for app in "$@"; do
-  process_app $app
+  if [[ " ${valid_apps[@]} " =~ " ${app} " ]]; then
+    process_app $app
+  else
+    invalid_apps+=($app)
+  fi
 done
 
 docker stack services ${STACK_NAME}
+
+# Notify user of invalid apps
+if [ ${#invalid_apps[@]} -ne 0 ]; then
+  echo "The following apps are not valid and were ignored: ${invalid_apps[@]}"
+fi
