@@ -3,6 +3,7 @@ package org.jembi.jempi.linker;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
+import akka.actor.typed.SupervisorStrategy;
 import akka.actor.typed.Terminated;
 import akka.actor.typed.javadsl.Behaviors;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +15,8 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 
 import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
+
+import java.time.Duration;
 
 public final class Main {
 
@@ -38,10 +41,16 @@ public final class Main {
          spMU.open(system, backEnd);
          httpServer = HttpServer.create();
          httpServer.open(system, backEnd);
-         return Behaviors.receive(Void.class).onSignal(Terminated.class, sig -> {
-            httpServer.close(system);
-            return Behaviors.stopped();
-         }).build();
+
+         return Behaviors.supervise(
+            Behaviors.receive(Void.class)
+                .onSignal(Terminated.class, sig -> {
+                    LOGGER.info("Terminating due to: {}", sig.getRef());
+                    httpServer.close(system);
+                    return Behaviors.stopped();
+                })
+                .build()
+        ).onFailure(SupervisorStrategy.restart().withLimit(3, Duration.ofMinutes(3))); // Attempt to restart actor with state intact
       });
    }
 

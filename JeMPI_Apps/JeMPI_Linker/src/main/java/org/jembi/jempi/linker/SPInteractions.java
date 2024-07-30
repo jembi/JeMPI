@@ -49,22 +49,31 @@ public final class SPInteractions {
          final String key,
          final InteractionEnvelop interactionEnvelop) {
 
+      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
+                                    .toCompletableFuture();
+      /* final var reply = completableFuture.get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
+      if (reply.linkInfo() == null) {
+         LOGGER.warn("BACK END RESPONSE(ERROR)");
+      } */
       try {
-         final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
-                                       .toCompletableFuture();
-         final var reply = completableFuture.get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
-         if (reply.linkInfo() == null) {
-            LOGGER.warn("BACK END RESPONSE(ERROR)");
-         }
+         completableFuture.whenComplete((reply, ex) -> {
+            if (ex != null) {
+               if (ex instanceof InterruptedException) {
+                  Thread.currentThread().interrupt(); // Explicitly set the interrupt status
+               }
+               // Log the error and skip the problematic message
+               LOGGER.info("Failed on the following interaction: {}", interactionEnvelop);
+               // this.closeInteractionStream();
+               // Continue to the next message
+            } else {
+               if (reply.linkInfo() == null) {
+                  LOGGER.warn("BACK END RESPONSE(ERROR)");
+               }
+            }
+         }).get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-         if (ex instanceof InterruptedException) {
-            Thread.currentThread().interrupt(); // Explicitly set the interrupt status
-         }
-         // Log the error and skip the problematic message
+         // This means the backend actor was not available
          LOGGER.error("Exception of type {} occurred: {}", ex.getClass().getSimpleName(), ex.getLocalizedMessage(), ex);
-         LOGGER.info("Failed on the following interaction: {}", interactionEnvelop);
-         // this.closeInteractionStream();
-         // Continue to the next message
       }
    }
 
