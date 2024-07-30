@@ -3,6 +3,10 @@
 set -e
 set -u
 
+# PURPOSE: Build and push selected apps without destroying data
+# USAGE: ./d-stack-1-build-___-reboot.sh linker api ...
+# CURRENT STATUS: currently works for linker, api stalls, others still need to be tested
+
 # Load env and docker image variables
 source ./conf.env
 source ./conf/images/conf-app-images.sh
