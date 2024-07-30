@@ -2,7 +2,7 @@ package org.jembi.jempi.libmpi.dgraph;
 
 import io.dgraph.DgraphGrpc;
 import io.dgraph.DgraphProto;
-import io.dgraph.TxnConflictException;
+// import io.dgraph.TxnConflictException;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +13,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public final class DgraphClient {
 
@@ -85,15 +86,31 @@ public final class DgraphClient {
       dgraphClient.alter(op);
    }
 
+   private <T> T runWithRetries(final Supplier<T> supplier, final int retries) {
+      int remainingRetries = retries;
+      while (remainingRetries > 0) {
+         try {
+            return supplier.get();
+         } catch (RuntimeException ex) {
+            LOGGER.warn("Retrying due to exception: {}", ex.getMessage());
+            disconnect();
+            sleep();
+            connect();
+            remainingRetries--;
+            if (remainingRetries == 0) {
+               LOGGER.warn("Failed after retries.");
+               throw ex;
+            }
+         }
+      }
+      throw new RuntimeException("Retries exhausted");
+   }
+
    String executeReadOnlyTransaction(
          final String query,
          final Map<String, String> vars) {
-      String json = null;
-      int retry = GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_RETRIES;
-      boolean done;
-      do {
+      return runWithRetries(() -> {
          final var txn = dgraphClient.newReadOnlyTransaction();
-         done = true;
          try {
             io.dgraph.DgraphProto.Response response;
             if (AppUtils.isNullOrEmpty(vars)) {
@@ -101,49 +118,15 @@ public final class DgraphClient {
             } else {
                response = txn.queryWithVars(query, vars);
             }
-            json = response.getJson().toStringUtf8();
-         } catch (TxnConflictException ex) {
-            txn.discard();
-            if (--retry == 0) {
-               LOGGER.error(ex.getLocalizedMessage(), ex);
-               return null;
-            } else {
-               LOGGER.warn("{}", ex.getLocalizedMessage());
-               disconnect();
-               sleep();
-               connect();
-               done = false;
-            }
-         } catch (RuntimeException ex) {
-            txn.discard();
-            if (--retry == 0) {
-               LOGGER.warn("{}", vars);
-               LOGGER.warn("{}", query);
-               LOGGER.error(ex.getLocalizedMessage(), ex);
-               disconnect();
-               sleep();
-               connect();
-               return null;
-            } else {
-               LOGGER.warn("{}", ex.getLocalizedMessage(), ex);
-               done = false;
-               disconnect();
-               sleep();
-               connect();
-            }
+            return response.getJson().toStringUtf8();
          } finally {
             txn.discard();
          }
-      } while (!done);
-      return json;
+      }, GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_RETRIES);
    }
 
    String doMutateTransaction(final DgraphProto.Mutation mutation) {
-      String uid = null;
-      boolean done;
-      int retry = GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_RETRIES;
-      do {
-         done = true;
+      return runWithRetries(() -> {
          final var txn = dgraphClient.newTransaction();
          if (txn == null) {
             LOGGER.error("NO TRANSACTION");
@@ -151,28 +134,12 @@ public final class DgraphClient {
          }
          try {
             final var request = DgraphProto.Request.newBuilder().setCommitNow(true).addMutations(mutation).build();
-            final var response = txn.doRequest(request, GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
-            uid = response.getUidsMap().values().stream().findFirst().orElse(StringUtils.EMPTY);
-         } catch (RuntimeException ex) {
-            if (--retry == 0) {
-               LOGGER.error(ex.getLocalizedMessage(), ex);
-               disconnect();
-               sleep();
-               connect();
-               return null;
-            } else {
-               LOGGER.error(ex.getLocalizedMessage(), ex);
-               LOGGER.debug("{}", mutation.toByteString());
-               done = false;
-               disconnect();
-               sleep();
-               connect();
-            }
+            final var response = txn.doRequest(request, GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS, TimeUnit.SECONDS);
+            return response.getUidsMap().values().stream().findFirst().orElse(StringUtils.EMPTY);
          } finally {
             txn.discard();
          }
-      } while (!done);
-      return uid;
+      }, GlobalConstants.TIMEOUT_DGRAPH_RECONNECT_RETRIES);
    }
 
    record AlphaHost(

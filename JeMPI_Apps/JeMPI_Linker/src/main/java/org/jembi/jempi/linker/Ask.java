@@ -164,7 +164,7 @@ final class Ask {
          final InteractionEnvelop batchInteraction) {
       return AskPattern.ask(backEnd,
                             replyTo -> new BackEnd.AsyncLinkInteractionRequest(replyTo, key, batchInteraction),
-                            java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                            java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_GENERAL_SECS),
                             actorSystem.scheduler());
    }
 
