@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Notifications', () => {
   beforeEach(() => {
     cy.visit('/notifications')

@@ -10,7 +10,7 @@ const Import = () => {
         title={'Import'}
         breadcrumbs={[
           {
-            icon: <UploadFileIcon />,
+            icon: <UploadFileIcon  id="upload-file-icon"/>,
             link: '/import/',
             title: 'Import'
           }

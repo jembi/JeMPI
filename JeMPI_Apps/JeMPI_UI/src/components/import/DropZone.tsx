@@ -503,6 +503,7 @@ const DropZone: FC = () => {
                 </Button>
                 <Button
                   variant="contained"
+                  id='submit-csv'
                   onClick={() => handleSubmit()}
                   disabled={
                     uploadFileMutation.isLoading ||
