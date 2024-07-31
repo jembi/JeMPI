@@ -5,6 +5,7 @@ import SelectMatchLevelMenu from './SelectMatchLevelMenu'
 import TableCellInput from './TableCellInput'
 import { useAppConfig } from 'hooks/useAppConfig'
 import { SearchParameter } from 'types/SimpleSearch'
+import { log } from 'console'
 
 interface SearchTableFormProps {
   defaultParameters?: SearchParameter[]
@@ -18,7 +19,7 @@ const SearchFormTable: React.FC<SearchTableFormProps> = ({
   const { getFieldsByGroup } = useAppConfig()
   const [query, setQuery] = useState<SearchParameter[]>(defaultParameters)
 
-  const columns: GridColDef[] = getFieldsByGroup('filter').map(
+  const columns: GridColDef[] = getFieldsByGroup('filter').filter(({ fieldName }) => fieldName !== 'uid').map(
     ({ fieldName, fieldLabel }) => {
       return {
         field: fieldName,
