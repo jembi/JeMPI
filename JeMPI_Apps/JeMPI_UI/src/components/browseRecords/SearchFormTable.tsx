@@ -5,7 +5,6 @@ import SelectMatchLevelMenu from './SelectMatchLevelMenu'
 import TableCellInput from './TableCellInput'
 import { useAppConfig } from 'hooks/useAppConfig'
 import { SearchParameter } from 'types/SimpleSearch'
-import { log } from 'console'
 
 interface SearchTableFormProps {
   defaultParameters?: SearchParameter[]
