@@ -352,7 +352,7 @@ const DeterministicContent = ({
                   label="Select Field"
                   onChange={event => handleFieldChange(index, event)}
                 >
-                  <MenuItem value="" disabled>
+                  <MenuItem value="" >
                     Select a field
                   </MenuItem>
                   {Array.isArray(demographicData) &&
@@ -360,6 +360,7 @@ const DeterministicContent = ({
                       <MenuItem
                         key={demographicField.fieldName}
                         value={demographicField.fieldName}
+                        id={`select-field-${demographicField.fieldName}`}
                         style={{
                           backgroundColor:
                             demographicField.fieldName === field
@@ -384,7 +385,7 @@ const DeterministicContent = ({
                   onChange={event => handleComparatorChange(index, event)}
                 >
                   {options.map(option => (
-                    <MenuItem value={option.value} key={option.value}>
+                    <MenuItem value={option.value} key={option.value}  id={`select-comparator-function-${option.label}`}>
                       {option.label}
                     </MenuItem>
                   ))}
