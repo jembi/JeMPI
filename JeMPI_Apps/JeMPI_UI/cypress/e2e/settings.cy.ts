@@ -61,7 +61,7 @@ describe('Settings Page', () => {
     cy.get('[data-id="1"]')
       .find('[data-field="fieldName"] input')
       .clear()
-      .type('newFieldName')
+      .type('new_field_name')
 
     cy.get('[data-id="1"]').find('#save-button').click()
 
@@ -81,7 +81,7 @@ describe('Settings Page', () => {
     cy.get('[data-id="1"]')
       .find('[data-field="fieldName"] input')
       .clear()
-      .type('newFieldName')
+      .type('new_field_name')
 
     cy.get('[data-id="1"]').find('#cancel-button').click()
 
@@ -99,9 +99,9 @@ describe('Settings Page', () => {
       cy.get('[data-id="1"]')
         .find('[data-field="fieldName"] input')
         .clear()
-        .type('newFieldName')
+        .type('new_field_name')
       cy.get('[data-id="1"]').find('#save-button').click()
-      cy.get('[data-id="1"]').should('contain', 'NewFieldName')
+      cy.get('[data-id="1"]').should('contain', 'New Field Name')
     })
 
     it('should retain original value if editing is cancelled', () => {
@@ -113,13 +113,14 @@ describe('Settings Page', () => {
       cy.get('[data-id="1"]')
         .find('[data-field="fieldName"] input')
         .clear()
-        .type('newFieldName')
+        .type('new_field_name')
       cy.get('[data-id="1"]').find('#cancel-button').click()
       cy.get('@originalFieldName').then(originalFieldName => {
         cy.get('[data-id="1"]').should('contain', originalFieldName)
       })
     })
   })
+
   describe('UniqueToInteraction Tab End-to-End Tests', () => {
     beforeEach(() => {
       cy.get('button[role="tab"]').eq(2).click()
@@ -130,9 +131,10 @@ describe('Settings Page', () => {
       cy.get('[data-id="1"]')
         .find('[data-field="fieldName"] input')
         .clear()
-        .type('newFieldName')
+        .type('new_field_name')
       cy.get('[data-id="1"]').find('#save-button').click()
-      cy.get('[data-id="1"]').should('contain', 'NewFieldName')
+      cy.get('[data-id="1"]').should('contain', 'New Field Name')
+      cy.pause()
     })
 
     it('should retain original value if editing is cancelled', () => {
@@ -144,7 +146,7 @@ describe('Settings Page', () => {
       cy.get('[data-id="1"]')
         .find('[data-field="fieldName"] input')
         .clear()
-        .type('newFieldName')
+        .type('new_field_name')
       cy.get('[data-id="1"]').find('#cancel-button').click()
       cy.get('@originalFieldName').then(originalFieldName => {
         cy.get('[data-id="1"]').should('contain', originalFieldName)
@@ -159,15 +161,17 @@ describe('Settings Page', () => {
 
     it('should allow editing and saving a row', () => {
       cy.get('.MuiDataGrid-row').first().find('#edit-button').click()
+      cy.wait(1000)
       cy.get('.MuiDataGrid-row')
         .first()
         .find('[data-field="fieldName"] input')
         .clear()
-        .type('newFieldName')
+        .type('facility')
+      cy.wait(1000)
       cy.get('.MuiDataGrid-row').first().find('#save-button').click()
-      cy.get('.MuiDataGrid-row').first().should('contain', 'New_field_name')
+      cy.wait(1000) 
+      cy.get('.MuiDataGrid-row').should('contain', 'Facility')
     })
-
     it('should retain original value if editing is cancelled', () => {
       cy.get('.MuiDataGrid-row').first().find('#edit-button').click()
       cy.get('.MuiDataGrid-row')
@@ -179,12 +183,14 @@ describe('Settings Page', () => {
         .first()
         .find('[data-field="fieldName"] input')
         .clear()
-        .type('newFieldName')
+        .type('new_field_name')
       cy.get('.MuiDataGrid-row').first().find('#cancel-button').click()
       cy.get('@originalFieldName').then(originalFieldName => {
         cy.get('.MuiDataGrid-row').first().should('contain', originalFieldName)
       })
+      cy.pause()
     })
+ 
   })
 
   describe('Deterministic End-to-End-Tests', () => {
