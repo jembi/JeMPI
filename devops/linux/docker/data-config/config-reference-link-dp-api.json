@@ -222,8 +222,7 @@
         "/record-details/:uid/relink",
         "/search-results/golden",
         "/search-results/patient",
-        "/record-details/:uid",
-        "/browse-records"
+        "/record-details/:uid"
       ],
       "readOnly": true,
       "accessLevel": []
