@@ -370,6 +370,7 @@ const BlockingContent = ({
                   value={field}
                   label="Select Field"
                   onChange={event => handleFieldChange(index, event)}
+                  SelectDisplayProps={{ ['data-testid']: 'select-field-data-testid' } as any}
                 >
                   {Array.isArray(configuration?.demographicFields) &&
                     configuration?.demographicFields.map(demographicField => (
@@ -397,6 +398,7 @@ const BlockingContent = ({
                   id="select-comparator"
                   value={state.comparators[index]}
                   label="Select Comparator"
+                  SelectDisplayProps={{ ['data-testid']: 'select-comparator-data-testid' } as any}
                   onChange={event => handleComparatorChange(index, event)}
                 >
                   {options.map(option => (
@@ -426,7 +428,7 @@ const BlockingContent = ({
               marginTop: '40px'
             }}
           >
-            <IconButton aria-label="add" color="primary" onClick={handleAddRow}>
+            <IconButton aria-label="add" color="primary" id="add-row-button" onClick={handleAddRow}>
               <AddOutlined />
             </IconButton>
           </Box>
@@ -456,6 +458,7 @@ const BlockingContent = ({
               color="secondary"
               onClick={handleClose}
               sx={{ marginLeft: '20px' }}
+              id="close-button"
             >
               Close
             </Button>

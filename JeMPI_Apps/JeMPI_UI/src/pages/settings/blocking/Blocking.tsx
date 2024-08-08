@@ -1,32 +1,17 @@
 import { Card, CardContent, Tab, Tabs } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { useEffect, useState } from 'react'
-import { Field, Rule } from 'types/Configuration'
+import React, {useState } from 'react'
 import { a11yProps, CustomTabPanel } from '../deterministic/BasicTabs'
 import BlockingContent from './BlockingContent'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 
-interface BlockingProps {
-  demographicData: Field[]
-  rules: {
-    link?: {
-      probabilistic?: Rule[]
-    }
-    validate?: {
-      probabilistic?: Rule[]
-    }
-    matchNotification?: {
-      probabilistic?: Rule[]
-    }
-  }
-}
 
 const Blocking = () => {
   const [value, setValue] = useState(0)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
-  const { configuration, setConfiguration } = useConfiguration()
+  const { configuration,} = useConfiguration()
 
   const matchNotificationRules =
     configuration?.rules.matchNotification?.probabilistic ?? []

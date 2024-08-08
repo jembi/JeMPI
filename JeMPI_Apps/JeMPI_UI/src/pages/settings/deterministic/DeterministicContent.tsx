@@ -342,7 +342,7 @@ const DeterministicContent = ({
                 </Select>
               </FormControl>
               <FormControl fullWidth>
-                <InputLabel id={`select-field-label-${index}`}>
+                <InputLabel >
                   Select Field
                 </InputLabel>
                 <Select
@@ -350,9 +350,10 @@ const DeterministicContent = ({
                   id="select-field"
                   value={field}
                   label="Select Field"
+                  SelectDisplayProps={{ ['data-testid']: 'select-field-data-testid' } as any}
                   onChange={event => handleFieldChange(index, event)}
                 >
-                  <MenuItem value="" disabled>
+                  <MenuItem value="" >
                     Select a field
                   </MenuItem>
                   {Array.isArray(demographicData) &&
@@ -360,6 +361,7 @@ const DeterministicContent = ({
                       <MenuItem
                         key={demographicField.fieldName}
                         value={demographicField.fieldName}
+                        id={`select-field-${demographicField.fieldName}`}
                         style={{
                           backgroundColor:
                             demographicField.fieldName === field
@@ -382,9 +384,10 @@ const DeterministicContent = ({
                   value={comparators[index]}
                   label="Select Comparator Function"
                   onChange={event => handleComparatorChange(index, event)}
+                  SelectDisplayProps={{ ['data-testid']: 'select-comparator-data-testid' } as any}
                 >
                   {options.map(option => (
-                    <MenuItem value={option.value} key={option.value}>
+                    <MenuItem value={option.value} key={option.value}  id={`select-comparator-function-${option.label}`}>
                       {option.label}
                     </MenuItem>
                   ))}

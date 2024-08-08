@@ -146,7 +146,7 @@ const SourceView: React.FC<SourceViewProps> = ({
             backgroundColor: '#f5f5f5'
           }}
         >
-          <IconButton key="add-undefined-rule" onClick={onAddUndefinedRule}>
+          <IconButton key="add-undefined-rule" id="source-view-undefined-rule" onClick={onAddUndefinedRule}>
             <AddIcon />
           </IconButton>
         </Box>
