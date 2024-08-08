@@ -7,3 +7,4 @@
   * [Jembi Platform Installation](installation/jembi-platform-installation.md)
 * [API](api.md)
 * [Single Sign-On](sso.md)
+* [Backup and Restore](backup-and-restore.md)
