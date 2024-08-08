@@ -10,7 +10,7 @@ The JeMPI Client Registry is a system that incorporates a microservice architect
 
 #### [Asynchronous flow](https://drive.google.com/file/d/1G3_-BZNwRSOeriad6IbR6rFERQUnx1AK/view?usp=sharing) <a href="#_2v012h2bohjt" id="_2v012h2bohjt"></a>
 
-![](.gitbook/assets/0)
+![Asynchronous Flow Diagram](.gitbook/assets/0)
 
 ## JeMPI_AsyncReceiver <a href="#_6om7ih1t1k41" id="_6om7ih1t1k41"></a>
 
@@ -18,6 +18,7 @@ The JeMPI Client Registry is a system that incorporates a microservice architect
 
 The base version uses a reference implementation with the fields below:
 
+### String Fields
 **String** auxId,\
 **String** givenName,\
 **String** familyName,\
@@ -168,7 +169,7 @@ Kafka topic: \_TOPIC_MU_CONTROLLER="JeMPI-mu-controller"\*
 - Kafka topic: _TOPIC_INTERACTION_EM="JeMPI-interaction-em"_
 - MU process: Kafka topic: _TOPIC_MU_LINKER="JeMPI-mu-linker"_
 
-![](.gitbook/assets/4) ![](.gitbook/assets/5)
+![JeMPI-interaction-linker Kafka Topic](.gitbook/assets/4) ![JeMPI-interaction-em Kafka Topic](.gitbook/assets/5)
 
 2. Send the data to the JeMPI_Linker
 - Kafka topic: _TOPIC_INTERACTION_LINKER="JeMPI-interaction-linker"_

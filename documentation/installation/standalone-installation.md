@@ -33,12 +33,12 @@ To check the installation, you can check the version by running: _sdk version_
 We should install the following:
 
 - Maven: Command: _sdk install maven_\
-  Version: 3.8.6
+  Version: 3.9.8
 - Scala Build Tool: Command: _sdk install sbt_
 - Java: Command: _sdk install java 17.0.6-tem_\
-  Version: Temerin 17.0.8-tem (See list by running: _sdk list java_)
+  Version: Temerin 21.0.3-tem (See list by running: _sdk list java_)
 
-Check the version of java by running: _java --version_. We should get: Temurin-17.0.8+7.
+Check the version of java by running: _java --version_. We should get: Temurin-21.0.3+9.
 
 ## Starting JeMPI <a href="#_1yk2dvaqt5h9" id="_1yk2dvaqt5h9"></a>
 
@@ -48,23 +48,80 @@ In the following section, we will discuss the steps for running JeMPI on you mac
 git clone https://github.com/jembi/JeMPI.git && cd JeMPI/
 ```
 
-When the execution of the command is complete, you can choose between running JeMPI without a local registry, or run it with a local registry.
+### #1 Semi-Automated - Local Setup <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
 
-### #1 Run JeMPI without local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+#### Overview
+This Bash script is designed for deploying JeMPI locally with various options. It performs tasks such as installing Docker, SDKMAN, Java, Maven, and SBT, setting up the environment configuration, creating a Docker registry, pulling and pushing Docker images, initializing the Docker Swarm, building the entire stack, rebooting, restarting, tearing down, Backup & Restore Databases and destroying JeMPI.
 
-Run in the terminal _./launch-local.sh_
+#### Usage
+**Location of file** - JeMPI/devops/linux/docker/deployment \
+**File Name** - local-deployment.sh
+
+**Set following variables**\
+JAVA_VERSION=21.0.3-tem \
+JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
+
+#### Installation Process
+
+*This script must be run from the following path and will not work if executed from a different location* 
+
+**Location of file** - JeMPI/devops/linux/docker/deployment
 
 ```bash
-./launch-local.sh
-
-# or
-
-bash launch-local.sh
+./local-deployment.sh
 ```
 
-[//]: # "You can **run** the script in [**this link**](https://github.com/jembi/JeMPI/pull/15/files) **OR** follow these steps below:"
+![Deployment Script Options](../.gitbook/assets/13)
 
-### #2 Run JeMPI with a local registry <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+**Option 1: Deploy JeMPI (For Fresh Start)** \
+*This Option used to install JeMPI from Scratch or Fresh setup*
+- Set up hostname and IP address in the Hosts file.
+- Docker Swarm Initialization.
+- Creates a Docker registry, pulls Docker images from the hub, and pushes them to the local registry.
+- Builds and reboots the entire JeMPI stack
+
+**Option 2: Build and Reboot**
+- Builds and reboots the entire JeMPI stack.
+
+**Option 3: Restart JeMPI**
+- Reboots the entire JeMPI stack
+
+**Option 4: Down JeMPI**
+- Stop entire stack
+
+**Option 5: Backup Postgres & Dgraph**
+- Postgres backup process creates a folder with a timestamp, and inside it, SQL files are generated for each postgres database.
+- Backup Directory: JeMPI/devops/linux/docker/docker_data/data/backups/postgres
+- Dgraph backup process creates a folder with a timestamp, and inside it generates the Json file of data.
+- Backup Directory: JeMPI/devops/linux/docker/docker_data/data/backups/dgraph
+
+**Option 6: Restore Postgres & Dgraph**
+- Users need to confirm with “ctr + Y” for restore.
+- This process will wipe all existing data from both Postgres and Draph DB’s and restore new from backup.
+- Users need to enter the folder name of the backup directory to initiate the restore process.
+
+**Option 7: Re-Deploy JeMPI**
+- Updates environment configuration settings
+- Update HAProxy settings
+- Pulls Docker images from the hub, and pushes them to the local registry.
+- Builds and reboots the entire JeMPI stack
+
+**Option 8: Install Prerequisites**
+- Install SDKMAN - SDK Manager
+- Install Docker
+- Install Java, Maven, and SBT using SDKMAN
+
+**Option 9: Destroy JeMPI (This process will wipe all data)**
+- This process will remove all stack from swarm and leave the swarm.
+- Remove all data and volumes
+
+#### Notes
+- The script prompts for user input to select an option.
+- Confirmations are requested for critical actions.
+- Use Ctrl+Y for "Yes" confirmation to Destroy all systems and Restore DB.
+- Customize the script as needed for your specific deployment requirements.
+
+### #2 Manual - Local Setup <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
 
 **Setup an IP address**\
 Before starting the process of running JeMPI, you will need to setup an IP address for your machine.
@@ -91,7 +148,7 @@ skunk@skunks-server:~$ ip a
 
 In our case, we are using the `enp0s3` interface, the IP address that we will need is `192.168.1.137`.
 
-Next, you will need to setup the hostname for your machine. to do so, run the command bellow, it will open the `hosts` file under `/etc/` directory using the `nano` text editor (you can use any other editor e.g. `VIM`, `VI`, `Emacs`, `Helix`, etc.) :
+Next, you will need to set up the hostname for your machine. to do so, run the command bellow, it will open the `hosts` file under `/etc/` directory using the `nano` text editor (you can use any other editor e.g. `VIM`, `VI`, `Emacs`, `Helix`, etc.) :
 
 ```bash
 sudo vim /etc/hosts
@@ -105,17 +162,17 @@ Keep the localhost IP and Comment any other IP address, follow the screenshot be
 In the JeMPI directory, navigate to: _docker/conf/env/_ directory.
 
 ```bash
-cd /docker/conf/env
+cd /devops/linux/docker/conf/env
 ```
 
 if you have less than 32Gbs of ram run the _./create-env-linux-low-1.sh_. If you have 32Gb or more, run the _./create-env-linux-high-1.sh_. both those script will create _conf.env_ file that we will need.
 
 ```bash
-# If you have less than 32Gb ram, run the follwing script
+# If you have less than 32Gb ram, run the following script
 
 ./create-env-linux-low-1.sh
 
-# If you have 32Gb ram or more, run the follwing script
+# If you have 32Gb ram or more, run the following script
 
 ./create-env-linux-high-1.sh
 ```
@@ -128,32 +185,32 @@ Pull the latest image versions form docker hub using the `a-images-1-pull-from-h
 
 It is fine to keep the images, you can either remove all the services, containers, volumes, configs and secrets.
 
-Run the `b-swarm-3-leave.sh` to leave your current swarm
+Run the `b-swarm-2-leave.sh` to leave your current swarm
 
 ```bash
-./b-swarm-3-leave.sh
+./b-swarm-2-leave.sh
 ```
 
-After runing the previous script, initialize a new swarm by running the `b-swarm-1-init-node1.sh` script locacted in the _JeMPI/docker/_ directory.
+After running the previous script, initialize a new swarm by running the `b-swarm-1-init-node1.sh` script locacted in the _JeMPI/docker/_ directory.
 
 ```bash
 ./b-swarm-1-init-node1.sh
 ```
 
-**Add the ability to use local regestries**
+**Add the ability to use local registries**
 
-Now, we need to tell docker that it is okay to run on the local registry because it is http and not https \[not secure].
+Now, we need to tell docker that it is okay to run on the local registry because it is http and not https.
 
 To read more about it check this link: [Test an insecure registry](https://docs.docker.com/registry/insecure/).
 
-Go to _docker/helper/scripts._
+Go to _devops/linux/docker/helper/scripts._
 
-Run _./x-swarm-o-set-insecure-registries.sh_ (you need to grant it executable access first by running: _chmod +x ./x-swarm-o-set-insecure-registries.sh_), it will edit the file _/etc/docker/daemon.json_ and will restart docker to make changes take effect.
+Run _./x-swarm-a-set-insecure-registries.sh_ (you need to grant it executable access first by running: _chmod +x ./x-swarm-o-set-insecure-registries.sh_), it will edit the file _/etc/docker/daemon.json_ and will restart docker to make changes take effect.
 
 NB: The script will edit the access grants of the _/etc/docker/daemon.json_ file.
 
 ```bash
-./x-swarm-o-set-insecure-registries.sh
+./x-swarm-a-set-insecure-registries.sh
 ```
 
 **Create a local registry**
@@ -171,57 +228,50 @@ We will need to pull images from docker hub then push them to the local registry
 ./c-registry-2-push-hub-images.sh
 ```
 
-**Generate patient record fields configuration reference**
-The fields configuration reference is a json file that allows JeMPI to generate custom Java classes based on the fields but also the way we would to configure the matching algorithms.
-
-```bash
-cd JeMPI_Apps/JeMPI_Configuration/
-./create.sh reference/config-reference.json
-```
 **Run the stack**
 
-After pushing the images into the local registry, we are ready to run the app, we have several options, we can run the whole stack (UI + Backend) by running the `z-stack-3-build-all-reboot.sh`, Or run each of the backend (`z-stack-3-build-java-reboot.sh`) and the UI (`z-stack-3-build-ui-reboot`) seperatly.
+After pushing the images into the local registry, we are ready to run the app, we have several options, we can run the whole stack (UI + Backend) by running the `d-stack-1-build-all-reboot.sh`, Or run each of the backend (`d-stack-1-build-java-reboot.sh`) and the UI (`d-stack-1-build-ui-reboot`) seperatly.
 
 ```bash 
 # build, push and run the whole stack (backend + ui)
-./z-stack-3-build-all-reboot
+./d-stack-1-build-all-reboot
 
 # build, push and run the backend services only
-./z-stack-3-build-java-reboot
+./d-stack-1-build-java-reboot
 
 # build, push and run the UI
-./z-stack-3-build-ui-reboot
+./d-stack-1-build-ui-reboot
 ```
 
 **Other scripts**
 
-- _z-stack-1-build-java.sh_: This script will build and push the backend services to the local docker registry.
-- _z-stack-1-build-ui.sh_: This script will build and push the UI service to the local docker registry.
-- _z-stack-2-reboot.sh_: This script will only remove everything and start again.
+- _d-stack-2-build-java.sh_: This script will build and push the backend services to the local docker registry.
+- _d-stack-3-down.sh_: This script will remove all services from the stack.
+- _d-stack-3-reboot.sh_: This script will only remove everything and start again.
 
 That's it 🚀
 
 ### Testing <a href="#_o7j185tztv31" id="_o7j185tztv31"></a>
 
-**Check the deploy sanity**
+**Check the deployment sanity**
 
 To check for running containers you can run: _docker container ls_\
 To check for running services you can run: _docker service ls_\
 To list all the containers you can run: _docker ps -a_
 
-Or you can go to docker/helper/scripts and run _d-stack-07-ps.sh_ and it will run:\
+Or you can go to devops/linux/docker/helper/scripts and run _d-stack-ps.sh_ and it will run:\
 _docker stack ps \<NAME_STACK>_
 
-Example of the stack when running with local docker registry: _(docker stack ps JeMPI)_
+Example of the stack when running with local docker registry: _(docker stack ps jempi)_
 
-![](../.gitbook/assets/10)
+![Docker JeMPI Stack View](../.gitbook/assets/10)
 
 Example of the stack when running with docker hub: _(docker service ls)_
 
-![](../.gitbook/assets/11)
+![Docker Service List View](../.gitbook/assets/11)
 
 **Stop or remove the stack**
 
-To Kill everything \[including the registry]: you can go to _docker/_ and run _b-swarm-3-leave.sh_
+To remove everything in the swarm: you can go to _devops/linux/docker/_ and run _b-swarm-2-leave.sh_
 
-To shutdown only: you can go to _docker/_ and run: _z-stack-4-down.sh_
+To shut down the stack: you can go to _devops/linux/docker/_ and run: _d-stack-3-down.sh_
