@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 describe('Dashboard Component', () => {
   beforeEach(() => {
     cy.visit('/')
