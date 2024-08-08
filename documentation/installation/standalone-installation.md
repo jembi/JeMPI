@@ -48,7 +48,80 @@ In the following section, we will discuss the steps for running JeMPI on you mac
 git clone https://github.com/jembi/JeMPI.git && cd JeMPI/
 ```
 
-### #1 Local Setup - Manual <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+### #1 Semi-Automated - Local Setup <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
+
+#### Overview
+This Bash script is designed for deploying JeMPI locally with various options. It performs tasks such as installing Docker, SDKMAN, Java, Maven, and SBT, setting up the environment configuration, creating a Docker registry, pulling and pushing Docker images, initializing the Docker Swarm, building the entire stack, rebooting, restarting, tearing down, Backup & Restore Databases and destroying JeMPI.
+
+#### Usage
+**Location of file** - JeMPI/devops/linux/docker/deployment \
+**File Name** - local-deployment.sh
+
+**Set following variables**\
+JAVA_VERSION=21.0.3-tem \
+JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
+
+#### Installation Process
+
+*This script must be run from the following path and will not work if executed from a different location* 
+
+**Location of file** - JeMPI/devops/linux/docker/deployment
+
+```bash
+./local-deployment.sh
+```
+
+![Deployment Script Options](../.gitbook/assets/13)
+
+**Option 1: Deploy JeMPI (For Fresh Start)** \
+*This Option used to install JeMPI from Scratch or Fresh setup*
+- Set up hostname and IP address in the Hosts file.
+- Docker Swarm Initialization.
+- Creates a Docker registry, pulls Docker images from the hub, and pushes them to the local registry.
+- Builds and reboots the entire JeMPI stack
+
+**Option 2: Build and Reboot**
+- Builds and reboots the entire JeMPI stack.
+
+**Option 3: Restart JeMPI**
+- Reboots the entire JeMPI stack
+
+**Option 4: Down JeMPI**
+- Stop entire stack
+
+**Option 5: Backup Postgres & Dgraph**
+- Postgres backup process creates a folder with a timestamp, and inside it, SQL files are generated for each postgres database.
+- Backup Directory: JeMPI/devops/linux/docker/docker_data/data/backups/postgres
+- Dgraph backup process creates a folder with a timestamp, and inside it generates the Json file of data.
+- Backup Directory: JeMPI/devops/linux/docker/docker_data/data/backups/dgraph
+
+**Option 6: Restore Postgres & Dgraph**
+- Users need to confirm with “ctr + Y” for restore.
+- This process will wipe all existing data from both Postgres and Draph DB’s and restore new from backup.
+- Users need to enter the folder name of the backup directory to initiate the restore process.
+
+**Option 7: Re-Deploy JeMPI**
+- Updates environment configuration settings
+- Update HAProxy settings
+- Pulls Docker images from the hub, and pushes them to the local registry.
+- Builds and reboots the entire JeMPI stack
+
+**Option 8: Install Prerequisites**
+- Install SDKMAN - SDK Manager
+- Install Docker
+- Install Java, Maven, and SBT using SDKMAN
+
+**Option 9: Destroy JeMPI (This process will wipe all data)**
+- This process will remove all stack from swarm and leave the swarm.
+- Remove all data and volumes
+
+#### Notes
+- The script prompts for user input to select an option.
+- Confirmations are requested for critical actions.
+- Use Ctrl+Y for "Yes" confirmation to Destroy all systems and Restore DB.
+- Customize the script as needed for your specific deployment requirements.
+
+### #2 Manual - Local Setup <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
 
 **Setup an IP address**\
 Before starting the process of running JeMPI, you will need to setup an IP address for your machine.
