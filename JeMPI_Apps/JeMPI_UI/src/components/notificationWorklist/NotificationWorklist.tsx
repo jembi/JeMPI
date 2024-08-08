@@ -140,6 +140,7 @@ const NotificationWorklist = () => {
           {!data && !isLoading && !isFetching && <NotFound />}
           <Box
             component={'div'}
+            id="notification-container"
             sx={{
               position: 'relative'
             }}
@@ -214,10 +215,9 @@ const NotificationWorklist = () => {
 
 export default NotificationWorklist;
 
-function CustomTextField(params: TextFieldProps, id: string) {
+export function CustomTextField(params: TextFieldProps, id: string) {
   return (
       <TextField variant='outlined' 
-      label="End Date"
       inputProps={{ id: id }}{...params} />
   );
 }

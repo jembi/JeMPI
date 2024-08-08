@@ -19,12 +19,19 @@
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
-      "types/*": ["types/*"],
+      "types/*": ["types/*", "cypress"],
       "components/*": ["components/*"],
       "utils/*": ["utils/*"],
       "hooks/*": ["hooks/*"],
       "services/*": ["services/*"]
     }
   },
-  "include": ["src", "tests"]
+  "types": ["cypress", "node"],
+   "include": ["**/*.ts","src", "tests"],
+  "exclude": [
+    "**/*.test.ts",
+    "cypress.config.ts",
+    "cypress"
+    
+  ]
 }

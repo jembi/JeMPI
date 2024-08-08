@@ -34,6 +34,7 @@ const CustomTabPanel = (props: TabPanelProps) => {
       component={'div'}
       role="tabpanel"
       hidden={value !== index}
+      data-cy='dashboard-tab'
       id={`dashboard-tabpanel-${index}`}
       aria-labelledby={`dashboard-tab-${index}`}
       {...other}
