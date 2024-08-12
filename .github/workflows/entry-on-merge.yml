@@ -6,6 +6,8 @@ on:
       - 'dev'
       - 'main'
       - 'master'
+    types:
+      - closed
 
 env:
   GITHUB_WORKFLOW_FOLDER: ./.github/workflows
