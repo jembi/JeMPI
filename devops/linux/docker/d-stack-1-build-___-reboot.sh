@@ -12,7 +12,7 @@ source ./conf.env
 source ./conf/images/conf-app-images.sh
 
 # Define valid apps
-valid_apps=("linker" "api" "api_kc" "asyncreceiver" "configuration" "controller" "etl" "libapi" "libmpi" "libshared")
+valid_apps=("linker" "api" "api_kc" "asyncreceiver" "configuration" "controller" "etl" "libmpi" "libshared")
 
 # Initialize an array to hold invalid apps
 invalid_apps=()
@@ -38,7 +38,11 @@ process_app() {
   fi
 
   # Delete JAR files in the target app docker directory
-  find "$app_dir/docker" -maxdepth 1 -type f -name "*.jar" -delete
+  if [ -d "$app_dir/docker" ]; then
+    find "$app_dir/docker" -maxdepth 1 -type f -name "*.jar" -delete
+  else
+    echo "Warning: Directory $app_dir/docker does not exist. Skipping JAR file deletion."
+  fi
 
   pushd $app_dir
     echo "Path: $app_dir"
