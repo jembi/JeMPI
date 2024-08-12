@@ -6,8 +6,6 @@ on:
       - 'dev'
       - 'main'
       - 'master'
-    types:
-      - closed
 
 env:
   GITHUB_WORKFLOW_FOLDER: ./.github/workflows
@@ -35,6 +33,6 @@ jobs:
       with:
         docker-push-tag: ${{ steps.get-docker-push-tag.outputs.docker-push-tag }}
         docker-host: "docker.io"
-      secrets:
-        docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
-        docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+    secrets:
+      docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+      docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}
