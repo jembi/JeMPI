@@ -4,59 +4,47 @@ set -e
 set -u
 
 if [ $# -eq 0 ]; then
-    tag_to_use=""
+    tag_to_use="ci-test-main" 
 else
     tag_to_use=$1
 fi
 
-tag_image() {
-    if [ ! -z "$tag_to_use" ]; then
-        IFS=':' read -a image_details <<< "$2"
-        docker tag $1 ${image_details[0]}:$tag_to_use
-    else
-        docker tag $1 $2
-    fi
-}
+pushd JeMPI_Configuration
+  ./create.sh reference/config-reference.json 
+popd
 
 mvn clean package
 pushd JeMPI_EM_Scala
   sbt clean assembly
 popd
 
+# Create a new builder instance named "container" using the docker-container driver
+docker buildx create --name container --driver=docker-container
 
 pushd JeMPI_AsyncReceiver
-  ./build.sh || exit 1
-  tag_image $ASYNC_RECEIVER_IMAGE $ASYNC_RECEIVER_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_ETL
-  ./build.sh || exit 1
-  tag_image $ETL_IMAGE $ETL_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Controller
-  ./build.sh || exit 1
-  tag_image $CONTROLLER_IMAGE $CONTROLLER_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_EM_Scala
-  ./build.sh || exit 1
-  tag_image $EM_SCALA_IMAGE $EM_SCALA_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Linker
-  ./build.sh || exit 1
-  tag_image $LINKER_IMAGE $LINKER_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API
-  ./build.sh || exit 1
-   tag_image $API_IMAGE $API_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API_KC
-  ./build.sh || exit 1
-   tag_image $API_KC_IMAGE $API_KC_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Bootstrapper
-  ./build.sh || exit 1
-  tag_image $BOOTSTRAPPER_IMAGE $BOOTSTRAPPER_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_UI
-  ./build-image.sh || exit 1
-  tag_image $UI_IMAGE $UI_HUB_IMAGE
+  CI=true TAG=$tag_to_use ./build-image.sh || exit 1
 popd
