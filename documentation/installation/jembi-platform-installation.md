@@ -16,6 +16,10 @@ It is recommended to limit the memory usage of WSL2.
 
 ## Local Setup <a href="#_k8o7yc6w0hnu" id="_k8o7yc6w0hnu"></a>
 
+```bash
+git clone https://github.com/jembi/platform.git && cd platform/
+```
+
 1. Create /tmp/logs directory
 ```bash
 sudo mkdir -p /tmp/logs/
