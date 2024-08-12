@@ -17,8 +17,9 @@ import CancelIcon from '@mui/icons-material/Close'
 import { EditToolbar } from 'components/shared/EditToolBar'
 import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
-import { Configuration, LinkMetaData } from 'types/Configuration'
+import { Configuration, Field, LinkMetaData } from 'types/Configuration'
 import { RowData } from '../deterministic/SourceView'
+import { Button } from '@mui/material'
 
 const CommonSettings = () => {
   const [rows, setRows] = useState<any>([])
@@ -131,7 +132,34 @@ const CommonSettings = () => {
     handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return { ...updatedRow, id } as RowData
   }
-
+  const handleAddNewRow = () => {
+    const newRow: Field = {
+      id: (rows.length + 1).toString(),
+      fieldName: '',
+      fieldType: 'String',
+      linkMetaData: {
+        comparison: '',
+        comparisonLevels: [],
+        m: 0,
+        u: 0
+      }
+    }
+    console.log(' i was clicked', newRow)
+    if (configuration) {
+      const newConfiguration = {
+        ...configuration,
+        demographicFields: [...configuration.demographicFields, newRow]
+      }
+  
+      localStorage.setItem('configuration', JSON.stringify(newConfiguration))
+      setConfiguration(newConfiguration)
+      setRows((prevRows: any) => [...prevRows, newRow])
+    } else {
+      console.error("Configuration is null. Cannot add new row.")
+    }
+  
+  }
+ 
   const columns: GridColDef[] = [
     {
       field: 'fieldName',
@@ -248,6 +276,7 @@ const CommonSettings = () => {
         width: '100%'
       }}
     >
+      <Button onClick={handleAddNewRow}>Add Row</Button>
       {configuration && (
         <DataGrid
           rows={rows}
