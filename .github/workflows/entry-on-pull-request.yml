@@ -6,6 +6,8 @@ on:
       - 'dev'
       - 'main'
       - 'master'
+    types:
+      - closed
 
 defaults:
   run:
