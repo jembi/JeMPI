@@ -121,6 +121,7 @@ export default function (data) {
   };
 
   const res = http.post('http://localhost:50000/JeMPI/crRegister', payload, params);
+  // const res = http.post('http://localhost:50000/JeMPI/crLink', payload, params);
 
   const success = check(res, {
     'status is 200': (r) => r.status === 200,

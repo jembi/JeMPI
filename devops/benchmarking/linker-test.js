@@ -8,13 +8,14 @@ const config = {
   corruption: 0.25, // ie 0 || 0.25 etc., up to 1.
   autoClean: true, // Removes all files from results and async_receiver/csv directories
   verbose: false, // Spits out container logs in this thread
-  logsTimeout: 30000, // If we don't see logs for so many milliseconds, consider it done
+  logsTimeout: 45000, // If we don't see logs for so many milliseconds, consider it done
+  logsDir: './logs', // Directory to save logs
 }
 
 // Add options object to set the duration
 export const options = {
-  duration: '24h', // Set the test cap to n minutes/hours (e.g. 10m or 24h)
-  iterations: 10, // How many time to run this test
+  duration: '48h', // Set the test cap to n minutes/hours (e.g. 10m or 24h)
+  iterations: 10, // How many times to run this test
 };
 
 export default function () {
@@ -39,8 +40,17 @@ export default function () {
   const numberOfLines = parseInt(fileContent.split(' ')[0]) - 1;
   console.log(`Number of records: ${numberOfLines}\n\n`);
 
-  // Pre-process file if needed
-  // ie shuffle?
+  // Pre-process file if needed, ie shuffle?
+  // Read the CSV file, sort the data, and save it back to the file
+  /* console.log(`Sorting data...`);
+  sleep(1);
+  const sortCommand = `
+    head -n 1 "${filePath}" > "${filePath}.sorted" && 
+    tail -n +2 "${filePath}" | sort -t, -k9,9 -k3,3 -k2,2 >> "${filePath}.sorted" && 
+    mv "${filePath}.sorted" "${filePath}"
+  `;
+  exec.command('sh', ['-c', sortCommand]);
+  console.log(`Sorted data saved to ${filePath}`); */
   
   // Send it to the async receiver dropzone
   const destinationFolder = '../linux/docker/docker_data/data-apps/async_receiver/csv';
@@ -152,8 +162,8 @@ export default function () {
               (logs.match(/TEA TIME/g) || []).length > 0
               || (logs.match(/Stream closed/g) || []).length > 0
               || sinceLastLogs > config.logsTimeout) {
-              if (!config.verbose) console.log(`Logs for container ${containerId}: ${logs}`); // Logs summary portion only in quiet mode
               if (!containerInfo.completedTimestamp) {
+                if (!config.verbose) console.log(`Logs for container ${containerId}: ${logs}`); // Logs summary portion only in quiet mode
                 containerInfo.completedTimestamp = new Date().toISOString(); // Store finish time
                 const completedDate = new Date(containerInfo.completedTimestamp);
                 const hours = String(completedDate.getHours()).padStart(2, '0');
@@ -163,8 +173,9 @@ export default function () {
               }
             }
             if ((logs.match(/Batch End Sentinel/g) || []).length > 0) {
-              console.log(`Received Batch End Sentinel: ${containerId}: ${logs}`);
+              console.log(`Received Batch End Sentinel from container ${containerId}`);
             }
+            // if Retrying due to exception
 
             linkersSet.set(containerId, containerInfo); // Update the map with the new info
           }
@@ -181,6 +192,22 @@ export default function () {
     }
     
     sleep(1); // Wait n seconds before checking again
+  }
+
+  // Pull logs into text files if config.logsDir has a value
+  if (config.logsDir) {
+    exec.command('sh', ['-c', `mkdir -p ${config.logsDir}`]);
+    if (config.autoClean) {
+      console.log(`AutoClean is enabled. Cleaning out the logs directory: ${config.logsDir}`);
+      exec.command('sh', ['-c', `rm -f ${config.logsDir}/*`]);
+      console.log('Logs directory cleaned.');
+    }
+
+    for (const [containerId, info] of linkersSet.entries()) {
+      const logsCommand = `docker logs ${containerId} > ${config.logsDir}/${containerId}.txt`;
+      const logs = exec.command('sh', ['-c', logsCommand]);
+      console.log(`Logs for container ${containerId} saved to ${config.logsDir}/${containerId}.txt`);
+    }
   }
 
   const endTime = new Date().getTime();
