@@ -93,14 +93,13 @@ public final class DgraphClient {
             return supplier.get();
          } catch (RuntimeException ex) {
             LOGGER.warn("Retrying due to exception: {}", ex.getMessage());
-            disconnect();
-            sleep();
-            connect();
+            LOGGER.warn("Cause: {}", ex.getCause());
             remainingRetries--;
             if (remainingRetries == 0) {
                LOGGER.warn("Failed after retries.");
                throw ex;
             }
+            sleep(); // Take a break and try again
          }
       }
       throw new RuntimeException("Retries exhausted");
@@ -136,6 +135,10 @@ public final class DgraphClient {
             final var request = DgraphProto.Request.newBuilder().setCommitNow(true).addMutations(mutation).build();
             final var response = txn.doRequest(request, GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS, TimeUnit.SECONDS);
             return response.getUidsMap().values().stream().findFirst().orElse(StringUtils.EMPTY);
+         } catch (RuntimeException ex) {
+            LOGGER.error("Error during mutation transaction: {}", ex.getMessage(), ex);
+            LOGGER.error("Mutation details: {}", mutation);
+            throw ex;
          } finally {
             txn.discard();
          }

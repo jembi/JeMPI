@@ -70,7 +70,7 @@ public final class SPInteractions {
                   LOGGER.warn("BACK END RESPONSE(ERROR)");
                }
             }
-         }).get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
+         }).get(GlobalConstants.TIMEOUT_DGRAPH_AKKA_SECS, TimeUnit.SECONDS);
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          // This means the backend actor was not available
          LOGGER.error("Exception of type {} occurred: {}", ex.getClass().getSimpleName(), ex.getLocalizedMessage(), ex);

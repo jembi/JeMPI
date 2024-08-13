@@ -16,8 +16,6 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
-import java.time.Duration;
-
 public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class);
@@ -33,12 +31,18 @@ public final class Main {
    public Behavior<Void> create() {
       return Behaviors.setup(context -> {
          final var system = context.getSystem();
-         final ActorRef<BackEnd.Request> backEnd = context.spawn(BackEnd.create(), "BackEnd");
+         final ActorRef<BackEnd.Request> backEnd = context.spawn(
+            Behaviors.supervise(BackEnd.create())
+                .onFailure(SupervisorStrategy.resume()
+                    .withLoggingEnabled(true)),
+            "BackEnd"
+         );
          context.watch(backEnd);
          final SPInteractions spInteractions = SPInteractions.create(GlobalConstants.TOPIC_INTERACTION_LINKER);
          spInteractions.open(system, backEnd);
          final SPMU spMU = new SPMU();
          spMU.open(system, backEnd);
+         LOGGER.info("SPMU opened");
          httpServer = HttpServer.create();
          httpServer.open(system, backEnd);
 
@@ -49,8 +53,14 @@ public final class Main {
                     httpServer.close(system);
                     return Behaviors.stopped();
                 })
+                .onMessage(Void.class, msg -> {
+                    LOGGER.info("*** Actor restarted ***");
+                    return Behaviors.same();
+                })
                 .build()
-        ).onFailure(SupervisorStrategy.restart().withLimit(3, Duration.ofMinutes(3))); // Attempt to restart actor with state intact
+        ).onFailure(SupervisorStrategy.resume()
+            .withLoggingEnabled(true) // Enable logging for the supervisor strategy
+        );
       });
    }
 
