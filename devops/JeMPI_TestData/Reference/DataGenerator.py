@@ -135,7 +135,7 @@ def generate_dataset(args):
         national_id = national_id_generator.send((dob, gender))
         clinical_data = clinical_data_generator.send((gender, base_date, dob, national_id))
         for j in range(0, len(clinical_data)):
-            rec_num = "rec-%010d-%02d" % (i + 1 + rec_start_num, j)
+            rec_num = "rec-%010d-%02d" % (i + 1, j)
             facility = clinical_data[j]['facility']
             patient_id = clinical_data[j]['patient_id']
             c_data = clinical_data[j]['clinical_data']
