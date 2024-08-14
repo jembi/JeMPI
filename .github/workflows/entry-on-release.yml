@@ -28,12 +28,11 @@ jobs:
     - uses: actions/checkout@v4
     - id: validate-tag
       run: |        
-          echo "image-build-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
           echo "docker-push-tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
     - uses: ./.github/workflows/actions/build-deploy-images
       with: 
-        image-build-tag: ${{ steps.validate-tag.outputs.image-build-tag }}
         docker-push-tag: ${{ steps.validate-tag.outputs.docker-push-tag }}
         docker-host: "docker.io"
+      secrets:
         docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
         docker-password: ${{ secrets.DOCKER_HUB_PASSWORD }}

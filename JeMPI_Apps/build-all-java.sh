@@ -3,37 +3,44 @@
 set -e
 set -u
 
+CI="${CI:-false}"
+if [ $# -eq 0 ]; then
+    tag_to_use="ci-test-main" 
+else
+    tag_to_use=$1
+fi
+
 mvn clean package
 pushd JeMPI_EM_Scala
   sbt clean assembly
 popd
 
 pushd JeMPI_AsyncReceiver
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_ETL
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Controller
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_EM_Scala
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Linker
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_API_KC
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_Bootstrapper
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_BackupRestoreAPI
-  ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd JeMPI_AsyncReceiver
   ./push.sh

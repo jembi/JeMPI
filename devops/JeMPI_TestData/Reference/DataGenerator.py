@@ -135,7 +135,7 @@ def generate_dataset(args):
         national_id = national_id_generator.send((dob, gender))
         clinical_data = clinical_data_generator.send((gender, base_date, dob, national_id))
         for j in range(0, len(clinical_data)):
-            rec_num = "rec-%010d-%02d" % (i + 1, j)
+            rec_num = "rec-%010d-%02d" % (i + 1 + rec_start_num, j)
             facility = clinical_data[j]['facility']
             patient_id = clinical_data[j]['patient_id']
             c_data = clinical_data[j]['clinical_data']
@@ -148,7 +148,8 @@ def generate_dataset(args):
     df = pd.DataFrame(data, columns=['rec_num', 'given_name', 'family_name', 'gender', 'dob',
                                      'city', 'phone_number', 'national_id',
                                      'src_id_facility', 'src_id_patient', 'clinical_data'])
-
+    
+    df = df.sample(frac=1).reset_index(drop=True)
     df['corrupted'] = False
     number_of_records = df.shape[0]
     percentage_of_corrupted_records = config['PercentageOfCorruptedRecords']
