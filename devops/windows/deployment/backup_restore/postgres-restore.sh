@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../conf.env
+source ../../base-docker-wsl/conf.env
 #Backup Folder Name
 while true; do
     # Ask the user to enter a folder name
@@ -22,12 +22,18 @@ while true; do
     fi
 done
 # PostgreSQL settings from environment variables
-DB_NAME="${POSTGRESQL_DATABASE}"
+DB_NAME="${POSTGRESQL_DATABASE:-postgres}"
 PGHOST="${POSTGRES_HOST:-localhost}"
 PGPORT="${PGPORT:-5432}"
 PGUSER="${POSTGRESQL_USERNAME}"
 PGPASSWORD="${POSTGRESQL_PASSWORD}"
-PGDATABASE="${POSTGRESQL_DATABASE}"
+PGDATABASE="${POSTGRESQL_DATABASE:-postgres}"
+
+POSTGRESQL_DATABASE="${POSTGRESQL_DATABASE:-postgres}"
+POSTGRESQL_USERS_DB="${POSTGRESQL_USERS_DB:-users_db}"
+POSTGRESQL_NOTIFICATIONS_DB="${POSTGRESQL_NOTIFICATIONS_DB:-notifications_db}"
+POSTGRESQL_AUDIT_DB="${POSTGRESQL_AUDIT_DB:-audit_db}"
+POSTGRESQL_KC_TEST_DB="${POSTGRESQL_KC_TEST_DB:-kc_test_db}"
 
 BACKUP_DIR="${POSTGRES_BACKUP_DIRECTORY}/$BACKUP_FOLDER_NAME"
 

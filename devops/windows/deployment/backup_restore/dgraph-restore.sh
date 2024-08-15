@@ -1,5 +1,6 @@
 #!/bin/bash
-source ../conf.env
+source ../../base-docker-wsl/conf.env
+
 #Backup Folder Name
 while true; do
     # Ask the user to enter a folder name

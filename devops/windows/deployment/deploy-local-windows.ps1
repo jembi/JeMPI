@@ -16,6 +16,28 @@ $javaAppName="java.exe"
 
 # Define the local path where you want to save the MSI file
 
+
+# Start WSL in a new window
+# Start-Process wsl.exe -WindowStyle Normal
+# Wait for WSL to start
+
+# Display menu options
+Write-Host "Select an option for local deployment:"
+Write-Host "1. Deploy JeMPI (For Fresh Start)"
+Write-Host "2. Build and Reboot."
+Write-Host "3. Restart JeMPI."
+Write-Host "4. Stop JeMPI."
+Write-Host "5. Backup Postgres & Dgraph."
+Write-Host "6. Restore Postgres & Dgraph."
+Write-Host "7. Destroy JeMPI (This process will wipe all data)."
+Write-Host "8. Install Prerequisites."
+
+# Get user input
+$choice = Read-Host "Enter the number of your choice"
+$wslPath = wsl.exe pwd
+Write-Host "Path in WSL:- $wslPath"
+
+
 function  installApp() {
     param (
         [string]$url,
@@ -34,31 +56,43 @@ function  installApp() {
     Remove-Item -Path  $localPath
 }
 
-# Start WSL in a new window
-Start-Process wsl.exe -WindowStyle Normal
-# Wait for WSL to start
+function Restore-DgraphDB {
+    Write-Host "Are you sure you want to restore the Dgraph database? (yes/no)"
+    $dgraphConfirmation = Read-Host
 
-Push-Location $currentPath/devops/windows/deployment/common
-    Write-Host "Current directory: $PWD.path"
-    .\allow_port.ps1 -Wait
-Pop-Location
+    if ($dgraphConfirmation.ToLower() -eq "yes" -or $dgraphConfirmation.ToLower() -eq "y") {
+        Push-Location $currentPath/devops/windows/deployment/backup_restore/
+            Write-Host "Starting Dgraph database restore..."
+            Start-Process -FilePath "bash" -ArgumentList "dgraph-restore.sh" -NoNewWindow -Wait
+            Write-Host "Database Dgraph restore completed."
+        Pop-Location 
+    }
+    else {
+        Write-Host "Dgraph Database restore cancelled. Moving ahead without restore."
+        # Continue with the rest of your script
+    }
+}
 
 
-# Display menu options
-Write-Host "Select an option for local deployment:"
-Write-Host "1. Deploy JeMPI (For Fresh Start)"
-Write-Host "2. Build and Reboot."
-Write-Host "3. Restart JeMPI."
-Write-Host "4. Stop JeMPI."
-Write-Host "5. Backup Postgres & Dgraph."
-Write-Host "6. Restore Postgres & Dgraph."
-Write-Host "7. Destroy JeMPI (This process will wipe all data)."
-Write-Host "8. Install Prerequisites."
 
-# Get user input
-$choice = Read-Host "Enter the number of your choice"
-$wslPath = wsl.exe pwd
-Write-Host "Path in WSL:- $wslPath"
+function Restore-PostgresDB {
+    Write-Host "Are you sure you want to restore the Postgres database? (yes/no)"
+    $postgresConfirmation = Read-Host
+
+    if ($postgresConfirmation.ToLower() -eq "yes" -or $postgresConfirmation.ToLower() -eq "y") {
+        Push-Location $currentPath/devops/windows/deployment/backup_restore/
+            Write-Host "Starting Postgres database restore..."
+            Start-Process -FilePath "bash" -ArgumentList "postgres-restore.sh" -NoNewWindow -Wait
+            Write-Host "Database Postgres restore completed."
+        Pop-Location 
+    }
+    else {
+        Write-Host "Postgres Database restore cancelled. Moving ahead without restore."
+        # Continue with the rest of your script
+    }
+}
+
+
 # Process the user's choice
 switch ($choice) {
     '1' {
@@ -107,6 +141,10 @@ switch ($choice) {
             Write-Host "Running file: stop.ps1"
             .\stop.ps1 -Wait
             Write-Host "Build and Reboot"
+            Push-Location $currentPath/devops/windows/base-docker-wsl
+                wsl -d Ubuntu $wslPath/devops/windows/base-docker-wsl/z-stack-2-reboot-hub-images.sh
+            Pop-Location
+
             Write-Host "Running file: start.ps1"
             .\start.ps1 -Wait
 
@@ -134,6 +172,8 @@ switch ($choice) {
     }
     '6' {
         Write-Host "Restore Backup."
+        Restore-PostgresDB
+        Restore-DgraphDB
     }
     '7' {
         $confirmation = Read-Host "Are you sure, Do you want to Destroy? (Ctrl+Y for Yes, any other key for No)"
@@ -158,7 +198,11 @@ switch ($choice) {
             installApp $nodeUrl $nodeAppName
             installApp $sbtUrl $sbtAppName
             installApp $javaUrl $javaAppName
-        Pop-Location
+            Push-Location $currentPath/devops/windows/deployment/common
+                Write-Host "Current directory: $PWD.path"
+                .\allow_port.ps1 -Wait
+            Pop-Location
+        Pop-Locations
     }
     default {
         Write-Host "Invalid choice. Please enter a valid option."
