@@ -76,7 +76,6 @@ const Settings = () => {
     if (storedData) {
       setConfigurationData(generateId(JSON.parse(storedData)))
     }
-    console.log(configurationData.demographicFields)
   }, [])
 
   return (
