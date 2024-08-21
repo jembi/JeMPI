@@ -36,8 +36,6 @@ const Settings = () => {
   const { enqueueSnackbar } = useSnackbar()
 
   const handleSave = async () => {
-    console.log(`${configuration?.demographicFields.some(field => field.fieldName.toLowerCase() === 'unknown') , configurationData.demographicFields.some(field => field.fieldName === '')}
-  }`)
     setIsSaving(true)
     const response = await apiClient.saveConfiguration()
     setIsSaving(false)
@@ -165,7 +163,7 @@ const Settings = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleSave}
-                disabled={isSaving || configuration?.demographicFields.some(field => field.fieldName.toLowerCase() === 'unknown_field') || configurationData.demographicFields.some(field => field.fieldName === '')}
+                disabled={isSaving}
               >
                 {isSaving ? 'Saving...' : 'Save'}
               </Button>
