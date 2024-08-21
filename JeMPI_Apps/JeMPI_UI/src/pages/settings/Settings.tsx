@@ -15,9 +15,11 @@ import { generateId } from 'utils/helpers'
 import Probabilistic from './probabilistic/Probabilistic'
 import { useConfig } from 'hooks/useConfig'
 import { useSnackbar } from 'notistack'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
 const Settings = () => {
   const [value, setValue] = useState(0)
+  const {configuration} = useConfiguration()
   const [configurationData, setConfigurationData] = useState(() => {
     const storedData = localStorage.getItem('configuration')
     return storedData
@@ -34,6 +36,8 @@ const Settings = () => {
   const { enqueueSnackbar } = useSnackbar()
 
   const handleSave = async () => {
+    console.log(`${configuration?.demographicFields.some(field => field.fieldName.toLowerCase() === 'unknown') , configurationData.demographicFields.some(field => field.fieldName === '')}
+  }`)
     setIsSaving(true)
     const response = await apiClient.saveConfiguration()
     setIsSaving(false)
@@ -74,6 +78,7 @@ const Settings = () => {
     if (storedData) {
       setConfigurationData(generateId(JSON.parse(storedData)))
     }
+    console.log(configurationData.demographicFields)
   }, [])
 
   return (
@@ -160,7 +165,7 @@ const Settings = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={isSaving || configuration?.demographicFields.some(field => field.fieldName.toLowerCase() === 'unknown_field') || configurationData.demographicFields.some(field => field.fieldName === '')}
               >
                 {isSaving ? 'Saving...' : 'Save'}
               </Button>

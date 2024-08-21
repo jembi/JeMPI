@@ -18,13 +18,15 @@ import { EditToolbar } from 'components/shared/EditToolBar'
 import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration, Field, LinkMetaData } from 'types/Configuration'
-import { RowData } from '../deterministic/SourceView'
 import { Button } from '@mui/material'
+import { RowData } from '../deterministic/SourceView'
+import { useSnackbar } from 'notistack'
 
 const CommonSettings = () => {
   const [rows, setRows] = useState<any>([])
   const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
     if (configuration && configuration.demographicFields) {
@@ -122,16 +124,24 @@ const CommonSettings = () => {
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
     setRowModesModel(newRowModesModel)
   }
+  
 
-  const processRowUpdate = (newRow: GridRowModel) => {
-    const { id, ...updatedRow } = newRow
+  const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+    const isFieldNameValid = newRow?.fieldName && newRow.fieldName.toLowerCase() !== 'unknown_field';
+  
+    if (!isFieldNameValid) {
+      enqueueSnackbar('Field name cannot be empty or unknown', { variant: 'error' });
+    }
+  
+    const { id, ...updatedRow } = newRow;
     const updatedRows = rows.map((row: { id: any }) =>
       row.id === id ? ({ ...updatedRow, id } as RowData) : row
-    )
-    setRows(updatedRows)
-    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
-    return { ...updatedRow, id } as RowData
-  }
+    );
+  
+    setRows(updatedRows);
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex);
+    return { ...updatedRow, id } as RowData;
+  };
   const handleAddNewRow = () => {
     const newRow: Field = {
       id: (rows.length + 1).toString(),
@@ -142,24 +152,28 @@ const CommonSettings = () => {
         comparisonLevels: [],
         m: 0,
         u: 0
-      }
+      },
     }
-    console.log(' i was clicked', newRow)
+
     if (configuration) {
       const newConfiguration = {
         ...configuration,
         demographicFields: [...configuration.demographicFields, newRow]
       }
-  
+
       localStorage.setItem('configuration', JSON.stringify(newConfiguration))
       setConfiguration(newConfiguration)
       setRows((prevRows: any) => [...prevRows, newRow])
+      setRowModesModel(prevRowModesModel => ({
+        ...prevRowModesModel,
+        
+        [(newRow.id) as string]: { mode: GridRowModes.Edit, fieldToFocus: 'fieldName' }
+      })) 
     } else {
       console.error("Configuration is null. Cannot add new row.")
     }
-  
   }
- 
+
   const columns: GridColDef[] = [
     {
       field: 'fieldName',
@@ -177,7 +191,7 @@ const CommonSettings = () => {
       width: 180,
       align: 'center',
       headerAlign: 'center',
-      editable: false
+      editable: true,
     },
     {
       field: 'indexGoldenRecord',
@@ -232,17 +246,19 @@ const CommonSettings = () => {
       width: 300,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        const row = rows.find((row: any) => row.id === id);
+        const isFieldNameValid = row?.fieldName && row.fieldName.toLowerCase() !== 'unknown_field';
+      
         if (isInEditMode) {
           return [
             <GridActionsCellItem
               icon={<SaveIcon />}
               id="save-button"
               label="Save"
-              sx={{
-                color: 'white'
-              }}
+              sx={{ color: 'white' }}
               onClick={handleSaveClick(id)}
+              disabled={!isFieldNameValid}
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
@@ -251,10 +267,11 @@ const CommonSettings = () => {
               className="textPrimary"
               onClick={handleCancelClick(id)}
               color="inherit"
+              disabled={!isFieldNameValid}
             />
-          ]
+          ];
         }
-
+      
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
@@ -264,8 +281,9 @@ const CommonSettings = () => {
             onClick={handleEditClick(id)}
             color="inherit"
           />
-        ]
+        ];
       }
+      
     }
   ]
 
@@ -276,24 +294,30 @@ const CommonSettings = () => {
         width: '100%'
       }}
     >
-      <Button onClick={handleAddNewRow}>Add Row</Button>
+      <Box sx={{display:'flex',justifyContent:'flex-end', marginBottom:'4px', marginX:'20px'}}>
+      <Button onClick={handleAddNewRow} variant='outlined'>Add A New Field</Button>
+      </Box>
+
       {configuration && (
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          editMode="row"
-          rowModesModel={rowModesModel}
-          onRowModesModelChange={handleRowModesModelChange}
-          processRowUpdate={processRowUpdate}
-          onRowEditStop={handleRowEditStop}
-          getRowId={row => row.id}
-          slots={{
-            toolbar: EditToolbar
-          }}
-          slotProps={{
-            toolbar: { setRows, setRowModesModel }
-          }}
-        />
+       <DataGrid
+       rows={rows}
+       columns={columns}
+       editMode="row"
+       rowModesModel={rowModesModel}
+       onRowModesModelChange={handleRowModesModelChange}
+       processRowUpdate={processRowUpdate}
+       onRowEditStop={handleRowEditStop}
+       onProcessRowUpdateError={(error) => {
+         console.error(error);
+       }}
+       getRowId={(row) => row.id}
+       slots={{
+         toolbar: EditToolbar
+       }}
+       slotProps={{
+         toolbar: { setRows, setRowModesModel }
+       }}
+     />
       )}
     </Box>
   )
