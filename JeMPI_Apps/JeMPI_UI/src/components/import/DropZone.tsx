@@ -27,6 +27,7 @@ import UploadFileListItem from './UploadFileListItem'
 import { formatBytesSize, megabytesToBytes } from 'utils/formatters'
 import { useConfig } from 'hooks/useConfig'
 import { useFormik } from 'formik'
+import Papa, { ParseResult } from 'papaparse'
 
 const DropZone: FC = () => {
   const { enqueueSnackbar } = useSnackbar()
@@ -87,46 +88,62 @@ const DropZone: FC = () => {
     maxSize: MAX_UPLOAD_FILE_SIZE_IN_BYTES
   })
 
-  const uploadFile = async (
+  const handleUpload = async (
     fileObj: FileObj,
     importQueries: importQueriesType
   ) => {
-    return await apiClient.uploadFile(
-      createFileUploadAxiosConfig(fileObj, importQueries)
-    )
-  }
+    if (!fileObj.file) return
 
-  const createFileUploadAxiosConfig = (
-    fileObj: FileObj,
-    importQueries: importQueriesType
-  ): AxiosRequestConfig<FormData> => {
+    await Papa.parse(fileObj.file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async function (results: ParseResult<Record<string, unknown>>) {
+        const rows = results.data
+        const headers = results.meta.fields
+        const chunkSize = 10000
+
+        for (let i = 0; i < rows.length; i += chunkSize) {
+          const chunk = rows.slice(i, i + chunkSize)
+
+          const csvContent = Papa.unparse(
+            { fields: headers!, data: chunk },
+            {
+              delimiter: ',',
+              header: true,
+              newline: '\r\n'
+            }
+          )
+
+          await uploadChunk(csvContent, importQueries, i)
+        }
+        console.log('Successfully uploaded data')
+      }
+    })
+  }
+  const uploadChunk = async (
+    csvContent: string,
+    importQueries: importQueriesType,
+    index: number
+  ) => {
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const file = new File([blob], `chunk-${index}.csv`, { type: 'text/csv' })
+
     const formData = new FormData()
-    formData.set('csv', fileObj.file)
-    formData.set('queries', JSON.stringify(importQueries))
-    return {
+    formData.append('csv', file)
+    formData.append('queries', JSON.stringify(importQueries))
+
+    const config = {
       signal: abortControllerRef.current.signal,
       headers: {
-        'content-type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data'
       },
-      data: formData,
-      onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-        setFilesObj((prev: FileObj | undefined) => {
-          if (prev?.file.name === fileObj.file.name && progressEvent.total) {
-            return {
-              ...prev,
-              progress: Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              ),
-              status: UploadStatus.Loading
-            }
-          }
-        })
-      }
+      data: formData
     }
+    return await apiClient.uploadFile(config)
   }
 
   const uploadFileMutation = useMutation({
-    mutationFn: (fileObjs: FileObj) => uploadFile(fileObjs, FormValues),
+    mutationFn: (fileObjs: FileObj) => handleUpload(fileObjs, FormValues),
     onSuccess: (_, fileObj) => {
       setFilesObj((prev: FileObj | undefined) =>
         prev ? { ...prev, status: UploadStatus.Complete } : undefined
@@ -210,13 +227,11 @@ const DropZone: FC = () => {
                     }
                     label={
                       <Typography fontSize={'0.9rem'}>
-                        {
-                          " Send to the linker and use the current M & U values"
-                        }
+                        {' Send to the linker and use the current M & U values'}
                       </Typography>
                     }
                   />
-                  <br/>
+                  <br />
                   <FormControlLabel
                     control={
                       <Radio
@@ -232,9 +247,7 @@ const DropZone: FC = () => {
                     }
                     label={
                       <Typography fontSize={'0.9rem'}>
-                        {
-                          ' Send to EM task to compute new M & U values'
-                        }
+                        {' Send to EM task to compute new M & U values'}
                       </Typography>
                     }
                   />
