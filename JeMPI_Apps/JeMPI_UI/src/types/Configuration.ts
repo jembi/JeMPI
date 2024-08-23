@@ -21,6 +21,7 @@ export interface Field {
   indexGoldenRecord?: string;
   indexInteraction?: string;
   linkMetaData?: LinkMetaData;
+  isDisabled?: boolean; 
 }
 
 

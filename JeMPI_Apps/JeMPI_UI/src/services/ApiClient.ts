@@ -100,7 +100,7 @@ export class ApiClient {
     if (typeof payload == 'string') payload = JSON.parse(payload); // Avoid overwriting the configuration with garbage
     
     try {
-      const { data } = await this.client.post<Configuration>(
+      const { data } = await moxios.post<Configuration>(
         ROUTES.POST_CONFIGURATION,
         payload
       )

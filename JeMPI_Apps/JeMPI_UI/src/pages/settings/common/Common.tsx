@@ -19,11 +19,13 @@ import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration, LinkMetaData } from 'types/Configuration'
 import { RowData } from '../deterministic/SourceView'
+import { Switch } from '@mui/material'
 
 const CommonSettings = () => {
   const [rows, setRows] = useState<any>([])
   const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+
 
   useEffect(() => {
     if (configuration && configuration.demographicFields) {
@@ -195,6 +197,7 @@ const CommonSettings = () => {
         }
       }
     },
+  
     {
       field: 'actions',
       type: 'actions',
@@ -238,6 +241,17 @@ const CommonSettings = () => {
           />
         ]
       }
+    },
+    {
+      field: 'disable',
+      headerName: '',
+      width: 90,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => {
+        const label = { inputProps: { 'aria-label': 'Switch demo' } };
+        return <Switch {...label} checked={params.value ?? true} />;
+      },
     }
   ]
 
