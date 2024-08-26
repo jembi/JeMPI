@@ -39,25 +39,23 @@ export const AppConfigProvider = ({
     refetchOnWindowFocus: false
   })
   const availableFields: DisplayField[] = useMemo(() => {
-    return (fields || [])
-      .filter(({ scope }) =>
-        scope.some(path => {
-          return matchPath(
-            {
-              path: path
-            },
-            location.pathname
-          )
-        })
-      )
-      .map(field => {
-        return {
+    try {
+      if (!fields || !Array.isArray(fields)) return []
+
+      return fields
+        .filter(({ scope }) =>
+          scope.some(path => matchPath({ path }, location.pathname))
+        )
+        .map(field => ({
           ...field,
           formatValue: getFieldValueFormatter(field.fieldType),
           isValid: (value: unknown) => isInputValid(value, field?.validation),
           getValue: valueGetter
-        }
-      })
+        }))
+    } catch (error) {
+      console.error('Error processing available fields:', error)
+      return []
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields, location])
 

@@ -26,14 +26,14 @@ const CommonSettings = () => {
   const { configuration, setConfiguration } = useConfiguration()
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
-
   useEffect(() => {
     if (configuration && configuration.demographicFields) {
       const rowData = configuration?.demographicFields.map(
         (row: any, rowIndex: number) => ({
           id: rowIndex + 1,
           ...row,
-          rowIndex
+          rowIndex,
+          disable: row.isDisabled
         })
       )
       setRows(rowData)
@@ -69,7 +69,7 @@ const CommonSettings = () => {
     rowIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
-    const newConfiguration = { ...currentConfiguration } 
+    const newConfiguration = { ...currentConfiguration }
     const fieldName = toSnakeCase(updatedRow.fieldName)
     if (!newConfiguration.demographicFields) {
       return currentConfiguration
@@ -130,8 +130,58 @@ const CommonSettings = () => {
       row.id === id ? ({ ...updatedRow, id } as RowData) : row
     )
     setRows(updatedRows)
+
+    if (updatedRow?.disable !== undefined) {
+      const rowIndex = updatedRow.rowIndex
+
+      const updatedConfiguration: Configuration = {
+        ...configuration,
+        auxInteractionFields: configuration?.auxInteractionFields || [],
+        auxGoldenRecordFields: configuration?.auxGoldenRecordFields || [],
+        additionalNodes: configuration?.additionalNodes || [],
+        demographicFields: configuration?.demographicFields || [],
+        rules: configuration?.rules || {
+          link: {
+            deterministic: [],
+            probabilistic: []
+          },
+          validate: {
+            deterministic: [],
+            probabilistic: []
+          },
+          matchNotification: {
+            deterministic: [],
+            probabilistic: []
+          }
+        }
+      }
+
+      if (
+        updatedConfiguration.demographicFields &&
+        updatedConfiguration.demographicFields[rowIndex]
+      ) {
+        updatedConfiguration.demographicFields[rowIndex].isDisabled =
+          updatedRow.disable
+        localStorage.setItem(
+          'configuration',
+          JSON.stringify(updatedConfiguration)
+        )
+
+        setConfiguration(updatedConfiguration)
+      }
+    }
+
     handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return { ...updatedRow, id } as RowData
+  }
+
+  const handleSwitchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    params: any
+  ) => {
+    const updatedRow = { ...params.row, disable: event.target.checked }
+    console.log('row', updatedRow)
+    processRowUpdate(updatedRow)
   }
 
   const columns: GridColDef[] = [
@@ -197,7 +247,7 @@ const CommonSettings = () => {
         }
       }
     },
-  
+
     {
       field: 'actions',
       type: 'actions',
@@ -248,10 +298,16 @@ const CommonSettings = () => {
       width: 90,
       align: 'center',
       headerAlign: 'center',
-      renderCell: (params) => {
-        const label = { inputProps: { 'aria-label': 'Switch demo' } };
-        return <Switch {...label} checked={params.value ?? true} />;
-      },
+      renderCell: params => {
+        const label = { inputProps: { 'aria-label': 'Switch demo' } }
+        return (
+          <Switch
+            checked={params.row.disable || false}
+            onChange={event => handleSwitchChange(event, params)}
+            inputProps={{ 'aria-label': 'Switch demo' }}
+          />
+        )
+      }
     }
   ]
 
