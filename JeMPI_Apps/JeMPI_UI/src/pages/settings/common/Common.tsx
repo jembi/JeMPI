@@ -29,7 +29,7 @@ const CommonSettings = () => {
   const { configuration, setConfiguration } = useConfiguration();
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [openFieldModal, setOpenFieldModal] = useState<boolean>(false);
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
     if (configuration && configuration.demographicFields) {
