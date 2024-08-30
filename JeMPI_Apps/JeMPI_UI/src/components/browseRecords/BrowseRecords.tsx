@@ -73,7 +73,8 @@ const Records = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [isFetchingInteractions, setIsFetchingInteractions] = useState<boolean>(
     searchParams.get('isFetchingInteractions')
-      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) == "true"
+      ? JSON.parse(searchParams.get('isFetchingInteractions') as string) ==
+          'true'
       : false
   )
 
@@ -116,7 +117,7 @@ const Records = () => {
     }
   )
 
-  const { data, isError, error, isLoading } = useQuery<
+  const { data, isError, error, isLoading, refetch } = useQuery<
     ApiSearchResult<GoldenRecord>,
     AxiosError
   >({
@@ -127,7 +128,16 @@ const Records = () => {
         true
       )) as ApiSearchResult<GoldenRecord>,
     refetchOnWindowFocus: false,
-    keepPreviousData: true
+    keepPreviousData: true,
+    onSuccess: data => {
+      if (
+        data.records.data.length === 0 &&
+        startDateFilter.isSame(dayjs().startOf('day'))
+      ) {
+        setStartDateFilter(dayjs().startOf('month'))
+        refetch()
+      }
+    }
   })
 
   const rows = useMemo(() => {

@@ -67,7 +67,16 @@ const NotificationWorklist = () => {
         selectedStates
       ),
     refetchOnWindowFocus: true,
-    keepPreviousData: true
+    keepPreviousData: true,
+    onSuccess: data => {
+      if (
+        data.records.length === 0 &&
+        startDateFilter.isSame(dayjs().startOf('day'))
+      ) {
+        setStartDateFilter(dayjs().startOf('month'))
+        refetch()
+      }
+    }
   })
 
   const onFilterChange = useCallback((filterModel: GridFilterModel) => {
@@ -97,22 +106,23 @@ const NotificationWorklist = () => {
             paddingY={'1rem'}
             flexDirection={{ xs: 'column', md: 'row' }}
           >
-             < DateTimePicker
-            label="Start Date"
-            value={startDateFilter}
-            onChange={(newValue) => newValue && setStartDateFilter(newValue)}
-            slots={{
-              textField: (params) => CustomTextField(params, 'start-date-filter'),
-            }}
+            <DateTimePicker
+              label="Start Date"
+              value={startDateFilter}
+              onChange={newValue => newValue && setStartDateFilter(newValue)}
+              slots={{
+                textField: params =>
+                  CustomTextField(params, 'start-date-filter')
+              }}
             />
-            
-            < DateTimePicker
-            label="End Date"
-            value={endDateFilter}
-            onChange={(newValue) => newValue && setEndDateFilter(newValue)}
-            slots={{
-              textField: (params) => CustomTextField(params, 'end-date-filter'),
-            }}
+
+            <DateTimePicker
+              label="End Date"
+              value={endDateFilter}
+              onChange={newValue => newValue && setEndDateFilter(newValue)}
+              slots={{
+                textField: params => CustomTextField(params, 'end-date-filter')
+              }}
             />
             <SelectDropdown
               listValues={[
@@ -212,12 +222,15 @@ const NotificationWorklist = () => {
   )
 }
 
-export default NotificationWorklist;
+export default NotificationWorklist
 
 function CustomTextField(params: TextFieldProps, id: string) {
   return (
-      <TextField variant='outlined' 
+    <TextField
+      variant="outlined"
       label="End Date"
-      inputProps={{ id: id }}{...params} />
-  );
+      inputProps={{ id: id }}
+      {...params}
+    />
+  )
 }
