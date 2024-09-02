@@ -44,7 +44,7 @@ export const AppConfigProvider = ({
 
       return fields
         .filter(({ scope }) =>
-          scope.some(path => matchPath({ path }, location.pathname))
+          scope?.some(path => matchPath({ path }, location.pathname))
         )
         .map(field => ({
           ...field,
