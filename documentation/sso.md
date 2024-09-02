@@ -23,32 +23,32 @@ We currently support the Auth Code Flow :
 
 ## Local development
 
-### Run Keycloak from platform
-1. Checkout branch in platform : https://github.com/jembi/platform/pull/212
-2. Clean the docker environment if needed : `docker service rm $(docker service ls -q) && docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker volume prune -f && docker config rm $(docker config ls -q)` (IMPORTANT, this will remove all docker images/containers/volumes/...) 
-3. Run `./build-image.sh`
-4. Run `mkdir /tmp/logs` if needed
-5. Run `./get-cli.sh` to download the platform cli
-6. Start Keycloak `./platform-linux init identity-access-manager-keycloak --only --dev --env-file=.env.local`
-7. Access : http://localhost:9088/    (admin / dev_password_only)
+### Setup Local JeMPI
 
-### Run JeMPI Backend 
-1. Checkout branch : https://github.com/jembi/JeMPI/pull/23
-2. Install Build Utilities : https://app.gitbook.com/o/lTiMw1wKTVQEjepxV4ou/s/QSuKUyYfw2QNaNiZIQ1s/
-3. Run `launch-local.sh` ("N" for swarm reset)
-4. Connect the JeMPI API container to the platform network : `docker network connect instant_default JeMPI_jempi-api.1.<<CONTAINER_ID>>`
+1. Clone the JeMPI git repository
+```bash
+git clone https://github.com/jembi/JeMPI.git && cd JeMPI/
+```
 
-### Run JeMPI UI
-1. Checkout branch : https://github.com/jembi/jempi-web/pull/30
-2. Install npm modules if needed : `npm install`
-3. Disable mocked API : `REACT_APP_MOCK_BACKEND=false`
-4. Set proper env var for API URL : `REACT_APP_JEMPI_BASE_URL=http://localhost:50000/JeMPI`
-4. Set proper env var for KeyCloak : `KC_FRONTEND_URL=http://localhost:9088`
-5. Run `npm run start`
+2. Update local config to use Keycloak
+```bash
+export REACT_APP_JEMPI_BASE_API_PORT=50001
+export REACT_APP_ENABLE_SSO="true"
+```
+
+3. Execute the local-deployment script
+```bash
+cd devops/linux/docker/deployment
+./local-deployment.sh
+```
+
+![Deployment Script Options](../.gitbook/assets/13)
+
+4. Select Option 1: Deploy JeMPI (For Fresh Start)
 6. Access : http://localhost:3000/login
 
-### Restart server after changes
-1. Scale down : `docker service scale JeMPI_jempi-api=0`
-2. Re-build : `cd ./JeMPI_Apps/JeMPI_API/ && ./build.sh`
-3. Scale up : `docker service scale JeMPI_jempi-api=1`
-4. Connect the JeMPI API container to the platform network : `docker network connect instant_default JeMPI_jempi-api.1.<<CONTAINER_ID>>`
+![JeMPI Web Keycloak Sign in](../.gitbook/assets/16)
+
+7. Sign in with Keycloak user credentials
+
+![JeMPI Web Keycloak Sign in](../.gitbook/assets/17)

@@ -108,12 +108,12 @@ const Settings = () => {
               variant="scrollable"
             >
               <Tab label="Common" {...a11yProps(0)} />
-              <Tab label="Unique to Golden Record" {...a11yProps(1)} />
+              {/* <Tab label="Unique to Golden Record" {...a11yProps(1)} />
               <Tab label="Unique to Interaction" {...a11yProps(2)} />
-              <Tab label="Golden Records Lists" {...a11yProps(3)} />
-              <Tab label="Deterministic" {...a11yProps(4)} />
-              <Tab label="Blocking" {...a11yProps(5)} />
-              <Tab label="Probabilistic" {...a11yProps(6)} />
+              <Tab label="Golden Records Lists" {...a11yProps(3)} /> */}
+              <Tab label="Deterministic" {...a11yProps(1)} />
+              <Tab label="Blocking" {...a11yProps(2)} />
+              <Tab label="Probabilistic" {...a11yProps(3)} />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -122,31 +122,31 @@ const Settings = () => {
             </Typography>
             <CommonSettings />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}>
+          {/* <CustomTabPanel value={value} index={1}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the golden record
             </Typography>
             <UniqueToGR />
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={2}>
+          </CustomTabPanel> */}
+          {/* <CustomTabPanel value={value} index={2}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties that are unique to the interaction
             </Typography>
             <UniqueToInteraction />
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={3}>
+          </CustomTabPanel> */}
+          {/* <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
               Setup properties for Golden record lists
             </Typography>
             <GoldenRecordLists />
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={4}>
+          </CustomTabPanel> */}
+          <CustomTabPanel value={value} index={1}>
             <Deterministic />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={5}>
+          <CustomTabPanel value={value} index={2}>
             <Blocking />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={6}>
+          <CustomTabPanel value={value} index={3}>
             <Typography variant="h5" sx={{ py: 3 }}>
               <Probabilistic />
             </Typography>
