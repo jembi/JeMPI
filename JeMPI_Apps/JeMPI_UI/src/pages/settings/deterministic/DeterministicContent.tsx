@@ -131,11 +131,7 @@ const DeterministicContent = ({
     const matchedComparators: number[] = []
     let match
 
-    let match = regex.exec(row.ruleText)
-    while (match !== null) {
-      // existing logic
-      match = regex.exec(row.ruleText)
-    }
+    while ((match = regex.exec(row.ruleText)) !== null) {
       matchedFields.push(match[2])
 
       if (match[1] === 'eq') {
