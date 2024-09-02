@@ -50,12 +50,9 @@ export const validationSchema = Yup.object({
 
 export const initializeValues = (rule: Rule) => ({
   minReviewThreshold:
-    rule.reviewThresholdRange?.low.toString() ||
-    defaultValues.minReviewThreshold,
-  linkThreshold: rule.linkThreshold?.toString() || defaultValues.linkThreshold,
+    rule.reviewThresholdRange?.low || defaultValues.minReviewThreshold,
+  linkThreshold: rule.linkThreshold || defaultValues.linkThreshold,
   maxReviewThreshold:
-    rule.reviewThresholdRange?.high.toString() ||
-    defaultValues.maxReviewThreshold,
-  marginWindowSize:
-    rule.marginWindowSize?.toString() || defaultValues.marginWindowSize
+    rule.reviewThresholdRange?.high || defaultValues.maxReviewThreshold,
+  marginWindowSize: rule.marginWindowSize || defaultValues.marginWindowSize
 })

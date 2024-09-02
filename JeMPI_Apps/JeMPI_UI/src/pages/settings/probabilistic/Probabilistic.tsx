@@ -11,7 +11,6 @@ import { Configuration } from 'types/Configuration'
 import { useEffect, useState } from 'react'
 import { useSnackbar } from 'notistack'
 
-
 interface Rule {
   vars: string[]
   text: string
@@ -135,7 +134,6 @@ const Probabilistic = () => {
               padding: '20px'
             }}
           >
-        
             <Form onSubmit={handleSubmit}>
               <Grid
                 container
@@ -187,6 +185,7 @@ const Probabilistic = () => {
                         name="linkThreshold"
                         label="Enter floating point"
                         variant="outlined"
+                        type="number"
                         size="small"
                         value={values.linkThreshold}
                         onChange={handleChange}
@@ -216,6 +215,7 @@ const Probabilistic = () => {
                         id="min-review-threshold"
                         name="minReviewThreshold"
                         label="Min"
+                        type="number"
                         variant="outlined"
                         size="small"
                         value={values.minReviewThreshold}
@@ -258,6 +258,7 @@ const Probabilistic = () => {
                       <TextField
                         id="max-review-threshold"
                         name="maxReviewThreshold"
+                        type="number"
                         label="max"
                         variant="outlined"
                         size="small"
@@ -301,6 +302,7 @@ const Probabilistic = () => {
                         name="marginWindowSize"
                         label="Enter floating point"
                         variant="outlined"
+                        type="number"
                         size="small"
                         value={values.marginWindowSize}
                         onChange={handleChange}
@@ -323,7 +325,6 @@ const Probabilistic = () => {
                   type="submit"
                   variant="contained"
                   color="primary"
-               
                   disabled={isSubmitting}
                 >
                   Save

@@ -46,7 +46,6 @@ const Settings = () => {
       enqueueSnackbar(`Error saving configuration`, {
         variant: 'error'
       })
-      console.log('handleSave error', response.data)
     }
   }
 
