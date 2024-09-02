@@ -71,6 +71,7 @@ const CommonSettings = () => {
   ): Configuration => {
     const newConfiguration = { ...currentConfiguration }
     const fieldName = toSnakeCase(updatedRow.fieldName)
+
     if (!newConfiguration.demographicFields) {
       return currentConfiguration
     }
@@ -84,10 +85,14 @@ const CommonSettings = () => {
     fieldToUpdate.fieldName = fieldName
 
     if (updatedRow?.indexGoldenRecord) {
-      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
-        ' ',
-        ''
-      )})`
+      if (!updatedRow.indexGoldenRecord.startsWith('@index(')) {
+        fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
+          ' ',
+          ''
+        )})`
+      } else {
+        fieldToUpdate.indexGoldenRecord = updatedRow.indexGoldenRecord
+      }
     }
 
     if (updatedRow?.m) {
@@ -180,7 +185,6 @@ const CommonSettings = () => {
     params: any
   ) => {
     const updatedRow = { ...params.row, disable: event.target.checked }
-    console.log('row', updatedRow)
     processRowUpdate(updatedRow)
   }
 
@@ -299,12 +303,10 @@ const CommonSettings = () => {
       align: 'center',
       headerAlign: 'center',
       renderCell: params => {
-        const label = { inputProps: { 'aria-label': 'Switch demo' } }
         return (
           <Switch
             checked={params.row.disable || false}
             onChange={event => handleSwitchChange(event, params)}
-            inputProps={{ 'aria-label': 'Switch demo' }}
           />
         )
       }
