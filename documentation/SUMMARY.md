@@ -8,3 +8,4 @@
 * [API](api.md)
 * [Single Sign-On](sso.md)
 * [Backup and Restore](backup-and-restore.md)
+* [UI User Guide](ui-user-guide.md)
