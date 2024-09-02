@@ -140,38 +140,37 @@ const Probabilistic = () => {
                 spacing={2}
                 sx={{ marginBottom: '80px', alignItems: 'center' }}
               >
-                <Slider
-                  id="slider-summary"
-                  valueLabelDisplay="auto"
-                  step={0.05}
-                  marks={marks}
-                  min={0}
-                  max={1}
-                  value={[
-                    parseFloat(values.minReviewThreshold.toString()),
-                    parseFloat(values.linkThreshold.toString()),
-                    parseFloat(values.maxReviewThreshold.toString())
-                  ]}
-                  onChange={(e, value) => {
-                    if (Array.isArray(value)) {
-                      setFieldValue('minReviewThreshold', value[0].toString())
-                      setFieldValue('linkThreshold', value[1].toString())
-                      setFieldValue('maxReviewThreshold', value[2].toString())
-                    } else {
-                      setFieldValue('linkThreshold', value.toString())
-                    }
-                  }}
-                  sx={{
-                    width: '50%',
-                    '& .MuiSlider-thumb': {
-                      "&[data-index='0']": { backgroundColor: 'red' },
-                      "&[data-index='1']": { backgroundColor: 'green' },
-                      "&[data-index='2']": { backgroundColor: 'blue' }
-                    },
-                    marginBottom: '80px'
-                  }}
-                />
-
+             <Slider
+                id="slider-summary"
+                valueLabelDisplay="auto"
+                step={0.05}
+                marks={marks}
+                min={0}
+                max={1}
+                value={[
+                  parseFloat(values.minReviewThreshold.toString()),
+                  parseFloat(values.linkThreshold.toString()),
+                  parseFloat(values.maxReviewThreshold.toString())
+                ]}
+                onChange={(e, value) => {
+                  if (Array.isArray(value)) {
+                    setFieldValue('minReviewThreshold', value[0].toString())
+                    setFieldValue('linkThreshold', value[1].toString())
+                    setFieldValue('maxReviewThreshold', value[2].toString())
+                  } else {
+                    setFieldValue('linkThreshold', value.toString())
+                  }
+                }}
+                sx={{
+                  width: '50%',
+                  '& .MuiSlider-thumb': {
+                    "&[data-index='0']": { backgroundColor: 'red' },
+                    "&[data-index='1']": { backgroundColor: 'green' },
+                    "&[data-index='2']": { backgroundColor: 'blue' }
+                  },
+                  marginBottom: '80px'
+                }}
+              />
                 <Grid item xs={8}>
                   <Grid container spacing={2} sx={{ alignItems: 'center' }}>
                     <Grid item xs={4}>
