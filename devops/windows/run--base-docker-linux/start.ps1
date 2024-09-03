@@ -4,8 +4,10 @@ Set-Location $script_dir
 
 . $script_dir\local.ps1
 
-Copy-Item ..\..\..\JeMPI_Apps\JeMPI_Configuration\config-api.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
-Copy-Item ..\..\..\JeMPI_Apps\JeMPI_Configuration\config-api.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
+
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ${SYSTEM_CONFIG_DIR}\config-api.json
 
 
 $kafka1_ip                                    = $linux_server_ip

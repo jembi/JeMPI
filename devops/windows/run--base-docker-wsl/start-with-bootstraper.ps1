@@ -1,11 +1,14 @@
 $script_path = $MyInvocation.MyCommand.Path
 $script_dir = Split-Path $script_path
 Set-Location $script_dir
-
+Write-Host '$script_dir'
+Write-Host '.......................................................'
 $linux_server_ip =  ((wsl hostname -I) -split " ")[0]
 
-Copy-Item ..\..\..\JeMPI_Apps\JeMPI_Configuration\config-api.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
-Copy-Item ..\..\..\JeMPI_Apps\JeMPI_Configuration\config-api.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
+
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ${SYSTEM_CONFIG_DIR}\config-api.json
 
 $kafka1_ip                                    = $linux_server_ip
 $postgresql_ip                                = $linux_server_ip
@@ -98,12 +101,17 @@ $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-a
 # 
 # build apps
 #
+
+Push-Location ..\..\linux\docker\data-config
+  Copy-Item config-api.json ..\..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\.
+Pop-Location
+Push-Location ..\..\linux\docker\data-config
+  Copy-Item config-api.json ..\..\..\..\JeMPI_Apps\JeMPI_Bootstrapper\src\main\resources\.
+Pop-Location
 Push-Location ..\..\..\JeMPI_Apps
-  Copy-Item JeMPI_Configuration\config-api.json JeMPI_API\src\main\resources\.
   mvn clean  
   mvn package
 Pop-Location
-
 #
 # Start BootStrapper and Create databases
 #

@@ -1,9 +1,17 @@
 #!/bin/bash
 
 export USE_LOCAL_REGISTRY=${USE_LOCAL_REGISTRY:-"true"}
+export PROJECT_PATH_APPS_ROOT=$(builtin cd ../../../../../; pwd)
+export PROJECT_PATH_UI=${PROJECT_PATH_APPS_ROOT}/JeMPI_Apps/JeMPI_UI
 export PROJECT_DIR=$(builtin cd ../../; pwd)
 export PROJECT_DATA_DIR=${PROJECT_DIR}/docker_data/data
+export PROJECT_DATA_APPS_DIR=${PROJECT_DIR}/docker_data/data-apps
 export PROJECT_DATA_MONITOR_DIR=${PROJECT_DIR}/docker_data/data-monitor
+export PROJECT_PATH_DEVOPS_ROOT=$(builtin cd ../../../../; pwd)
+export SYSTEM_CONFIG_DIR=${PROJECT_PATH_DEVOPS_ROOT}/linux/docker/data-config
+export API_CONFIG_REFERENCE_FILENAME="config.json"
+export API_CONFIG_MASTER_FILENAME="config-master.json"
+export API_FIELDS_CONFIG_FILENAME="config-api.json"
 
 export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
@@ -20,23 +28,40 @@ export SCALE_LINKER=1
 
 export POSTGRESQL_USERNAME="postgres"
 export POSTGRESQL_PASSWORD="postgres"
-export POSTGRESQL_DATABASE="notifications"
+export POSTGRESQL_DATABASE="postgres"
+export POSTGRESQL_USERS_DB="users_db"
+export POSTGRESQL_NOTIFICATIONS_DB="notifications_db"
+export POSTGRESQL_AUDIT_DB="audit_db"
+export POSTGRESQL_KC_TEST_DB="kc_test_db"
 
 export KAFKA_SERVERS="kafka-01:9092"
 export DGRAPH_HOSTS="alpha-01"
 export DGRAPH_PORTS="9080"
 
-# API related env vars
+# Ports
+export API_HTTP_PORT=50000
+export BACKUP_RESTORE_API_HTTP_PORT=50000
+export API_KC_HTTP_PORT=50000
+export ETL_HTTP_PORT=50000
+export CONTROLLER_HTTP_PORT=50000
+export LINKER_HTTP_PORT=50000
+
 export KC_REALM_NAME="jempi-dev"
 export KC_API_URL="http://keycloak-test-server:8080"
 export KC_JEMPI_CLIENT_ID="jempi-oauth"
-export KC_JEMPI_CLIENT_SECRET="Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn"
+export KC_JEMPI_CLIENT_SECRET="Nsuhj2lQiCgSE7eVPLBgnLEEeaijufeh"
 export KC_JEMPI_ROOT_URL="http://localhost:3000"
 export JEMPI_SESSION_SECRET="c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt"
-export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=10485760
+export JEMPI_FILE_IMPORT_MAX_SIZE_BYTE=128m
 # Deployment related env vars
 export JEMPI_SESSION_SECURE="false"
 export JEMPI_SESSION_DOMAIN_NAME="localhost"
+export NODE_ENV="production"
+export REACT_APP_JEMPI_BASE_API_HOST=http://${NODE1_IP}
+export REACT_APP_JEMPI_BASE_API_PORT=50000
+export REACT_APP_ENABLE_SSO="false"
+export REACT_APP_MOCK_BACKEND="false"
+export KC_FRONTEND_URL=http://${NODE1_IP}:8080
 
 # ram limit for linker
 export POSTGRESQL_RAM_LIMIT="8G"
@@ -49,6 +74,7 @@ export ASYNC_RECEIVER_RAM_LIMIT="8G"
 export ETL_RAM_LIMIT="8G"
 export CONTROLLER_RAM_LIMIT="8G"
 export EM_RAM_LIMIT="8G"
+export EM_SCALA_RAM_LIMIT="16G"
 export LINKER_RAM_LIMIT="8G"
 export API_RAM_LIMIT="8G"
 export UI_RAM_LIMIT="8G"
