@@ -96,8 +96,8 @@ export class ApiClient {
   async saveConfiguration() {
     const configuration = localStorage.getItem('configuration');
     let payload = configuration;
-    if (!payload) return; // Avoid overwriting the configuration with nothing
-    if (typeof payload == 'string') payload = JSON.parse(payload); // Avoid overwriting the configuration with garbage
+    if (!payload) return; 
+    if (typeof payload == 'string') payload = JSON.parse(payload);
     
     try {
       const { data } = await this.client.post<Configuration>(

@@ -19,6 +19,7 @@ import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers'
 import { useConfiguration } from 'hooks/useUIConfiguration'
 import { Configuration, LinkMetaData } from 'types/Configuration'
 import { RowData } from '../deterministic/SourceView'
+import { Switch } from '@mui/material'
 
 const CommonSettings = () => {
   const [rows, setRows] = useState<any>([])
@@ -31,7 +32,8 @@ const CommonSettings = () => {
         (row: any, rowIndex: number) => ({
           id: rowIndex + 1,
           ...row,
-          rowIndex
+          rowIndex,
+          disable: row.isDisabled
         })
       )
       setRows(rowData)
@@ -67,8 +69,9 @@ const CommonSettings = () => {
     rowIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
-    const newConfiguration = { ...currentConfiguration } 
+    const newConfiguration = { ...currentConfiguration }
     const fieldName = toSnakeCase(updatedRow.fieldName)
+
     if (!newConfiguration.demographicFields) {
       return currentConfiguration
     }
@@ -82,10 +85,14 @@ const CommonSettings = () => {
     fieldToUpdate.fieldName = fieldName
 
     if (updatedRow?.indexGoldenRecord) {
-      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
-        ' ',
-        ''
-      )})`
+      if (!updatedRow.indexGoldenRecord.startsWith('@index(')) {
+        fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
+          ' ',
+          ''
+        )})`
+      } else {
+        fieldToUpdate.indexGoldenRecord = updatedRow.indexGoldenRecord
+      }
     }
 
     if (updatedRow?.m) {
@@ -128,8 +135,57 @@ const CommonSettings = () => {
       row.id === id ? ({ ...updatedRow, id } as RowData) : row
     )
     setRows(updatedRows)
+
+    if (updatedRow?.disable !== undefined) {
+      const rowIndex = updatedRow.rowIndex
+
+      const updatedConfiguration: Configuration = {
+        ...configuration,
+        auxInteractionFields: configuration?.auxInteractionFields || [],
+        auxGoldenRecordFields: configuration?.auxGoldenRecordFields || [],
+        additionalNodes: configuration?.additionalNodes || [],
+        demographicFields: configuration?.demographicFields || [],
+        rules: configuration?.rules || {
+          link: {
+            deterministic: [],
+            probabilistic: []
+          },
+          validate: {
+            deterministic: [],
+            probabilistic: []
+          },
+          matchNotification: {
+            deterministic: [],
+            probabilistic: []
+          }
+        }
+      }
+
+      if (
+        updatedConfiguration.demographicFields &&
+        updatedConfiguration.demographicFields[rowIndex]
+      ) {
+        updatedConfiguration.demographicFields[rowIndex].isDisabled =
+          updatedRow.disable
+        localStorage.setItem(
+          'configuration',
+          JSON.stringify(updatedConfiguration)
+        )
+
+        setConfiguration(updatedConfiguration)
+      }
+    }
+
     handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
     return { ...updatedRow, id } as RowData
+  }
+
+  const handleSwitchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    params: any
+  ) => {
+    const updatedRow = { ...params.row, disable: event.target.checked }
+    processRowUpdate(updatedRow)
   }
 
   const columns: GridColDef[] = [
@@ -195,6 +251,7 @@ const CommonSettings = () => {
         }
       }
     },
+
     {
       field: 'actions',
       type: 'actions',
@@ -237,6 +294,21 @@ const CommonSettings = () => {
             color="inherit"
           />
         ]
+      }
+    },
+    {
+      field: 'disable',
+      headerName: '',
+      width: 90,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: params => {
+        return (
+          <Switch
+            checked={params.row.disable || false}
+            onChange={event => handleSwitchChange(event, params)}
+          />
+        )
       }
     }
   ]
