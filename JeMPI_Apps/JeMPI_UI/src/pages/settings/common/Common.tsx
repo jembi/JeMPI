@@ -25,14 +25,14 @@ import FieldDialog from './FieldDialog'
 import AddIcon from '@mui/icons-material/Add'
 
 const CommonSettings = () => {
-  const [rows, setRows] = useState<any>([]);
-  const { configuration, setConfiguration } = useConfiguration();
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  const [openFieldModal, setOpenFieldModal] = useState<boolean>(false);
+  const [rows, setRows] = useState<any>([])
+  const { configuration, setConfiguration } = useConfiguration()
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const [openFieldModal, setOpenFieldModal] = useState<boolean>(false)
   const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
-    if (configuration && configuration.demographicFields) {
+    if (configuration?.demographicFields) {
       const rowData = configuration.demographicFields.map(
         (row: any, rowIndex: number) => ({
           id: rowIndex + 1,
@@ -41,33 +41,44 @@ const CommonSettings = () => {
           disable: row.isDisabled
         })
       );
-      setRows(rowData);
+      setRows(rowData)
     }
-  }, [configuration]);
+  }, [configuration])
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
   };
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
   };
 
   const handleUpdateConfiguration = (updatedRow: any, rowIndex: number) => {
-    if (!configuration) return;
-    const updatedConfiguration = getUpdatedConfiguration(
-      updatedRow,
-      rowIndex,
-      configuration
-    );
-    localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
-    setConfiguration(updatedConfiguration);
-    setRows((prevRows: any) =>
-      prevRows.map((row: any) =>
-        row.id === updatedRow.id ? { ...updatedRow } : row
+    if (!configuration) {
+      console.error("Cannot update configuration. Configuration is null.")
+      return;
+    }
+
+    const prevConfiguration = { ...configuration }
+    try {
+      const updatedConfiguration = getUpdatedConfiguration(
+        updatedRow,
+        rowIndex,
+        configuration
       )
-    );
-  };
+      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration))
+      setConfiguration(updatedConfiguration)
+      setRows((prevRows: any) =>
+        prevRows.map((row: any) =>
+          row.id === updatedRow.id ? { ...updatedRow } : row
+        )
+      )
+    } catch (error) {
+      console.error("Error updating configuration:", error);
+      setConfiguration(prevConfiguration)
+      enqueueSnackbar("Failed to update configuration. Please try again.", { variant: 'error' })
+    }
+  }
 
   const getUpdatedConfiguration = (
     updatedRow: any,
