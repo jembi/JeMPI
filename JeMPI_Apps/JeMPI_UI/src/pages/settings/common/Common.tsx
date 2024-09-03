@@ -10,18 +10,18 @@ import {
   GridRowModes,
   GridRowModesModel,
   GridActionsCellItem
-} from '@mui/x-data-grid';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
-import { EditToolbar } from 'components/shared/EditToolBar';
-import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers';
-import { useConfiguration } from 'hooks/useUIConfiguration';
-import { Configuration, Field, LinkMetaData } from 'types/Configuration';
-import { IconButton, Tooltip } from '@mui/material';
-import { RowData } from '../deterministic/SourceView';
-import { useSnackbar } from 'notistack';
-import FieldDialog from './FieldDialog';
+} from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
+import CancelIcon from '@mui/icons-material/Close'
+import { EditToolbar } from 'components/shared/EditToolBar'
+import { processIndex, toSnakeCase, transformFieldName } from 'utils/helpers'
+import { useConfiguration } from 'hooks/useUIConfiguration'
+import { Configuration, Field, LinkMetaData } from 'types/Configuration'
+import { IconButton, Tooltip, Switch } from '@mui/material'
+import { RowData } from '../deterministic/SourceView'
+import { useSnackbar } from 'notistack'
+import FieldDialog from './FieldDialog'
 import AddIcon from '@mui/icons-material/Add'
 
 const CommonSettings = () => {
@@ -37,7 +37,8 @@ const CommonSettings = () => {
         (row: any, rowIndex: number) => ({
           id: rowIndex + 1,
           ...row,
-          rowIndex
+          rowIndex,
+          disable: row.isDisabled
         })
       );
       setRows(rowData);
@@ -73,8 +74,9 @@ const CommonSettings = () => {
     rowIndex: number,
     currentConfiguration: Configuration
   ): Configuration => {
-    const newConfiguration = { ...currentConfiguration };
-    const fieldName = toSnakeCase(updatedRow.fieldName);
+    const newConfiguration = { ...currentConfiguration }
+    const fieldName = toSnakeCase(updatedRow.fieldName)
+
     if (!newConfiguration.demographicFields) {
       return currentConfiguration;
     }
@@ -88,10 +90,14 @@ const CommonSettings = () => {
     fieldToUpdate.fieldName = fieldName;
 
     if (updatedRow?.indexGoldenRecord) {
-      fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
-        ' ',
-        ''
-      )})`;
+      if (!updatedRow.indexGoldenRecord.startsWith('@index(')) {
+        fieldToUpdate.indexGoldenRecord = `@index(${updatedRow.indexGoldenRecord.replace(
+          ' ',
+          ''
+        )})`
+      } else {
+        fieldToUpdate.indexGoldenRecord = updatedRow.indexGoldenRecord
+      }
     }
 
     if (updatedRow?.m) {
@@ -128,7 +134,7 @@ const CommonSettings = () => {
     setRowModesModel(newRowModesModel);
   };
 
-  const processRowUpdate = (newRow: GridRowModel, oldRow: GridRowModel) => {
+  const processRowUpdate = (newRow: GridRowModel) => {
     const isFieldNameValid = newRow?.fieldName && newRow.fieldName.toLowerCase() !== 'unknown_field';
   
     if (!isFieldNameValid) {
@@ -138,12 +144,60 @@ const CommonSettings = () => {
     const { id, ...updatedRow } = newRow;
     const updatedRows = rows.map((row: { id: any }) =>
       row.id === id ? ({ ...updatedRow, id } as RowData) : row
-    );
-  
-    setRows(updatedRows);
-    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex);
-    return { ...updatedRow, id } as RowData;
-  };
+    )
+    setRows(updatedRows)
+
+    if (updatedRow?.disable !== undefined) {
+      const rowIndex = updatedRow.rowIndex
+
+      const updatedConfiguration: Configuration = {
+        ...configuration,
+        auxInteractionFields: configuration?.auxInteractionFields || [],
+        auxGoldenRecordFields: configuration?.auxGoldenRecordFields || [],
+        additionalNodes: configuration?.additionalNodes || [],
+        demographicFields: configuration?.demographicFields || [],
+        rules: configuration?.rules || {
+          link: {
+            deterministic: [],
+            probabilistic: []
+          },
+          validate: {
+            deterministic: [],
+            probabilistic: []
+          },
+          matchNotification: {
+            deterministic: [],
+            probabilistic: []
+          }
+        }
+      }
+
+      if (
+        updatedConfiguration.demographicFields &&
+        updatedConfiguration.demographicFields[rowIndex]
+      ) {
+        updatedConfiguration.demographicFields[rowIndex].isDisabled =
+          updatedRow.disable
+        localStorage.setItem(
+          'configuration',
+          JSON.stringify(updatedConfiguration)
+        )
+
+        setConfiguration(updatedConfiguration)
+      }
+    }
+
+    handleUpdateConfiguration(updatedRow, updatedRow.rowIndex)
+    return { ...updatedRow, id } as RowData
+  }
+
+  const handleSwitchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    params: any
+  ) => {
+    const updatedRow = { ...params.row, disable: event.target.checked }
+    processRowUpdate(updatedRow)
+  }
 
   const handleAddNewRow = (fieldName: string) => {
     const newRow: Field = {
@@ -162,19 +216,19 @@ const CommonSettings = () => {
       const newConfiguration = {
         ...configuration,
         demographicFields: [...configuration.demographicFields, newRow]
-      };
+      }
 
-      localStorage.setItem('configuration', JSON.stringify(newConfiguration));
-      setConfiguration(newConfiguration);
-      setRows((prevRows: any) => [...prevRows, newRow]);
+      localStorage.setItem('configuration', JSON.stringify(newConfiguration))
+      setConfiguration(newConfiguration)
+      setRows((prevRows: any) => [...prevRows, newRow])
       setRowModesModel(prevRowModesModel => ({
         ...prevRowModesModel,
         [(newRow.id) as string]: { mode: GridRowModes.Edit, fieldToFocus: 'fieldName' }
-      }));
+      }))
     } else {
-      console.error("Configuration is null. Cannot add new row.");
+      console.error("Configuration is null. Cannot add new row.")
     }
-  };
+  }
 
   const columns: GridColDef[] = [
     {
@@ -239,6 +293,7 @@ const CommonSettings = () => {
         }
       }
     },
+
     {
       field: 'actions',
       type: 'actions',
@@ -284,6 +339,21 @@ const CommonSettings = () => {
             color="inherit"
           />
         ];
+      }
+    },
+    {
+      field: 'disable',
+      headerName: '',
+      width: 90,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: params => {
+        return (
+          <Switch
+            checked={params.row.disable || false}
+            onChange={event => handleSwitchChange(event, params)}
+          />
+        )
       }
     }
   ];

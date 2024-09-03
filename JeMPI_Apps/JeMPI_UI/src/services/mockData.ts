@@ -399,6 +399,7 @@ const configuration = {
       source: {
         csvCol: 1
       },
+      isDisabled: false,
       indexGoldenRecord: '@index(exact,trigram)',
       indexInteraction: '@index(exact,trigram)',
       linkMetaData: {
@@ -414,6 +415,7 @@ const configuration = {
       source: {
         csvCol: 2
       },
+      isDisabled: false,
       indexGoldenRecord: '@index(exact,trigram)',
       indexInteraction: '@index(exact,trigram)',
       linkMetaData: {
@@ -429,6 +431,7 @@ const configuration = {
       source: {
         csvCol: 3
       },
+      isDisabled: false,
       indexGoldenRecord: '@index(exact,trigram)',
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
@@ -443,6 +446,7 @@ const configuration = {
       source: {
         csvCol: 4
       },
+      isDisabled: false,
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
         comparisonLevels: [0.92],
@@ -456,6 +460,7 @@ const configuration = {
       source: {
         csvCol: 5
       },
+      isDisabled: false,
       indexGoldenRecord: '@index(trigram)',
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
@@ -470,6 +475,7 @@ const configuration = {
       source: {
         csvCol: 6
       },
+      isDisabled: false,
       indexGoldenRecord: '@index(exact,trigram)',
       linkMetaData: {
         comparison: 'JARO_WINKLER_SIMILARITY',
@@ -484,6 +490,7 @@ const configuration = {
       source: {
         csvCol: 7
       },
+      isDisabled: false,
       indexGoldenRecord: '@index(exact,trigram)',
       indexInteraction: '@index(exact,trigram)',
       linkMetaData: {
