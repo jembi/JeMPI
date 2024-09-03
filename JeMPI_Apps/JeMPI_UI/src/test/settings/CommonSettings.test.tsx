@@ -5,11 +5,20 @@ import CommonSettings from 'pages/settings/common/Common';
 import mockData from 'services/mockData';
 import '@testing-library/jest-dom';
 import { useConfiguration } from 'hooks/useUIConfiguration';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConfigProvider } from 'hooks/useConfig';
+import { BrowserRouter } from 'react-router-dom';
 
 jest.mock('hooks/useUIConfiguration', () => ({
   useConfiguration: jest.fn(),
 }));
 
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {}
+  }
+})
 
 describe('CommonSettings Component', () => {
   const configData = mockData.configuration.demographicFields.map((row, index) => ({
@@ -23,12 +32,27 @@ describe('CommonSettings Component', () => {
     });
   });
   it('renders without crashing', () => {
-    render(<CommonSettings  />);
+    render(<QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ConfigProvider>
+        <CommonSettings  />
+        </ConfigProvider>
+      </BrowserRouter>
+    </QueryClientProvider>);
   });
 
   it('handles edit mode', async () => {
     
-    render(<CommonSettings  />);
+    render(
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <ConfigProvider>
+            <CommonSettings  />
+            </ConfigProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      )
+    
     const editIcon = document.getElementById('edit-button');
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');

@@ -15,9 +15,11 @@ import { generateId } from 'utils/helpers'
 import Probabilistic from './probabilistic/Probabilistic'
 import { useConfig } from 'hooks/useConfig'
 import { useSnackbar } from 'notistack'
+import { useConfiguration } from 'hooks/useUIConfiguration'
 
 const Settings = () => {
   const [value, setValue] = useState(0)
+  const {configuration} = useConfiguration()
   const [configurationData, setConfigurationData] = useState(() => {
     const storedData = localStorage.getItem('configuration')
     return storedData
