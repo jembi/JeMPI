@@ -42,7 +42,7 @@ JeMPI/devops/linux/docker/backup_restore/postgres-backup.sh
 
 The backup process creates a folder with a timestamp. Inside this folder, backups are created for each Dgraph and Postgres.
 
-![Backup Postgres and Dgraph](../.gitbook/assets/14)
+![Backup Postgres and Dgraph](.gitbook/assets/14)
 
 ## Restore Dgraph and Postgres Process
 
@@ -61,4 +61,4 @@ Select Option 6: Restore Postgres & Dgraph
 - **Backup Directory Postgres:** JeMPI/devops/linux/docker/docker_data/data/backups/postgres
 - **Manual Backup Run Script:** ./restore-dgraph-postgres.sh {{ Folder_Name }}
 
-![Restore Postgres and Dgraph](../.gitbook/assets/15)
+![Restore Postgres and Dgraph](.gitbook/assets/15)
