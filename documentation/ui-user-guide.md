@@ -1,4 +1,95 @@
-**Configuration Settings**
+**Section 1: Dashboard**
+The Dashboard screen has 3 tabs 
+- Confusion Matrix
+- M & U values 
+- Import Process Status.
+
+Dashboard Tab 1: Confusion Matrix
+![Dashboard](.gitbook/assets/29.png)
+
+This tab is sub-divided into 3 sections, starting with the right, the Confusion Matrix.
+
+**Confusion Matrix**
+
+Understanding the confusion matrix
+
+The confusion matrix displays a tally of the true positives, false positives, true negatives and false negatives.
+This is used to calculate the precision and recall.  
+
+The f-score is a measure of a model’s accuracy on a dataset. 
+It is a harmonic mean of precision and recall. 
+
+![Dashboard: Confusion Matrix](.gitbook/assets/30.png)
+
+The confusion matrix provides rolling counts of the following:
+![Dashboard: Confusion Matrix](.gitbook/assets/31.png)
+
+**Beta F-scores**
+
+![Dashboard: Beta F-scores](.gitbook/assets/37.png)
+
+The f-score is a measure of a model’s accuracy on a dataset. It is the harmonic mean of precision and recall. There are 3 different f-scores displayed below, using the following formula:
+![Dashboard: Beta F-scores](.gitbook/assets/32.png)
+
+**Records and notifications** 
+
+![Dashboard: Records & Notifications](.gitbook/assets/38.png)
+
+Records 
+- Displays the total number of Golden records and total number of interactions.
+Notifications - Displays total number of notifications split by:
+
+Open Notifications 
+- No. of New & Open notifications
+Closed notifications
+ - No. of Closed notifications
+
+Note: The number of new and open notifications (basically notifications that are not closed) affects the accuracy of the F-score and depending on the % of notifications that have not been actioned.  
+
+**Dashboard Tab 2: M & U values**
+
+![Dashboard: M & U values](.gitbook/assets/33.png)
+
+This screen provides us with a view of the M & U values as per the last periodic update.  
+
+
+**Tally Method**
+The Tally method computes M & U’s per field which is used for cross checking against the M&U’s computed by the EM algorithm. These M& U’s are not used for probabilistic linking.  
+
+It calculates the probabilities based on whether the fields in the pair match or do not match:
+For each field where the pair matches (above notification), check if you increment A or B (refer to Tally method diagram below)
+For each field where the pair do not match (below notification), check if you increment C or D
+![](.gitbook/assets/34.png)
+
+**What happens when the score is within the notification threshold area?**
+When in the notification area, we are either above the notification TH or below the notification TH. 
+
+**Above the threshold (using the incoming interaction and linked GR)**
+- Assume this is correct for 80% of the time - increment A or B by 0.8
+- Assume this is incorrect for 20% of the time - increment C or D by 0.2
+
+If admin confirms this assumption, then the system must adjust the tallies by adding the 0.2 to A or B and removing 0.2 from C or D
+If admin rejects this assumption, then system must subtract 0.8 from A or B and add to C or D
+
+**Below the threshold (using the incoming interaction and the candidate GRs)**
+- Assume this is correct for 80% of the time -  increment C or D by 0.8 
+- Assume this is incorrect for 20% of the time - increment A or B by 0.2
+If admin confirms this assumption, then the system must adjust the tallies by adding the 0.2 to C or D and removing 0.2 from A or B
+If admin rejects this assumption, then system must subtract 0.8 from C or D and add to A or B
+
+**M and U values are calculated as follows:**
+- M =  A/( A+B)
+- U= C/(C+D)
+
+![Dashboard: Tally method](.gitbook/assets/35.png)
+
+**Dashboard Tab 3: Import Process Status**
+
+This screen displays the progress of the processing of the file uploaded via the Import screen.
+
+ ![ Dashboard: Import Process Status](.gitbook/assets/36.png)
+
+**Section 1: Configuration Settings**
 
 The configuration settings screen enables the user to make edits to the default settings, 
 the best fit the desired implementation of the MPI.
