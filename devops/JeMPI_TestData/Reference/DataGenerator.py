@@ -1,19 +1,32 @@
 import numpy as np
 import pandas as pd
+import argparse
 
 from src.ClinicalDataGenerator import MinimalClinicalDataGenerator
 from src.CorrupterGenerator import Corrupters
 from src.DemographicDataGenerator import PatientGenerator
 from src import helper, basefunctions
 
+# Default values
+DEFAULT_NUMBER_OF_PATIENTS = 1000
+DEFAULT_AVERAGE_NUMBER_OF_CLINICAL_RECORDS_PER_PATIENT = 5
+DEFAULT_PERCENTAGE_OF_CORRUPTED_RECORDS = 0.3
+DEFAULT_SEED = 123456
 
-def generate_dataset():
-    rec_start_num=61000
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Generate synthetic dataset.')
+    parser.add_argument('--patients', type=int, default=DEFAULT_NUMBER_OF_PATIENTS, help='Number of patients')
+    parser.add_argument('--records', type=int, default=DEFAULT_AVERAGE_NUMBER_OF_CLINICAL_RECORDS_PER_PATIENT, help='Average number of clinical records per patient')
+    parser.add_argument('--corruption', type=float, default=DEFAULT_PERCENTAGE_OF_CORRUPTED_RECORDS, help='Percentage of corrupted records')
+    parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help='Seed for random number generator')
+    return parser.parse_args()
+
+def generate_dataset(args):
     config = \
         {"BaseDate": "2022-01-01",
-         "NumberOfPatients": 83334,
-         "AverageNumberOfClinicalRecordsPerPatient": 6,
-         "PercentageOfCorruptedRecords": 0.3,
+         "NumberOfPatients": args.patients,
+         "AverageNumberOfClinicalRecordsPerPatient": args.records,
+         "PercentageOfCorruptedRecords": args.corruption,
          "fields": [
              {"name": "given_name",
               "weight": 0.2,
@@ -71,7 +84,7 @@ def generate_dataset():
         field_corrupter_weight_list[fields[f_idx]['name']] = fields[f_idx]['corrupter']['weight']
 
     base_date = config['BaseDate']
-    seed = 123456
+    seed = args.seed
     rng = np.random.default_rng(seed)
     gender_generator = PatientGenerator.gender_generator(seed, 0.50)
     given_name_male_generator = PatientGenerator.name_generator(seed, 'metadata/males.csv')
@@ -122,15 +135,15 @@ def generate_dataset():
         national_id = national_id_generator.send((dob, gender))
         clinical_data = clinical_data_generator.send((gender, base_date, dob, national_id))
         for j in range(0, len(clinical_data)):
-            rec_num = "rec-%010d-%02d" % (i + 1 + rec_start_num, j)
+            rec_num = "rec-%010d-%02d" % (i + 1, j)
             facility = clinical_data[j]['facility']
             patient_id = clinical_data[j]['patient_id']
             c_data = clinical_data[j]['clinical_data']
             data.append([rec_num, given_name, family_name, gender, dob, city, phone_number, national_id,
                          facility, patient_id, c_data])
         k = k + 1
-        if k % 1000 == 0:
-            print(k)
+        # if k % 1000 == 0:
+        #    print(k)
 
     df = pd.DataFrame(data, columns=['rec_num', 'given_name', 'family_name', 'gender', 'dob',
                                      'city', 'phone_number', 'national_id',
@@ -166,16 +179,18 @@ def generate_dataset():
             df.at[row_to_corrupt, column_to_corrupt] = corrupter_value
         # print()
     df = df.drop('corrupted', axis=1)
-    df.to_csv('results/' + "test-data-{a:010d}-{b:07d}-{c:02d}-{d:02d}.csv"
-              .format(a=number_of_records,
-                      b=number_of_patients,
-                      c=config['AverageNumberOfClinicalRecordsPerPatient'],
-                      d=int(config['PercentageOfCorruptedRecords'] * 100)),
-              index=False, encoding='utf-8')
-
+    file_path = "test-data-{a:010d}-{b:07d}-{c:02d}-{d:02d}.csv".format(
+        a=number_of_records,
+        b=number_of_patients,
+        c=config['AverageNumberOfClinicalRecordsPerPatient'],
+        d=int(config['PercentageOfCorruptedRecords'] * 100)
+    )
+    df.to_csv('results/' + file_path, index=False, encoding='utf-8')
+    return file_path
 
 def main():
-    generate_dataset()
-
+    args = parse_arguments()
+    file_path = generate_dataset(args)
+    print(file_path)
 
 main()
