@@ -35,11 +35,11 @@ The f-score is a measure of a model’s accuracy on a dataset. It is the harmoni
 
 ![Dashboard: Records & Notifications](.gitbook/assets/38.png)
 
-Records 
+**Records**
 - Displays the total number of Golden records and total number of interactions.
 Notifications - Displays total number of notifications split by:
 
-Open Notifications 
+**Open Notifications**
 - No. of New & Open notifications
 Closed notifications
  - No. of Closed notifications
@@ -89,7 +89,163 @@ This screen displays the progress of the processing of the file uploaded via the
 
  ![ Dashboard: Import Process Status](.gitbook/assets/36.png)
 
-**Section 1: Configuration Settings**
+**Section 2: Browse**
+
+**Browse Patients**
+
+ ![Browse Patient Screen](.gitbook/assets/53.png)
+
+ This screen displays a list of golden records, with the most recent golden record displayed on the top of the grid.
+
+- Select the Browse option on the top navigation bar
+- Screen is displayed with a list of current patient interactions.  This is the default view.
+- The options on this screen are::
+a. Select one of the patient interaction (row) to view more details of the patient
+b. Filter the results to find specific patients and/or list of interactions
+
+ Browse Patients screen with list of interactions
+ ![ Browse Patients screen with list of interactions](.gitbook/assets/40.png)
+
+ **Filter by**
+
+ ![ Browse - Filter by panel on Browse screen](.gitbook/assets/41.png)
+
+**Filter by option**
+
+1. Select the Filter by panel
+2. System expands the panel and displays the various options to filter the results:
+- Filter by start and end date - dates can be selected using the calendar picker
+- Get interactions - returns the golden record and patient interactions for the golden record
+- Filter by a single field or combination of the fields below:
+ a. UID, First Name, Last Name, Gender, Date of birth, City, Phone No.
+ b. For each of the fields selected, the search can be further extended by selecting a type per field i.e.
+  (i) Exact - returns results that exactly match the value entered
+  (ii) Levenshtein 1 -  returns results with low fuzziness and a distance parameter = 1
+  (iii) Levenshtein 2 - returns results with medium fuzziness and a distance parameter = 2
+  (iv)Levenshtein 3 - returns results with high fuzziness and a distance parameter = 3 (default)
+3. Enter the search criteria value for one or more fields that you want to search on
+4. Select the **FILTER** button to view the results 
+ a. If no results are found, the system displays a message informing the user that there are no results found.  
+5. Select the **CANCEL** button to clear the entered search criteria and repeat steps if required.
+
+**Filter by (Get interactions)**
+
+![Browse Patients screen: Filter by, Get Interactions toggle](.gitbook/assets/42.png)
+
+When the Get interactions toggle is switched on, the system displays the Golden record (GR) (row highlighted in yellow) and the linked patient interactions.  All patient interactions that belong to the GR are displayed under the GR.
+
+In order to view the details of a patient, select the relevant row.  System navigates to a detailed view of the selected patient’s interactions.
+
+**View Details of Patient Interaction**
+This is a detailed view of a patient.  The first row (highlighted in yellow) is the Golden record.  The rows below are the patient interactions.  In this example below, the patient has 1 interaction.
+
+![ Browse - Patient Interaction details](.gitbook/assets/43.png)
+
+**How does this work?**
+
+When a patient interaction is loaded for the first time, and there is no matching record, a golden record is created  using the patient interaction details.  
+Thereafter, every matching patient interaction is linked to the golden record.  The golden record is updated based on the following rules:
+
+1. If a golden record has missing values and the 2nd  interaction comes in with a populated value, the system will update the null value in the GR to match the field in the 2nd interaction.
+2. Thereafter, if there are 2 or more interactions with a different field value to the GR field value, then the majority rule applies,  in that the field in the GR will be updated as per the majority. This update is configurable and can be disabled
+
+On the Patient interaction screen, the user can do the following:
+- View the details of the Golden record and its linked patient interactions together with the audit trail
+- Edit the Golden record (with permissions)
+- Relink the patient interaction
+
+**View Patient Interactions and Audit Trail**
+
+The golden record and the interactions are clickable.  
+- When the Golden record is selected, the full audit trail for the patient is displayed i.e. all the events  that occurred on each interaction are displayed.
+- When the Interaction is selected, the audit trail displays the event for that interaction only (refer to screenshot below).
+
+![ Browse - Patient Interaction details with Audit Trail](.gitbook/assets/43.png)
+
+**Editing a Golden Record**
+
+Diagram x - Patient Interaction screen - Golden record
+![ Patient Interaction screen - Golden record](.gitbook/assets/44.png)
+
+The user also has the option to update the applicable GR fields where edits are allowed.  No edits will be allowed on any system generated fields e.g. Golden ID.  The fields that are editable are configurable.
+
+**How does this work?**
+
+After updating the GR field values, on save, the system does the following:
+- re-computes scores for all automatically linked patient interactions
+- updates the similarity score to indicate that the record has been manually updated (link score = 3.0)
+- disables the Master auto-update fields flag to prevent auto-updates
+- checks the new GR changed Patient record Threshold(TH) and if the scores for any of the linked patient interaction records fall below this TH, then sends a notification for Admin user to review.
+
+![Patient Interaction screen - Edit golden record enabled](.gitbook/assets/45.png)
+
+1. Select the record
+2. Select the edit option - the GR row becomes editable.
+3. Enter or edit the field value as required
+4. Select the save option
+5. System displays a successfully saved message.
+
+![ Patient Interaction screen - successfully saved message](.gitbook/assets/46.png)
+
+**Relink a patient interaction**
+
+Relinking a patient interaction means that the interaction is not correctly linked to a Golden record and the Admin user wants to relink the interaction to an existing Golden record or create a new Golden record.  There are 2 ways that a patient interaction can be relinked:
+1. From viewing an interaction - when the user views the interaction, the user may choose to relink the interaction (i.e. no notification received)
+2. From a notification - a notification is received informing the user that some action must be taken.  The user can choose to relink the interaction to another golden record or create a new golden record to link to.
+
+**Relink from Patient Interactions screen**
+
+![Patient Interaction screen - Relink option](.gitbook/assets/47.png)
+
+1. Select the Relink option
+2. System displays the Review Linked Patient screen (below)
+
+![Review Linked Patient record screen](.gitbook/assets/48.png)
+
+If there are no other candidate records displayed, the user has 2 options:
+- Change the threshold and refresh to view the candidate golden records and/or
+- Refine the search in order to view other candidate golden records
+
+**Changing the threshold**
+
+![Threshold slide](.gitbook/assets/49.png)
+
+1. Select the Threshold slider 
+2. Select the refresh button
+
+![Review Linked Patient Record - candidate golden records](.gitbook/assets/50.png)
+
+3. The system will display candidate golden records if available.  These candidate golden records are displayed as “searched” as opposed to “blocked”when raised by a notification.
+
+![Review Linked Patient record - Link option](.gitbook/assets/51.png)
+
+4. Select the LINK button on the candidate golden record that you want to link the patient interaction to
+5. The system displays the interaction together with the new searched candidate golden record and prompts confirmation of the link.
+  a. If the CONFIRM option is selected, the relink is done and system displays a successful message
+  b. If the CANCEL option is selected, then no change is made, the confirmation dialog box is closed and the user is returned to the Review Linked Patient record screen. 
+  
+![Review Linked Patient record - Confirmation dialog](.gitbook/assets/52.png)
+
+**Refine Search**
+
+The user also has the option to search for more candidates by selecting the Refine search option.  There are 2 types of searches - custom search and a normal search function.
+
+1. Select the Refine search button
+2. Select either the Custom search or Normal search function
+
+![Custom Search option](.gitbook/assets/54.png)
+
+![Standard Search option](.gitbook/assets/55.png)
+
+3. Enter the search criteria and select the Search button
+4. System displays results as below
+
+![Review Linked Patient Record with searched candidate golden records](.gitbook/assets/56.png)
+
+The same steps are followed to relink the patient as mentioned above. 
+
+
+**Section 5: Configuration Settings**
 
 The configuration settings screen enables the user to make edits to the default settings, 
 the best fit the desired implementation of the MPI.
