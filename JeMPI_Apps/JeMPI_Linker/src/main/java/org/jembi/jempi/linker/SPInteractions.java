@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.linker.backend.BackEnd;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import org.jembi.jempi.shared.models.InteractionEnvelop;
 import org.jembi.jempi.shared.models.LinkerMetadata;
 import org.jembi.jempi.shared.models.SessionMetadata;
@@ -47,18 +48,33 @@ public final class SPInteractions {
          final ActorRef<BackEnd.Request> backEnd,
          final String key,
          final InteractionEnvelop interactionEnvelop) {
-      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
-                                       .toCompletableFuture();
-      try {
-         final var reply = completableFuture.get(65, TimeUnit.SECONDS);
-         if (reply.linkInfo() == null) {
-            LOGGER.warn("BACK END RESPONSE(ERROR)");
-         }
-      } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-         LOGGER.error(ex.getLocalizedMessage(), ex);
-         this.closeInteractionStream();
-      }
 
+      final var completableFuture = Ask.linkInteraction(system, backEnd, key, interactionEnvelop)
+                                    .toCompletableFuture();
+      /* final var reply = completableFuture.get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
+      if (reply.linkInfo() == null) {
+         LOGGER.warn("BACK END RESPONSE(ERROR)");
+      } */
+      try {
+         completableFuture.whenComplete((reply, ex) -> {
+            if (ex != null) {
+               if (ex instanceof InterruptedException) {
+                  Thread.currentThread().interrupt(); // Explicitly set the interrupt status
+               }
+               // Log the error and skip the problematic message
+               LOGGER.info("Failed on the following interaction: {}", interactionEnvelop);
+               // this.closeInteractionStream();
+               // Continue to the next message
+            } else {
+               if (reply.linkInfo() == null) {
+                  LOGGER.warn("BACK END RESPONSE(ERROR)");
+               }
+            }
+         }).get(GlobalConstants.TIMEOUT_DGRAPH_AKKA_SECS, TimeUnit.SECONDS);
+      } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+         // This means the backend actor was not available
+         LOGGER.error("Exception of type {} occurred: {}", ex.getClass().getSimpleName(), ex.getLocalizedMessage(), ex);
+      }
    }
 
    public void open(
@@ -88,10 +104,10 @@ public final class SPInteractions {
       LOGGER.info("KafkaStreams started");
    }
 
-   private void closeInteractionStream() {
+   /* private void closeInteractionStream() {
       LOGGER.info("Stream closed");
       interactionEnvelopKafkaStreams.close(new KafkaStreams.CloseOptions().leaveGroup(true));
-   }
+   } */
 
    private Properties loadConfig() {
       final Properties props = new Properties();

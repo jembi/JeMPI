@@ -532,7 +532,7 @@ public final class ProxyRoutes {
                                  responseBody = Unmarshaller
                                        .entityToString()
                                        .unmarshal(dashboardDataResponse.entity(), actorSystem)
-                                       .toCompletableFuture().get(10, TimeUnit.SECONDS);
+                                       .toCompletableFuture().get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
                               } catch (InterruptedException | ExecutionException | TimeoutException e) {
                                  LOGGER.error("Error getting dashboard data ", e);
                                  return complete(StatusCodes.INTERNAL_SERVER_ERROR);

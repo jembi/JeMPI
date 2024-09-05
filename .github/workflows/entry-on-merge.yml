@@ -32,7 +32,7 @@ jobs:
     - id: get-docker-push-tag
       run: echo "docker-push-tag=$(git rev-parse --abbrev-ref HEAD)-$(git log -1 --pretty=format:%h)" >> $GITHUB_OUTPUT
     - uses: ./.github/workflows/actions/build-deploy-images
-      with: 
+      with:
         docker-push-tag: ${{ steps.get-docker-push-tag.outputs.docker-push-tag }}
         docker-host: "docker.io"
         docker-username: ${{ secrets.DOCKER_HUB_USER_NAME }}
