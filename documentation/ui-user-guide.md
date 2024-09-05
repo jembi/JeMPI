@@ -338,6 +338,61 @@ When a notification is selected from the Notification Worklist screen, the Revie
 
 ![](.gitbook/assets/64.png)
 
+**Section 4: Import**
+
+The Import data and metadata screen enables the user to select a file to upload, configure machine learning, set the threshold values and select how the results must be generated. All steps are mandatory and must be completed for the import process. 
+
+![Import file](.gitbook/assets/65.png)
+
+Select the Import option from the main navigation bar
+System displays the Import screen
+
+**Machine Learning Configuration**
+
+Select one of the options below in order to configure machine learning:
+1. Send to the linker and use the current M & U values
+2. Send to the EM task to compute new M & U values
+
+**Thresholds**
+
+Enter the threshold values.  All values must be entered as per the rules defined.  
+3. Rules on threshold slider
+- Do not allow the link threshold (green circle):
+- To be < the Minimum threshold review value
+- To be > the Maximum threshold review value
+4. Rules on Threshold
+- For all threshold values that are entered, system allows for exponential notation e.g. 123E-3 which is the same as 0.012
+- System display default values 
+- Refer to the Fields and Validation table for more details on thresholds
+
+5. If a value entered does not match the allowed values, then the system displays an error message informing the user that the value entered is not allowed. 
+
+**Reports**
+
+Select one of the options below to determine if a result file is required:
+6. Link records only.  Do not generate a file.
+- This option does not create a result file.  The system must link the records in the file only.
+7. Create a CSV file and send a notification once the results file has been generated
+- Creates the file.  The filename must include a STAN (<filename>-<datetime>-<row no.>), Interaction ID and golden ID. 
+- System sends a notification when the input csv file has been created.  The notification must include the URL of the filename.
+
+Select the **SUBMIT** button
+8. This button is disabled until all required selections have been made i.e. file must be uploaded, configuration selected, threshold values populated and reports option selected.
+9. When the SUBMIT button is enabled, select submit
+System displays a confirmation message to confirm the upload. 
+
+Select the **CANCEL** button
+
+10. This action clears the selected and/or entered values.  User has the option to start again or leave the screen.
+
+Once the file has been uploaded, the user can return to the Dashboard, Tab 3 and view the progress of the import process.
+
+![Import Process Status](.gitbook/assets/66.png)
+
+**Fields and Validation - Thresholds**
+
+![](.gitbook/assets/67.png)
+
 **Section 5: Configuration Settings**
 
 The configuration settings screen enables the user to make edits to the default settings, 
