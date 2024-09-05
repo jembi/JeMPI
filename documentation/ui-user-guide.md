@@ -54,6 +54,7 @@ This screen provides us with a view of the M & U values as per the last periodic
 
 
 **Tally Method**
+
 The Tally method computes M & U’s per field which is used for cross checking against the M&U’s computed by the EM algorithm. These M& U’s are not used for probabilistic linking.  
 
 It calculates the probabilities based on whether the fields in the pair match or do not match:
@@ -62,9 +63,11 @@ For each field where the pair do not match (below notification), check if you in
 ![](.gitbook/assets/34.png)
 
 **What happens when the score is within the notification threshold area?**
+
 When in the notification area, we are either above the notification TH or below the notification TH. 
 
 **Above the threshold (using the incoming interaction and linked GR)**
+
 - Assume this is correct for 80% of the time - increment A or B by 0.8
 - Assume this is incorrect for 20% of the time - increment C or D by 0.2
 
@@ -72,12 +75,14 @@ If admin confirms this assumption, then the system must adjust the tallies by ad
 If admin rejects this assumption, then system must subtract 0.8 from A or B and add to C or D
 
 **Below the threshold (using the incoming interaction and the candidate GRs)**
+
 - Assume this is correct for 80% of the time -  increment C or D by 0.8 
 - Assume this is incorrect for 20% of the time - increment A or B by 0.2
 If admin confirms this assumption, then the system must adjust the tallies by adding the 0.2 to C or D and removing 0.2 from A or B
 If admin rejects this assumption, then system must subtract 0.8 from C or D and add to A or B
 
 **M and U values are calculated as follows:**
+
 - M =  A/( A+B)
 - U= C/(C+D)
 
@@ -137,6 +142,7 @@ When the Get interactions toggle is switched on, the system displays the Golden 
 In order to view the details of a patient, select the relevant row.  System navigates to a detailed view of the selected patient’s interactions.
 
 **View Details of Patient Interaction**
+
 This is a detailed view of a patient.  The first row (highlighted in yellow) is the Golden record.  The rows below are the patient interactions.  In this example below, the patient has 1 interaction.
 
 ![ Browse - Patient Interaction details](.gitbook/assets/43.png)
@@ -244,6 +250,93 @@ The user also has the option to search for more candidates by selecting the Refi
 
 The same steps are followed to relink the patient as mentioned above. 
 
+**Notifications Worklist**
+
+Displays a list of notifications for user review with a reason for the notification.  On the worklist screen, there is a date filter that can be used to filter notifications between a specific date range. 
+
+**How does this work?**
+
+Records are flagged for review and notifications sent when: 
+- Record is automatically matched to Golden record but the matching scores fall within the Review threshold_
+- The GR has been updated, scores are re-computed and matching scores fall below the GR changed Threshold
+- When a notification is selected, the system displays a detailed view of the GR, the linked patient interactions and displays other candidate golden records if applicable.
+
+The notification can be in 3 states:
+- New - notification has not been read yet
+- Open - notification has been read but no action has been taken yet
+- Closed - notification has been actioned and complete
+
+![Notification Worklist](.gitbook/assets/57.png)
+
+1. Select a notification
+2. System displays the Review Linked Patient Record screen with details of the patient interaction.
+3. There are 4 options on the screen:
+- Refine search 
+- Relink patient interaction to an existing Golden record
+- Create new Golden record
+- Close notification
+
+**Refine search options**
+
+This option is used when you want to extend the search criteria in order to search for possible candidate golden records.
+
+**Refine search**
+
+![](.gitbook/assets/59.png)
+![Custorm search options](.gitbook/assets/58.png)
+
+1. Select the **REFINE SEARCH** button
+2. There are 2 types of searches that can be done i.e. Custom search and a normal search
+3. The system displays the Custom search option (default view)
+4. Select the field type, enter a field value and the match type
+5. You can also add more than one rule if applicable and select the SEARCH button
+6. Alternatively, select the **SEARCH** option
+
+![Refining the current search](.gitbook/assets/60.png)
+
+7. Enter or select the search criteria as per the screenshot below
+8. Select the SEARCH button to view results
+9. The system populates the results in the Review Linked Patient Record screen.  The results are populated as other candidate golden records labelled as “searched”.
+
+ ![Review Linked Patient Record with searched candidate golden records](.gitbook/assets/61.png)
+
+**Review Linked Patient record**
+
+**Relink function**
+
+The same process is followed as mentioned above under the Browse Patient interactions, the relink option.
+The only difference in the process is that when relinking from a notification, the notification will change to a closed status.
+
+![](.gitbook/assets/62.png)
+
+**Create New Golden Record function**
+
+If there is no matching candidate golden record, then the patient interaction can be linked to a new golden record.
+Note: this option is only available if there is more than one interaction linked to the GR. If there is only one interaction, then the create new golden record option is disabled.
+
+![Confirmation dialog message](.gitbook/assets/63.png)
+
+1. Select the Create new Golden record button
+2. The system displays a message to confirm that the current link will be changed and a new Golden record will be created.
+3. When the **CONFIRM** button is selected, the system:
+- removes the link between the patient interaction and the current Golden record
+- Links the patient record to the candidate golden record
+- Updates the score to 3.0
+- Updates the Notification state from New/ Open to Closed. 
+
+**Close Notification**
+
+When a notification is selected from the Notification Worklist screen, the Review Linked Patient record is displayed.
+
+1. View details of patient interaction and golden record
+2. The patient interaction is correctly linked, select the CLOSE button.
+3. The system displays a confirmation message
+4. Select the CONFIRM button.  
+5. The system:
+ - saves and updates the link score to 3.0.  
+ - notification state is updated from New/Open to Closed. 
+
+![](.gitbook/assets/64.png)
 
 **Section 5: Configuration Settings**
 
