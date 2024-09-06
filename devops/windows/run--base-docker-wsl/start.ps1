@@ -4,10 +4,11 @@ Set-Location $script_dir
 
 $linux_server_ip =  ((wsl hostname -I) -split " ")[0]
 
-Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
-Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp-api.json ..\..\..\JeMPI_Apps\JeMPI_API\src\main\resources\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp-api.json ..\..\..\JeMPI_Apps\JeMPI_API_KC\src\main\resources\config-api.json
 
-Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ${SYSTEM_CONFIG_DIR}\config-api.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp.json ..\base-docker-wsl\config\config.json
+Copy-Item ..\..\linux\docker\data-config\config-reference-link-dp-api.json ..\base-docker-wsl\config\config-api.json
 
 $kafka1_ip                                    = $linux_server_ip
 $postgresql_ip                                = $linux_server_ip
@@ -79,7 +80,18 @@ $api_jar                                      = "-jar " + $jempi_apps_dir + "\Je
 $def_api_log4j_level                          = "-DLOG4J2_LEVEL=TRACE" 
 $def_api_kafka_application_id                 = "-DKAFKA_APPLICATION_ID=app-id-api"
 
+Push-Location ../base-docker-wsl/config
+  Write-Host "config_dir - $PWD"
+  $config_dir                                   ="$PWD"
+Pop-Location
 
+$def_system_config_dir                        = "-DSYSTEM_CONFIG_DIR=" + $config_dir
+$API_CONFIG_REFERENCE_FILENAME                = "-DAPI_CONFIG_REFERENCE_FILENAME=config.json"
+$API_CONFIG_MASTER_FILENAME                   = "-DAPI_CONFIG_MASTER_FILENAME=config-master.json"
+$API_FIELDS_CONFIG_FILENAME                   = "-DAPI_FIELDS_CONFIG_FILENAME=config-api.json"
+
+Set-Variable SYSTEM_CONFIG_DIRS="/D/dddd"
+[System.Environment]::SetEnvironmentVariable("MY_VARIABLE", "value", [System.EnvironmentVariableTarget]::Machine)
 
 # 
 # build UI apps
@@ -273,6 +285,10 @@ $api_handle = Start-Process -FilePath java `
                                           $def_dgraph_hosts, `
                                           $def_dgraph_ports, `
                                           $def_etl_ip, `
+                                          $def_system_config_dir, `
+                                          $API_CONFIG_REFERENCE_FILENAME, `
+                                          $API_CONFIG_MASTER_FILENAME, `
+                                          $API_FIELDS_CONFIG_FILENAME, `
                                           $def_etl_http_port, `
                                           $def_controller_ip, `
                                           $def_controller_http_port, `
@@ -289,5 +305,5 @@ $api_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'api_stderr.txt'
-                          #  -RedirectStandardOutput 'api_stdout.txt'
+                            -RedirectStandardOutput 'api_stdout.txt'
 $api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')

@@ -1,209 +1,279 @@
 {
-  "auxInteractionFields": [
-    {
-      "fieldName": "aux_date_created",
-      "fieldType": "DateTime"
-    },
+  "fields": [
     {
       "fieldName": "aux_id",
       "fieldType": "String",
-      "source": {
-        "csvCol": 0
-      }
+      "fieldLabel": "AUX ID",
+      "groups": [
+        "identifiers",
+        "record_details"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/search/custom"
+      ],
+      "readOnly": true,
+      "accessLevel": []
     },
     {
-      "fieldName": "aux_clinical_data",
+      "fieldName": "givenName",
       "fieldType": "String",
-      "source": {
-        "csvCol": 10
-      }
-    }
-  ],
-  "auxGoldenRecordFields": [
-    {
-      "fieldName": "aux_date_created",
-      "fieldType": "DateTime"
-    },
-    {
-      "fieldName": "aux_auto_update_enabled",
-      "fieldType": "Bool",
-      "default": "true"
-    },
-    {
-      "fieldName": "aux_id",
-      "fieldType": "String",
-      "source": {
-        "interactionField": "aux_id"
-      }
-    }
-  ],
-  "additionalNodes": [
-    {
-      "nodeName": "SourceId",
-      "fields": [
-        {
-          "fieldName": "facility",
-          "fieldType": "String",
-          "source": {
-            "csvCol": 8
-          }
-        },
-        {
-          "fieldName": "patient",
-          "fieldType": "String",
-          "source": {
-            "csvCol": 9
-          }
-        }
-      ]
-    }
-  ],
-  "demographicFields": [
-    {
-      "fieldName": "given_name",
-      "fieldType": "String",
-      "source": {
-        "csvCol": 1
+      "fieldLabel": "First Name",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
       },
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8806329,
-        "u": 0.0026558
-      }
+      "accessLevel": []
     },
     {
-      "fieldName": "family_name",
+      "fieldName": "familyName",
       "fieldType": "String",
-      "source": {
-        "csvCol": 2
+      "fieldLabel": "Last Name",
+      "groups": [
+        "name",
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "The family name cannot be empty"
       },
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.9140443,
-        "u": 0.0006275
-      }
+      "accessLevel": []
     },
     {
       "fieldName": "gender",
       "fieldType": "String",
-      "source": {
-        "csvCol": 3
+      "fieldLabel": "Gender",
+      "groups": [
+        "demographics",
+        "filter",
+        "sub_heading",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/custom",
+        "/browse-records"
+      ],
+      "validation": {
+        "required": true,
+        "regex": "^(male|female)$",
+        "onErrorMessage": "The Gender cannot be empty and should either be male, female or neutral"
       },
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.9468393,
-        "u": 0.4436446
-      }
+      "accessLevel": []
     },
     {
       "fieldName": "dob",
-      "fieldType": "String",
-      "source": {
-        "csvCol": 4
-      },
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.7856196,
-        "u": 0.0000465
+      "fieldType": "Date",
+      "fieldLabel": "Date of Birth",
+      "groups": [
+        "demographics",
+        "filter",
+        "sub_heading",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "Date of birth cannot be empty"
       }
     },
     {
       "fieldName": "city",
       "fieldType": "String",
-      "source": {
-        "csvCol": 5
-      },
-      "indexGoldenRecord": "@index(trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8445694,
-        "u": 0.0355741
+      "fieldLabel": "City",
+      "groups": [
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/custom",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "onErrorMessage": "Date of birth cannot be empty"
       }
     },
     {
-      "fieldName": "phone_number",
+      "fieldName": "phoneNumber",
       "fieldType": "String",
-      "source": {
-        "csvCol": 6
-      },
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8408500,
-        "u": 0.0000004
-      }
+      "fieldLabel": "Phone No",
+      "groups": [
+        "demographics",
+        "filter",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/custom",
+        "/browse-records"
+      ],
+      "accessLevel": []
     },
     {
-      "fieldName": "national_id",
+      "fieldName": "nationalId",
       "fieldType": "String",
-      "source": {
-        "csvCol": 7
-      },
-      "indexGoldenRecord": "@index(exact,trigram)",
-      "indexInteraction": "@index(exact,trigram)",
-      "linkMetaData": {
-        "comparison": "JARO_WINKLER_SIMILARITY",
-        "comparisonLevels": [
-          0.92
-        ],
-        "m": 0.8441029,
-        "u": 0.0000002
+      "fieldLabel": "National ID",
+      "groups": [
+        "identifiers",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search/simple",
+        "/search/custom",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/browse-records"
+      ],
+      "accessLevel": [],
+      "validation": {
+        "required": true,
+        "regex": "",
+        "onErrorMessage": "The national Id cannot be empty"
       }
     }
   ],
-  "rules": {
-    "link": {
-      "deterministic": [
-        {
-          "vars": [
-            "national_id"
-          ],
-          "text": "eq(national_id)"
-        },
-        {
-          "vars": [
-            "given_name",
-            "family_name",
-            "phone_number"
-          ],
-          "text": "eq(given_name) and eq(family_name) and eq(phone_number)"
-        }
+  "systemFields": [
+    {
+      "fieldName": "recordType",
+      "fieldType": "String",
+      "fieldLabel": "Record Type",
+      "groups": [
+        "none"
       ],
-      "probabilistic": [
-        {
-          "vars": [
-            "given_name",
-            "family_name",
-            "city",
-            "phone_number",
-            "national_id"
-          ],
-          "text": "match(given_name,3) and match(family_name,3) or match(given_name,3) and match(city,3) or match(family_name,3) and match(city,3) or match(phone_number,2) or match(national_id,3)"
-        }
-      ]
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "uid",
+      "fieldType": "String",
+      "fieldLabel": "UID",
+      "groups": [
+        "identifiers",
+        "sub_heading",
+        "linked_records",
+        "record_details",
+        "filter"
+      ],
+      "scope": [
+        "/notifications/match-details",
+        "/record-details/:uid/relink",
+        "/search-results/golden",
+        "/search-results/patient",
+        "/record-details/:uid"
+      ],
+      "readOnly": true,
+      "accessLevel": []
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "String",
+      "fieldLabel": "Created At",
+      "groups": [
+        "linked_records",
+        "record_details",
+        "audit_trail"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "accessLevel": []
+    },
+    {
+      "fieldName": "sourceId",
+      "fieldType": "SourceId",
+      "fieldLabel": "Source Id",
+      "groups": [
+        "registering_facility",
+        "linked_records",
+        "record_details"
+      ],
+      "scope": [
+        "/record-details/:uid",
+        "/browse-records"
+      ],
+      "readOnly": true,
+      "accessLevel": []
+    },
+    {
+      "fieldName": "score",
+      "fieldType": "Number",
+      "fieldLabel": "Score",
+      "groups": [
+        "none",
+        "record_details"
+      ],
+      "scope": [
+        "/patient-record/:uid",
+        "/golden-record/:uid",
+        "/record-details/:uid",
+        "/notifications/match-details",
+        "/record-details/:uid/relink"
+      ],
+      "accessLevel": []
     }
-  }
+  ]
 }

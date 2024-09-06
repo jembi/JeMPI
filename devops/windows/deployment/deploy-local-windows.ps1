@@ -87,11 +87,12 @@ switch ($choice) {
     }
     '2' {
         Write-Host "Build and Reboot"
-        wsl -d Ubuntu $wslPath/devops/windows/deployment/deploy-local-wsl.sh
         Push-Location $currentPath/devops/windows/run--base-docker-wsl
-            Write-Host "start-with-bootstraper.ps1"
+            Write-Host "Running file: stop.ps1"
+            .\stop.ps1 -Wait
+            Write-Host "Build and Reboot"
+            Write-Host "start.ps1"
             .\start.ps1 -Wait
-
             Write-Host "Script completed."
             Write-Host "Running file: start-ui.ps1"
             .\start-ui.ps1 -Wait

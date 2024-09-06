@@ -2,7 +2,8 @@ package org.jembi.jempi.shared.config;
 
 import org.jembi.jempi.shared.config.input.JsonConfig;
 
-import java.nio.file.FileSystems;
+import java.io.File;
+import java.nio.file.*;
 
 public final class Config {
 
@@ -16,8 +17,18 @@ public final class Config {
 
    static {
       final var separator = FileSystems.getDefault().getSeparator();
-      final var filePath = "%sapp%sconf_system%s%s".formatted(separator, separator, separator, CONFIG_FILE);
-      JSON_CONFIG = JsonConfig.fromJson(filePath);
+      final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
+      Path filePath = Paths.get(""); // Start with an empty path
+      // Create ubuntuFilePath
+      Path ubuntuFilePath = new File(String.format("%sapp%sconf_system%s%s", separator, separator, separator, CONFIG_FILE)).toPath();
+      // Check if ubuntuFilePath exists
+      if (Files.exists(ubuntuFilePath)) {
+         filePath = ubuntuFilePath;
+      } else {
+      // If ubuntuFilePath does not exist, assign the alternative path for windows
+         filePath = Paths.get(configDir, CONFIG_FILE);
+      }
+      JSON_CONFIG = JsonConfig.fromJson(String.valueOf(filePath));
       FIELDS_CONFIG = new FieldsConfig(JSON_CONFIG);
       INPUT_INTERFACE_CONFIG = new InputInterfaceConfig(JSON_CONFIG);
       API_CONFIG = new ApiConfig(JSON_CONFIG);

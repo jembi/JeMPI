@@ -20,7 +20,6 @@ import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
 import org.jembi.jempi.shared.models.dashboard.SQLDashboardData;
 import org.jembi.jempi.shared.utils.AppUtils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -510,8 +509,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       final var separator = FileSystems.getDefault().getSeparator();
-      final var filePath =
-            new File("%sapp%sconf_system%s%s".formatted(separator, separator, separator, fieldsConfigurationFileName)).toPath();
+      final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
+      Path filePath = Paths.get(""); // Start with an empty path
+        // Create ubuntuFilePath
+      Path ubuntuFilePath = new File(String.format("%sapp%sconf_system%s%s", separator, separator, separator, fieldsConfigurationFileName)).toPath();
+      // Check if ubuntuFilePath exists
+      if (Files.exists(ubuntuFilePath)) {
+         filePath = ubuntuFilePath;
+      } else {
+         // If ubuntuFilePath does not exist, assign the alternative path
+         filePath = Paths.get(configDir, "config-api.json");
+      }
       try {
          String configFileContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
          FieldsConfiguration fieldsConfiguration = AppUtils.OBJECT_MAPPER.readValue(configFileContent, FieldsConfiguration.class);

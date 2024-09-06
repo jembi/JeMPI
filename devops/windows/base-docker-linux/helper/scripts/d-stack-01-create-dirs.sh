@@ -37,7 +37,7 @@ pushd .
   sudo chown -R 1001:1001 ${DATA_POSTGRESQL_DB_DIR}
   sudo chmod -R 770 ${DATA_POSTGRESQL_DB_DIR}
 
-   mkdir -p ${DATA_CONFIG_DIR}
+  mkdir -p ${SYSTEM_CONFIG_DIR}
   
   mkdir -p ${POSTGRES_BACKUP_DIRECTORY}
   mkdir -p ${DGRAPH_BACKUP_DIRECTORY}
