@@ -15,3 +15,4 @@ my-notes
 .metals
 devops/benchmarking/k6
 devops/windows/base-docker-wsl/config
+devops/windows/base-docker-wsl/csv

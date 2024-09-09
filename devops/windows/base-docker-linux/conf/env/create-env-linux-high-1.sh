@@ -12,6 +12,7 @@ export SYSTEM_CONFIG_DIR=${PROJECT_DIR}/config
 export API_CONFIG_REFERENCE_FILENAME="config.json"
 export API_CONFIG_MASTER_FILENAME="config-master.json"
 export API_FIELDS_CONFIG_FILENAME="config-api.json"
+export SYSTEM_CSV_DIR=${PROJECT_DIR}/csv
 
 export NODE1=$(hostname)
 # export NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')

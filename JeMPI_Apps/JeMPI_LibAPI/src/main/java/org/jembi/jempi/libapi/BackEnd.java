@@ -468,7 +468,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          if (request.uploadConfig != null) {
             appendUploadConfigToFile(request.uploadConfig, file);
          }
-         Files.move(file.toPath(), Paths.get("/app/csv/" + file.getName()));
+         final var separator = FileSystems.getDefault().getSeparator();
+         final String configDir = System.getenv("SYSTEM_CSV_DIR");
+         Path filePath = Paths.get(""); // Start with an empty path
+         // Create ubuntuFilePath
+         Path ubuntuFilePath = new File(String.format("%sapp%scsv%s%s", separator, separator, separator, file.getName())).toPath();
+         // Check if ubuntuFilePath exists
+         if (Files.exists(ubuntuFilePath)) {
+               filePath = ubuntuFilePath;
+         } else {
+         // If ubuntuFilePath does not exist, assign the alternative path for windows
+               filePath = Paths.get(configDir, file.getName());
+         }
+         Files.move(file.toPath(), filePath);
       } catch (NoSuchFileException e) {
          LOGGER.error("No such file");
       } catch (SecurityException | IOException e) {

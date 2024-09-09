@@ -34,6 +34,7 @@ pushd .
   mkdir -p ${POSTGRES_BACKUP_DIRECTORY}
   mkdir -p ${DGRAPH_BACKUP_DIRECTORY}
   mkdir -p ${SYSTEM_CONFIG_DIR}
+  mkdir -p ${SYSTEM_CSV_DIR}
 
   
   echo

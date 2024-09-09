@@ -38,6 +38,7 @@ pushd .
   sudo chmod -R 770 ${DATA_POSTGRESQL_DB_DIR}
 
   mkdir -p ${SYSTEM_CONFIG_DIR}
+  mkdir -p ${SYSTEM_CSV_DIR}
   
   mkdir -p ${POSTGRES_BACKUP_DIRECTORY}
   mkdir -p ${DGRAPH_BACKUP_DIRECTORY}

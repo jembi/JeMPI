@@ -305,5 +305,5 @@ $api_handle = Start-Process -FilePath java `
                             -Verbose `
                             -PassThru `
                             -RedirectStandardError 'api_stderr.txt'
-                            -RedirectStandardOutput 'api_stdout.txt'
+                          #  -RedirectStandardOutput 'api_stdout.txt'
 $api_handle | Export-Clixml -Path (Join-Path './' 'api_handle.xml')
