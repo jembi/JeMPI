@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jembi.jempi.AppConfig;
+import org.jembi.jempi.ProgressTracker;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,7 +36,7 @@ import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 public final class Main {
 
    private static final Logger LOGGER = LogManager.getLogger(Main.class.getName());
-
+   private final ProgressTracker progressTracker = ProgressTracker.getInstance();
    private MyKafkaProducer<String, InteractionEnvelop> interactionEnvelopProducer;
 
    public Main() {
@@ -99,7 +101,8 @@ public final class Main {
                                                  .toList());
 
       try {
-         LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(data));
+         OBJECT_MAPPER.writeValueAsString(data);
+         // LOGGER.debug("{}", OBJECT_MAPPER.writeValueAsString(data));
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
@@ -150,8 +153,20 @@ public final class Main {
                                                updateStan(stanDate, index),
                                                null,
                                                createSessionMetadata(index, updateStan(stanDate, index), config)));
-
-            for (CSVRecord csvRecord : csvParser) {
+            List<CSVRecord> records = csvParser.getRecords();
+            int totalLines = records.size();
+            LOGGER.error("........................................................................");
+            LOGGER.error("Total lines: " + totalLines);
+            LOGGER.error("........................................................................");
+            LOGGER.error(totalLines);
+            int currentLine = 0;
+            for (CSVRecord csvRecord : records) {
+               currentLine = currentLine + 1;
+               LOGGER.error(currentLine);
+               LOGGER.error(totalLines);
+               int progress = (currentLine * 100) / totalLines;
+               LOGGER.error(progress);
+               progressTracker.setProgress(progress);
                final var patientRecord = demographicData(csvRecord);
                String givenName = patientRecord.fields.stream()
                   .filter(field -> "given_name".equals(field.ccTag()))

@@ -575,6 +575,25 @@ public final class Routes {
                     }));
    }
 
+   private static Route getProgress(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return onComplete(Ask.getProgress(actorSystem, backEnd),
+                        result -> {
+                           if (!result.isSuccess()) {
+                              return handleError(result.failed().get());
+                           }
+                           return result.get()
+                                        .count()
+                                        .mapLeft(MapError::mapError)
+                                        .fold(error -> error,
+                                              count -> complete(StatusCodes.OK,
+                                                                new ApiModels.ApiInteractionCount(
+                                                                      count),
+                                                                JSON_MARSHALLER));
+                        });
+   }
+
    public static Route createCoreAPIRoutes(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd,
@@ -668,6 +687,8 @@ public final class Routes {
                     get(() -> concat(
                           path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
                                () -> Routes.countInteractions(actorSystem, backEnd)),
+                           path("progress",
+                               () -> Routes.getProgress(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_COUNT_GOLDEN_RECORDS,
                                () -> Routes.countGoldenRecords(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_COUNT_RECORDS,
@@ -679,5 +700,4 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
                                () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
    }
-
 }

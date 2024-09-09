@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
-
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -37,6 +36,17 @@ public final class Ask {
       CompletionStage<BackEnd.CountInteractionsResponse> stage = AskPattern
             .ask(backEnd,
                  BackEnd.CountInteractionsRequest::new,
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
+   static CompletionStage<BackEnd.GetProgressResponse> getProgress(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+            CompletionStage<BackEnd.GetProgressResponse> stage = AskPattern
+            .ask(backEnd,
+                 BackEnd.GetProgressRequest::new,
                  java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
                  actorSystem.scheduler());
       return stage.thenApply(response -> response);

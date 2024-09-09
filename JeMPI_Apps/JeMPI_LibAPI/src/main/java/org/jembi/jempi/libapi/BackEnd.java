@@ -12,6 +12,7 @@ import org.apache.commons.io.LineIterator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jembi.jempi.ProgressTracker;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
@@ -142,6 +143,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       ReceiveBuilder<Event> builder = newReceiveBuilder();
       return builder.onMessage(CountGoldenRecordsRequest.class, this::countGoldenRecordsHandler)
                     .onMessage(CountInteractionsRequest.class, this::countInteractionsHandler)
+                    .onMessage(GetProgressRequest.class, this::getProgressHandler)
                     .onMessage(CountRecordsRequest.class, this::countRecordsHandler)
                     .onMessage(FindExpandedSourceIdRequest.class, this::findExpandedSourceIdHandler)
                     .onMessage(GetGidsAllRequest.class, this::getGidsAllHandler)
@@ -300,6 +302,17 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       } catch (Exception exception) {
          LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
          request.replyTo.tell(new CountInteractionsResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
+      }
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> getProgressHandler(final GetProgressRequest request) {
+      try {
+         final long progress = ProgressTracker.getInstance().getProgress();
+         request.replyTo.tell(new GetProgressResponse(Either.right(progress)));
+      } catch (Exception exception) {
+         LOGGER.error("libMPI.countPatientRecords failed with error message: {}", exception.getMessage());
+         request.replyTo.tell(new GetProgressResponse(Either.left(new MpiServiceError.GeneralError(exception.getMessage()))));
       }
       return Behaviors.same();
    }
@@ -563,6 +576,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record CountInteractionsRequest(ActorRef<CountInteractionsResponse> replyTo) implements Event { }
 
    public record CountInteractionsResponse(Either<MpiGeneralError, Long> count) implements EventResponse { }
+
+   public record GetProgressRequest(ActorRef<GetProgressResponse> replyTo) implements Event { }
+
+   public record GetProgressResponse(Either<MpiGeneralError, Long> count) implements EventResponse { }
 
    public record CountRecordsRequest(ActorRef<CountRecordsResponse> replyTo) implements Event { }
 
