@@ -7,8 +7,6 @@ import com.fasterxml.jackson.module.scala.{
   ClassTagExtensions,
   DefaultScalaModule
 }
-import java.io.File;
-import java.nio.file.*;
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.apache.kafka.streams.kstream.{Consumed, KStream}
@@ -40,19 +38,6 @@ object EM_Scala extends LazyLogging {
 
   private val buffer = new ArrayBuffer[Array[String]]()
 
-  final var separator = FileSystems.getDefault().getSeparator();
-  final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
-  Path filePath = Paths.get(""); // Start with an empty path
-  // Create ubuntuFilePath
-  Path ubuntuFilePath = new File(String.format("%sapp%sconf_system%s%s", separator, separator, separator, CONFIG_FILE)).toPath();
-  // Check if ubuntuFilePath exists
-  if (Files.exists(ubuntuFilePath)) {
-      filePath = ubuntuFilePath;
-  } else {
-  // If ubuntuFilePath does not exist, assign the alternative path for windows
-      filePath = Paths.get(configDir, CONFIG_FILE);
-  }
-
   def main(args: Array[String]): Unit = {
 
     val jsonMapper = JsonMapper
@@ -61,7 +46,7 @@ object EM_Scala extends LazyLogging {
       .build() :: ClassTagExtensions
 
     val jsonConfig = jsonMapper.readValue(
-      filePath.toFile,
+      Paths.get("/app/conf_system/config.json").toFile,
       new TypeReference[Config] {}
     )
     jsonConfig.demographicFields.zipWithIndex.foreach(f =>
