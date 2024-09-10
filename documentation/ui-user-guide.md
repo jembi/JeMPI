@@ -3,7 +3,7 @@
 
 **Top Navigation**
 
-The navigation bar on the top of the application is always visible and accessible to the user. There are 4 main screens i.e. Dashboard, Browse, Notifications and Import.
+The navigation bar on the top of the application is always visible and accessible to the user. There are 4 main screens, i.e., Dashboard, Browse, Notifications, and Import.
 
 **Understanding the Top Navigation bar** 
 
@@ -23,15 +23,15 @@ The navigation bar on the top of the application is always visible and accessibl
 
 **Blocking**: Reducing the search space by grouping records by similar attributes into blocks.
 
-**Candidate records**: A short list of Golden Records generated as a result of blocking. The records on this short list are referred to as candidate (golden) records as they are potential candidates for linking.
+**Candidate records**: A short list of Golden Records generated as a result of blocking. The records on this short list are referred to as candidate (golden) records, as they are potential candidates for linking.
 
 **Patient Interaction record**: Stores demographic information of the patient e.g. name, surname, DOB, gender, address, etc.  This information together with the unique source system ID is used to uniquely identify patients. 
 
 **Patient ID**: Unique identifier of the patient record assigned by the JeMPI upon entry.
 
-**Golden record (GR)**: A golden record is created for a patient if this is the first and/or only patient record to be stored in the database. This is the same as a master record. The golden record links records based on a match score i.e. determines that 2 or more patient records belong to the same person.
+**Golden record (GR)**: A golden record is created for a patient if this is the first and/or only patient record to be stored in the database. This is the same as a master record. The golden record links records based on a match score, i.e., determines that 2 or more patient records belong to the same person.
 
-Always has the most up to date information for a patient by consensus among the golden record’s interactions.
+Always has the most up-to-date information for a patient by consensus among the golden record's interactions.
 
 **Golden ID**: Unique identifier of the Golden record.  
 
@@ -44,7 +44,7 @@ Maximization algorithm.
 
 **Matching configuration**: The basic matching configuration allows for the adjustment of an acceptable matching score between two or more records. Should the threshold be raised, only high matching scores will result in a confirmed match and thus is more stringent. Should the threshold be lowered, moderate matching scores will result in confirmed matches and thus be more lenient.
 
-**Relaxed Search**: Relaxed searching is functionality where refined blocking is performed with different criteria (e.g such as another condition with different fields) to increase the number of results.  If the user is not happy with the results, this functionality may perform filtering instead of blocking. (e.g Find all males in village x)
+**Relaxed Search**: Relaxed searching is functionality where refined blocking is performed with different criteria (e.g., such as another condition with different fields) to increase the number of results.  If the user is not happy with the results, this functionality may perform filtering instead of blocking. (e.g Find all males in village x)
 
 **Similarity Score**: A similarity score is often the normalised expression of similarity between two strings, whereby 1 represents an exact match and 0 represents no similarity at all. Popular algorithms used to calculate similarity are Jaro-Winkler and Levenshtein (normalised).
 
@@ -83,7 +83,7 @@ The Dashboard screen has 3 tabs
 Dashboard Tab 1: Confusion Matrix
 ![Dashboard](.gitbook/assets/29.png)
 
-This tab is sub-divided into 3 sections, starting with the right, the Confusion Matrix.
+This tab is subdivided into 3 sections, starting with the right, the Confusion Matrix.
 
 **Confusion Matrix**
 
@@ -131,7 +131,7 @@ This screen provides us with a view of the M & U values as per the last periodic
 
 **Tally Method**
 
-The Tally method computes M & U’s per field which is used for cross checking against the M&U’s computed by the EM algorithm. These M& U’s are not used for probabilistic linking.  
+The Tally method computes M & U's per field, which is used for cross-checking against the M&U's computed by the EM algorithm. These M& U's are not used for probabilistic linking.  
 
 It calculates the probabilities based on whether the fields in the pair match or do not match:
 For each field where the pair matches (above notification), check if you increment A or B (refer to Tally method diagram below)
@@ -148,7 +148,7 @@ When in the notification area, we are either above the notification TH or below 
 - Assume this is incorrect for 20% of the time - increment C or D by 0.2
 
 If admin confirms this assumption, then the system must adjust the tallies by adding the 0.2 to A or B and removing 0.2 from C or D
-If admin rejects this assumption, then system must subtract 0.8 from A or B and add to C or D
+If admin rejects this assumption, then the system must subtract 0.8 from A or B and add to C or D
 
 **Below the threshold (using the incoming interaction and the candidate GRs)**
 
@@ -206,7 +206,7 @@ b. Filter the results to find specific patients and/or list of interactions
   (iv)Levenshtein 3 - returns results with high fuzziness and a distance parameter = 3 (default)
 3. Enter the search criteria value for one or more fields that you want to search on
 4. Select the **FILTER** button to view the results 
- a. If no results are found, the system displays a message informing the user that there are no results found.  
+ a. If no results are found, the system displays a message informing the user that no results are available.  
 5. Select the **CANCEL** button to clear the entered search criteria and repeat steps if required.
 
 **Filter by (Get interactions)**
@@ -214,7 +214,7 @@ b. Filter the results to find specific patients and/or list of interactions
 ![Browse Patients screen: Filter by, Get Interactions toggle](.gitbook/assets/42.png)
 
 When the Get interactions toggle is switched on, the system displays the Golden record (GR) (row highlighted in yellow) and the linked patient interactions.  All patient interactions that belong to the GR are displayed under the GR.
-
+To view the details of a patient, select the relevant row.
 In order to view the details of a patient, select the relevant row.  System navigates to a detailed view of the selected patient’s interactions.
 
 **View Details of Patient Interaction**
@@ -239,7 +239,7 @@ On the Patient interaction screen, the user can do the following:
 **View Patient Interactions and Audit Trail**
 
 The golden record and the interactions are clickable.  
-- When the Golden record is selected, the full audit trail for the patient is displayed i.e. all the events  that occurred on each interaction are displayed.
+- When the Golden record is selected, the full audit trail for the patient is displayed, i.e., all the events that occurred on each interaction are displayed.
 - When the Interaction is selected, the audit trail displays the event for that interaction only (refer to screenshot below).
 
 ![ Browse - Patient Interaction details with Audit Trail](.gitbook/assets/43.png)
@@ -249,7 +249,7 @@ The golden record and the interactions are clickable.
 Diagram x - Patient Interaction screen - Golden record
 ![ Patient Interaction screen - Golden record](.gitbook/assets/44.png)
 
-The user also has the option to update the applicable GR fields where edits are allowed.  No edits will be allowed on any system generated fields e.g. Golden ID.  The fields that are editable are configurable.
+The user also has the option to update the applicable GR fields where edits are allowed.  No edits will be allowed on any system generated fields, e.g., Golden ID.  The fields that are editable are configurable.
 
 **How does this work?**
 
@@ -286,7 +286,7 @@ Relinking a patient interaction means that the interaction is not correctly link
 
 If there are no other candidate records displayed, the user has 2 options:
 - Change the threshold and refresh to view the candidate golden records and/or
-- Refine the search in order to view other candidate golden records
+- Refine the search to view other candidate golden records
 
 **Changing the threshold**
 
@@ -297,7 +297,7 @@ If there are no other candidate records displayed, the user has 2 options:
 
 ![Review Linked Patient Record - candidate golden records](.gitbook/assets/50.png)
 
-3. The system will display candidate golden records if available.  These candidate golden records are displayed as “searched” as opposed to “blocked”when raised by a notification.
+3. The system will display candidate golden records if available.  These candidate golden records are displayed as "searched" as opposed to "blocked" when raised by a notification.
 
 ![Review Linked Patient record - Link option](.gitbook/assets/51.png)
 
@@ -335,13 +335,13 @@ Displays a list of notifications for user review with a reason for the notificat
 **How does this work?**
 
 Records are flagged for review and notifications sent when: 
-- Record is automatically matched to Golden record but the matching scores fall within the Review threshold_
+- Records are flagged for review and notifications sent when: Record is automatically matched to Golden record, but the matching scores fall within the Review threshold_
 - The GR has been updated, scores are re-computed and matching scores fall below the GR changed Threshold
 - When a notification is selected, the system displays a detailed view of the GR, the linked patient interactions and displays other candidate golden records if applicable.
 
 The notification can be in 3 states:
 - New - notification has not been read yet
-- Open - notification has been read but no action has been taken yet
+- Open - notification has been read, but no action has been taken yet
 - Closed - notification has been actioned and complete
 
 ![Notification Worklist](.gitbook/assets/57.png)
@@ -356,7 +356,7 @@ The notification can be in 3 states:
 
 **Refine search options**
 
-This option is used when you want to extend the search criteria in order to search for possible candidate golden records.
+This option is used when you want to extend the search criteria to search for possible candidate golden records.
 
 **Refine search**
 
@@ -364,7 +364,7 @@ This option is used when you want to extend the search criteria in order to sear
 ![Custorm search options](.gitbook/assets/58.png)
 
 1. Select the **REFINE SEARCH** button
-2. There are 2 types of searches that can be done i.e. Custom search and a normal search
+2. There are 2 types of searches that can be done, i.e., Custom search and a normal search
 3. The system displays the Custom search option (default view)
 4. Select the field type, enter a field value and the match type
 5. You can also add more than one rule if applicable and select the SEARCH button
@@ -390,7 +390,7 @@ The only difference in the process is that when relinking from a notification, t
 **Create New Golden Record function**
 
 If there is no matching candidate golden record, then the patient interaction can be linked to a new golden record.
-Note: this option is only available if there is more than one interaction linked to the GR. If there is only one interaction, then the create new golden record option is disabled.
+Note: this option is only available if there is more than one interaction linked to the GR. If there is only one interaction, then the creation of a new golden record option is disabled.
 
 ![Confirmation dialog message](.gitbook/assets/63.png)
 
@@ -427,7 +427,7 @@ System displays the Import screen
 
 **Machine Learning Configuration**
 
-Select one of the options below in order to configure machine learning:
+Select one of the options below to configure machine learning:
 1. Send to the linker and use the current M & U values
 2. Send to the EM task to compute new M & U values
 
@@ -455,7 +455,7 @@ Select one of the options below to determine if a result file is required:
 - System sends a notification when the input csv file has been created.  The notification must include the URL of the filename.
 
 Select the **SUBMIT** button
-8. This button is disabled until all required selections have been made i.e. file must be uploaded, configuration selected, threshold values populated and reports option selected.
+8. This button is disabled until all required selections have been made, i.e., file must be uploaded, configuration selected, threshold values populated, and reports option selected.
 9. When the SUBMIT button is enabled, select submit
 System displays a confirmation message to confirm the upload. 
 
@@ -526,7 +526,7 @@ This view allows the user to do the following :
 **Blocking**
 The blocking tab is used to define the blocking rules.
 
-The blocking tabs has two sub tabs : 
+The blocking tabs have two sub tabs : 
 - Linking 
 - Matching
 
@@ -539,19 +539,19 @@ Source view This view allows the user to do the following :
 
 **Design view**
 
-This view must allows the user to do the following :
+This view must allow the user to do the following :
 
-- Select the operator values from a drop down field eg “And” and “Or”
-- Select common field values from a drop down field.
-- Select comparator function from a drop down field eg “Exact”, “Low Fuzziness” etc
-- Add a second row of input fields by selecting the add add icon button
+- Select the operator values from a dropdown field, e.g., "And" and "Or"
+- Select common field values from a dropdown field
+- Select comparator function from a dropdown field, e.g., "Exact", "Low Fuzziness," etc.
+- Add a second row of input fields by selecting the add icon button
 - Save rule by selecting the add rule button
 - Exit edit mode and cancel previous edits.
 - Delete existing row of input fields
 ![Blocking Design View](.gitbook/assets/25)
 
   **Probabilistic**
-  In the Probabilistic tab the user can define the linking threshold ranges and/or values.
+  In the Probabilistic tab, the user can define the linking threshold ranges and/or values.
 
   All values must be entered as per the rules defined.
   ![Probabilistic Tab](.gitbook/assets/26)
@@ -574,6 +574,6 @@ This view must allows the user to do the following :
 
   Golden record node shows properties unique to the golden record.
   Interaction node shows properties unique to the interaction.Source ID :
-  The third node denoted e.g Source ID, shows unique common lists e.g 
+  The third node denoted e.g., Source ID, shows unique common lists e.g., 
    - Source ID list
    - Biometric ID list
