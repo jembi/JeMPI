@@ -28,6 +28,13 @@ curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 ```
 
+Add an exception when installing with a non-root user account:
+
+```
+source "/home/${USER}/.sdkman/candidates/java/current"
+
+```
+
 To check the installation, you can check the version by running: _sdk version_
 
 We should install the following:
