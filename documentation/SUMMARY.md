@@ -9,3 +9,4 @@
 * [Single Sign-On](sso.md)
 * [Backup and Restore](backup-and-restore.md)
 * [User Interface User Guide](user-interface-user-guide.md)
+* [Community](community.md)
