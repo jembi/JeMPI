@@ -42,13 +42,13 @@ cd devops/linux/docker/deployment
 ./local-deployment.sh
 ```
 
-![Deployment Script Options](../.gitbook/assets/13)
+![Deployment Script Options](.gitbook/assets/13)
 
 4. Select Option 1: Deploy JeMPI (For Fresh Start)
 6. Access : http://localhost:3000/login
 
-![JeMPI Web Keycloak Sign in](../.gitbook/assets/16)
+![JeMPI Web Keycloak Sign in](.gitbook/assets/16)
 
 7. Sign in with Keycloak user credentials
 
-![JeMPI Web Keycloak Sign in](../.gitbook/assets/17)
+![JeMPI Web Keycloak Sign in](.gitbook/assets/17)
