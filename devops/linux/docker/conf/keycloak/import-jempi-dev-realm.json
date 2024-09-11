@@ -391,6 +391,7 @@
     "credentials" : [ {
       "id" : "30445f2a-9ea5-4658-81e7-a96959e2ab96",
       "type" : "password",
+      "temporary": false,
       "userLabel" : "My password",
       "createdDate" : 1685983298938,
       "value": "dev_password_only"
