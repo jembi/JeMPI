@@ -4,7 +4,7 @@ description: API endpoints documentation
 
 # API
 
-## POST /config
+## GET /fieldsConfiguration
 
 The following endpoint returns the fields configuration needed by the frontend (JeMPI-UI) in order to properly display interactions data according to a specific
 implementation. This endpoint returns a JSON array. Below a sample of the response :
@@ -48,14 +48,14 @@ For each field we have a set of attributes, as defined below :
 | readOnly    | Tells if the field can be editable.                                                                             | Frontend           |
 | validation  | An Object used for validating the field.                                                                        | Frontend           |
 
-The fields should be configured in the json file for each implementation and should not be updated in production : `JeMPI_Apps/JeMPI_Configuration/resources/config-reference.json`
+The fields should be configured manually in the config json file : `devops/linux/docker/data-config/config-reference-link-dp-api.json`
 
 There's two type of fields :
 
 - Custom fields : Indexed by the key "fields", contains all the fields that are specific to the implementation. Examples : givenName, nationalId, ...
 - System fields : Indexed by the key "systemFields", it contains all the fields that are readonly fields and do not change across the implementation. Example : uid, record type, score, ...
 
-> ! IMPORTANT : The `fieldName` in `config-reference.json` should be set in snake-case, but it's returned in camel-case by the API.
+> ! IMPORTANT : The `fieldName` in `config-reference-link-dp-api.json` should be set in snake-case, but it's returned in camel-case by the API.
 
 ## POST /notifications
 
@@ -129,16 +129,17 @@ Below is a sample of the response
 
 The following endpoint returns an interaction given a `uid` is supplied. This endpoint returns a object. 
 
-Below is a sample of the body you are to send :
+Below is a sample of the body:
 
 ```json
 {
     "uid":"0x4"
 }
+```
 
+Below is a sample of the response:
 
 ```json
-// POST /interaction
 {
   "uid": "0x4",
   "sourceId": {
@@ -178,7 +179,6 @@ Below is a sample of the body you are to send :
 Below a sample of the response :
 
 ```json
-// POST /expandedGoldenRecord
 {
   "goldenRecord": {
     "uid": "0x2e",
@@ -275,12 +275,9 @@ Below is a sample of the body you are to send :
 }
 ```
 
-The Endpoint a JSON Array of expanded golden records
-below a sample of the response
+Below is a sample of the response:
 
 ```json
-// POST /expandedGoldenRecords
-
 [
   {
     "goldenRecord": {
@@ -344,12 +341,11 @@ below a sample of the response
         "score": 0.631448
       }
     ]
-    ...
   }
 ]
 ```
 
-## POST /gidsAll
+## GET /gidsAll
 
 The following endpoint returns a list of the saved (created) Golden record Ids.
 
@@ -373,7 +369,6 @@ The following endpoint returns a list of the saved (created) Golden record Ids.
     "0x2754",
     "0x275c",
     "0x2761"
-    ...
   ]
 }
 ```
@@ -391,8 +386,9 @@ Below is a sample of the body you are to send :
 }
 ```
 
+Below is a sample of the response:
+
 ```json
-// POST /gidsPaged
 {
   "goldenIds": [
     "0x2a",
@@ -424,7 +420,6 @@ Below is a sample of the body to send :
 Below a sample of the response :
 
 ```json
-// POST /goldenRecordAuditTrail
 {
   "entries": [
     {
@@ -449,17 +444,16 @@ Below a sample of the response :
 
 The Following endpoint returns the audit trail for a given Interaction with Interaction Id `INTERACTION_ID`
 
-Below a sample of the request body :
+Below a sample of the request body:
 
 ```json
 {
     "uid":"0x2b1f"
 }
 ```
-Below a sample of the response
+Below a sample of the response:
 
 ```json
-// POST /interactionAuditTrail
 {
   "entries": [
     {
@@ -483,7 +477,7 @@ The following endpoint returns the golden record count available in the database
 }
 ```
 
-## POST /countInteractions
+## GET /countInteractions
 
 The following endpoint returns the interaction count available in the database
 
@@ -493,7 +487,7 @@ The following endpoint returns the interaction count available in the database
 }
 ```
 
-## POST /countRecords
+## GET /countRecords
 
 The following endpoint returns the record count available in the database. bellow is a sample of the response
 
@@ -503,10 +497,6 @@ The following endpoint returns the record count available in the database. bello
   "interactions": 5035
 }
 ```
-
-## POST /candidateGoldenRecords
-
-The following endpoint return the golden record candidates for a given interaction ID `INTERACTION_ID`
 
 ## POST /notificationRequest
 
@@ -520,12 +510,6 @@ Below a sample of the request:
 }
 ```
 
-Below a sample of the response:
-
-```json
-{}
-```
-
 ## POST /search/(golden|patient)
 
 The following endpoint is used for the simple search either for golden or interactions.
@@ -533,7 +517,6 @@ The following endpoint is used for the simple search either for golden or intera
 Below a sample of the request body :
 
 ```json
-// POST /search/golden
 {
   "parameters": [
     {
@@ -788,6 +771,7 @@ The response payload is similar to the one returned by the simple search API end
 
 The following endpoint is used to upload file into JeMPI. the file uploaded will be put into the `async_reciever`'s storage under the `/csv` directory.
 
+
 ## POST /calculateScores
 
 The following endpoint is used to calculate the score between an interaction and a set of golden records
@@ -805,7 +789,7 @@ Below a sample of the request body
 
 The following endpoint returns a paginated Golden Ids list a request body illustrated in the example below
 
-Note: this endpoint is similar to the `search/(goleden|patient)`
+Note: this endpoint is similar to the `search/(golden|patient)`
 
 ```json
 {
@@ -830,7 +814,60 @@ Note: this endpoint is similar to the `search/(goleden|patient)`
 
 ## POST /crRegister
 
+This endpoint is used for the patient registration process, in that it checks if the patient already exists, preventing duplicate patient registrations. This relies on the threshold provided in the request.
+
+Below is a sample of the request body:
+
+```json
+{
+  "candidateThreshold": 0.9,
+  "sourceId": {
+    "facility": "fac1",
+    "patient": "12345689"
+  },
+  "uniqueInteractionData": {
+    "auxDateCreated": "2016-10-30T14:22:25.00Z",
+    "auxClinicalData" : "REGISTER DATA",
+    "auxId" : "1235",
+    "auxIid" : "0x9"
+  },
+  "demographicData": {
+    "givenName": "Sanket",
+    "familyName": "",
+    "gender": "male",
+    "dob": "",
+    "city": "Kolhapur",
+    "nationalId": ""
+  }
+}
+```
+
 ## POST /crFind
+
+This endpoint is used to find register patient golden records
+
+Below is a sample of the request body:
+
+```json
+{
+  "operand": {
+    "fn": "eq",
+    "name": "givenName",
+    "value": "Sanket"
+  },
+  "operands": [
+    {
+      "operator": "and",
+      "operand": {
+        "fn": "match",
+        "distance": 1,
+        "name": "familyName",
+        "value": "Shevare"
+      }
+    }
+  ]
+}
+```
 
 ## POST /crCandidates
 
@@ -852,7 +889,7 @@ Below a sample of the request body
 }
 ```
 
-Below a sample a the response body for this endpoint
+Below a sample of the response body for this endpoint
 
 ```json
 {
@@ -927,29 +964,78 @@ Below a sample a the response body for this endpoint
 }
 ```
 
-## POST /newlink?goldenID=<GOLDEN_ID>&patientID=<INTERACTION_ID>
+## POST /newlink
 
-The following endpoint unlinks a golden record and an interaction linked to it given their respective Ids. after the unlink, a new golden record will be created based on the interaction involved earlier
-bellow a sample of the URI request for unlink an interaction with the UID :
+This endpoint is used to create a new golden record for an interaction, that the MPI identified as a possible match to another golden record
 
-Below a sample of the response 
+Below is a sample of the request body:
 
 ```json
-{}
+{
+  "notificationId": "432fd5fe-e7db-4d3c-8a4a-fb23e8b9b45f",
+  "notificationType": "MARGIN",
+  "interactionId": "0xfb5",
+  "currentGoldenId": "0xa5f",
+  "resolutionState": "RELINKED_NEW",
+  "currentCandidates": [
+    "0xfaa"
+  ],
+  "newGoldenId": "",
+  "score": 1
+}
 ```
 
-## POST /relink?goldenID=${GOLDEN_ID}&newGoldenID=${NEW_GOLDEN_ID}&patientID=${INTERACTION_ID}&score=2`
+Below is a sample of the response:
 
-The following endpoint links an interaction with a golden records given their respective Ids, you should mention the current golden Id in order to unlink it
+```json
+{
+  "goldenUID":"0x34ab",
+  "interactionUID":"0xfb5",
+  "sourceUID":"0x30",
+  "score":2.0
+}
+```
 
-## POST /golden-record/:uid
+## POST /relink
 
-The following endpoint updates the fields of a golden record. This endpoint returns a object.
+This endpoint point is used to link an interaction, identified by the MPI as a possible link to a golden record
+
+Below is a sample of the request body:
+
+```json
+{
+  "notificationId": "64c04a03-179f-4696-91ed-881dffc8f818",
+  "notificationType": "MARGIN",
+  "interactionId": "0x1f89",
+  "currentGoldenId": "0xdda",
+  "resolutionState": "RELINKED",
+  "currentCandidates": [
+    "0x1f7c"
+  ],
+  "newGoldenId": "0x1f7c",
+  "score": 1
+}
+```
+
+Below is a sample of the response:
+
+```json
+{
+  "goldenUID":"0x1f7c",
+  "interactionUID":"0x1f89",
+  "sourceUID":null,
+  "score":1.0
+}
+```
+
+## POST /updateGoldenRecordFieldsForId
+
+The following endpoint updates the fields of a golden record. This endpoint returns an object.
 Below a sample of the request :
 
 ```json
-// PATCH /golden-record/0x4
 {
+  "goldenId":"0x2aeb",
   "fields": [
     {
       "name": "givenName",
