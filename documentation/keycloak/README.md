@@ -260,7 +260,7 @@ KC_REALM_NAME
     **Username:** dev-user
 
 
-    **Password:** dev-password
+    **Password:** dev_password_only
 
 
     The admin use for the keycloak server is 

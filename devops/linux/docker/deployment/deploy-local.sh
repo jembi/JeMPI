@@ -74,6 +74,7 @@ install_sdkman_and_java_sbt_maven() {
 
     echo "Installing sbt... "
     sdk install sbt
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
 }
 
 hostname_setup() {

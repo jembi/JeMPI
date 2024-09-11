@@ -393,8 +393,7 @@
       "type" : "password",
       "userLabel" : "My password",
       "createdDate" : 1685983298938,
-      "secretData" : "{\"value\":\"avydCqOak8Hkxbaat5k1SchwuF0e+nMJC7sEmTM1oAg=\",\"salt\":\"OeiBGFRcnjFaguM2myRzJA==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+      "value": "dev_password_only"
     } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
