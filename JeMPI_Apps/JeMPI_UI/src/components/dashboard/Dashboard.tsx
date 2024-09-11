@@ -2,6 +2,7 @@ import {
   Box,
   Container,
   Grid,
+  IconButton,
   Stack,
   Tab,
   Tabs,
@@ -21,6 +22,7 @@ import ConfusionMatrix from './widgets/ConfusionMatrixWidget'
 import { useState } from 'react'
 import { ImportProcessWidget } from './widgets/ImportProcessWidget'
 import { useDashboardData } from 'hooks/useDashboardData'
+import { useNavigate } from 'react-router-dom'
 interface TabPanelProps {
   children?: React.ReactNode
   index: number
@@ -53,6 +55,8 @@ const tabProps = (index: number) => {
 const Dashboard = () => {
   const dashboardData = useDashboardData()
   const [currentTabIndex, setCurrentTabIndex] = useState(0)
+
+  const navigate = useNavigate()
   const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIndex(newValue)
   }
@@ -146,7 +150,19 @@ const Dashboard = () => {
                                 : 0
                             }
                             icon={
-                              <NotificationAdd sx={{ fontSize: '3.5rem' }} />
+                              <IconButton
+                                onClick={() => {
+                                  navigate('/notifications')
+                                }}
+                                sx={{
+                                  backgroundColor: '#76ff03',
+                                  '&:hover': {
+                                    backgroundColor: '#64dd17'
+                                  }
+                                }}
+                              >
+                                <NotificationAdd sx={{ fontSize: '3.5rem' }} />
+                              </IconButton>
                             }
                             iconBackgroundColor={'#76ff03'}
                           />
