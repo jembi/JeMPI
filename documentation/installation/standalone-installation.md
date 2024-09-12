@@ -35,8 +35,14 @@ We should install the following:
 - Maven: Command: _sdk install maven_\
   Version: 3.9.8
 - Scala Build Tool: Command: _sdk install sbt_
-- Java: Command: _sdk install java 17.0.6-tem_\
+- Java: Command: _sdk install java 21.0.3-tem_\
   Version: Temerin 21.0.3-tem (See list by running: _sdk list java_)
+
+**Note: when installing with a non-root user set java directory**
+```
+source "/home/${USER}/.sdkman/candidates/java/current"
+
+```
 
 Check the version of java by running: _java --version_. We should get: Temurin-21.0.3+9.
 
@@ -60,6 +66,8 @@ This Bash script is designed for deploying JeMPI locally with various options. I
 **Set following variables**\
 JAVA_VERSION=21.0.3-tem \
 JEMPI_ENV_CONFIGURATION=create-env-linux-low-1.sh
+
+
 
 #### Installation Process
 
@@ -166,6 +174,11 @@ cd /devops/linux/docker/conf/env
 ```
 
 if you have less than 32Gbs of ram run the _./create-env-linux-low-1.sh_. If you have 32Gb or more, run the _./create-env-linux-high-1.sh_. both those script will create _conf.env_ file that we will need.
+
+**Note: for server installations, manually set SERVER_IP for environment variable before executing the script**
+```bash
+export REACT_APP_JEMPI_BASE_API_HOST=http://${SERVER_IP} eg. http://192.168.10.90
+```
 
 ```bash
 # If you have less than 32Gb ram, run the following script
