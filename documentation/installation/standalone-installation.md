@@ -177,7 +177,7 @@ if you have less than 32Gbs of ram run the _./create-env-linux-low-1.sh_. If you
 
 **Note: for server installations, manually set SERVER_IP for environment variable before executing the script**
 ```bash
-export REACT_APP_JEMPI_BASE_API_HOST=http://${SERVER_IP}
+export REACT_APP_JEMPI_BASE_API_HOST=http://${SERVER_IP} eg. http://192.168.10.90
 ```
 
 ```bash
