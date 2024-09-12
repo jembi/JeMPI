@@ -1,5 +1,5 @@
 # Development
-FROM node:18-alpine as development-stage
+FROM node:18-alpine AS development-stage
 
 WORKDIR /app
 
@@ -16,13 +16,13 @@ COPY . .
 CMD ["yarn", "start"]
 
 # Build
-FROM development-stage as build-stage
+FROM development-stage AS build-stage
 
 # Build the application
 RUN yarn build
 
 # Production
-FROM node:18-alpine as production-stage
+FROM node:18-alpine AS production-stage
 
 # Install runtime dependencies
 RUN apk --no-cache add gettext libintl
