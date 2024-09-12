@@ -11,3 +11,4 @@
 * [User Interface Guide](user-interface-guide.md)
 * [Configuration User Guide](configuration-user-guide.md)
 * [Road Map](road-map.md)
+* [Community](community.md)
